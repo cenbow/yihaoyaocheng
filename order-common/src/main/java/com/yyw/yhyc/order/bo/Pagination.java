@@ -17,15 +17,13 @@ public class Pagination<T> implements Serializable {
     private boolean paginationFlag = false;
     private List<T> resultList;
 
-    public Pagination() {
-    }
-
     public int getTotal() {
         return this.total;
     }
 
     public void setTotal(int total) {
         this.total = total;
+        this.totalPage = (int)Math.ceil((double)this.total / (double)this.pageSize);
     }
 
     public int getPageNo() {
@@ -61,7 +59,6 @@ public class Pagination<T> implements Serializable {
     }
 
     public int getTotalPage() {
-        this.totalPage = (int)Math.ceil((double)this.total / (double)this.pageSize);
         return this.totalPage;
     }
 

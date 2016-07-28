@@ -34,10 +34,7 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
         args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}
 )})
 public class PaginationPlugin implements Interceptor {
-    private Log logger = LogFactory.getLog(this.getClass());
-
-    public PaginationPlugin() {
-    }
+    private Log logger = LogFactory.getLog(PaginationPlugin.class);
 
     public Object intercept(Invocation invocation) throws Throwable {
         Object parameterObject = invocation.getArgs()[1];
@@ -48,9 +45,9 @@ public class PaginationPlugin implements Interceptor {
             Iterator params = ((Map) parameterObject).entrySet().iterator();
 
             while (params.hasNext()) {
-                Map.Entry i$ = (Map.Entry) params.next();
-                if (i$.getValue() instanceof Pagination) {
-                    page = (Pagination) i$.getValue();
+                Map.Entry entry = (Map.Entry) params.next();
+                if (entry.getValue() instanceof Pagination) {
+                    page = (Pagination) entry.getValue();
                     break;
                 }
             }
@@ -126,9 +123,9 @@ public class PaginationPlugin implements Interceptor {
             }
 
             this.logger.debug("total = " + rowCount1);
-        } catch (Exception var12) {
-            this.logger.error(var12, var12);
-            throw var12;
+        } catch (Exception e) {
+            this.logger.error(e, e);
+            throw e;
         }
 
         if (page == null) {
@@ -160,9 +157,9 @@ public class PaginationPlugin implements Interceptor {
             }
 
             this.logger.debug("sql = " + sql);
-        } catch (Exception var14) {
-            //   this.logger.error(var14, var14);
-            throw var14;
+        } catch (Exception e) {
+            this.logger.error(e, e);
+            throw e;
         } finally {
             if (rs != null) {
                 rs.close();
