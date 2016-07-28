@@ -1,7 +1,7 @@
 /**
  *
  * Created By: XI
- * Created On: 2016-7-28 9:55:17
+ * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
  * 
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "orderReturn")
-public class OrderReturnController {
+@RequestMapping(value = "/order/orderReturn")
+public class OrderReturnController extends BaseJsonController{
 	private static final Logger logger = LoggerFactory.getLogger(OrderReturnController.class);
 
 	@Reference
@@ -38,7 +38,7 @@ public class OrderReturnController {
 	* 通过主键查询实体对象
 	* @return
 	*/
-	@RequestMapping(value = "/getByPK", method = RequestMethod.GET)
+	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
 	public OrderReturn getByPK(Integer key) throws Exception
 	{
@@ -49,8 +49,7 @@ public class OrderReturnController {
 	* 分页查询记录
 	* @return
 	*/
-	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.POST)
-	@ResponseBody
+	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
 	public Pagination<OrderReturn> listPgOrderReturn(RequestModel<OrderReturn> requestModel) throws Exception
 	{
 		Pagination<OrderReturn> pagination = new Pagination<OrderReturn>();
@@ -76,7 +75,7 @@ public class OrderReturnController {
 	* 根据多条主键值删除记录
 	* @return
 	*/
-	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
 		orderReturnFacade.deleteByPKeys(requestListModel.getList());
@@ -86,7 +85,7 @@ public class OrderReturnController {
 	* 修改记录
 	* @return
 	*/
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderReturn orderReturn) throws Exception
 	{
 		orderReturnFacade.update(orderReturn);

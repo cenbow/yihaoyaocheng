@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:48
+ * Created On: 2016-7-28 17:34:55
  *
  * Amendment History:
  * 
@@ -25,14 +25,24 @@ public class Order extends Model{
 	private java.lang.Integer orderId;
 
 	/**
-	  *	订单号
+	  *	订单编号
 	  */
 	private java.lang.String flowId;
+
+	/**
+	  *	采购商名称
+	  */
+	private java.lang.String custName;
 
 	/**
 	  *	客户ID
 	  */
 	private java.lang.Integer custId;
+
+	/**
+	  *	供应商名称
+	  */
+	private java.lang.String supplyName;
 
 	/**
 	  *	供应商ID
@@ -90,11 +100,6 @@ public class Order extends Model{
 	private java.lang.Integer orderCombinedId;
 
 	/**
-	  *	订单转账ID
-	  */
-	private java.lang.Integer orderTransferId;
-
-	/**
 	  *	卖家是否确认结算
 	  */
 	private java.lang.String confirmSettlement;
@@ -122,7 +127,7 @@ public class Order extends Model{
 	/**
 	  *	支付类型表ID
 	  */
-	private java.lang.String payTypeId;
+	private java.lang.Integer payTypeId;
 
 	/**
 	  *	订单生成时间
@@ -155,14 +160,34 @@ public class Order extends Model{
 	private java.lang.String settlementTime;
 
 	/**
+	  *	
+	  */
+	private java.lang.String createUser;
+
+	/**
 	  *	订单最后更新时间
 	  */
-	private java.lang.String updateDate;
+	private java.lang.String updateTime;
+
+	/**
+	  *	
+	  */
+	private java.lang.String updateUser;
 
 	/**
 	  *	发票类型 1 增值税专用发票 2 增值税普通发票
 	  */
 	private java.lang.Integer billType;
+
+	/**
+	  *	延期收货日志（时间 第n次延期）
+	  */
+	private java.lang.String delayLog;
+
+	/**
+	  *	1,买家确认收货 2,系统自动确认收货
+	  */
+	private java.lang.Integer receiveType;
 
 	/**
 	  *	订单ID主键
@@ -181,7 +206,7 @@ public class Order extends Model{
 	}
 	
 	/**
-	  *	订单号
+	  *	订单编号
 	  */
 	public java.lang.String getFlowId() 
 	{
@@ -189,11 +214,27 @@ public class Order extends Model{
 	}
 	
 	/**
-	  *	订单号
+	  *	订单编号
 	  */
 	public void setFlowId(java.lang.String flowId) 
 	{
 		this.flowId = flowId;
+	}
+	
+	/**
+	  *	采购商名称
+	  */
+	public java.lang.String getCustName() 
+	{
+		return custName;
+	}
+	
+	/**
+	  *	采购商名称
+	  */
+	public void setCustName(java.lang.String custName) 
+	{
+		this.custName = custName;
 	}
 	
 	/**
@@ -210,6 +251,22 @@ public class Order extends Model{
 	public void setCustId(java.lang.Integer custId) 
 	{
 		this.custId = custId;
+	}
+	
+	/**
+	  *	供应商名称
+	  */
+	public java.lang.String getSupplyName() 
+	{
+		return supplyName;
+	}
+	
+	/**
+	  *	供应商名称
+	  */
+	public void setSupplyName(java.lang.String supplyName) 
+	{
+		this.supplyName = supplyName;
 	}
 	
 	/**
@@ -389,22 +446,6 @@ public class Order extends Model{
 	}
 	
 	/**
-	  *	订单转账ID
-	  */
-	public java.lang.Integer getOrderTransferId() 
-	{
-		return orderTransferId;
-	}
-	
-	/**
-	  *	订单转账ID
-	  */
-	public void setOrderTransferId(java.lang.Integer orderTransferId) 
-	{
-		this.orderTransferId = orderTransferId;
-	}
-	
-	/**
 	  *	卖家是否确认结算
 	  */
 	public java.lang.String getConfirmSettlement() 
@@ -487,7 +528,7 @@ public class Order extends Model{
 	/**
 	  *	支付类型表ID
 	  */
-	public java.lang.String getPayTypeId() 
+	public java.lang.Integer getPayTypeId() 
 	{
 		return payTypeId;
 	}
@@ -495,7 +536,7 @@ public class Order extends Model{
 	/**
 	  *	支付类型表ID
 	  */
-	public void setPayTypeId(java.lang.String payTypeId) 
+	public void setPayTypeId(java.lang.Integer payTypeId) 
 	{
 		this.payTypeId = payTypeId;
 	}
@@ -597,19 +638,51 @@ public class Order extends Model{
 	}
 	
 	/**
-	  *	订单最后更新时间
+	  *	
 	  */
-	public java.lang.String getUpdateDate() 
+	public java.lang.String getCreateUser() 
 	{
-		return updateDate;
+		return createUser;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setCreateUser(java.lang.String createUser) 
+	{
+		this.createUser = createUser;
 	}
 	
 	/**
 	  *	订单最后更新时间
 	  */
-	public void setUpdateDate(java.lang.String updateDate) 
+	public java.lang.String getUpdateTime() 
 	{
-		this.updateDate = updateDate;
+		return updateTime;
+	}
+	
+	/**
+	  *	订单最后更新时间
+	  */
+	public void setUpdateTime(java.lang.String updateTime) 
+	{
+		this.updateTime = updateTime;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getUpdateUser() 
+	{
+		return updateUser;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setUpdateUser(java.lang.String updateUser) 
+	{
+		this.updateUser = updateUser;
 	}
 	
 	/**
@@ -628,12 +701,46 @@ public class Order extends Model{
 		this.billType = billType;
 	}
 	
+	/**
+	  *	延期收货日志（时间 第n次延期）
+	  */
+	public java.lang.String getDelayLog() 
+	{
+		return delayLog;
+	}
+	
+	/**
+	  *	延期收货日志（时间 第n次延期）
+	  */
+	public void setDelayLog(java.lang.String delayLog) 
+	{
+		this.delayLog = delayLog;
+	}
+	
+	/**
+	  *	1,买家确认收货 2,系统自动确认收货
+	  */
+	public java.lang.Integer getReceiveType() 
+	{
+		return receiveType;
+	}
+	
+	/**
+	  *	1,买家确认收货 2,系统自动确认收货
+	  */
+	public void setReceiveType(java.lang.Integer receiveType) 
+	{
+		this.receiveType = receiveType;
+	}
+	
 	public String toString()
 	{
 		return "Order [" + 
 					"orderId=" + orderId + 
 					", flowId=" + flowId + 
+					", custName=" + custName + 
 					", custId=" + custId + 
+					", supplyName=" + supplyName + 
 					", supplyId=" + supplyId + 
 					", cancelResult=" + cancelResult + 
 					", orgTotal=" + orgTotal + 
@@ -645,7 +752,6 @@ public class Order extends Model{
 					", remark=" + remark + 
 					", leaveMessage=" + leaveMessage + 
 					", orderCombinedId=" + orderCombinedId + 
-					", orderTransferId=" + orderTransferId + 
 					", confirmSettlement=" + confirmSettlement + 
 					", settlementMoney=" + settlementMoney + 
 					", preferentialMoney=" + preferentialMoney + 
@@ -658,8 +764,12 @@ public class Order extends Model{
 					", deliverTime=" + deliverTime + 
 					", receiveTime=" + receiveTime + 
 					", settlementTime=" + settlementTime + 
-					", updateDate=" + updateDate + 
+					", createUser=" + createUser + 
+					", updateTime=" + updateTime + 
+					", updateUser=" + updateUser + 
 					", billType=" + billType + 
+					", delayLog=" + delayLog + 
+					", receiveType=" + receiveType + 
 				"]";
 	}
 }

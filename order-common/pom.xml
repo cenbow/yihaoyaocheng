@@ -75,5 +75,11 @@
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
         </dependency>
+
+        <!-- servlet -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -1,7 +1,7 @@
 /**
  *
  * Created By: XI
- * Created On: 2016-7-28 9:55:17
+ * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
  * 
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "shoppingCart")
-public class ShoppingCartController {
+@RequestMapping(value = "/order/shoppingCart")
+public class ShoppingCartController extends BaseJsonController{
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
 	@Reference
@@ -38,7 +38,7 @@ public class ShoppingCartController {
 	* 通过主键查询实体对象
 	* @return
 	*/
-	@RequestMapping(value = "/getByPK", method = RequestMethod.GET)
+	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
 	public ShoppingCart getByPK(Integer key) throws Exception
 	{
@@ -49,8 +49,7 @@ public class ShoppingCartController {
 	* 分页查询记录
 	* @return
 	*/
-	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.POST)
-	@ResponseBody
+	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
 	public Pagination<ShoppingCart> listPgShoppingCart(RequestModel<ShoppingCart> requestModel) throws Exception
 	{
 		Pagination<ShoppingCart> pagination = new Pagination<ShoppingCart>();
@@ -76,7 +75,7 @@ public class ShoppingCartController {
 	* 根据多条主键值删除记录
 	* @return
 	*/
-	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
 		shoppingCartFacade.deleteByPKeys(requestListModel.getList());
@@ -86,7 +85,7 @@ public class ShoppingCartController {
 	* 修改记录
 	* @return
 	*/
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(ShoppingCart shoppingCart) throws Exception
 	{
 		shoppingCartFacade.update(shoppingCart);

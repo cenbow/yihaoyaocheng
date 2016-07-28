@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:48
+ * Created On: 2016-7-28 17:34:55
  *
  * Amendment History:
  * 
@@ -67,7 +67,7 @@ public class AccountPayInfo extends Model{
 	/**
 	  *	
 	  */
-	private java.lang.String creator;
+	private java.lang.String createUser;
 
 	/**
 	  *	
@@ -85,14 +85,24 @@ public class AccountPayInfo extends Model{
 	private java.lang.String updateTime;
 
 	/**
-	  *	开户地区
+	  *	收款开户地区
 	  */
 	private java.lang.String accountArea;
 
 	/**
-	  *	开户支行
+	  *	收款开户支行
 	  */
 	private java.lang.String subbankName;
+
+	/**
+	  *	付款开户地区
+	  */
+	private java.lang.String payAccountArea;
+
+	/**
+	  *	付款开户支行
+	  */
+	private java.lang.String paySubbankName;
 
 	/**
 	  *	备注
@@ -246,17 +256,17 @@ public class AccountPayInfo extends Model{
 	/**
 	  *	
 	  */
-	public java.lang.String getCreator() 
+	public java.lang.String getCreateUser() 
 	{
-		return creator;
+		return createUser;
 	}
 	
 	/**
 	  *	
 	  */
-	public void setCreator(java.lang.String creator) 
+	public void setCreateUser(java.lang.String createUser) 
 	{
-		this.creator = creator;
+		this.createUser = createUser;
 	}
 	
 	/**
@@ -308,7 +318,7 @@ public class AccountPayInfo extends Model{
 	}
 	
 	/**
-	  *	开户地区
+	  *	收款开户地区
 	  */
 	public java.lang.String getAccountArea() 
 	{
@@ -316,7 +326,7 @@ public class AccountPayInfo extends Model{
 	}
 	
 	/**
-	  *	开户地区
+	  *	收款开户地区
 	  */
 	public void setAccountArea(java.lang.String accountArea) 
 	{
@@ -324,7 +334,7 @@ public class AccountPayInfo extends Model{
 	}
 	
 	/**
-	  *	开户支行
+	  *	收款开户支行
 	  */
 	public java.lang.String getSubbankName() 
 	{
@@ -332,11 +342,43 @@ public class AccountPayInfo extends Model{
 	}
 	
 	/**
-	  *	开户支行
+	  *	收款开户支行
 	  */
 	public void setSubbankName(java.lang.String subbankName) 
 	{
 		this.subbankName = subbankName;
+	}
+	
+	/**
+	  *	付款开户地区
+	  */
+	public java.lang.String getPayAccountArea() 
+	{
+		return payAccountArea;
+	}
+	
+	/**
+	  *	付款开户地区
+	  */
+	public void setPayAccountArea(java.lang.String payAccountArea) 
+	{
+		this.payAccountArea = payAccountArea;
+	}
+	
+	/**
+	  *	付款开户支行
+	  */
+	public java.lang.String getPaySubbankName() 
+	{
+		return paySubbankName;
+	}
+	
+	/**
+	  *	付款开户支行
+	  */
+	public void setPaySubbankName(java.lang.String paySubbankName) 
+	{
+		this.paySubbankName = paySubbankName;
 	}
 	
 	/**
@@ -367,12 +409,14 @@ public class AccountPayInfo extends Model{
 					", receiveAccountNo=" + receiveAccountNo + 
 					", receiveAccountName=" + receiveAccountName + 
 					", accountStatus=" + accountStatus + 
-					", creator=" + creator + 
+					", createUser=" + createUser + 
 					", createTime=" + createTime + 
 					", updateUser=" + updateUser + 
 					", updateTime=" + updateTime + 
 					", accountArea=" + accountArea + 
 					", subbankName=" + subbankName + 
+					", payAccountArea=" + payAccountArea + 
+					", paySubbankName=" + paySubbankName + 
 					", remark=" + remark + 
 				"]";
 	}

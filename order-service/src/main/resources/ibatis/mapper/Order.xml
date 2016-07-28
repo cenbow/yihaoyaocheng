@@ -2,7 +2,7 @@
 <!-- 
  **
  * Created By: XI
- * Created On: 2016-7-28 9:55:16
+ * Created On: 2016-7-28 17:34:55
  *
  * Amendment History:
  * 
@@ -49,6 +49,8 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="bill_type" property="billType"/>
+		<result column="Delay_log" property="delayLog"/>
+		<result column="receive_Type" property="receiveType"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -84,6 +86,8 @@
 		, update_time
 		, update_user
 		, bill_type
+		, Delay_log
+		, receive_Type
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -118,6 +122,8 @@
 				, update_time
 				, update_user
 				, bill_type
+				, Delay_log
+				, receive_Type
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -153,6 +159,8 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, update_user
 		, bill_type
+		, Delay_log
+		, receive_Type
 	</sql>
 	
 	<sql id="commonCondition">
@@ -252,6 +260,12 @@
 		<if test="billType!= null and billType!= ''"> 
 			AND bill_type=#{billType}
 		</if>
+		<if test="delayLog!= null and delayLog!= ''"> 
+			AND Delay_log=#{delayLog}
+		</if>
+		<if test="receiveType!= null and receiveType!= ''"> 
+			AND receive_Type=#{receiveType}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="Order">
@@ -290,6 +304,8 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, #{billType}
+				, #{delayLog}
+				, #{receiveType}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -326,6 +342,8 @@
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, bill_type=#{billType} 
+			, Delay_log=#{delayLog} 
+			, receive_Type=#{receiveType} 
 		WHERE order_id = #{orderId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">

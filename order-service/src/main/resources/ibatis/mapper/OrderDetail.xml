@@ -2,7 +2,7 @@
 <!-- 
  **
  * Created By: XI
- * Created On: 2016-7-28 9:55:17
+ * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
  * 
@@ -23,6 +23,8 @@
 		<result column="specification" property="specification"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="product_id" property="productId"/>
+		<result column="brand_name" property="brandName"/>
+		<result column="form_of_drug" property="formOfDrug"/>
 		<result column="product_name" property="productName"/>
 		<result column="product_code" property="productCode"/>
 		<result column="manufactures_id" property="manufacturesId"/>
@@ -36,8 +38,6 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
-		<result column="brand_name" property="brandName"/>
-		<result column="form_of_drug" property="formOfDrug"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -47,6 +47,8 @@
 		, specification
 		, supply_id
 		, product_id
+		, brand_name
+		, form_of_drug
 		, product_name
 		, product_code
 		, manufactures_id
@@ -60,8 +62,6 @@
 		, create_time
 		, update_user
 		, update_time
-		, brand_name
-		, form_of_drug
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -70,6 +70,8 @@
 				, specification
 				, supply_id
 				, product_id
+				, brand_name
+				, form_of_drug
 				, product_name
 				, product_code
 				, manufactures_id
@@ -83,8 +85,6 @@
 				, create_time
 				, update_user
 				, update_time
-				, brand_name
-		        , form_of_drug
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -94,6 +94,8 @@
 		, specification
 		, supply_id
 		, product_id
+		, brand_name
+		, form_of_drug
 		, product_name
 		, product_code
 		, manufactures_id
@@ -107,8 +109,6 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
-		, brand_name
-		, form_of_drug
 	</sql>
 	
 	<sql id="commonCondition">
@@ -129,6 +129,12 @@
 		</if>
 		<if test="productId!= null and productId!= ''"> 
 			AND product_id=#{productId}
+		</if>
+		<if test="brandName!= null and brandName!= ''"> 
+			AND brand_name=#{brandName}
+		</if>
+		<if test="formOfDrug!= null and formOfDrug!= ''"> 
+			AND form_of_drug=#{formOfDrug}
 		</if>
 		<if test="productName!= null and productName!= ''"> 
 			AND product_name=#{productName}
@@ -166,11 +172,8 @@
 		<if test="updateUser!= null and updateUser!= ''"> 
 			AND update_user=#{updateUser}
 		</if>
-		<if test="brandName!= null and brandName!= ''">
-			AND brand_name=#{brandName}
-		</if>
-		<if test="formOfDrug!= null and formOfDrug!= ''">
-			AND form_of_drug=#{formOfDrug}
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
 	</sql>
 	
@@ -184,6 +187,8 @@
 				, #{specification}
 				, #{supplyId}
 				, #{productId}
+				, #{brandName}
+				, #{formOfDrug}
 				, #{productName}
 				, #{productCode}
 				, #{manufacturesId}
@@ -197,8 +202,6 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
-				, #{brandName}
-				, #{formOfDrug}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">
@@ -209,6 +212,8 @@
 			, specification=#{specification} 
 			, supply_id=#{supplyId} 
 			, product_id=#{productId} 
+			, brand_name=#{brandName} 
+			, form_of_drug=#{formOfDrug} 
 			, product_name=#{productName} 
 			, product_code=#{productCode} 
 			, manufactures_id=#{manufacturesId} 
@@ -222,8 +227,6 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
-			, brand_name=#{brandName}
-			, form_of_drug=#{formOfDrug}
 		WHERE order_detail_id = #{orderDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">

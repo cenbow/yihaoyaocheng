@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:50
+ * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
  * 
@@ -27,7 +27,12 @@ public class SystemPayType extends Model{
 	/**
 	  *	支付类型 1-在线支付; 2-线下支付 3 账期支付
 	  */
-	private java.lang.String payType;
+	private java.lang.Integer payType;
+
+	/**
+	  *	
+	  */
+	private java.lang.String payTypeName;
 
 	/**
 	  *	支付类型编号
@@ -45,14 +50,34 @@ public class SystemPayType extends Model{
 	private java.lang.String payLogo;
 
 	/**
-	  *	支付类型状态 1-启用;-1停用
+	  *	支付类型状态 1-启用;0停用
 	  */
-	private java.lang.String payStates;
+	private java.lang.Integer payStates;
 
 	/**
 	  *	备注
 	  */
 	private java.lang.String remark;
+
+	/**
+	  *	记录创建者
+	  */
+	private java.lang.String createUser;
+
+	/**
+	  *	记录生成时间
+	  */
+	private java.lang.String createTime;
+
+	/**
+	  *	记录更新者
+	  */
+	private java.lang.String updateUser;
+
+	/**
+	  *	记录更新时间
+	  */
+	private java.lang.String updateTime;
 
 	/**
 	  *	主键ID
@@ -73,7 +98,7 @@ public class SystemPayType extends Model{
 	/**
 	  *	支付类型 1-在线支付; 2-线下支付 3 账期支付
 	  */
-	public java.lang.String getPayType() 
+	public java.lang.Integer getPayType() 
 	{
 		return payType;
 	}
@@ -81,9 +106,25 @@ public class SystemPayType extends Model{
 	/**
 	  *	支付类型 1-在线支付; 2-线下支付 3 账期支付
 	  */
-	public void setPayType(java.lang.String payType) 
+	public void setPayType(java.lang.Integer payType) 
 	{
 		this.payType = payType;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getPayTypeName() 
+	{
+		return payTypeName;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setPayTypeName(java.lang.String payTypeName) 
+	{
+		this.payTypeName = payTypeName;
 	}
 	
 	/**
@@ -135,17 +176,17 @@ public class SystemPayType extends Model{
 	}
 	
 	/**
-	  *	支付类型状态 1-启用;-1停用
+	  *	支付类型状态 1-启用;0停用
 	  */
-	public java.lang.String getPayStates() 
+	public java.lang.Integer getPayStates() 
 	{
 		return payStates;
 	}
 	
 	/**
-	  *	支付类型状态 1-启用;-1停用
+	  *	支付类型状态 1-启用;0停用
 	  */
-	public void setPayStates(java.lang.String payStates) 
+	public void setPayStates(java.lang.Integer payStates) 
 	{
 		this.payStates = payStates;
 	}
@@ -166,16 +207,85 @@ public class SystemPayType extends Model{
 		this.remark = remark;
 	}
 	
+	/**
+	  *	记录创建者
+	  */
+	public java.lang.String getCreateUser() 
+	{
+		return createUser;
+	}
+	
+	/**
+	  *	记录创建者
+	  */
+	public void setCreateUser(java.lang.String createUser) 
+	{
+		this.createUser = createUser;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public java.lang.String getCreateTime() 
+	{
+		return createTime;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public void setCreateTime(java.lang.String createTime) 
+	{
+		this.createTime = createTime;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public java.lang.String getUpdateUser() 
+	{
+		return updateUser;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public void setUpdateUser(java.lang.String updateUser) 
+	{
+		this.updateUser = updateUser;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public java.lang.String getUpdateTime() 
+	{
+		return updateTime;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public void setUpdateTime(java.lang.String updateTime) 
+	{
+		this.updateTime = updateTime;
+	}
+	
 	public String toString()
 	{
 		return "SystemPayType [" + 
 					"payTypeId=" + payTypeId + 
 					", payType=" + payType + 
+					", payTypeName=" + payTypeName + 
 					", payCode=" + payCode + 
 					", payName=" + payName + 
 					", payLogo=" + payLogo + 
 					", payStates=" + payStates + 
 					", remark=" + remark + 
+					", createUser=" + createUser + 
+					", createTime=" + createTime + 
+					", updateUser=" + updateUser + 
+					", updateTime=" + updateTime + 
 				"]";
 	}
 }

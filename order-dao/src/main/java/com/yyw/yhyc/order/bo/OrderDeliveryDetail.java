@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:49
+ * Created On: 2016-7-28 17:34:55
  *
  * Amendment History:
  * 
@@ -25,9 +25,19 @@ public class OrderDeliveryDetail extends Model{
 	private java.lang.Integer orderDeliveryDetailId;
 
 	/**
+	  *	订单行号
+	  */
+	private java.lang.String orderLineNo;
+
+	/**
 	  *	订单ID主键
 	  */
 	private java.lang.Integer orderId;
+
+	/**
+	  *	订单编号
+	  */
+	private java.lang.String flowId;
 
 	/**
 	  *	订单详情ID
@@ -40,14 +50,44 @@ public class OrderDeliveryDetail extends Model{
 	private java.lang.String batchNumber;
 
 	/**
-	  *	购买单品数量
+	  *	当前批次发货数量
 	  */
 	private java.lang.Integer deliveryProductCount;
+
+	/**
+	  *	发货状态 1 发货成功 0 发货失败
+	  */
+	private java.lang.Integer deliveryStatus;
+
+	/**
+	  *	导入文件url
+	  */
+	private java.lang.String importFileUrl;
 
 	/**
 	  *	
 	  */
 	private java.lang.String remark;
+
+	/**
+	  *	记录创建者
+	  */
+	private java.lang.String createUser;
+
+	/**
+	  *	记录生成时间
+	  */
+	private java.lang.String createTime;
+
+	/**
+	  *	记录更新者
+	  */
+	private java.lang.String updateUser;
+
+	/**
+	  *	记录更新时间
+	  */
+	private java.lang.String updateTime;
 
 	/**
 	  *	
@@ -66,6 +106,22 @@ public class OrderDeliveryDetail extends Model{
 	}
 	
 	/**
+	  *	订单行号
+	  */
+	public java.lang.String getOrderLineNo() 
+	{
+		return orderLineNo;
+	}
+	
+	/**
+	  *	订单行号
+	  */
+	public void setOrderLineNo(java.lang.String orderLineNo) 
+	{
+		this.orderLineNo = orderLineNo;
+	}
+	
+	/**
 	  *	订单ID主键
 	  */
 	public java.lang.Integer getOrderId() 
@@ -79,6 +135,22 @@ public class OrderDeliveryDetail extends Model{
 	public void setOrderId(java.lang.Integer orderId) 
 	{
 		this.orderId = orderId;
+	}
+	
+	/**
+	  *	订单编号
+	  */
+	public java.lang.String getFlowId() 
+	{
+		return flowId;
+	}
+	
+	/**
+	  *	订单编号
+	  */
+	public void setFlowId(java.lang.String flowId) 
+	{
+		this.flowId = flowId;
 	}
 	
 	/**
@@ -114,7 +186,7 @@ public class OrderDeliveryDetail extends Model{
 	}
 	
 	/**
-	  *	购买单品数量
+	  *	当前批次发货数量
 	  */
 	public java.lang.Integer getDeliveryProductCount() 
 	{
@@ -122,11 +194,43 @@ public class OrderDeliveryDetail extends Model{
 	}
 	
 	/**
-	  *	购买单品数量
+	  *	当前批次发货数量
 	  */
 	public void setDeliveryProductCount(java.lang.Integer deliveryProductCount) 
 	{
 		this.deliveryProductCount = deliveryProductCount;
+	}
+	
+	/**
+	  *	发货状态 1 发货成功 0 发货失败
+	  */
+	public java.lang.Integer getDeliveryStatus() 
+	{
+		return deliveryStatus;
+	}
+	
+	/**
+	  *	发货状态 1 发货成功 0 发货失败
+	  */
+	public void setDeliveryStatus(java.lang.Integer deliveryStatus) 
+	{
+		this.deliveryStatus = deliveryStatus;
+	}
+	
+	/**
+	  *	导入文件url
+	  */
+	public java.lang.String getImportFileUrl() 
+	{
+		return importFileUrl;
+	}
+	
+	/**
+	  *	导入文件url
+	  */
+	public void setImportFileUrl(java.lang.String importFileUrl) 
+	{
+		this.importFileUrl = importFileUrl;
 	}
 	
 	/**
@@ -145,15 +249,87 @@ public class OrderDeliveryDetail extends Model{
 		this.remark = remark;
 	}
 	
+	/**
+	  *	记录创建者
+	  */
+	public java.lang.String getCreateUser() 
+	{
+		return createUser;
+	}
+	
+	/**
+	  *	记录创建者
+	  */
+	public void setCreateUser(java.lang.String createUser) 
+	{
+		this.createUser = createUser;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public java.lang.String getCreateTime() 
+	{
+		return createTime;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public void setCreateTime(java.lang.String createTime) 
+	{
+		this.createTime = createTime;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public java.lang.String getUpdateUser() 
+	{
+		return updateUser;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public void setUpdateUser(java.lang.String updateUser) 
+	{
+		this.updateUser = updateUser;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public java.lang.String getUpdateTime() 
+	{
+		return updateTime;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public void setUpdateTime(java.lang.String updateTime) 
+	{
+		this.updateTime = updateTime;
+	}
+	
 	public String toString()
 	{
 		return "OrderDeliveryDetail [" + 
 					"orderDeliveryDetailId=" + orderDeliveryDetailId + 
+					", orderLineNo=" + orderLineNo + 
 					", orderId=" + orderId + 
+					", flowId=" + flowId + 
 					", orderDetailId=" + orderDetailId + 
 					", batchNumber=" + batchNumber + 
 					", deliveryProductCount=" + deliveryProductCount + 
+					", deliveryStatus=" + deliveryStatus + 
+					", importFileUrl=" + importFileUrl + 
 					", remark=" + remark + 
+					", createUser=" + createUser + 
+					", createTime=" + createTime + 
+					", updateUser=" + updateUser + 
+					", updateTime=" + updateTime + 
 				"]";
 	}
 }

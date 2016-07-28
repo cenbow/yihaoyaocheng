@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:49
+ * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
  * 
@@ -60,7 +60,7 @@ public class OrderSettlement extends Model{
 	private java.lang.String supplyName;
 
 	/**
-	  *	卖家是否确认结算
+	  *	卖家是否确认结算 0 未结算 1已结算
 	  */
 	private java.lang.String confirmSettlement;
 
@@ -238,7 +238,7 @@ public class OrderSettlement extends Model{
 	}
 	
 	/**
-	  *	卖家是否确认结算
+	  *	卖家是否确认结算 0 未结算 1已结算
 	  */
 	public java.lang.String getConfirmSettlement() 
 	{
@@ -246,7 +246,7 @@ public class OrderSettlement extends Model{
 	}
 	
 	/**
-	  *	卖家是否确认结算
+	  *	卖家是否确认结算 0 未结算 1已结算
 	  */
 	public void setConfirmSettlement(java.lang.String confirmSettlement) 
 	{

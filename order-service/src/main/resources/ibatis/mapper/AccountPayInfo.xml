@@ -2,7 +2,7 @@
 <!-- 
  **
  * Created By: XI
- * Created On: 2016-7-28 9:55:15
+ * Created On: 2016-7-28 17:34:55
  *
  * Amendment History:
  * 
@@ -32,6 +32,8 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="account_area" property="accountArea"/>
 		<result column="subbank_name" property="subbankName"/>
+		<result column="pay_account_area" property="payAccountArea"/>
+		<result column="pay_subbank_name" property="paySubbankName"/>
 		<result column="remark" property="remark"/>
 	</resultMap>
 	
@@ -51,6 +53,8 @@
 		, update_time
 		, account_area
 		, subbank_name
+		, pay_account_area
+		, pay_subbank_name
 		, remark
 	</sql>
 
@@ -69,6 +73,8 @@
 				, update_time
 				, account_area
 				, subbank_name
+				, pay_account_area
+				, pay_subbank_name
 				, remark
     </sql>
 	
@@ -88,6 +94,8 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, account_area
 		, subbank_name
+		, pay_account_area
+		, pay_subbank_name
 		, remark
 	</sql>
 	
@@ -137,6 +145,12 @@
 		<if test="subbankName!= null and subbankName!= ''"> 
 			AND subbank_name=#{subbankName}
 		</if>
+		<if test="payAccountArea!= null and payAccountArea!= ''"> 
+			AND pay_account_area=#{payAccountArea}
+		</if>
+		<if test="paySubbankName!= null and paySubbankName!= ''"> 
+			AND pay_subbank_name=#{paySubbankName}
+		</if>
 		<if test="remark!= null and remark!= ''"> 
 			AND remark=#{remark}
 		</if>
@@ -161,6 +175,8 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{accountArea}
 				, #{subbankName}
+				, #{payAccountArea}
+				, #{paySubbankName}
 				, #{remark}
   ) ]]>
 	</insert>
@@ -181,6 +197,8 @@
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, account_area=#{accountArea} 
 			, subbank_name=#{subbankName} 
+			, pay_account_area=#{payAccountArea} 
+			, pay_subbank_name=#{paySubbankName} 
 			, remark=#{remark} 
 		WHERE account_info_id = #{accountInfoId}  ]]>
 	</update>

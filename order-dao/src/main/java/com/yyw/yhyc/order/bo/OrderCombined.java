@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:48
+ * Created On: 2016-7-28 17:34:55
  *
  * Amendment History:
  * 
@@ -60,11 +60,6 @@ public class OrderCombined extends Model{
 	private java.math.BigDecimal freightPrice;
 
 	/**
-	  *	创建时间
-	  */
-	private java.lang.String createTime;
-
-	/**
 	  *	备注
 	  */
 	private java.lang.String remark;
@@ -78,6 +73,26 @@ public class OrderCombined extends Model{
 	  *	
 	  */
 	private java.lang.String payTime;
+
+	/**
+	  *	记录创建者
+	  */
+	private java.lang.String createUser;
+
+	/**
+	  *	记录生成时间
+	  */
+	private java.lang.String createTime;
+
+	/**
+	  *	记录更新者
+	  */
+	private java.lang.String updateUser;
+
+	/**
+	  *	记录更新时间
+	  */
+	private java.lang.String updateTime;
 
 	/**
 	  *	订单合并ID
@@ -208,22 +223,6 @@ public class OrderCombined extends Model{
 	}
 	
 	/**
-	  *	创建时间
-	  */
-	public java.lang.String getCreateTime() 
-	{
-		return createTime;
-	}
-	
-	/**
-	  *	创建时间
-	  */
-	public void setCreateTime(java.lang.String createTime) 
-	{
-		this.createTime = createTime;
-	}
-	
-	/**
 	  *	备注
 	  */
 	public java.lang.String getRemark() 
@@ -271,6 +270,70 @@ public class OrderCombined extends Model{
 		this.payTime = payTime;
 	}
 	
+	/**
+	  *	记录创建者
+	  */
+	public java.lang.String getCreateUser() 
+	{
+		return createUser;
+	}
+	
+	/**
+	  *	记录创建者
+	  */
+	public void setCreateUser(java.lang.String createUser) 
+	{
+		this.createUser = createUser;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public java.lang.String getCreateTime() 
+	{
+		return createTime;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public void setCreateTime(java.lang.String createTime) 
+	{
+		this.createTime = createTime;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public java.lang.String getUpdateUser() 
+	{
+		return updateUser;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public void setUpdateUser(java.lang.String updateUser) 
+	{
+		this.updateUser = updateUser;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public java.lang.String getUpdateTime() 
+	{
+		return updateTime;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public void setUpdateTime(java.lang.String updateTime) 
+	{
+		this.updateTime = updateTime;
+	}
+	
 	public String toString()
 	{
 		return "OrderCombined [" + 
@@ -282,10 +345,13 @@ public class OrderCombined extends Model{
 					", copeTotal=" + copeTotal + 
 					", pocketTotal=" + pocketTotal + 
 					", freightPrice=" + freightPrice + 
-					", createTime=" + createTime + 
 					", remark=" + remark + 
 					", payFlowId=" + payFlowId + 
 					", payTime=" + payTime + 
+					", createUser=" + createUser + 
+					", createTime=" + createTime + 
+					", updateUser=" + updateUser + 
+					", updateTime=" + updateTime + 
 				"]";
 	}
 }

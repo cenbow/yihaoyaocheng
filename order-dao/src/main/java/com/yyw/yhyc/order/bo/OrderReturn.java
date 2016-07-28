@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-7-27 20:21:49
+ * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
  * 
@@ -85,6 +85,31 @@ public class OrderReturn extends Model{
 	  *	
 	  */
 	private java.lang.String remark;
+
+	/**
+	  *	订单编号
+	  */
+	private java.lang.String flowId;
+
+	/**
+	  *	记录创建者
+	  */
+	private java.lang.String createUser;
+
+	/**
+	  *	记录生成时间
+	  */
+	private java.lang.String createTime;
+
+	/**
+	  *	记录更新者
+	  */
+	private java.lang.String updateUser;
+
+	/**
+	  *	记录更新时间
+	  */
+	private java.lang.String updateTime;
 
 	/**
 	  *	
@@ -298,6 +323,86 @@ public class OrderReturn extends Model{
 		this.remark = remark;
 	}
 	
+	/**
+	  *	订单编号
+	  */
+	public java.lang.String getFlowId() 
+	{
+		return flowId;
+	}
+	
+	/**
+	  *	订单编号
+	  */
+	public void setFlowId(java.lang.String flowId) 
+	{
+		this.flowId = flowId;
+	}
+	
+	/**
+	  *	记录创建者
+	  */
+	public java.lang.String getCreateUser() 
+	{
+		return createUser;
+	}
+	
+	/**
+	  *	记录创建者
+	  */
+	public void setCreateUser(java.lang.String createUser) 
+	{
+		this.createUser = createUser;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public java.lang.String getCreateTime() 
+	{
+		return createTime;
+	}
+	
+	/**
+	  *	记录生成时间
+	  */
+	public void setCreateTime(java.lang.String createTime) 
+	{
+		this.createTime = createTime;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public java.lang.String getUpdateUser() 
+	{
+		return updateUser;
+	}
+	
+	/**
+	  *	记录更新者
+	  */
+	public void setUpdateUser(java.lang.String updateUser) 
+	{
+		this.updateUser = updateUser;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public java.lang.String getUpdateTime() 
+	{
+		return updateTime;
+	}
+	
+	/**
+	  *	记录更新时间
+	  */
+	public void setUpdateTime(java.lang.String updateTime) 
+	{
+		this.updateTime = updateTime;
+	}
+	
 	public String toString()
 	{
 		return "OrderReturn [" + 
@@ -314,6 +419,11 @@ public class OrderReturn extends Model{
 					", dealResult=" + dealResult + 
 					", returnTime=" + returnTime + 
 					", remark=" + remark + 
+					", flowId=" + flowId + 
+					", createUser=" + createUser + 
+					", createTime=" + createTime + 
+					", updateUser=" + updateUser + 
+					", updateTime=" + updateTime + 
 				"]";
 	}
 }
