@@ -70,5 +70,10 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <!-- log4j end-->
+
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+        </dependency>
     </dependencies>
 </project>
