@@ -27,7 +27,7 @@ public class NumberHelper {
     public static BigDecimal getBigDecimal(String aInput, BigDecimal aDefaultValue) {
         try {
             return new BigDecimal(aInput);
-        } catch (Exception var3) {
+        } catch (Exception e) {
             return aDefaultValue;
         }
     }
