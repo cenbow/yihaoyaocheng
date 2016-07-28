@@ -80,8 +80,18 @@ public class OrderDetail extends Model{
 	private java.lang.Integer productCount;
 
 	/**
-	  *	
+	  *	品名
 	  */
+	private java.lang.String brandName;
+
+	/**
+	 *剂型
+	 */
+	private java.lang.String formOfDrug;
+
+	/**
+	 *
+	 */
 	private java.lang.String remark;
 
 	/**
@@ -291,7 +301,23 @@ public class OrderDetail extends Model{
 	{
 		this.remark = remark;
 	}
-	
+
+	public String getBrandName() {
+		return brandName;
+	}
+
+	public void setBrandName(String brandName) {
+		this.brandName = brandName;
+	}
+
+	public String getFormOfDrug() {
+		return formOfDrug;
+	}
+
+	public void setFormOfDrug(String formOfDrug) {
+		this.formOfDrug = formOfDrug;
+	}
+
 	public String toString()
 	{
 		return "OrderDetail [" + 
@@ -307,7 +333,9 @@ public class OrderDetail extends Model{
 					", productPrice=" + productPrice + 
 					", productSettlementPrice=" + productSettlementPrice + 
 					", productCount=" + productCount + 
-					", remark=" + remark + 
+					", remark=" + remark +
+				    ", brandName=" + brandName +
+				    ", formOfDrug=" + formOfDrug +
 				"]";
 	}
 }
