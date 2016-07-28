@@ -36,6 +36,8 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="brand_name" property="brandName"/>
+		<result column="form_of_drug" property="formOfDrug"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -58,6 +60,8 @@
 		, create_time
 		, update_user
 		, update_time
+		, brand_name
+		, form_of_drug
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -79,6 +83,8 @@
 				, create_time
 				, update_user
 				, update_time
+				, brand_name
+		        , form_of_drug
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -101,6 +107,8 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, brand_name
+		, form_of_drug
 	</sql>
 	
 	<sql id="commonCondition">
@@ -158,8 +166,11 @@
 		<if test="updateUser!= null and updateUser!= ''"> 
 			AND update_user=#{updateUser}
 		</if>
-		<if test="updateTime!= null and updateTime!= ''"> 
-			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		<if test="brandName!= null and brandName!= ''">
+			AND brand_name=#{brandName}
+		</if>
+		<if test="formOfDrug!= null and formOfDrug!= ''">
+			AND form_of_drug=#{formOfDrug}
 		</if>
 	</sql>
 	
@@ -186,6 +197,8 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{brandName}
+				, #{formOfDrug}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">
@@ -209,6 +222,8 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, brand_name=#{brandName}
+			, form_of_drug=#{formOfDrug}
 		WHERE order_detail_id = #{orderDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
