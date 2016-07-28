@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "/order/order")
+@RequestMapping(value = "/order")
 public class OrderController extends BaseJsonController{
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
