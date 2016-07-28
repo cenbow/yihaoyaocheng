@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD SQL MAP Config 3.1//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- settings 一定要配置在plugins标签前面，有顺序讲究 -->
+	<settings>
+		<setting name="callSettersOnNulls" value="true" />
+		<setting name="cacheEnabled" value="false" />
+	</settings>
+	<!--<plugins>
+		<plugin
+			interceptor="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor">
+			<property name="dialectClass"
+				value="com.github.miemiedev.mybatis.paginator.dialect.MySQLDialect" />
+			<property name="asyncTotalCount" value="true" />
+		</plugin>
+	</plugins>-->
+</configuration>

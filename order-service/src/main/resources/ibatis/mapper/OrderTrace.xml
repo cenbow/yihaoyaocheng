@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 9:55:17
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderTraceMapper">
+    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderTraceResultMapper" type="OrderTrace">
+		<result column="trace_id" property="traceId"/>
+		<result column="order_id" property="orderId"/>
+		<result column="node_name" property="nodeName"/>
+		<result column="start_node_date" property="startNodeDate"/>
+		<result column="end_node_date" property="endNodeDate"/>
+		<result column="deal_staff" property="dealStaff"/>
+		<result column="deal_result" property="dealResult"/>
+		<result column="record_date" property="recordDate"/>
+		<result column="record_staff" property="recordStaff"/>
+		<result column="order_status" property="orderStatus"/>
+		<result column="payment_platfor_return" property="paymentPlatforReturn"/>
+		<result column="remark" property="remark"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 trace_id
+		, order_id
+		, node_name
+		, start_node_date
+		, end_node_date
+		, deal_staff
+		, deal_result
+		, record_date
+		, record_staff
+		, order_status
+		, payment_platfor_return
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 order_id
+				, node_name
+				, start_node_date
+				, end_node_date
+				, deal_staff
+				, deal_result
+				, record_date
+				, record_staff
+				, order_status
+				, payment_platfor_return
+				, remark
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 trace_id
+		, order_id
+		, node_name
+		, date_format(start_node_date, '%Y-%m-%d %H:%i:%s') start_node_date
+		, date_format(end_node_date, '%Y-%m-%d %H:%i:%s') end_node_date
+		, deal_staff
+		, deal_result
+		, date_format(record_date, '%Y-%m-%d %H:%i:%s') record_date
+		, record_staff
+		, order_status
+		, payment_platfor_return
+		, remark
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="traceId!= null and traceId!= ''"> 
+			AND trace_id=#{traceId}
+		</if>
+		<if test="orderId!= null and orderId!= ''"> 
+			AND order_id=#{orderId}
+		</if>
+		<if test="nodeName!= null and nodeName!= ''"> 
+			AND node_name=#{nodeName}
+		</if>
+		<if test="startNodeDate!= null and startNodeDate!= ''"> 
+			AND start_node_date=str_to_date(#{startNodeDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endNodeDate!= null and endNodeDate!= ''"> 
+			AND end_node_date=str_to_date(#{endNodeDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="dealStaff!= null and dealStaff!= ''"> 
+			AND deal_staff=#{dealStaff}
+		</if>
+		<if test="dealResult!= null and dealResult!= ''"> 
+			AND deal_result=#{dealResult}
+		</if>
+		<if test="recordDate!= null and recordDate!= ''"> 
+			AND record_date=str_to_date(#{recordDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="recordStaff!= null and recordStaff!= ''"> 
+			AND record_staff=#{recordStaff}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''"> 
+			AND order_status=#{orderStatus}
+		</if>
+		<if test="paymentPlatforReturn!= null and paymentPlatforReturn!= ''"> 
+			AND payment_platfor_return=#{paymentPlatforReturn}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderTrace">
+		<![CDATA[ INSERT INTO t_order_trace ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{orderId}
+				, #{nodeName}
+				, str_to_date(#{startNodeDate},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{endNodeDate},'%Y-%m-%d %H:%i:%s')
+				, #{dealStaff}
+				, #{dealResult}
+				, str_to_date(#{recordDate},'%Y-%m-%d %H:%i:%s')
+				, #{recordStaff}
+				, #{orderStatus}
+				, #{paymentPlatforReturn}
+				, #{remark}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderTrace">
+		<![CDATA[ UPDATE t_order_trace SET 
+			 trace_id=#{traceId} 
+			, order_id=#{orderId} 
+			, node_name=#{nodeName} 
+			, start_node_date=str_to_date(#{startNodeDate},'%Y-%m-%d %H:%i:%s')
+			, end_node_date=str_to_date(#{endNodeDate},'%Y-%m-%d %H:%i:%s')
+			, deal_staff=#{dealStaff} 
+			, deal_result=#{dealResult} 
+			, record_date=str_to_date(#{recordDate},'%Y-%m-%d %H:%i:%s')
+			, record_staff=#{recordStaff} 
+			, order_status=#{orderStatus} 
+			, payment_platfor_return=#{paymentPlatforReturn} 
+			, remark=#{remark} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE trace_id = #{traceId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_trace WHERE trace_id = #{traceId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_trace WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" trace_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderTrace">
+		DELETE FROM t_order_trace WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderTraceResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_trace WHERE trace_id = #{traceId}  
+	</select>
+	<select id="list" resultMap="OrderTraceResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_trace
+	</select>
+	<select id="listByProperty" parameterType="OrderTrace" resultMap="OrderTraceResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_trace WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderTrace" resultMap="OrderTraceResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_trace WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderTrace" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_trace WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

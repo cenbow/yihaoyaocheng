@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 9:55:16
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderCombinedMapper">
+    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderCombinedResultMapper" type="OrderCombined">
+		<result column="order_combined_id" property="orderCombinedId"/>
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="cust_id" property="custId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="combined_number" property="combinedNumber"/>
+		<result column="cope_total" property="copeTotal"/>
+		<result column="pocket_total" property="pocketTotal"/>
+		<result column="freight_price" property="freightPrice"/>
+		<result column="remark" property="remark"/>
+		<result column="pay_flow_id" property="payFlowId"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 order_combined_id
+		, pay_type_id
+		, cust_id
+		, cust_name
+		, combined_number
+		, cope_total
+		, pocket_total
+		, freight_price
+		, remark
+		, pay_flow_id
+		, pay_time
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 pay_type_id
+				, cust_id
+				, cust_name
+				, combined_number
+				, cope_total
+				, pocket_total
+				, freight_price
+				, remark
+				, pay_flow_id
+				, pay_time
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 order_combined_id
+		, pay_type_id
+		, cust_id
+		, cust_name
+		, combined_number
+		, cope_total
+		, pocket_total
+		, freight_price
+		, remark
+		, pay_flow_id
+		, date_format(pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="orderCombinedId!= null and orderCombinedId!= ''"> 
+			AND order_combined_id=#{orderCombinedId}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''"> 
+			AND pay_type_id=#{payTypeId}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="custName!= null and custName!= ''"> 
+			AND cust_name=#{custName}
+		</if>
+		<if test="combinedNumber!= null and combinedNumber!= ''"> 
+			AND combined_number=#{combinedNumber}
+		</if>
+		<if test="copeTotal!= null and copeTotal!= ''"> 
+			AND cope_total=#{copeTotal}
+		</if>
+		<if test="pocketTotal!= null and pocketTotal!= ''"> 
+			AND pocket_total=#{pocketTotal}
+		</if>
+		<if test="freightPrice!= null and freightPrice!= ''"> 
+			AND freight_price=#{freightPrice}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="payFlowId!= null and payFlowId!= ''"> 
+			AND pay_flow_id=#{payFlowId}
+		</if>
+		<if test="payTime!= null and payTime!= ''"> 
+			AND pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderCombined">
+		<![CDATA[ INSERT INTO t_order_combined ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{payTypeId}
+				, #{custId}
+				, #{custName}
+				, #{combinedNumber}
+				, #{copeTotal}
+				, #{pocketTotal}
+				, #{freightPrice}
+				, #{remark}
+				, #{payFlowId}
+				, str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderCombined">
+		<![CDATA[ UPDATE t_order_combined SET 
+			 order_combined_id=#{orderCombinedId} 
+			, pay_type_id=#{payTypeId} 
+			, cust_id=#{custId} 
+			, cust_name=#{custName} 
+			, combined_number=#{combinedNumber} 
+			, cope_total=#{copeTotal} 
+			, pocket_total=#{pocketTotal} 
+			, freight_price=#{freightPrice} 
+			, remark=#{remark} 
+			, pay_flow_id=#{payFlowId} 
+			, pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE order_combined_id = #{orderCombinedId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_combined WHERE order_combined_id = #{orderCombinedId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_combined WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" order_combined_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderCombined">
+		DELETE FROM t_order_combined WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderCombinedResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_combined WHERE order_combined_id = #{orderCombinedId}  
+	</select>
+	<select id="list" resultMap="OrderCombinedResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_combined
+	</select>
+	<select id="listByProperty" parameterType="OrderCombined" resultMap="OrderCombinedResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_combined WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderCombined" resultMap="OrderCombinedResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_combined WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderCombined" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_combined WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

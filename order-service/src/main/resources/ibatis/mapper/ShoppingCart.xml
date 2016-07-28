@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 9:55:17
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.ShoppingCartMapper">
+    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="ShoppingCartResultMapper" type="ShoppingCart">
+		<result column="shopping_cart_id" property="shoppingCartId"/>
+		<result column="cust_id" property="custId"/>
+		<result column="sku_id" property="skuId"/>
+		<result column="specification" property="specification"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="product_id" property="productId"/>
+		<result column="product_code" property="productCode"/>
+		<result column="product_name" property="productName"/>
+		<result column="manufactures" property="manufactures"/>
+		<result column="product_price" property="productPrice"/>
+		<result column="product_settlement_price" property="productSettlementPrice"/>
+		<result column="product_count" property="productCount"/>
+		<result column="remark" property="remark"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 shopping_cart_id
+		, cust_id
+		, sku_id
+		, specification
+		, supply_id
+		, product_id
+		, product_code
+		, product_name
+		, manufactures
+		, product_price
+		, product_settlement_price
+		, product_count
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 cust_id
+				, sku_id
+				, specification
+				, supply_id
+				, product_id
+				, product_code
+				, product_name
+				, manufactures
+				, product_price
+				, product_settlement_price
+				, product_count
+				, remark
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 shopping_cart_id
+		, cust_id
+		, sku_id
+		, specification
+		, supply_id
+		, product_id
+		, product_code
+		, product_name
+		, manufactures
+		, product_price
+		, product_settlement_price
+		, product_count
+		, remark
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="shoppingCartId!= null and shoppingCartId!= ''"> 
+			AND shopping_cart_id=#{shoppingCartId}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="skuId!= null and skuId!= ''"> 
+			AND sku_id=#{skuId}
+		</if>
+		<if test="specification!= null and specification!= ''"> 
+			AND specification=#{specification}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="productId!= null and productId!= ''"> 
+			AND product_id=#{productId}
+		</if>
+		<if test="productCode!= null and productCode!= ''"> 
+			AND product_code=#{productCode}
+		</if>
+		<if test="productName!= null and productName!= ''"> 
+			AND product_name=#{productName}
+		</if>
+		<if test="manufactures!= null and manufactures!= ''"> 
+			AND manufactures=#{manufactures}
+		</if>
+		<if test="productPrice!= null and productPrice!= ''"> 
+			AND product_price=#{productPrice}
+		</if>
+		<if test="productSettlementPrice!= null and productSettlementPrice!= ''"> 
+			AND product_settlement_price=#{productSettlementPrice}
+		</if>
+		<if test="productCount!= null and productCount!= ''"> 
+			AND product_count=#{productCount}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="ShoppingCart">
+		<![CDATA[ INSERT INTO t_shopping_cart ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{custId}
+				, #{skuId}
+				, #{specification}
+				, #{supplyId}
+				, #{productId}
+				, #{productCode}
+				, #{productName}
+				, #{manufactures}
+				, #{productPrice}
+				, #{productSettlementPrice}
+				, #{productCount}
+				, #{remark}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="ShoppingCart">
+		<![CDATA[ UPDATE t_shopping_cart SET 
+			 shopping_cart_id=#{shoppingCartId} 
+			, cust_id=#{custId} 
+			, sku_id=#{skuId} 
+			, specification=#{specification} 
+			, supply_id=#{supplyId} 
+			, product_id=#{productId} 
+			, product_code=#{productCode} 
+			, product_name=#{productName} 
+			, manufactures=#{manufactures} 
+			, product_price=#{productPrice} 
+			, product_settlement_price=#{productSettlementPrice} 
+			, product_count=#{productCount} 
+			, remark=#{remark} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE shopping_cart_id = #{shoppingCartId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_shopping_cart WHERE shopping_cart_id = #{shoppingCartId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_shopping_cart WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" shopping_cart_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="ShoppingCart">
+		DELETE FROM t_shopping_cart WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="ShoppingCartResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_shopping_cart WHERE shopping_cart_id = #{shoppingCartId}  
+	</select>
+	<select id="list" resultMap="ShoppingCartResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_shopping_cart
+	</select>
+	<select id="listByProperty" parameterType="ShoppingCart" resultMap="ShoppingCartResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_shopping_cart WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="ShoppingCart" resultMap="ShoppingCartResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_shopping_cart WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="ShoppingCart" resultType="int">
+		SELECT count(1) AS totalcount FROM t_shopping_cart WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

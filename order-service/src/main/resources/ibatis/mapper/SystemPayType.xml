@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 9:55:18
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.SystemPayTypeMapper">
+    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="SystemPayTypeResultMapper" type="SystemPayType">
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="pay_type" property="payType"/>
+		<result column="pay_type_name" property="payTypeName"/>
+		<result column="pay_code" property="payCode"/>
+		<result column="pay_name" property="payName"/>
+		<result column="pay_logo" property="payLogo"/>
+		<result column="pay_states" property="payStates"/>
+		<result column="remark" property="remark"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 pay_type_id
+		, pay_type
+		, pay_type_name
+		, pay_code
+		, pay_name
+		, pay_logo
+		, pay_states
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 pay_type
+				, pay_type_name
+				, pay_code
+				, pay_name
+				, pay_logo
+				, pay_states
+				, remark
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 pay_type_id
+		, pay_type
+		, pay_type_name
+		, pay_code
+		, pay_name
+		, pay_logo
+		, pay_states
+		, remark
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="payTypeId!= null and payTypeId!= ''"> 
+			AND pay_type_id=#{payTypeId}
+		</if>
+		<if test="payType!= null and payType!= ''"> 
+			AND pay_type=#{payType}
+		</if>
+		<if test="payTypeName!= null and payTypeName!= ''"> 
+			AND pay_type_name=#{payTypeName}
+		</if>
+		<if test="payCode!= null and payCode!= ''"> 
+			AND pay_code=#{payCode}
+		</if>
+		<if test="payName!= null and payName!= ''"> 
+			AND pay_name=#{payName}
+		</if>
+		<if test="payLogo!= null and payLogo!= ''"> 
+			AND pay_logo=#{payLogo}
+		</if>
+		<if test="payStates!= null and payStates!= ''"> 
+			AND pay_states=#{payStates}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="SystemPayType">
+		<![CDATA[ INSERT INTO t_system_pay_type ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{payType}
+				, #{payTypeName}
+				, #{payCode}
+				, #{payName}
+				, #{payLogo}
+				, #{payStates}
+				, #{remark}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="SystemPayType">
+		<![CDATA[ UPDATE t_system_pay_type SET 
+			 pay_type_id=#{payTypeId} 
+			, pay_type=#{payType} 
+			, pay_type_name=#{payTypeName} 
+			, pay_code=#{payCode} 
+			, pay_name=#{payName} 
+			, pay_logo=#{payLogo} 
+			, pay_states=#{payStates} 
+			, remark=#{remark} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE pay_type_id = #{payTypeId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_system_pay_type WHERE pay_type_id = #{payTypeId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_system_pay_type WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" pay_type_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="SystemPayType">
+		DELETE FROM t_system_pay_type WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="SystemPayTypeResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_system_pay_type WHERE pay_type_id = #{payTypeId}  
+	</select>
+	<select id="list" resultMap="SystemPayTypeResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_system_pay_type
+	</select>
+	<select id="listByProperty" parameterType="SystemPayType" resultMap="SystemPayTypeResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_system_pay_type WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="SystemPayType" resultMap="SystemPayTypeResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_system_pay_type WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="SystemPayType" resultType="int">
+		SELECT count(1) AS totalcount FROM t_system_pay_type WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

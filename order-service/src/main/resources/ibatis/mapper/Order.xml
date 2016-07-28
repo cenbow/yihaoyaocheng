@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 9:55:16
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderMapper">
+    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderResultMapper" type="Order">
+		<result column="order_id" property="orderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="cancel_result" property="cancelResult"/>
+		<result column="org_total" property="orgTotal"/>
+		<result column="freight" property="freight"/>
+		<result column="order_total" property="orderTotal"/>
+		<result column="final_pay" property="finalPay"/>
+		<result column="total_count" property="totalCount"/>
+		<result column="order_status" property="orderStatus"/>
+		<result column="remark" property="remark"/>
+		<result column="leave_message" property="leaveMessage"/>
+		<result column="order_combined_id" property="orderCombinedId"/>
+		<result column="confirm_settlement" property="confirmSettlement"/>
+		<result column="settlement_money" property="settlementMoney"/>
+		<result column="preferential_money" property="preferentialMoney"/>
+		<result column="preferential_remark" property="preferentialRemark"/>
+		<result column="pay_status" property="payStatus"/>
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="create_time" property="createTime"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="cancel_time" property="cancelTime"/>
+		<result column="deliver_time" property="deliverTime"/>
+		<result column="receive_time" property="receiveTime"/>
+		<result column="settlement_time" property="settlementTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="bill_type" property="billType"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 order_id
+		, flow_id
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, cancel_result
+		, org_total
+		, freight
+		, order_total
+		, final_pay
+		, total_count
+		, order_status
+		, remark
+		, leave_message
+		, order_combined_id
+		, confirm_settlement
+		, settlement_money
+		, preferential_money
+		, preferential_remark
+		, pay_status
+		, pay_type_id
+		, create_time
+		, pay_time
+		, cancel_time
+		, deliver_time
+		, receive_time
+		, settlement_time
+		, create_user
+		, update_time
+		, update_user
+		, bill_type
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 flow_id
+				, cust_name
+				, cust_id
+				, supply_name
+				, supply_id
+				, cancel_result
+				, org_total
+				, freight
+				, order_total
+				, final_pay
+				, total_count
+				, order_status
+				, remark
+				, leave_message
+				, order_combined_id
+				, confirm_settlement
+				, settlement_money
+				, preferential_money
+				, preferential_remark
+				, pay_status
+				, pay_type_id
+				, create_time
+				, pay_time
+				, cancel_time
+				, deliver_time
+				, receive_time
+				, settlement_time
+				, create_user
+				, update_time
+				, update_user
+				, bill_type
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 order_id
+		, flow_id
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, cancel_result
+		, org_total
+		, freight
+		, order_total
+		, final_pay
+		, total_count
+		, order_status
+		, remark
+		, leave_message
+		, order_combined_id
+		, confirm_settlement
+		, settlement_money
+		, preferential_money
+		, preferential_remark
+		, pay_status
+		, pay_type_id
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, date_format(cancel_time, '%Y-%m-%d %H:%i:%s') cancel_time
+		, date_format(deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
+		, date_format(receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(settlement_time, '%Y-%m-%d %H:%i:%s') settlement_time
+		, create_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, update_user
+		, bill_type
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="orderId!= null and orderId!= ''"> 
+			AND order_id=#{orderId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''"> 
+			AND cust_name=#{custName}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND supply_name=#{supplyName}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="cancelResult!= null and cancelResult!= ''"> 
+			AND cancel_result=#{cancelResult}
+		</if>
+		<if test="orgTotal!= null and orgTotal!= ''"> 
+			AND org_total=#{orgTotal}
+		</if>
+		<if test="freight!= null and freight!= ''"> 
+			AND freight=#{freight}
+		</if>
+		<if test="orderTotal!= null and orderTotal!= ''"> 
+			AND order_total=#{orderTotal}
+		</if>
+		<if test="finalPay!= null and finalPay!= ''"> 
+			AND final_pay=#{finalPay}
+		</if>
+		<if test="totalCount!= null and totalCount!= ''"> 
+			AND total_count=#{totalCount}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''"> 
+			AND order_status=#{orderStatus}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="leaveMessage!= null and leaveMessage!= ''"> 
+			AND leave_message=#{leaveMessage}
+		</if>
+		<if test="orderCombinedId!= null and orderCombinedId!= ''"> 
+			AND order_combined_id=#{orderCombinedId}
+		</if>
+		<if test="confirmSettlement!= null and confirmSettlement!= ''"> 
+			AND confirm_settlement=#{confirmSettlement}
+		</if>
+		<if test="settlementMoney!= null and settlementMoney!= ''"> 
+			AND settlement_money=#{settlementMoney}
+		</if>
+		<if test="preferentialMoney!= null and preferentialMoney!= ''"> 
+			AND preferential_money=#{preferentialMoney}
+		</if>
+		<if test="preferentialRemark!= null and preferentialRemark!= ''"> 
+			AND preferential_remark=#{preferentialRemark}
+		</if>
+		<if test="payStatus!= null and payStatus!= ''"> 
+			AND pay_status=#{payStatus}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''"> 
+			AND pay_type_id=#{payTypeId}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="payTime!= null and payTime!= ''"> 
+			AND pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="cancelTime!= null and cancelTime!= ''"> 
+			AND cancel_time=str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="deliverTime!= null and deliverTime!= ''"> 
+			AND deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="receiveTime!= null and receiveTime!= ''"> 
+			AND receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="settlementTime!= null and settlementTime!= ''"> 
+			AND settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="billType!= null and billType!= ''"> 
+			AND bill_type=#{billType}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="Order">
+		<![CDATA[ INSERT INTO t_order ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{flowId}
+				, #{custName}
+				, #{custId}
+				, #{supplyName}
+				, #{supplyId}
+				, #{cancelResult}
+				, #{orgTotal}
+				, #{freight}
+				, #{orderTotal}
+				, #{finalPay}
+				, #{totalCount}
+				, #{orderStatus}
+				, #{remark}
+				, #{leaveMessage}
+				, #{orderCombinedId}
+				, #{confirmSettlement}
+				, #{settlementMoney}
+				, #{preferentialMoney}
+				, #{preferentialRemark}
+				, #{payStatus}
+				, #{payTypeId}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
+				, #{createUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, #{billType}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="Order">
+		<![CDATA[ UPDATE t_order SET 
+			 order_id=#{orderId} 
+			, flow_id=#{flowId} 
+			, cust_name=#{custName} 
+			, cust_id=#{custId} 
+			, supply_name=#{supplyName} 
+			, supply_id=#{supplyId} 
+			, cancel_result=#{cancelResult} 
+			, org_total=#{orgTotal} 
+			, freight=#{freight} 
+			, order_total=#{orderTotal} 
+			, final_pay=#{finalPay} 
+			, total_count=#{totalCount} 
+			, order_status=#{orderStatus} 
+			, remark=#{remark} 
+			, leave_message=#{leaveMessage} 
+			, order_combined_id=#{orderCombinedId} 
+			, confirm_settlement=#{confirmSettlement} 
+			, settlement_money=#{settlementMoney} 
+			, preferential_money=#{preferentialMoney} 
+			, preferential_remark=#{preferentialRemark} 
+			, pay_status=#{payStatus} 
+			, pay_type_id=#{payTypeId} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+			, cancel_time=str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+			, deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+			, receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+			, settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
+			, create_user=#{createUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, bill_type=#{billType} 
+		WHERE order_id = #{orderId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order WHERE order_id = #{orderId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" order_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="Order">
+		DELETE FROM t_order WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE order_id = #{orderId}  
+	</select>
+	<select id="list" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order
+	</select>
+	<select id="listByProperty" parameterType="Order" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="Order" resultMap="OrderResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="Order" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

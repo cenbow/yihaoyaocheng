@@ -1,0 +1,380 @@
+/**
+ * Created By: XI
+ * Created On: 2016-7-27 20:21:48
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ------------     -----------     ---------------------------------------------
+ *
+ **/
+package com.yyw.yhyc.order.bo;
+
+import com.yyw.yhyc.order.bo.Model;
+
+public class AccountPayInfo extends Model{
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
+	
+	/**
+	  *	
+	  */
+	private java.lang.Integer accountInfoId;
+
+	/**
+	  *	
+	  */
+	private java.lang.Integer custId;
+
+	/**
+	  *	支付类型表ID主键
+	  */
+	private java.lang.Integer payTypeId;
+
+	/**
+	  *	
+	  */
+	private java.lang.String accountType;
+
+	/**
+	  *	付款账号
+	  */
+	private java.lang.String payAccountNo;
+
+	/**
+	  *	付款账号名称
+	  */
+	private java.lang.String payAccountName;
+
+	/**
+	  *	收款账号
+	  */
+	private java.lang.String receiveAccountNo;
+
+	/**
+	  *	收款款账号名称
+	  */
+	private java.lang.String receiveAccountName;
+
+	/**
+	  *	0 停用 1 启用 
+	  */
+	private java.lang.String accountStatus;
+
+	/**
+	  *	
+	  */
+	private java.lang.String creator;
+
+	/**
+	  *	
+	  */
+	private java.lang.String createTime;
+
+	/**
+	  *	
+	  */
+	private java.lang.String updateUser;
+
+	/**
+	  *	
+	  */
+	private java.lang.String updateTime;
+
+	/**
+	  *	开户地区
+	  */
+	private java.lang.String accountArea;
+
+	/**
+	  *	开户支行
+	  */
+	private java.lang.String subbankName;
+
+	/**
+	  *	备注
+	  */
+	private java.lang.String remark;
+
+	/**
+	  *	
+	  */
+	public java.lang.Integer getAccountInfoId() 
+	{
+		return accountInfoId;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setAccountInfoId(java.lang.Integer accountInfoId) 
+	{
+		this.accountInfoId = accountInfoId;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.Integer getCustId() 
+	{
+		return custId;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setCustId(java.lang.Integer custId) 
+	{
+		this.custId = custId;
+	}
+	
+	/**
+	  *	支付类型表ID主键
+	  */
+	public java.lang.Integer getPayTypeId() 
+	{
+		return payTypeId;
+	}
+	
+	/**
+	  *	支付类型表ID主键
+	  */
+	public void setPayTypeId(java.lang.Integer payTypeId) 
+	{
+		this.payTypeId = payTypeId;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getAccountType() 
+	{
+		return accountType;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setAccountType(java.lang.String accountType) 
+	{
+		this.accountType = accountType;
+	}
+	
+	/**
+	  *	付款账号
+	  */
+	public java.lang.String getPayAccountNo() 
+	{
+		return payAccountNo;
+	}
+	
+	/**
+	  *	付款账号
+	  */
+	public void setPayAccountNo(java.lang.String payAccountNo) 
+	{
+		this.payAccountNo = payAccountNo;
+	}
+	
+	/**
+	  *	付款账号名称
+	  */
+	public java.lang.String getPayAccountName() 
+	{
+		return payAccountName;
+	}
+	
+	/**
+	  *	付款账号名称
+	  */
+	public void setPayAccountName(java.lang.String payAccountName) 
+	{
+		this.payAccountName = payAccountName;
+	}
+	
+	/**
+	  *	收款账号
+	  */
+	public java.lang.String getReceiveAccountNo() 
+	{
+		return receiveAccountNo;
+	}
+	
+	/**
+	  *	收款账号
+	  */
+	public void setReceiveAccountNo(java.lang.String receiveAccountNo) 
+	{
+		this.receiveAccountNo = receiveAccountNo;
+	}
+	
+	/**
+	  *	收款款账号名称
+	  */
+	public java.lang.String getReceiveAccountName() 
+	{
+		return receiveAccountName;
+	}
+	
+	/**
+	  *	收款款账号名称
+	  */
+	public void setReceiveAccountName(java.lang.String receiveAccountName) 
+	{
+		this.receiveAccountName = receiveAccountName;
+	}
+	
+	/**
+	  *	0 停用 1 启用 
+	  */
+	public java.lang.String getAccountStatus() 
+	{
+		return accountStatus;
+	}
+	
+	/**
+	  *	0 停用 1 启用 
+	  */
+	public void setAccountStatus(java.lang.String accountStatus) 
+	{
+		this.accountStatus = accountStatus;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getCreator() 
+	{
+		return creator;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setCreator(java.lang.String creator) 
+	{
+		this.creator = creator;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getCreateTime() 
+	{
+		return createTime;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setCreateTime(java.lang.String createTime) 
+	{
+		this.createTime = createTime;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getUpdateUser() 
+	{
+		return updateUser;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setUpdateUser(java.lang.String updateUser) 
+	{
+		this.updateUser = updateUser;
+	}
+	
+	/**
+	  *	
+	  */
+	public java.lang.String getUpdateTime() 
+	{
+		return updateTime;
+	}
+	
+	/**
+	  *	
+	  */
+	public void setUpdateTime(java.lang.String updateTime) 
+	{
+		this.updateTime = updateTime;
+	}
+	
+	/**
+	  *	开户地区
+	  */
+	public java.lang.String getAccountArea() 
+	{
+		return accountArea;
+	}
+	
+	/**
+	  *	开户地区
+	  */
+	public void setAccountArea(java.lang.String accountArea) 
+	{
+		this.accountArea = accountArea;
+	}
+	
+	/**
+	  *	开户支行
+	  */
+	public java.lang.String getSubbankName() 
+	{
+		return subbankName;
+	}
+	
+	/**
+	  *	开户支行
+	  */
+	public void setSubbankName(java.lang.String subbankName) 
+	{
+		this.subbankName = subbankName;
+	}
+	
+	/**
+	  *	备注
+	  */
+	public java.lang.String getRemark() 
+	{
+		return remark;
+	}
+	
+	/**
+	  *	备注
+	  */
+	public void setRemark(java.lang.String remark) 
+	{
+		this.remark = remark;
+	}
+	
+	public String toString()
+	{
+		return "AccountPayInfo [" + 
+					"accountInfoId=" + accountInfoId + 
+					", custId=" + custId + 
+					", payTypeId=" + payTypeId + 
+					", accountType=" + accountType + 
+					", payAccountNo=" + payAccountNo + 
+					", payAccountName=" + payAccountName + 
+					", receiveAccountNo=" + receiveAccountNo + 
+					", receiveAccountName=" + receiveAccountName + 
+					", accountStatus=" + accountStatus + 
+					", creator=" + creator + 
+					", createTime=" + createTime + 
+					", updateUser=" + updateUser + 
+					", updateTime=" + updateTime + 
+					", accountArea=" + accountArea + 
+					", subbankName=" + subbankName + 
+					", remark=" + remark + 
+				"]";
+	}
+}
+
