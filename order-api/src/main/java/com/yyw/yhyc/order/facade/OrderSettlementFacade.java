@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.order.dto.OrderSettlementDto;
 
 public interface OrderSettlementFacade {
 
@@ -92,6 +93,6 @@ public interface OrderSettlementFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderSettlement> listPaginationByProperty(Pagination<OrderSettlement> pagination, OrderSettlement orderSettlement) throws Exception;
+	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto) throws Exception;
 
 }

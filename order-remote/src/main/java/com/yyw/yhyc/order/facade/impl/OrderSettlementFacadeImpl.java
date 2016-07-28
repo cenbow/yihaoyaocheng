@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,10 +69,10 @@ public class OrderSettlementFacadeImpl implements OrderSettlementFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderSettlement> listPaginationByProperty(Pagination<OrderSettlement> pagination, OrderSettlement orderSettlement)
+	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto)
 			throws Exception
 	{
-		return orderSettlementService.listPaginationByProperty(pagination, orderSettlement);
+		return orderSettlementService.listPaginationByProperty(pagination, orderSettlementDto);
 	}
 
 	/**

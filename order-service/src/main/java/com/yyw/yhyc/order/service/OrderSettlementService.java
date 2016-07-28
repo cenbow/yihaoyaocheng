@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,9 +68,9 @@ public class OrderSettlementService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderSettlement> listPaginationByProperty(Pagination<OrderSettlement> pagination, OrderSettlement orderSettlement) throws Exception
+	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto) throws Exception
 	{
-		List<OrderSettlement> list = orderSettlementMapper.listPaginationByProperty(pagination, orderSettlement);
+		List<OrderSettlementDto> list = orderSettlementMapper.listPaginationByProperty(pagination, orderSettlementDto);
 
 		pagination.setResultList(list);
 
