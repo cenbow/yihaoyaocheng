@@ -19,4 +19,5 @@ import com.yyw.yhyc.order.bo.Pagination;
 public interface AccountPayInfoMapper extends GenericIBatisMapper<AccountPayInfo, Integer> {
 
 	public List<AccountPayInfo> listPaginationByProperty(Pagination<AccountPayInfo> pagination, AccountPayInfo accountPayInfo);
+	public AccountPayInfo getByCustId(Integer custId);
 }

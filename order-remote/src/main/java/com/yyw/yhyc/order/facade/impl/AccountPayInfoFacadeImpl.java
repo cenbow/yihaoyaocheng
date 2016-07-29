@@ -42,6 +42,10 @@ public class AccountPayInfoFacadeImpl implements AccountPayInfoFacade {
 		return accountPayInfoService.getByPK(primaryKey);
 	}
 
+	public AccountPayInfo getByCustId(Integer custId) throws Exception {
+		return accountPayInfoService.getByCustId(custId);
+	}
+
 	/**
 	 * 查询所有记录
 	 * @return

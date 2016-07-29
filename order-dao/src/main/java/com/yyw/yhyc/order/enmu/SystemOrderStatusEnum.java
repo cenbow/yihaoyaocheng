@@ -4,7 +4,7 @@ package com.yyw.yhyc.order.enmu;
  * Created by zhangqiang on 2016/7/29.
  * 订单系统状态
  */
-public enum OrderSystemStatusEnmu {
+public enum SystemOrderStatusEnum {
 
     BuyerOrdered("1", "买家已下单"),
     BuyerCanceled ("2", "买家已取消"),
@@ -22,13 +22,13 @@ public enum OrderSystemStatusEnmu {
     private String type;
     private String value;
 
-    OrderSystemStatusEnmu(String type, String value) {
+    SystemOrderStatusEnum(String type, String value) {
         this.type = type;
         this.value = value;
     }
 
     public static String getName(String type) {
-        for (OrderSystemStatusEnmu item : OrderSystemStatusEnmu.values()) {
+        for (SystemOrderStatusEnum item : SystemOrderStatusEnum.values()) {
             if (item.type.equals(type) )
                 return item.value;
         }
