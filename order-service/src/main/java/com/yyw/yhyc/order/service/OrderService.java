@@ -10,11 +10,16 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +29,8 @@ import com.yyw.yhyc.order.mapper.OrderMapper;
 
 @Service("orderService")
 public class OrderService {
+
+	Log log = LogFactory.getLog(OrderService.class);
 
 	private OrderMapper	orderMapper;
 
@@ -163,4 +170,14 @@ public class OrderService {
         //todo
         return false;
     }
+	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
+		Map<String,Object> resultMap = new HashMap<String, Object>();
+		orderDto = new OrderDto();
+		orderDto.setCustId(1);
+		orderDto.setOrderId(1);
+		orderDto.setSupplyName("");
+		List<OrderDto> orderDtoList =  orderMapper.findOrderStatusCount(orderDto);
+		log.debug(orderDtoList);
+		return resultMap;
+	}
 }
