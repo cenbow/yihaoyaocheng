@@ -16,10 +16,5 @@
             <artifactId>order-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>4.1.4.RELEASE</version>
-        </dependency>
     </dependencies>
 </project>
