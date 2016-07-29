@@ -24,6 +24,13 @@ public interface AccountPayInfoFacade {
 	 * @throws Exception
 	 */
 	public AccountPayInfo getByPK(java.lang.Integer primaryKey) throws Exception;
+	/**
+	 * 通过供应商custId查询
+	 * @param primaryKey
+	 * @return
+	 * @throws Exception
+	 */
+	public AccountPayInfo getByCustId(java.lang.Integer custId) throws Exception;
 
 	/**
 	 * 查询所有记录
