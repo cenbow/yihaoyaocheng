@@ -12,6 +12,9 @@ package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -137,5 +140,23 @@ public class OrderFacadeImpl implements OrderFacade {
 	public int findByCount(Order order) throws Exception
 	{
 		return orderService.findByCount(order);
+	}
+
+	/**
+	 * 创建订单
+	 * @param orderCreateDto
+	 * @throws Exception
+	 */
+	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
+		return orderService.createOrder(orderCreateDto);
+	}
+
+	/**
+	 * 校验要购买的商品(通用方法)
+	 * @param productInfoDtoList
+	 * @throws Exception
+	 */
+	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
+		return orderService.validateProducts(productInfoDtoList);
 	}
 }
