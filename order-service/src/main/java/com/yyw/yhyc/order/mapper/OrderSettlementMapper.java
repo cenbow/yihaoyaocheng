@@ -19,5 +19,5 @@ import com.yyw.yhyc.order.bo.Pagination;
 
 public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettlement, Integer> {
 
-	public List<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto);
+	public List<OrderSettlementDto> listPaginationDtoByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto);
 }

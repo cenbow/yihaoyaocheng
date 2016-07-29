@@ -234,16 +234,60 @@
 	</select>
 	<resultMap id="OrderSettlementResultDtoMapper" type="OrderSettlementDto">
         <result column="cust_name" property="custName"/>
-        <!--<result column="business_type" property="businessType"/>
+        <result column="business_type" property="businessType"/>
         <result column="flow_id" property="flowId"/>
         <result column="supply_name" property="supplyName"/>
         <result column="confirm_settlement" property="confirmSettlement"/>
         <result column="settlement_money" property="settlementMoney"/>
         <result column="pay_name" property="payTypeName"/>
-        <result column="order_time" property="orderTime"/>-->
+        <result column="order_time" property="orderTime"/>
 	</resultMap>
-	<select id="listPaginationByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             		s.cust_name AS cust_name,s.supply_name AS supply_name,s.order_time AS order_time,
-        SELECT  cust_name FROM t_order_settlement  WHERE 1 = 1
+	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
+		<![CDATA[
+			SELECT s.flow_id AS flow_id ,t.pay_name AS  pay_name,s.business_type AS business_type,
+			s.cust_name AS cust_name,s.supply_name AS supply_name,s.order_time AS order_time,
+			s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
+			FROM t_order_settlement s
+			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
+			WHERE 1 = 1
+		]]>
+		<if test="custId !=nul and custId !=''">
+			AND s.cust_id = #{custId}
+		</if>
+		<if test="supplyId !=nul and supplyId !=''">
+			AND s.supply_id = #{supplyId}
+		</if>
+		<if test="flowId !=nul and flowId !=''">
+			AND s.flow_id = #{flowId}
+		</if>
+		<if test="businessType !=nul and businessType !=''">
+			AND s.business_type = #{businessType}
+		</if>
+		<if test="custName !=nul and custName !=''">
+			AND s.cust_name = #{custName}
+		</if>
+		<if test="supplyName !=nul and supplyName !=''">
+			AND s.supply_name = #{supplyName}
+		</if>
+		<if test="confirmSettlement !=nul and confirmSettlement !=''">
+			AND s.confirm_settlement = #{confirmSettlement}
+		</if>
+		<if test="payType !=nul and payType !=''">
+			AND t.pay_states = 1
+			AND t.pay_type = #{payType}
+		</if>
+		<if test="startTime !=null and startTime!=''">
+			s.order_time > #{startTime}
+		</if>
+		<if test="endTime !=null and endTime!=''">
+			#{startTime} > s.order_time
+		</if>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper">
+		SELECT
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_settlement WHERE 1=1
+		<include refid="commonCondition"/>
 	</select>
 	<select id="findByCount" parameterType="OrderSettlement" resultType="int">
 		SELECT count(1) AS totalcount FROM t_order_settlement WHERE 1=1 
