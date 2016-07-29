@@ -1,6 +1,5 @@
 package com.yyw.yhyc.order.dto;
 
-import com.sun.org.apache.xpath.internal.operations.String;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 
 /**
