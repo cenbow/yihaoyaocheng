@@ -16,6 +16,7 @@ import java.util.Map;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderDto;
@@ -104,21 +105,31 @@ public interface OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto)throws Exception;
+	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto)throws Exception;
 
 	/**
 	 * 校验要购买的商品(通用方法)
-	 * @param productInfoDtoList
+	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList)throws Exception;
+	public boolean validateProducts(OrderDto orderDto)throws Exception;
+
 
 	/**
 	 * 查采购商订单查询
 	 * @param pagination
 	 * @param orderDto
-     * @return
-     */
+	 * @return
+	 */
 	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
+
+	/**
+	 * 根据订单号查询订单详情
+	 *
+	 * @param flowId
+	 * @throws Exception
+	 */
+	public OrderDetailsDto getOrderDetails(String flowId) throws Exception;
 
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.order.bo.Pagination;
@@ -21,6 +22,9 @@ import com.yyw.yhyc.order.bo.Pagination;
 public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public List<Order> listPaginationByProperty(Pagination<Order> pagination, Order order);
+
+	public OrderDetailsDto getOrderDetails(String flowId);
+
 
 	public List<OrderDto> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
