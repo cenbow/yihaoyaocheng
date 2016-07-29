@@ -345,16 +345,6 @@ public class OrderService {
 
 
 
-	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
-		Map<String,Object> resultMap = new HashMap<String, Object>();
-		orderDto = new OrderDto();
-		orderDto.setCustId(1);
-		orderDto.setOrderId(1);
-		orderDto.setSupplyName("");
-		List<OrderDto> orderDtoList =  orderMapper.findOrderStatusCount(orderDto);
-		log.debug(orderDtoList);
-		return resultMap;
-	}
 	/**
 	 * 根据订单号查询订单详情
 	 * @param flowId
