@@ -1,6 +1,5 @@
 package com.yyw.yhyc.order.dto;
 
-import com.sun.org.apache.xpath.internal.operations.String;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 
 /**
@@ -65,5 +64,37 @@ public class OrderSettlementDto extends OrderSettlement{
 
     public void setPayType(String payType) {
         this.payType = payType;
+    }
+
+    public String getPayTypeName() {
+        return payTypeName;
+    }
+
+    public void setPayTypeName(String payTypeName) {
+        this.payTypeName = payTypeName;
+    }
+
+    public String getBusinessTypeName() {
+        return businessTypeName;
+    }
+
+    public void setBusinessTypeName(String businessTypeName) {
+        this.businessTypeName = businessTypeName;
+    }
+
+    public String getOrderCreateTime() {
+        return orderCreateTime;
+    }
+
+    public void setOrderCreateTime(String orderCreateTime) {
+        this.orderCreateTime = orderCreateTime;
+    }
+
+    public String getConfirmSettlementName() {
+        return confirmSettlementName;
+    }
+
+    public void setConfirmSettlementName(String confirmSettlementName) {
+        this.confirmSettlementName = confirmSettlementName;
     }
 }
