@@ -43,114 +43,114 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Order getByPK(java.lang.Integer primaryKey) throws Exception {
+	public Order getByPK(java.lang.Integer primaryKey) throws Exception
+	{
 		return orderService.getByPK(primaryKey);
 	}
 
 	/**
 	 * 查询所有记录
-	 *
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Order> list() throws Exception {
+	public List<Order> list() throws Exception
+	{
 		return orderService.list();
 	}
 
 	/**
 	 * 根据查询条件查询所有记录
-	 *
 	 * @return
 	 * @throws Exception
 	 */
 	public List<Order> listByProperty(Order order)
-			throws Exception {
+			throws Exception
+	{
 		return orderService.listByProperty(order);
 	}
-
+	
 	/**
 	 * 根据查询条件查询分页记录
-	 *
 	 * @return
 	 * @throws Exception
 	 */
 	public Pagination<Order> listPaginationByProperty(Pagination<Order> pagination, Order order)
-			throws Exception {
+			throws Exception
+	{
 		return orderService.listPaginationByProperty(pagination, order);
 	}
 
 	/**
 	 * 根据主键删除记录
-	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteByPK(java.lang.Integer primaryKey) throws Exception {
+	public int deleteByPK(java.lang.Integer primaryKey) throws Exception
+	{
 		return orderService.deleteByPK(primaryKey);
 	}
-
+	
 	/**
 	 * 根据多个主键删除记录
-	 *
 	 * @param primaryKeys
 	 * @throws Exception
 	 */
-	public void deleteByPKeys(List<java.lang.Integer> primaryKeys) throws Exception {
+	public void deleteByPKeys(List<java.lang.Integer> primaryKeys) throws Exception
+	{
 		orderService.deleteByPKeys(primaryKeys);
 	}
-
+	
 	/**
 	 * 根据传入参数删除记录
-	 *
 	 * @param order
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteByProperty(Order order) throws Exception {
+	public int deleteByProperty(Order order) throws Exception
+	{
 		return orderService.deleteByProperty(order);
 	}
 
 	/**
 	 * 保存记录
-	 *
 	 * @param order
 	 * @return
 	 * @throws Exception
 	 */
-	public void save(Order order) throws Exception {
+	public void save(Order order) throws Exception
+	{
 		orderService.save(order);
 	}
 
 	/**
 	 * 更新记录
-	 *
 	 * @param order
 	 * @return
 	 * @throws Exception
 	 */
-	public int update(Order order) throws Exception {
+	public int update(Order order) throws Exception
+	{
 		return orderService.update(order);
 	}
 
 	/**
 	 * 根据条件查询记录条数
-	 *
 	 * @param order
 	 * @return
 	 * @throws Exception
 	 */
-	public int findByCount(Order order) throws Exception {
+	public int findByCount(Order order) throws Exception
+	{
 		return orderService.findByCount(order);
 	}
 
 	/**
 	 * 创建订单
-	 *
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
+	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception {
 		return orderService.createOrder(orderCreateDto);
 	}
 
@@ -158,10 +158,11 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * 校验要购买的商品(通用方法)
 	 *
 	 * @param productInfoDtoList
+	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
-		return orderService.validateProducts(productInfoDtoList);
+	public boolean validateProducts(OrderDto orderDto) throws Exception {
+		return orderService.validateProducts(orderDto);
 	}
 	/**
 	 * 查采购商订单查询

@@ -12,6 +12,9 @@ import java.util.List;
  * Created by zhangqiang on 2016/7/29.
  */
 public class OrderDto extends Order {
+
+    private static final long serialVersionUID = -1172097472910143309L;
+
     private BigDecimal orderTotalMoney;//订单总额
     private int orderCount;            //订单数量
     private int payType;               //支付类型
@@ -20,6 +23,7 @@ public class OrderDto extends Order {
     private List<OrderDetail> orderDetailList;//订单商品列表
     private String createBeginTime;    //下单开始时间
     private String createEndTime;      //下单结束时间
+
     /* 商品信息集合 */
     private List<ProductInfoDto> productInfoDtoList;
 

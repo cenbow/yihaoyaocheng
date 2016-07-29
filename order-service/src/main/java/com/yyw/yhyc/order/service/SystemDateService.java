@@ -15,4 +15,13 @@ public class SystemDateService {
     public String getSystemDate(){
         return systemDateMapper.getSystemDate();
     }
+
+    /**
+     * 获取数据时间
+     * @param formatter 按照指定格式获取时间
+     * @return
+     */
+    public String getSystemDateByformatter(String formatter){
+        return systemDateMapper.getSystemDateByformatter(formatter);
+    }
 }
