@@ -58,6 +58,7 @@
         <commons-fileupload.version>1.2.2</commons-fileupload.version>
         <slf4j-log4j12.version>1.7.7</slf4j-log4j12.version>
         <slf4j-api.version>1.7.7</slf4j-api.version>
+        <org.log4j2.version>2.5</org.log4j2.version>
         <log4f.version>1.2.16</log4f.version>
         <aspectj.version>1.6.3</aspectj.version>
         <aspectjweaver.version>1.6.8</aspectjweaver.version>
@@ -315,8 +316,46 @@
                 <version>${commons-fileupload.version}</version>
             </dependency>
 
-            <!-- log4j start-->
+            <!-- Logging -->
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j-api.version}</version>
+            </dependency>
+            <!-- log4j2 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${org.log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${org.log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-jcl</artifactId>
+                <version>${org.log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-jul</artifactId>
+                <version>${org.log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-1.2-api</artifactId>
+                <version>${org.log4j2.version}</version>
+            </dependency>
+            <!-- log4j-slf4j-impl -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${org.log4j2.version}</version>
+            </dependency>
+            <!-- log4j start-->
+            <!--<dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j-log4j12.version}</version>
@@ -330,7 +369,7 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j-api.version}</version>
-            </dependency>
+            </dependency>-->
             <!-- log4j end-->
 
             <dependency>

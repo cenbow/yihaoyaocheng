@@ -11,12 +11,14 @@
 package com.yyw.yhyc.order.facade;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
+import com.yyw.yhyc.order.dto.OrderDto;
 
 public interface OrderFacade {
 
@@ -110,4 +112,13 @@ public interface OrderFacade {
 	 * @throws Exception
 	 */
 	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList)throws Exception;
+
+	/**
+	 * 查采购商订单查询
+	 * @param pagination
+	 * @param orderDto
+     * @return
+     */
+	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
 }

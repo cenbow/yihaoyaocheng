@@ -2,27 +2,27 @@ package com.yyw.yhyc.order.enmu;
 
 /**
  * Created by zhangqiang on 2016/7/29.
- * 订单状态（买卖家视角）
  */
-public enum  OrderStatusEnmu {
+public enum SellerOrderStatusEnum {
     PendingPayment("1", "待付款"),
     BackOrder ("2", "待发货"),
-    Canceled("4", "已取消"),
-    ReceiptOfGoods ("5", "待收货"),
-    Finished("6", "已完成"),
-    Rejecting("8", "拒收中"),
-    Replenishing("9", "补货中");
+    ReceiptOfGoods ("3", "待收货"),
+    Rejecting("4", "拒收中"),
+    Replenishing("5", "补货中"),
+    Canceled("6", "已取消"),
+    Finished("7", "已完成"),
+    SplitException("8", "打款异常");
 
     private String type;
     private String value;
 
-    OrderStatusEnmu(String type, String value) {
+    SellerOrderStatusEnum(String type, String value) {
         this.type = type;
         this.value = value;
     }
 
     public static String getName(String type) {
-        for (OrderStatusEnmu item : OrderStatusEnmu.values()) {
+        for (SellerOrderStatusEnum item : SellerOrderStatusEnum.values()) {
             if (item.type.equals(type) )
                 return item.value;
         }

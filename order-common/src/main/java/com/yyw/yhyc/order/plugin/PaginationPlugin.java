@@ -28,11 +28,13 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 /**
  * Created by shiyongxi on 2016/4/28.
  */
-@Intercepts({    @Signature(
+@Intercepts({
+    @Signature(
         type = Executor.class,
         method = "query",
         args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}
-)})
+    )
+})
 public class PaginationPlugin implements Interceptor {
     private Log logger = LogFactory.getLog(PaginationPlugin.class);
 

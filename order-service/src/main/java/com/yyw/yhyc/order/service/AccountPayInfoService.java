@@ -40,7 +40,15 @@ public class AccountPayInfoService {
 	{
 		return accountPayInfoMapper.getByPK(primaryKey);
 	}
-
+	/**
+	 * 通过供应商custId查询
+	 * @param primaryKey
+	 * @return
+	 * @throws Exception
+	 */
+	public AccountPayInfo getByCustId(Integer custId) throws Exception {
+		return accountPayInfoMapper.getByCustId(custId);
+	}
 	/**
 	 * 查询所有记录
 	 * @return
