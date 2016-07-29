@@ -16,6 +16,7 @@ import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.facade.OrderSettlementFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +50,9 @@ public class OrderSettlementController extends BaseJsonController{
 	*/
 	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
 	@ResponseBody
-	public Pagination<OrderSettlement> listPgOrderSettlement(RequestModel<OrderSettlement> requestModel) throws Exception
+	public Pagination<OrderSettlementDto> listPgOrderSettlement(RequestModel<OrderSettlementDto> requestModel) throws Exception
 	{
-		Pagination<OrderSettlement> pagination = new Pagination<OrderSettlement>();
+		Pagination<OrderSettlementDto> pagination = new Pagination<OrderSettlementDto>();
 
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
