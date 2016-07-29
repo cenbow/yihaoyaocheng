@@ -11,7 +11,7 @@ public enum SellerOrderStatusEnum {
     Replenishing("5", "补货中"),
     Canceled("6", "已取消"),
     Finished("7", "已完成"),
-    SplitException("8", "打款异常");
+    PaidException("8", "打款异常");
 
     private String type;
     private String value;

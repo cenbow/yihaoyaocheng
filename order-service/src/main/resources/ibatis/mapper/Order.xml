@@ -52,7 +52,8 @@
 		<result column="Delay_log" property="delayLog"/>
 		<result column="receive_Type" property="receiveType"/>
 	</resultMap>
-	
+
+
 	<sql id="commonColumns">
 		 order_id
 		, flow_id
@@ -396,8 +397,35 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		WHERE
 		T1.CUST_ID = #{custId}
-		AND T1.ORDER_ID LIKE CONCAT('%',#{orderId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyame},'%' )
+		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		AND T4.PAY_TYPE=#{payType}
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		GROUP BY ORDERSTATUS
+	</select>
+
+	<resultMap id="buyerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
+		<result column="NOWTIME" property="nowTime"/>
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	</resultMap>
+
+	<select id="listPgBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap">
+		SELECT
+		T1.*,SYSDATE() AS NOWTIME,T4.PAY_TYPE,T4.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
 		AND T4.PAY_TYPE=#{payType}
 		<if test="createBeginTime!= null and createBeginTime!= ''">
 			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>

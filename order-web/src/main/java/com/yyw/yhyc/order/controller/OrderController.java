@@ -21,6 +21,7 @@ import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -127,8 +128,11 @@ public class OrderController extends BaseJsonController {
      */
     @RequestMapping(value = {"", "/listPgBuyerOrder"}, method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, Object> listPgBuyerOrder(RequestModel<OrderDto> requestModel) throws Exception {
+    public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel) throws Exception {
         System.err.println("===>" + requestModel);
+        /**
+         * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"","createEndTime":"","orderStatus":"1"}}
+         */
         Pagination<OrderDto> pagination = new Pagination<OrderDto>();
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
