@@ -15,6 +15,7 @@ import java.util.List;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 
@@ -110,4 +111,13 @@ public interface OrderFacade {
 	 * @throws Exception
 	 */
 	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList)throws Exception;
+
+	/**
+	 * 根据订单号查询订单详情
+	 *
+	 * @param flowId
+	 * @throws Exception
+	 */
+	public OrderDetailsDto getOrderDetails(String flowId) throws Exception;
+
 }

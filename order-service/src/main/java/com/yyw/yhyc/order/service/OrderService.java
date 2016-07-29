@@ -12,8 +12,11 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,13 +29,19 @@ import com.yyw.yhyc.order.mapper.OrderMapper;
 public class OrderService {
 
 	private OrderMapper	orderMapper;
+	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper)
 	{
 		this.orderMapper = orderMapper;
 	}
-	
+
+	@Autowired
+	public void setOrderDeliveryDetailMapper(OrderDeliveryDetailMapper orderDeliveryDetailMapper) {
+		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
+	}
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -163,4 +172,27 @@ public class OrderService {
         //todo
         return false;
     }
+	/**
+	 * 根据订单号查询订单详情
+	 * @param flowId
+	 * @throws Exception
+	 */
+	public OrderDetailsDto getOrderDetails(String flowId) throws Exception{
+		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(flowId);
+			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
+			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
+			orderDeliveryDetail.setFlowId(flowId);
+			orderDeliveryDetail.setDeliveryStatus(0);
+			List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+			if(list.size()>0){
+				orderDetailsdto.setOrderDeliveryDetail(list.get(0));
+			}else{
+				orderDeliveryDetail.setDeliveryStatus(1);
+				List<OrderDeliveryDetail> listDeliveryDetai=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+				if(listDeliveryDetai.size()>0){
+					orderDetailsdto.setOrderDeliveryDetail(listDeliveryDetai.get(0));
+				}
+			}
+		return orderDetailsdto;
+	}
 }
