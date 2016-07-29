@@ -89,35 +89,94 @@ public class OrderController extends BaseJsonController {
     }
 
 
-    /**
-     * 校验要购买的商品(通用方法)
-     * @param productInfoDtoList
-     * @throws Exception
-     */
-    @RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
-    @ResponseBody
-    public Map<String, Object> validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
-        boolean validateResult = false;
-        try {
-            validateResult = orderFacade.validateProducts(productInfoDtoList);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        map.put("result", validateResult);
-        return map;
-    }
+	/**
+	 * 校验要购买的商品(通用方法)
+	 * @param orderDto
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
+		Map<String,Object> map = new HashMap<String, Object>();
+		boolean validateResult = false;
+		try{
+			validateResult = orderFacade.validateProducts(orderDto);
+		}catch (Exception e){
+			logger.error(e.getMessage());
+		}
+		map.put("result",validateResult);
+		return map;
+	}
 
-    /**
-     * 创建订单
-     * @param orderCreateDto
-     * @throws Exception
-     */
-    @RequestMapping(value = "/createOrder", method = RequestMethod.POST)
-    @ResponseBody
-    public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
-        return orderFacade.createOrder(orderCreateDto);
-    }
+	/**
+	 * 创建订单
+	 * 请求数据格式：
+	 *
+	 {
+
+         "orderDelivery":{
+             "receivePerson":"收货人",
+             "receiveProvince":"收货省码",
+             "receiveCity":"收货市码",
+             "receiveRegion":"收货区县码",
+             "receiveProvinceName":"收货省名称",
+             "receiveCityName":"收货市名称",
+             "receiveRegionName":"收货区县名称",
+             "receiveAddress":"省名称+市名称+区县名称+具体地址",
+             "receiveContactPhone":"收货人联系电话",
+             "zipCode":"邮政编码"
+         },
+
+	     orderDtoList:[
+             {
+                 "custId":"买家id",
+                 "supplyId":"供应商id",
+                 "productInfoDtoList":[
+						 {
+							 "id":"商品id",
+							 "productCount:"商品个数"
+						 },
+						 {
+							 "id":"商品id",
+							 "productCount:"商品个数"
+						 }
+				 ]
+	             "billType":"发票类型 1 增值税专用发票 2 增值税普通发票",
+                 "payTypeId":"支付类型表ID",
+                 "leaveMessage":"买家留言"
+             },
+
+             {
+                 "custId":"买家id",
+                 "supplyId":"供应商id",
+                 "productInfoDtoList":[
+						 {
+							 "id":"商品id",
+							 "productCount:"商品个数"
+						 },
+						 {
+							 "id":"商品id",
+							 "productCount:"商品个数"
+						 }
+	 			 ]
+                 "billType":"发票类型 1 增值税专用发票 2 增值税普通发票",
+                 "payTypeId":"支付类型表ID",
+                 "leaveMessage":"买家留言"
+             }
+	     ]
+
+	 }
+
+
+
+	 * @param orderCreateDto
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception {
+		return orderFacade.createOrder(orderCreateDto);
+	}
 
     /**
      * 采购订单查询

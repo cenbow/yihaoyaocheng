@@ -149,17 +149,17 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
+	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception {
 		return orderService.createOrder(orderCreateDto);
 	}
 
 	/**
 	 * 校验要购买的商品(通用方法)
-	 * @param productInfoDtoList
+	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
-		return orderService.validateProducts(productInfoDtoList);
+	public boolean validateProducts(OrderDto orderDto) throws Exception {
+		return orderService.validateProducts(orderDto);
 	}
 	/**
 	 * 查采购商订单查询
