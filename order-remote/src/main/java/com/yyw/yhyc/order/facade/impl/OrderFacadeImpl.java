@@ -11,11 +11,13 @@
 package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
+import com.yyw.yhyc.order.dto.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -160,6 +162,15 @@ public class OrderFacadeImpl implements OrderFacade {
 	 */
 	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
 		return orderService.validateProducts(productInfoDtoList);
+	}
+	/**
+	 * 查采购商订单查询
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
+		return orderService.listPgBuyerOrder(pagination,orderDto);
 	}
 
 	/**

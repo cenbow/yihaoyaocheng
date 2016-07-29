@@ -17,9 +17,11 @@ import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
 import com.yyw.yhyc.order.facade.AccountPayInfoFacade;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,18 +33,34 @@ public class AccountPayInfoController extends BaseJsonController{
 
 	@Reference
 	private AccountPayInfoFacade accountPayInfoFacade;
-
+	private Integer custId;
+	
+	public Integer getCustId() {
+		return custId;
+	}
+	public void setCustId(Integer custId) {
+		this.custId = custId;
+	}
 	/**
 	* 通过主键查询实体对象
 	* @return
 	*/
 	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
-	public AccountPayInfo getByPK(Integer key) throws Exception
+	public AccountPayInfo getByPK(@PathVariable("key") Integer key) throws Exception
 	{
 		return accountPayInfoFacade.getByPK(key);
 	}
-
+	/**
+	* 通过供应商custId查询
+	* @return
+	*/
+	@RequestMapping(value = "/getByCustId/{custId}", method = RequestMethod.GET)
+	@ResponseBody
+	public AccountPayInfo getByCustId(@PathVariable("custId")Integer custId) throws Exception
+	{
+		return accountPayInfoFacade.getByCustId(custId);
+	}
 	/**
 	* 分页查询记录
 	* @return

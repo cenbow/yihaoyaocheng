@@ -430,6 +430,61 @@
 		<include refid="commonCondition"/>
 	</select>
 
+
+	<select id="findOrderStatusCount" parameterType="OrderDto" resultType="OrderDto">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		AND T1.ORDER_ID LIKE CONCAT('%',#{orderId},'%' )
+		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyame},'%' )
+		AND T4.PAY_TYPE=#{payType}
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<if test='payType == 1'><!--在线支付-->
+					AND T1.ORDER_STATUS = '1'
+				</if>
+				<if test='orderStatus == 3'><!--线下支付-->
+					AND T1.ORDER_STATUS = '1'
+				</if>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<otherwise>
+						AND T1.ORDER_STATUS = '4'<!--买家已付款-->
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('5','11')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '8'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','6')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('7','10')<!--买家全部收货+系统自动确认收货-->
+			</if>
+		</if>
+	</select>
+
 	<select id="getOrderDetails" parameterType="java.lang.String" resultMap="OrderDetailsResultMapper">
 		SELECT s.pay_type_name,o.* from t_order o,t_system_pay_type s
 		WHERE o.pay_type_id=s.pay_type_id

@@ -20,6 +20,7 @@ import com.yyw.yhyc.order.facade.ShoppingCartFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,7 +39,7 @@ public class ShoppingCartController extends BaseJsonController{
 	*/
 	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
-	public ShoppingCart getByPK(Integer key) throws Exception
+	public ShoppingCart getByPK(@PathVariable("key") Integer key) throws Exception
 	{
 		return shoppingCartFacade.getByPK(key);
 	}
