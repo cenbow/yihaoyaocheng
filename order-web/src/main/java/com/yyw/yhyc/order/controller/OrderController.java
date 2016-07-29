@@ -16,13 +16,20 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order")
@@ -89,4 +96,36 @@ public class OrderController extends BaseJsonController{
 	{
 		orderFacade.update(order);
 	}
+
+
+	/**
+	 * 校验要购买的商品(通用方法)
+	 * @param productInfoDtoList
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
+		Map<String,Object> map = new HashMap<String, Object>();
+		boolean validateResult = false;
+		try{
+			validateResult = orderFacade.validateProducts(productInfoDtoList);
+		}catch (Exception e){
+			logger.error(e.getMessage());
+		}
+		map.put("result",validateResult);
+		return map;
+	}
+
+	/**
+	 * 创建订单
+	 * @param orderCreateDto
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
+		return orderFacade.createOrder(orderCreateDto);
+	}
+
 }

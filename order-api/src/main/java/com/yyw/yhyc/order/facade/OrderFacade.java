@@ -14,6 +14,9 @@ import java.util.List;
 
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 
 public interface OrderFacade {
 
@@ -94,4 +97,17 @@ public interface OrderFacade {
 	 */
 	public Pagination<Order> listPaginationByProperty(Pagination<Order> pagination, Order order) throws Exception;
 
+	/**
+	 * 创建订单
+	 * @param orderCreateDto
+	 * @throws Exception
+	 */
+	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto)throws Exception;
+
+	/**
+	 * 校验要购买的商品(通用方法)
+	 * @param productInfoDtoList
+	 * @throws Exception
+	 */
+	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList)throws Exception;
 }
