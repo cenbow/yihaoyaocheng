@@ -7,7 +7,9 @@ import java.util.List;
 /**
  * Created by shiyongxi on 2016/7/27.
  */
-public class RequestListModel<T extends Serializable> {
+public class RequestListModel<T extends Serializable> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private List<T> list;
 
     public void setList(List<T> list) {
