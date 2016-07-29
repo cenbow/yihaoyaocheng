@@ -21,9 +21,7 @@ import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +41,7 @@ public class OrderController extends BaseJsonController {
      */
     @RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
     @ResponseBody
-    public Order getByPK(Integer key) throws Exception {
+    public Order getByPK(@PathVariable("key") Integer key) throws Exception {
         return orderFacade.getByPK(key);
     }
 

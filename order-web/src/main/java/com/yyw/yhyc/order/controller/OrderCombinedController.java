@@ -38,7 +38,7 @@ public class OrderCombinedController extends BaseJsonController{
 	*/
 	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
-	public OrderCombined getByPK(Integer key) throws Exception
+	public OrderCombined getByPK(@PathVariable("key") Integer key) throws Exception
 	{
 		return orderCombinedFacade.getByPK(key);
 	}
