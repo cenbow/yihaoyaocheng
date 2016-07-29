@@ -16,10 +16,12 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,7 +40,7 @@ public class OrderController extends BaseJsonController{
 	*/
 	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
-	public Order getByPK(Integer key) throws Exception
+	public Order getByPK(@PathVariable("key") Integer key) throws Exception
 	{
 		return orderFacade.getByPK(key);
 	}
@@ -89,4 +91,18 @@ public class OrderController extends BaseJsonController{
 	{
 		orderFacade.update(order);
 	}
+
+	/**
+	 * 通过主键查询实体对象
+	 * @return
+	 */
+	@RequestMapping(value = "/getOrderDetails/{flowId}", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getOrderDetails(String flowId) throws Exception
+	{
+		return orderFacade.getOrderDetails(flowId);
+	}
+
+
+
 }

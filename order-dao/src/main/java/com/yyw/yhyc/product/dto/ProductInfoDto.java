@@ -3,26 +3,27 @@ package com.yyw.yhyc.product.dto;
 import com.yyw.yhyc.product.bo.ProductInfo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by lizhou on 2016/7/29
  */
 public class ProductInfoDto extends ProductInfo implements Serializable {
 
-    private static final long serialVersionUID = 3304121638180697237L;
+    private static final long serialVersionUID = 6799891469310083830L;
 
     /* 商品单价 */
-    private Double productPrice;
+    private BigDecimal productPrice;
 
     /* 商品数量 */
     private Integer productCount;
 
 
-    public Double getProductPrice() {
+    public BigDecimal getProductPrice() {
         return productPrice;
     }
 
-    public void setProductPrice(Double productPrice) {
+    public void setProductPrice(BigDecimal productPrice) {
         this.productPrice = productPrice;
     }
 

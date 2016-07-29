@@ -19,4 +19,6 @@ import com.yyw.yhyc.order.bo.Pagination;
 public interface OrderDeliveryMapper extends GenericIBatisMapper<OrderDelivery, Integer> {
 
 	public List<OrderDelivery> listPaginationByProperty(Pagination<OrderDelivery> pagination, OrderDelivery orderDelivery);
+
+	public OrderDelivery getByOrderId(int orderId);
 }

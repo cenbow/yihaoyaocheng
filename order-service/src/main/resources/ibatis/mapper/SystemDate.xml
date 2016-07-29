@@ -4,4 +4,8 @@
 	<select id="getSystemDate" resultType="java.lang.String">
 		<![CDATA[ SELECT  date_format(NOW(), '%Y-%m-%d %H:%i:%s') FROM dual  ]]>
 	</select>
+
+	<select id="getSystemDateByformatter" parameterType="java.lang.String" resultType="java.lang.String">
+		<![CDATA[ SELECT  date_format(NOW(), #{formatter}) FROM dual  ]]>
+	</select>
 </mapper>

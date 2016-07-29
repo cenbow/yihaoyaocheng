@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderDto;
@@ -29,15 +30,15 @@ import com.yyw.yhyc.order.service.OrderService;
 public class OrderFacadeImpl implements OrderFacade {
 
 	private OrderService orderService;
-	
+
 	@Autowired
-	public void setOrderService(OrderService orderService)
-	{
+	public void setOrderService(OrderService orderService) {
 		this.orderService = orderService;
 	}
-	
+
 	/**
 	 * 通过主键查询实体对象
+	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
@@ -149,17 +150,19 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
+	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception {
 		return orderService.createOrder(orderCreateDto);
 	}
 
 	/**
 	 * 校验要购买的商品(通用方法)
+	 *
 	 * @param productInfoDtoList
+	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
-		return orderService.validateProducts(productInfoDtoList);
+	public boolean validateProducts(OrderDto orderDto) throws Exception {
+		return orderService.validateProducts(orderDto);
 	}
 	/**
 	 * 查采购商订单查询
@@ -170,4 +173,16 @@ public class OrderFacadeImpl implements OrderFacade {
 	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		return orderService.listPgBuyerOrder(pagination,orderDto);
 	}
+
+	/**
+	 * 根据订单号查询订单详情
+	 *
+	 * @param flowId
+	 * @throws Exception
+	 */
+	public OrderDetailsDto getOrderDetails(String flowId) throws Exception {
+		return orderService.getOrderDetails(flowId);
+	}
+
+
 }
