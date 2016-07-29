@@ -70,7 +70,7 @@ public class OrderSettlementService {
 	 */
 	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto) throws Exception
 	{
-		List<OrderSettlementDto> list = orderSettlementMapper.listPaginationByProperty(pagination, orderSettlementDto);
+		List<OrderSettlementDto> list = orderSettlementMapper.listPaginationDtoByProperty(pagination, orderSettlementDto);
 
 		pagination.setResultList(list);
 
