@@ -17,14 +17,12 @@ import com.yyw.yhyc.order.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -112,60 +110,61 @@ public class OrderController extends BaseJsonController {
 	 * 创建订单
 	 * 请求数据格式：
 	 *
+
+
 	 {
 
-         "orderDelivery":{
-             "receivePerson":"收货人",
-             "receiveProvince":"收货省码",
-             "receiveCity":"收货市码",
-             "receiveRegion":"收货区县码",
-             "receiveProvinceName":"收货省名称",
-             "receiveCityName":"收货市名称",
-             "receiveRegionName":"收货区县名称",
-             "receiveAddress":"省名称+市名称+区县名称+具体地址",
-             "receiveContactPhone":"收货人联系电话",
-             "zipCode":"邮政编码"
-         },
+		 "orderDeliveryDto":{
+			 "receivePerson":"收货人",
+			 "receiveProvince":"收货省码",
+			 "receiveCity":"收货市码",
+			 "receiveRegion":"收货区县码",
+			 "receiveProvinceName":"收货省名称",
+			 "receiveCityName":"收货市名称",
+			 "receiveRegionName":"收货区县名称",
+			 "receiveAddress":"省名称+市名称+区县名称+具体地址",
+			 "receiveContactPhone":"收货人联系电话",
+			 "zipCode":"邮政编码"
+		 },
 
-	     orderDtoList:[
-             {
-                 "custId":"买家id",
-                 "supplyId":"供应商id",
-                 "productInfoDtoList":[
+		 "orderDtoList": [
+				 {
+					 "custId": "123",
+					 "supplyId": "321",
+					 "productInfoDtoList": [
 						 {
-							 "id":"商品id",
-							 "productCount:"商品个数"
+							 "id": "111",
+							 "productCount": "1"
 						 },
 						 {
-							 "id":"商品id",
-							 "productCount:"商品个数"
+							 "id": "112",
+							 "productCount": "2"
 						 }
-				 ]
-	             "billType":"发票类型 1 增值税专用发票 2 增值税普通发票",
-                 "payTypeId":"支付类型表ID",
-                 "leaveMessage":"买家留言"
-             },
-
-             {
-                 "custId":"买家id",
-                 "supplyId":"供应商id",
-                 "productInfoDtoList":[
-						 {
-							 "id":"商品id",
-							 "productCount:"商品个数"
-						 },
-						 {
-							 "id":"商品id",
-							 "productCount:"商品个数"
-						 }
-	 			 ]
-                 "billType":"发票类型 1 增值税专用发票 2 增值税普通发票",
-                 "payTypeId":"支付类型表ID",
-                 "leaveMessage":"买家留言"
-             }
-	     ]
-
+					 ],
+					 "billType": "1",
+					 "payTypeId": "1",
+					 "leaveMessage": "买家留言啦！！"
+				 },
+				 {
+					 "custId": "123",
+					 "supplyId": "124",
+					 "productInfoDtoList": [
+							 {
+								 "id": "222",
+								 "productCount": "1"
+							 },
+							 {
+								 "id": "223",
+								 "productCount": "2"
+							 }
+					 ],
+					 "billType": "2",
+					 "payTypeId": "2",
+					 "leaveMessage": "买家留言咯！！"
+				 }
+		 ]
 	 }
+
 
 
 
@@ -174,7 +173,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception {
+	public OrderCreateDto createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
 		return orderFacade.createOrder(orderCreateDto);
 	}
 

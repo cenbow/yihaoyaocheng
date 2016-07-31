@@ -23,6 +23,7 @@ import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
@@ -203,13 +204,13 @@ public class OrderService {
 	 */
 	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
-		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getOrderDelivery())
+		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getOrderDeliveryDto())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList())){
 			throw  new Exception("非法参数");
 		}
 
         /* 订单配送信息 */
-		OrderDelivery orderDelivery = orderCreateDto.getOrderDelivery();
+		OrderDeliveryDto orderDeliveryDto = orderCreateDto.getOrderDeliveryDto();
 
         /* 订单信息 */
 		List<OrderDto> orderDtoList = orderCreateDto.getOrderDtoList();
@@ -224,7 +225,7 @@ public class OrderService {
 			validateProducts(orderDto);
 
             /* 创建订单相关的所有信息 */
-			OrderDto orderDtoNew = createOrderInfo(orderDto,orderDelivery);
+			OrderDto orderDtoNew = createOrderInfo(orderDto,orderDeliveryDto);
 
 			orderDtoNewList.add(orderDtoNew);
 		}
@@ -237,10 +238,10 @@ public class OrderService {
 	/**
 	 * 创建订单相关的所有信息
 	 * @param orderDto 订单、商品相关信息
-	 * @param orderDelivery 订单发货、配送相关信息
+	 * @param orderDeliveryDto 订单发货、配送相关信息
 	 * @return
 	 */
-	private OrderDto createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery) throws Exception{
+	private OrderDto createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
 
 		/* 计算订单相关的价格 */
 //		orderDto = calculateOrderPrice(orderDto);
