@@ -4,8 +4,6 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.bo.OrderDetail;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 
@@ -13,6 +11,9 @@ import java.util.List;
  * Created by zhangqiang on 2016/7/29.
  */
 public class OrderDto extends Order {
+
+    private static final long serialVersionUID = -6636640013385932486L;
+
     private int orderCount;            //订单数量
     private int payType;               //支付类型
     private String payTypeName;        //支付类型名称

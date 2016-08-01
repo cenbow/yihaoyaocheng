@@ -12,7 +12,6 @@ package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +30,9 @@ import com.yyw.yhyc.order.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.DateUtils;
 import com.yyw.yhyc.order.utils.RandomUtil;
+import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
+import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ import com.yyw.yhyc.order.bo.Pagination;
 @Service("orderService")
 public class OrderService {
 
-	Log log = LogFactory.getLog(OrderService.class);
+	private Log log = LogFactory.getLog(OrderService.class);
 
 	private OrderMapper	orderMapper;
 	private SystemPayTypeService systemPayTypeService;
@@ -55,6 +56,8 @@ public class OrderService {
 	private OrderPayMapper orderPayMapper;
 	private OrderCombinedMapper orderCombinedMapper;
 	private ShoppingCartMapper shoppingCartMapper;
+	private ProductInfoMapper productInfoMapper;
+
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper)
@@ -106,6 +109,11 @@ public class OrderService {
 	@Autowired
 	public void setShoppingCartMapper(ShoppingCartMapper shoppingCartMapper) {
 		this.shoppingCartMapper = shoppingCartMapper;
+	}
+
+	@Autowired
+	public void setProductInfoMapper(ProductInfoMapper productInfoMapper) {
+		this.productInfoMapper = productInfoMapper;
 	}
 
 	/**
@@ -415,6 +423,10 @@ public class OrderService {
 		}
 	}
 
+	/**
+	 * 插入订单跟踪信息表
+	 * @param order
+     */
 	private void insertOrderTrace(Order order) {
 		if(UtilHelper.isEmpty(order)) return;
 		OrderTrace orderTrace = new OrderTrace();
@@ -424,6 +436,11 @@ public class OrderService {
 		orderTraceMapper.save(orderTrace);
 	}
 
+	/**
+	 * 插入订单收发货表
+	 * @param order
+	 * @param orderDeliveryDto
+     */
 	private void insertOrderDeliver(Order order, OrderDeliveryDto orderDeliveryDto) {
 		if(UtilHelper.isEmpty(order) || UtilHelper.isEmpty(orderDeliveryDto)){
 			return ;
@@ -496,18 +513,32 @@ public class OrderService {
 
 		/* 插入订单详情表 */
 		OrderDetail orderDetail = null;
+		ProductInfo productInfo = null;
 		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
 		for(ProductInfoDto productInfoDto : productInfoDtoList){
 			if(UtilHelper.isEmpty(productInfoDto)){
 				continue;
 			}
+			productInfo = productInfoMapper.getByPK(productInfoDto.getId());
+			if(UtilHelper.isEmpty(productInfo)) {
+				continue;
+			}
 			orderDetail = new OrderDetail();
 			orderDetail.setOrderId(order.getOrderId());
-			orderDetail.setSupplyId(order.getSupplyId());
+			orderDetail.setSupplyId(order.getSupplyId());//供应商ID
+			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
+			orderDetail.setCreateUser("");
+
+			//TODO 商品信息
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
 			orderDetail.setProductCount(productInfoDto.getProductCount());
-			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
-			orderDetail.setCreateUser("");//todo
+			orderDetail.setProductId(productInfo.getId());
+			orderDetail.setProductName(productInfo.getProductName());//商品名称
+			orderDetail.setProductCode(productInfo.getProductCode());//商品编码
+			orderDetail.setSpecification(productInfo.getSpec());//商品规格
+			orderDetail.setBrandName(productInfo.getBrandId() + "");//品牌名称
+			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
+			orderDetail.setManufactures("");//生产厂家
 			orderDetailService.save(orderDetail);
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
 		}
@@ -551,16 +582,6 @@ public class OrderService {
 			}
 		return orderDetailsdto;
 	}
-
-    /**
-     * 校验要购买的商品(通用方法)
-     * @param productInfoDtoList
-     * @throws Exception
-     */
-    public boolean validateProducts(List<ProductInfoDto> productInfoDtoList) {
-        //todo
-        return false;
-    }
 
     public Map<String, Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
         if(UtilHelper.isEmpty(orderDto))
