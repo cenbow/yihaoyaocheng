@@ -183,10 +183,10 @@ public class OrderController extends BaseJsonController {
      */
     @RequestMapping(value = {"", "/listPgBuyerOrder"}, method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel) throws Exception {
+    public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel){
         System.err.println("===>" + requestModel);
         /**
-         * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"","createEndTime":"","orderStatus":"1"}}
+         * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
          */
         Pagination<OrderDto> pagination = new Pagination<OrderDto>();
         pagination.setPaginationFlag(requestModel.isPaginationFlag());

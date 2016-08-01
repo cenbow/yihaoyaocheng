@@ -29,9 +29,11 @@ import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.exception.ServiceException;
 import com.yyw.yhyc.order.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.utils.DateUtils;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.apache.commons.logging.Log;
@@ -435,26 +437,21 @@ public class OrderService {
 
     public Map<String, Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
         if(UtilHelper.isEmpty(orderDto))
-            throw new RuntimeException("参数错误");
-        if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
-            SimpleDateFormat formatter =  new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                Date date = formatter.parse(orderDto.getCreateEndTime());
-                GregorianCalendar gc=new GregorianCalendar();
-                gc.setTime(date);
-                gc.add(5,1);
-                orderDto.setCreateEndTime(formatter.format(gc.getTime()));
-            } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            throw new ServiceException("参数错误");
+		log.debug("request orderDto :"+orderDto.toString());
+		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderDto.getCreateEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderDto.setCreateEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderDto.getCreateEndTime());
+				e.printStackTrace();
+				throw new ServiceException("日期错误");
+			}
+
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        /*orderDto = new OrderDto();
-        orderDto.setCustId(1);
-        orderDto.setFlowId("1");
-        orderDto.setPayType(1);
-        orderDto.setSupplyName("上海");*/
         List<OrderDto> buyerOrderList = orderMapper.listPgBuyerOrder(pagination, orderDto);
         pagination.setResultList(buyerOrderList);
 
@@ -477,7 +474,7 @@ public class OrderService {
 
         BigDecimal orderTotalMoney = new BigDecimal(0);
         int orderCount = 0;
-
+		long time = 0l;
         if(!UtilHelper.isEmpty(buyerOrderList)){
             orderCount = buyerOrderList.size();
             for(OrderDto od : buyerOrderList){
@@ -490,11 +487,29 @@ public class OrderService {
                 }
                 if(!UtilHelper.isEmpty(od.getOrderTotal()))
                     orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
+				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){//在线支付 + 未付款订单
+					try {
+						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
+						time = CommonType.PAY_TIME*60*60-time;
+						if(time < 0)
+							time = 0l;
+						od.setResidualTime(time);
+					} catch (ParseException e) {
+						log.debug("date format error"+od.getCreateTime()+" "+od.getNowTime());
+						e.printStackTrace();
+						throw new ServiceException("日期转换错误");
+					}
+
+				}
             }
         }
 
+		log.debug("orderStatusCount====>" + orderStatusCountMap);
         log.debug("orderList====>" + orderDtoList);
         log.debug("buyerOrderList====>" + buyerOrderList);
+		log.debug("orderCount====>" + orderCount);
+		log.debug("orderTotalMoney====>" + orderTotalMoney);
+
         resultMap.put("orderStatusCount", orderStatusCountMap);
         resultMap.put("buyerOrderList", buyerOrderList);
         resultMap.put("orderCount", orderCount);

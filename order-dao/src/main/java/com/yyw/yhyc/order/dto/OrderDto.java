@@ -21,6 +21,7 @@ public class OrderDto extends Order {
     private String createBeginTime;    //下单开始时间
     private String createEndTime;      //下单结束时间
     private String nowTime;
+    private long residualTime ;        //支付剩余时间
     /* 商品信息集合 */
     private List<ProductInfoDto> productInfoDtoList;
 
@@ -97,6 +98,14 @@ public class OrderDto extends Order {
         this.nowTime = nowTime;
     }
 
+    public long getResidualTime() {
+        return residualTime;
+    }
+
+    public void setResidualTime(long residualTime) {
+        this.residualTime = residualTime;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
@@ -109,7 +118,8 @@ public class OrderDto extends Order {
                 ", createBeginTime='" + createBeginTime + '\'' +
                 ", createEndTime='" + createEndTime + '\'' +
                 ", nowTime='" + nowTime + '\'' +
-                ", productInfoDtoList=" + productInfoDtoList +
+                ", productInfoDtoList=" + productInfoDtoList + '\'' +
+                ", residualTime=" + residualTime +
                 '}';
     }
 }
