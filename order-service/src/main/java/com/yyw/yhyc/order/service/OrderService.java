@@ -29,7 +29,6 @@ import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.exception.ServiceException;
 import com.yyw.yhyc.order.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
@@ -437,7 +436,7 @@ public class OrderService {
 
     public Map<String, Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
         if(UtilHelper.isEmpty(orderDto))
-            throw new ServiceException("参数错误");
+            throw new RuntimeException("参数错误");
 		log.debug("request orderDto :"+orderDto.toString());
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
@@ -447,7 +446,7 @@ public class OrderService {
 			} catch (ParseException e) {
 				log.error("datefromat error,date: "+orderDto.getCreateEndTime());
 				e.printStackTrace();
-				throw new ServiceException("日期错误");
+				throw new RuntimeException("日期错误");
 			}
 
         }
@@ -497,7 +496,7 @@ public class OrderService {
 					} catch (ParseException e) {
 						log.debug("date format error"+od.getCreateTime()+" "+od.getNowTime());
 						e.printStackTrace();
-						throw new ServiceException("日期转换错误");
+						throw new RuntimeException("日期转换错误");
 					}
 
 				}
@@ -602,15 +601,15 @@ public class OrderService {
 	 * @param custId
 	 * @param orderId
 	 */
-	public int  cancleOrder(int custId,int orderId){
+	public void  cancleOrder(int custId,int orderId){
 		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
-			throw new ServiceException("参数错误");
+			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
 		log.debug(order);
 		if(UtilHelper.isEmpty(order)){
 			log.error("can not find order ,orderId"+orderId);
-			throw new ServiceException("未找到订单");
+			throw new RuntimeException("未找到订单");
 		}
 		int count = 0;
 		if(custId == order.getCustId()){
@@ -621,18 +620,16 @@ public class OrderService {
 				count = orderMapper.update(order);
 				if(count == 0){
 					log.error("order info :"+order);
-					throw new ServiceException("订单取消失败");
+					throw new RuntimeException("订单取消失败");
 				}
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
-				throw new ServiceException("订单状态不正确");
+				throw new RuntimeException("订单状态不正确");
 			}
 		}else{
-			log.error("db orderId not equals to order ,orderId:"+orderId+",db orderId:"+order.getOrderId());
-			throw new ServiceException("未找到订单");
+			log.error("db orderId not equals to request orderId ,orderId:"+orderId+",db orderId:"+order.getOrderId());
+			throw new RuntimeException("未找到订单");
 		}
-
-		return count;
 	}
 
 }

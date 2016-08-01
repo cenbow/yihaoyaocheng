@@ -209,6 +209,6 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/cancleOrder/2
 		 */
 		int custId = 1;
-		//orderFacade.cancleOrder(custId,orderId);
+		orderFacade.cancleOrder(custId,orderId);
 	}
 }

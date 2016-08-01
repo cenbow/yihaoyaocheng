@@ -189,7 +189,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  cancleOrder(int custId,int orderId){
+	public void  cancleOrder(Integer custId,Integer orderId){
 		orderService.cancleOrder(custId,orderId);
 	}
 
