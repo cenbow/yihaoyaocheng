@@ -597,4 +597,42 @@ public class OrderService {
         return null;
     }
 
+	/**
+	 * 采购商取消订单
+	 * @param custId
+	 * @param orderId
+	 */
+	public int  cancleOrder(int custId,int orderId){
+		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
+			throw new ServiceException("参数错误");
+		}
+		Order order =  orderMapper.getByPK(orderId);
+		log.debug(order);
+		if(UtilHelper.isEmpty(order)){
+			log.error("can not find order ,orderId"+orderId);
+			throw new ServiceException("未找到订单");
+		}
+		int count = 0;
+		if(custId == order.getCustId()){
+			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
+				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
+				// TODO: 2016/8/1 需获取登录用户信息
+				order.setUpdateUser("zhangsan");
+				count = orderMapper.update(order);
+				if(count == 0){
+					log.error("order info :"+order);
+					throw new ServiceException("订单取消失败");
+				}
+			}else{
+				log.error("order status error ,orderStatus:"+order.getOrderStatus());
+				throw new ServiceException("订单状态不正确");
+			}
+		}else{
+			log.error("db orderId not equals to order ,orderId:"+orderId+",db orderId:"+order.getOrderId());
+			throw new ServiceException("未找到订单");
+		}
+
+		return count;
+	}
+
 }

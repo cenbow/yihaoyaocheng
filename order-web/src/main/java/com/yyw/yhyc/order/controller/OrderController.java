@@ -184,8 +184,10 @@ public class OrderController extends BaseJsonController {
     @RequestMapping(value = {"", "/listPgBuyerOrder"}, method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel){
-        System.err.println("===>" + requestModel);
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		System.err.println("===>" + requestModel);
         /**
+		 * http://localhost:8088/order/listPgBuyerOrder
          * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
          */
         Pagination<OrderDto> pagination = new Pagination<OrderDto>();
@@ -194,4 +196,19 @@ public class OrderController extends BaseJsonController {
         pagination.setPageSize(requestModel.getPageSize());
         return orderFacade.listPgBuyerOrder(pagination, requestModel.getParam());
     }
+
+	/**
+	 * 采购商取消订单
+	 * @return
+	 */
+	@RequestMapping(value = "/cancleOrder/{orderId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void cancleOrder(@PathVariable("orderId") Integer orderId){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 *  http://localhost:8088/order/cancleOrder/2
+		 */
+		int custId = 1;
+		//orderFacade.cancleOrder(custId,orderId);
+	}
 }

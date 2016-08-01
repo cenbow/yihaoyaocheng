@@ -184,5 +184,14 @@ public class OrderFacadeImpl implements OrderFacade {
 		return orderService.getOrderDetails(flowId);
 	}
 
+	/**
+	 * 采购商取消订单
+	 * @param custId
+	 * @param orderId
+	 */
+	public void  cancleOrder(int custId,int orderId){
+		orderService.cancleOrder(custId,orderId);
+	}
+
 
 }

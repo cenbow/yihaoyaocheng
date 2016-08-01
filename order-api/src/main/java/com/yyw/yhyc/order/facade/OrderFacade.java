@@ -132,4 +132,11 @@ public interface OrderFacade {
 	 */
 	public OrderDetailsDto getOrderDetails(String flowId) throws Exception;
 
+	/**
+	 * 采购商取消订单
+	 * @param custId
+	 * @param orderId
+     */
+	public void  cancleOrder(int custId,int orderId);
+
 }
