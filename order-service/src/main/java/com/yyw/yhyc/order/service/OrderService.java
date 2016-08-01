@@ -408,7 +408,6 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderNewList)) return;
 		if(UtilHelper.isEmpty(currentLoginCustId)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
-
 		OrderPay orderPay = null ;
 		for(Order order : orderNewList){
 			orderPay = new OrderPay();
@@ -457,7 +456,6 @@ public class OrderService {
 		orderDelivery.setZipCode(orderDeliveryDto.getZipCode());
 		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
 		orderDeliveryMapper.save(orderDelivery);
-
 	}
 
 	/**
@@ -467,6 +465,9 @@ public class OrderService {
 	 * @throws Exception
      */
 	private Order insertOrderAndOrderDetail(OrderDto orderDto)throws Exception {
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+			throw new Exception("非法参数");
+		}
 		Order order = new Order();
 		order.setCustId(orderDto.getCustId());
 		order.setCustName("");//todo
@@ -495,8 +496,17 @@ public class OrderService {
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
 		order.setCreateTime(systemDateMapper.getSystemDate());
-
 		order.setCreateUser("");
+		order.setTotalCount( orderDto.getProductInfoDtoList().size());
+
+		/* TODO 订单金额相关 */
+//		order.setOrderTotal();//订单总金额
+//		order.setFreight();//运费
+//		order.setPreferentialMoney();//优惠了的金额(如果使用了优惠)
+//		order.setOrgTotal();//订单优惠后的金额(如果使用了优惠)
+//		order.setSettlementMoney();//结算金额
+//		order.setFinalPay();//最后支付金额
+
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
 		List<Order> orders = orderMapper.listByProperty(order);
@@ -536,9 +546,9 @@ public class OrderService {
 			orderDetail.setProductName(productInfo.getProductName());//商品名称
 			orderDetail.setProductCode(productInfo.getProductCode());//商品编码
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
-			orderDetail.setBrandName(productInfo.getBrandId() + "");//品牌名称
+			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
-			orderDetail.setManufactures("");//生产厂家
+			orderDetail.setManufactures(productInfo.getFactoryName());//生产厂家
 			orderDetailService.save(orderDetail);
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
 		}

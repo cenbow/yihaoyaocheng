@@ -29,6 +29,8 @@
 
         <logger name="org.springframework" level="INFO"/>
         <logger name="com.yyw.yhyc.order" level="ERROR"/>
+        <logger name="com.yyw.yhyc.product" level="ERROR"/>
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
     </loggers>
 </configuration>
