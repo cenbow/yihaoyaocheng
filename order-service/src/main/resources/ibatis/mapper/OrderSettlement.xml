@@ -285,10 +285,10 @@
 			AND t.pay_type = #{payType}
 		</if>
 		<if test="startTime !=null and startTime!=''">
-			s.order_time > #{startTime}
+			AND s.order_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			#{startTime} > s.order_time
+			AND #{startTime} > s.order_time
 		</if>
 		<if test="province !=null and province != '' ">
 			AND ue.province = #{province}
