@@ -25,9 +25,7 @@ import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.DateUtils;
@@ -236,7 +234,7 @@ public class OrderService {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception{
+	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getOrderDeliveryDto())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList())){
