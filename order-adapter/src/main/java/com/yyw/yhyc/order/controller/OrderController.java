@@ -16,6 +16,7 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,4 +91,18 @@ public class OrderController extends BaseJsonController{
 	{
 		orderFacade.update(order);
 	}
+
+	/**
+	 * 通过主键查询实体对象
+	 * @return
+	 */
+	@RequestMapping(value = "/getOrderDetails/{flowId}", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getOrderDetails(String flowId) throws Exception
+	{
+		return orderFacade.getOrderDetails(flowId);
+	}
+
+
+
 }

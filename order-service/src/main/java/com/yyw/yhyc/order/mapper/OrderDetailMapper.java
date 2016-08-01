@@ -13,10 +13,14 @@ package com.yyw.yhyc.order.mapper;
 import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.dto.OrderDetailInfoDto;
 import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.order.bo.Pagination;
 
 public interface OrderDetailMapper extends GenericIBatisMapper<OrderDetail, Integer> {
 
 	public List<OrderDetail> listPaginationByProperty(Pagination<OrderDetail> pagination, OrderDetail orderDetail);
+
+	public List<OrderDetailInfoDto> listOrderDetailInfoByOrderId(int orderId);
+
 }

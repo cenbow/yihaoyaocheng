@@ -17,7 +17,6 @@ import com.yyw.yhyc.order.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -89,35 +88,95 @@ public class OrderController extends BaseJsonController {
     }
 
 
-    /**
-     * 校验要购买的商品(通用方法)
-     * @param productInfoDtoList
-     * @throws Exception
-     */
-    @RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
-    @ResponseBody
-    public Map<String, Object> validateProducts(List<ProductInfoDto> productInfoDtoList) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
-        boolean validateResult = false;
-        try {
-            validateResult = orderFacade.validateProducts(productInfoDtoList);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        map.put("result", validateResult);
-        return map;
-    }
+	/**
+	 * 校验要购买的商品(通用方法)
+	 * @param orderDto
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
+		Map<String,Object> map = new HashMap<String, Object>();
+		boolean validateResult = false;
+		try{
+			validateResult = orderFacade.validateProducts(orderDto);
+		}catch (Exception e){
+			logger.error(e.getMessage());
+		}
+		map.put("result",validateResult);
+		return map;
+	}
 
-    /**
-     * 创建订单
-     * @param orderCreateDto
-     * @throws Exception
-     */
-    @RequestMapping(value = "/createOrder", method = RequestMethod.POST)
-    @ResponseBody
-    public List<OrderDto> createOrder(OrderCreateDto orderCreateDto) throws Exception {
-        return orderFacade.createOrder(orderCreateDto);
-    }
+	/**
+	 * 创建订单
+	 * 请求数据格式：
+	 *
+
+
+	 {
+
+		 "orderDeliveryDto":{
+			 "receivePerson":"收货人",
+			 "receiveProvince":"收货省码",
+			 "receiveCity":"收货市码",
+			 "receiveRegion":"收货区县码",
+			 "receiveProvinceName":"收货省名称",
+			 "receiveCityName":"收货市名称",
+			 "receiveRegionName":"收货区县名称",
+			 "receiveAddress":"省名称+市名称+区县名称+具体地址",
+			 "receiveContactPhone":"收货人联系电话",
+			 "zipCode":"邮政编码"
+		 },
+
+		 "orderDtoList": [
+				 {
+					 "custId": "123",
+					 "supplyId": "321",
+					 "productInfoDtoList": [
+						 {
+							 "id": "111",
+							 "productCount": "1"
+						 },
+						 {
+							 "id": "112",
+							 "productCount": "2"
+						 }
+					 ],
+					 "billType": "1",
+					 "payTypeId": "1",
+					 "leaveMessage": "买家留言啦！！"
+				 },
+				 {
+					 "custId": "123",
+					 "supplyId": "124",
+					 "productInfoDtoList": [
+							 {
+								 "id": "222",
+								 "productCount": "1"
+							 },
+							 {
+								 "id": "223",
+								 "productCount": "2"
+							 }
+					 ],
+					 "billType": "2",
+					 "payTypeId": "2",
+					 "leaveMessage": "买家留言咯！！"
+				 }
+		 ]
+	 }
+
+
+
+
+	 * @param orderCreateDto
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Order> createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
+		return orderFacade.createOrder(orderCreateDto);
+	}
 
     /**
      * 采购订单查询
@@ -125,12 +184,65 @@ public class OrderController extends BaseJsonController {
      */
     @RequestMapping(value = {"", "/listPgBuyerOrder"}, method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, Object> listPgBuyerOrder(RequestModel<OrderDto> requestModel) throws Exception {
-        System.err.println("===>" + requestModel);
+    public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+        /**
+		 * http://localhost:8088/order/listPgBuyerOrder
+         * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
+         */
         Pagination<OrderDto> pagination = new Pagination<OrderDto>();
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
         return orderFacade.listPgBuyerOrder(pagination, requestModel.getParam());
     }
+
+	/**
+	 * 采购商取消订单
+	 * @return
+	 */
+	@RequestMapping(value = "/buyerCancleOrder/{orderId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void buyerCancleOrder(@PathVariable("orderId") Integer orderId){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 *  http://localhost:8088/order/buyerCancleOrder/2
+		 */
+		int custId = 1;
+		orderFacade.buyerCancleOrder(custId,orderId);
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgSellerOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerOrder(@RequestBody RequestModel<OrderDto> requestModel){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 * http://localhost:8088/order/listPgSellerOrder
+		 * {"param":{"supplyId":1,"flowId":"1","payType":1,"custName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1","province":"","city":"","district":""}}
+		 */
+		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		return orderFacade.listPgSellerOrder(pagination, requestModel.getParam());
+	}
+
+	/**
+	 * 采购商取消订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerCancleOrder/{orderId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void sellerCancleOrder(@PathVariable("orderId") Integer orderId){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 *  http://localhost:8088/order/sellerCancleOrder/2
+		 */
+		int custId = 1;
+		orderFacade.sellerCancleOrder(custId,orderId);
+	}
 }

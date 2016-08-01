@@ -18,7 +18,7 @@ public class OrderCreateDto implements Serializable {
     private List<OrderDto> orderDtoList;
 
     /* 收货地址信息 */
-    private OrderDelivery orderDelivery;
+    private OrderDeliveryDto orderDeliveryDto;
 
 
     public List<OrderDto> getOrderDtoList() {
@@ -29,19 +29,19 @@ public class OrderCreateDto implements Serializable {
         this.orderDtoList = orderDtoList;
     }
 
-    public OrderDelivery getOrderDelivery() {
-        return orderDelivery;
+    public OrderDeliveryDto getOrderDeliveryDto() {
+        return orderDeliveryDto;
     }
 
-    public void setOrderDelivery(OrderDelivery orderDelivery) {
-        this.orderDelivery = orderDelivery;
+    public void setOrderDeliveryDto(OrderDeliveryDto orderDeliveryDto) {
+        this.orderDeliveryDto = orderDeliveryDto;
     }
 
     @Override
     public String toString() {
         return "OrderCreateDto{" +
                 "orderDtoList=" + orderDtoList +
-                ", orderDelivery=" + orderDelivery +
+                ", orderDeliveryDto=" + orderDeliveryDto +
                 '}';
     }
 }

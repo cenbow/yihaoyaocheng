@@ -6,7 +6,9 @@ import java.util.Map;
 /**
  * Created by shiyongxi on 2016/7/27.
  */
-public class RequestMapModel<T extends Serializable> {
+public class RequestMapModel<T extends Serializable> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Map<String, T> map;
 
     public void setMap(Map<String, T> map) {

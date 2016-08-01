@@ -6,7 +6,7 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<context:component-scan base-package="com.yyw.yhyc.order"/>
+	<context:component-scan base-package="com.yyw.yhyc"/>
 	<bean class="com.yyw.yhyc.order.helper.SpringBeanHelper"/>
 
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -68,7 +68,7 @@
 	<!-- SqlSessionFactoryBean  spring整合ibatis的入口 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="configLocation" value="classpath:mybatis.xml" />
-		<property name="typeAliasesPackage" value="com.yyw.yhyc.order.bo,com.yyw.yhyc.order.dto" />
+		<property name="typeAliasesPackage" value="com.yyw.yhyc.order.bo,com.yyw.yhyc.order.dto,com.yyw.yhyc.product.bo,com.yyw.yhyc.product.dto" />
 		<property name="mapperLocations" value="classpath*:ibatis/mapper/**/*.xml" />
 		<property name="dataSource" ref="dataSource" />
 		<property name="plugins">
@@ -79,7 +79,7 @@
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.yyw.yhyc.order.mapper" />
+		<property name="basePackage" value="com.yyw.yhyc.order.mapper,com.yyw.yhyc.product.mapper" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 
@@ -90,7 +90,7 @@
 
 	<!-- 配置事务 -->
 	<aop:config proxy-target-class="true">
-		<aop:advisor pointcut="execution(* com.yyw.yhyc.order.service..*Service*.*(..))" advice-ref="txAdvice" />
+		<aop:advisor pointcut="execution(* com.yyw.yhyc.*.service..*Service*.*(..))" advice-ref="txAdvice" />
 	</aop:config>
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
