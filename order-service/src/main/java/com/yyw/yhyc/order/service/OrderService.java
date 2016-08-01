@@ -30,13 +30,10 @@ import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.helper.UtilHelper;
-import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
-import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yyw.yhyc.order.helper.UtilHelper;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
-import com.yyw.yhyc.order.dto.OrderDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +41,6 @@ import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.Pagination;
-import com.yyw.yhyc.order.mapper.OrderMapper;
 
 @Service("orderService")
 public class OrderService {
@@ -53,9 +49,11 @@ public class OrderService {
 
 	private OrderMapper	orderMapper;
 	private SystemPayTypeService systemPayTypeService;
-	private SystemDateService systemDateService;
+	private SystemDateMapper systemDateMapper;
 	private OrderDetailService orderDetailService;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
+	private OrderDeliveryMapper orderDeliveryMapper;
+	private OrderTraceMapper orderTraceMapper;
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper)
@@ -75,13 +73,23 @@ public class OrderService {
 	}
 
 	@Autowired
-	public void setSystemDateService(SystemDateService systemDateService) {
-		this.systemDateService = systemDateService;
+	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+		this.systemDateMapper = systemDateMapper;
 	}
 
 	@Autowired
 	public void setOrderDetailService(OrderDetailService orderDetailService) {
 		this.orderDetailService = orderDetailService;
+	}
+
+	@Autowired
+	public void setOrderDeliveryMapper(OrderDeliveryMapper orderDeliveryMapper) {
+		this.orderDeliveryMapper = orderDeliveryMapper;
+	}
+
+	@Autowired
+	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
+		this.orderTraceMapper = orderTraceMapper;
 	}
 
 	/**
@@ -215,7 +223,7 @@ public class OrderService {
         /* 订单信息 */
 		List<OrderDto> orderDtoList = orderCreateDto.getOrderDtoList();
 
-		List<OrderDto> orderDtoNewList =  new ArrayList<OrderDto>();
+		List<Order> orderNewList =  new ArrayList<Order>();
 		for (OrderDto orderDto : orderDtoList){
 			if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 				continue;
@@ -225,15 +233,18 @@ public class OrderService {
 			validateProducts(orderDto);
 
             /* 创建订单相关的所有信息 */
-			OrderDto orderDtoNew = createOrderInfo(orderDto,orderDeliveryDto);
+			Order orderNew = createOrderInfo(orderDto,orderDeliveryDto);
 
-			orderDtoNewList.add(orderDtoNew);
+			orderNewList.add(orderNew);
 		}
 
-		//TODO 生成支付流水，插入数据到订单支付表
+		/* 生成支付流水，插入数据到订单支付表 */
+		insertOrderPay(orderNewList);
 
         return null;
     }
+
+
 
 	/**
 	 * 创建订单相关的所有信息
@@ -241,16 +252,20 @@ public class OrderService {
 	 * @param orderDeliveryDto 订单发货、配送相关信息
 	 * @return
 	 */
-	private OrderDto createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
+	private Order createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
 
 		/* 计算订单相关的价格 */
 //		orderDto = calculateOrderPrice(orderDto);
 
-		/*  数据插入订单表、订单详情表*/
+		/*  数据插入订单表、订单详情表 */
 		Order order = insertOrderAndOrderDetail(orderDto);
 
+		/* 订单配送发货信息表 */
+		insertOrderDeliver(order,orderDeliveryDto);
 
-		//TODO 订单配送发货信息表、订单跟踪信息表
+		/* 订单跟踪信息表 */
+		insertOrderTrace(order);
+
 
 		//TODO 删除购物车
 
@@ -258,7 +273,45 @@ public class OrderService {
 
 		//TODO 自动取消订单相关的定时任务
 
-		return null;
+		return order;
+	}
+
+
+	private void insertOrderPay(List<Order> orderNewList) throws Exception {
+		if(UtilHelper.isEmpty(orderNewList)) {
+			throw new Exception("生成订单异常");
+		}
+		for(Order order : orderNewList){
+			//todo
+		}
+	}
+
+	private void insertOrderTrace(Order order) {
+		if(UtilHelper.isEmpty(order)) return;
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setOrderId(order.getOrderId());
+		orderTrace.setOrderStatus(order.getOrderStatus());
+		orderTrace.setCreateTime(systemDateMapper.getSystemDate());
+		orderTraceMapper.save(orderTrace);
+	}
+
+	private void insertOrderDeliver(Order order, OrderDeliveryDto orderDeliveryDto) {
+		if(UtilHelper.isEmpty(order) || UtilHelper.isEmpty(orderDeliveryDto)){
+			return ;
+		}
+		OrderDelivery  orderDelivery = new OrderDelivery();
+		orderDelivery.setOrderId(order.getOrderId());
+		orderDelivery.setFlowId(order.getFlowId());
+		orderDelivery.setReceivePerson(orderDeliveryDto.getReceivePerson());
+		orderDelivery.setReceiveProvince(orderDeliveryDto.getReceiveProvince());
+		orderDelivery.setReceiveCity(orderDeliveryDto.getReceiveCity());
+		orderDelivery.setReceiveRegion(orderDeliveryDto.getReceiveRegion());
+		orderDelivery.setReceiveAddress(orderDeliveryDto.getReceiveAddress());
+		orderDelivery.setReceiveContactPhone(orderDeliveryDto.getReceiveContactPhone());
+		orderDelivery.setZipCode(orderDeliveryDto.getZipCode());
+		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
+		orderDeliveryMapper.save(orderDelivery);
+
 	}
 
 	/**
@@ -295,7 +348,7 @@ public class OrderService {
 			order.setOrderStatus(BuyerOrderStatusEnum.BackOrder.getType());
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
-		order.setCreateTime(systemDateService.getSystemDate());
+		order.setCreateTime(systemDateMapper.getSystemDate());
 
 		order.setCreateUser("");
 		orderMapper.save(order);
@@ -306,7 +359,7 @@ public class OrderService {
 		}
 		order = orders.get(0);
 		/* 创建订单编号 */
-		String orderFlowId = RandomUtil.createOrderFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),order.getOrderId() +"", orderFlowIdPrefix);
+		String orderFlowId = RandomUtil.createOrderFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),order.getOrderId() +"", orderFlowIdPrefix);
 		order.setFlowId(orderFlowId);
 		orderMapper.update(order);
 		log.info("更新数据到订单表：order参数=" + order);
@@ -324,7 +377,7 @@ public class OrderService {
 			orderDetail.setSupplyId(order.getSupplyId());
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
 			orderDetail.setProductCount(productInfoDto.getProductCount());
-			orderDetail.setCreateTime(systemDateService.getSystemDate());
+			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
 			orderDetail.setCreateUser("");//todo
 			orderDetailService.save(orderDetail);
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
@@ -340,7 +393,7 @@ public class OrderService {
 	public boolean validateProducts(OrderDto orderDto) {
 		//TODO 校验要购买的商品
 
-		//TODO 特殊校验(选择账期支付的订单，买家账期、商品账期)
+		//TODO 特殊校验(选择账期支付方式的订单，校验买家账期、商品账期)
 		return false;
 	}
 
