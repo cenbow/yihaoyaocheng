@@ -16,6 +16,7 @@ import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +51,9 @@ public class OrderDeliveryDetailController extends BaseJsonController{
 	*/
 	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
 	@ResponseBody
-	public Pagination<OrderDeliveryDetail> listPgOrderDeliveryDetail(RequestModel<OrderDeliveryDetail> requestModel) throws Exception
+	public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetail(RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
 	{
-		Pagination<OrderDeliveryDetail> pagination = new Pagination<OrderDeliveryDetail>();
+		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
 
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());

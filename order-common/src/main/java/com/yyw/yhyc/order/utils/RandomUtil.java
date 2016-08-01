@@ -31,4 +31,22 @@ public class RandomUtil {
         return flowId.toString();
     }
 
+    /**
+     * 创建订单支付流水编号
+     * @param nowTime 当前时间 ： 20160801104321
+     * @param custId  买家企业id
+     * @return
+     */
+    public static String createOrderPayFlowId(String nowTime ,Integer custId){
+        if(UtilHelper.isEmpty(nowTime)){
+            return null;
+        }
+        if(UtilHelper.isEmpty(custId)){
+            return null;
+        }
+        StringBuilder flowId = new StringBuilder(CommonType.ORDER_PAY_FLOW_ID_PREFIX);
+        flowId.append(nowTime + custId);
+        return flowId.toString();
+    }
+
 }

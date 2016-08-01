@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,9 +68,9 @@ public class OrderDeliveryDetailService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderDeliveryDetail> listPaginationByProperty(Pagination<OrderDeliveryDetail> pagination, OrderDeliveryDetail orderDeliveryDetail) throws Exception
+	public Pagination<OrderDeliveryDetailDto> listPaginationByProperty(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception
 	{
-		List<OrderDeliveryDetail> list = orderDeliveryDetailMapper.listPaginationByProperty(pagination, orderDeliveryDetail);
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 
 		pagination.setResultList(list);
 

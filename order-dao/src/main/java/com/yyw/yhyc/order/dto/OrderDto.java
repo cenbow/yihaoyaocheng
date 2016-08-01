@@ -5,6 +5,7 @@ import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.bo.OrderDetail;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 
@@ -12,10 +13,6 @@ import java.util.List;
  * Created by zhangqiang on 2016/7/29.
  */
 public class OrderDto extends Order {
-
-    private static final long serialVersionUID = -1172097472910143309L;
-
-    private BigDecimal orderTotalMoney;//订单总额
     private int orderCount;            //订单数量
     private int payType;               //支付类型
     private String payTypeName;        //支付类型名称
@@ -23,18 +20,11 @@ public class OrderDto extends Order {
     private List<OrderDetail> orderDetailList;//订单商品列表
     private String createBeginTime;    //下单开始时间
     private String createEndTime;      //下单结束时间
-
+    private String nowTime;
+    private long residualTime ;        //支付剩余时间
     /* 商品信息集合 */
     private List<ProductInfoDto> productInfoDtoList;
 
-
-    public BigDecimal getOrderTotalMoney() {
-        return orderTotalMoney;
-    }
-
-    public void setOrderTotalMoney(BigDecimal orderTotalMoney) {
-        this.orderTotalMoney = orderTotalMoney;
-    }
 
     public int getOrderCount() {
         return orderCount;
@@ -100,11 +90,26 @@ public class OrderDto extends Order {
         this.productInfoDtoList = productInfoDtoList;
     }
 
+    public String getNowTime() {
+        return nowTime;
+    }
+
+    public void setNowTime(String nowTime) {
+        this.nowTime = nowTime;
+    }
+
+    public long getResidualTime() {
+        return residualTime;
+    }
+
+    public void setResidualTime(long residualTime) {
+        this.residualTime = residualTime;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
                 super.toString()+
-                "orderTotalMoney=" + orderTotalMoney +
                 ", orderCount=" + orderCount +
                 ", payType=" + payType +
                 ", payTypeName='" + payTypeName + '\'' +
@@ -112,7 +117,9 @@ public class OrderDto extends Order {
                 ", orderDetailList=" + orderDetailList +
                 ", createBeginTime='" + createBeginTime + '\'' +
                 ", createEndTime='" + createEndTime + '\'' +
-                ", productInfoDtoList=" + productInfoDtoList +
+                ", nowTime='" + nowTime + '\'' +
+                ", productInfoDtoList=" + productInfoDtoList + '\'' +
+                ", residualTime=" + residualTime +
                 '}';
     }
 }

@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,10 +69,10 @@ public class OrderDeliveryDetailFacadeImpl implements OrderDeliveryDetailFacade 
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderDeliveryDetail> listPaginationByProperty(Pagination<OrderDeliveryDetail> pagination, OrderDeliveryDetail orderDeliveryDetail)
+	public Pagination<OrderDeliveryDetailDto> listPaginationByProperty(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto)
 			throws Exception
 	{
-		return orderDeliveryDetailService.listPaginationByProperty(pagination, orderDeliveryDetail);
+		return orderDeliveryDetailService.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 	}
 
 	/**
