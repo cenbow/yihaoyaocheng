@@ -150,14 +150,13 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception {
+	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception {
 		return orderService.createOrder(orderCreateDto);
 	}
 
 	/**
 	 * 校验要购买的商品(通用方法)
 	 *
-	 * @param productInfoDtoList
 	 * @param orderDto
 	 * @throws Exception
 	 */

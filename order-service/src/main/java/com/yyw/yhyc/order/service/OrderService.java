@@ -26,12 +26,9 @@ import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
-import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.utils.DateUtils;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
@@ -55,6 +52,9 @@ public class OrderService {
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 	private OrderDeliveryMapper orderDeliveryMapper;
 	private OrderTraceMapper orderTraceMapper;
+	private OrderPayMapper orderPayMapper;
+	private OrderCombinedMapper orderCombinedMapper;
+	private ShoppingCartMapper shoppingCartMapper;
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper)
@@ -91,6 +91,21 @@ public class OrderService {
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
 		this.orderTraceMapper = orderTraceMapper;
+	}
+
+	@Autowired
+	public void setOrderPayMapper(OrderPayMapper orderPayMapper) {
+		this.orderPayMapper = orderPayMapper;
+	}
+
+	@Autowired
+	public void setOrderCombinedMapper(OrderCombinedMapper orderCombinedMapper) {
+		this.orderCombinedMapper = orderCombinedMapper;
+	}
+
+	@Autowired
+	public void setShoppingCartMapper(ShoppingCartMapper shoppingCartMapper) {
+		this.shoppingCartMapper = shoppingCartMapper;
 	}
 
 	/**
@@ -211,12 +226,15 @@ public class OrderService {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto) throws Exception{
+	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getOrderDeliveryDto())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList())){
 			throw  new Exception("非法参数");
 		}
+
+		/* TODO 获取当前登陆用户的企业id */
+		Integer currentLoginCustId = 123;
 
         /* 订单配送信息 */
 		OrderDeliveryDto orderDeliveryDto = orderCreateDto.getOrderDeliveryDto();
@@ -235,14 +253,19 @@ public class OrderService {
 
             /* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDeliveryDto);
-
 			orderNewList.add(orderNew);
 		}
 
-		/* 生成支付流水，插入数据到订单支付表 */
-		insertOrderPay(orderNewList);
+		/* 创建支付流水号 */
+		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginCustId);
 
-        return null;
+		/* 插入数据到订单支付表 */
+		insertOrderPay(orderNewList,currentLoginCustId,payFlowId);
+
+		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
+		insertOrderCombined(orderNewList,currentLoginCustId,payFlowId);
+
+        return orderNewList;
     }
 
 
@@ -255,7 +278,7 @@ public class OrderService {
 	 */
 	private Order createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
 
-		/* 计算订单相关的价格 */
+		/* TODO  计算订单相关的价格 */
 //		orderDto = calculateOrderPrice(orderDto);
 
 		/*  数据插入订单表、订单详情表 */
@@ -267,23 +290,128 @@ public class OrderService {
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
-
-		//TODO 删除购物车
+		/* 删除购物车 */
+		deleteShoppingCart(orderDto);
 
 		//TODO 短信、邮件等通知买家
-
 		//TODO 自动取消订单相关的定时任务
 
 		return order;
 	}
 
-
-	private void insertOrderPay(List<Order> orderNewList) throws Exception {
-		if(UtilHelper.isEmpty(orderNewList)) {
-			throw new Exception("生成订单异常");
+	/**
+	 * 购买成功后，删除购物车中的商品
+	 * @param orderDto
+     */
+	private void deleteShoppingCart(OrderDto orderDto) {
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())) return;
+		ShoppingCart shoppingCart = null;
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+			if(UtilHelper.isEmpty(productInfoDto)) continue;
+			shoppingCart = new ShoppingCart();
+			shoppingCart.setCustId(orderDto.getCustId());
+			shoppingCart.setProductId(productInfoDto.getId());
+			shoppingCart.setSupplyId(orderDto.getSupplyId());
+			shoppingCartMapper.deleteByProperty(shoppingCart);
 		}
+	}
+
+
+	/**
+	 * 插入合并订单表
+	 * 只有选择在线支付的订单才合成一个单
+	 * @param orderNewList 新生成订单的集合
+	 * @param currentLoginCustId  当前登陆人的企业id
+	 * @param payFlowId 支付流水号
+	 */
+	private void insertOrderCombined(List<Order> orderNewList, Integer currentLoginCustId,String payFlowId) {
+		if(UtilHelper.isEmpty(orderNewList)) return;
+		if(UtilHelper.isEmpty(currentLoginCustId)) return;
+		if(UtilHelper.isEmpty(payFlowId)) return;
+
+		List<Order> payOnlineOrderList = new ArrayList<Order>();
+		OrderCombined orderCombined = null;
 		for(Order order : orderNewList){
-			//todo
+			if(UtilHelper.isEmpty(order)) continue;
+			if(!UtilHelper.isEmpty(order.getPayTypeId()) && SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
+				payOnlineOrderList.add(order);
+				continue;
+			}
+			orderCombined = new OrderCombined();
+			orderCombined.setCustId(currentLoginCustId);
+			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
+			orderCombined.setCombinedNumber(1);//合并订单数
+			//todo 价格相关
+//			orderCombined.setCopeTotal();//	应付总价
+//			orderCombined.setPocketTotal();//实付总价
+//			orderCombined.setFreightPrice();//运费
+			orderCombined.setPayFlowId(payFlowId);
+			orderCombinedMapper.save(orderCombined);
+			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
+			if(!UtilHelper.isEmpty(orderCombinedList)){
+				orderCombined = orderCombinedList.get(0);
+			}
+			if(!UtilHelper.isEmpty(orderCombined) && !UtilHelper.isEmpty(orderCombined.getOrderCombinedId())){
+				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+				orderMapper.update(order);
+			}
+		}
+
+		/* 合并在线支付方式的订单 */
+		if(!UtilHelper.isEmpty(payOnlineOrderList)){
+			BigDecimal allCopeTotal = new BigDecimal(0);
+			BigDecimal allPocketTotal = new BigDecimal(0);
+			BigDecimal allFreightPrice = new BigDecimal(0);
+			for(Order order : payOnlineOrderList){
+				//todo 价格相关
+			}
+			orderCombined = new OrderCombined();
+			orderCombined.setCustId(currentLoginCustId);
+			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
+			orderCombined.setCombinedNumber(payOnlineOrderList.size());//合并订单数
+			orderCombined.setCopeTotal(allCopeTotal);//	应付总价
+			orderCombined.setPocketTotal(allPocketTotal);//实付总价
+			orderCombined.setFreightPrice(allFreightPrice);//运费
+			orderCombined.setPayFlowId(payFlowId);
+			orderCombinedMapper.save(orderCombined);
+			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
+			if(!UtilHelper.isEmpty(orderCombinedList)){
+				orderCombined = orderCombinedList.get(0);
+			}
+			/* 将order_combined_id回写到order表 */
+			for(Order order : payOnlineOrderList){
+				if(!UtilHelper.isEmpty(orderCombined) && !UtilHelper.isEmpty(orderCombined.getOrderCombinedId())){
+					order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+					orderMapper.update(order);
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * 插入订单支付表
+	 * @param orderNewList 新生成订单的集合
+	 * @param currentLoginCustId 当前登陆人的企业id
+	 * @param payFlowId 支付流水号
+	 * @throws Exception
+     */
+	private void insertOrderPay(List<Order> orderNewList,Integer currentLoginCustId,String payFlowId) throws Exception {
+		if(UtilHelper.isEmpty(orderNewList)) return;
+		if(UtilHelper.isEmpty(currentLoginCustId)) return;
+		if(UtilHelper.isEmpty(payFlowId)) return;
+
+		OrderPay orderPay = null ;
+		for(Order order : orderNewList){
+			orderPay = new OrderPay();
+			orderPay.setOrderId(order.getOrderId());
+			orderPay.setFlowId(order.getFlowId());
+			orderPay.setPayFlowId(payFlowId);
+			orderPay.setPayTypeId(order.getPayTypeId());
+			orderPay.setCreateTime(systemDateMapper.getSystemDate());
+			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
+			orderPay.setCreateUser(currentLoginCustId + "");
+			orderPayMapper.save(orderPay);
 		}
 	}
 

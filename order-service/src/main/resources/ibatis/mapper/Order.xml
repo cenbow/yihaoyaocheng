@@ -352,42 +352,107 @@
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
-		<![CDATA[ UPDATE t_order SET 
-			 order_id=#{orderId} 
-			, flow_id=#{flowId} 
-			, cust_name=#{custName} 
-			, cust_id=#{custId} 
-			, supply_name=#{supplyName} 
-			, supply_id=#{supplyId} 
-			, cancel_result=#{cancelResult} 
-			, org_total=#{orgTotal} 
-			, freight=#{freight} 
-			, order_total=#{orderTotal} 
-			, final_pay=#{finalPay} 
-			, total_count=#{totalCount} 
-			, order_status=#{orderStatus} 
-			, remark=#{remark} 
-			, leave_message=#{leaveMessage} 
-			, order_combined_id=#{orderCombinedId} 
-			, confirm_settlement=#{confirmSettlement} 
-			, settlement_money=#{settlementMoney} 
-			, preferential_money=#{preferentialMoney} 
-			, preferential_remark=#{preferentialRemark} 
-			, pay_status=#{payStatus} 
-			, pay_type_id=#{payTypeId} 
+		<![CDATA[ UPDATE t_order SET order_id=#{orderId}  ]]>
+		<if test="flowId!= null and flowId!= ''">
+			, flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			, cust_name=#{custName}
+		</if>
+		<if test="custId!= null and custId!= ''">
+			, cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			, supply_name=#{supplyName}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			, supply_id=#{supplyId}
+		</if>
+		<if test="cancelResult!= null and cancelResult!= ''">
+			, cancel_result=#{cancelResult}
+		</if>
+		<if test="orgTotal!= null and orgTotal!= ''">
+			, org_total=#{orgTotal}
+		</if>
+		<if test="freight!= null and freight!= ''">
+			, freight=#{freight}
+		</if>
+		<if test="orderTotal!= null and orderTotal!= ''">
+			, order_total=#{orderTotal}
+		</if>
+		<if test="finalPay!= null and finalPay!= ''">
+			, final_pay=#{finalPay}
+		</if>
+		<if test="totalCount!= null and totalCount!= ''">
+			, total_count=#{totalCount}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			, order_status=#{orderStatus}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="leaveMessage!= null and leaveMessage!= ''">
+			, leave_message=#{leaveMessage}
+		</if>
+		<if test="orderCombinedId!= null and orderCombinedId!= ''">
+			, order_combined_id=#{orderCombinedId}
+		</if>
+		<if test="confirmSettlement!= null and confirmSettlement!= ''">
+			, confirm_settlement=#{confirmSettlement}
+		</if>
+		<if test="settlementMoney!= null and settlementMoney!= ''">
+			, settlement_money=#{settlementMoney}
+		</if>
+		<if test="preferentialMoney!= null and preferentialMoney!= ''">
+			, preferential_money=#{preferentialMoney}
+		</if>
+		<if test="preferentialRemark!= null and preferentialRemark!= ''">
+			, preferential_remark=#{preferentialRemark}
+		</if>
+		<if test="payStatus!= null and payStatus!= ''">
+			, pay_status=#{payStatus}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''">
+			, pay_type_id=#{payTypeId}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="payTime!= null and payTime!= ''">
 			, pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="cancelTime!= null and cancelTime!= ''">
 			, cancel_time=str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="deliverTime!= null and deliverTime!= ''">
 			, deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="receiveTime!= null and receiveTime!= ''">
 			, receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="settlementTime!= null and settlementTime!= ''">
 			, settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
-			, create_user=#{createUser} 
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			, create_user=#{createUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
-			, update_user=#{updateUser} 
-			, bill_type=#{billType} 
-			, Delay_log=#{delayLog} 
-			, receive_Type=#{receiveType} 
-		WHERE order_id = #{orderId}  ]]>
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			, update_user=#{updateUser}
+		</if>
+		<if test="billType!= null and billType!= ''">
+			, bill_type=#{billType}
+		</if>
+		<if test="delayLog!= null and delayLog!= ''">
+			, Delay_log=#{delayLog}
+		</if>
+		<if test="receiveType!= null and receiveType!= ''">
+			, receive_Type=#{receiveType}
+		</if>
+		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_order WHERE order_id = #{orderId}  ]]>
