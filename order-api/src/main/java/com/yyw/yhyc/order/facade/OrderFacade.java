@@ -116,7 +116,7 @@ public interface OrderFacade {
 
 
 	/**
-	 * 查采购商订单查询
+	 * 采购商订单查询
 	 * @param pagination
 	 * @param orderDto
 	 * @return
@@ -138,5 +138,14 @@ public interface OrderFacade {
 	 * @param orderId
      */
 	public void  cancleOrder(Integer custId,Integer orderId);
+
+
+	/**
+	 * 销售订单查询
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public Map<String,Object> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 }

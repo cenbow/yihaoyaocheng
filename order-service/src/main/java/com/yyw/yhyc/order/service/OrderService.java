@@ -434,6 +434,12 @@ public class OrderService {
         return false;
     }
 
+	/**
+	 * 采购商订单查询
+	 * @param pagination
+	 * @param orderDto
+     * @return
+     */
     public Map<String, Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
         if(UtilHelper.isEmpty(orderDto))
             throw new RuntimeException("参数错误");
@@ -601,27 +607,39 @@ public class OrderService {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  cancleOrder(int custId,int orderId){
+	public void  modifyOrderStatus(Integer custId,Integer orderId){
 		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
 		log.debug(order);
 		if(UtilHelper.isEmpty(order)){
-			log.error("can not find order ,orderId"+orderId);
+			log.error("can not find order ,orderId:"+orderId);
 			throw new RuntimeException("未找到订单");
 		}
-		int count = 0;
 		if(custId == order.getCustId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
+				String now = systemDateMapper.getSystemDate();
 				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser("zhangsan");
-				count = orderMapper.update(order);
+				order.setUpdateTime(now);
+				int count = orderMapper.update(order);
 				if(count == 0){
 					log.error("order info :"+order);
 					throw new RuntimeException("订单取消失败");
 				}
+				//插入日志表
+				OrderTrace orderTrace = new OrderTrace();
+				orderTrace.setOrderId(order.getOrderId());
+				orderTrace.setNodeName("买家取消订单");
+				orderTrace.setDealStaff("zhangsan");
+				orderTrace.setRecordDate(now);
+				orderTrace.setRecordStaff("zhangsan");
+				orderTrace.setOrderStatus(order.getOrderStatus());
+				orderTrace.setCreateTime(now);
+				orderTrace.setCreateUser("zhangsan");
+				orderTraceMapper.save(orderTrace);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -630,6 +648,80 @@ public class OrderService {
 			log.error("db orderId not equals to request orderId ,orderId:"+orderId+",db orderId:"+order.getOrderId());
 			throw new RuntimeException("未找到订单");
 		}
+	}
+
+
+	/**
+	 * 销售订单查询
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public Map<String, Object> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
+		if(UtilHelper.isEmpty(orderDto))
+			throw new RuntimeException("参数错误");
+		log.debug("request orderDto :"+orderDto.toString());
+		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderDto.getCreateEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderDto.setCreateEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderDto.getCreateEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+
+		}
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		List<OrderDto> buyerOrderList = orderMapper.listPgSellerOrder(pagination, orderDto);
+		pagination.setResultList(buyerOrderList);
+
+		List<OrderDto> orderDtoList = orderMapper.findSellerOrderStatusCount(orderDto);
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
+		int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
+		SellerOrderStatusEnum sellerOrderStatusEnum;
+		if (!UtilHelper.isEmpty(orderDtoList)) {
+			for (OrderDto od : orderDtoList) {
+				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),payType);
+				if(sellerOrderStatusEnum != null){
+					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
+						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),orderStatusCountMap.get(sellerOrderStatusEnum.getType())+od.getOrderCount());
+					}else{
+						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),od.getOrderCount());
+					}
+				}
+			}
+		}
+
+		BigDecimal orderTotalMoney = new BigDecimal(0);
+		int orderCount = 0;
+		if(!UtilHelper.isEmpty(buyerOrderList)){
+			orderCount = buyerOrderList.size();
+			for(OrderDto od : buyerOrderList){
+				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
+					sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
+					if(!UtilHelper.isEmpty(sellerOrderStatusEnum))
+						od.setOrderStatusName(sellerOrderStatusEnum.getValue());
+					else
+						od.setOrderStatusName("未知类型");
+				}
+				if(!UtilHelper.isEmpty(od.getOrderTotal()))
+					orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
+			}
+		}
+
+		log.debug("orderStatusCount====>" + orderStatusCountMap);
+		log.debug("orderList====>" + orderDtoList);
+		log.debug("buyerOrderList====>" + buyerOrderList);
+		log.debug("orderCount====>" + orderCount);
+		log.debug("orderTotalMoney====>" + orderTotalMoney);
+
+		resultMap.put("orderStatusCount", orderStatusCountMap);
+		resultMap.put("buyerOrderList", buyerOrderList);
+		resultMap.put("orderCount", orderCount);
+		resultMap.put("orderTotalMoney", orderTotalMoney);
+		return resultMap;
 	}
 
 }

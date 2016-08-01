@@ -185,7 +185,6 @@ public class OrderController extends BaseJsonController {
     @ResponseBody
     public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
-		System.err.println("===>" + requestModel);
         /**
 		 * http://localhost:8088/order/listPgBuyerOrder
          * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
@@ -210,5 +209,24 @@ public class OrderController extends BaseJsonController {
 		 */
 		int custId = 1;
 		orderFacade.cancleOrder(custId,orderId);
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgSellerOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerOrder(@RequestBody RequestModel<OrderDto> requestModel){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 * http://localhost:8088/order/listPgSellerOrder
+		 * {"param":{"supplyId":1,"flowId":"1","payType":1,"custName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1","province":"","city":"","district":""}}
+		 */
+		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		return orderFacade.listPgSellerOrder(pagination, requestModel.getParam());
 	}
 }

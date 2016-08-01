@@ -190,8 +190,16 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderId
 	 */
 	public void  cancleOrder(Integer custId,Integer orderId){
-		orderService.cancleOrder(custId,orderId);
+		orderService.modifyOrderStatus(custId,orderId);
 	}
 
-
+	/**
+	 * 销售订单查询
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public Map<String,Object> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
+		return orderService.listPgSellerOrder(pagination,orderDto);
+	}
 }
