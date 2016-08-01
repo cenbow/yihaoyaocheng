@@ -21,10 +21,7 @@ import com.yyw.yhyc.order.facade.OrderSettlementFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping(value = "/order/orderSettlement")
@@ -47,19 +44,23 @@ public class OrderSettlementController extends BaseJsonController{
 
 	/**
 	* 分页查询记录
+	 * type 1 应收 2 应付
 	* @return
 	*/
-	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"", "/listPg/t{type}"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Pagination<OrderSettlementDto> listPgOrderSettlement(RequestModel<OrderSettlementDto> requestModel) throws Exception
+	public Pagination<OrderSettlementDto> listPgOrderSettlement(@RequestBody RequestModel<OrderSettlementDto> requestModel, @PathVariable("type") Integer type) throws Exception
 	{
 		Pagination<OrderSettlementDto> pagination = new Pagination<OrderSettlementDto>();
 
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
-
-		return orderSettlementFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		OrderSettlementDto orderSettlementDto = requestModel.getParam()==null?new OrderSettlementDto():requestModel.getParam();
+		orderSettlementDto.setType(type);
+		//TODO custId
+//		orderSettlementDto.setCustId(256);
+		return orderSettlementFacade.listPaginationByProperty(pagination, orderSettlementDto);
 	}
 
 	/**
