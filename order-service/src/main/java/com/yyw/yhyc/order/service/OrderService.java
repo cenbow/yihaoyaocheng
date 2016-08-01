@@ -593,6 +593,12 @@ public class OrderService {
 		return orderDetailsdto;
 	}
 
+	/**
+	 * 采购商订单管理
+	 * @param pagination
+	 * @param orderDto
+     * @return
+     */
     public Map<String, Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
         if(UtilHelper.isEmpty(orderDto))
             throw new RuntimeException("参数错误");
@@ -610,17 +616,21 @@ public class OrderService {
 
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();
+		//获取订单列表
         List<OrderDto> buyerOrderList = orderMapper.listPgBuyerOrder(pagination, orderDto);
         pagination.setResultList(buyerOrderList);
 
+		//获取各订单状态下的订单数量
         List<OrderDto> orderDtoList = orderMapper.findOrderStatusCount(orderDto);
         Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
         int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
         BuyerOrderStatusEnum buyerorderstatusenum;
         if (!UtilHelper.isEmpty(orderDtoList)) {
             for (OrderDto od : orderDtoList) {
+				//获取买家视角订单状态
                 buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),payType);
                 if(buyerorderstatusenum != null){
+					//统计买家视角订单数
                     if(orderStatusCountMap.containsKey(buyerorderstatusenum.getType())){
                         orderStatusCountMap.put(buyerorderstatusenum.getType(),orderStatusCountMap.get(buyerorderstatusenum.getType())+od.getOrderCount());
                     }else{
@@ -637,17 +647,21 @@ public class OrderService {
             orderCount = buyerOrderList.size();
             for(OrderDto od : buyerOrderList){
                 if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
+					//获取买家视角订单状态
                     buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
                     if(!UtilHelper.isEmpty(buyerorderstatusenum))
                         od.setOrderStatusName(buyerorderstatusenum.getValue());
                     else
                         od.setOrderStatusName("未知类型");
                 }
+				//统计订单总额
                 if(!UtilHelper.isEmpty(od.getOrderTotal()))
                     orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
-				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){//在线支付 + 未付款订单
+				//在线支付 + 未付款订单
+				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
+						//计算当前时间和支付剩余24小时的剩余秒数
 						time = CommonType.PAY_TIME*60*60-time;
 						if(time < 0)
 							time = 0l;
@@ -827,15 +841,18 @@ public class OrderService {
 
 		}
 		Map<String, Object> resultMap = new HashMap<String, Object>();
+		//销售订单列表
 		List<OrderDto> buyerOrderList = orderMapper.listPgSellerOrder(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
 
+		//获取各订单状态下的订单数量
 		List<OrderDto> orderDtoList = orderMapper.findSellerOrderStatusCount(orderDto);
 		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
 		int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		if (!UtilHelper.isEmpty(orderDtoList)) {
 			for (OrderDto od : orderDtoList) {
+				//卖家视角订单状态
 				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),payType);
 				if(sellerOrderStatusEnum != null){
 					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
@@ -853,12 +870,14 @@ public class OrderService {
 			orderCount = buyerOrderList.size();
 			for(OrderDto od : buyerOrderList){
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
+					//卖家视角订单状态
 					sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
 					if(!UtilHelper.isEmpty(sellerOrderStatusEnum))
 						od.setOrderStatusName(sellerOrderStatusEnum.getValue());
 					else
 						od.setOrderStatusName("未知类型");
 				}
+				//统计订单总额
 				if(!UtilHelper.isEmpty(od.getOrderTotal()))
 					orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 			}
