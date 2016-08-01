@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 
 public interface OrderDeliveryDetailFacade {
 
@@ -92,6 +93,6 @@ public interface OrderDeliveryDetailFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderDeliveryDetail> listPaginationByProperty(Pagination<OrderDeliveryDetail> pagination, OrderDeliveryDetail orderDeliveryDetail) throws Exception;
+	public Pagination<OrderDeliveryDetailDto> listPaginationByProperty(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception;
 
 }
