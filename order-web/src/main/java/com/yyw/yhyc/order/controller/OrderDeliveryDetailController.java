@@ -21,10 +21,7 @@ import com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
@@ -49,9 +46,9 @@ public class OrderDeliveryDetailController extends BaseJsonController{
 	* 分页查询记录
 	* @return
 	*/
-	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetail(RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
+	public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetail(@RequestBody RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
 	{
 		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
 
