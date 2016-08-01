@@ -188,8 +188,8 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  cancleOrder(Integer custId,Integer orderId){
-		orderService.modifyOrderStatus(custId,orderId);
+	public void  buyerCancleOrder(Integer custId,Integer orderId){
+		orderService.updateOrderStatusForBuyer(custId,orderId);
 	}
 
 	/**
@@ -200,5 +200,14 @@ public class OrderFacadeImpl implements OrderFacade {
 	 */
 	public Map<String,Object> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		return orderService.listPgSellerOrder(pagination,orderDto);
+	}
+
+	/**
+	 * 卖家取消订单
+	 * @param custId
+	 * @param orderId
+	 */
+	public void  sellerCancleOrder(Integer custId,Integer orderId){
+		orderService.updateOrderStatusForSeller(custId,orderId);
 	}
 }

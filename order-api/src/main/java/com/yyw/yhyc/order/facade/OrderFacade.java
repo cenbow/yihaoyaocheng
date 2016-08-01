@@ -137,7 +137,7 @@ public interface OrderFacade {
 	 * @param custId
 	 * @param orderId
      */
-	public void  cancleOrder(Integer custId,Integer orderId);
+	public void  buyerCancleOrder(Integer custId,Integer orderId);
 
 
 	/**
@@ -147,5 +147,12 @@ public interface OrderFacade {
 	 * @return
 	 */
 	public Map<String,Object> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
+	/**
+	 * 卖家取消订单
+	 * @param custId
+	 * @param orderId
+	 */
+	public void  sellerCancleOrder(Integer custId,Integer orderId);
 
 }

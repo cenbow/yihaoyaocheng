@@ -774,7 +774,7 @@ public class OrderService {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  modifyOrderStatus(Integer custId,Integer orderId){
+	public void  updateOrderStatusForBuyer(Integer custId,Integer orderId){
 		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -784,6 +784,7 @@ public class OrderService {
 			log.error("can not find order ,orderId:"+orderId);
 			throw new RuntimeException("未找到订单");
 		}
+		//判断订单是否属于该买家
 		if(custId == order.getCustId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
@@ -894,6 +895,55 @@ public class OrderService {
 		resultMap.put("orderCount", orderCount);
 		resultMap.put("orderTotalMoney", orderTotalMoney);
 		return resultMap;
+	}
+
+	/**
+	 * 采购商取消订单
+	 * @param custId
+	 * @param orderId
+	 */
+	public void  updateOrderStatusForSeller(Integer custId,Integer orderId){
+		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
+			throw new RuntimeException("参数错误");
+		}
+		Order order =  orderMapper.getByPK(orderId);
+		log.debug(order);
+		if(UtilHelper.isEmpty(order)){
+			log.error("can not find order ,orderId:"+orderId);
+			throw new RuntimeException("未找到订单");
+		}
+		//判断订单是否属于该卖家
+		if(custId == order.getSupplyId()){
+			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
+				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为用户取消状态
+				String now = systemDateMapper.getSystemDate();
+				// TODO: 2016/8/1 需获取登录用户信息
+				order.setUpdateUser("zhangsan");
+				order.setUpdateTime(now);
+				int count = orderMapper.update(order);
+				if(count == 0){
+					log.error("order info :"+order);
+					throw new RuntimeException("订单取消失败");
+				}
+				//插入日志表
+				OrderTrace orderTrace = new OrderTrace();
+				orderTrace.setOrderId(order.getOrderId());
+				orderTrace.setNodeName("卖家取消订单");
+				orderTrace.setDealStaff("zhangsan");
+				orderTrace.setRecordDate(now);
+				orderTrace.setRecordStaff("zhangsan");
+				orderTrace.setOrderStatus(order.getOrderStatus());
+				orderTrace.setCreateTime(now);
+				orderTrace.setCreateUser("zhangsan");
+				orderTraceMapper.save(orderTrace);
+			}else{
+				log.error("order status error ,orderStatus:"+order.getOrderStatus());
+				throw new RuntimeException("订单状态不正确");
+			}
+		}else{
+			log.error("db orderId not equals to request orderId ,orderId:"+orderId+",db orderId:"+order.getOrderId());
+			throw new RuntimeException("未找到订单");
+		}
 	}
 
 }

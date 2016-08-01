@@ -201,15 +201,15 @@ public class OrderController extends BaseJsonController {
 	 * 采购商取消订单
 	 * @return
 	 */
-	@RequestMapping(value = "/cancleOrder/{orderId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/buyerCancleOrder/{orderId}", method = RequestMethod.GET)
 	@ResponseBody
-	public void cancleOrder(@PathVariable("orderId") Integer orderId){
+	public void buyerCancleOrder(@PathVariable("orderId") Integer orderId){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
-		 *  http://localhost:8088/order/cancleOrder/2
+		 *  http://localhost:8088/order/buyerCancleOrder/2
 		 */
 		int custId = 1;
-		orderFacade.cancleOrder(custId,orderId);
+		orderFacade.buyerCancleOrder(custId,orderId);
 	}
 
 	/**
@@ -229,5 +229,20 @@ public class OrderController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		return orderFacade.listPgSellerOrder(pagination, requestModel.getParam());
+	}
+
+	/**
+	 * 采购商取消订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerCancleOrder/{orderId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void sellerCancleOrder(@PathVariable("orderId") Integer orderId){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 *  http://localhost:8088/order/sellerCancleOrder/2
+		 */
+		int custId = 1;
+		orderFacade.sellerCancleOrder(custId,orderId);
 	}
 }
