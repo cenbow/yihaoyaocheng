@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -173,7 +174,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public OrderCreateDto createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
+	public List<Order> createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
 		return orderFacade.createOrder(orderCreateDto);
 	}
 

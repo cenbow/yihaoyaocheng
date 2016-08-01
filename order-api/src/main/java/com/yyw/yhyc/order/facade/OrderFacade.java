@@ -105,7 +105,7 @@ public interface OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto)throws Exception;
+	public List<Order> createOrder(OrderCreateDto orderCreateDto)throws Exception;
 
 	/**
 	 * 校验要购买的商品(通用方法)
