@@ -164,7 +164,6 @@ public interface OrderFacade {
 	 * @return
 	 */
 	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
-	public OrderCreateDto checkOrderPage();
 
 	/**
 	 * 系统自动取消订单
