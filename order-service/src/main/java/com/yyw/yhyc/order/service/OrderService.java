@@ -683,7 +683,7 @@ public class OrderService {
 		log.debug("orderTotalMoney====>" + orderTotalMoney);
 
         resultMap.put("orderStatusCount", orderStatusCountMap);
-        resultMap.put("buyerOrderList", buyerOrderList);
+        resultMap.put("buyerOrderList", pagination);
         resultMap.put("orderCount", orderCount);
         resultMap.put("orderTotalMoney", orderTotalMoney);
         return resultMap;
@@ -843,8 +843,8 @@ public class OrderService {
 		}
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//销售订单列表
-		List<OrderDto> buyerOrderList = orderMapper.listPgSellerOrder(pagination, orderDto);
-		pagination.setResultList(buyerOrderList);
+		List<OrderDto> sellerOrderList = orderMapper.listPgSellerOrder(pagination, orderDto);
+		pagination.setResultList(sellerOrderList);
 
 		//获取各订单状态下的订单数量
 		List<OrderDto> orderDtoList = orderMapper.findSellerOrderStatusCount(orderDto);
@@ -867,9 +867,9 @@ public class OrderService {
 
 		BigDecimal orderTotalMoney = new BigDecimal(0);
 		int orderCount = 0;
-		if(!UtilHelper.isEmpty(buyerOrderList)){
-			orderCount = buyerOrderList.size();
-			for(OrderDto od : buyerOrderList){
+		if(!UtilHelper.isEmpty(sellerOrderList)){
+			orderCount = sellerOrderList.size();
+			for(OrderDto od : sellerOrderList){
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//卖家视角订单状态
 					sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
@@ -886,12 +886,12 @@ public class OrderService {
 
 		log.debug("orderStatusCount====>" + orderStatusCountMap);
 		log.debug("orderList====>" + orderDtoList);
-		log.debug("buyerOrderList====>" + buyerOrderList);
+		log.debug("buyerOrderList====>" + sellerOrderList);
 		log.debug("orderCount====>" + orderCount);
 		log.debug("orderTotalMoney====>" + orderTotalMoney);
 
 		resultMap.put("orderStatusCount", orderStatusCountMap);
-		resultMap.put("buyerOrderList", buyerOrderList);
+		resultMap.put("buyerOrderList", pagination);
 		resultMap.put("orderCount", orderCount);
 		resultMap.put("orderTotalMoney", orderTotalMoney);
 		return resultMap;
@@ -902,8 +902,8 @@ public class OrderService {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  updateOrderStatusForSeller(Integer custId,Integer orderId){
-		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
+	public void  updateOrderStatusForSeller(Integer custId,Integer orderId,String cancelResult){
+		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
@@ -915,8 +915,9 @@ public class OrderService {
 		//判断订单是否属于该卖家
 		if(custId == order.getSupplyId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
-				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为用户取消状态
+				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
+				order.setCancelResult(cancelResult);
 				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser("zhangsan");
 				order.setUpdateTime(now);
