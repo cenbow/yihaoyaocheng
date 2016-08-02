@@ -15,6 +15,7 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private String manufactures;  //生产厂家
     private Integer productCount; //购买单品数量
     private Integer custId;        //客户ID
+    private Integer supplyId;     //供应商ID
     private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货',
     private String returnDesc;   //退换货说明
 
@@ -109,5 +110,13 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
 
     public void setCustId(Integer custId) {
         this.custId = custId;
+    }
+
+    public Integer getSupplyId() {
+        return supplyId;
+    }
+
+    public void setSupplyId(Integer supplyId) {
+        this.supplyId = supplyId;
     }
 }
