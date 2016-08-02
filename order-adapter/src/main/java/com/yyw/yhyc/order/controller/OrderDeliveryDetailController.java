@@ -96,6 +96,12 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		orderDeliveryDetailFacade.update(orderDeliveryDetail);
 	}
 
+	/**
+	 * 确认收货
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/confirmReceipt", method = RequestMethod.POST)
 	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception
 	{
 		return orderDeliveryDetailFacade.confirmReceipt(list);
