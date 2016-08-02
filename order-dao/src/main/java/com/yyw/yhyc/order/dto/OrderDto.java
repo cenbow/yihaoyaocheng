@@ -1,6 +1,7 @@
 package com.yyw.yhyc.order.dto;
 
 import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.bo.OrderDetail;
 
@@ -26,6 +27,8 @@ public class OrderDto extends Order {
     private String district;           //区编码
     /* 商品信息集合 */
     private List<ProductInfoDto> productInfoDtoList;
+
+    private OrderDelivery orderDelivery;//订单发货信息
 
 
     public int getOrderCount() {
@@ -132,6 +135,14 @@ public class OrderDto extends Order {
         this.district = district;
     }
 
+    public OrderDelivery getOrderDelivery() {
+        return orderDelivery;
+    }
+
+    public void setOrderDelivery(OrderDelivery orderDelivery) {
+        this.orderDelivery = orderDelivery;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
@@ -148,7 +159,8 @@ public class OrderDto extends Order {
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
                 ", district='" + district + '\'' +
-                ", productInfoDtoList=" + productInfoDtoList +
+                ", productInfoDtoList=" + productInfoDtoList + "\'" +
+                ", orderDelivery='{"+orderDelivery+"}'" +
                 '}';
     }
 }
