@@ -189,7 +189,7 @@ public class OrderController extends BaseJsonController {
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
         /**
 		 * http://localhost:8088/order/listPgBuyerOrder
-         * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
+         * {"pageSize":2,"pageNo":2,"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
          */
         Pagination<OrderDto> pagination = new Pagination<OrderDto>();
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
@@ -202,15 +202,15 @@ public class OrderController extends BaseJsonController {
 	 * 采购商取消订单
 	 * @return
 	 */
-	@RequestMapping(value = "/buyerCancleOrder/{orderId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/buyerCancelOrder/{orderId}", method = RequestMethod.GET)
 	@ResponseBody
-	public void buyerCancleOrder(@PathVariable("orderId") Integer orderId){
+	public void buyerCancelOrder(@PathVariable("orderId") Integer orderId){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
-		 *  http://localhost:8088/order/buyerCancleOrder/2
+		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		int custId = 1;
-		orderFacade.buyerCancleOrder(custId,orderId);
+		orderFacade.buyerCancelOrder(custId,orderId);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class OrderController extends BaseJsonController {
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
 		 * http://localhost:8088/order/listPgSellerOrder
-		 * {"param":{"supplyId":1,"flowId":"1","payType":1,"custName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1","province":"","city":"","district":""}}
+		 * {"pageSize":2,"pageNo":2,"param":{"supplyId":1,"flowId":"1","payType":1,"custName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1","province":"","city":"","district":""}}
 		 */
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
@@ -236,14 +236,15 @@ public class OrderController extends BaseJsonController {
 	 * 采购商取消订单
 	 * @return
 	 */
-	@RequestMapping(value = "/sellerCancleOrder/{orderId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public void sellerCancleOrder(@PathVariable("orderId") Integer orderId){
+	public void sellerCancelOrder(@RequestBody Order order){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
-		 *  http://localhost:8088/order/sellerCancleOrder/2
+		 *  http://localhost:8088/order/sellerCancelOrder
+		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
 		 */
 		int custId = 1;
-		orderFacade.sellerCancleOrder(custId,orderId);
+		orderFacade.sellerCancelOrder(custId,order.getOrderId(),order.getCancelResult());
 	}
 }

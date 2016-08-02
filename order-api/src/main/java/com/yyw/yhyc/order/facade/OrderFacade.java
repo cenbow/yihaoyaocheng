@@ -137,7 +137,7 @@ public interface OrderFacade {
 	 * @param custId
 	 * @param orderId
      */
-	public void  buyerCancleOrder(Integer custId,Integer orderId);
+	public void  buyerCancelOrder(Integer custId,Integer orderId);
 
 
 	/**
@@ -153,6 +153,6 @@ public interface OrderFacade {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  sellerCancleOrder(Integer custId,Integer orderId);
+	public void  sellerCancelOrder(Integer custId,Integer orderId,String buyerCancelOrder);
 
 }

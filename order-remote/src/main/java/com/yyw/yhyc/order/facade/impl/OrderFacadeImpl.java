@@ -188,7 +188,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  buyerCancleOrder(Integer custId,Integer orderId){
+	public void  buyerCancelOrder(Integer custId,Integer orderId){
 		orderService.updateOrderStatusForBuyer(custId,orderId);
 	}
 
@@ -207,7 +207,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param custId
 	 * @param orderId
 	 */
-	public void  sellerCancleOrder(Integer custId,Integer orderId){
-		orderService.updateOrderStatusForSeller(custId,orderId);
+	public void  sellerCancelOrder(Integer custId,Integer orderId,String cancelResult){
+		orderService.updateOrderStatusForSeller(custId,orderId,cancelResult);
 	}
 }
