@@ -111,11 +111,8 @@ public class OrderController extends BaseJsonController {
 	/**
 	 * 创建订单
 	 * 请求数据格式：
-	 *
-
 
 	 {
-
 		 "orderDeliveryDto":{
 			 "receivePerson":"收货人",
 			 "receiveProvince":"收货省码",
@@ -128,7 +125,6 @@ public class OrderController extends BaseJsonController {
 			 "receiveContactPhone":"收货人联系电话",
 			 "zipCode":"邮政编码"
 		 },
-
 		 "orderDtoList": [
 				 {
 					 "custId": "123",
@@ -136,11 +132,13 @@ public class OrderController extends BaseJsonController {
 					 "productInfoDtoList": [
 						 {
 							 "id": "111",
-							 "productCount": "1"
+							 "productCount": "1",
+	 						 "productPrice":12.5
 						 },
 						 {
 							 "id": "112",
-							 "productCount": "2"
+							 "productCount": "2",
+	 						 "productPrice":4.5
 						 }
 					 ],
 					 "billType": "1",
@@ -153,11 +151,13 @@ public class OrderController extends BaseJsonController {
 					 "productInfoDtoList": [
 							 {
 								 "id": "222",
-								 "productCount": "1"
+								 "productCount": "1",
+	 							 "productPrice":2.5
 							 },
 							 {
 								 "id": "223",
-								 "productCount": "2"
+								 "productCount": "2",
+	 							 "productPrice":5
 							 }
 					 ],
 					 "billType": "2",
@@ -167,9 +167,6 @@ public class OrderController extends BaseJsonController {
 		 ]
 	 }
 
-
-
-
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
@@ -178,6 +175,19 @@ public class OrderController extends BaseJsonController {
 	public List<Order> createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
 		return orderFacade.createOrder(orderCreateDto);
 	}
+
+	/**
+	 * 检查订单页的数据
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.POST)
+	@ResponseBody
+	public OrderCreateDto checkOrderPage() throws Exception {
+		return orderFacade.checkOrderPage();
+	}
+
+
 
     /**
      * 采购订单查询

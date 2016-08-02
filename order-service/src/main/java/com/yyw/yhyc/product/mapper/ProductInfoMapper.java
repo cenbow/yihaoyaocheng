@@ -5,11 +5,12 @@ package com.yyw.yhyc.product.mapper;
  */
 import java.util.List;
 
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.product.bo.ProductInfo;
-import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
-import com.yyw.yhyc.order.bo.Pagination;
 
-public interface ProductInfoMapper extends GenericIBatisMapper<ProductInfo, java.lang.Integer> {
+
+public interface ProductInfoMapper extends GenericIBatisMapper<ProductInfo, Integer> {
 
     public List<ProductInfo> listPaginationByProperty(Pagination<ProductInfo> pagination, ProductInfo productInfo);
 }

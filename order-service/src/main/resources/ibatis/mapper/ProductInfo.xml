@@ -13,7 +13,7 @@
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yyw.yhyc.product.mapper.ProductInfoMapper">
-    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
            flushInterval="86400000" size="1024000">
     </cache>
     <resultMap id="ProductInfoResultMapper" type="ProductInfo">

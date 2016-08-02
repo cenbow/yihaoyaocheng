@@ -10,13 +10,19 @@ import java.math.BigDecimal;
  */
 public class ProductInfoDto extends ProductInfo implements Serializable {
 
-    private static final long serialVersionUID = 6799891469310083830L;
+    private static final long serialVersionUID = -7008651652828282150L;
 
     /* 商品单价 */
     private BigDecimal productPrice;
 
     /* 商品数量 */
     private Integer productCount;
+
+    /* 商品总价(单价*数量) */
+    private Integer totalPrice;
+
+    /* 商品图片地址 */
+    private String imageUrl;
 
 
     public BigDecimal getProductPrice() {
@@ -35,11 +41,29 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.productCount = productCount;
     }
 
+    public Integer getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Integer totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
-                ", productPrice=" + productPrice +
+                "productPrice=" + productPrice +
                 ", productCount=" + productCount +
+                ", totalPrice=" + totalPrice +
+                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }
