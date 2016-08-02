@@ -12,10 +12,11 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderRefund;
-import com.yyw.yhyc.order.bo.Pagination;
-import com.yyw.yhyc.order.bo.RequestListModel;
-import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.facade.OrderRefundFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping(value = "/order/orderRefund")
-public class OrderRefundController extends BaseJsonController{
+public class OrderRefundController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderRefundController.class);
 
 	@Reference

@@ -13,6 +13,8 @@ public class OrderSettlementDto extends OrderSettlement{
     private String endTime;             //下单时间 结束
     private String payType;             //支付类型
 
+    private Integer type; //1应收 2应付 用来转换 不同视角 businessType 对应的显示文案
+
     private String payTypeName;         //支付名称
     private String businessTypeName ;  //业务类型名
     private String orderCreateTime ;  //下单时间
@@ -64,6 +66,14 @@ public class OrderSettlementDto extends OrderSettlement{
 
     public void setPayType(String payType) {
         this.payType = payType;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public String getPayTypeName() {

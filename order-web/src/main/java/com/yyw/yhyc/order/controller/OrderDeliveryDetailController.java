@@ -12,23 +12,21 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
-import com.yyw.yhyc.order.bo.Pagination;
-import com.yyw.yhyc.order.bo.RequestListModel;
-import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
-public class OrderDeliveryDetailController extends BaseJsonController{
+public class OrderDeliveryDetailController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryDetailController.class);
 
 	@Reference
@@ -49,9 +47,9 @@ public class OrderDeliveryDetailController extends BaseJsonController{
 	* 分页查询记录
 	* @return
 	*/
-	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetail(RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
+	public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetail(@RequestBody RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
 	{
 		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
 
