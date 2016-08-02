@@ -21,13 +21,14 @@ import java.util.Map;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.*;
-import com.yyw.yhyc.order.dto.OrderCreateDto;
-import com.yyw.yhyc.order.dto.OrderDeliveryDto;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.DateUtils;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.bo.ProductInfo;
@@ -57,6 +58,8 @@ public class OrderService {
 	private OrderCombinedMapper orderCombinedMapper;
 	private ShoppingCartMapper shoppingCartMapper;
 	private ProductInfoMapper productInfoMapper;
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
+	private UsermanageEnterpriseMapper enterpriseMapper;
 
 
 	@Autowired
@@ -114,6 +117,16 @@ public class OrderService {
 	@Autowired
 	public void setProductInfoMapper(ProductInfoMapper productInfoMapper) {
 		this.productInfoMapper = productInfoMapper;
+	}
+
+	@Autowired
+	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
+		this.receiverAddressMapper = receiverAddressMapper;
+	}
+
+	@Autowired
+	public void setEnterpriseMapper(UsermanageEnterpriseMapper enterpriseMapper) {
+		this.enterpriseMapper = enterpriseMapper;
 	}
 
 	/**
@@ -599,14 +612,17 @@ public class OrderService {
 
 	/**
 	 * 根据订单号查询订单详情
-	 * @param flowId
+	 * @param order
 	 * @throws Exception
 	 */
-	public OrderDetailsDto getOrderDetails(String flowId) throws Exception{
-		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(flowId);
+	public OrderDetailsDto getOrderDetails(Order order) throws Exception{
+		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsdto)){
+			return null;
+		}
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
-			orderDeliveryDetail.setFlowId(flowId);
+			orderDeliveryDetail.setFlowId(order.getFlowId());
 			orderDeliveryDetail.setDeliveryStatus(0);
 			List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if(list.size()>0){
@@ -979,19 +995,28 @@ public class OrderService {
 	 * 检查订单页的数据
 	 * @return
      */
-	public OrderCreateDto checkOrderPage() {
-		OrderCreateDto orderCreateDto = new OrderCreateDto();
+	public Map<String,Object> checkOrderPage() throws Exception {
+		Map<String,Object> resultMap = new HashMap<String, Object>();
 		//TODO 获取当前登陆用户的的企业id
 		Integer currentLoginCustId = 123;
 
+		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
+		if(UtilHelper.isEmpty(enterprise)){
+			throw new Exception("非法参数");
+		}
+
 		/* 获取买家用户的收货地址列表 */
+		UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
+		receiverAddress.setEnterpriseId(enterprise.getEnterpriseId());
+		List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
+		resultMap.put("receiveAddressList",receiverAddressList );
 
 
 		/* 获取购物车中的商品信息 */
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(currentLoginCustId);
-		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
-
-		return orderCreateDto;
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
+		resultMap.put("allShoppingCart",allShoppingCart);
+		return resultMap;
 	}
 }

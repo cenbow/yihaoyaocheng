@@ -127,10 +127,10 @@ public interface OrderFacade {
 	/**
 	 * 根据订单号查询订单详情
 	 *
-	 * @param flowId
+	 * @param order
 	 * @throws Exception
 	 */
-	public OrderDetailsDto getOrderDetails(String flowId) throws Exception;
+	public OrderDetailsDto getOrderDetails(Order order) throws Exception;
 
 	/**
 	 * 采购商取消订单
@@ -155,5 +155,5 @@ public interface OrderFacade {
 	 */
 	public void  sellerCancelOrder(Integer custId,Integer orderId,String buyerCancelOrder);
 
-	public OrderCreateDto checkOrderPage();
+	public Map<String,Object> checkOrderPage() throws Exception;
 }

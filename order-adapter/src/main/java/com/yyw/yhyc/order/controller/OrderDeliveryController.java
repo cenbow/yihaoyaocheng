@@ -14,6 +14,7 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderDelivery;
+import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/orderDelivery")
@@ -91,4 +94,16 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		orderDeliveryFacade.update(orderDelivery);
 	}
+
+
+	/**
+	 * 确认发货
+	 * @return
+	 */
+	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception
+	{
+		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto);
+	}
+
 }

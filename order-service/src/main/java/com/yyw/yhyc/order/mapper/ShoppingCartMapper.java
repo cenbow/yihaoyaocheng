@@ -15,8 +15,11 @@ import java.util.List;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 
 public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, Integer> {
 
 	public List<ShoppingCart> listPaginationByProperty(Pagination<ShoppingCart> pagination, ShoppingCart shoppingCart);
+
+	List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart);
 }

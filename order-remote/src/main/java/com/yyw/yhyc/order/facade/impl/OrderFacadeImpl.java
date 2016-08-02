@@ -176,11 +176,11 @@ public class OrderFacadeImpl implements OrderFacade {
 	/**
 	 * 根据订单号查询订单详情
 	 *
-	 * @param flowId
+	 * @param order
 	 * @throws Exception
 	 */
-	public OrderDetailsDto getOrderDetails(String flowId) throws Exception {
-		return orderService.getOrderDetails(flowId);
+	public OrderDetailsDto getOrderDetails(Order order) throws Exception {
+		return orderService.getOrderDetails(order);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class OrderFacadeImpl implements OrderFacade {
 		orderService.updateOrderStatusForSeller(custId,orderId,cancelResult);
 	}
 
-	public OrderCreateDto checkOrderPage() {
+	public Map<String,Object> checkOrderPage() throws Exception {
 		return orderService.checkOrderPage();
 	}
 }

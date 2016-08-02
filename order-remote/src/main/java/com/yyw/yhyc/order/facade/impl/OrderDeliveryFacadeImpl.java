@@ -11,7 +11,9 @@
 package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
+import java.util.Map;
 
+import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -137,5 +139,14 @@ public class OrderDeliveryFacadeImpl implements OrderDeliveryFacade {
 	public int findByCount(OrderDelivery orderDelivery) throws Exception
 	{
 		return orderDeliveryService.findByCount(orderDelivery);
+	}
+	/**
+	 * 确认发货
+	 * @param orderDeliveryDto
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception{
+		return orderDeliveryService.sendOrderDelivery(orderDeliveryDto);
 	}
 }
