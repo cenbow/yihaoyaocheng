@@ -2,6 +2,8 @@ package com.yyw.yhyc.order.dto;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
 
+import java.io.File;
+
 /**
  * Created by lizhou on 2016/7/31
  */
@@ -17,6 +19,28 @@ public class OrderDeliveryDto extends OrderDelivery {
 
     /* 收货人区县名称 */
     private String receiveRegionName;
+
+    /* 用户收发货地址id */
+    private int receiverAddressId;
+
+    /* 批号导入EXCEL */
+    private File excelPath;
+
+    public File getExcelPath() {
+        return excelPath;
+    }
+
+    public void setExcelPath(File excelPath) {
+        this.excelPath = excelPath;
+    }
+
+    public int getReceiverAddressId() {
+        return receiverAddressId;
+    }
+
+    public void setReceiverAddressId(int receiverAddressId) {
+        this.receiverAddressId = receiverAddressId;
+    }
 
     public String getReceiveProvinceName() {
         return receiveProvinceName;

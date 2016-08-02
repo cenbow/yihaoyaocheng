@@ -94,16 +94,29 @@ public class OrderController extends BaseJsonController {
 	}
 
 	/**
-	 * 通过主键查询实体对象
+	 * 订单详情
 	 * @return
 	 */
-	@RequestMapping(value = "/getOrderDetails/{flowId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/getBuyOrderDetails", method = RequestMethod.GET)
 	@ResponseBody
-	public OrderDetailsDto getOrderDetails(String flowId) throws Exception
+	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
 	{
-		return orderFacade.getOrderDetails(flowId);
+		//order.setCustId(); 登录买家的id
+		return orderFacade.getOrderDetails(order);
 	}
 
 
+
+	/**
+	 * 订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
+	{
+		//order.setSupplyId(); 登录卖家的id
+		return orderFacade.getOrderDetails(order);
+	}
 
 }
