@@ -34,6 +34,7 @@ import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.mapper.ProductInfoMapper;
+import com.yyw.yhyc.utils.ExcelUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1018,5 +1019,50 @@ public class OrderService {
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
 		resultMap.put("allShoppingCart",allShoppingCart);
 		return resultMap;
+	}
+
+	/**
+	 * 导出销售订单
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
+		//销售订单列表
+		List<OrderDto> list = orderMapper.listPgSellerOrder(pagination, orderDto);
+		String[] headers={};
+		List<Object[]> dataset = new ArrayList<Object[]>();
+		SellerOrderStatusEnum sellerOrderStatusEnum;
+		for(OrderDto order:list) {
+			String orderStatusName="未知类型";
+			String billTypeName="未知类型";
+			if(!UtilHelper.isEmpty(order.getOrderStatus()) && !UtilHelper.isEmpty(order.getPayType())){
+				//卖家视角订单状态
+				sellerOrderStatusEnum = getSellerOrderStatus(order.getOrderStatus(), order.getPayType());
+				if(!UtilHelper.isEmpty(sellerOrderStatusEnum)){
+					orderStatusName=sellerOrderStatusEnum.getValue();
+				}
+			}
+			if(!UtilHelper.isEmpty(order.getBillType())){
+				if(order.getBillType()==1){
+					billTypeName="增值税专用发票";
+				}else if(order.getBillType()==2){
+					billTypeName="增值税普通发票";
+				}
+			}
+			dataset.add(new Object[]{"下单时间",order.getCreateTime(),"订单号",order.getFlowId(),"订单状态",orderStatusName,"发票类型",billTypeName});
+			dataset.add(new Object[]{"采购商",order.getCustName(),"收货人",order.getOrderDelivery().getReceivePerson(),"收货地址",order.getOrderDelivery().getReceiveAddress(),"联系方式",order.getOrderDelivery().getReceiveContactPhone()});
+			dataset.add(new Object[]{"商品编码","品名","规格","厂商","单价（元）","数量","金额（元）","促销信息"});
+			Double productTotal=0d;
+			for (OrderDetail orderDetail : order.getOrderDetailList()) {
+				BigDecimal totalPrice = orderDetail.getProductPrice().multiply(new BigDecimal(orderDetail.getProductCount() + ""));
+				dataset.add(new Object[]{orderDetail.getProductCode(),orderDetail.getProductName(),orderDetail.getSpecification(),orderDetail.getManufactures(),orderDetail.getProductPrice(),orderDetail.getProductCount(),totalPrice.doubleValue(),""});
+				productTotal+=totalPrice.doubleValue();
+			}
+			dataset.add(new Object[]{"商品金额（元）", productTotal, "优惠券（元）", order.getPreferentialMoney(), "订单金额（元）", order.getOrderTotal(), "", ""});
+			dataset.add(new Object[]{"买家留言", order.getLeaveMessage(), "", "", "", "", "", ""});
+			dataset.add(new Object[]{});
+		}
+		return  ExcelUtil.exportExcel("订单信息", headers, dataset);
 	}
 }
