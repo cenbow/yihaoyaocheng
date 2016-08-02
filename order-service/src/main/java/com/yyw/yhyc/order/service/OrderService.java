@@ -261,6 +261,7 @@ public class OrderService {
 
             /* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDeliveryDto);
+			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
 
@@ -272,7 +273,6 @@ public class OrderService {
 
 		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
 		insertOrderCombined(orderNewList,currentLoginCustId,payFlowId);
-
         return orderNewList;
     }
 
@@ -285,9 +285,12 @@ public class OrderService {
 	 * @return
 	 */
 	private Order createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
+		if( null == orderDto || null == orderDeliveryDto){
+			return null;
+		}
 
 		/* TODO  计算订单相关的价格 */
-//		orderDto = calculateOrderPrice(orderDto);
+		orderDto = calculateOrderPrice(orderDto);
 
 		/*  数据插入订单表、订单详情表 */
 		Order order = insertOrderAndOrderDetail(orderDto);
@@ -305,6 +308,25 @@ public class OrderService {
 		//TODO 自动取消订单相关的定时任务
 
 		return order;
+	}
+
+	private OrderDto calculateOrderPrice(OrderDto orderDto) {
+		if(null == orderDto || null == orderDto.getProductInfoDtoList()) return null;
+
+		BigDecimal orderTotal = new BigDecimal(0);
+
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+			if(null == productInfoDto) continue;
+			orderTotal = orderTotal.add(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
+		}
+		/* 计算订单相关的金额 */
+		orderDto.setOrderTotal(orderTotal);//订单总金额
+		orderDto.setFreight(new BigDecimal(0));//运费
+		orderDto.setPreferentialMoney(new BigDecimal(0));//优惠了的金额(如果使用了优惠)
+		orderDto.setOrgTotal(orderTotal);//订单优惠后的金额(如果使用了优惠)
+		orderDto.setSettlementMoney(orderTotal);//结算金额
+		orderDto.setFinalPay(orderTotal);//最后支付金额
+		return orderDto;
 	}
 
 	/**
@@ -337,7 +359,9 @@ public class OrderService {
 		if(UtilHelper.isEmpty(currentLoginCustId)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
 
+		/* 在线支付订单的集合 */
 		List<Order> payOnlineOrderList = new ArrayList<Order>();
+
 		OrderCombined orderCombined = null;
 		for(Order order : orderNewList){
 			if(UtilHelper.isEmpty(order)) continue;
@@ -350,9 +374,9 @@ public class OrderService {
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
 			orderCombined.setCombinedNumber(1);//合并订单数
 			//todo 价格相关
-//			orderCombined.setCopeTotal();//	应付总价
-//			orderCombined.setPocketTotal();//实付总价
-//			orderCombined.setFreightPrice();//运费
+			orderCombined.setCopeTotal(order.getOrderTotal());//	应付总价
+			orderCombined.setPocketTotal(order.getFinalPay());//实付总价
+			orderCombined.setFreightPrice(order.getFreight());//运费
 			orderCombined.setPayFlowId(payFlowId);
 			orderCombinedMapper.save(orderCombined);
 			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
@@ -367,11 +391,15 @@ public class OrderService {
 
 		/* 合并在线支付方式的订单 */
 		if(!UtilHelper.isEmpty(payOnlineOrderList)){
-			BigDecimal allCopeTotal = new BigDecimal(0);
-			BigDecimal allPocketTotal = new BigDecimal(0);
-			BigDecimal allFreightPrice = new BigDecimal(0);
+			BigDecimal allCopeTotal = new BigDecimal(0);   //应付总价
+			BigDecimal allPocketTotal = new BigDecimal(0); //实付总价
+			BigDecimal allFreightPrice = new BigDecimal(0); //总运费
 			for(Order order : payOnlineOrderList){
 				//todo 价格相关
+				allCopeTotal = allCopeTotal.add(order.getOrderTotal());
+				allPocketTotal = allPocketTotal.add(order.getFinalPay());
+				allFreightPrice = allFreightPrice.add(order.getFreight());
+
 			}
 			orderCombined = new OrderCombined();
 			orderCombined.setCustId(currentLoginCustId);
@@ -482,30 +510,30 @@ public class OrderService {
 		/* 下单后，选择不同支付方式，订单的状态不一样 */
 		/* 线下支付 */
 		if(SystemPayTypeEnum.PayOffline.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(BuyerOrderStatusEnum.PendingPayment.getType());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
 
 		/* 在线支付 */
 		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(BuyerOrderStatusEnum.PendingPayment.getType());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
 
 		/* 账期支付 */
 		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(BuyerOrderStatusEnum.BackOrder.getType());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
 		order.setCreateTime(systemDateMapper.getSystemDate());
 		order.setCreateUser("");
 		order.setTotalCount( orderDto.getProductInfoDtoList().size());
 
-		/* TODO 订单金额相关 */
-//		order.setOrderTotal();//订单总金额
-//		order.setFreight();//运费
-//		order.setPreferentialMoney();//优惠了的金额(如果使用了优惠)
-//		order.setOrgTotal();//订单优惠后的金额(如果使用了优惠)
-//		order.setSettlementMoney();//结算金额
-//		order.setFinalPay();//最后支付金额
+		/* 订单金额相关 */
+		order.setOrderTotal(orderDto.getOrderTotal());//订单总金额
+		order.setFreight(orderDto.getFreight());//运费
+		order.setPreferentialMoney(orderDto.getPreferentialMoney());//优惠了的金额(如果使用了优惠)
+		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
+		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
+		order.setFinalPay(orderDto.getFinalPay());//最后支付金额
 
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
@@ -947,4 +975,23 @@ public class OrderService {
 		}
 	}
 
+	/**
+	 * 检查订单页的数据
+	 * @return
+     */
+	public OrderCreateDto checkOrderPage() {
+		OrderCreateDto orderCreateDto = new OrderCreateDto();
+		//TODO 获取当前登陆用户的的企业id
+		Integer currentLoginCustId = 123;
+
+		/* 获取买家用户的收货地址列表 */
+
+
+		/* 获取购物车中的商品信息 */
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(currentLoginCustId);
+		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
+
+		return orderCreateDto;
+	}
 }

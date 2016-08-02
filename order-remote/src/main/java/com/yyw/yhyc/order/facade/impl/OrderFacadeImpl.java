@@ -210,4 +210,8 @@ public class OrderFacadeImpl implements OrderFacade {
 	public void  sellerCancelOrder(Integer custId,Integer orderId,String cancelResult){
 		orderService.updateOrderStatusForSeller(custId,orderId,cancelResult);
 	}
+
+	public OrderCreateDto checkOrderPage() {
+		return orderService.checkOrderPage();
+	}
 }

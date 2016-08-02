@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class OrderCreateDto implements Serializable {
 
-    private static final long serialVersionUID = 3281292140667356405L;
+    private static final long serialVersionUID = 4089608300520010684L;
 
     /* 订单信息集合 */
     private List<OrderDto> orderDtoList;
@@ -41,7 +41,7 @@ public class OrderCreateDto implements Serializable {
     public String toString() {
         return "OrderCreateDto{" +
                 "orderDtoList=" + orderDtoList +
-                ", orderDeliveryDto=" + orderDeliveryDto +
+                ",orderDeliveryDto=" + orderDeliveryDto +
                 '}';
     }
 }

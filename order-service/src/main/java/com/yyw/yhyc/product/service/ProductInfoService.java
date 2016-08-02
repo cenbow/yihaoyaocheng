@@ -6,11 +6,12 @@ package com.yyw.yhyc.product.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.bo.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.product.bo.ProductInfo;
-import com.yyw.yhyc.order.bo.Pagination;
+
 import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 
 @Service("productInfoService")
