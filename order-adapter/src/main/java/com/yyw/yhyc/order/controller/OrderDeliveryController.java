@@ -14,9 +14,6 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderDelivery;
-import com.yyw.yhyc.order.bo.Pagination;
-import com.yyw.yhyc.order.bo.RequestListModel;
-import com.yyw.yhyc.order.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -100,7 +97,7 @@ public class OrderDeliveryController extends BaseJsonController {
 
 
 	/**
-	 * 修改记录
+	 * 确认发货
 	 * @return
 	 */
 	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
