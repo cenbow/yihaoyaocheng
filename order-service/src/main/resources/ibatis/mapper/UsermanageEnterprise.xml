@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-8-2 15:49:20
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="UsermanageEnterpriseResultMapper" type="UsermanageEnterprise">
+		<result column="id" property="id"/>
+		<result column="enterprise_id" property="enterpriseId"/>
+		<result column="role_type" property="roleType"/>
+		<result column="enterprise_name" property="enterpriseName"/>
+		<result column="legal_personname" property="legalPersonname"/>
+		<result column="province" property="province"/>
+		<result column="city" property="city"/>
+		<result column="district" property="district"/>
+		<result column="province_name" property="provinceName"/>
+		<result column="city_name" property="cityName"/>
+		<result column="district_name" property="districtName"/>
+		<result column="registered_address" property="registeredAddress"/>
+		<result column="enterprise_cellphone" property="enterpriseCellphone"/>
+		<result column="contacts_name" property="contactsName"/>
+		<result column="enterprise_fax" property="enterpriseFax"/>
+		<result column="enterprise_telephone" property="enterpriseTelephone"/>
+		<result column="enterprise_postcode" property="enterprisePostcode"/>
+		<result column="bank_name" property="bankName"/>
+		<result column="bank_code" property="bankCode"/>
+		<result column="account_name" property="accountName"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="is_use" property="isUse"/>
+		<result column="is_check" property="isCheck"/>
+		<result column="enterprise_code" property="enterpriseCode"/>
+		<result column="is_3merge1" property="is3merge1"/>
+		<result column="bd_user_id" property="bdUserId"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 id
+		, enterprise_id
+		, role_type
+		, enterprise_name
+		, legal_personname
+		, province
+		, city
+		, district
+		, province_name
+		, city_name
+		, district_name
+		, registered_address
+		, enterprise_cellphone
+		, contacts_name
+		, enterprise_fax
+		, enterprise_telephone
+		, enterprise_postcode
+		, bank_name
+		, bank_code
+		, account_name
+		, create_user
+		, create_time
+		, update_time
+		, update_user
+		, is_use
+		, is_check
+		, enterprise_code
+		, is_3merge1
+		, bd_user_id
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 enterprise_id
+				, role_type
+				, enterprise_name
+				, legal_personname
+				, province
+				, city
+				, district
+				, province_name
+				, city_name
+				, district_name
+				, registered_address
+				, enterprise_cellphone
+				, contacts_name
+				, enterprise_fax
+				, enterprise_telephone
+				, enterprise_postcode
+				, bank_name
+				, bank_code
+				, account_name
+				, create_user
+				, create_time
+				, update_time
+				, update_user
+				, is_use
+				, is_check
+				, enterprise_code
+				, is_3merge1
+				, bd_user_id
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 id
+		, enterprise_id
+		, role_type
+		, enterprise_name
+		, legal_personname
+		, province
+		, city
+		, district
+		, province_name
+		, city_name
+		, district_name
+		, registered_address
+		, enterprise_cellphone
+		, contacts_name
+		, enterprise_fax
+		, enterprise_telephone
+		, enterprise_postcode
+		, bank_name
+		, bank_code
+		, account_name
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, update_user
+		, is_use
+		, is_check
+		, enterprise_code
+		, is_3merge1
+		, bd_user_id
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="id!= null and id!= ''"> 
+			AND id=#{id}
+		</if>
+		<if test="enterpriseId!= null and enterpriseId!= ''"> 
+			AND enterprise_id=#{enterpriseId}
+		</if>
+		<if test="roleType!= null and roleType!= ''"> 
+			AND role_type=#{roleType}
+		</if>
+		<if test="enterpriseName!= null and enterpriseName!= ''"> 
+			AND enterprise_name=#{enterpriseName}
+		</if>
+		<if test="legalPersonname!= null and legalPersonname!= ''"> 
+			AND legal_personname=#{legalPersonname}
+		</if>
+		<if test="province!= null and province!= ''"> 
+			AND province=#{province}
+		</if>
+		<if test="city!= null and city!= ''"> 
+			AND city=#{city}
+		</if>
+		<if test="district!= null and district!= ''"> 
+			AND district=#{district}
+		</if>
+		<if test="provinceName!= null and provinceName!= ''"> 
+			AND province_name=#{provinceName}
+		</if>
+		<if test="cityName!= null and cityName!= ''"> 
+			AND city_name=#{cityName}
+		</if>
+		<if test="districtName!= null and districtName!= ''"> 
+			AND district_name=#{districtName}
+		</if>
+		<if test="registeredAddress!= null and registeredAddress!= ''"> 
+			AND registered_address=#{registeredAddress}
+		</if>
+		<if test="enterpriseCellphone!= null and enterpriseCellphone!= ''"> 
+			AND enterprise_cellphone=#{enterpriseCellphone}
+		</if>
+		<if test="contactsName!= null and contactsName!= ''"> 
+			AND contacts_name=#{contactsName}
+		</if>
+		<if test="enterpriseFax!= null and enterpriseFax!= ''"> 
+			AND enterprise_fax=#{enterpriseFax}
+		</if>
+		<if test="enterpriseTelephone!= null and enterpriseTelephone!= ''"> 
+			AND enterprise_telephone=#{enterpriseTelephone}
+		</if>
+		<if test="enterprisePostcode!= null and enterprisePostcode!= ''"> 
+			AND enterprise_postcode=#{enterprisePostcode}
+		</if>
+		<if test="bankName!= null and bankName!= ''"> 
+			AND bank_name=#{bankName}
+		</if>
+		<if test="bankCode!= null and bankCode!= ''"> 
+			AND bank_code=#{bankCode}
+		</if>
+		<if test="accountName!= null and accountName!= ''"> 
+			AND account_name=#{accountName}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="isUse!= null and isUse!= ''"> 
+			AND is_use=#{isUse}
+		</if>
+		<if test="isCheck!= null and isCheck!= ''"> 
+			AND is_check=#{isCheck}
+		</if>
+		<if test="enterpriseCode!= null and enterpriseCode!= ''"> 
+			AND enterprise_code=#{enterpriseCode}
+		</if>
+		<if test="is3merge1!= null and is3merge1!= ''"> 
+			AND is_3merge1=#{is3merge1}
+		</if>
+		<if test="bdUserId!= null and bdUserId!= ''"> 
+			AND bd_user_id=#{bdUserId}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="UsermanageEnterprise">
+		<![CDATA[ INSERT INTO t_usermanage_enterprise ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{enterpriseId}
+				, #{roleType}
+				, #{enterpriseName}
+				, #{legalPersonname}
+				, #{province}
+				, #{city}
+				, #{district}
+				, #{provinceName}
+				, #{cityName}
+				, #{districtName}
+				, #{registeredAddress}
+				, #{enterpriseCellphone}
+				, #{contactsName}
+				, #{enterpriseFax}
+				, #{enterpriseTelephone}
+				, #{enterprisePostcode}
+				, #{bankName}
+				, #{bankCode}
+				, #{accountName}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, #{isUse}
+				, #{isCheck}
+				, #{enterpriseCode}
+				, #{is3merge1}
+				, #{bdUserId}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="UsermanageEnterprise">
+		<![CDATA[ UPDATE t_usermanage_enterprise SET 
+			 id=#{id} 
+			, enterprise_id=#{enterpriseId} 
+			, role_type=#{roleType} 
+			, enterprise_name=#{enterpriseName} 
+			, legal_personname=#{legalPersonname} 
+			, province=#{province} 
+			, city=#{city} 
+			, district=#{district} 
+			, province_name=#{provinceName} 
+			, city_name=#{cityName} 
+			, district_name=#{districtName} 
+			, registered_address=#{registeredAddress} 
+			, enterprise_cellphone=#{enterpriseCellphone} 
+			, contacts_name=#{contactsName} 
+			, enterprise_fax=#{enterpriseFax} 
+			, enterprise_telephone=#{enterpriseTelephone} 
+			, enterprise_postcode=#{enterprisePostcode} 
+			, bank_name=#{bankName} 
+			, bank_code=#{bankCode} 
+			, account_name=#{accountName} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, is_use=#{isUse} 
+			, is_check=#{isCheck} 
+			, enterprise_code=#{enterpriseCode} 
+			, is_3merge1=#{is3merge1} 
+			, bd_user_id=#{bdUserId} 
+		WHERE id = #{id}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_usermanage_enterprise WHERE id = #{id}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_usermanage_enterprise WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="UsermanageEnterprise">
+		DELETE FROM t_usermanage_enterprise WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="UsermanageEnterpriseResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_enterprise WHERE id = #{id}  
+	</select>
+	<select id="list" resultMap="UsermanageEnterpriseResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_usermanage_enterprise
+	</select>
+	<select id="listByProperty" parameterType="UsermanageEnterprise" resultMap="UsermanageEnterpriseResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_enterprise WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="UsermanageEnterprise" resultMap="UsermanageEnterpriseResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_enterprise WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="UsermanageEnterprise" resultType="int">
+		SELECT count(1) AS totalcount FROM t_usermanage_enterprise WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

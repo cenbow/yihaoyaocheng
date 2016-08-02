@@ -211,7 +211,7 @@ public class OrderFacadeImpl implements OrderFacade {
 		orderService.updateOrderStatusForSeller(custId,orderId,cancelResult);
 	}
 
-	public OrderCreateDto checkOrderPage() {
+	public Map<String,Object> checkOrderPage() throws Exception {
 		return orderService.checkOrderPage();
 	}
 }

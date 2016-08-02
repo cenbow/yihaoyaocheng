@@ -155,5 +155,5 @@ public interface OrderFacade {
 	 */
 	public void  sellerCancelOrder(Integer custId,Integer orderId,String buyerCancelOrder);
 
-	public OrderCreateDto checkOrderPage();
+	public Map<String,Object> checkOrderPage() throws Exception;
 }
