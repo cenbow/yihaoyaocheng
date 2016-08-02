@@ -13,7 +13,7 @@
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yyw.yhyc.order.mapper.OrderMapper">
-    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
            flushInterval="86400000" size="1024000">
     </cache>
 	<resultMap id="OrderResultMapper" type="Order">
@@ -53,7 +53,7 @@
 		<result column="receive_Type" property="receiveType"/>
 	</resultMap>
 
-	<resultMap id="OrderDetailsResultMapper" type="Order">
+	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
 		<result column="order_id" property="orderId"/>
 		<result column="flow_id" property="flowId"/>
 		<result column="cust_name" property="custName"/>
@@ -93,7 +93,6 @@
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
 		<association property="details" column="order_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listOrderDetailInfoByOrderId"></association>
-
 	</resultMap>
 
 	<sql id="commonColumns">
@@ -578,10 +577,23 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
-	<select id="getOrderDetails" parameterType="java.lang.String" resultMap="OrderDetailsResultMapper">
+	<select id="getOrderDetails" parameterType="Order"  resultMap="OrderDetailsResultMapper">
 		SELECT s.pay_type_name,o.* from t_order o,t_system_pay_type s
 		WHERE o.pay_type_id=s.pay_type_id
 		AND  o.flow_Id=#{flowId}
+		<if test="custId!= null and custId!= ''">
+			AND o.supply_id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND o.supply_id=#{supplyId}
+		</if>
+
+	</select>
+
+	<select id="getOrderbyFlowId" parameterType="java.lang.String" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE flow_id = #{flowId}
 	</select>
 
 	<select id="findSellerOrderStatusCount" parameterType="OrderDto" resultType="OrderDto">
@@ -617,6 +629,8 @@
 	<resultMap id="sellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+		<association property="orderDelivery" column="ORDER_ID"
+					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
 		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
 	</resultMap>
 

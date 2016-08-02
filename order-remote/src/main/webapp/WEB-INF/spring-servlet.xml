@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<context:component-scan base-package="com.yyw.yhyc"/>
-	<bean class="com.yyw.yhyc.order.helper.SpringBeanHelper"/>
+	<bean class="com.yyw.yhyc.helper.SpringBeanHelper"/>
 
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
@@ -68,18 +68,18 @@
 	<!-- SqlSessionFactoryBean  spring整合ibatis的入口 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="configLocation" value="classpath:mybatis.xml" />
-		<property name="typeAliasesPackage" value="com.yyw.yhyc.order.bo,com.yyw.yhyc.order.dto,com.yyw.yhyc.product.bo,com.yyw.yhyc.product.dto" />
+		<property name="typeAliasesPackage" value="com.yyw.yhyc" />
 		<property name="mapperLocations" value="classpath*:ibatis/mapper/**/*.xml" />
 		<property name="dataSource" ref="dataSource" />
 		<property name="plugins">
 			<list>
-				<bean id="paginationPlugin" class="com.yyw.yhyc.order.plugin.PaginationPlugin"/>
+				<bean id="paginationPlugin" class="com.yyw.yhyc.plugin.PaginationPlugin"/>
 			</list>
 		</property>
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.yyw.yhyc.order.mapper,com.yyw.yhyc.product.mapper" />
+		<property name="basePackage" value="com.yyw.yhyc.order.mapper,com.yyw.yhyc.product.mapper,com.yyw.yhyc.usermanage.mapper" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 

@@ -10,7 +10,6 @@
  **/
 package com.yyw.yhyc.order.facade;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -156,6 +155,7 @@ public interface OrderFacade {
 	 */
 	public void  sellerCancelOrder(Integer custId,Integer orderId,String buyerCancelOrder);
 
+	public Map<String,Object> checkOrderPage() throws Exception;
 	public OrderCreateDto checkOrderPage();
 
 	/**

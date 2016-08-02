@@ -23,7 +23,7 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public List<Order> listPaginationByProperty(Pagination<Order> pagination, Order order);
 
-	public OrderDetailsDto getOrderDetails(String flowId);
+	public OrderDetailsDto getOrderDetails(Order order);
 
 	public List<OrderDto> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
@@ -43,5 +43,5 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public void doneOrderForDeliveryAfter7Day(List<Integer> li);
 
-
+	public Order getOrderbyFlowId(String flowId);
 }

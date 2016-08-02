@@ -183,7 +183,7 @@ public class OrderController extends BaseJsonController {
      */
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.POST)
 	@ResponseBody
-	public OrderCreateDto checkOrderPage() throws Exception {
+	public Map<String,Object> checkOrderPage() throws Exception {
 		return orderFacade.checkOrderPage();
 	}
 
