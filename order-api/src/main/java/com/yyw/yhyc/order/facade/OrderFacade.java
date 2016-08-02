@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
@@ -105,7 +105,7 @@ public interface OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public OrderCreateDto createOrder(OrderCreateDto orderCreateDto)throws Exception;
+	public List<Order> createOrder(OrderCreateDto orderCreateDto)throws Exception;
 
 	/**
 	 * 校验要购买的商品(通用方法)
@@ -116,7 +116,7 @@ public interface OrderFacade {
 
 
 	/**
-	 * 查采购商订单查询
+	 * 采购商订单查询
 	 * @param pagination
 	 * @param orderDto
 	 * @return
@@ -131,5 +131,28 @@ public interface OrderFacade {
 	 * @throws Exception
 	 */
 	public OrderDetailsDto getOrderDetails(Order order) throws Exception;
+
+	/**
+	 * 采购商取消订单
+	 * @param custId
+	 * @param orderId
+     */
+	public void  buyerCancelOrder(Integer custId,Integer orderId);
+
+
+	/**
+	 * 销售订单查询
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public Map<String,Object> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
+	/**
+	 * 卖家取消订单
+	 * @param custId
+	 * @param orderId
+	 */
+	public void  sellerCancelOrder(Integer custId,Integer orderId,String buyerCancelOrder);
 
 }

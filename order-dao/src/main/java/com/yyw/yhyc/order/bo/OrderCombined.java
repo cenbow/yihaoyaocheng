@@ -10,7 +10,7 @@
  **/
 package com.yyw.yhyc.order.bo;
 
-import com.yyw.yhyc.order.bo.Model;
+import com.yyw.yhyc.bo.Model;
 
 public class OrderCombined extends Model{
 

@@ -19,6 +19,8 @@ import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.order.bo.Pagination;
 import org.apache.xmlbeans.impl.xb.xsdschema.Public;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
+import com.yyw.yhyc.bo.Pagination;
 
 public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
@@ -30,6 +32,10 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public List<OrderDto> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<OrderDto> findOrderStatusCount(OrderDto orderDto);
+
+	public List<OrderDto> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
+	public List<OrderDto> findSellerOrderStatusCount(OrderDto orderDto);
 
 	public Order getOrderbyFlowId(String flowId);
 }

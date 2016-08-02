@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ **
+ * Created By: XI
+ * Created On: 2016-8-1 14:52:12
+ *
+ * Amendment History:
+ *
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.product.mapper.ProductInfoMapper">
+    <cache type="com.yyw.yhyc.order.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+    <resultMap id="ProductInfoResultMapper" type="ProductInfo">
+        <result column="id" property="id"/>
+        <result column="spu_code" property="spuCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_name_s" property="productNameS"/>
+        <result column="short_name" property="shortName"/>
+        <result column="product_code" property="productCode"/>
+        <result column="first_category" property="firstCategory"/>
+        <result column="second_category" property="secondCategory"/>
+        <result column="third_category" property="thirdCategory"/>
+        <result column="drug_first_category" property="drugFirstCategory"/>
+        <result column="drug_second_category" property="drugSecondCategory"/>
+        <result column="factory_name" property="factoryName"/>
+        <result column="place_origin" property="placeOrigin"/>
+        <result column="spec" property="spec"/>
+        <result column="brand_id" property="brandId"/>
+        <result column="approval_num" property="approvalNum"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="unit" property="unit"/>
+        <result column="drugform_type" property="drugformType"/>
+        <result column="shelf_life" property="shelfLife"/>
+        <result column="product_type" property="productType"/>
+        <result column="nss_category" property="nssCategory"/>
+        <result column="transportation_condition" property="transportationCondition"/>
+        <result column="is_otc" property="isOtc"/>
+        <result column="qual_standards_type" property="qualStandardsType"/>
+        <result column="qual_standards_num" property="qualStandardsNum"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="update_staff" property="updateStaff"/>
+        <result column="enterprise_name" property="enterpriseName"/>
+        <result column="enterprise_code" property="enterpriseCode"/>
+    </resultMap>
+
+    <sql id="commonColumns">
+        id
+        , spu_code
+        , product_name
+        , product_name_s
+        , short_name
+        , product_code
+        , first_category
+        , second_category
+        , third_category
+        , drug_first_category
+        , drug_second_category
+        , factory_name
+        , place_origin
+        , spec
+        , brand_id
+        , approval_num
+        , start_date
+        , end_date
+        , unit
+        , drugform_type
+        , shelf_life
+        , product_type
+        , nss_category
+        , transportation_condition
+        , is_otc
+        , qual_standards_type
+        , qual_standards_num
+        , create_date
+        , update_date
+        , update_staff
+        , enterprise_name
+        , enterprise_code
+    </sql>
+
+    <sql id="commonColumnsNotPK">
+        spu_code
+        , product_name
+        , product_name_s
+        , short_name
+        , product_code
+        , first_category
+        , second_category
+        , third_category
+        , drug_first_category
+        , drug_second_category
+        , factory_name
+        , place_origin
+        , spec
+        , brand_id
+        , approval_num
+        , start_date
+        , end_date
+        , unit
+        , drugform_type
+        , shelf_life
+        , product_type
+        , nss_category
+        , transportation_condition
+        , is_otc
+        , qual_standards_type
+        , qual_standards_num
+        , create_date
+        , update_date
+        , update_staff
+        , enterprise_name
+        , enterprise_code
+    </sql>
+
+    <sql id="commonProcessDateColumns">
+        id
+        , spu_code
+        , product_name
+        , product_name_s
+        , short_name
+        , product_code
+        , first_category
+        , second_category
+        , third_category
+        , drug_first_category
+        , drug_second_category
+        , factory_name
+        , place_origin
+        , spec
+        , brand_id
+        , approval_num
+        , date_format(start_date, '%Y-%m-%d %H:%i:%s') start_date
+        , date_format(end_date, '%Y-%m-%d %H:%i:%s') end_date
+        , unit
+        , drugform_type
+        , shelf_life
+        , product_type
+        , nss_category
+        , transportation_condition
+        , is_otc
+        , qual_standards_type
+        , qual_standards_num
+        , date_format(create_date, '%Y-%m-%d %H:%i:%s') create_date
+        , date_format(update_date, '%Y-%m-%d %H:%i:%s') update_date
+        , update_staff
+        , enterprise_name
+        , enterprise_code
+    </sql>
+
+    <sql id="commonCondition">
+        <if test="id!= null and id!= ''">
+            AND id=#{id}
+        </if>
+        <if test="spuCode!= null and spuCode!= ''">
+            AND spu_code=#{spuCode}
+        </if>
+        <if test="productName!= null and productName!= ''">
+            AND product_name=#{productName}
+        </if>
+        <if test="productNameS!= null and productNameS!= ''">
+            AND product_name_s=#{productNameS}
+        </if>
+        <if test="shortName!= null and shortName!= ''">
+            AND short_name=#{shortName}
+        </if>
+        <if test="productCode!= null and productCode!= ''">
+            AND product_code=#{productCode}
+        </if>
+        <if test="firstCategory!= null and firstCategory!= ''">
+            AND first_category=#{firstCategory}
+        </if>
+        <if test="secondCategory!= null and secondCategory!= ''">
+            AND second_category=#{secondCategory}
+        </if>
+        <if test="thirdCategory!= null and thirdCategory!= ''">
+            AND third_category=#{thirdCategory}
+        </if>
+        <if test="drugFirstCategory!= null and drugFirstCategory!= ''">
+            AND drug_first_category=#{drugFirstCategory}
+        </if>
+        <if test="drugSecondCategory!= null and drugSecondCategory!= ''">
+            AND drug_second_category=#{drugSecondCategory}
+        </if>
+        <if test="factoryName!= null and factoryName!= ''">
+            AND factory_name=#{factoryName}
+        </if>
+        <if test="placeOrigin!= null and placeOrigin!= ''">
+            AND place_origin=#{placeOrigin}
+        </if>
+        <if test="spec!= null and spec!= ''">
+            AND spec=#{spec}
+        </if>
+        <if test="brandId!= null and brandId!= ''">
+            AND brand_id=#{brandId}
+        </if>
+        <if test="approvalNum!= null and approvalNum!= ''">
+            AND approval_num=#{approvalNum}
+        </if>
+        <if test="startDate!= null and startDate!= ''">
+            AND start_date=str_to_date(#{startDate},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endDate!= null and endDate!= ''">
+            AND end_date=str_to_date(#{endDate},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="unit!= null and unit!= ''">
+            AND unit=#{unit}
+        </if>
+        <if test="drugformType!= null and drugformType!= ''">
+            AND drugform_type=#{drugformType}
+        </if>
+        <if test="shelfLife!= null and shelfLife!= ''">
+            AND shelf_life=#{shelfLife}
+        </if>
+        <if test="productType!= null and productType!= ''">
+            AND product_type=#{productType}
+        </if>
+        <if test="nssCategory!= null and nssCategory!= ''">
+            AND nss_category=#{nssCategory}
+        </if>
+        <if test="transportationCondition!= null and transportationCondition!= ''">
+            AND transportation_condition=#{transportationCondition}
+        </if>
+        <if test="isOtc!= null and isOtc!= ''">
+            AND is_otc=#{isOtc}
+        </if>
+        <if test="qualStandardsType!= null and qualStandardsType!= ''">
+            AND qual_standards_type=#{qualStandardsType}
+        </if>
+        <if test="qualStandardsNum!= null and qualStandardsNum!= ''">
+            AND qual_standards_num=#{qualStandardsNum}
+        </if>
+        <if test="createDate!= null and createDate!= ''">
+            AND create_date=str_to_date(#{createDate},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="updateDate!= null and updateDate!= ''">
+            AND update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="updateStaff!= null and updateStaff!= ''">
+            AND update_staff=#{updateStaff}
+        </if>
+        <if test="enterpriseName!= null and enterpriseName!= ''">
+            AND enterprise_name=#{enterpriseName}
+        </if>
+        <if test="enterpriseCode!= null and enterpriseCode!= ''">
+            AND enterprise_code=#{enterpriseCode}
+        </if>
+    </sql>
+
+    <insert id="save" parameterType="ProductInfo">
+        <![CDATA[ INSERT INTO t_product_info ( ]]>
+        <include refid="commonColumnsNotPK"/>
+        <![CDATA[
+			) VALUES (
+				 #{spuCode}
+				, #{productName}
+				, #{productNameS}
+				, #{shortName}
+				, #{productCode}
+				, #{firstCategory}
+				, #{secondCategory}
+				, #{thirdCategory}
+				, #{drugFirstCategory}
+				, #{drugSecondCategory}
+				, #{factoryName}
+				, #{placeOrigin}
+				, #{spec}
+				, #{brandId}
+				, #{approvalNum}
+				, str_to_date(#{startDate},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{endDate},'%Y-%m-%d %H:%i:%s')
+				, #{unit}
+				, #{drugformType}
+				, #{shelfLife}
+				, #{productType}
+				, #{nssCategory}
+				, #{transportationCondition}
+				, #{isOtc}
+				, #{qualStandardsType}
+				, #{qualStandardsNum}
+				, str_to_date(#{createDate},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+				, #{updateStaff}
+				, #{enterpriseName}
+				, #{enterpriseCode}
+  ) ]]>
+    </insert>
+    <update id="update" parameterType="ProductInfo">
+        <![CDATA[ UPDATE t_product_info SET
+			 id=#{id}
+			, spu_code=#{spuCode}
+			, product_name=#{productName}
+			, product_name_s=#{productNameS}
+			, short_name=#{shortName}
+			, product_code=#{productCode}
+			, first_category=#{firstCategory}
+			, second_category=#{secondCategory}
+			, third_category=#{thirdCategory}
+			, drug_first_category=#{drugFirstCategory}
+			, drug_second_category=#{drugSecondCategory}
+			, factory_name=#{factoryName}
+			, place_origin=#{placeOrigin}
+			, spec=#{spec}
+			, brand_id=#{brandId}
+			, approval_num=#{approvalNum}
+			, start_date=str_to_date(#{startDate},'%Y-%m-%d %H:%i:%s')
+			, end_date=str_to_date(#{endDate},'%Y-%m-%d %H:%i:%s')
+			, unit=#{unit}
+			, drugform_type=#{drugformType}
+			, shelf_life=#{shelfLife}
+			, product_type=#{productType}
+			, nss_category=#{nssCategory}
+			, transportation_condition=#{transportationCondition}
+			, is_otc=#{isOtc}
+			, qual_standards_type=#{qualStandardsType}
+			, qual_standards_num=#{qualStandardsNum}
+			, create_date=str_to_date(#{createDate},'%Y-%m-%d %H:%i:%s')
+			, update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+			, update_staff=#{updateStaff}
+			, enterprise_name=#{enterpriseName}
+			, enterprise_code=#{enterpriseCode}
+		WHERE id = #{id}  ]]>
+    </update>
+    <delete id="deleteByPK" parameterType="java.lang.Integer">
+        <![CDATA[ DELETE FROM t_product_info WHERE id = #{id}  ]]>
+    </delete>
+    <delete id="deleteByPKeys" parameterType="map">
+        DELETE FROM t_product_info WHERE
+        <foreach collection="primaryKeys" index="index" item="id"
+                 open=" id IN(" separator="," close=") ">
+            ${id}
+        </foreach>
+    </delete>
+    <delete id="deleteByProperty" parameterType="ProductInfo">
+        DELETE FROM t_product_info WHERE 1 = 1
+        <include refid="commonCondition"/>
+    </delete>
+    <select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductInfoResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_info WHERE id = #{id}
+    </select>
+    <select id="list" resultMap="ProductInfoResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_info
+    </select>
+    <select id="listByProperty" parameterType="ProductInfo" resultMap="ProductInfoResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_info WHERE 1=1
+        <include refid="commonCondition"/>
+    </select>
+    <select id="listPaginationByProperty" parameterType="ProductInfo" resultMap="ProductInfoResultMapper">
+        SELECT
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_info WHERE 1=1
+        <include refid="commonCondition"/>
+    </select>
+    <select id="findByCount" parameterType="ProductInfo" resultType="int">
+        SELECT count(1) AS totalcount FROM t_product_info WHERE 1=1
+        <include refid="commonCondition"/>
+    </select>
+</mapper>

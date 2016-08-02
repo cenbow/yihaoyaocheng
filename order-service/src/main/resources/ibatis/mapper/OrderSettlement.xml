@@ -27,6 +27,7 @@
 		<result column="supply_name" property="supplyName"/>
 		<result column="confirm_settlement" property="confirmSettlement"/>
 		<result column="settlement_money" property="settlementMoney"/>
+		<result column="refun_settlement_money" property="refunSettlementMoney"/>
 		<result column="pay_type_id" property="payTypeId"/>
 		<result column="settlement_time" property="settlementTime"/>
 		<result column="order_time" property="orderTime"/>
@@ -48,6 +49,7 @@
 		, supply_name
 		, confirm_settlement
 		, settlement_money
+		, refun_settlement_money
 		, pay_type_id
 		, settlement_time
 		, order_time
@@ -68,6 +70,7 @@
 				, supply_name
 				, confirm_settlement
 				, settlement_money
+				, refun_settlement_money
 				, pay_type_id
 				, settlement_time
 				, order_time
@@ -89,6 +92,7 @@
 		, supply_name
 		, confirm_settlement
 		, settlement_money
+		, refun_settlement_money
 		, pay_type_id
 		, date_format(settlement_time, '%Y-%m-%d %H:%i:%s') settlement_time
 		, date_format(order_time, '%Y-%m-%d %H:%i:%s') order_time
@@ -130,6 +134,9 @@
 		<if test="settlementMoney!= null and settlementMoney!= ''"> 
 			AND settlement_money=#{settlementMoney}
 		</if>
+		<if test="refunSettlementMoney!= null and refunSettlementMoney!= ''">
+			AND refun_settlement_money =#{refunSettlementMoney}
+		</if>
 		<if test="payTypeId!= null and payTypeId!= ''"> 
 			AND pay_type_id=#{payTypeId}
 		</if>
@@ -170,6 +177,7 @@
 				, #{supplyName}
 				, #{confirmSettlement}
 				, #{settlementMoney}
+				, #{refunSettlementMoney}
 				, #{payTypeId}
 				, str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
 				, str_to_date(#{orderTime},'%Y-%m-%d %H:%i:%s')
@@ -191,8 +199,9 @@
 			, supply_id=#{supplyId} 
 			, supply_name=#{supplyName} 
 			, confirm_settlement=#{confirmSettlement} 
-			, settlement_money=#{settlementMoney} 
-			, pay_type_id=#{payTypeId} 
+			, settlement_money=#{settlementMoney}
+			, refun_settlement_money = #{refunSettlementMoney}
+			, pay_type_id=#{payTypeId}
 			, settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
 			, order_time=str_to_date(#{orderTime},'%Y-%m-%d %H:%i:%s')
 			, remark=#{remark} 
@@ -233,7 +242,8 @@
 		<include refid="commonCondition"/>
 	</select>
 	<resultMap id="OrderSettlementResultDtoMapper" type="OrderSettlementDto">
-        <result column="cust_name" property="custName"/>
+		<result column="order_settlement_id" property="orderSettlementId"/>
+		<result column="cust_name" property="custName"/>
         <result column="business_type" property="businessType"/>
         <result column="flow_id" property="flowId"/>
         <result column="supply_name" property="supplyName"/>
@@ -244,43 +254,51 @@
 	</resultMap>
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
-			SELECT s.flow_id AS flow_id ,t.pay_name AS  pay_name,s.business_type AS business_type,
-			s.cust_name AS cust_name,s.supply_name AS supply_name,s.order_time AS order_time,
+			SELECT s.order_settlement_id AS order_settlement_id, s.flow_id AS flow_id ,t.pay_name AS  pay_name,
+			s.business_type AS business_type,s.cust_name AS cust_name,s.supply_name AS supply_name,s.order_time AS order_time,
 			s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
 			FROM t_order_settlement s
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
-			WHERE 1 = 1
+			LEFT JOIN t_passport_user u ON u.id = s.cust_id
+			LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		]]>
-		<if test="custId !=nul and custId !=''">
-			AND s.cust_id = #{custId}
+		<![CDATA[ WHERE 1 = 1 ]]>
+		<if test="custId !=null and custId !=''">
+			AND ( s.cust_id = #{custId} OR s.supply_id = #{custId} )
 		</if>
-		<if test="supplyId !=nul and supplyId !=''">
-			AND s.supply_id = #{supplyId}
-		</if>
-		<if test="flowId !=nul and flowId !=''">
+		<if test="flowId !=null and flowId !=''">
 			AND s.flow_id = #{flowId}
 		</if>
-		<if test="businessType !=nul and businessType !=''">
+		<if test="businessType !=null and businessType !=''">
 			AND s.business_type = #{businessType}
 		</if>
-		<if test="custName !=nul and custName !=''">
+		<if test="custName !=null and custName !=''">
 			AND s.cust_name = #{custName}
 		</if>
-		<if test="supplyName !=nul and supplyName !=''">
+		<if test="supplyName !=null and supplyName !=''">
 			AND s.supply_name = #{supplyName}
 		</if>
-		<if test="confirmSettlement !=nul and confirmSettlement !=''">
+		<if test="confirmSettlement !=null and confirmSettlement !=''">
 			AND s.confirm_settlement = #{confirmSettlement}
 		</if>
-		<if test="payType !=nul and payType !=''">
+		<if test="payType !=null and payType !=''">
 			AND t.pay_states = 1
 			AND t.pay_type = #{payType}
 		</if>
 		<if test="startTime !=null and startTime!=''">
-			s.order_time > #{startTime}
+			AND s.order_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			#{startTime} > s.order_time
+			AND #{startTime} > s.order_time
+		</if>
+		<if test="province !=null and province != '' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' ">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' ">
+			AND ue.district = #{area}
 		</if>
 	</select>
 	<select id="listPaginationByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper">

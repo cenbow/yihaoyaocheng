@@ -12,11 +12,15 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.facade.OrderDeliveryFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +34,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/orderDelivery")
-public class OrderDeliveryController extends BaseJsonController{
+public class OrderDeliveryController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryController.class);
 
 	@Reference

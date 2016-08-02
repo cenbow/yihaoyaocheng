@@ -10,10 +10,11 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.Pagination;
-import com.yyw.yhyc.order.bo.RequestListModel;
-import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -173,7 +175,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public OrderCreateDto createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
+	public List<Order> createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
 		return orderFacade.createOrder(orderCreateDto);
 	}
 
@@ -183,10 +185,11 @@ public class OrderController extends BaseJsonController {
      */
     @RequestMapping(value = {"", "/listPgBuyerOrder"}, method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel) throws Exception {
-        System.err.println("===>" + requestModel);
+    public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
         /**
-         * {"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"","createEndTime":"","orderStatus":"1"}}
+		 * http://localhost:8088/order/listPgBuyerOrder
+         * {"pageSize":2,"pageNo":2,"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
          */
         Pagination<OrderDto> pagination = new Pagination<OrderDto>();
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
@@ -194,4 +197,54 @@ public class OrderController extends BaseJsonController {
         pagination.setPageSize(requestModel.getPageSize());
         return orderFacade.listPgBuyerOrder(pagination, requestModel.getParam());
     }
+
+	/**
+	 * 采购商取消订单
+	 * @return
+	 */
+	@RequestMapping(value = "/buyerCancelOrder/{orderId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void buyerCancelOrder(@PathVariable("orderId") Integer orderId){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 *  http://localhost:8088/order/buyerCancelOrder/2
+		 */
+		int custId = 1;
+		orderFacade.buyerCancelOrder(custId,orderId);
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgSellerOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerOrder(@RequestBody RequestModel<OrderDto> requestModel){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 * http://localhost:8088/order/listPgSellerOrder
+		 * {"pageSize":2,"pageNo":2,"param":{"supplyId":1,"flowId":"1","payType":1,"custName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1","province":"","city":"","district":""}}
+		 */
+		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		return orderFacade.listPgSellerOrder(pagination, requestModel.getParam());
+	}
+
+	/**
+	 * 采购商取消订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerCancelOrder(@RequestBody Order order){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		/**
+		 *  http://localhost:8088/order/sellerCancelOrder
+		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
+		 */
+		int custId = 1;
+		orderFacade.sellerCancelOrder(custId,order.getOrderId(),order.getCancelResult());
+	}
 }

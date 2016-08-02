@@ -1,7 +1,7 @@
 package com.yyw.yhyc.order.utils;
 
 import com.yyw.yhyc.order.bo.CommonType;
-import com.yyw.yhyc.order.helper.UtilHelper;
+import com.yyw.yhyc.helper.UtilHelper;
 
 /**
  * Created by lizhou on 2016/7/29
@@ -28,6 +28,24 @@ public class RandomUtil {
         }
         StringBuilder flowId = new StringBuilder( orderPrefix );
         flowId.append(nowTime + orderId);
+        return flowId.toString();
+    }
+
+    /**
+     * 创建订单支付流水编号
+     * @param nowTime 当前时间 ： 20160801104321
+     * @param custId  买家企业id
+     * @return
+     */
+    public static String createOrderPayFlowId(String nowTime ,Integer custId){
+        if(UtilHelper.isEmpty(nowTime)){
+            return null;
+        }
+        if(UtilHelper.isEmpty(custId)){
+            return null;
+        }
+        StringBuilder flowId = new StringBuilder(CommonType.ORDER_PAY_FLOW_ID_PREFIX);
+        flowId.append(nowTime + custId);
         return flowId.toString();
     }
 

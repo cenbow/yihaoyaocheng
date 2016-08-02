@@ -13,11 +13,12 @@ package com.yyw.yhyc.order.service;
 import java.util.List;
 
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
+import com.yyw.yhyc.order.helper.UtilHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderSettlement;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
 
 @Service("orderSettlementService")
@@ -71,7 +72,23 @@ public class OrderSettlementService {
 	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto) throws Exception
 	{
 		List<OrderSettlementDto> list = orderSettlementMapper.listPaginationDtoByProperty(pagination, orderSettlementDto);
-
+		if(!UtilHelper.isEmpty(list)){
+			for (OrderSettlementDto osd :list) {
+				if(orderSettlementDto.getType()==1){//type = 1 应收
+					if(osd.getBusinessType()==1){
+						osd.setBusinessTypeName("销售应收");
+					}else if(osd.getBusinessType()==2){
+						osd.setBusinessTypeName("退款应收");
+					}
+				}else{// type =2 应付
+					if(osd.getBusinessType()==1){
+						osd.setBusinessTypeName("采购应付");
+					}else if(osd.getBusinessType()==2){
+						osd.setBusinessTypeName("退款应付");
+					}
+				}
+			}
+		}
 		pagination.setResultList(list);
 
 		return pagination;

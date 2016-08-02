@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderCombined;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.facade.OrderCombinedFacade;
 import com.yyw.yhyc.order.service.OrderCombinedService;
 

@@ -14,8 +14,8 @@ import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
-import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
+import com.yyw.yhyc.bo.Pagination;
 
 public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettlement, Integer> {
 
