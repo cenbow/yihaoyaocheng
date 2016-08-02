@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.SystemPayType;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.facade.SystemPayTypeFacade;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 

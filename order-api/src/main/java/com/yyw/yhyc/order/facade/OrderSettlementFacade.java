@@ -13,7 +13,7 @@ package com.yyw.yhyc.order.facade;
 import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderSettlement;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 
 public interface OrderSettlementFacade {

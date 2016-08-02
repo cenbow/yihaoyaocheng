@@ -1,6 +1,6 @@
 package com.yyw.yhyc.product.bo;
 
-import com.yyw.yhyc.order.bo.Model;
+import com.yyw.yhyc.bo.Model;
 
 /**
  * Created by lizhou on 2016/7/29

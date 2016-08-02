@@ -14,8 +14,8 @@ import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.dto.OrderDetailInfoDto;
-import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
+import com.yyw.yhyc.bo.Pagination;
 
 public interface OrderDetailMapper extends GenericIBatisMapper<OrderDetail, Integer> {
 

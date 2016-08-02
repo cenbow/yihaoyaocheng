@@ -1,7 +1,7 @@
 package com.yyw.yhyc.order.utils;
 
 import com.yyw.yhyc.order.bo.CommonType;
-import com.yyw.yhyc.order.helper.UtilHelper;
+import com.yyw.yhyc.helper.UtilHelper;
 
 /**
  * Created by lizhou on 2016/7/29

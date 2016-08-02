@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;

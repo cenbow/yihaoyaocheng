@@ -27,9 +27,9 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.enmu.*;
-import com.yyw.yhyc.order.helper.UtilHelper;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
-import com.yyw.yhyc.order.utils.DateUtils;
+import com.yyw.yhyc.utils.DateUtils;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import org.apache.commons.logging.Log;
@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.bo.Pagination;
 
 @Service("orderService")
 public class OrderService {

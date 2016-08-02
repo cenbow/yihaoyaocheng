@@ -13,8 +13,8 @@ package com.yyw.yhyc.order.mapper;
 import java.util.List;
 
 import com.yyw.yhyc.order.bo.SystemPayType;
-import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
-import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
+import com.yyw.yhyc.bo.Pagination;
 
 public interface SystemPayTypeMapper extends GenericIBatisMapper<SystemPayType, Integer> {
 
