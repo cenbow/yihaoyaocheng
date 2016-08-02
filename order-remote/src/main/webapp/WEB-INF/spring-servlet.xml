@@ -73,7 +73,7 @@
 		<property name="dataSource" ref="dataSource" />
 		<property name="plugins">
 			<list>
-				<bean id="paginationPlugin" class="com.yyw.yhyc.order.plugin.PaginationPlugin"/>
+				<bean id="paginationPlugin" class="com.yyw.yhyc.plugin.PaginationPlugin"/>
 			</list>
 		</property>
 	</bean>
