@@ -170,7 +170,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 */
 	public Map<String,Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
-		return orderService.listPgBuyerOrder(pagination,orderDto);
+		return orderService.listPgBuyerOrder(pagination, orderDto);
 	}
 
 	/**
@@ -213,6 +213,16 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	public Map<String,Object> checkOrderPage() throws Exception {
 		return orderService.checkOrderPage();
+	}
+
+	/**
+	 * 导出销售订单
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
+		return orderService.exportOrder(pagination,orderDto);
 	}
 
 	/**
