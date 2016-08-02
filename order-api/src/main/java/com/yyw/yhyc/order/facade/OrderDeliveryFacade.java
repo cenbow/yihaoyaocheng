@@ -11,9 +11,11 @@
 package com.yyw.yhyc.order.facade;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.Pagination;
+import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
 public interface OrderDeliveryFacade {
 
@@ -94,4 +96,11 @@ public interface OrderDeliveryFacade {
 	 */
 	public Pagination<OrderDelivery> listPaginationByProperty(Pagination<OrderDelivery> pagination, OrderDelivery orderDelivery) throws Exception;
 
+	/**
+	 * 确认发货
+	 * @param orderDeliveryDto
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception;
 }

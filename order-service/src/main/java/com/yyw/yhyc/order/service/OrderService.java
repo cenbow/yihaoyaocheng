@@ -401,14 +401,17 @@ public class OrderService {
 
 	/**
 	 * 根据订单号查询订单详情
-	 * @param flowId
+	 * @param order
 	 * @throws Exception
 	 */
-	public OrderDetailsDto getOrderDetails(String flowId) throws Exception{
-		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(flowId);
+	public OrderDetailsDto getOrderDetails(Order order) throws Exception{
+		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsdto)){
+			return null;
+		}
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
-			orderDeliveryDetail.setFlowId(flowId);
+			orderDeliveryDetail.setFlowId(order.getFlowId());
 			orderDeliveryDetail.setDeliveryStatus(0);
 			List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if(list.size()>0){

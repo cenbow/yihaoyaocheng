@@ -16,6 +16,7 @@ import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.Pagination;
 import com.yyw.yhyc.order.bo.RequestListModel;
 import com.yyw.yhyc.order.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/orderDelivery")
@@ -90,4 +93,16 @@ public class OrderDeliveryController extends BaseJsonController{
 	{
 		orderDeliveryFacade.update(orderDelivery);
 	}
+
+
+	/**
+	 * 修改记录
+	 * @return
+	 */
+	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception
+	{
+		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto);
+	}
+
 }

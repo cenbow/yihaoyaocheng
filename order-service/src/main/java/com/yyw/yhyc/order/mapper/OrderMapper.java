@@ -18,16 +18,18 @@ import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.order.bo.Pagination;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 
 public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public List<Order> listPaginationByProperty(Pagination<Order> pagination, Order order);
 
-	public OrderDetailsDto getOrderDetails(String flowId);
+	public OrderDetailsDto getOrderDetails(Order order);
 
 
 	public List<OrderDto> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<OrderDto> findOrderStatusCount(OrderDto orderDto);
 
+	public Order getOrderbyFlowId(String flowId);
 }
