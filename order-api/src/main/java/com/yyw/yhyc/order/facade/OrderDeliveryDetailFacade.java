@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.facade;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.bo.Pagination;
@@ -95,4 +96,10 @@ public interface OrderDeliveryDetailFacade {
 	 */
 	public Pagination<OrderDeliveryDetailDto> listPaginationByProperty(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception;
 
+	/**
+	 * 确认收货
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception;
 }

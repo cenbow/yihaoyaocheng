@@ -15,6 +15,37 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private String manufactures;  //生产厂家
     private Integer productCount; //购买单品数量
     private Integer custId;        //客户ID
+    private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货',
+    private String returnDesc;   //退换货说明
+
+    /**
+     *	确认收到药品数量
+     */
+    private java.lang.Integer recieveCount;
+
+    public Integer getRecieveCount() {
+        return recieveCount;
+    }
+
+    public void setRecieveCount(Integer recieveCount) {
+        this.recieveCount = recieveCount;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+
+    public String getReturnDesc() {
+        return returnDesc;
+    }
+
+    public void setReturnDesc(String returnDesc) {
+        this.returnDesc = returnDesc;
+    }
 
     public String getProductCode() {
         return productCode;

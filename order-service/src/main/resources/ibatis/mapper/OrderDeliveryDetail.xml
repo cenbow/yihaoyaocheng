@@ -31,6 +31,7 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="recieve_count" property="recieveCount"/>
 	</resultMap>
 
 	<resultMap type="OrderDeliveryDetailDto" id="OrderDeliveryDetailDtoResultMapper" extends="OrderDeliveryDetailResultMapper">
@@ -58,6 +59,7 @@
 		, create_time
 		, update_user
 		, update_time
+		, recieve_count
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -74,6 +76,7 @@
 				, create_time
 				, update_user
 				, update_time
+				, recieve_count
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -91,6 +94,7 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, recieve_count
 	</sql>
 	
 	<sql id="commonCondition">
@@ -136,6 +140,9 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="recieveCount!= null and recieveCount!= ''">
+			AND recieve_count=#{recieveCount}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderDeliveryDetail">
@@ -156,6 +163,7 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{recieveCount}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDeliveryDetail">
@@ -174,6 +182,7 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, recieve_count=#{recieveCount}
 		WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
