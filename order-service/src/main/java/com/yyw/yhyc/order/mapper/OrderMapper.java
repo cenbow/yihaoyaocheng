@@ -25,7 +25,6 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public OrderDetailsDto getOrderDetails(String flowId);
 
-
 	public List<OrderDto> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<OrderDto> findOrderStatusCount(OrderDto orderDto);
@@ -33,5 +32,16 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public List<OrderDto> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<OrderDto> findSellerOrderStatusCount(OrderDto orderDto);
+
+	public void cancelOrderForNoPay();
+
+	public List<Order> listOrderFor7DayNoDelivery();
+
+	public void cancelOrderFor7DayNoDelivery(List<Integer> li);
+
+	public List<Order> listOrderForDeliveryAfter7Day();
+
+	public void doneOrderForDeliveryAfter7Day(List<Integer> li);
+
 
 }

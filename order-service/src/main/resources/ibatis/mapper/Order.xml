@@ -685,4 +685,49 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
+	<update id="cancelOrderForNoPay">
+		update t_order  set order_status=4
+		      where (pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=1) and order_status=1
+		             and create_time< date_add(sysdate(), interval -1 day))
+		           or
+		             (pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=3) and order_status=1
+		             and create_time< date_add(sysdate(), interval -7 day))
+	</update>
+
+	<select id="listOrderFor7DayNoDelivery"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE
+		order_status=5
+		and pay_time< date_add(sysdate(), interval -7 day)
+	</select>
+
+	<update id="cancelOrderFor7DayNoDelivery" parameterType="map">
+		update t_order  set order_status=4 WHERE
+		order_status=5 and
+		<foreach collection="list" index="index" item="id"
+				 open=" order_id in(" separator="," close=") ">
+			${id}
+		</foreach>
+	</update>
+
+	<select id="listOrderForDeliveryAfter7Day"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE
+		order_status=6
+		and deliver_time< date_add(sysdate(), interval -7 day)
+	</select>
+
+	<update id="doneOrderForDeliveryAfter7Day" parameterType="map">
+		update t_order  set order_status=11 WHERE
+		order_status=6 and
+		<foreach collection="list" index="index" item="id"
+				 open=" order_id in(" separator="," close=") ">
+			${id}
+		</foreach>
+	</update>
+
+
+
 </mapper>

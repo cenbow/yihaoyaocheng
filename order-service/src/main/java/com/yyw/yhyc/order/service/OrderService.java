@@ -994,4 +994,51 @@ public class OrderService {
 
 		return orderCreateDto;
 	}
+
+	/**
+	 * 系统自动取消订单
+	 * 1在线支付订单24小时系统自动取消
+	 * 2 线下支付7天后未确认收款系统自动取消
+	 * @return
+	 */
+	public void cancelOrderForNoPay(){
+		orderMapper.cancelOrderForNoPay();
+	}
+
+	/**
+	 * 系统自动取消订单
+	 * 订单7个自然日未发货系统自动取消
+	 * @return
+	 */
+	public void cancelOrderFor7DayNoDelivery(){
+		List<Order> lo=orderMapper.listOrderFor7DayNoDelivery();
+		List<Integer> cal=new ArrayList<Integer>();
+		for(Order od:lo){
+			//根据订单来源进行在线退款 二期对接
+
+			if(true){//退款成功
+				cal.add(od.getOrderId());
+			}
+		}
+		//取消订单
+		orderMapper. cancelOrderFor7DayNoDelivery(cal);
+	}
+
+	/**
+	 * 系统自动确认收货
+	 * 订单发货后7个自然日后系统自动确认收货
+	 * @return
+	 */
+	public void doneOrderForDeliveryAfter7Day(){
+		List<Order> lo=orderMapper.listOrderForDeliveryAfter7Day();
+		List<Integer> cal=new ArrayList<Integer>();
+		for(Order od:lo){
+			//根据订单来源进行自动分账 二期对接
+			if(true){//分账成功
+				cal.add(od.getOrderId());
+			}
+		}
+		//确认收货
+		orderMapper. cancelOrderFor7DayNoDelivery(cal);
+	}
 }
