@@ -12,8 +12,6 @@ import java.util.List;
  */
 public class OrderDto extends Order {
 
-    private static final long serialVersionUID = -6636640013385932486L;
-
     private int orderCount;            //订单数量
     private int payType;               //支付类型
     private String payTypeName;        //支付类型名称
