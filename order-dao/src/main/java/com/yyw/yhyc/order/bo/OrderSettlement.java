@@ -110,6 +110,10 @@ public class OrderSettlement extends Model{
 	private java.lang.String updateTime;
 
 	/**
+	 * 订单退款结算金额
+     */
+	private java.lang.String refunSettlementMoney;
+	/**
 	  *	订单ID主键
 	  */
 	public java.lang.Integer getOrderSettlementId() 
@@ -396,29 +400,38 @@ public class OrderSettlement extends Model{
 	{
 		this.updateTime = updateTime;
 	}
-	
-	public String toString()
-	{
-		return "OrderSettlement [" + 
-					"orderSettlementId=" + orderSettlementId + 
-					", businessType=" + businessType + 
-					", orderId=" + orderId + 
-					", flowId=" + flowId + 
-					", custId=" + custId + 
-					", custName=" + custName + 
-					", supplyId=" + supplyId + 
-					", supplyName=" + supplyName + 
-					", confirmSettlement=" + confirmSettlement + 
-					", settlementMoney=" + settlementMoney + 
-					", payTypeId=" + payTypeId + 
-					", settlementTime=" + settlementTime + 
-					", orderTime=" + orderTime + 
-					", remark=" + remark + 
-					", createUser=" + createUser + 
-					", createTime=" + createTime + 
-					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime + 
-				"]";
+
+	public String getRefunSettlementMoney() {
+		return refunSettlementMoney;
+	}
+
+	public void setRefunSettlementMoney(String refunSettlementMoney) {
+		this.refunSettlementMoney = refunSettlementMoney;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderSettlement{" +
+				"orderSettlementId=" + orderSettlementId +
+				", businessType=" + businessType +
+				", orderId=" + orderId +
+				", flowId='" + flowId + '\'' +
+				", custId=" + custId +
+				", custName='" + custName + '\'' +
+				", supplyId=" + supplyId +
+				", supplyName='" + supplyName + '\'' +
+				", confirmSettlement='" + confirmSettlement + '\'' +
+				", settlementMoney=" + settlementMoney +
+				", payTypeId=" + payTypeId +
+				", settlementTime='" + settlementTime + '\'' +
+				", orderTime='" + orderTime + '\'' +
+				", remark='" + remark + '\'' +
+				", createUser='" + createUser + '\'' +
+				", createTime='" + createTime + '\'' +
+				", updateUser='" + updateUser + '\'' +
+				", updateTime='" + updateTime + '\'' +
+				", refunSettlementMoney='" + refunSettlementMoney + '\'' +
+				'}';
 	}
 }
 
