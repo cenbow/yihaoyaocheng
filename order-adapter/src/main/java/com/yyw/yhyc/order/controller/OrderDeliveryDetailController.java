@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+import java.util.Map;
+
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
 public class OrderDeliveryDetailController extends BaseJsonController {
@@ -91,5 +94,16 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	public void update(OrderDeliveryDetail orderDeliveryDetail) throws Exception
 	{
 		orderDeliveryDetailFacade.update(orderDeliveryDetail);
+	}
+
+	/**
+	 * 确认收货
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/confirmReceipt", method = RequestMethod.POST)
+	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception
+	{
+		return orderDeliveryDetailFacade.confirmReceipt(list);
 	}
 }

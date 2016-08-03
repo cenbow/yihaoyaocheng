@@ -90,6 +90,11 @@ public class OrderDeliveryDetail extends Model{
 	private java.lang.String updateTime;
 
 	/**
+	 * 确认收货数量
+	 */
+	private java.lang.Integer recieveCount;
+
+	/**
 	  *	
 	  */
 	public java.lang.Integer getOrderDeliveryDetailId() 
@@ -312,7 +317,15 @@ public class OrderDeliveryDetail extends Model{
 	{
 		this.updateTime = updateTime;
 	}
-	
+
+	public Integer getRecieveCount() {
+		return recieveCount;
+	}
+
+	public void setRecieveCount(Integer recieveCount) {
+		this.recieveCount = recieveCount;
+	}
+
 	public String toString()
 	{
 		return "OrderDeliveryDetail [" + 
@@ -329,7 +342,8 @@ public class OrderDeliveryDetail extends Model{
 					", createUser=" + createUser + 
 					", createTime=" + createTime + 
 					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime + 
+					", updateTime=" + updateTime +
+				    ", recieveCount=" + recieveCount +
 				"]";
 	}
 }

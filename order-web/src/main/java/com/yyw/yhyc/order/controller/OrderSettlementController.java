@@ -103,6 +103,22 @@ public class OrderSettlementController extends BaseJsonController {
 	{
 		orderSettlementFacade.update(orderSettlement);
 	}
+
+	/**
+	 * 退款订单结算
+	 * @return
+	 */
+	@RequestMapping(value = "/refundSettlement", method = RequestMethod.POST)
+	@ResponseBody
+	public void refundSettlement(@RequestBody OrderSettlement orderSettlement) throws Exception
+	{
+
+		// TODO: 2016/8/3  需获取登录用户信息
+		/**
+		 * {"orderSettlementId":1,"supplyId":512,"updateUser":"zhangba","remark":"苟利国家生死以","refunSettlementMoney":998.222}
+		 */
+		orderSettlementFacade.refundSettlement(orderSettlement);
+	}
 	/**
 	 * 分页查询记录
 	 * type 1 应收 2 应付

@@ -95,4 +95,10 @@ public interface OrderSettlementFacade {
 	 */
 	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto) throws Exception;
 
+
+	/**
+	 * 退款结算
+	 * @param orderSettlement
+     */
+	public void refundSettlement(OrderSettlement orderSettlement);
 }
