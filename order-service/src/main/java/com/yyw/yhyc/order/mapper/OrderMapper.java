@@ -35,13 +35,13 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public void cancelOrderForNoPay();
 
-	public List<Order> listOrderFor7DayNoDelivery();
+	public List<Order> listOrderForNoDelivery();
 
-	public void cancelOrderFor7DayNoDelivery(List<Integer> li);
+	public void cancelOrderForNoDelivery(List<Integer> li);
 
-	public List<Order> listOrderForDeliveryAfter7Day();
+	public List<Order> listOrderForDelivery();
 
-	public void doneOrderForDeliveryAfter7Day(List<Integer> li);
+	public void doneOrderForDelivery(List<Integer> li);
 
 	public Order getOrderbyFlowId(String flowId);
 }
