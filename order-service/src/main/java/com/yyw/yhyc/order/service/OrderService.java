@@ -28,11 +28,8 @@ import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.mapper.ProductInfoMapper;
-<<<<<<< HEAD
 
-=======
 import com.yyw.yhyc.utils.ExcelUtil;
->>>>>>> branch 'master' of ssh://liuyang@git.yiyaowang.com:29418/yihaoyaocheng/yhyc-order
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +54,9 @@ public class OrderService {
 	private OrderCombinedMapper orderCombinedMapper;
 	private ShoppingCartMapper shoppingCartMapper;
 	private ProductInfoMapper productInfoMapper;
-<<<<<<< HEAD
 	private OrderSettlementMapper orderSettlementMapper;
-=======
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
->>>>>>> branch 'master' of ssh://liuyang@git.yiyaowang.com:29418/yihaoyaocheng/yhyc-order
 
 
 	@Autowired
@@ -121,12 +115,10 @@ public class OrderService {
 	public void setProductInfoMapper(ProductInfoMapper productInfoMapper) {
 		this.productInfoMapper = productInfoMapper;
 	}
-<<<<<<< HEAD
 	@Autowired
 	public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
 		this.orderSettlementMapper = orderSettlementMapper;
-=======
-
+	}
 	@Autowired
 	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
 		this.receiverAddressMapper = receiverAddressMapper;
@@ -135,7 +127,6 @@ public class OrderService {
 	@Autowired
 	public void setEnterpriseMapper(UsermanageEnterpriseMapper enterpriseMapper) {
 		this.enterpriseMapper = enterpriseMapper;
->>>>>>> branch 'master' of ssh://liuyang@git.yiyaowang.com:29418/yihaoyaocheng/yhyc-order
 	}
 
 	/**
