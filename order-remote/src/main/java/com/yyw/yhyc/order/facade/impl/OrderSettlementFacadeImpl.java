@@ -139,4 +139,12 @@ public class OrderSettlementFacadeImpl implements OrderSettlementFacade {
 	{
 		return orderSettlementService.findByCount(orderSettlement);
 	}
+
+	/**
+	 * 退款结算
+	 * @param orderSettlement
+	 */
+	public void refundSettlement(OrderSettlement orderSettlement){
+		orderSettlementService.updateRefundSettlement(orderSettlement);
+	}
 }
