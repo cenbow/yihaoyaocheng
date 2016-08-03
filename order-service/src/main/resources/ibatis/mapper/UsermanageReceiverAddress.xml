@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-8-2 15:49:20
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="UsermanageReceiverAddressResultMapper" type="UsermanageReceiverAddress">
+		<result column="id" property="id"/>
+		<result column="enterprise_id" property="enterpriseId"/>
+		<result column="receiver_name" property="receiverName"/>
+		<result column="province_code" property="provinceCode"/>
+		<result column="city_code" property="cityCode"/>
+		<result column="district_code" property="districtCode"/>
+		<result column="province_name" property="provinceName"/>
+		<result column="city_name" property="cityName"/>
+		<result column="district_name" property="districtName"/>
+		<result column="address" property="address"/>
+		<result column="contact_phone" property="contactPhone"/>
+		<result column="default_address" property="defaultAddress"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 id
+		, enterprise_id
+		, receiver_name
+		, province_code
+		, city_code
+		, district_code
+		, province_name
+		, city_name
+		, district_name
+		, address
+		, contact_phone
+		, default_address
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 enterprise_id
+				, receiver_name
+				, province_code
+				, city_code
+				, district_code
+				, province_name
+				, city_name
+				, district_name
+				, address
+				, contact_phone
+				, default_address
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 id
+		, enterprise_id
+		, receiver_name
+		, province_code
+		, city_code
+		, district_code
+		, province_name
+		, city_name
+		, district_name
+		, address
+		, contact_phone
+		, default_address
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="id!= null and id!= ''"> 
+			AND id=#{id}
+		</if>
+		<if test="enterpriseId!= null and enterpriseId!= ''"> 
+			AND enterprise_id=#{enterpriseId}
+		</if>
+		<if test="receiverName!= null and receiverName!= ''"> 
+			AND receiver_name=#{receiverName}
+		</if>
+		<if test="provinceCode!= null and provinceCode!= ''"> 
+			AND province_code=#{provinceCode}
+		</if>
+		<if test="cityCode!= null and cityCode!= ''"> 
+			AND city_code=#{cityCode}
+		</if>
+		<if test="districtCode!= null and districtCode!= ''"> 
+			AND district_code=#{districtCode}
+		</if>
+		<if test="provinceName!= null and provinceName!= ''"> 
+			AND province_name=#{provinceName}
+		</if>
+		<if test="cityName!= null and cityName!= ''"> 
+			AND city_name=#{cityName}
+		</if>
+		<if test="districtName!= null and districtName!= ''"> 
+			AND district_name=#{districtName}
+		</if>
+		<if test="address!= null and address!= ''"> 
+			AND address=#{address}
+		</if>
+		<if test="contactPhone!= null and contactPhone!= ''"> 
+			AND contact_phone=#{contactPhone}
+		</if>
+		<if test="defaultAddress!= null and defaultAddress!= ''"> 
+			AND default_address=#{defaultAddress}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="UsermanageReceiverAddress">
+		<![CDATA[ INSERT INTO t_usermanage_receiver_address ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{enterpriseId}
+				, #{receiverName}
+				, #{provinceCode}
+				, #{cityCode}
+				, #{districtCode}
+				, #{provinceName}
+				, #{cityName}
+				, #{districtName}
+				, #{address}
+				, #{contactPhone}
+				, #{defaultAddress}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="UsermanageReceiverAddress">
+		<![CDATA[ UPDATE t_usermanage_receiver_address SET 
+			 id=#{id} 
+			, enterprise_id=#{enterpriseId} 
+			, receiver_name=#{receiverName} 
+			, province_code=#{provinceCode} 
+			, city_code=#{cityCode} 
+			, district_code=#{districtCode} 
+			, province_name=#{provinceName} 
+			, city_name=#{cityName} 
+			, district_name=#{districtName} 
+			, address=#{address} 
+			, contact_phone=#{contactPhone} 
+			, default_address=#{defaultAddress} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE id = #{id}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_usermanage_receiver_address WHERE id = #{id}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_usermanage_receiver_address WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="UsermanageReceiverAddress">
+		DELETE FROM t_usermanage_receiver_address WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="UsermanageReceiverAddressResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_receiver_address WHERE id = #{id}  
+	</select>
+	<select id="list" resultMap="UsermanageReceiverAddressResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_usermanage_receiver_address
+	</select>
+	<select id="listByProperty" parameterType="UsermanageReceiverAddress" resultMap="UsermanageReceiverAddressResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_receiver_address WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="UsermanageReceiverAddress" resultMap="UsermanageReceiverAddressResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_receiver_address WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="UsermanageReceiverAddress" resultType="int">
+		SELECT count(1) AS totalcount FROM t_usermanage_receiver_address WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

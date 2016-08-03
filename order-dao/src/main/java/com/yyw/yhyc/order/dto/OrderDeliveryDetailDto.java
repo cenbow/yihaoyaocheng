@@ -15,6 +15,7 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private String manufactures;  //生产厂家
     private Integer productCount; //购买单品数量
     private Integer custId;        //客户ID
+    private Integer supplyId;     //供应商ID
 
     public String getProductCode() {
         return productCode;
@@ -78,5 +79,13 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
 
     public void setCustId(Integer custId) {
         this.custId = custId;
+    }
+
+    public Integer getSupplyId() {
+        return supplyId;
+    }
+
+    public void setSupplyId(Integer supplyId) {
+        this.supplyId = supplyId;
     }
 }

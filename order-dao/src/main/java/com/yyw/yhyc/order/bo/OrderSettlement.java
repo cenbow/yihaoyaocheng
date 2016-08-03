@@ -12,6 +12,8 @@ package com.yyw.yhyc.order.bo;
 
 import com.yyw.yhyc.bo.Model;
 
+import java.math.BigDecimal;
+
 public class OrderSettlement extends Model{
 
 	/**
@@ -112,7 +114,11 @@ public class OrderSettlement extends Model{
 	/**
 	 * 订单退款结算金额
      */
-	private java.lang.String refunSettlementMoney;
+	private java.math.BigDecimal refunSettlementMoney;
+	/**
+	 * 差异金额
+     */
+	private java.math.BigDecimal differentMoney;
 	/**
 	  *	订单ID主键
 	  */
@@ -401,12 +407,20 @@ public class OrderSettlement extends Model{
 		this.updateTime = updateTime;
 	}
 
-	public String getRefunSettlementMoney() {
+	public BigDecimal getRefunSettlementMoney() {
 		return refunSettlementMoney;
 	}
 
-	public void setRefunSettlementMoney(String refunSettlementMoney) {
+	public void setRefunSettlementMoney(BigDecimal refunSettlementMoney) {
 		this.refunSettlementMoney = refunSettlementMoney;
+	}
+
+	public BigDecimal getDifferentMoney() {
+		return differentMoney;
+	}
+
+	public void setDifferentMoney(BigDecimal differentMoney) {
+		this.differentMoney = differentMoney;
 	}
 
 	@Override
@@ -431,6 +445,7 @@ public class OrderSettlement extends Model{
 				", updateUser='" + updateUser + '\'' +
 				", updateTime='" + updateTime + '\'' +
 				", refunSettlementMoney='" + refunSettlementMoney + '\'' +
+				", differentMoney='" + differentMoney + '\'' +
 				'}';
 	}
 }

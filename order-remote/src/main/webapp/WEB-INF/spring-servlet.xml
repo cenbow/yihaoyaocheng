@@ -68,7 +68,7 @@
 	<!-- SqlSessionFactoryBean  spring整合ibatis的入口 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="configLocation" value="classpath:mybatis.xml" />
-		<property name="typeAliasesPackage" value="com.yyw.yhyc.order.bo,com.yyw.yhyc.order.dto,com.yyw.yhyc.product.bo,com.yyw.yhyc.product.dto" />
+		<property name="typeAliasesPackage" value="com.yyw.yhyc" />
 		<property name="mapperLocations" value="classpath*:ibatis/mapper/**/*.xml" />
 		<property name="dataSource" ref="dataSource" />
 		<property name="plugins">
@@ -79,7 +79,7 @@
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.yyw.yhyc.order.mapper,com.yyw.yhyc.product.mapper" />
+		<property name="basePackage" value="com.yyw.yhyc.order.mapper,com.yyw.yhyc.product.mapper,com.yyw.yhyc.usermanage.mapper" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 
