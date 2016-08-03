@@ -40,7 +40,13 @@ public class OrderSettlementController extends BaseJsonController {
 	@ResponseBody
 	public OrderSettlement getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderSettlementFacade.getByPK(key);
+		OrderSettlement orderSettlement= orderSettlementFacade.getByPK(key);
+		if(orderSettlement!=null && orderSettlement.getSettlementMoney()!=null && orderSettlement.getRefunSettlementMoney()!=null){
+			if(orderSettlement.getRefunSettlementMoney().intValue()!=0 && orderSettlement.getRefunSettlementMoney().intValue()!=0){
+				orderSettlement.setDifferentMoney(orderSettlement.getSettlementMoney().subtract(orderSettlement.getRefunSettlementMoney()));
+			}
+		}
+		return orderSettlement;
 	}
 
 	/**

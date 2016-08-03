@@ -12,17 +12,23 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +110,7 @@ public class OrderController extends BaseJsonController {
 		}catch (Exception e){
 			logger.error(e.getMessage());
 		}
-		map.put("result",validateResult);
+		map.put("result", validateResult);
 		return map;
 	}
 
@@ -183,7 +189,7 @@ public class OrderController extends BaseJsonController {
      */
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.POST)
 	@ResponseBody
-	public OrderCreateDto checkOrderPage() throws Exception {
+	public Map<String,Object> checkOrderPage() throws Exception {
 		return orderFacade.checkOrderPage();
 	}
 
@@ -220,7 +226,7 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		int custId = 1;
-		orderFacade.buyerCancelOrder(custId,orderId);
+		orderFacade.buyerCancelOrder(custId, orderId);
 	}
 
 	/**
@@ -255,6 +261,54 @@ public class OrderController extends BaseJsonController {
 		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
 		 */
 		int custId = 1;
-		orderFacade.sellerCancelOrder(custId,order.getOrderId(),order.getCancelResult());
+		orderFacade.sellerCancelOrder(custId, order.getOrderId(), order.getCancelResult());
+	}
+
+	/**
+	 * 导出销售订单信息
+	 * @param response
+	 */
+	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
+	@ResponseBody
+	public void exportOrder(HttpServletResponse response){
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		pagination.setPaginationFlag(true);
+		pagination.setPageNo(1);
+		pagination.setPageSize(6000);      //默认600条数据
+		byte[] bytes=orderFacade.exportOrder(pagination, null);
+		String  fileName= null;
+		try {
+			fileName = new String(("订单报表"+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+		response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+		ServletOutputStream stream = null;
+		try {
+			stream = response.getOutputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			stream.write(bytes);
+			logger.error("导出成功");
+			stream.flush();
+			stream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	* 收款确认
+	* @return
+	*/
+	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
+	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
+	{
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		int custId = 1;
+		orderFacade.addForConfirmMoney(custId,orderSettlement);
 	}
 }

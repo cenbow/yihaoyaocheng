@@ -13,7 +13,6 @@ package com.yyw.yhyc.order.mapper;
 import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.dto.OrderDetailInfoDto;
 import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.bo.Pagination;
 
@@ -21,6 +20,6 @@ public interface OrderDetailMapper extends GenericIBatisMapper<OrderDetail, Inte
 
 	public List<OrderDetail> listPaginationByProperty(Pagination<OrderDetail> pagination, OrderDetail orderDetail);
 
-	public List<OrderDetailInfoDto> listOrderDetailInfoByOrderId(int orderId);
+	public List<OrderDetail> listOrderDetailInfoByOrderId(int orderId);
 
 }

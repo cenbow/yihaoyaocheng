@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,5 +139,15 @@ public class OrderDeliveryDetailFacadeImpl implements OrderDeliveryDetailFacade 
 	public int findByCount(OrderDeliveryDetail orderDeliveryDetail) throws Exception
 	{
 		return orderDeliveryDetailService.findByCount(orderDeliveryDetail);
+	}
+
+	/**
+	 * 确认收货
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception
+	{
+		return orderDeliveryDetailService.confirmReceipt(list);
 	}
 }

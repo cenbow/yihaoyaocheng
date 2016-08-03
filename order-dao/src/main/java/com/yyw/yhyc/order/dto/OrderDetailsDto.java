@@ -15,7 +15,7 @@ public class OrderDetailsDto extends Order {
     //收货信息
     private OrderDelivery orderDelivery;
     //订单详情
-    private List<OrderDetailInfoDto> details;
+    private List<OrderDetail> details;
     //支付类型枚举名
     private String payTypeName;
 
@@ -37,11 +37,11 @@ public class OrderDetailsDto extends Order {
         this.orderDelivery = orderDelivery;
     }
 
-    public List<OrderDetailInfoDto> getDetails() {
+    public List<OrderDetail> getDetails() {
         return details;
     }
 
-    public void setDetails(List<OrderDetailInfoDto> details) {
+    public void setDetails(List<OrderDetail> details) {
         this.details = details;
     }
 
