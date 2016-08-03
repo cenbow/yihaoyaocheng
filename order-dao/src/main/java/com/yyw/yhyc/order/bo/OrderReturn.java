@@ -62,7 +62,7 @@ public class OrderReturn extends Model{
 	private java.lang.String returnStatus;
 
 	/**
-	  *	退换货描述
+	  *	退换货描述 1,未处理。2，已处理
 	  */
 	private java.lang.String returnDesc;
 
