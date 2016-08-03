@@ -16,6 +16,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
 import org.slf4j.Logger;
@@ -298,5 +299,33 @@ public class OrderController extends BaseJsonController {
 			e.printStackTrace();
 		}
 	}
+
+
+	/**
+	 * 订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getBuyOrderDetails", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
+	{
+		order.setCustId(123);// 登录买家的id
+		return orderFacade.getOrderDetails(order);
+	}
+
+
+
+	/**
+	 * 订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
+	{
+		order.setSupplyId(124); //登录卖家的id
+		return orderFacade.getOrderDetails(order);
+	}
+
 
 }
