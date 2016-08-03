@@ -13,13 +13,7 @@ package com.yyw.yhyc.order.service;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
@@ -34,6 +28,7 @@ import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.mapper.ProductInfoMapper;
+
 import com.yyw.yhyc.utils.ExcelUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +54,7 @@ public class OrderService {
 	private OrderCombinedMapper orderCombinedMapper;
 	private ShoppingCartMapper shoppingCartMapper;
 	private ProductInfoMapper productInfoMapper;
+	private OrderSettlementMapper orderSettlementMapper;
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
 
@@ -119,7 +115,10 @@ public class OrderService {
 	public void setProductInfoMapper(ProductInfoMapper productInfoMapper) {
 		this.productInfoMapper = productInfoMapper;
 	}
-
+	@Autowired
+	public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
+		this.orderSettlementMapper = orderSettlementMapper;
+	}
 	@Autowired
 	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
 		this.receiverAddressMapper = receiverAddressMapper;
@@ -1111,5 +1110,44 @@ public class OrderService {
 		}
 		//确认收货
 		orderMapper. cancelOrderFor7DayNoDelivery(cal);
+	}
+	
+	/**
+	 * 收款确认
+	 * @param orderSettlement
+	 * @return
+	 * @throws Exception
+	 */
+	public void addForConfirmMoney(Integer custId,OrderSettlement orderSettlement) throws Exception
+	{
+		Order order = orderMapper.getByPK(orderSettlement.getOrderId());
+		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
+			throw new RuntimeException("未找到订单");
+		}
+		String now = systemDateMapper.getSystemDate();
+		orderSettlement.setBusinessType(1);
+		orderSettlement.setFlowId(order.getFlowId());
+		orderSettlement.setCustId(order.getCustId());
+		orderSettlement.setCustName(order.getCustName());
+		orderSettlement.setSupplyId(order.getSupplyId());
+		orderSettlement.setSupplyName(order.getSupplyName());
+		orderSettlement.setConfirmSettlement("1");
+		orderSettlement.setPayTypeId(order.getPayTypeId());
+		orderSettlement.setSettlementTime(now);
+		orderSettlement.setCreateUser(order.getCustName());
+		orderSettlement.setCreateTime(now);
+		orderSettlementMapper.save(orderSettlement);
+		//TODO 订单记录表
+		insertOrderTrace(order);
+		order.setFinalPay(orderSettlement.getSettlementMoney());
+		order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+		order.setConfirmSettlement("1");
+		order.setSettlementMoney(orderSettlement.getSettlementMoney());
+		order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+		order.setPayTime(now);
+		order.setSettlementTime(now);
+		order.setUpdateUser(order.getCustName());
+		order.setUpdateTime(now);
+		orderMapper.update(order);
 	}
 }

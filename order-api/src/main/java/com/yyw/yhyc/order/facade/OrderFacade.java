@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
@@ -186,4 +187,11 @@ public interface OrderFacade {
 	 * @return
 	 */
 	public void doneOrderForDeliveryAfter7Day();
+	/**
+	 * 收款确认
+	 * @param orderSettlement
+	 * @return
+	 * @throws Exception
+	 */
+	public void addForConfirmMoney(Integer custId,OrderSettlement orderSettlement) throws Exception;
 }

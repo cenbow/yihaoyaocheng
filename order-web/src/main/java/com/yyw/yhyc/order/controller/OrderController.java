@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
@@ -19,6 +20,7 @@ import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -298,6 +300,17 @@ public class OrderController extends BaseJsonController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	/**
+	* 收款确认
+	* @return
+	*/
+	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
+	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
+	{
+		// TODO: 2016/8/1 需要从usercontex获取登录用户id
+		int custId = 1;
+		orderFacade.addForConfirmMoney(custId,orderSettlement);
 	}
 
 

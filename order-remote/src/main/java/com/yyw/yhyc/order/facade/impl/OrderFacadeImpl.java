@@ -18,10 +18,12 @@ import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderDto;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.facade.OrderFacade;
 import com.yyw.yhyc.order.service.OrderService;
@@ -214,7 +216,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	public Map<String,Object> checkOrderPage() throws Exception {
 		return orderService.checkOrderPage();
 	}
-
+	
 	/**
 	 * 导出销售订单
 	 * @param pagination
@@ -252,4 +254,14 @@ public class OrderFacadeImpl implements OrderFacade {
 	public void doneOrderForDeliveryAfter7Day() {
 		orderService.doneOrderForDeliveryAfter7Day();
 	}
+	/**
+	 * 收款确认
+	 * @param orderSettlement
+	 * @return
+	 * @throws Exception
+	 */
+	public void addForConfirmMoney(Integer custId,OrderSettlement orderSettlement) throws Exception{
+		orderService.addForConfirmMoney(custId,orderSettlement);
+	}
+	
 }
