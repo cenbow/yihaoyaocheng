@@ -23,6 +23,7 @@
         <module>order-remote</module>
         <module>order-web</module>
         <module>order-adapter</module>
+        <module>order-mq</module>
     </modules>
 
     <!-- 编码版本号属性配置 -->

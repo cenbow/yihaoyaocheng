@@ -179,14 +179,14 @@ public interface OrderFacade {
 	 * 1在线支付订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void cancelOrderFor7DayNoDelivery();
+	public void cancelOrderForNoDelivery();
 
 	/**
 	 * 系统自动确认收货
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void doneOrderForDeliveryAfter7Day();
+	public void doneOrderForDelivery();
 	/**
 	 * 收款确认
 	 * @param orderSettlement
