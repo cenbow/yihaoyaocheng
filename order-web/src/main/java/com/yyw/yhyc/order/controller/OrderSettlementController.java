@@ -23,6 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping(value = "/order/orderSettlement")
@@ -114,5 +118,35 @@ public class OrderSettlementController extends BaseJsonController {
 		 * {"orderSettlementId":1,"supplyId":512,"updateUser":"zhangba","remark":"苟利国家生死以","refunSettlementMoney":998.222}
 		 */
 		orderSettlementFacade.refundSettlement(orderSettlement);
+	}
+	/**
+	 * 分页查询记录
+	 * type 1 应收 2 应付
+	 * @return
+	 */
+	@RequestMapping(value = {"/lhk{type}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView showOrderSettlementList(@PathVariable("type") Integer type)throws Exception{
+
+		ModelAndView model = new ModelAndView();
+
+		 model.addObject("fuck","就是这么任性");
+		 model.setViewName("lhk");
+		return model;
+	}
+
+	/**
+	 * 分页查询记录
+	 * type 1 应收 2 应付
+	 * @return
+	 */
+	@RequestMapping(value = {"/list{type}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView showOrderSettlementList2(OrderSettlement settlement, @PathVariable("type") Integer type, HttpServletRequest request, HttpServletResponse response)throws Exception{
+
+		OrderSettlement orderSettlement = settlement;
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/order_settlement");
+		return model;
 	}
 }
