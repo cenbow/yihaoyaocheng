@@ -271,13 +271,23 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
 	@ResponseBody
-	public void exportOrder(HttpServletResponse response){
+	public void exportOrder(@RequestParam("orderId") String orderId,@RequestParam("supplyId") Integer supplyId,@RequestParam("custName") String custName,@RequestParam("payType") Integer payType,HttpServletResponse response){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
-		pagination.setPageSize(6000);      //默认600条数据
-		byte[] bytes=orderFacade.exportOrder(pagination, null);
+		pagination.setPageSize(6000);      //默认6000条数据
+		try{
+			custName = new String(custName.getBytes("iso8859-1"),"UTF-8");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		OrderDto orderDto=new OrderDto();
+		orderDto.setSupplyId(supplyId);
+		orderDto.setFlowId(orderId);
+		orderDto.setPayType(payType);
+		orderDto.setCustName(custName);
+		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
 			fileName = new String(("订单报表"+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
@@ -303,14 +313,14 @@ public class OrderController extends BaseJsonController {
 	}
 	/**
 	* 收款确认
-	* @return
-	*/
+	 * @return
+	 */
 	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
 	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		int custId = 1;
-		orderFacade.addForConfirmMoney(custId,orderSettlement);
+		orderFacade.addForConfirmMoney(custId, orderSettlement);
 	}
 
 
