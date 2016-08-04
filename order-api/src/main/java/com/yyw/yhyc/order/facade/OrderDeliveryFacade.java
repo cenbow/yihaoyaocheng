@@ -17,6 +17,8 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface OrderDeliveryFacade {
 
 	/**
@@ -102,5 +104,5 @@ public interface OrderDeliveryFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception;
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request) throws Exception;
 }
