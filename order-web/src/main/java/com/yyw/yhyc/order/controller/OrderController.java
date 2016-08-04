@@ -17,6 +17,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
 
@@ -270,13 +271,23 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
 	@ResponseBody
-	public void exportOrder(HttpServletResponse response){
+	public void exportOrder(@RequestParam("orderId") String orderId,@RequestParam("supplyId") Integer supplyId,@RequestParam("custName") String custName,@RequestParam("payType") Integer payType,HttpServletResponse response){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
-		pagination.setPageSize(6000);      //默认600条数据
-		byte[] bytes=orderFacade.exportOrder(pagination, null);
+		pagination.setPageSize(6000);      //默认6000条数据
+		try{
+			custName = new String(custName.getBytes("iso8859-1"),"UTF-8");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		OrderDto orderDto=new OrderDto();
+		orderDto.setSupplyId(supplyId);
+		orderDto.setFlowId(orderId);
+		orderDto.setPayType(payType);
+		orderDto.setCustName(custName);
+		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
 			fileName = new String(("订单报表"+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
@@ -302,13 +313,42 @@ public class OrderController extends BaseJsonController {
 	}
 	/**
 	* 收款确认
-	* @return
-	*/
+	 * @return
+	 */
 	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
 	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		int custId = 1;
-		orderFacade.addForConfirmMoney(custId,orderSettlement);
+		orderFacade.addForConfirmMoney(custId, orderSettlement);
 	}
+
+
+	/**
+	 * 订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getBuyOrderDetails", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
+	{
+		order.setCustId(123);// 登录买家的id
+		return orderFacade.getOrderDetails(order);
+	}
+
+
+
+	/**
+	 * 订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
+	@ResponseBody
+	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
+	{
+		order.setSupplyId(124); //登录卖家的id
+		return orderFacade.getOrderDetails(order);
+	}
+
+
 }

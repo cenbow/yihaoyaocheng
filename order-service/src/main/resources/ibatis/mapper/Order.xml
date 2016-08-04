@@ -582,7 +582,7 @@
 		WHERE o.pay_type_id=s.pay_type_id
 		AND  o.flow_Id=#{flowId}
 		<if test="custId!= null and custId!= ''">
-			AND o.supply_id=#{custId}
+			AND o.cust_Id=#{custId}
 		</if>
 		<if test="supplyId!= null and supplyId!= ''">
 			AND o.supply_id=#{supplyId}
@@ -708,7 +708,7 @@
 		             and create_time <![CDATA[<]]> date_add(sysdate(), interval -7 day))
 	</update>
 
-	<select id="listOrderFor7DayNoDelivery"  resultMap="OrderResultMapper">
+	<select id="listOrderForNoDelivery"  resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order WHERE
@@ -716,7 +716,7 @@
 		and pay_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
 	</select>
 
-	<update id="cancelOrderFor7DayNoDelivery" parameterType="map">
+	<update id="cancelOrderForNoDelivery" parameterType="map">
 		update t_order  set order_status=4 WHERE
 		order_status=5 and
 		<foreach collection="list" index="index" item="id"
@@ -725,7 +725,7 @@
 		</foreach>
 	</update>
 
-	<select id="listOrderForDeliveryAfter7Day"  resultMap="OrderResultMapper">
+	<select id="listOrderForDelivery"  resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order WHERE
@@ -733,7 +733,7 @@
 		and deliver_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
 	</select>
 
-	<update id="doneOrderForDeliveryAfter7Day" parameterType="map">
+	<update id="doneOrderForDelivery" parameterType="map">
 		update t_order  set order_status=11 WHERE
 		order_status=6 and
 		<foreach collection="list" index="index" item="id"
