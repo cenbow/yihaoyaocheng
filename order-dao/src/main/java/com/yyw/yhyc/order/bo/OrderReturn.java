@@ -54,7 +54,7 @@ public class OrderReturn extends Model{
 	private java.lang.String returnType;
 
 	/**
-	  *	退换状态
+	  *	退换状态  1,未处理。2，已处理
 	  */
 	private java.lang.String returnStatus;
 

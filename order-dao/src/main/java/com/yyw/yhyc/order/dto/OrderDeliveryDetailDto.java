@@ -19,19 +19,6 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货 4 拒收‘,
     private String returnDesc;   //退换货说明
 
-    /**
-     *	确认收到药品数量
-     */
-    private java.lang.Integer recieveCount;
-
-    public Integer getRecieveCount() {
-        return recieveCount;
-    }
-
-    public void setRecieveCount(Integer recieveCount) {
-        this.recieveCount = recieveCount;
-    }
-
     public String getReturnType() {
         return returnType;
     }
