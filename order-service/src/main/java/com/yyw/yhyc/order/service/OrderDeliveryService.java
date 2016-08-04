@@ -23,13 +23,16 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
-import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
 
 @Service("orderDeliveryService")
 public class OrderDeliveryService {
@@ -42,15 +45,7 @@ public class OrderDeliveryService {
 
 	private OrderMapper orderMapper;
 
-	private SystemDateMapper systemDateMapper;
-
 	private String PURCHASE_TEMPLATE_PATH="D:/excel/";
-
-
-	@Autowired
-	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
-		this.systemDateMapper = systemDateMapper;
-	}
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper) {
@@ -211,7 +206,7 @@ public class OrderDeliveryService {
 
 		if(UtilHelper.isEmpty(orderDeliveryDto.getExcelPath())){
 			map.put("code", "0");
-			map.put("msg", "批次号文件流不能为空");
+			map.put("msg", "批次号文件流为空");
 			return map;
 		}
 
@@ -238,7 +233,7 @@ public class OrderDeliveryService {
 		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
 		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
 		orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
-		orderDelivery.setUpdateDate(systemDateMapper.getSystemDate());
+		orderDelivery.setUpdateDate(DateHelper.nowString());
 		//TODO
 		//部分字段未知暂时未写
 		orderDeliveryMapper.update(orderDelivery);
@@ -268,14 +263,14 @@ public class OrderDeliveryService {
 		for (Map<String,String> rowMap:list) {
 			StringBuffer stringBuffer=new StringBuffer();
 			if(UtilHelper.isEmpty(rowMap.get("1"))){
-				stringBuffer.append("订单编码不能为空,");
+				stringBuffer.append("订单编码为空,");
 			}
 			if(UtilHelper.isEmpty(rowMap.get("2"))){
-				stringBuffer.append("商品编码不能为空,");
+				stringBuffer.append("商品编码为空,");
 			}
 
 			if(UtilHelper.isEmpty(rowMap.get("3"))){
-				stringBuffer.append("批号为不能空,");
+				stringBuffer.append("批号为空,");
 			}
 
 			if(UtilHelper.isEmpty(rowMap.get("4"))){
@@ -423,17 +418,16 @@ public class OrderDeliveryService {
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetail = orderDeliveryDetails.get(0);
-				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setUpdateTime(DateHelper.nowString());
 				orderDeliveryDetail.setUpdateUser("");
-				orderDeliveryDetail.setDeliveryStatus(0);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			} else {
-				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setCreateTime(DateHelper.nowString());
+				orderDeliveryDetail.setUpdateTime(DateHelper.nowString());
 				orderDeliveryDetail.setCreateUser("");
 				orderDeliveryDetail.setUpdateUser("");
-				orderDeliveryDetail.setDeliveryStatus(0);
+				orderDeliveryDetail.setDeliveryStatus(2);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
 			}
@@ -457,8 +451,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
 				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
 				orderDeliveryDetail.setImportFileUrl(excelPath);
-				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setCreateTime(DateHelper.nowString());
+				orderDeliveryDetail.setUpdateTime(DateHelper.nowString());
 				orderDeliveryDetail.setCreateUser("");
 				orderDeliveryDetail.setUpdateUser("");
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);

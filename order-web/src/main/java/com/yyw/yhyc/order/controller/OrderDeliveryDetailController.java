@@ -24,9 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
 public class OrderDeliveryDetailController extends BaseJsonController {
@@ -91,17 +88,5 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	public void update(OrderDeliveryDetail orderDeliveryDetail) throws Exception
 	{
 		orderDeliveryDetailFacade.update(orderDeliveryDetail);
-	}
-
-	/**
-	 * 确认收货
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/confirmReceipt", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String,String> confirmReceipt(@RequestBody  RequestListModel<OrderDeliveryDetailDto> requestListModel) throws Exception
-	{
-		return orderDeliveryDetailFacade.confirmReceipt(requestListModel.getList());
 	}
 }

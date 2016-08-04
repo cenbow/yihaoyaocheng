@@ -1071,7 +1071,7 @@ public class OrderService {
 	 * 2 线下支付7天后未确认收款系统自动取消
 	 * @return
 	 */
-	public void cancelOrderForNoPay(){
+	public void updateCancelOrderForNoPay(){
 		orderMapper.cancelOrderForNoPay();
 	}
 
@@ -1080,8 +1080,8 @@ public class OrderService {
 	 * 订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void cancelOrderFor7DayNoDelivery(){
-		List<Order> lo=orderMapper.listOrderFor7DayNoDelivery();
+	public void updateCancelOrderForNoDelivery(){
+		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
 			//根据订单来源进行在线退款 二期对接
@@ -1090,8 +1090,11 @@ public class OrderService {
 				cal.add(od.getOrderId());
 			}
 		}
+
+		if(UtilHelper.isEmpty(cal)) return;
+
 		//取消订单
-		orderMapper. cancelOrderFor7DayNoDelivery(cal);
+		orderMapper. cancelOrderForNoDelivery(cal);
 	}
 
 	/**
@@ -1099,8 +1102,8 @@ public class OrderService {
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void doneOrderForDeliveryAfter7Day(){
-		List<Order> lo=orderMapper.listOrderForDeliveryAfter7Day();
+	public void updateDoneOrderForDelivery(){
+		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
 			//根据订单来源进行自动分账 二期对接
@@ -1108,8 +1111,11 @@ public class OrderService {
 				cal.add(od.getOrderId());
 			}
 		}
+
+		if(UtilHelper.isEmpty(cal)) return;
+
 		//确认收货
-		orderMapper. cancelOrderFor7DayNoDelivery(cal);
+		orderMapper. cancelOrderForNoDelivery(cal);
 	}
 	
 	/**

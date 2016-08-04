@@ -22,7 +22,6 @@ import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,13 +38,6 @@ public class OrderDeliveryDetailService {
 	private OrderDetailMapper orderDetailMapper;
 
 	private OrderReturnMapper orderReturnMapper;
-
-	private SystemDateMapper systemDateMapper;
-
-	@Autowired
-	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
-		this.systemDateMapper = systemDateMapper;
-	}
 
 	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper) {
@@ -183,7 +175,7 @@ public class OrderDeliveryDetailService {
 		String flowId = "";
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
-			returnMap.put("msg","参数不能为空");
+			returnMap.put("msg","参数为空");
 			return returnMap;
 		}
 
@@ -192,19 +184,13 @@ public class OrderDeliveryDetailService {
 
 			if (UtilHelper.isEmpty(dto.getOrderDeliveryDetailId())){
 				returnMap.put("code","0");
-				returnMap.put("msg","收发货详情不能id为空");
+				returnMap.put("msg","收发货详情id为空");
 				return returnMap;
 			}
 
 			if (UtilHelper.isEmpty(dto.getOrderDetailId())){
 				returnMap.put("code","0");
-				returnMap.put("msg","订单详情id不能为空");
-				return returnMap;
-			}
-
-			if (UtilHelper.isEmpty(dto.getRecieveCount())){
-				returnMap.put("code","0");
-				returnMap.put("msg","确认收货数量不能为空");
+				returnMap.put("msg","订单详情id为空");
 				return returnMap;
 			}
 
@@ -241,12 +227,10 @@ public class OrderDeliveryDetailService {
 					orderReturn.setReturnType(returnType);
 					orderReturn.setReturnDesc(returnDesc);
 					orderReturn.setFlowId(flowId);
-					orderReturn.setReturnStatus("1");//未处理
-					orderReturn.setCreateTime(systemDateMapper.getSystemDate());
-					orderReturn.setUpdateTime(systemDateMapper.getSystemDate());
+					orderReturn.setCreateTime(DateHelper.nowString());
+					orderReturn.setUpdateTime(DateHelper.nowString());
 					/*orderReturn.setCreateUser(); 当前登录人
 					orderReturn.setUpdateUser();*/
-					orderReturnMapper.save(orderReturn);
 				}
 			}
 			returnMap.put("code","1");

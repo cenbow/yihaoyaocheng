@@ -234,7 +234,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 */
 	public void cancelOrderForNoPay() {
-		orderService.cancelOrderForNoPay();
+		orderService.updateCancelOrderForNoPay();
 	}
 
 	/**
@@ -242,8 +242,8 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * 1在线支付订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void cancelOrderFor7DayNoDelivery() {
-		orderService.cancelOrderFor7DayNoDelivery();
+	public void cancelOrderForNoDelivery() {
+		orderService.updateCancelOrderForNoDelivery();
 	}
 
 	/**
@@ -251,8 +251,8 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void doneOrderForDeliveryAfter7Day() {
-		orderService.doneOrderForDeliveryAfter7Day();
+	public void doneOrderForDelivery() {
+		orderService.updateDoneOrderForDelivery();
 	}
 	/**
 	 * 收款确认
