@@ -9,7 +9,7 @@
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp"%>
-    <link rel="Shortcut Icon" href="${ctx }/static/images/enterprise_new/yjs.ico">
+    <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
 
 </head>
 <body>

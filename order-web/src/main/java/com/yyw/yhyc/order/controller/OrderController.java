@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -183,16 +184,55 @@ public class OrderController extends BaseJsonController {
 		return orderFacade.createOrder(orderCreateDto);
 	}
 
+
 	/**
 	 * 检查订单页的数据
 	 * @return
 	 * @throws Exception
-     */
-	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.POST)
+	 */
+	@RequestMapping(value = "/checkOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> checkOrderPage() throws Exception {
+	public Map<String,Object> checkOrder() throws Exception {
 		return orderFacade.checkOrderPage();
 	}
+
+	/**
+	 * 检查订单页
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView checkOrderPage() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/checkOrderPage");
+		return model;
+	}
+	/**
+	 * 订单成功页面-查看收款账号信息页
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/checkAccountInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView checkAccountInfo() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/checkAccountInfo");
+		return model;
+	}
+	/**
+	 * 生成订单成功页面
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView createOrderSuccess() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/createOrderSuccess");
+		return model;
+	}
+
 
 
 
@@ -271,13 +311,23 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
 	@ResponseBody
-	public void exportOrder(HttpServletResponse response){
+	public void exportOrder(@RequestParam("orderId") String orderId,@RequestParam("supplyId") Integer supplyId,@RequestParam("custName") String custName,@RequestParam("payType") Integer payType,HttpServletResponse response){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
-		pagination.setPageSize(6000);      //默认600条数据
-		byte[] bytes=orderFacade.exportOrder(pagination, null);
+		pagination.setPageSize(6000);      //默认6000条数据
+		try{
+			custName = new String(custName.getBytes("iso8859-1"),"UTF-8");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		OrderDto orderDto=new OrderDto();
+		orderDto.setSupplyId(supplyId);
+		orderDto.setFlowId(orderId);
+		orderDto.setPayType(payType);
+		orderDto.setCustName(custName);
+		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
 			fileName = new String(("订单报表"+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
@@ -303,14 +353,14 @@ public class OrderController extends BaseJsonController {
 	}
 	/**
 	* 收款确认
-	* @return
-	*/
+	 * @return
+	 */
 	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
 	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		int custId = 1;
-		orderFacade.addForConfirmMoney(custId,orderSettlement);
+		orderFacade.addForConfirmMoney(custId, orderSettlement);
 	}
 
 
