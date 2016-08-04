@@ -17,19 +17,20 @@ import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 
 @Service("orderDeliveryDetailService")
 public class OrderDeliveryDetailService {
@@ -41,6 +42,13 @@ public class OrderDeliveryDetailService {
 	private OrderReturnMapper orderReturnMapper;
 
 	private SystemDateMapper systemDateMapper;
+
+	private OrderMapper orderMapper;
+
+	@Autowired
+	public void setOrderMapper(OrderMapper orderMapper) {
+		this.orderMapper = orderMapper;
+	}
 
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
@@ -174,6 +182,12 @@ public class OrderDeliveryDetailService {
 		return orderDeliveryDetailMapper.findByCount(orderDeliveryDetail);
 	}
 
+	/**
+	 * 确认收货
+	 * @param list
+	 * @return
+	 * @throws Exception
+	 */
 	public  Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception{
 
 		Map<String, String> returnMap = new HashMap<String, String>();
@@ -205,6 +219,12 @@ public class OrderDeliveryDetailService {
 			if (UtilHelper.isEmpty(dto.getRecieveCount())){
 				returnMap.put("code","0");
 				returnMap.put("msg","确认收货数量不能为空");
+				return returnMap;
+			}
+
+			if (UtilHelper.isEmpty(dto.getFlowId())){
+				returnMap.put("code","0");
+				returnMap.put("msg","订单编号不能为空");
 				return returnMap;
 			}
 
@@ -249,6 +269,20 @@ public class OrderDeliveryDetailService {
 					orderReturnMapper.save(orderReturn);
 				}
 			}
+			//如果收货异常根据异常类型更新订单状态
+			Order order = orderMapper.getOrderbyFlowId(flowId);
+			if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
+				if (returnType.equals("4"))
+					order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
+				else if (returnType.equals("3"))
+					order.setOrderStatus(SystemOrderStatusEnum.Replenishing.getType());
+			}else {
+				order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
+			}
+			order.setUpdateTime(systemDateMapper.getSystemDate());
+			order.setUpdateUser("登录用户");
+			orderMapper.update(order);
+
 			returnMap.put("code","1");
 			returnMap.put("msg","操作成功");
 			return returnMap;

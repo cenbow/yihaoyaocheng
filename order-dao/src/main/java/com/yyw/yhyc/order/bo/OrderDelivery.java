@@ -85,6 +85,11 @@ public class OrderDelivery extends Model{
 	private java.lang.String deliveryContactPhone;
 
 	/**
+	 * 发货人
+	 */
+	private java.lang.String deliveryPerson;
+
+	/**
 	  *	预计送达时间
 	  */
 	private java.lang.String deliveryDate;
@@ -133,6 +138,14 @@ public class OrderDelivery extends Model{
 	  *	记录更新时间
 	  */
 	private java.lang.String updateTime;
+
+	public String getDeliveryPerson() {
+		return deliveryPerson;
+	}
+
+	public void setDeliveryPerson(String deliveryPerson) {
+		this.deliveryPerson = deliveryPerson;
+	}
 
 	/**
 	  *	

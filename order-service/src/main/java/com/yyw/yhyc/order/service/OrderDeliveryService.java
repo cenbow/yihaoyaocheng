@@ -23,7 +23,10 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,8 +47,14 @@ public class OrderDeliveryService {
 
 	private SystemDateMapper systemDateMapper;
 
-	private String PURCHASE_TEMPLATE_PATH="D:/excel/";
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
 
+	private String PURCHASE_TEMPLATE_PATH="include/excel/";
+
+	@Autowired
+	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
+		this.receiverAddressMapper = receiverAddressMapper;
+	}
 
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
@@ -234,14 +243,6 @@ public class OrderDeliveryService {
 			map.put("msg", "订单地址不存在");
 			return map;
 		}
-		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
-		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
-		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
-		orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
-		orderDelivery.setUpdateDate(systemDateMapper.getSystemDate());
-		//TODO
-		//部分字段未知暂时未写
-		orderDeliveryMapper.update(orderDelivery);
 
 		//验证通过生成发货信息并上传文件
 		String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
@@ -249,12 +250,12 @@ public class OrderDeliveryService {
 		String filePath=updateFile(PURCHASE_TEMPLATE_PATH, fileName, orderDeliveryDto.getExcelPath());
 
 		//验证批次号并生成订单发货数据
-		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto.getFlowId());
+		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto);
 
 		return map;
 	}
 	//读取验证订单批次信息excel
-	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,String flowId){
+	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto){
 
 		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
 		Map<String,String> errorMap=null;
@@ -282,7 +283,7 @@ public class OrderDeliveryService {
 				stringBuffer.append("数量为空,");
 			}
 
-			if(!rowMap.get("1").equals(flowId)){
+			if(!rowMap.get("1").equals(orderDeliveryDto.getFlowId())){
 				stringBuffer.append("订单编码与发货订单编码不相同,");
 			}
 
@@ -340,13 +341,31 @@ public class OrderDeliveryService {
 
 			}
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderId,flowId,list,detailMap,excelPath);
+			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto.getFlowId(),list,detailMap,excelPath);
 
 			if(errorList.size()>0){
 				map.put("code","2");
 				map.put("msg","发货失败。");
 				map.put("fileName",filePath);
 			}else {
+				//发货成功更新订单状态
+				Order order = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
+				order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+				order.setUpdateTime(systemDateMapper.getSystemDate());
+				order.setUpdateUser("登录用户");
+				orderMapper.update(order);
+				//生成发货信息
+				UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
+				OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getOrderId());
+				orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
+				orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
+				orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
+				orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
+				orderDelivery.setUpdateDate(systemDateMapper.getSystemDate());
+				orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+				orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+				orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+				orderDeliveryMapper.update(orderDelivery);
 				map.put("code","1");
 				map.put("msg","发货成功。");
 				map.put("fileName",excelPath);

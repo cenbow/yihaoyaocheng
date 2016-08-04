@@ -16,7 +16,7 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private Integer productCount; //购买单品数量
     private Integer custId;        //客户ID
     private Integer supplyId;     //供应商ID
-    private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货',
+    private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货 4 拒收‘,
     private String returnDesc;   //退换货说明
 
     public String getReturnType() {
