@@ -140,11 +140,13 @@ public class OrderSettlementController extends BaseJsonController {
 	 * type 1 应收 2 应付
 	 * @return
 	 */
-	@RequestMapping(value = {"/myth{type}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/list{type}"}, method = RequestMethod.GET)
 	@ResponseBody
-	public OrderSettlement showOrderSettlementList2(OrderSettlement settlement, @PathVariable("type") Integer type, HttpServletRequest request, HttpServletResponse response)throws Exception{
+	public ModelAndView showOrderSettlementList2(OrderSettlement settlement, @PathVariable("type") Integer type, HttpServletRequest request, HttpServletResponse response)throws Exception{
 
 		OrderSettlement orderSettlement = settlement;
-		return orderSettlement;
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/order_settlement");
+		return model;
 	}
 }
