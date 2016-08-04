@@ -1,6 +1,7 @@
-
+<%@ page import="com.yyw.yhyc.utils.MyConfigUtil" %>
 <%
 	request.setAttribute("ctx", request.getContextPath());
+	request.setAttribute("STATIC_URL", MyConfigUtil.STATIC_URL);
 	String enterpriseId = request.getParameter("enterpriseId");
 
 	

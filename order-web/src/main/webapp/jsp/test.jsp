@@ -1,7 +1,7 @@
-<%@ page import="com.yyw.yhyc.order.configUtils.MyConfig" %>
+<%@ page import="com.yyw.yhyc.utils.MyConfigUtil" %>
 <html>
 <body>
 <h2>Hello World!</h2>
-<%= MyConfig.STATIC_URL %>
+<%= MyConfigUtil.STATIC_URL %>
 </body>
 </html>
