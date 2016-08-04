@@ -282,7 +282,7 @@ public class OrderService {
 		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginCustId);
 
 		/* 插入数据到订单支付表 */
-		insertOrderPay(orderNewList,currentLoginCustId,payFlowId);
+		insertOrderPay(orderNewList, currentLoginCustId, payFlowId);
 
 		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
 		insertOrderCombined(orderNewList,currentLoginCustId,payFlowId);
@@ -309,7 +309,7 @@ public class OrderService {
 		Order order = insertOrderAndOrderDetail(orderDto);
 
 		/* 订单配送发货信息表 */
-		insertOrderDeliver(order,orderDeliveryDto);
+		insertOrderDeliver(order, orderDeliveryDto);
 
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
@@ -1029,7 +1029,6 @@ public class OrderService {
 	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		//销售订单列表
 		List<OrderDto> list = orderMapper.listPgSellerOrder(pagination, orderDto);
-		String[] headers={};
 		List<Object[]> dataset = new ArrayList<Object[]>();
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {
@@ -1049,20 +1048,20 @@ public class OrderService {
 					billTypeName="增值税普通发票";
 				}
 			}
-			dataset.add(new Object[]{"下单时间",order.getCreateTime(),"订单号",order.getFlowId(),"订单状态",orderStatusName,"发票类型",billTypeName});
-			dataset.add(new Object[]{"采购商",order.getCustName(),"收货人",order.getOrderDelivery().getReceivePerson(),"收货地址",order.getOrderDelivery().getReceiveAddress(),"联系方式",order.getOrderDelivery().getReceiveContactPhone()});
-			dataset.add(new Object[]{"商品编码","品名","规格","厂商","单价（元）","数量","金额（元）","促销信息"});
+			dataset.add(new Object[]{"下单时间styleColor",order.getCreateTime(),"订单号styleColor",order.getFlowId(),"订单状态styleColor",orderStatusName,"发票类型styleColor",billTypeName});
+			dataset.add(new Object[]{"采购商styleColor",order.getCustName(),"收货人styleColor",order.getOrderDelivery().getReceivePerson(),"收货地址styleColor",order.getOrderDelivery().getReceiveAddress(),"联系方式styleColor",order.getOrderDelivery().getReceiveContactPhone()});
+			dataset.add(new Object[]{"商品编码styleColor","品名styleColor","规格styleColor","厂商styleColor","单价（元）styleColor","数量styleColor","金额（元）styleColor","促销信息styleColor"});
 			Double productTotal=0d;
 			for (OrderDetail orderDetail : order.getOrderDetailList()) {
 				BigDecimal totalPrice = orderDetail.getProductPrice().multiply(new BigDecimal(orderDetail.getProductCount() + ""));
 				dataset.add(new Object[]{orderDetail.getProductCode(),orderDetail.getProductName(),orderDetail.getSpecification(),orderDetail.getManufactures(),orderDetail.getProductPrice(),orderDetail.getProductCount(),totalPrice.doubleValue(),""});
 				productTotal+=totalPrice.doubleValue();
 			}
-			dataset.add(new Object[]{"商品金额（元）", productTotal, "优惠券（元）", order.getPreferentialMoney(), "订单金额（元）", order.getOrderTotal(), "", ""});
-			dataset.add(new Object[]{"买家留言", order.getLeaveMessage(), "", "", "", "", "", ""});
+			dataset.add(new Object[]{"商品金额（元）styleColor", productTotal, "优惠券（元）styleColor", order.getPreferentialMoney(), "订单金额（元）styleColor", order.getOrderTotal(), "", ""});
+			dataset.add(new Object[]{"买家留言styleColor", order.getLeaveMessage(), "", "", "", "", "", ""});
 			dataset.add(new Object[]{});
 		}
-		return  ExcelUtil.exportExcel("订单信息", headers, dataset);
+		return  ExcelUtil.exportExcel("订单信息", dataset);
 	}
 
 	/**
