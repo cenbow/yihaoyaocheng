@@ -275,8 +275,13 @@ public class OrderController extends BaseJsonController {
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
-		pagination.setPageSize(6000);      //默认600条数据
-		byte[] bytes=orderFacade.exportOrder(pagination, null);
+		pagination.setPageSize(6000);      //默认6000条数据
+		OrderDto orderDto=new OrderDto();
+		orderDto.setSupplyId(1);
+		orderDto.setFlowId("YJ20151110000001-001");
+		orderDto.setPayType(2);
+		orderDto.setCustName("上海华氏大药房");
+		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
 			fileName = new String(("订单报表"+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
@@ -309,6 +314,6 @@ public class OrderController extends BaseJsonController {
 	{
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		int custId = 1;
-		orderFacade.addForConfirmMoney(custId,orderSettlement);
+		orderFacade.addForConfirmMoney(custId, orderSettlement);
 	}
 }
