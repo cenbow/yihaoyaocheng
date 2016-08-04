@@ -271,17 +271,22 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
 	@ResponseBody
-	public void exportOrder(HttpServletResponse response){
+	public void exportOrder(@RequestParam("orderId") String orderId,@RequestParam("supplyId") Integer supplyId,@RequestParam("custName") String custName,@RequestParam("payType") Integer payType,HttpServletResponse response){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
 		pagination.setPageSize(6000);      //默认6000条数据
+		try{
+			custName = new String(custName.getBytes("iso8859-1"),"UTF-8");
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 		OrderDto orderDto=new OrderDto();
-		orderDto.setSupplyId(1);
-		orderDto.setFlowId("YJ20151110000001-001");
-		orderDto.setPayType(2);
-		orderDto.setCustName("上海华氏大药房");
+		orderDto.setSupplyId(supplyId);
+		orderDto.setFlowId(orderId);
+		orderDto.setPayType(payType);
+		orderDto.setCustName(custName);
 		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
@@ -308,8 +313,8 @@ public class OrderController extends BaseJsonController {
 	}
 	/**
 	* 收款确认
-	* @return
-	*/
+	 * @return
+	 */
 	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
 	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
