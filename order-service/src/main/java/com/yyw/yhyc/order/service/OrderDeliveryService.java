@@ -23,16 +23,16 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
-import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
 
 @Service("orderDeliveryService")
 public class OrderDeliveryService {
@@ -45,7 +45,21 @@ public class OrderDeliveryService {
 
 	private OrderMapper orderMapper;
 
-	private String PURCHASE_TEMPLATE_PATH="D:/excel/";
+	private SystemDateMapper systemDateMapper;
+
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
+
+	private String PURCHASE_TEMPLATE_PATH="include/excel/";
+
+	@Autowired
+	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
+		this.receiverAddressMapper = receiverAddressMapper;
+	}
+
+	@Autowired
+	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+		this.systemDateMapper = systemDateMapper;
+	}
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper) {
@@ -206,7 +220,7 @@ public class OrderDeliveryService {
 
 		if(UtilHelper.isEmpty(orderDeliveryDto.getExcelPath())){
 			map.put("code", "0");
-			map.put("msg", "批次号文件流为空");
+			map.put("msg", "批次号文件流不能为空");
 			return map;
 		}
 
@@ -229,14 +243,6 @@ public class OrderDeliveryService {
 			map.put("msg", "订单地址不存在");
 			return map;
 		}
-		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
-		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
-		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
-		orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
-		orderDelivery.setUpdateDate(DateHelper.nowString());
-		//TODO
-		//部分字段未知暂时未写
-		orderDeliveryMapper.update(orderDelivery);
 
 		//验证通过生成发货信息并上传文件
 		String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
@@ -244,12 +250,12 @@ public class OrderDeliveryService {
 		String filePath=updateFile(PURCHASE_TEMPLATE_PATH, fileName, orderDeliveryDto.getExcelPath());
 
 		//验证批次号并生成订单发货数据
-		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto.getFlowId());
+		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto);
 
 		return map;
 	}
 	//读取验证订单批次信息excel
-	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,String flowId){
+	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto){
 
 		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
 		Map<String,String> errorMap=null;
@@ -263,21 +269,21 @@ public class OrderDeliveryService {
 		for (Map<String,String> rowMap:list) {
 			StringBuffer stringBuffer=new StringBuffer();
 			if(UtilHelper.isEmpty(rowMap.get("1"))){
-				stringBuffer.append("订单编码为空,");
+				stringBuffer.append("订单编码不能为空,");
 			}
 			if(UtilHelper.isEmpty(rowMap.get("2"))){
-				stringBuffer.append("商品编码为空,");
+				stringBuffer.append("商品编码不能为空,");
 			}
 
 			if(UtilHelper.isEmpty(rowMap.get("3"))){
-				stringBuffer.append("批号为空,");
+				stringBuffer.append("批号为不能空,");
 			}
 
 			if(UtilHelper.isEmpty(rowMap.get("4"))){
 				stringBuffer.append("数量为空,");
 			}
 
-			if(!rowMap.get("1").equals(flowId)){
+			if(!rowMap.get("1").equals(orderDeliveryDto.getFlowId())){
 				stringBuffer.append("订单编码与发货订单编码不相同,");
 			}
 
@@ -335,13 +341,31 @@ public class OrderDeliveryService {
 
 			}
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderId,flowId,list,detailMap,excelPath);
+			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto.getFlowId(),list,detailMap,excelPath);
 
 			if(errorList.size()>0){
 				map.put("code","2");
 				map.put("msg","发货失败。");
 				map.put("fileName",filePath);
 			}else {
+				//发货成功更新订单状态
+				Order order = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
+				order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+				order.setUpdateTime(systemDateMapper.getSystemDate());
+				order.setUpdateUser("登录用户");
+				orderMapper.update(order);
+				//生成发货信息
+				UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
+				OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getOrderId());
+				orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
+				orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
+				orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
+				orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
+				orderDelivery.setUpdateDate(systemDateMapper.getSystemDate());
+				orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+				orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+				orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+				orderDeliveryMapper.update(orderDelivery);
 				map.put("code","1");
 				map.put("msg","发货成功。");
 				map.put("fileName",excelPath);
@@ -418,16 +442,17 @@ public class OrderDeliveryService {
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetail = orderDeliveryDetails.get(0);
-				orderDeliveryDetail.setUpdateTime(DateHelper.nowString());
+				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
 				orderDeliveryDetail.setUpdateUser("");
+				orderDeliveryDetail.setDeliveryStatus(0);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			} else {
-				orderDeliveryDetail.setCreateTime(DateHelper.nowString());
-				orderDeliveryDetail.setUpdateTime(DateHelper.nowString());
+				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
 				orderDeliveryDetail.setCreateUser("");
 				orderDeliveryDetail.setUpdateUser("");
-				orderDeliveryDetail.setDeliveryStatus(2);
+				orderDeliveryDetail.setDeliveryStatus(0);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
 			}
@@ -451,8 +476,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
 				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
 				orderDeliveryDetail.setImportFileUrl(excelPath);
-				orderDeliveryDetail.setCreateTime(DateHelper.nowString());
-				orderDeliveryDetail.setUpdateTime(DateHelper.nowString());
+				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
 				orderDeliveryDetail.setCreateUser("");
 				orderDeliveryDetail.setUpdateUser("");
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);

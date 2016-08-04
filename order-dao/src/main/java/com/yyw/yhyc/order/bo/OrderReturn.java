@@ -50,14 +50,11 @@ public class OrderReturn extends Model{
 	private java.math.BigDecimal returnPay;
 
 	/**
-	  *	1:退货
-            2:换货
-            3:补货
-	  */
+	  *	1:退货 2:换货 3:补货 4:拒收*/
 	private java.lang.String returnType;
 
 	/**
-	  *	退换状态
+	  *	退换状态  1,未处理。2，已处理
 	  */
 	private java.lang.String returnStatus;
 
@@ -211,6 +208,7 @@ public class OrderReturn extends Model{
 	  *	1:退货
             2:换货
             3:补货
+	 		4:拒收
 	  */
 	public java.lang.String getReturnType() 
 	{
@@ -219,8 +217,9 @@ public class OrderReturn extends Model{
 	
 	/**
 	  *	1:退货
-            2:换货
-            3:补货
+        2:换货
+        3:补货
+	 	4:拒收
 	  */
 	public void setReturnType(java.lang.String returnType) 
 	{
