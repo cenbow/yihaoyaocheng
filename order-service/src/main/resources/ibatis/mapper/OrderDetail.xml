@@ -274,6 +274,6 @@
 	<select id="listOrderDetailInfoByOrderId" parameterType="java.lang.Integer" resultMap="OrderDetailResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
-		FROM t_order_detail WHERE o.order_Id= #{orderId}
+		FROM t_order_detail WHERE order_Id= #{orderId}
 	</select>
 </mapper>
