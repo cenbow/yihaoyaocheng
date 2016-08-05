@@ -16,7 +16,7 @@
     <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
            flushInterval="86400000" size="1024000">
     </cache>
-	<resultMap id="ShoppingCartResultMapper" type="ShoppingCart">
+	<resultMap id="ShoppingCartResultMapper" type="com.yyw.yhyc.order.bo.ShoppingCart">
 		<result column="shopping_cart_id" property="shoppingCartId"/>
 		<result column="cust_id" property="custId"/>
 		<result column="sku_id" property="skuId"/>
@@ -35,13 +35,16 @@
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
 	</resultMap>
+	<resultMap id="ShoppingCartDtoResultMapper" extends="ShoppingCartResultMapper" type="com.yyw.yhyc.order.dto.ShoppingCartDto">
+		<result column="product_image_url" property="productImageUrl"/>
+	</resultMap>
 
 	<resultMap type="ShoppingCartListDto" id="ShoppingCartListDtoResultMapper">
 		<association property="buyer" column="CUST_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByPK"/>
 		<association property="seller" column="SUPPLY_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByPK"/>
 		<collection property="shoppingCartDtoList" javaType="ArrayList" ofType="ShoppingCartDto"
 					column="{custId=CUST_ID,supplyId=SUPPLY_ID}"
-					select="com.yyw.yhyc.order.mapper.ShoppingCartMapper.listByProperty"/>
+					select="com.yyw.yhyc.order.mapper.ShoppingCartMapper.listShoppingCartDtoByProperty"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -157,7 +160,7 @@
 		</if>
 	</sql>
 	
-	<insert id="save" parameterType="ShoppingCart">
+	<insert id="save" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
 		<![CDATA[ INSERT INTO t_shopping_cart ( ]]>
 			<include refid="commonColumnsNotPK"/>
 		<![CDATA[
@@ -180,7 +183,7 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
   ) ]]>
 	</insert>
-	<update id="update" parameterType="ShoppingCart">
+	<update id="update" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
 		<![CDATA[ UPDATE t_shopping_cart SET 
 			 shopping_cart_id=#{shoppingCartId} 
 			, cust_id=#{custId} 
@@ -211,7 +214,7 @@
 			${id}
 		</foreach>
 	</delete>
-	<delete id="deleteByProperty" parameterType="ShoppingCart">
+	<delete id="deleteByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
 		DELETE FROM t_shopping_cart WHERE 1 = 1
 		<include refid="commonCondition"/>
 	</delete>
@@ -225,25 +228,31 @@
 			 <include refid="commonProcessDateColumns"/>
  		FROM t_shopping_cart
 	</select>
-	<select id="listByProperty" parameterType="ShoppingCart" resultMap="ShoppingCartResultMapper">
+	<select id="listByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper">
 		<![CDATA[ SELECT ]]>
 			<include refid="commonProcessDateColumns"/>
 		FROM t_shopping_cart WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="listPaginationByProperty" parameterType="ShoppingCart" resultMap="ShoppingCartResultMapper">
+	<select id="listPaginationByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper">
 		SELECT 
 		<include refid="commonProcessDateColumns"/>
 		FROM t_shopping_cart WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="findByCount" parameterType="ShoppingCart" resultType="int">
+	<select id="findByCount" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="int">
 		SELECT count(1) AS totalcount FROM t_shopping_cart WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
 
-	<select id="listAllShoppingCart" parameterType="ShoppingCart" resultMap="ShoppingCartListDtoResultMapper" useCache="false">
+	<select id="listAllShoppingCart" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartListDtoResultMapper" useCache="false">
 			SELECT	DISTINCT  CUST_ID,SUPPLY_ID FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
 	</select>
 
+	<select id="listShoppingCartDtoByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartDtoResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_shopping_cart WHERE 1=1
+		<include refid="commonCondition"/>
+	</select>
 </mapper>

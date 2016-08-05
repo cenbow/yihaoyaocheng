@@ -188,5 +188,10 @@
             <scope>test</scope>
         </dependency>
         <!-- test end -->
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 </project>

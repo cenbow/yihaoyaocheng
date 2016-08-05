@@ -14,12 +14,33 @@ public class OrderCreateDto implements Serializable {
 
     private static final long serialVersionUID = 4089608300520010684L;
 
+    /* 采购商企业id */
+    private Integer custId;
+
+    /* 收货人地址id */
+    private Integer receiveAddressId;
+
     /* 订单信息集合 */
     private List<OrderDto> orderDtoList;
 
     /* 收货地址信息 */
     private OrderDeliveryDto orderDeliveryDto;
 
+    public Integer getCustId() {
+        return custId;
+    }
+
+    public void setCustId(Integer custId) {
+        this.custId = custId;
+    }
+
+    public Integer getReceiveAddressId() {
+        return receiveAddressId;
+    }
+
+    public void setReceiveAddressId(Integer receiveAddressId) {
+        this.receiveAddressId = receiveAddressId;
+    }
 
     public List<OrderDto> getOrderDtoList() {
         return orderDtoList;
@@ -40,8 +61,10 @@ public class OrderCreateDto implements Serializable {
     @Override
     public String toString() {
         return "OrderCreateDto{" +
-                "orderDtoList=" + orderDtoList +
-                ",orderDeliveryDto=" + orderDeliveryDto +
+                "custId=" + custId +
+                ", receiveAddressId=" + receiveAddressId +
+                ", orderDtoList=" + orderDtoList +
+                ", orderDeliveryDto=" + orderDeliveryDto +
                 '}';
     }
 }
