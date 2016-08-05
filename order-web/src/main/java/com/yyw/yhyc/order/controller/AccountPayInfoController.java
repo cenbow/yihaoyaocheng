@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/accountPayInfo")
@@ -58,9 +61,13 @@ public class AccountPayInfoController extends BaseJsonController {
 	*/
 	@RequestMapping(value = "/getByCustId/{custId}", method = RequestMethod.GET)
 	@ResponseBody
-	public AccountPayInfo getByCustId(@PathVariable("custId")Integer custId) throws Exception
+	public ModelAndView getByCustId(@PathVariable("custId")Integer custId) throws Exception
 	{
-		return accountPayInfoFacade.getByCustId(custId);
+		AccountPayInfo accountPayInfo =accountPayInfoFacade.getByCustId(custId);
+		ModelAndView model = new ModelAndView();
+		model.addObject("dataMap",accountPayInfo);
+		model.setViewName("order/checkAccountInfo");
+		return model;
 	}
 	/**
 	* 分页查询记录
