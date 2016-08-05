@@ -95,15 +95,4 @@ public class OrderDeliveryController extends BaseJsonController {
 		orderDeliveryFacade.update(orderDelivery);
 	}
 
-
-	/**
-	 * 确认发货
-	 * @return
-	 */
-	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception
-	{
-		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto);
-	}
-
 }
