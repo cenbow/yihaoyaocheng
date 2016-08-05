@@ -277,10 +277,10 @@
 			AND s.business_type = #{businessType}
 		</if>
 		<if test="custName !=null and custName !=''">
-			AND s.cust_name = #{custName}
+			AND s.cust_name = CONCAT('%',#{custName},'%')
 		</if>
 		<if test="supplyName !=null and supplyName !=''">
-			AND s.supply_name = #{supplyName}
+			AND s.supply_name = CONCAT('%',#{supplyName},'%')
 		</if>
 		<if test="confirmSettlement !=null and confirmSettlement !='' and confirmSettlement !='-1'">
 			AND s.confirm_settlement = #{confirmSettlement}

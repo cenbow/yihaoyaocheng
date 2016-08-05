@@ -123,6 +123,9 @@ public class OrderSettlementController extends BaseJsonController {
 		/**
 		 * {"orderSettlementId":1,"supplyId":512,"updateUser":"zhangba","remark":"苟利国家生死以","refunSettlementMoney":998.222}
 		 */
+		UserDto userDto = super.getLoginUser();
+		orderSettlement.setSupplyId(userDto.getCustId());
+		orderSettlement.setUpdateUser(userDto.getUserName());
 		orderSettlementFacade.refundSettlement(orderSettlement);
 	}
 	/**

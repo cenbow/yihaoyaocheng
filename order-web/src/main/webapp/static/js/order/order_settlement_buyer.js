@@ -113,7 +113,6 @@ function fillTableJson(data) {
 	var indexNum = 1 ;
 	var list = data.resultList;
 	$(".table-box tbody").html("");
-	console.info(list);
 	var trs = "";
 	for (var i = 0; i < list.length; i++) {
 		var orderSettlemnt = list[i];
@@ -155,7 +154,7 @@ function changeColor(){
 
 function bindOperateBtn() {
 	$(".back-opreate").on("click",function () {
-		$("#myModalOperate").modal();
+		//$("#myModalOperate").modal();
 	});
 	$(".back-detail").on("click",function () {
 		var settlementId = $(this).attr("data-stmid");
@@ -174,7 +173,7 @@ function bindOperateBtn() {
 				$("#myModalDetail").modal();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
-				alertModal("查询结算列表错误",function(){
+				alertModal("退款详情信息错误",function(){
 					closeAlert();
 				});
 			}

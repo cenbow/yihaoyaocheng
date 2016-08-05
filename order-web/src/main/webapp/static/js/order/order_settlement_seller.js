@@ -113,7 +113,6 @@ function fillTableJson(data) {
 	var indexNum = 1 ;
 	var list = data.resultList;
 	$(".table-box tbody").html("");
-	console.info(list);
 	var trs = "";
 	for (var i = 0; i < list.length; i++) {
 		var orderSettlemnt = list[i];
@@ -155,7 +154,25 @@ function changeColor(){
 
 function bindOperateBtn() {
 	$(".back-opreate").on("click",function () {
-		$("#myModalOperate").modal();
+		//$("#myModalOperate").modal();
+		var settlementId = $(this).attr("data-stmid");
+
+		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
+
+		$.ajax({
+			url : requestUrl,
+			type : 'GET',
+			dataType:'json',
+			success : function(data) {
+				$("#myModalOperate .form-group:eq(0) div" ).html(data.settlementMoney+"元")
+				$("#myModalOperate").modal();
+			},
+			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				alertModal("退款详情信息错误",function(){
+					closeAlert();
+				});
+			}
+		});
 	});
 	$(".back-detail").on("click",function () {
 		var settlementId = $(this).attr("data-stmid");

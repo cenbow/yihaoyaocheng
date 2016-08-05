@@ -48,6 +48,7 @@
                                         <option value="-1">请选择</option>
                                         <option value="1">销售货款</option>
                                         <option value="2">退货货款</option>
+                                        <option value="3">拒收</option>
                                 </select>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">订单号</label>
@@ -157,20 +158,20 @@
             <div class="modal-body">
                 <div class="form-horizontal">
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">结算订单金额</label>
-                        <div class="col-xs-5 control-label text-left">500.00  元</div>
+                        <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额</label>
+                        <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额:</label>
                         <div class="col-xs-5"><input type="text" class="form-control" /></div>
-                        <div class="col-xs-4 control-label text-left">元</div>
+                        <div class="col-xs-4 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">应付实付差异</label>
-                        <div class="col-xs-5 control-label text-left">-100.00  元</div>
+                        <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">备注</label>
+                        <label for="scope" class="col-xs-3 control-label">备注:</label>
                         <div class="col-xs-5">
                             <textarea class="form-control" rows="3" cols="3"></textarea>
                         </div>
@@ -194,19 +195,19 @@
             <div class="modal-body">
                 <div class="form-horizontal">
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">结算订单金额</label>
-                        <div class="col-xs-5 control-label text-left">500.00  元</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">实际结算金额</label>
+                        <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
                         <div class="col-xs-5 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">应付实付差异</label>
+                        <label for="scope" class="col-xs-3 control-label">实际结算金额:</label>
                         <div class="col-xs-5 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">备注</label>
+                        <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-3 control-label">备注:</label>
                         <div class="col-xs-5 control-label text-left"></div>
                     </div>
                 </div>
