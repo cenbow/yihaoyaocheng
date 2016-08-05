@@ -77,13 +77,13 @@ public class OrderSettlementService {
         List<OrderSettlementDto> list = orderSettlementMapper.listPaginationDtoByProperty(pagination, orderSettlementDto);
         if (!UtilHelper.isEmpty(list)) {
             for (OrderSettlementDto osd : list) {
-                if (orderSettlementDto.getType() == 1) {//type = 1 应收
+                if (orderSettlementDto.getType() == 1) {//type = 1 卖家
                     if (osd.getBusinessType() == 1) {
                         osd.setBusinessTypeName("销售货款");
                     } else if (osd.getBusinessType() == 2) {
                         osd.setBusinessTypeName("退款货款");
                     }
-                } else {// type =2 应付
+                } else {// type =2 买家
                     if (osd.getBusinessType() == 1) {
                         osd.setBusinessTypeName("采购货款");
                     } else if (osd.getBusinessType() == 2) {

@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.dto;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -20,6 +21,9 @@ public class ShoppingCartListDto implements Serializable{
 
     /* 买家在供应商中买的商品(购物车条目集合) */
     private List<ShoppingCartDto> shoppingCartDtoList;
+
+    /* 购买当前供应商下所有商品的总金额*/
+    private BigDecimal productPriceCount;
 
     public UsermanageEnterprise getBuyer() {
         return buyer;
@@ -45,12 +49,21 @@ public class ShoppingCartListDto implements Serializable{
         this.shoppingCartDtoList = shoppingCartDtoList;
     }
 
+    public BigDecimal getProductPriceCount() {
+        return productPriceCount;
+    }
+
+    public void setProductPriceCount(BigDecimal productPriceCount) {
+        this.productPriceCount = productPriceCount;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartListDto{" +
                 "buyer=" + buyer +
                 ", seller=" + seller +
                 ", shoppingCartDtoList=" + shoppingCartDtoList +
+                ", productPriceCount=" + productPriceCount +
                 '}';
     }
 }

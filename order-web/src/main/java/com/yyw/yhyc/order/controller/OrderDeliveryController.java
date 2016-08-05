@@ -18,6 +18,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +106,8 @@ public class OrderDeliveryController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request) throws Exception
 	{
+		UserDto user = super.getLoginUser();
+		orderDeliveryDto.setUserDto(user);
 		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto,request);
 	}
 }

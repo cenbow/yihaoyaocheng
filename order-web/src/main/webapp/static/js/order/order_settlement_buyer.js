@@ -18,7 +18,7 @@ function pasretFormData(){
 	params = new Object();
 	var p = $("form").serializeObject()
 	params.pageNo = 1;
-	params.pageSize = 1;
+	params.pageSize = 15;
 	params.param = p;
 
 }
@@ -167,10 +167,10 @@ function bindOperateBtn() {
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
-				$("#myModalDetail .form-group:eq(1) div" ).html(data.settlementMoney+"元")
-				$("#myModalDetail .form-group:eq(2) div" ).html(data.refunSettlementMoney+"元")
-				$("#myModalDetail .form-group:eq(3) div" ).html(data.differentMoney+"元")
-				$("#myModalDetail .form-group:eq(4) div" ).html(data.remark)
+				$("#myModalDetail .form-group:eq(0) div" ).html(data.settlementMoney+"元")
+				$("#myModalDetail .form-group:eq(1) div" ).html(data.refunSettlementMoney+"元")
+				$("#myModalDetail .form-group:eq(2) div" ).html(data.differentMoney+"元")
+				$("#myModalDetail .form-group:eq(3) div" ).html(data.remark)
 				$("#myModalDetail").modal();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {

@@ -26,6 +26,16 @@ public class OrderDeliveryDto extends OrderDelivery {
     /* 批号导入EXCEL */
     private File excelPath;
 
+    UserDto userDto;
+
+    public UserDto getUserDto() {
+        return userDto;
+    }
+
+    public void setUserDto(UserDto userDto) {
+        this.userDto = userDto;
+    }
+
     public File getExcelPath() {
         return excelPath;
     }
