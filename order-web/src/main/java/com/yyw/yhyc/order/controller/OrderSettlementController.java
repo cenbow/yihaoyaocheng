@@ -70,7 +70,11 @@ public class OrderSettlementController extends BaseJsonController {
 		OrderSettlementDto orderSettlementDto = requestModel.getParam()==null?new OrderSettlementDto():requestModel.getParam();
 		orderSettlementDto.setType(type);
 		//TODO custId
-//		orderSettlementDto.setCustId(256);
+        if(type==1){
+            //orderSettlementDto.setCustId(256);
+        }else if(type==2){
+            //orderSettlementDto.setSupplyId(256);
+        }
 		return orderSettlementFacade.listPaginationByProperty(pagination, orderSettlementDto);
 	}
 
@@ -126,12 +130,14 @@ public class OrderSettlementController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/lhk{type}"}, method = RequestMethod.GET)
 	@ResponseBody
-	public ModelAndView showOrderSettlementList(@PathVariable("type") Integer type)throws Exception{
+	public ModelAndView showOrderSettlementList(@PathVariable("type") Integer type){
+        ModelAndView model = new ModelAndView();
+        try {
 
-		ModelAndView model = new ModelAndView();
-
-		 model.addObject("fuck","就是这么任性");
-		 model.setViewName("lhk");
+            model.setViewName("lhk");
+        }catch (Exception e){
+            viewExceptionHandler(e,model);
+        }
 		return model;
 	}
 
@@ -146,6 +152,7 @@ public class OrderSettlementController extends BaseJsonController {
 
 		OrderSettlement orderSettlement = settlement;
 		ModelAndView model = new ModelAndView();
+        model.addObject("type",type);
 		model.setViewName("order/order_settlement");
 		return model;
 	}
