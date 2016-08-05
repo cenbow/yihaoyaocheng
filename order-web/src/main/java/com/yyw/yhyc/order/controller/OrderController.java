@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -183,16 +184,55 @@ public class OrderController extends BaseJsonController {
 		return orderFacade.createOrder(orderCreateDto);
 	}
 
+
 	/**
 	 * 检查订单页的数据
 	 * @return
 	 * @throws Exception
-     */
-	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.POST)
+	 */
+	@RequestMapping(value = "/checkOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> checkOrderPage() throws Exception {
+	public Map<String,Object> checkOrder() throws Exception {
 		return orderFacade.checkOrderPage();
 	}
+
+	/**
+	 * 检查订单页
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView checkOrderPage() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/checkOrderPage");
+		return model;
+	}
+	/**
+	 * 订单成功页面-查看收款账号信息页
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/checkAccountInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView checkAccountInfo() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/checkAccountInfo");
+		return model;
+	}
+	/**
+	 * 生成订单成功页面
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView createOrderSuccess() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/createOrderSuccess");
+		return model;
+	}
+
 
 
 

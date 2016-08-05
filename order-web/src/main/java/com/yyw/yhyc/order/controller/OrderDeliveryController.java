@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Controller
@@ -102,8 +103,8 @@ public class OrderDeliveryController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request) throws Exception
 	{
-		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto);
+		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto,request);
 	}
 }

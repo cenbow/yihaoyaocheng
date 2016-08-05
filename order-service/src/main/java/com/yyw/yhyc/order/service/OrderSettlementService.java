@@ -79,17 +79,24 @@ public class OrderSettlementService {
             for (OrderSettlementDto osd : list) {
                 if (orderSettlementDto.getType() == 1) {//type = 1 应收
                     if (osd.getBusinessType() == 1) {
-                        osd.setBusinessTypeName("销售应收");
+                        osd.setBusinessTypeName("销售货款");
                     } else if (osd.getBusinessType() == 2) {
-                        osd.setBusinessTypeName("退款应收");
+                        osd.setBusinessTypeName("退款货款");
                     }
                 } else {// type =2 应付
                     if (osd.getBusinessType() == 1) {
-                        osd.setBusinessTypeName("采购应付");
+                        osd.setBusinessTypeName("采购货款");
                     } else if (osd.getBusinessType() == 2) {
-                        osd.setBusinessTypeName("退款应付");
+                        osd.setBusinessTypeName("退款货款");
                     }
                 }
+
+                if(osd.getConfirmSettlement()!=null&&osd.getConfirmSettlement().equals("1")){
+                    osd.setConfirmSettlementName("已结算");
+                }else{
+                    osd.setConfirmSettlementName("未结算");
+                }
+
             }
         }
         pagination.setResultList(list);
