@@ -251,12 +251,13 @@
         <result column="settlement_money" property="settlementMoney"/>
         <result column="pay_name" property="payTypeName"/>
         <result column="order_time" property="orderTime"/>
+		<result column="settlement_time" property="settlementTime"></result>
 	</resultMap>
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
 			SELECT s.order_settlement_id AS order_settlement_id, s.flow_id AS flow_id ,t.pay_name AS  pay_name,
 			s.business_type AS business_type,s.cust_name AS cust_name,s.supply_name AS supply_name,s.order_time AS order_time,
-			s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
+			s.settlement_time AS settlement_time,s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
 			FROM t_order_settlement s
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
 			LEFT JOIN t_passport_user u ON u.id = s.cust_id

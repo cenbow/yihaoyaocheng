@@ -84,12 +84,14 @@ $.fn.pager = function(opts){
         }else{
             setClass(index);
             xhr && xhr.abort();
+            set.data.pageNo = index;
             xhr = $.ajax({
                 url:href+index,
                 timeout:set.timeout,
                 dataType:set.dataType,
                 type : 'POST', 
-                data : set.data,
+                data : JSON.stringify(set.data),
+                contentType : "application/json;charset=UTF-8",
                 beforeSend:function(){
                     set.beforeSend && set.beforeSend(index);
                 },

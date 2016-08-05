@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta charset="UTF-8">
     <title>基本信息完善</title>
     <!--#include file="header.asp" -->
@@ -10,7 +9,7 @@
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp"%>
-    <link rel="Shortcut Icon" href="${ctx }/static/images/enterprise_new/yjs.ico">
+    <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
 
 </head>
 <body>
@@ -129,7 +128,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)" class="pager_item active">3</a><a href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)" class="pager_item">5</a><a href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)" class="pager_item">7</a><a href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text" name="page" class="input_item input_item_shortest page-num" autocomplete="off" id="page-num0">页</span><a href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>
+                            <div class="pager" id="J_pager" ></div>
                         </div>
                     </div>
                 </div>
@@ -175,19 +174,22 @@
     </div>
 </div>
 <!--#include file="footer.asp" -->
+<script type="text/javascript" src="${ctx }/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script>
-    $(".editbtn").click(function(){
-        $("#myModal1").modal();
-    });
-    $("#delete").click(function(){
-        alertModal("确定要删除吗？");
-    });
+$(".editbtn").click(function(){
+$("#myModal1").modal();
+});
+$("#delete").click(function(){
+alertModal("确定要删除吗？");
+});
 </script>
 <!--#include file="footer.asp" -->
-<script type="text/javascript"
-        src="http://static.yaoex.com/jsp/common/footer.js"></script>
+<script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/order/order_settlement.js"></script>
+
 </body>
 <script id="helpDoc" type="text/html">
     <div class="form-group padding-20">

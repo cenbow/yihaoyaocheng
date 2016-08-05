@@ -93,30 +93,5 @@ public class OrderController extends BaseJsonController {
 		orderFacade.update(order);
 	}
 
-	/**
-	 * 订单详情
-	 * @return
-	 */
-	@RequestMapping(value = "/getBuyOrderDetails", method = RequestMethod.GET)
-	@ResponseBody
-	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
-	{
-		//order.setCustId(); 登录买家的id
-		return orderFacade.getOrderDetails(order);
-	}
-
-
-
-	/**
-	 * 订单详情
-	 * @return
-	 */
-	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
-	@ResponseBody
-	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
-	{
-		//order.setSupplyId(); 登录卖家的id
-		return orderFacade.getOrderDetails(order);
-	}
 
 }

@@ -18,13 +18,14 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.facade.OrderDetailFacade;
+import com.yyw.yhyc.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping(value = "/order/orderDetail")
@@ -91,4 +92,16 @@ public class OrderDetailController extends BaseJsonController {
 	{
 		orderDetailFacade.update(orderDetail);
 	}
+
+	/**
+	 * 通过主键查询实体对象
+	 * @return
+	 */
+	@RequestMapping(value = {"/downLoad"}, method = RequestMethod.GET)
+	@ResponseBody
+	public void downLoad(@RequestParam("filePath") String filePath,@RequestParam("fileName")  String fileName,@RequestParam("isOnLine") boolean isOnLine, HttpServletResponse response) throws Exception {
+		//下载已有的文件
+		FileUtil.downLoad(filePath,fileName,response,isOnLine);
+	}
+
 }

@@ -28,11 +28,14 @@ import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
+import com.yyw.yhyc.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.bo.Pagination;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service("orderDeliveryService")
 public class OrderDeliveryService {
@@ -49,7 +52,7 @@ public class OrderDeliveryService {
 
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 
-	private String PURCHASE_TEMPLATE_PATH="include/excel/";
+	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	@Autowired
 	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
@@ -200,7 +203,7 @@ public class OrderDeliveryService {
 	 * @throws Exception
 	 */
 
-	public Map sendOrderDelivery(OrderDeliveryDto orderDeliveryDto){
+	public Map sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request){
 		Map<String,String> map=new HashMap<String, String>();
 		if(UtilHelper.isEmpty(orderDeliveryDto)){
 			map.put("code", "0");
@@ -247,15 +250,15 @@ public class OrderDeliveryService {
 		//验证通过生成发货信息并上传文件
 		String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
 
-		String filePath=updateFile(PURCHASE_TEMPLATE_PATH, fileName, orderDeliveryDto.getExcelPath());
+		String filePath= FileUtil.updateFile(request.getRealPath("/") + FILE_TEMPLATE_PATH, fileName, orderDeliveryDto.getExcelPath());
 
 		//验证批次号并生成订单发货数据
-		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto);
+		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto,request);
 
 		return map;
 	}
 	//读取验证订单批次信息excel
-	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto){
+	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto,HttpServletRequest request){
 
 		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
 		Map<String,String> errorMap=null;
@@ -341,7 +344,7 @@ public class OrderDeliveryService {
 
 			}
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto.getFlowId(),list,detailMap,excelPath);
+			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto.getFlowId(),list,detailMap,excelPath,request);
 
 			if(errorList.size()>0){
 				map.put("code","2");
@@ -378,39 +381,6 @@ public class OrderDeliveryService {
 		}
 		return map;
 	}
-	/*文件上传*/
-	private String updateFile(String path, String fileName, File file){
-		if(null == file){
-			return null;
-		}
-		File tempFile = new File(path);
-		if(!tempFile.exists()){
-			tempFile.mkdirs();
-		}
-		tempFile = new File(path + fileName);
-
-		try {
-			InputStream in=new FileInputStream(file);
-			OutputStream out =new FileOutputStream(tempFile);
-			byte[]bytes=new byte[1024*1024];
-			int i=-1;
-			while((i=in.read(bytes))>-1){
-				out.write(bytes, 0, i);
-			}
-			out.flush();
-			out.close();
-			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		return path+fileName;
-	}
-
 	/*生成订单行号 订单号加6位数字码 */
 	public String createOrderLineNo(int i,String flowId){
 		int count=6-String.valueOf(i).length();
@@ -423,7 +393,7 @@ public class OrderDeliveryService {
 	}
 
 	/*生产excel和订单发货信息 */
-	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,String flowId,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath) {
+	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,String flowId,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,HttpServletRequest request) {
 		String filePath = "";
 		//生成错误excel和发货记录
 		if (errorList.size() > 0) {
@@ -434,7 +404,8 @@ public class OrderDeliveryService {
 						dataMap.get(0), dataMap.get(1), dataMap.get(2), dataMap.get(3), dataMap.get(4), dataMap.get(5)
 				});
 			}
-			filePath = PURCHASE_TEMPLATE_PATH+ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset, PURCHASE_TEMPLATE_PATH);
+			filePath = request.getRealPath("/")+FILE_TEMPLATE_PATH+ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset, request.getRealPath("/") +FILE_TEMPLATE_PATH);
+
 			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
 			orderDeliveryDetail.setOrderId(orderId);
 			orderDeliveryDetail.setFlowId(flowId);
