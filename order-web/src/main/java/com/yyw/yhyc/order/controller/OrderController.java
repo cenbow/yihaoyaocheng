@@ -106,10 +106,14 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
+
+		//todo 获取当前登陆人的企业用户id
+		Integer currentLoginCustId = 123;
+
 		Map<String,Object> map = new HashMap<String, Object>();
 		boolean validateResult = false;
 		try{
-			validateResult = orderFacade.validateProducts(orderDto);
+			validateResult = orderFacade.validateProducts(currentLoginCustId,orderDto);
 		}catch (Exception e){
 			logger.error(e.getMessage());
 		}
@@ -122,18 +126,8 @@ public class OrderController extends BaseJsonController {
 	 * 请求数据格式：
 
 	 {
-		 "orderDeliveryDto":{
-			 "receivePerson":"收货人",
-			 "receiveProvince":"收货省码",
-			 "receiveCity":"收货市码",
-			 "receiveRegion":"收货区县码",
-			 "receiveProvinceName":"收货省名称",
-			 "receiveCityName":"收货市名称",
-			 "receiveRegionName":"收货区县名称",
-			 "receiveAddress":"省名称+市名称+区县名称+具体地址",
-			 "receiveContactPhone":"收货人联系电话",
-			 "zipCode":"邮政编码"
-		 },
+	 	 "custId":123,
+	 	 "receiveAddressId":2,
 		 "orderDtoList": [
 				 {
 					 "custId": "123",
@@ -205,7 +199,9 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
+		Map<String,Object> dataMap = orderFacade.checkOrderPage();
 		ModelAndView model = new ModelAndView();
+		model.addObject("dataMap",dataMap);
 		model.setViewName("order/checkOrderPage");
 		return model;
 	}
@@ -381,7 +377,9 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
 	{
-		order.setCustId(123);// 登录买家的id
+		// 登录买家的id
+		UserDto user = super.getLoginUser();
+		order.setCustId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
 	}
 
@@ -395,7 +393,10 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
 	{
-		order.setSupplyId(124); //登录卖家的id
+
+		// 登录买家的id
+		UserDto user = super.getLoginUser();
+		order.setSupplyId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
 	}
 

@@ -256,9 +256,12 @@ public class OrderService {
 
 		/* TODO 获取当前登陆用户的企业id */
 		Integer currentLoginCustId = 123;
+		if(UtilHelper.isEmpty(currentLoginCustId)) throw new Exception("非法参数");
+		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
+		if(UtilHelper.isEmpty(enterprise)) throw new Exception("用户不存在");
 
         /* 订单配送信息 */
-		OrderDeliveryDto orderDeliveryDto = orderCreateDto.getOrderDeliveryDto();
+		OrderDelivery orderDelivery = handlerOrderDelivery(enterprise,orderCreateDto);
 
         /* 订单信息 */
 		List<OrderDto> orderDtoList = orderCreateDto.getOrderDtoList();
@@ -270,10 +273,10 @@ public class OrderService {
 			}
 
             /* 校验所购买商品的合法性 */
-			validateProducts(orderDto);
+			validateProducts(currentLoginCustId,orderDto);
 
             /* 创建订单相关的所有信息 */
-			Order orderNew = createOrderInfo(orderDto,orderDeliveryDto);
+			Order orderNew = createOrderInfo(orderDto,orderDelivery);
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -289,16 +292,33 @@ public class OrderService {
         return orderNewList;
     }
 
+	private OrderDelivery handlerOrderDelivery(UsermanageEnterprise enterprise, OrderCreateDto orderCreateDto) throws Exception {
+		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || !orderCreateDto.getCustId().equals(enterprise.getId())) {
+			throw  new Exception("非法参数");
+		}
+		UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderCreateDto.getReceiveAddressId());
+		if(UtilHelper.isEmpty(receiverAddress) || UtilHelper.isEmpty(receiverAddress.getEnterpriseId()) || receiverAddress.getEnterpriseId().equals(enterprise.getEnterpriseId())){
+			throw new Exception("非法参数");
+		}
+		OrderDelivery  orderDelivery = new OrderDelivery();
+		orderDelivery.setReceivePerson(receiverAddress.getReceiverName());
+		orderDelivery.setReceiveProvince(receiverAddress.getProvinceCode());
+		orderDelivery.setReceiveCity(receiverAddress.getCityCode());
+		orderDelivery.setReceiveRegion(receiverAddress.getDistrictCode());
+		orderDelivery.setReceiveAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+		orderDelivery.setReceiveContactPhone(receiverAddress.getContactPhone());
+		return orderDelivery;
+	}
 
 
 	/**
 	 * 创建订单相关的所有信息
 	 * @param orderDto 订单、商品相关信息
-	 * @param orderDeliveryDto 订单发货、配送相关信息
+	 * @param orderDelivery 订单发货、配送相关信息
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
-		if( null == orderDto || null == orderDeliveryDto){
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery) throws Exception{
+		if( null == orderDto || null == orderDelivery){
 			return null;
 		}
 
@@ -309,7 +329,7 @@ public class OrderService {
 		Order order = insertOrderAndOrderDetail(orderDto);
 
 		/* 订单配送发货信息表 */
-		insertOrderDeliver(order, orderDeliveryDto);
+		insertOrderDeliver(order, orderDelivery);
 
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
@@ -479,22 +499,14 @@ public class OrderService {
 	/**
 	 * 插入订单收发货表
 	 * @param order
-	 * @param orderDeliveryDto
+	 * @param orderDelivery
      */
-	private void insertOrderDeliver(Order order, OrderDeliveryDto orderDeliveryDto) {
-		if(UtilHelper.isEmpty(order) || UtilHelper.isEmpty(orderDeliveryDto)){
+	private void insertOrderDeliver(Order order, OrderDelivery orderDelivery) {
+		if(UtilHelper.isEmpty(order) || UtilHelper.isEmpty(orderDelivery)){
 			return ;
 		}
-		OrderDelivery  orderDelivery = new OrderDelivery();
 		orderDelivery.setOrderId(order.getOrderId());
 		orderDelivery.setFlowId(order.getFlowId());
-		orderDelivery.setReceivePerson(orderDeliveryDto.getReceivePerson());
-		orderDelivery.setReceiveProvince(orderDeliveryDto.getReceiveProvince());
-		orderDelivery.setReceiveCity(orderDeliveryDto.getReceiveCity());
-		orderDelivery.setReceiveRegion(orderDeliveryDto.getReceiveRegion());
-		orderDelivery.setReceiveAddress(orderDeliveryDto.getReceiveAddress());
-		orderDelivery.setReceiveContactPhone(orderDeliveryDto.getReceiveContactPhone());
-		orderDelivery.setZipCode(orderDeliveryDto.getZipCode());
 		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
 		orderDeliveryMapper.save(orderDelivery);
 	}
@@ -596,13 +608,20 @@ public class OrderService {
 		return order;
 	}
 
+
+
 	/**
 	 * 校验要购买的商品(通用方法)
-	 * @param orderDto
-	 * @throws Exception
-	 */
-	public boolean validateProducts(OrderDto orderDto) {
-		//TODO 校验要购买的商品
+	 * @param currentLoginCustId 当前登陆人的企业id
+	 * @param orderDto 要提交订单的商品数据
+     * @return
+     */
+	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto) {
+		//TODO 校验采购商、资质
+
+		//TODO 校验要采购商与供应商是否相同
+
+		//TODO 校验要供应商、资质、商品
 
 		//TODO 特殊校验(选择账期支付方式的订单，校验买家账期、商品账期)
 		return false;
@@ -1017,6 +1036,24 @@ public class OrderService {
 		shoppingCart.setCustId(currentLoginCustId);
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
 		resultMap.put("allShoppingCart",allShoppingCart);
+		if(UtilHelper.isEmpty(allShoppingCart)) return resultMap;
+
+		/*遍历购物车所有供应商信息*/
+		BigDecimal productPriceCount = null;
+		BigDecimal orderPriceCount = new BigDecimal(0);
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())) continue;
+			productPriceCount = new BigDecimal(0);
+			/*遍历购物车所有供应商下的商品信息*/
+			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				productPriceCount = productPriceCount.add(shoppingCartDto.getProductPrice().multiply(new BigDecimal(shoppingCartDto.getProductCount())));
+			}
+			shoppingCartListDto.setProductPriceCount(productPriceCount);
+			orderPriceCount = orderPriceCount.add(productPriceCount);
+		}
+		resultMap.put("allShoppingCart",allShoppingCart);
+		resultMap.put("orderPriceCount",orderPriceCount);
 		return resultMap;
 	}
 

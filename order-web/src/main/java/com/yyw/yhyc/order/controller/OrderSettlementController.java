@@ -18,6 +18,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderSettlementFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class OrderSettlementController extends BaseJsonController {
 		OrderSettlement orderSettlement= orderSettlementFacade.getByPK(key);
 		if(orderSettlement!=null && orderSettlement.getSettlementMoney()!=null && orderSettlement.getRefunSettlementMoney()!=null){
 			if(orderSettlement.getRefunSettlementMoney().intValue()!=0 && orderSettlement.getRefunSettlementMoney().intValue()!=0){
-				orderSettlement.setDifferentMoney(orderSettlement.getSettlementMoney().subtract(orderSettlement.getRefunSettlementMoney()));
+				orderSettlement.setDifferentMoney(orderSettlement.getRefunSettlementMoney().subtract(orderSettlement.getSettlementMoney()));
 			}
 		}
 		return orderSettlement;
@@ -70,7 +71,12 @@ public class OrderSettlementController extends BaseJsonController {
 		OrderSettlementDto orderSettlementDto = requestModel.getParam()==null?new OrderSettlementDto():requestModel.getParam();
 		orderSettlementDto.setType(type);
 		//TODO custId
-//		orderSettlementDto.setCustId(256);
+		UserDto dto = super.getLoginUser();
+		if(type==1){
+			//orderSettlementDto.setCustId(dto.getCustId());
+		}else if(type==2){
+			//orderSettlementDto.setSupplyId(dto.getCustId());
+        }
 		return orderSettlementFacade.listPaginationByProperty(pagination, orderSettlementDto);
 	}
 
@@ -126,12 +132,14 @@ public class OrderSettlementController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/lhk{type}"}, method = RequestMethod.GET)
 	@ResponseBody
-	public ModelAndView showOrderSettlementList(@PathVariable("type") Integer type)throws Exception{
+	public ModelAndView showOrderSettlementList(@PathVariable("type") Integer type){
+        ModelAndView model = new ModelAndView();
+        try {
 
-		ModelAndView model = new ModelAndView();
-
-		 model.addObject("fuck","就是这么任性");
-		 model.setViewName("lhk");
+            model.setViewName("lhk");
+        }catch (Exception e){
+            viewExceptionHandler(e,model);
+        }
 		return model;
 	}
 
@@ -146,7 +154,12 @@ public class OrderSettlementController extends BaseJsonController {
 
 		OrderSettlement orderSettlement = settlement;
 		ModelAndView model = new ModelAndView();
-		model.setViewName("order/order_settlement");
+        model.addObject("type",type);
+		if(type==1){ //卖家
+			model.setViewName("order/order_settlement_seller");
+		}else{
+			model.setViewName("order/order_settlement_buyer");
+		}
 		return model;
 	}
 }
