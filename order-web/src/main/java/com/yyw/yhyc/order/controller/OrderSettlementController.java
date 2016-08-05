@@ -116,7 +116,7 @@ public class OrderSettlementController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/refundSettlement", method = RequestMethod.POST)
 	@ResponseBody
-	public void refundSettlement(@RequestBody OrderSettlement orderSettlement) throws Exception
+	public OrderSettlement refundSettlement(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 
 		// TODO: 2016/8/3  需获取登录用户信息
@@ -127,6 +127,7 @@ public class OrderSettlementController extends BaseJsonController {
 		orderSettlement.setSupplyId(userDto.getCustId());
 		orderSettlement.setUpdateUser(userDto.getUserName());
 		orderSettlementFacade.refundSettlement(orderSettlement);
+		return  orderSettlement;
 	}
 	/**
 	 * 分页查询记录

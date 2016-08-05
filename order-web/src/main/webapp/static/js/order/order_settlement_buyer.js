@@ -138,9 +138,7 @@ function fillTableJson(data) {
 function typeToOperate(businessType,confirm,settlementId) {
 	var result = '';
 	if(businessType==2){//只有退款有操作
-		if(confirm ==0){
-			result = '<button type="button" class="btn btn-info btn-sm editbtn back-opreate" data-stmid = "'+settlementId+'">退款结算</button>';
-		}else  if(confirm ==1){
+		if(confirm ==1){
 			result = '<button type="button" class="btn btn-info btn-sm editbtn back-detail " data-stmid = "'+settlementId+'">退款详情</button>';
 		}
 	}

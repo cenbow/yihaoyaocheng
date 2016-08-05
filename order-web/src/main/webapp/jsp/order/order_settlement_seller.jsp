@@ -24,7 +24,7 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form>
+                <form id="searchForm">
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">采购商区域</label>
@@ -174,25 +174,28 @@
             </div>
             <div class="modal-body">
                 <div class="form-horizontal">
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
-                        <div class="col-xs-5 control-label text-left"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额:</label>
-                        <div class="col-xs-5"><input type="text" class="form-control" /></div>
-                        <div class="col-xs-4 control-label text-left"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
-                        <div class="col-xs-5 control-label text-left"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">备注:</label>
-                        <div class="col-xs-5">
-                            <textarea class="form-control" rows="3" cols="3"></textarea>
+                    <form id="upForm">
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
+                            <div class="col-xs-5 control-label text-left"></div>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额:</label>
+                            <div class="col-xs-5"><input name="refunSettlementMoney" type="text" class="form-control" /></div>
+                            <div class="col-xs-4 control-label text-left">元</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
+                            <div class="col-xs-5 control-label text-left"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label">备注:</label>
+                            <div class="col-xs-5">
+                                <textarea class="form-control" name="remark" rows="3" cols="3"></textarea>
+                            </div>
+                            <input name="orderSettlementId" type="hidden"  />
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="modal-footer">

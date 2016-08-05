@@ -18,13 +18,13 @@ function pasretFormData(){
 	params = new Object();
 	var p = $("form").serializeObject()
 	params.pageNo = 1;
-	params.pageSize = 1;
+	params.pageSize = 15;
 	params.param = p;
 
 }
 //绑定搜索按钮事件
 function bindSearchBtn(){
-	$("form .btn-info").on("click",function () {
+	$("#searchForm .btn-info").on("click",function () {
 		params.pageNo = 1;
 		pasretFormData();
 		doRefreshData(params);
@@ -152,6 +152,53 @@ function changeColor(){
 	$(".table tr:not(:first):even").css({background:"#fff"});
 }
 
+function  bindSettlementOperate() {
+	/*$('#myModalOperate input[name="refunSettlementMoney"]').on("afterpaste",function(){
+		console.info(this.value);
+		$(this).val(this.value.replace(/\D/g,''));
+	});
+	$('#myModalOperate input[name="refunSettlementMoney"]').on("keyup",function(){
+		console.info(this.value);
+		$(this).val(this.value.replace(/\D/g,''));
+	})*/
+
+	$('#myModalOperate input[name="refunSettlementMoney"]').blur(function () {
+		var money = $(this).val();
+		var orderMoney = $("#myModalOperate .form-group:eq(0) div:first").html().replace("元","").trim();
+		var regStr = /\d+(\.\d+){0,1}/g;
+		if(regStr.test(money)){
+			var differentMoney = (parseFloat(money)-parseFloat(orderMoney));
+			$("#myModalOperate .form-group:eq(2) div:first").html(differentMoney+"元")
+		}else{
+			alert("请输入数字")
+		}
+	});
+	$("#myModalOperate .btn-danger").click(function () {
+		var param = $("#upForm").serializeObject();
+		console.info(param);
+		var requestUrl = "/order/orderSettlement/refundSettlement";
+		$.ajax({
+			url : requestUrl,
+			data : JSON.stringify(param),
+			type : 'POST',
+			dataType:'json',
+			contentType : "application/json;charset=UTF-8",
+			success : function(data) {
+				if(data){
+					//$("#myModalOperate").fade();
+					alert("保存成功");
+				};
+			},
+			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				alertModal("保存失败",function(){
+					closeAlert();
+				});
+			}
+		});
+	});
+
+}
+
 function bindOperateBtn() {
 	$(".back-opreate").on("click",function () {
 		//$("#myModalOperate").modal();
@@ -165,7 +212,9 @@ function bindOperateBtn() {
 			dataType:'json',
 			success : function(data) {
 				$("#myModalOperate .form-group:eq(0) div" ).html(data.settlementMoney+"元")
+				$('#myModalOperate input[name="orderSettlementId"]').val(settlementId);
 				$("#myModalOperate").modal();
+				bindSettlementOperate();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
 				alertModal("退款详情信息错误",function(){
