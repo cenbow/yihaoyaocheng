@@ -86,5 +86,5 @@
         <p>Copyright (C) 2010-2015 本网站版权归广东壹号药业有限公司所有  网站备案号:粤ICP备15048678</p>
     </div>
 </div>
-<script type="text/javascript" src="http://static.yaoex.com/js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/inside.js"></script>
