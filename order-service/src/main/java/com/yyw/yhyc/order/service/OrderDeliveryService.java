@@ -306,6 +306,7 @@ public class OrderDeliveryService {
 						OrderDetail orderDetail=new OrderDetail();
 						orderDetail.setOrderId(order.getOrderId());
 						orderDetail.setProductCode(rowMap.get("2"));
+						orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
 						List detailList = orderDetailMapper.listByProperty(orderDetail);
 						if(detailList.size()<0){
 							stringBuffer.append("商品编码不存在,");
@@ -331,6 +332,7 @@ public class OrderDeliveryService {
 				OrderDetail orderDetail=new OrderDetail();
 				orderDetail.setOrderId(orderId);
 				orderDetail.setProductCode(code);
+				orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
 				List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
 				if(detailList.size()>0){
 					orderDetail=detailList.get(0);
@@ -344,7 +346,7 @@ public class OrderDeliveryService {
 
 			}
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto.getFlowId(),list,detailMap,excelPath,request);
+			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto,list,detailMap,excelPath,request);
 
 			if(errorList.size()>0){
 				map.put("code","2");
@@ -368,6 +370,9 @@ public class OrderDeliveryService {
 				orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
 				orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
 				orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+				orderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
 				orderDeliveryMapper.update(orderDelivery);
 				map.put("code","1");
 				map.put("msg","发货成功。");
@@ -393,7 +398,7 @@ public class OrderDeliveryService {
 	}
 
 	/*生产excel和订单发货信息 */
-	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,String flowId,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,HttpServletRequest request) {
+	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,HttpServletRequest request) {
 		String filePath = "";
 		//生成错误excel和发货记录
 		if (errorList.size() > 0) {
@@ -408,21 +413,21 @@ public class OrderDeliveryService {
 
 			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
 			orderDeliveryDetail.setOrderId(orderId);
-			orderDeliveryDetail.setFlowId(flowId);
+			orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
 
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetail = orderDeliveryDetails.get(0);
 				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setUpdateUser("");
+				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setDeliveryStatus(0);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			} else {
 				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
 				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setCreateUser("");
-				orderDeliveryDetail.setUpdateUser("");
+				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setDeliveryStatus(0);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
@@ -431,7 +436,7 @@ public class OrderDeliveryService {
 		} else {
 			OrderDeliveryDetail orderdel = new OrderDeliveryDetail();
 			orderdel.setOrderId(orderId);
-			orderdel.setFlowId(flowId);
+			orderdel.setFlowId(orderDeliveryDto.getFlowId());
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderdel);
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetailMapper.deleteByPK(orderDeliveryDetails.get(0).getOrderDeliveryDetailId());
@@ -439,9 +444,9 @@ public class OrderDeliveryService {
 			for (Map<String, String> rowMap : list) {
 				int i = 1;
 				OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
-				orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, flowId));
+				orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
 				orderDeliveryDetail.setOrderId(orderId);
-				orderDeliveryDetail.setFlowId(flowId);
+				orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
 				orderDeliveryDetail.setDeliveryStatus(1);
 				orderDeliveryDetail.setBatchNumber(rowMap.get("2"));
 				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
@@ -449,8 +454,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setImportFileUrl(excelPath);
 				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
 				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setCreateUser("");
-				orderDeliveryDetail.setUpdateUser("");
+				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
 				i++;
 			}

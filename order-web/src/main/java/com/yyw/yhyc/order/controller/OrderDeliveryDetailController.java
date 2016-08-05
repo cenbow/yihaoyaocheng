@@ -18,6 +18,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,String> confirmReceipt(@RequestBody  RequestListModel<OrderDeliveryDetailDto> requestListModel) throws Exception
 	{
-		return orderDeliveryDetailFacade.confirmReceipt(requestListModel.getList());
+		UserDto user = super.getLoginUser();
+		return orderDeliveryDetailFacade.confirmReceipt(requestListModel.getList(),user);
 	}
 }

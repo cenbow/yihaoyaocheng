@@ -21,6 +21,7 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
@@ -188,7 +189,7 @@ public class OrderDeliveryDetailService {
 	 * @return
 	 * @throws Exception
 	 */
-	public  Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception{
+	public  Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception{
 
 		Map<String, String> returnMap = new HashMap<String, String>();
 		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -254,7 +255,7 @@ public class OrderDeliveryDetailService {
 					OrderReturn orderReturn=new OrderReturn();
 					orderReturn.setOrderDetailId(orderDetail.getOrderDetailId());
 					orderReturn.setOrderId(orderDetail.getOrderId());
-					//orderReturn.setCustId("");当前登录的id
+					orderReturn.setCustId(user.getCustId());
 					orderReturn.setReturnCount(orderDetail.getProductCount() - orderDetail.getRecieveCount());
 					BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
 					orderReturn.setReturnPay(orderDetail.getProductPrice().multiply(bigDecimal));
@@ -264,8 +265,8 @@ public class OrderDeliveryDetailService {
 					orderReturn.setReturnStatus("1");//未处理
 					orderReturn.setCreateTime(systemDateMapper.getSystemDate());
 					orderReturn.setUpdateTime(systemDateMapper.getSystemDate());
-					/*orderReturn.setCreateUser(); 当前登录人
-					orderReturn.setUpdateUser();*/
+					orderReturn.setCreateUser(user.getUserName());
+					orderReturn.setUpdateUser(user.getUserName());
 					orderReturnMapper.save(orderReturn);
 				}
 			}
@@ -280,7 +281,7 @@ public class OrderDeliveryDetailService {
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
 			}
 			order.setUpdateTime(systemDateMapper.getSystemDate());
-			order.setUpdateUser("登录用户");
+			order.setUpdateUser(user.getUserName());
 			orderMapper.update(order);
 
 			returnMap.put("code","1");

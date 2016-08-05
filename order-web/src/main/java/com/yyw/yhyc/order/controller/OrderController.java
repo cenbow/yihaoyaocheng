@@ -19,6 +19,7 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderFacade;
 
 import org.slf4j.Logger;
@@ -372,7 +373,9 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
 	{
-		order.setCustId(123);// 登录买家的id
+		// 登录买家的id
+		UserDto user = super.getLoginUser();
+		order.setCustId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
 	}
 
@@ -386,7 +389,10 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
 	{
-		order.setSupplyId(124); //登录卖家的id
+
+		// 登录买家的id
+		UserDto user = super.getLoginUser();
+		order.setSupplyId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
 	}
 
