@@ -46,6 +46,24 @@ function createOrder(){
         alert("请选择发票类型！");
         return;
     }
+    
+    /* 校验所有供应商下的支付类型是否选中 */
+    var allPayTypeSelected = true;
+    var _supplyName = ""; 
+    $("input[name='supplyId']").each(function(_index,element){
+        var _supplyId = $(this).val();
+        var _payTypeId = "#"+_supplyId +"_payTypeId";
+        var payType = $(_payTypeId).val();
+
+        if( !$(_payTypeId) || payType == null || payType == "" || typeof payType == "undefined"){
+            _supplyName = $(this).attr("supplyName");
+            allPayTypeSelected = false;
+        }
+    });
+    if(!allPayTypeSelected){
+        alert("供应商("+_supplyName+")下的商品未选择支付方式");
+        return;
+    }
 
     
     // alert("发送创建订单请求！");

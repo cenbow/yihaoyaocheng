@@ -8,6 +8,7 @@
 --%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <!doctype html>
 <html>
@@ -93,6 +94,7 @@
                                     <tr>
                                         <th class="tl pl20">供应商：${shoppingCart.seller.enterpriseName}</th>
                                         <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.id}" value="${shoppingCart.seller.id}"/>
+                                        <input type="hidden" name="supplyId" value="${shoppingCart.seller.id}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                         <th>单价</th>
                                         <th>数量</th>
                                         <th>小计</th>
@@ -110,10 +112,10 @@
                                                             <h3><span class="ct-lable">渠道</span>${shoppingCartDto.productName} ${shoppingCartDto.specification}</h3>
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
-                                                        <td>¥ ${shoppingCartDto.productPrice}</td>
+                                                        <td>¥ <fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></td>
                                                         <td>${shoppingCartDto.productCount}</td>
 
-                                                        <td class="red">¥ ${shoppingCartDto.productPrice * shoppingCartDto.productCount}</td>
+                                                        <td class="red">¥ <fmt:formatNumber value="${shoppingCartDto.productPrice * shoppingCartDto.productCount}" minFractionDigits="2"/></td>
                                                     </tr>
                                                 </c:forEach>
                                             </c:when>
@@ -124,17 +126,17 @@
                             <p class="inside-icon goi-mover-btn"><i class="inside-icon goi-arrow"></i>查看更多</p>
 
                             <div class="pt40 clearfix">
-                                <div class="fl radio-select ">
-                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" id="${shoppingCart.seller.id}_payTypeId" />
+                                <div class="fl radio-select">
+                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" id="${shoppingCart.seller.id}_payTypeId"/>
                                     选择支付方式：
                                     <label onclick="selectPayTypeId(${shoppingCart.seller.id},'<%=SystemPayTypeEnum.PayOnline.getPayType()%>')">
-                                        <i class="inside-icon radio-skin ${shoppingCart.seller.id}_payType" id="${shoppingCart.seller.id}_payType_<%=SystemPayTypeEnum.PayOnline.getPayType()%>" ></i>在线支付
+                                        <i class="inside-icon radio-skin"></i>在线支付
                                     </label>
                                     <label onclick="selectPayTypeId(${shoppingCart.seller.id},'<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>')">
-                                        <i class="inside-icon radio-skin ${shoppingCart.seller.id}_payType" id=" ${shoppingCart.seller.id}_payType_<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>" ></i>账期支付
+                                        <i class="inside-icon radio-skin"></i>账期支付
                                     </label>
                                     <label onclick="selectPayTypeId(${shoppingCart.seller.id},'<%=SystemPayTypeEnum.PayOffline.getPayType()%>')">
-                                        <i class="inside-icon radio-skin ${shoppingCart.seller.id}_payType" id="${shoppingCart.seller.id}_payType_<%=SystemPayTypeEnum.PayOffline.getPayType()%>" ></i>
+                                        <i class="inside-icon radio-skin"></i>
                                           <span class="pr"> 线下转账
                                             <i class="common-icon query-icon">
                                                 <div class="tips-frame tc">
@@ -147,14 +149,14 @@
                                           </span>
                                     </label>
                                 </div>
-                                <div class="fr f14">订单金额：<span class="red">¥ ${shoppingCart.productPriceCount}</span></div>
+                                <div class="fr f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
                             </div>
                             <p class="pt30">给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" ></p>
                             <%--遍历每个供应商的信息  结束--%>
                         </div>
                     </c:forEach>
                     <div class="btn pt70 f16 tr">
-                        总金额：<span class="red pr40">¥ ${dataMap.orderPriceCount}</span>
+                        总金额：<span class="red pr40">¥<fmt:formatNumber value="${dataMap.orderPriceCount}" minFractionDigits="2"/></span>
                         <a href="javascript:void(0)" id="createOrderButton" class="os-btn-pay tc" onclick="createOrder()">提交订单</a>
                     </div>
                 </c:when>

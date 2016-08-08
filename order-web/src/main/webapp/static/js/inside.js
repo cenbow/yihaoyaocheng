@@ -56,7 +56,7 @@ function changeBillType(id,_node){
     
     //查看更多
     var extend = true, $table = $('.common-table'),
-        $showtr = $table.find('tr').eq(0).height()+$table.find('tr').eq(1).height()+$table.find('tr').eq(2).height();
+        $showtr = $table.find('tr').eq(0).height()+$table.find('tr').eq(1).height();
     $showtr += 1;
     $('.goi-table').css('height', $showtr);
     $('.goi-product-list .goi-mover-btn').click(function(){
