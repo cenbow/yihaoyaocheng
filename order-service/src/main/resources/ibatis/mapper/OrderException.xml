@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<!-- 
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
  **
  * Created By: XI
- * Created On: 2016-8-8 10:31:59
+ * Created On: 2016-8-8 14:47:19
  *
  * Amendment History:
- * 
+ *
  * Amended By       Amended On      Amendment Description
  * ************     ***********     *********************************************
  *
@@ -13,9 +13,9 @@
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yyw.yhyc.order.mapper.OrderExceptionMapper">
-    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
-           flushInterval="86400000" size="1024000">
-    </cache>
+	<cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+		   flushInterval="86400000" size="1024000">
+	</cache>
 	<resultMap id="OrderExceptionResultMapper" type="OrderException">
 		<result column="exception_id" property="exceptionId"/>
 		<result column="return_type" property="returnType"/>
@@ -35,10 +35,11 @@
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
 		<result column="order_create_time" property="orderCreateTime"/>
+		<result column="return_desc" property="returnDesc"/>
 	</resultMap>
-	
+
 	<sql id="commonColumns">
-		 exception_id
+		exception_id
 		, return_type
 		, exception_order_id
 		, order_id
@@ -56,30 +57,32 @@
 		, update_user
 		, update_time
 		, order_create_time
+		, return_desc
 	</sql>
 
-    <sql id="commonColumnsNotPK">
-				 return_type
-				, exception_order_id
-				, order_id
-				, flow_id
-				, order_status
-				, cust_name
-				, cust_id
-				, supply_name
-				, supply_id
-				, remark
-				, order_money_total
-				, order_money
-				, create_user
-				, create_time
-				, update_user
-				, update_time
-				, order_create_time
-    </sql>
-	
+	<sql id="commonColumnsNotPK">
+		return_type
+		, exception_order_id
+		, order_id
+		, flow_id
+		, order_status
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, remark
+		, order_money_total
+		, order_money
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, order_create_time
+		, return_desc
+	</sql>
+
 	<sql id="commonProcessDateColumns">
-		 exception_id
+		exception_id
 		, return_type
 		, exception_order_id
 		, order_id
@@ -97,70 +100,74 @@
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, date_format(order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
+		, return_desc
 	</sql>
-	
+
 	<sql id="commonCondition">
-		<if test="exceptionId!= null and exceptionId!= ''"> 
+		<if test="exceptionId!= null and exceptionId!= ''">
 			AND exception_id=#{exceptionId}
 		</if>
-		<if test="returnType!= null and returnType!= ''"> 
+		<if test="returnType!= null and returnType!= ''">
 			AND return_type=#{returnType}
 		</if>
-		<if test="exceptionOrderId!= null and exceptionOrderId!= ''"> 
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND exception_order_id=#{exceptionOrderId}
 		</if>
-		<if test="orderId!= null and orderId!= ''"> 
+		<if test="orderId!= null and orderId!= ''">
 			AND order_id=#{orderId}
 		</if>
-		<if test="flowId!= null and flowId!= ''"> 
+		<if test="flowId!= null and flowId!= ''">
 			AND flow_id=#{flowId}
 		</if>
-		<if test="orderStatus!= null and orderStatus!= ''"> 
+		<if test="orderStatus!= null and orderStatus!= ''">
 			AND order_status=#{orderStatus}
 		</if>
-		<if test="custName!= null and custName!= ''"> 
+		<if test="custName!= null and custName!= ''">
 			AND cust_name=#{custName}
 		</if>
-		<if test="custId!= null and custId!= ''"> 
+		<if test="custId!= null and custId!= ''">
 			AND cust_id=#{custId}
 		</if>
-		<if test="supplyName!= null and supplyName!= ''"> 
+		<if test="supplyName!= null and supplyName!= ''">
 			AND supply_name=#{supplyName}
 		</if>
-		<if test="supplyId!= null and supplyId!= ''"> 
+		<if test="supplyId!= null and supplyId!= ''">
 			AND supply_id=#{supplyId}
 		</if>
-		<if test="remark!= null and remark!= ''"> 
+		<if test="remark!= null and remark!= ''">
 			AND remark=#{remark}
 		</if>
-		<if test="orderMoneyTotal!= null and orderMoneyTotal!= ''"> 
+		<if test="orderMoneyTotal!= null and orderMoneyTotal!= ''">
 			AND order_money_total=#{orderMoneyTotal}
 		</if>
-		<if test="orderMoney!= null and orderMoney!= ''"> 
+		<if test="orderMoney!= null and orderMoney!= ''">
 			AND order_money=#{orderMoney}
 		</if>
-		<if test="createUser!= null and createUser!= ''"> 
+		<if test="createUser!= null and createUser!= ''">
 			AND create_user=#{createUser}
 		</if>
-		<if test="createTime!= null and createTime!= ''"> 
+		<if test="createTime!= null and createTime!= ''">
 			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="updateUser!= null and updateUser!= ''"> 
+		<if test="updateUser!= null and updateUser!= ''">
 			AND update_user=#{updateUser}
 		</if>
-		<if test="updateTime!= null and updateTime!= ''"> 
+		<if test="updateTime!= null and updateTime!= ''">
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="orderCreateTime!= null and orderCreateTime!= ''"> 
+		<if test="orderCreateTime!= null and orderCreateTime!= ''">
 			AND order_create_time=str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="returnDesc!= null and returnDesc!= ''">
+			AND return_desc=#{returnDesc}
+		</if>
 	</sql>
-	
+
 	<insert id="save" parameterType="OrderException">
 		<![CDATA[ INSERT INTO t_order_exception ( ]]>
-			<include refid="commonColumnsNotPK"/>
+		<include refid="commonColumnsNotPK"/>
 		<![CDATA[
-			) VALUES ( 
+			) VALUES (
 				 #{returnType}
 				, #{exceptionOrderId}
 				, #{orderId}
@@ -178,28 +185,30 @@
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
+				, #{returnDesc}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderException">
-		<![CDATA[ UPDATE t_order_exception SET 
-			 exception_id=#{exceptionId} 
-			, return_type=#{returnType} 
-			, exception_order_id=#{exceptionOrderId} 
-			, order_id=#{orderId} 
-			, flow_id=#{flowId} 
-			, order_status=#{orderStatus} 
-			, cust_name=#{custName} 
-			, cust_id=#{custId} 
-			, supply_name=#{supplyName} 
-			, supply_id=#{supplyId} 
-			, remark=#{remark} 
-			, order_money_total=#{orderMoneyTotal} 
-			, order_money=#{orderMoney} 
-			, create_user=#{createUser} 
+		<![CDATA[ UPDATE t_order_exception SET
+			 exception_id=#{exceptionId}
+			, return_type=#{returnType}
+			, exception_order_id=#{exceptionOrderId}
+			, order_id=#{orderId}
+			, flow_id=#{flowId}
+			, order_status=#{orderStatus}
+			, cust_name=#{custName}
+			, cust_id=#{custId}
+			, supply_name=#{supplyName}
+			, supply_id=#{supplyId}
+			, remark=#{remark}
+			, order_money_total=#{orderMoneyTotal}
+			, order_money=#{orderMoney}
+			, create_user=#{createUser}
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-			, update_user=#{updateUser} 
+			, update_user=#{updateUser}
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, order_create_time=str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
+			, return_desc=#{returnDesc}
 		WHERE exception_id = #{exceptionId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -208,7 +217,7 @@
 	<delete id="deleteByPKeys" parameterType="map">
 		DELETE FROM t_order_exception WHERE
 		<foreach collection="primaryKeys" index="index" item="id"
-			open=" exception_id IN(" separator="," close=") ">
+				 open=" exception_id IN(" separator="," close=") ">
 			${id}
 		</foreach>
 	</delete>
@@ -218,28 +227,28 @@
 	</delete>
 	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderExceptionResultMapper">
 		<![CDATA[ SELECT ]]>
-			 <include refid="commonProcessDateColumns"/>
-		FROM t_order_exception WHERE exception_id = #{exceptionId}  
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE exception_id = #{exceptionId}
 	</select>
 	<select id="list" resultMap="OrderExceptionResultMapper">
 		<![CDATA[ SELECT ]]>
-			 <include refid="commonProcessDateColumns"/>
- 		FROM t_order_exception
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception
 	</select>
 	<select id="listByProperty" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
 		<![CDATA[ SELECT ]]>
-			<include refid="commonProcessDateColumns"/>
-		FROM t_order_exception WHERE 1=1 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="listPaginationByProperty" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
-		SELECT 
+		SELECT
 		<include refid="commonProcessDateColumns"/>
-		FROM t_order_exception WHERE 1=1 
+		FROM t_order_exception WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="findByCount" parameterType="OrderException" resultType="int">
-		SELECT count(1) AS totalcount FROM t_order_exception WHERE 1=1 
+		SELECT count(1) AS totalcount FROM t_order_exception WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 </mapper>

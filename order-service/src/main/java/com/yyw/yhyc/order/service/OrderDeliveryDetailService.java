@@ -17,9 +17,7 @@ import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.bo.OrderReturn;
+import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
@@ -30,7 +28,6 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.bo.Pagination;
 
 @Service("orderDeliveryDetailService")
@@ -45,6 +42,13 @@ public class OrderDeliveryDetailService {
 	private SystemDateMapper systemDateMapper;
 
 	private OrderMapper orderMapper;
+
+	private OrderExceptionMapper orderExceptionMapper;
+
+	@Autowired
+	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
+		this.orderExceptionMapper = orderExceptionMapper;
+	}
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper) {
@@ -196,6 +200,7 @@ public class OrderDeliveryDetailService {
 		String returnType = "";
 		String returnDesc = "";
 		String flowId = "";
+		String exceptionOrderId="";//异常订单号
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
 			returnMap.put("msg","参数不能为空");
@@ -243,6 +248,15 @@ public class OrderDeliveryDetailService {
 				map.put(dto.getOrderDetailId(), map.get(dto.getOrderDetailId())+dto.getRecieveCount());
 			}
 		}
+		//统计退款总金额
+		BigDecimal moneyTotal=new BigDecimal(0);
+		//根据类型生产异常订单号
+		if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
+			if (returnType.equals("4"))//拒收
+				exceptionOrderId="JS"+flowId;
+			else if (returnType.equals("3"))//补货
+				exceptionOrderId="BH"+flowId;
+		}
 		//更新订单详情总收货数量//并判断采购数量和收货数量是否相同
 		for (Integer orderdetailId:map.keySet()) {
 			OrderDetail orderDetail = orderDetailMapper.getByPK(orderdetailId);
@@ -258,6 +272,7 @@ public class OrderDeliveryDetailService {
 					orderReturn.setCustId(user.getCustId());
 					orderReturn.setReturnCount(orderDetail.getProductCount() - orderDetail.getRecieveCount());
 					BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
+					moneyTotal=moneyTotal.add(orderDetail.getProductPrice().multiply(bigDecimal));
 					orderReturn.setReturnPay(orderDetail.getProductPrice().multiply(bigDecimal));
 					orderReturn.setReturnType(returnType);
 					orderReturn.setReturnDesc(returnDesc);
@@ -267,23 +282,50 @@ public class OrderDeliveryDetailService {
 					orderReturn.setUpdateTime(systemDateMapper.getSystemDate());
 					orderReturn.setCreateUser(user.getUserName());
 					orderReturn.setUpdateUser(user.getUserName());
+					orderReturn.setExceptionOrderId(exceptionOrderId);
 					orderReturnMapper.save(orderReturn);
 				}
 			}
-			//如果收货异常根据异常类型更新订单状态
-			Order order = orderMapper.getOrderbyFlowId(flowId);
-			if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
-				if (returnType.equals("4"))
-					order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
-				else if (returnType.equals("3"))
-					order.setOrderStatus(SystemOrderStatusEnum.Replenishing.getType());
-			}else {
-				order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
-			}
-			order.setUpdateTime(systemDateMapper.getSystemDate());
-			order.setUpdateUser(user.getUserName());
-			orderMapper.update(order);
 
+		//如果收货异常根据异常类型更新订单状态
+		Order order = orderMapper.getOrderbyFlowId(flowId);
+		if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
+			if (returnType.equals("4"))
+				order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
+			else if (returnType.equals("3"))
+				order.setOrderStatus(SystemOrderStatusEnum.Replenishing.getType());
+		}else {
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
+		}
+		order.setUpdateTime(systemDateMapper.getSystemDate());
+		order.setUpdateUser(user.getUserName());
+		orderMapper.update(order);
+
+		//生成异常订单
+		if (!UtilHelper.isEmpty(returnType)&&returnType.equals("")){
+			OrderException orderException=new OrderException();
+			orderException.setOrderId(order.getOrderId());
+			orderException.setFlowId(flowId);
+			orderException.setCreateTime(systemDateMapper.getSystemDate());
+			orderException.setCreateUser(user.getUserName());
+			if (returnType.equals("4"))
+				orderException.setReturnType(SystemOrderStatusEnum.Rejecting.getType());
+			else if (returnType.equals("3"))
+				orderException.setReturnType(SystemOrderStatusEnum.Replenishing.getType());
+			orderException.setReturnDesc(returnDesc);
+			orderException.setOrderStatus("1");//待确认
+			orderException.setCustId(order.getCustId());
+			orderException.setCustName(order.getCustName());
+			orderException.setSupplyId(order.getSupplyId());
+			orderException.setSupplyName(order.getSupplyName());
+			orderException.setOrderCreateTime(systemDateMapper.getSystemDate());
+			orderException.setOrderMoney(order.getFinalPay());
+			orderException.setOrderMoneyTotal(moneyTotal);
+			orderException.setExceptionOrderId(exceptionOrderId);
+			orderException.setUpdateTime(systemDateMapper.getSystemDate());
+			orderException.setUpdateUser(user.getUserName());
+			orderExceptionMapper.save(orderException);
+		}
 			returnMap.put("code","1");
 			returnMap.put("msg","操作成功");
 			return returnMap;
