@@ -1,3 +1,4 @@
+<%@ page import="com.yyw.yhyc.order.enmu.SystemPayTypeEnum" %>
 <%--
   Created by IntelliJ IDEA.
   User: lizhou
@@ -66,84 +67,103 @@
     <div class="goi-con-bill">
         <h2>发票信息</h2>
         <ul class="tc">
-            <li>增值税普通发票<b class="inside-icon"></b></li>
-            <li>增值税专用发票<b class="inside-icon"></b></li>
+            <%--
+                暂时不需要 增值税普通发票  ，以后需要再加
+                <li billType="2">增值税普通发票<b class="inside-icon"></b></li>
+            --%>
+            <li billType="1" class="goi-selected">增值税专用发票<b class="inside-icon" style="display: inline"></b></li>
         </ul>
         <p class="goi-tips pt30">请选择发票种类，订单完成后配送商汇分别单独开具发票，如开票类型不一致，请单独提交结算。</p>
     </div>
     <h2 class="f14">商品信息</h2>
 
 
-    <%--遍历每个供应商的信息  开始--%>
-    <c:choose>
-        <c:when test="${dataMap != null && fn:length(dataMap.allShoppingCart) gt 0 }">
-            <c:forEach var="shoppingCart"  items="${dataMap.allShoppingCart}">
+        <form id="createOrderForm" method="post" >
+            <input type="hidden" name="custId" id="custId" value="${userDto.custId}"/>
+            <input type="hidden" name="receiveAddressId" id="receiveAddressId" />
+            <input type="hidden" name="billType" id="billType" value="1"/>
 
-                <div class="goi-table mt35">
-                    <table class="common-table f14">
-                        <tr>
-                            <th class="tl pl20">供应商：${shoppingCart.seller.enterpriseName}</th>
-                            <th>单价</th>
-                            <th>数量</th>
-                            <th>小计</th>
-                        </tr>
-                            <%--遍历该供应商的商品信息  开始--%>
-                            <c:choose>
-                                <c:when test="${shoppingCart != null && fn:length(shoppingCart.shoppingCartDtoList) gt 0 }">
-                                    <c:forEach var="shoppingCartDto" items="${shoppingCart.shoppingCartDtoList}">
-                                        <tr>
-                                            <td class="tl">
-                                                <img src="${STATIC_URL}/static/images/pro_img.jpg" class="fl pr20">
-                                                <h3><span class="ct-lable">渠道</span>${shoppingCartDto.productName} ${shoppingCartDto.specification}</h3>
-                                                <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
-                                            </td>
-                                            <td>¥ ${shoppingCartDto.productPrice}</td>
-                                            <td>${shoppingCartDto.productCount}</td>
-                                            <td class="red">¥ ${shoppingCartDto.productPrice * shoppingCartDto.productCount}</td>
-                                        </tr>
-                                    </c:forEach>
-                                </c:when>
-                            </c:choose>
-                            <%--遍历该供应商的商品信息  结束--%>
-                    </table>
-                </div>
-                <p class="inside-icon goi-mover-btn"><i class="inside-icon goi-arrow"></i>查看更多</p>
+        <%--遍历每个供应商的信息  开始--%>
+            <c:choose>
+                <c:when test="${dataMap != null && fn:length(dataMap.allShoppingCart) gt 0 }">
+                    <c:forEach var="shoppingCart"  items="${dataMap.allShoppingCart}" varStatus="shoppingCartVarStatus">
+                        <div class="goi-product-list">
+                            <div class="goi-table mt35">
+                                <table class="common-table f14">
+                                    <tr>
+                                        <th class="tl pl20">供应商：${shoppingCart.seller.enterpriseName}</th>
+                                        <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.id}" value="${shoppingCart.seller.id}"/>
+                                        <th>单价</th>
+                                        <th>数量</th>
+                                        <th>小计</th>
+                                    </tr>
+                                        <%--遍历该供应商的商品信息  开始--%>
+                                        <c:choose>
+                                            <c:when test="${shoppingCart != null && fn:length(shoppingCart.shoppingCartDtoList) gt 0 }">
+                                                <c:forEach var="shoppingCartDto" items="${shoppingCart.shoppingCartDtoList}" varStatus="shoppingCartDtoVarStatus">
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>
+                                                    <tr>
+                                                        <td class="tl">
+                                                            <img src="${STATIC_URL}/static/images/pro_img.jpg" class="fl pr20">
+                                                            <h3><span class="ct-lable">渠道</span>${shoppingCartDto.productName} ${shoppingCartDto.specification}</h3>
+                                                            <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
+                                                        </td>
+                                                        <td>¥ ${shoppingCartDto.productPrice}</td>
+                                                        <td>${shoppingCartDto.productCount}</td>
 
-                <div class="pt40 clearfix">
-                    <div class="fl radio-select">
-                        选择支付方式：
-                        <label><i class="inside-icon radio-skin radio-skin-selected"></i>在线支付</label>
-                        <label><i class="inside-icon radio-skin"></i>账期支付</label>
-                        <label><i class="inside-icon radio-skin"></i>
-                      <span class="pr">
-                        线下转账
-                        <i class="common-icon query-icon">
-                          <div class="tips-frame tc">
-                            <i class="common-icon frame-icon"></i>
-                            <p>
-                              <a href="<%=request.getContextPath()%>/order/checkAccountInfo" target="_blank" class="blue">点击查看收款账户信息</a>
-                            </p>
-                          </div>
-                        </i>
-                      </span>
-                        </label>
+                                                        <td class="red">¥ ${shoppingCartDto.productPrice * shoppingCartDto.productCount}</td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </c:when>
+                                        </c:choose>
+                                        <%--遍历该供应商的商品信息  结束--%>
+                                </table>
+                            </div>
+                            <p class="inside-icon goi-mover-btn"><i class="inside-icon goi-arrow"></i>查看更多</p>
+
+                            <div class="pt40 clearfix">
+                                <div class="fl radio-select ">
+                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" id="${shoppingCart.seller.id}_payTypeId" />
+                                    选择支付方式：
+                                    <label onclick="selectPayTypeId(${shoppingCart.seller.id},'<%=SystemPayTypeEnum.PayOnline.getPayType()%>')">
+                                        <i class="inside-icon radio-skin ${shoppingCart.seller.id}_payType" id="${shoppingCart.seller.id}_payType_<%=SystemPayTypeEnum.PayOnline.getPayType()%>" ></i>在线支付
+                                    </label>
+                                    <label onclick="selectPayTypeId(${shoppingCart.seller.id},'<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>')">
+                                        <i class="inside-icon radio-skin ${shoppingCart.seller.id}_payType" id=" ${shoppingCart.seller.id}_payType_<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>" ></i>账期支付
+                                    </label>
+                                    <label onclick="selectPayTypeId(${shoppingCart.seller.id},'<%=SystemPayTypeEnum.PayOffline.getPayType()%>')">
+                                        <i class="inside-icon radio-skin ${shoppingCart.seller.id}_payType" id="${shoppingCart.seller.id}_payType_<%=SystemPayTypeEnum.PayOffline.getPayType()%>" ></i>
+                                          <span class="pr"> 线下转账
+                                            <i class="common-icon query-icon">
+                                                <div class="tips-frame tc">
+                                                    <i class="common-icon frame-icon"></i>
+                                                    <p>
+                                                      <a href="<%=request.getContextPath()%>/order/accountPayInfo/getByCustId/${userDto.custId}" target="_blank" class="blue">点击查看收款账户信息</a>
+                                                    </p>
+                                              </div>
+                                            </i>
+                                          </span>
+                                    </label>
+                                </div>
+                                <div class="fr f14">订单金额：<span class="red">¥ ${shoppingCart.productPriceCount}</span></div>
+                            </div>
+                            <p class="pt30">给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" ></p>
+                            <%--遍历每个供应商的信息  结束--%>
+                        </div>
+                    </c:forEach>
+                    <div class="btn pt70 f16 tr">
+                        总金额：<span class="red pr40">¥ ${dataMap.orderPriceCount}</span>
+                        <a href="javascript:void(0)" id="createOrderButton" class="os-btn-pay tc" onclick="createOrder()">提交订单</a>
                     </div>
-                    <div class="fr f14">订单金额：<span class="red">¥ ${shoppingCart.productPriceCount}</span></div>
-                </div>
-                <p class="pt30">给卖家留言：<input type="text" class="goi-input"></p>
-    <%--遍历每个供应商的信息  结束--%>
-            </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    您的购物车是空的!
+                </c:otherwise>
+            </c:choose>
+        </form>
 
-            <div class="btn pt70 f16 tr">
-                总金额：<span class="red pr40">¥ ${dataMap.orderPriceCount}</span>
-                <a href="#" class="os-btn-pay tc">提交订单</a>
-            </div>
-
-        </c:when>
-        <c:otherwise>
-            您的购物车是空的!
-        </c:otherwise>
-    </c:choose>
 </div>
 
 <%@ include file="../footer.jsp"%>

@@ -11,6 +11,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
@@ -20,6 +21,7 @@ import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.facade.OrderFacade;
 
 import org.slf4j.Logger;
@@ -31,7 +33,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,21 +178,42 @@ public class OrderController extends BaseJsonController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
-	@ResponseBody
-	public List<Order> createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
-		return orderFacade.createOrder(orderCreateDto);
-	}
+	public ModelAndView createOrder( OrderCreateDto orderCreateDto) throws Exception {
+		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
+		UserDto userDto = super.getLoginUser();
+		if(!UtilHelper.isEmpty(userDto) && !UtilHelper.isEmpty(userDto.getCustId())){
+			orderCreateDto.setCustId(userDto.getCustId());
+		}
 
+		/* 计算所有订单中，在线支付订单总额 */
+		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
+		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
+		OrderDto orderDto = null;
+		if(!UtilHelper.isEmpty(orderList)){
+			for(Order order : orderList){
+				if(UtilHelper.isEmpty(order)) continue;
+				orderDto = new OrderDto();
+				orderDto.setOrderId(order.getOrderId());
+				orderDto.setFlowId(order.getFlowId());
+				orderDto.setSupplyName(order.getSupplyName());
+				orderDto.setOrderTotal(order.getOrderTotal());
+				orderDto.setFinalPay(order.getFinalPay());
+				orderDto.setPayStatus(order.getPayStatus());
+				orderDto.setPayTypeId(order.getPayTypeId());
+				orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
+				orderDtoList.add(orderDto);
+				if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
+					onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+				}
+			}
+		}
 
-	/**
-	 * 检查订单页的数据
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/checkOrder", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String,Object> checkOrder() throws Exception {
-		return orderFacade.checkOrderPage();
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDtoList",orderDtoList);
+		model.addObject("onLinePayOrderPriceCount",onLinePayOrderPriceCount);
+		model.addObject("userDto",userDto);
+		model.setViewName("order/createOrderSuccess");
+		return model;
 	}
 
 	/**
@@ -199,9 +224,11 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
+		UserDto userDto = super.getLoginUser();
 		Map<String,Object> dataMap = orderFacade.checkOrderPage();
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
+		model.addObject("userDto",userDto);
 		model.setViewName("order/checkOrderPage");
 		return model;
 	}
@@ -215,18 +242,6 @@ public class OrderController extends BaseJsonController {
 	public ModelAndView checkAccountInfo() throws Exception {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("order/checkAccountInfo");
-		return model;
-	}
-	/**
-	 * 生成订单成功页面
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
-	@ResponseBody
-	public ModelAndView createOrderSuccess() throws Exception {
-		ModelAndView model = new ModelAndView();
-		model.setViewName("order/createOrderSuccess");
 		return model;
 	}
 
