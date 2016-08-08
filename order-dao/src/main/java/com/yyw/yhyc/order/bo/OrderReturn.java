@@ -109,6 +109,20 @@ public class OrderReturn extends Model{
 	private java.lang.String updateTime;
 
 	/**
+	 *	异常订单编码
+	 */
+	private java.lang.String exceptionOrderId;
+
+
+	public String getExceptionOrderId() {
+		return exceptionOrderId;
+	}
+
+	public void setExceptionOrderId(String exceptionOrderId) {
+		this.exceptionOrderId = exceptionOrderId;
+	}
+
+	/**
 	  *	
 	  */
 	public java.lang.Integer getReturnId() 

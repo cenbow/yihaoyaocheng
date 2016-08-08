@@ -35,6 +35,7 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="exception_order_id" property="exceptionOrderId"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -56,6 +57,7 @@
 		, create_time
 		, update_user
 		, update_time
+		, exception_order_id
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -76,6 +78,7 @@
 				, create_time
 				, update_user
 				, update_time
+				, exception_order_id
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -97,6 +100,7 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, exception_order_id
 	</sql>
 	
 	<sql id="commonCondition">
@@ -154,6 +158,9 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND exception_order_id=#{exceptionOrderId}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderRefund">
@@ -178,6 +185,7 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{exceptionOrderId}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderRefund">
@@ -200,6 +208,7 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, exception_order_id = #{exceptionOrderId}
 		WHERE refund_id = #{refundId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
