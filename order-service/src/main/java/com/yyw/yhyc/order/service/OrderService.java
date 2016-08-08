@@ -783,8 +783,8 @@ public class OrderService {
             return BuyerOrderStatusEnum.Canceled;//已取消
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())) {// 买家全部收货+系统自动确认收货
-            return BuyerOrderStatusEnum.Finished;//补货中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType()) ) {// 买家全部收货+系统自动确认收货+买家部分收货
+            return BuyerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
             return BuyerOrderStatusEnum.PaidException;//打款异常
@@ -823,8 +823,8 @@ public class OrderService {
             return SellerOrderStatusEnum.Canceled;//已取消
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())) {// 买家全部收货+系统自动确认收货
-            return SellerOrderStatusEnum.Finished;//补货中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())) {// 买家全部收货+系统自动确认收货+买家部分收货
+            return SellerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
             return SellerOrderStatusEnum.PaidException;//打款异常
@@ -834,11 +834,11 @@ public class OrderService {
 
 	/**
 	 * 采购商取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  updateOrderStatusForBuyer(Integer custId,Integer orderId){
-		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
+	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId){
+		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
@@ -848,12 +848,12 @@ public class OrderService {
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该买家
-		if(custId == order.getCustId()){
+		if(userDto.getCustId() == order.getCustId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
 				String now = systemDateMapper.getSystemDate();
 				// TODO: 2016/8/1 需获取登录用户信息
-				order.setUpdateUser("zhangsan");
+				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
 				if(count == 0){
@@ -864,12 +864,12 @@ public class OrderService {
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
 				orderTrace.setNodeName("买家取消订单");
-				orderTrace.setDealStaff("zhangsan");
+				orderTrace.setDealStaff(userDto.getUserName());
 				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff("zhangsan");
+				orderTrace.setRecordStaff(userDto.getUserName());
 				orderTrace.setOrderStatus(order.getOrderStatus());
 				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser("zhangsan");
+				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -962,11 +962,11 @@ public class OrderService {
 
 	/**
 	 * 采购商取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  updateOrderStatusForSeller(Integer custId,Integer orderId,String cancelResult){
-		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
+	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult){
+		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
@@ -976,7 +976,7 @@ public class OrderService {
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该卖家
-		if(custId == order.getSupplyId()){
+		if(userDto.getCustId() == order.getSupplyId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
@@ -993,12 +993,12 @@ public class OrderService {
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
 				orderTrace.setNodeName("卖家取消订单");
-				orderTrace.setDealStaff("zhangsan");
+				orderTrace.setDealStaff(userDto.getUserName());
 				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff("zhangsan");
+				orderTrace.setRecordStaff(userDto.getUserName());
 				orderTrace.setOrderStatus(order.getOrderStatus());
 				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser("zhangsan");
+				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());

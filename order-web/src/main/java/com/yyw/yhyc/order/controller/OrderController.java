@@ -267,8 +267,7 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		UserDto userDto = super.getLoginUser();
-		int custId = userDto.getCustId();
-		orderFacade.buyerCancelOrder(custId, orderId);
+		orderFacade.buyerCancelOrder(userDto, orderId);
 	}
 
 	/**
@@ -294,7 +293,7 @@ public class OrderController extends BaseJsonController {
 	}
 
 	/**
-	 * 采购商取消订单
+	 * 销售商取消订单
 	 * @return
 	 */
 	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
@@ -306,8 +305,7 @@ public class OrderController extends BaseJsonController {
 		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
 		 */
 		UserDto userDto = super.getLoginUser();
-		int custId = userDto.getCustId();
-		orderFacade.sellerCancelOrder(custId, order.getOrderId(), order.getCancelResult());
+		orderFacade.sellerCancelOrder(userDto, order.getOrderId(), order.getCancelResult());
 	}
 
 	/**

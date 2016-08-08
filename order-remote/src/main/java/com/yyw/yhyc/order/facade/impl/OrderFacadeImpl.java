@@ -13,9 +13,7 @@ package com.yyw.yhyc.order.facade.impl;
 import java.util.List;
 import java.util.Map;
 
-import com.yyw.yhyc.order.dto.OrderCreateDto;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 
@@ -187,11 +185,11 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	/**
 	 * 采购商取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  buyerCancelOrder(Integer custId,Integer orderId){
-		orderService.updateOrderStatusForBuyer(custId,orderId);
+	public void  buyerCancelOrder(UserDto userDto, Integer orderId){
+		orderService.updateOrderStatusForBuyer(userDto,orderId);
 	}
 
 	/**
@@ -206,11 +204,11 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	/**
 	 * 卖家取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  sellerCancelOrder(Integer custId,Integer orderId,String cancelResult){
-		orderService.updateOrderStatusForSeller(custId,orderId,cancelResult);
+	public void  sellerCancelOrder(UserDto userDto,Integer orderId,String cancelResult){
+		orderService.updateOrderStatusForSeller(userDto,orderId,cancelResult);
 	}
 
 	public Map<String,Object> checkOrderPage() throws Exception {

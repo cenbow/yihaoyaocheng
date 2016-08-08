@@ -571,7 +571,7 @@
 				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
 			</if>
 			<if test='orderStatus == "7"'><!--已完成-->
-				AND T1.ORDER_STATUS IN ('8','11')<!--买家全部收货+系统自动确认收货-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
 			</if>
 		</if>
 		ORDER BY T1.ORDER_ID DESC
@@ -684,7 +684,7 @@
 				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
 			</if>
 			<if test='orderStatus == "7"'><!--已完成-->
-				AND T1.ORDER_STATUS IN ('8','11')<!--买家全部收货+系统自动确认收货-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
 			</if>
 		</if>
 		<if test="province!= null and province!= ''">
