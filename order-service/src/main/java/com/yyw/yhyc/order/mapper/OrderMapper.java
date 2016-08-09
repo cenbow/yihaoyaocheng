@@ -25,11 +25,11 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public OrderDetailsDto getOrderDetails(Order order);
 
-	public List<OrderDto> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+	public List<OrderDto> listPaginationBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<OrderDto> findOrderStatusCount(OrderDto orderDto);
 
-	public List<OrderDto> listPgSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+	public List<OrderDto> listPaginationSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<OrderDto> findSellerOrderStatusCount(OrderDto orderDto);
 

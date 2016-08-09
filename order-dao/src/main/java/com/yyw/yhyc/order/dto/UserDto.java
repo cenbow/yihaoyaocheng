@@ -1,9 +1,13 @@
 package com.yyw.yhyc.order.dto;
 
+import java.io.Serializable;
+
 /**
  * Created by zhangqiang on 2016/8/5.
  */
-public class UserDto {
+public class UserDto  implements Serializable{
+
+    private static final long serialVersionUID = 6520425576062439132L;
     private int custId;//用户id
     private String custName;//用户名称
     private String userName;//帐号名称

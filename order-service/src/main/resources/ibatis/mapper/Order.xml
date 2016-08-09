@@ -505,7 +505,9 @@
 		T1.CUST_ID = #{custId}
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
-		AND T4.PAY_TYPE=#{payType}
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
 		<if test="createBeginTime!= null and createBeginTime!= ''">
 			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
 		</if>
@@ -522,7 +524,7 @@
 		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
 	</resultMap>
 
-	<select id="listPgBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap">
+	<select id="listPaginationBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap">
 		SELECT
 		T1.*,SYSDATE() AS NOWTIME,T4.PAY_TYPE,T4.PAY_TYPE_NAME
 		FROM
@@ -532,7 +534,9 @@
 		T1.CUST_ID = #{custId}
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
-		AND T4.PAY_TYPE=#{payType}
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
 		<if test="createBeginTime!= null and createBeginTime!= ''">
 			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
 		</if>
@@ -607,7 +611,9 @@
 		T1.SUPPLY_ID = #{supplyId}
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
-		AND T4.PAY_TYPE=#{payType}
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
 		<if test="createBeginTime!= null and createBeginTime!= ''">
 			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
 		</if>
@@ -634,7 +640,7 @@
 		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
 	</resultMap>
 
-	<select id="listPgSellerOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap">
+	<select id="listPaginationSellerOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap">
 		SELECT
 		T1.*,T4.PAY_TYPE,T4.PAY_TYPE_NAME
 		FROM
@@ -645,7 +651,9 @@
 		T1.SUPPLY_ID = #{supplyId}
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
-		AND T4.PAY_TYPE=#{payType}
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
 		<if test="createBeginTime!= null and createBeginTime!= ''">
 			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
 		</if>

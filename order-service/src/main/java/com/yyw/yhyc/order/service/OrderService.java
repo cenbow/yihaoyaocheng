@@ -680,7 +680,7 @@ public class OrderService {
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();
 		//获取订单列表
-        List<OrderDto> buyerOrderList = orderMapper.listPgBuyerOrder(pagination, orderDto);
+        List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrder(pagination, orderDto);
         pagination.setResultList(buyerOrderList);
 
 		//获取各订单状态下的订单数量
@@ -724,8 +724,10 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
-						//计算当前时间和支付剩余24小时的剩余秒数
-						time = CommonType.PAY_TIME*60*60-time;
+						if(time > 0){
+							//计算当前时间和支付剩余24小时的剩余秒数
+							time = CommonType.PAY_TIME*60*60-time;
+						}
 						if(time < 0)
 							time = 0l;
 						od.setResidualTime(time);
@@ -906,7 +908,7 @@ public class OrderService {
 		}
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//销售订单列表
-		List<OrderDto> sellerOrderList = orderMapper.listPgSellerOrder(pagination, orderDto);
+		List<OrderDto> sellerOrderList = orderMapper.listPaginationSellerOrder(pagination, orderDto);
 		pagination.setResultList(sellerOrderList);
 
 		//获取各订单状态下的订单数量
@@ -954,7 +956,7 @@ public class OrderService {
 		log.debug("orderTotalMoney====>" + orderTotalMoney);
 
 		resultMap.put("orderStatusCount", orderStatusCountMap);
-		resultMap.put("buyerOrderList", pagination);
+		resultMap.put("sellerOrderList", pagination);
 		resultMap.put("orderCount", orderCount);
 		resultMap.put("orderTotalMoney", orderTotalMoney);
 		return resultMap;
@@ -982,7 +984,7 @@ public class OrderService {
 				String now = systemDateMapper.getSystemDate();
 				order.setCancelResult(cancelResult);
 				// TODO: 2016/8/1 需获取登录用户信息
-				order.setUpdateUser("zhangsan");
+				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
 				if(count == 0){
@@ -1065,7 +1067,7 @@ public class OrderService {
 	 */
 	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		//销售订单列表
-		List<OrderDto> list = orderMapper.listPgSellerOrder(pagination, orderDto);
+		List<OrderDto> list = orderMapper.listPaginationSellerOrder(pagination, orderDto);
 		List<Object[]> dataset = new ArrayList<Object[]>();
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {
