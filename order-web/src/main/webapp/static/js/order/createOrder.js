@@ -98,6 +98,15 @@ function createOrder(){
     // });
 
     $("#createOrderForm").attr({"action": ctx + "/order/createOrder"});
-    $("#createOrderForm").submit();
+    $("#createOrderForm").ajaxSubmit(function(resultJson) {
+        var _targetUrl = ctx + resultJson;
+        // window.open(_targetUrl,'_self');
+        
+        window.opener=null;window.open('','_self');window.close();
+        window.open(_targetUrl,'_self');
+        // window.history.forward(1);
+        // window.location.href = _targetUrl;  
+    });
+    
 }
 

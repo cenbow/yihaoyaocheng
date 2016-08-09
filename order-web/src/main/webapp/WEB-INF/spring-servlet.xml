@@ -46,7 +46,15 @@
 			<!-- 拦截器处理类 -->
 			<ref bean="loginInteceptor"/>
 		</mvc:interceptor>
+
+		<!-- 配置Token拦截器，防止用户重复提交数据 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>
+		</mvc:interceptor>
+
 	</mvc:interceptors>
+
 
 	<import resource="dubbo-consumer.xml"/>
 

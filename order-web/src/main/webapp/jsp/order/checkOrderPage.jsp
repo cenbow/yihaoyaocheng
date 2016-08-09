@@ -164,6 +164,7 @@
                     您的购物车是空的!
                 </c:otherwise>
             </c:choose>
+            <input type="hidden" name="token" value="${token}" />
         </form>
 
 </div>

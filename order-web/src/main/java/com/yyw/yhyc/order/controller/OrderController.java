@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.annotation.Token;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
@@ -177,8 +178,10 @@ public class OrderController extends BaseJsonController {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
+	@Token(remove=true)
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
-	public ModelAndView createOrder( OrderCreateDto orderCreateDto) throws Exception {
+	@ResponseBody
+	public String createOrder( OrderCreateDto orderCreateDto) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw new Exception("用户未登录");
@@ -187,34 +190,56 @@ public class OrderController extends BaseJsonController {
 
 		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
 
-		/* 计算所有订单中，在线支付订单总额 */
-		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
-		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
-		OrderDto orderDto = null;
+		String orderIdStr = "";
 		if(!UtilHelper.isEmpty(orderList)){
 			for(Order order : orderList){
 				if(UtilHelper.isEmpty(order)) continue;
-				orderDto = new OrderDto();
-				orderDto.setOrderId(order.getOrderId());
-				orderDto.setFlowId(order.getFlowId());
-				orderDto.setSupplyName(order.getSupplyName());
-				orderDto.setOrderTotal(order.getOrderTotal());
-				orderDto.setFinalPay(order.getFinalPay());
-				orderDto.setPayStatus(order.getPayStatus());
-				orderDto.setPayTypeId(order.getPayTypeId());
-				orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
-				orderDtoList.add(orderDto);
-				if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
-					onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+				if(UtilHelper.isEmpty(orderIdStr)){
+					orderIdStr += order.getOrderId();
+				}else{
+					orderIdStr += ","+order.getOrderId();
 				}
 			}
 		}
+		return "/order/createOrderSuccess?orderIds="+orderIdStr;
+	}
 
+	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
+	public ModelAndView createOrderSuccess(@RequestParam("orderIds") String orderIds) throws Exception {
+		UserDto userDto = super.getLoginUser();
 		ModelAndView model = new ModelAndView();
+
+		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
+		OrderDto orderDto = null;
+		/* 计算所有订单中，在线支付订单总额 */
+		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
+
+		if(UtilHelper.isEmpty(orderIds)){
+			throw new Exception("非法参数");
+		}
+		String [] orderIdStr = orderIds.split(",");
+		for(String orderId : orderIdStr){
+			if(UtilHelper.isEmpty(orderId) || "null".equalsIgnoreCase(orderId)) continue;
+			orderDto = new OrderDto();
+			Order order = orderFacade.getByPK(Integer.valueOf(orderId));
+			orderDto.setOrderId(order.getOrderId());
+			orderDto.setFlowId(order.getFlowId());
+			orderDto.setSupplyName(order.getSupplyName());
+			orderDto.setOrderTotal(order.getOrderTotal());
+			orderDto.setFinalPay(order.getFinalPay());
+			orderDto.setPayStatus(order.getPayStatus());
+			orderDto.setPayTypeId(order.getPayTypeId());
+			orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
+			orderDtoList.add(orderDto);
+			if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
+				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+			}
+		}
+
+		model.setViewName("order/createOrderSuccess");
 		model.addObject("orderDtoList",orderDtoList);
 		model.addObject("onLinePayOrderPriceCount",onLinePayOrderPriceCount);
 		model.addObject("userDto",userDto);
-		model.setViewName("order/createOrderSuccess");
 		return model;
 	}
 
@@ -223,6 +248,7 @@ public class OrderController extends BaseJsonController {
 	 * @return
 	 * @throws Exception
      */
+	@Token(save=true)
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
