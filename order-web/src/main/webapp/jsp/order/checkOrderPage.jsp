@@ -10,7 +10,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -90,11 +90,11 @@
                     <c:forEach var="shoppingCart"  items="${dataMap.allShoppingCart}" varStatus="shoppingCartVarStatus">
                         <div class="goi-product-list">
                             <div class="goi-table mt35">
+                                <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.id}" value="${shoppingCart.seller.id}"/>
+                                <input type="hidden" name="supplyId" value="${shoppingCart.seller.id}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                 <table class="common-table f14">
                                     <tr>
                                         <th class="tl pl20">供应商：${shoppingCart.seller.enterpriseName}</th>
-                                        <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.id}" value="${shoppingCart.seller.id}"/>
-                                        <input type="hidden" name="supplyId" value="${shoppingCart.seller.id}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                         <th>单价</th>
                                         <th>数量</th>
                                         <th>小计</th>

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.dto.*;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -211,8 +210,8 @@ public class OrderFacadeImpl implements OrderFacade {
 		orderService.updateOrderStatusForSeller(userDto,orderId,cancelResult);
 	}
 
-	public Map<String,Object> checkOrderPage() throws Exception {
-		return orderService.checkOrderPage();
+	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
+		return orderService.checkOrderPage(userDto);
 	}
 	
 	/**

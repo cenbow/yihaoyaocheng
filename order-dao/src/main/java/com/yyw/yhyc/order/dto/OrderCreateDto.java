@@ -26,6 +26,9 @@ public class OrderCreateDto implements Serializable {
     /* 发票类型 */
     private Integer billType;
 
+    /* 当前登陆人的信息 */
+    private UserDto userDto;
+
 
     public Integer getCustId() {
         return custId;
@@ -59,6 +62,14 @@ public class OrderCreateDto implements Serializable {
         this.billType = billType;
     }
 
+    public UserDto getUserDto() {
+        return userDto;
+    }
+
+    public void setUserDto(UserDto userDto) {
+        this.userDto = userDto;
+    }
+
     @Override
     public String toString() {
         return "OrderCreateDto{" +
@@ -66,6 +77,7 @@ public class OrderCreateDto implements Serializable {
                 ", receiveAddressId=" + receiveAddressId +
                 ", orderDtoList=" + orderDtoList +
                 ", billType=" + billType +
+                ", userDto=" + userDto +
                 '}';
     }
 }

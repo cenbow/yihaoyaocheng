@@ -250,12 +250,12 @@ public class OrderService {
 	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
-				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList())){
+				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
 			throw  new Exception("非法参数");
 		}
 
-		/* TODO 获取当前登陆用户的企业id */
-		Integer currentLoginCustId = 123;
+		/* 获取当前登陆用户的企业id */
+		Integer currentLoginCustId = orderCreateDto.getUserDto().getCustId();
 		if(UtilHelper.isEmpty(currentLoginCustId)) throw new Exception("非法参数");
 		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
 		if(UtilHelper.isEmpty(enterprise)) throw new Exception("用户不存在");
@@ -279,7 +279,7 @@ public class OrderService {
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
 				orderDto.setBillType(orderCreateDto.getBillType());
 			}
-			Order orderNew = createOrderInfo(orderDto,orderDelivery);
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -288,10 +288,10 @@ public class OrderService {
 		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginCustId);
 
 		/* 插入数据到订单支付表 */
-		insertOrderPay(orderNewList, currentLoginCustId, payFlowId);
+		insertOrderPay(orderNewList, orderCreateDto.getUserDto(), payFlowId);
 
 		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
-		insertOrderCombined(orderNewList,currentLoginCustId,payFlowId);
+		insertOrderCombined(orderNewList,orderCreateDto.getUserDto(),payFlowId);
         return orderNewList;
     }
 
@@ -311,6 +311,8 @@ public class OrderService {
 		orderDelivery.setReceiveRegion(receiverAddress.getDistrictCode());
 		orderDelivery.setReceiveAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
 		orderDelivery.setReceiveContactPhone(receiverAddress.getContactPhone());
+		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
+		orderDelivery.setCreateUser(orderCreateDto.getUserDto().getUserName());
 		return orderDelivery;
 	}
 
@@ -321,7 +323,7 @@ public class OrderService {
 	 * @param orderDelivery 订单发货、配送相关信息
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery) throws Exception{
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery,UserDto userDto) throws Exception{
 		if( null == orderDto || null == orderDelivery){
 			return null;
 		}
@@ -330,7 +332,7 @@ public class OrderService {
 		orderDto = calculateOrderPrice(orderDto);
 
 		/*  数据插入订单表、订单详情表 */
-		Order order = insertOrderAndOrderDetail(orderDto);
+		Order order = insertOrderAndOrderDetail(orderDto,userDto);
 
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
@@ -388,12 +390,12 @@ public class OrderService {
 	 * 插入合并订单表
 	 * 只有选择在线支付的订单才合成一个单
 	 * @param orderNewList 新生成订单的集合
-	 * @param currentLoginCustId  当前登陆人的企业id
+	 * @param userDto  当前登陆人的信息
 	 * @param payFlowId 支付流水号
 	 */
-	private void insertOrderCombined(List<Order> orderNewList, Integer currentLoginCustId,String payFlowId) {
+	private void insertOrderCombined(List<Order> orderNewList, UserDto userDto, String payFlowId) {
 		if(UtilHelper.isEmpty(orderNewList)) return;
-		if(UtilHelper.isEmpty(currentLoginCustId)) return;
+		if(UtilHelper.isEmpty(userDto)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
 
 		/* 在线支付订单的集合 */
@@ -407,7 +409,8 @@ public class OrderService {
 				continue;
 			}
 			orderCombined = new OrderCombined();
-			orderCombined.setCustId(currentLoginCustId);
+			orderCombined.setCustId(order.getCustId());
+			orderCombined.setCreateUser(userDto.getUserName());
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
 			orderCombined.setCombinedNumber(1);//合并订单数
 			//todo 价格相关
@@ -439,7 +442,8 @@ public class OrderService {
 
 			}
 			orderCombined = new OrderCombined();
-			orderCombined.setCustId(currentLoginCustId);
+			orderCombined.setCustId(userDto.getCustId());
+			orderCombined.setCreateUser(userDto.getUserName());
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
 			orderCombined.setCombinedNumber(payOnlineOrderList.size());//合并订单数
 			orderCombined.setCopeTotal(allCopeTotal);//	应付总价
@@ -465,13 +469,13 @@ public class OrderService {
 	/**
 	 * 插入订单支付表
 	 * @param orderNewList 新生成订单的集合
-	 * @param currentLoginCustId 当前登陆人的企业id
+	 * @param userDto 当前登陆人的信息
 	 * @param payFlowId 支付流水号
 	 * @throws Exception
      */
-	private void insertOrderPay(List<Order> orderNewList,Integer currentLoginCustId,String payFlowId) throws Exception {
+	private void insertOrderPay(List<Order> orderNewList, UserDto userDto, String payFlowId) throws Exception {
 		if(UtilHelper.isEmpty(orderNewList)) return;
-		if(UtilHelper.isEmpty(currentLoginCustId)) return;
+		if(UtilHelper.isEmpty(userDto)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
 		OrderPay orderPay = null ;
 		for(Order order : orderNewList){
@@ -482,7 +486,7 @@ public class OrderService {
 			orderPay.setPayTypeId(order.getPayTypeId());
 			orderPay.setCreateTime(systemDateMapper.getSystemDate());
 			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
-			orderPay.setCreateUser(currentLoginCustId + "");
+			orderPay.setCreateUser(userDto.getUserName());
 			orderPayMapper.save(orderPay);
 		}
 	}
@@ -497,6 +501,7 @@ public class OrderService {
 		orderTrace.setOrderId(order.getOrderId());
 		orderTrace.setOrderStatus(order.getOrderStatus());
 		orderTrace.setCreateTime(systemDateMapper.getSystemDate());
+		orderTrace.setCreateUser("");
 		orderTraceMapper.save(orderTrace);
 	}
 
@@ -511,7 +516,6 @@ public class OrderService {
 		}
 		orderDelivery.setOrderId(order.getOrderId());
 		orderDelivery.setFlowId(order.getFlowId());
-		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
 		orderDeliveryMapper.save(orderDelivery);
 	}
 
@@ -521,15 +525,15 @@ public class OrderService {
 	 * @return
 	 * @throws Exception
      */
-	private Order insertOrderAndOrderDetail(OrderDto orderDto)throws Exception {
-		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+	private Order insertOrderAndOrderDetail(OrderDto orderDto,UserDto userDto)throws Exception {
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 			throw new Exception("非法参数");
 		}
 		Order order = new Order();
 		order.setCustId(orderDto.getCustId());
-		order.setCustName("");//todo
+		order.setCustName(orderDto.getCustName());
 		order.setSupplyId(orderDto.getSupplyId());
-		order.setSupplyName("");//todo
+		order.setSupplyName(orderDto.getSupplyName());
 		order.setBillType(orderDto.getBillType());
 		order.setLeaveMessage(orderDto.getLeaveMessage());
 		if(UtilHelper.isEmpty(orderDto.getPayTypeId())){
@@ -557,7 +561,7 @@ public class OrderService {
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
 		order.setCreateTime(systemDateMapper.getSystemDate());
-		order.setCreateUser("");
+		order.setCreateUser(userDto.getUserName());
 		order.setTotalCount( orderDto.getProductInfoDtoList().size());
 
 		/* 订单金额相关 */
@@ -598,7 +602,7 @@ public class OrderService {
 			orderDetail.setOrderId(order.getOrderId());
 			orderDetail.setSupplyId(order.getSupplyId());//供应商ID
 			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
-			orderDetail.setCreateUser("");
+			orderDetail.setCreateUser(userDto.getUserName());
 
 			//TODO 商品信息
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
@@ -624,15 +628,53 @@ public class OrderService {
 	 * @param orderDto 要提交订单的商品数据
      * @return
      */
-	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto) {
-		//TODO 校验采购商、资质
+	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto) throws Exception {
+		if(UtilHelper.isEmpty(currentLoginCustId) || UtilHelper.isEmpty(orderDto)){
+			throw new Exception("非法参数");
+		}
+
+		//TODO 校验采购商状态、资质
+		UsermanageEnterprise buyer = enterpriseMapper.getByPK(currentLoginCustId);
+		if(UtilHelper.isEmpty(buyer)){
+			throw new Exception("采购商不存在!");
+		}
+		orderDto.setCustId(buyer.getId());
+		orderDto.setCustName(buyer.getEnterpriseName());
+
+		//TODO 校验要供应商状态、资质
+		UsermanageEnterprise seller = enterpriseMapper.getByPK(orderDto.getSupplyId());
+		if(UtilHelper.isEmpty(seller)){
+			throw new Exception("供应商不存在!");
+		}
+		orderDto.setSupplyName(seller.getEnterpriseName());
 
 		//TODO 校验要采购商与供应商是否相同
+		if (!UtilHelper.isEmpty(orderDto.getSupplyId()) && currentLoginCustId.equals(orderDto.getSupplyId())){
+			throw new Exception("不能购买自己的商品");
+		}
 
-		//TODO 校验要供应商、资质、商品
+		//TODO 校验供应商下的商品信息、价格
+		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
+		if(UtilHelper.isEmpty(productInfoDtoList)){
+			throw new Exception("商品不能为空!");
+		}
+		ProductInfo productInfo = null;
+		for(ProductInfoDto productInfoDto : productInfoDtoList){
+			if(UtilHelper.isEmpty(productInfoDto)) continue;
+			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
+			if(UtilHelper.isEmpty(productInfo )){
+				throw new Exception("商品不存在!");
+			}
+			//TODO 商品状态、价格校验
+		}
 
 		//TODO 特殊校验(选择账期支付方式的订单，校验买家账期、商品账期)
-		return false;
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
+			//TODO 校验商家的账期(是否存在、是否有效)
+			//TODO 校验商品的账期(是否存在、是否有效)
+
+		}
+		return true;
 	}
 
 
@@ -1023,11 +1065,14 @@ public class OrderService {
 	/**
 	 * 检查订单页的数据
 	 * @return
+	 * @param userDto
      */
-	public Map<String,Object> checkOrderPage() throws Exception {
+	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			return null;
+		}
 		Map<String,Object> resultMap = new HashMap<String, Object>();
-		//TODO 获取当前登陆用户的的企业id
-		Integer currentLoginCustId = 123;
+		Integer currentLoginCustId = userDto.getCustId();
 
 		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
 		if(UtilHelper.isEmpty(enterprise)){
