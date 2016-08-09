@@ -13,6 +13,8 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderExceptionFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,5 +94,22 @@ public class OrderExceptionController extends BaseJsonController{
 	public void update(@RequestBody OrderException orderException) throws Exception
 	{
 		orderExceptionFacade.update(orderException);
+	}
+
+	/**
+	 * 退货订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getOrderExceptionDetails", method = RequestMethod.POST)
+	@ResponseBody
+	public OrderExceptionDto getOrderExceptionDetails(@RequestBody OrderExceptionDto orderExceptionDto) throws Exception
+	{
+		UserDto user = super.getLoginUser();
+		if(orderExceptionDto.getUserType()==1){
+			orderExceptionDto.setCustId(user.getCustId());
+		}else if(orderExceptionDto.getUserType()==2){
+			orderExceptionDto.setSupplyId(user.getCustId());
+		}
+		return orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
 	}
 }

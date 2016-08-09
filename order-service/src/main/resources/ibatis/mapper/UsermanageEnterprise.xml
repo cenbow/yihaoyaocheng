@@ -341,4 +341,10 @@
 		SELECT count(1) AS totalcount FROM t_usermanage_enterprise WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+
+	<select id="getByEnterpriseId" parameterType="java.lang.String" resultMap="UsermanageEnterpriseResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_enterprise WHERE enterprise_id=#{enterpriseId}
+	</select>
 </mapper>
