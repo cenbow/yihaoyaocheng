@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -137,5 +138,15 @@ public class OrderExceptionFacadeImpl implements OrderExceptionFacade {
 	public int findByCount(OrderException orderException) throws Exception
 	{
 		return orderExceptionService.findByCount(orderException);
+	}
+
+	/**
+	 * 退回订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		return orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
 	}
 }

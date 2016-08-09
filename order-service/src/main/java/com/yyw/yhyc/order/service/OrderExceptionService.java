@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -139,5 +140,15 @@ public class OrderExceptionService {
 	public int findByCount(OrderException orderException) throws Exception
 	{
 		return orderExceptionMapper.findByCount(orderException);
+	}
+
+	/**
+	 * 退货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		return orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
 	}
 }

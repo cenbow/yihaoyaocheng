@@ -19,4 +19,6 @@ import com.yyw.yhyc.bo.Pagination;
 public interface UsermanageEnterpriseMapper extends GenericIBatisMapper<UsermanageEnterprise, Integer> {
 
 	public List<UsermanageEnterprise> listPaginationByProperty(Pagination<UsermanageEnterprise> pagination, UsermanageEnterprise usermanageEnterprise);
+
+	public UsermanageEnterprise getByEnterpriseId(String enterpriseId);
 }
