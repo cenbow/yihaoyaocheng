@@ -177,7 +177,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" onclick="doCancle();">确定</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" id="closeM" class="btn btn-default" data-dismiss="modal">取消</button>
                 </div>
             </div>
         </div>
