@@ -241,7 +241,7 @@ function doCancle() {
                 alertModal(data.message);
                 return;
             }
-            $("#myModalOperate").modal().hide();
+            $("#closeM").trigger("click");
             pasretFormData();
             doRefreshData(params);
             alertModal("取消成功");
