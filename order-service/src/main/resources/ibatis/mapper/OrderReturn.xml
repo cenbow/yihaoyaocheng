@@ -2,7 +2,7 @@
 <!-- 
  **
  * Created By: XI
- * Created On: 2016-7-28 17:34:56
+ * Created On: 2016-8-9 10:03:38
  *
  * Amendment History:
  * 
@@ -18,6 +18,7 @@
     </cache>
 	<resultMap id="OrderReturnResultMapper" type="OrderReturn">
 		<result column="return_id" property="returnId"/>
+		<result column="exception_order_id" property="exceptionOrderId"/>
 		<result column="cust_id" property="custId"/>
 		<result column="order_id" property="orderId"/>
 		<result column="order_detail_id" property="orderDetailId"/>
@@ -35,10 +36,13 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="order_delivery_detail_id" property="orderDeliveryDetailId"/>
+		<result column="batch_number" property="batchNumber"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
 		 return_id
+		, exception_order_id
 		, cust_id
 		, order_id
 		, order_detail_id
@@ -56,10 +60,13 @@
 		, create_time
 		, update_user
 		, update_time
+		, order_delivery_detail_id
+		, batch_number
 	</sql>
 
     <sql id="commonColumnsNotPK">
-				 cust_id
+				 exception_order_id
+				, cust_id
 				, order_id
 				, order_detail_id
 				, return_count
@@ -76,10 +83,13 @@
 				, create_time
 				, update_user
 				, update_time
+				, order_delivery_detail_id
+				, batch_number
     </sql>
 	
 	<sql id="commonProcessDateColumns">
 		 return_id
+		, exception_order_id
 		, cust_id
 		, order_id
 		, order_detail_id
@@ -97,11 +107,16 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, order_delivery_detail_id
+		, batch_number
 	</sql>
 	
 	<sql id="commonCondition">
 		<if test="returnId!= null and returnId!= ''"> 
 			AND return_id=#{returnId}
+		</if>
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''"> 
+			AND exception_order_id=#{exceptionOrderId}
 		</if>
 		<if test="custId!= null and custId!= ''"> 
 			AND cust_id=#{custId}
@@ -154,6 +169,12 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="orderDeliveryDetailId!= null and orderDeliveryDetailId!= ''"> 
+			AND order_delivery_detail_id=#{orderDeliveryDetailId}
+		</if>
+		<if test="batchNumber!= null and batchNumber!= ''"> 
+			AND batch_number=#{batchNumber}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderReturn">
@@ -161,7 +182,8 @@
 			<include refid="commonColumnsNotPK"/>
 		<![CDATA[
 			) VALUES ( 
-				 #{custId}
+				 #{exceptionOrderId}
+				, #{custId}
 				, #{orderId}
 				, #{orderDetailId}
 				, #{returnCount}
@@ -178,11 +200,14 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{orderDeliveryDetailId}
+				, #{batchNumber}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderReturn">
 		<![CDATA[ UPDATE t_order_return SET 
 			 return_id=#{returnId} 
+			, exception_order_id=#{exceptionOrderId} 
 			, cust_id=#{custId} 
 			, order_id=#{orderId} 
 			, order_detail_id=#{orderDetailId} 
@@ -200,6 +225,8 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, order_delivery_detail_id=#{orderDeliveryDetailId} 
+			, batch_number=#{batchNumber} 
 		WHERE return_id = #{returnId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
