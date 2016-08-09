@@ -51,6 +51,7 @@ function createOrder(){
     var allPayTypeSelected = true;
     var _supplyName = ""; 
     $("input[name='supplyId']").each(function(_index,element){
+        // console.info("_index=" + _index + ",element=" + element);
         var _supplyId = $(this).val();
         var _payTypeId = "#"+_supplyId +"_payTypeId";
         var payType = $(_payTypeId).val();
@@ -62,6 +63,19 @@ function createOrder(){
     });
     if(!allPayTypeSelected){
         alert("供应商("+_supplyName+")下的商品未选择支付方式");
+        return;
+    }
+
+    /* 检查购物车是否有商品 */
+    var productIdArray = new Array();
+    $("input[name='productId']").each(function(_index,element){
+        var _productId = $(this).val();
+        if( _productId != null && _productId != "" && typeof _productId != "undefined"){
+            productIdArray[_index] = _productId;
+        }
+    });
+    if(productIdArray.length == 0 ){
+        alert("购物车中没有商品!");
         return;
     }
 

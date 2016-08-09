@@ -103,6 +103,7 @@
                                         <c:choose>
                                             <c:when test="${shoppingCart != null && fn:length(shoppingCart.shoppingCartDtoList) gt 0 }">
                                                 <c:forEach var="shoppingCartDto" items="${shoppingCart.shoppingCartDtoList}" varStatus="shoppingCartDtoVarStatus">
+                                                    <input type="hidden" name="productId" value="${shoppingCartDto.productId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>
