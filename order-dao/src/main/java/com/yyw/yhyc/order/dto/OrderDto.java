@@ -22,6 +22,7 @@ public class OrderDto extends Order {
     private String createEndTime;      //下单结束时间
     private String nowTime;            //数据库当前时间
     private long residualTime ;        //支付剩余时间
+    private long receivedTime ;         //确认收货剩余时间
     private String province;           //省编码
     private String city;               //市编码
     private String district;           //区编码
@@ -143,6 +144,14 @@ public class OrderDto extends Order {
         this.orderDelivery = orderDelivery;
     }
 
+    public long getReceivedTime() {
+        return receivedTime;
+    }
+
+    public void setReceivedTime(long receivedTime) {
+        this.receivedTime = receivedTime;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
@@ -156,11 +165,12 @@ public class OrderDto extends Order {
                 ", createEndTime='" + createEndTime + '\'' +
                 ", nowTime='" + nowTime + '\'' +
                 ", residualTime=" + residualTime +
+                ", receivedTime=" + receivedTime +
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
                 ", district='" + district + '\'' +
-                ", productInfoDtoList=" + productInfoDtoList + "\'" +
-                ", orderDelivery='{"+orderDelivery+"}'" +
+                ", productInfoDtoList=" + productInfoDtoList +
+                ", orderDelivery=" + orderDelivery +
                 '}';
     }
 }

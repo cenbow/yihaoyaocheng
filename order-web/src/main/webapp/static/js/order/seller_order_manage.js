@@ -63,7 +63,7 @@ function fillPagerUtil(data, requestParam) {
 }
 
 function setOrderCount(orderStatusCount) {
-    if(orderStatusCount){
+    if (orderStatusCount) {
         if (orderStatusCount['1'])
             $($("span[name='statusCount']")[0]).html(orderStatusCount['1']);
         else
@@ -88,7 +88,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = "/order/listPgBuyerOrder";
+    var requestUrl = "/order/listPgSellerOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -96,7 +96,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
-            if(data.statusCode || data.message){
+            if (data.statusCode || data.message) {
                 alertModal(data.message);
                 return;
             }
@@ -104,13 +104,13 @@ function doRefreshData(requestParam) {
             //设置订单数量
             setOrderCount(data.orderStatusCount);
             //填充表格数据
-            fillTableJson(data.buyerOrderList);
+            fillTableJson(data.sellerOrderList);
             //设置分页组件参数
             // fillPagerUtil(data,requestParam);
-            var totalpage = data.buyerOrderList.totalPage;
-            var nowpage = data.buyerOrderList.pageNo;
-            var totalCount = data.buyerOrderList.total;
-            dataList = data.buyerOrderList.resultList;
+            var totalpage = data.sellerOrderList.totalPage;
+            var nowpage = data.sellerOrderList.pageNo;
+            var totalCount = data.sellerOrderList.total;
+            dataList = data.sellerOrderList.resultList;
             $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
             $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
@@ -123,9 +123,9 @@ function doRefreshData(requestParam) {
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
                     console.info(data);
-                    var nowpage = data.buyerOrderList.page;
+                    var nowpage = data.sellerOrderList.page;
                     $("#nowpageedit").val(nowpage);
-                    fillTableJson(data.buyerOrderList);
+                    fillTableJson(data.sellerOrderList);
                 }
             });
         },
@@ -160,7 +160,7 @@ $.fn.serializeObject = function () {
 function fillTableJson(data) {
     console.info(data)
     var indexNum = 1;
-    if(!data || !data.resultList)
+    if (!data || !data.resultList)
         return;
     var list = data.resultList;
     $(".table-box tbody").html("");
@@ -171,7 +171,7 @@ function fillTableJson(data) {
         var tr = "<tr>";
         tr += "<td>" + order.flowId + "<br/><a href='" + order.flowId + "'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
-        tr += "<td>" + order.supplyName + "</td>";
+        tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
@@ -181,33 +181,35 @@ function fillTableJson(data) {
     $(".table-box tbody").append(trs);
     changeColor();
 }
-function changeColor(){
-    $(".table tr:not(:first):odd").css({background:"#f7f7f7"});
-    $(".table tr:not(:first):even").css({background:"#fff"});
+function changeColor() {
+    $(".table tr:not(:first):odd").css({background: "#f7f7f7"});
+    $(".table tr:not(:first):even").css({background: "#fff"});
 }
-window.setInterval(function () {
-    doInterval();
-}, 1000);
 //类型 转换成操作
 function typeToOperate(order) {
     var result = '';
-    //result = '<span id="order_' + order.orderId + '" ></span>';
-    if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 1)//在线支付+买家已下单
-        result = '<span id="order_' + order.orderId + '" ></span><br/>';
-    if (order && order.orderStatus && order.payType && order.orderStatus == '1' && (order.payType == 1 || order.payType == 3)) {//买家已下单 + （在线支付 或 线下转账）
-        result += '<a href="#" >付款</a><br/>';
+    result = '<span id="order_' + order.orderId + '" ></span>';
+
+    if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 2) {//账期支付+买家已下单
+        result = '<a href="#" >发货</a><br/>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" >取消</a><br/>';
     }
-    if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
-        result = '<span id="order_f_' + order.orderId + '" ></span><br/>';
-        result += '<a href="#" >确认收货</a><br/>';
-        result += '<a href="#" >延期收货</a><br/>';
+    if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 1) {//在线支付+买家已付款
+        result = '<a href="#" >发货</a><br/>';
+        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" >取消</a><br/>';
     }
-    if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
+
+    if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 3) {//线下支付+买家已下单
+        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" >取消</a><br/>';
+    }
+    if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 3) {//线下支付+买家已付款
+        result = '<a href="#" >发货</a><br/>';
+    }
+    if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
         result += '<a href="#" >查看拒收订单</a><br/>';
     }
 
-    if(order && order.orderStatus && order.orderStatus == '10'){//补货中
+    if (order && order.orderStatus && order.orderStatus == '10') {//补货中
         result += '<a href="#" >查看补货订单</a><br/>';
     }
 
@@ -219,91 +221,35 @@ function typeToOperate(order) {
  * @param orderId
  */
 function cancleOrder(orderId) {
-    if (window.confirm("订单取消后将无法恢复，确定取消？")) {
-        $.ajax({
-            url: "/order/buyerCancelOrder/"+orderId,
-            type: 'GET',
-            contentType: "application/json;charset=UTF-8",
-            success: function (data) {
-                if(data.statusCode || data.message){
-                    alertModal(data.message);
-                    return;
-                }
-                pasretFormData();
-                doRefreshData(params);
-                alertModal("取消成功");
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alertModal("取消失败");
-            }
-        });
-    }
+    $("#orderId").val(orderId);
+    $("#cancelResult").val('');
+    $("#myModalOperate").modal().hide();
+
 }
 
-/**
- * 页面倒计时定时器
- */
-function doInterval() {
-    if (dataList && dataList.length > 0) {
-        var order;
-        for (var i = 0; i < dataList.length; i++) {
-            order = dataList[i];
-            if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 1) {//在线支付+买家已付款
-                order.residualTime = order.residualTime - 1;
-                dataList[i] = order;
-                $("#order_" + order.orderId).html(calNYR("超过支付剩余时间",order.residualTime));
+function doCancle() {
+    var orderId = $("#orderId").val().trim();
+    var cancelResult = $("#cancelResult").val().trim();
+    var data = {orderId:orderId,cancelResult:cancelResult};
+    $.ajax({
+        url: "/order/sellerCancelOrder",
+        data: JSON.stringify(data),
+        type: 'POST',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if (data.statusCode || data.message) {
+                alertModal(data.message);
+                return;
             }
-            if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
-                order.receivedTime = order.receivedTime - 1;
-                dataList[i] = order;
-                $("#order_f_" + order.orderId).html(calNYR("超过确认收货时间",order.receivedTime));
-            }
+            $("#myModalOperate").modal().hide();
+            pasretFormData();
+            doRefreshData(params);
+            alertModal("取消成功");
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("取消失败");
         }
-    }
-    // console.info(dataList)
-    // console.info("working...")
-}
-
-/**
- * 计算年月日
- * @param seconds
- */
-function calNYR(msg,seconds) {
-    if (seconds <= 0) {
-        return msg;
-    }
-    var str = '剩余';
-    var day = parseInt(seconds / (60 * 60 * 24));
-    var dayB = parseInt(seconds % (60 * 60 * 24));
-
-    var hour, hourB, min, minB;
-
-    if (dayB != 0) {
-        hour = parseInt(dayB / (60 * 60));
-        hourB = parseInt(dayB % (60 * 60));
-        if (hourB != 0) {
-            min = parseInt(hourB / 60);
-            minB = parseInt(hourB % 60);
-        }
-    }
-
-    if (typeof(day) != "undefined" && day != 0)
-        str += day + '天';
-    if (typeof(hour) != "undefined") {
-        if (!(day == 0 && hour == 0))
-            str += hour + '时';
-    }
-    if (typeof(min) != "undefined") {
-        if (!(day == 0 && hour == 0 && min == 0))
-            str += min + '分';
-    }
-    if (minB)
-        str += minB + '秒';
-
-
-    console.info(day + " " + hour + " " + min);
-
-    return str;
+    });
 
 }
 

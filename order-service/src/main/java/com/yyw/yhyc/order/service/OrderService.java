@@ -746,6 +746,24 @@ public class OrderService {
 					}
 
 				}
+				//卖家已发货
+				if(!UtilHelper.isEmpty(od.getNowTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
+					try {
+						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
+						if(time > 0){
+							//计算自动确认时间与当前时间剩余秒数
+							time = CommonType.AUTO_RECEIVE_TIME*60*60*24-time;
+						}
+						if(time < 0)
+							time = 0l;
+						od.setReceivedTime(time);
+					} catch (ParseException e) {
+						log.debug("date format error"+od.getCreateTime()+" "+od.getNowTime());
+						e.printStackTrace();
+						throw new RuntimeException("日期转换错误");
+					}
+
+				}
             }
         }
 
@@ -789,7 +807,7 @@ public class OrderService {
             return BuyerOrderStatusEnum.Replenishing;//补货中
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType())) {//买家已取消+系统自动取消+后台取消
+		if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SellerCanceled.getType())) {//买家已取消+系统自动取消+后台取消+卖家已取消
             return BuyerOrderStatusEnum.Canceled;//已取消
         }
 
@@ -829,7 +847,7 @@ public class OrderService {
             return SellerOrderStatusEnum.Replenishing;//补货中
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType())) {//买家已取消+系统自动取消+后台取消
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SellerCanceled.getType())) {//买家已取消+系统自动取消+后台取消+卖家已取消
             return SellerOrderStatusEnum.Canceled;//已取消
         }
 
@@ -987,7 +1005,7 @@ public class OrderService {
 		}
 		//判断订单是否属于该卖家
 		if(userDto.getCustId() == order.getSupplyId()){
-			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
+			if((SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) ) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
 				order.setCancelResult(cancelResult);
