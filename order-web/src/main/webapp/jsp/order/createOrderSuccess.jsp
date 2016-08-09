@@ -1,3 +1,4 @@
+<%@ page import="com.yyw.yhyc.order.enmu.SystemPayTypeEnum" %>
 <%--
   Created by IntelliJ IDEA.
   User: lizhou
@@ -5,6 +6,9 @@
   Time: 16:48
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!doctype html>
 <html>
@@ -50,50 +54,52 @@
                 <th>订单金额</th>
                 <th>支付方式</th>
             </tr>
-            <tr>
-                <td>ZXD2016071914230100000101</td>
-                <td>上海九州通医药有限公司</td>
-                <td>¥ 10000.00</td>
-                <td>账期支付</td>
-            </tr>
-            <tr>
-                <td>ZXD2016071914230100000101</td>
-                <td>上海九州通医药有限公司</td>
-                <td>¥ 900.00</td>
-                <td>账期支付</td>
-            </tr>
-            <tr>
-                <td>ZXD2016071914230100000101</td>
-                <td>上海九州通医药有限公司</td>
-                <td>¥ 2000.00</td>
-                <td>
-            <span class="pr">
-              线下转账
-              <i class="common-icon query-icon">
-                <div class="tips-frame">
-                  <i class="common-icon frame-icon"></i>
-                  <p>
-                  <a href="<%=request.getContextPath()%>/order/checkAccountInfo" target="_blank" class="blue">点击查看收款账户信息</a>
-                  </p>
-                </div>
-              </i>
-            </span>
-                </td>
-            </tr>
-            <tr>
-                <td>ZXD2016071914230100000101</td>
-                <td>上海九州通医药有限公司</td>
-                <td>¥ 40000.00</td>
-                <td>在线支付</td>
-            </tr>
-            <tr>
-                <td>ZXD2016071914230100000101</td>
-                <td>上海九州通医药有限公司</td>
-                <td>¥ 5000.00</td>
-                <td>在线支付</td>
-            </tr>
+            <c:set var="offlinePayType" value="<%=SystemPayTypeEnum.PayOffline.getPayType()%>"/>
+            <c:choose>
+                <c:when test="${orderDtoList != null && fn:length(orderDtoList) gt 0 }">
+                    <c:forEach var="orderDto"  items="${orderDtoList}">
+
+                        <c:choose>
+                            <c:when test="${orderDto.payTypeId == offlinePayType}">
+                                <tr>
+                                    <td>${orderDto.flowId}</td>
+                                    <td>${orderDto.supplyName}</td>
+                                    <td>¥ ${orderDto.orderTotal}</td>
+                                    <td>
+                                            <span class="pr">${orderDto.payTypeName}
+                                              <i class="common-icon query-icon">
+                                                <div class="tips-frame">
+                                                  <i class="common-icon frame-icon"></i>
+                                                  <p>
+                                                      <a href="<%=request.getContextPath()%>/order/accountPayInfo/getByCustId/${userDto.custId}" target="_blank" class="blue">点击查看收款账户信息</a>
+                                                  </p>
+                                                </div>
+                                              </i>
+                                            </span>
+                                    </td>
+                                </tr>
+                            </c:when>
+                            <c:otherwise>
+                                <tr>
+                                    <td>${orderDto.flowId}</td>
+                                    <td>${orderDto.supplyName}</td>
+                                    <td>¥ <fmt:formatNumber value="${orderDto.orderTotal}" minFractionDigits="2"/></td>
+                                    <td>${orderDto.payTypeName}</td>
+                                </tr>
+                            </c:otherwise>
+                        </c:choose>
+
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <tr>
+                        <td colspan="4">无订单数据!</td>
+                    </tr>
+                </c:otherwise>
+            </c:choose>
+
         </table>
-        <p class="f18 red fb tc mt40">在线支付总金额： ¥ 45000.00</p>
+        <p class="f18 red fb tc mt40">在线支付总金额： ¥ <fmt:formatNumber value="${onLinePayOrderPriceCount}" minFractionDigits="2"/></p>
         <div class="mt45 tc btn">
             <a href="#" class="os-btn-pay">立即在线支付</a>
             <a href="#" class="os-btn-order">订单中心</a>

@@ -207,6 +207,16 @@ public class OrderDeliveryDetailService {
 			return returnMap;
 		}
 
+		//统计退款总金额
+		BigDecimal moneyTotal=new BigDecimal(0);
+		//根据类型生产异常订单号
+		if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
+			if (returnType.equals("4"))//拒收
+				exceptionOrderId="JS"+flowId;
+			else if (returnType.equals("3"))//补货
+				exceptionOrderId="BH"+flowId;
+		}
+
 		//更新批次收货数量
 		for (OrderDeliveryDetailDto dto : list){
 
@@ -241,38 +251,16 @@ public class OrderDeliveryDetailService {
 				returnType=dto.getReturnType();
 				returnDesc=dto.getReturnDesc();
 				flowId=dto.getFlowId();
-			}
-			if(UtilHelper.isEmpty(map.get(dto.getOrderDetailId()))){
-				map.put(dto.getOrderDetailId(), dto.getRecieveCount());
-			}else {
-				map.put(dto.getOrderDetailId(), map.get(dto.getOrderDetailId())+dto.getRecieveCount());
-			}
-		}
-		//统计退款总金额
-		BigDecimal moneyTotal=new BigDecimal(0);
-		//根据类型生产异常订单号
-		if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
-			if (returnType.equals("4"))//拒收
-				exceptionOrderId="JS"+flowId;
-			else if (returnType.equals("3"))//补货
-				exceptionOrderId="BH"+flowId;
-		}
-		//更新订单详情总收货数量//并判断采购数量和收货数量是否相同
-		for (Integer orderdetailId:map.keySet()) {
-			OrderDetail orderDetail = orderDetailMapper.getByPK(orderdetailId);
-			orderDetail.setRecieveCount(map.get(orderdetailId));
-			orderDetailMapper.update(orderDetail);
-			if(orderDetail.getProductCount()!=orderDetail.getRecieveCount()){
-				if(UtilHelper.isEmpty(returnType)||returnType.equals("")){
-					 throw new Exception("采购商与收获数不同,拒收类型为空");
-				}
+				//根据发货两比对如果不同则生成退换货信息
+				if(orderDeliveryDetail.getDeliveryProductCount()>orderDeliveryDetail.getRecieveCount()){
+					OrderDetail orderDetail = orderDetailMapper.getByPK(dto.getOrderDetailId());
 					OrderReturn orderReturn=new OrderReturn();
-					orderReturn.setOrderDetailId(orderDetail.getOrderDetailId());
-					orderReturn.setOrderId(orderDetail.getOrderId());
+					orderReturn.setOrderDetailId(orderDeliveryDetail.getOrderDetailId());
+					orderReturn.setOrderId(orderDeliveryDetail.getOrderId());
 					orderReturn.setCustId(user.getCustId());
-					orderReturn.setReturnCount(orderDetail.getProductCount() - orderDetail.getRecieveCount());
+					orderReturn.setReturnCount(orderDeliveryDetail.getDeliveryProductCount() - orderDeliveryDetail.getRecieveCount());
 					BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
-					moneyTotal=moneyTotal.add(orderDetail.getProductPrice().multiply(bigDecimal));
+					moneyTotal = moneyTotal.add(orderDetail.getProductPrice().multiply(bigDecimal));
 					orderReturn.setReturnPay(orderDetail.getProductPrice().multiply(bigDecimal));
 					orderReturn.setReturnType(returnType);
 					orderReturn.setReturnDesc(returnDesc);
@@ -283,9 +271,28 @@ public class OrderDeliveryDetailService {
 					orderReturn.setCreateUser(user.getUserName());
 					orderReturn.setUpdateUser(user.getUserName());
 					orderReturn.setExceptionOrderId(exceptionOrderId);
+					orderReturn.setOrderDeliveryDetailId(orderDeliveryDetail.getOrderDeliveryDetailId());
+					orderReturn.setBatchNumber(orderDeliveryDetail.getBatchNumber());
 					orderReturnMapper.save(orderReturn);
 				}
 			}
+			if(UtilHelper.isEmpty(map.get(dto.getOrderDetailId()))){
+				map.put(dto.getOrderDetailId(), dto.getRecieveCount());
+			}else {
+				map.put(dto.getOrderDetailId(), map.get(dto.getOrderDetailId())+dto.getRecieveCount());
+			}
+		}
+
+		//更新订单详情总收货数量//并判断采购数量和收货数量是否相同
+		for (Integer orderdetailId:map.keySet()) {
+			OrderDetail orderDetail = orderDetailMapper.getByPK(orderdetailId);
+			orderDetail.setRecieveCount(map.get(orderdetailId));
+			orderDetailMapper.update(orderDetail);
+			if(orderDetail.getProductCount()!=orderDetail.getRecieveCount()){
+				if(UtilHelper.isEmpty(returnType)||returnType.equals(""))
+					 throw new Exception("采购商与收获数不同,拒收类型为空");
+			}
+		}
 
 		//如果收货异常根据异常类型更新订单状态
 		Order order = orderMapper.getOrderbyFlowId(flowId);

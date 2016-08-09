@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 public interface OrderExceptionFacade {
 
@@ -93,5 +94,13 @@ public interface OrderExceptionFacade {
 	 * @throws Exception
 	 */
 	public Pagination<OrderException> listPaginationByProperty(Pagination<OrderException> pagination, OrderException orderException) throws Exception;
+
+	/**
+	 * 退货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception;
 
 }

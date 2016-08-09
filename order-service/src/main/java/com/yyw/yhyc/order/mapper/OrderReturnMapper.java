@@ -15,8 +15,11 @@ import java.util.List;
 import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 
 public interface OrderReturnMapper extends GenericIBatisMapper<OrderReturn, Integer> {
 
 	public List<OrderReturn> listPaginationByProperty(Pagination<OrderReturn> pagination, OrderReturn orderReturn);
+
+	public List<OrderReturnDto> getByExceptionOrderId(String exceptionOrderId);
 }

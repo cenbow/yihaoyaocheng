@@ -249,7 +249,7 @@ public class OrderService {
 	 */
 	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
-		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getOrderDeliveryDto())
+		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList())){
 			throw  new Exception("非法参数");
 		}
@@ -276,6 +276,9 @@ public class OrderService {
 			validateProducts(currentLoginCustId,orderDto);
 
             /* 创建订单相关的所有信息 */
+			if(UtilHelper.isEmpty(orderDto.getBillType())){
+				orderDto.setBillType(orderCreateDto.getBillType());
+			}
 			Order orderNew = createOrderInfo(orderDto,orderDelivery);
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
@@ -293,11 +296,12 @@ public class OrderService {
     }
 
 	private OrderDelivery handlerOrderDelivery(UsermanageEnterprise enterprise, OrderCreateDto orderCreateDto) throws Exception {
-		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || !orderCreateDto.getCustId().equals(enterprise.getId())) {
+		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())
+				|| !orderCreateDto.getCustId().equals(enterprise.getId()) ) {
 			throw  new Exception("非法参数");
 		}
 		UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderCreateDto.getReceiveAddressId());
-		if(UtilHelper.isEmpty(receiverAddress) || UtilHelper.isEmpty(receiverAddress.getEnterpriseId()) || receiverAddress.getEnterpriseId().equals(enterprise.getEnterpriseId())){
+		if(UtilHelper.isEmpty(receiverAddress) || UtilHelper.isEmpty(receiverAddress.getEnterpriseId()) || !receiverAddress.getEnterpriseId().equals(enterprise.getEnterpriseId())){
 			throw new Exception("非法参数");
 		}
 		OrderDelivery  orderDelivery = new OrderDelivery();
@@ -334,8 +338,8 @@ public class OrderService {
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
-		/* 删除购物车 */
-		deleteShoppingCart(orderDto);
+		/* TODO 删除购物车 */
+//		deleteShoppingCart(orderDto);
 
 		//TODO 短信、邮件等通知买家
 		//TODO 自动取消订单相关的定时任务
@@ -528,7 +532,11 @@ public class OrderService {
 		order.setSupplyName("");//todo
 		order.setBillType(orderDto.getBillType());
 		order.setLeaveMessage(orderDto.getLeaveMessage());
+		if(UtilHelper.isEmpty(orderDto.getPayTypeId())){
+			throw new Exception("非法支付类型");
+		}
 		order.setPayTypeId(orderDto.getPayTypeId());
+
 
 		SystemPayType systemPayType = systemPayTypeService.getByPK(orderDto.getPayTypeId());
 		String orderFlowIdPrefix = "";

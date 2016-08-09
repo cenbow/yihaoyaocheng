@@ -113,6 +113,31 @@ public class OrderReturn extends Model{
 	 */
 	private java.lang.String exceptionOrderId;
 
+	/**
+	 *	订单异常编号
+	 */
+	private java.lang.Integer orderDeliveryDetailId;
+
+	/**
+	 *	发货批次
+	 */
+	private String batchNumber;
+
+	public Integer getOrderDeliveryDetailId() {
+		return orderDeliveryDetailId;
+	}
+
+	public void setOrderDeliveryDetailId(Integer orderDeliveryDetailId) {
+		this.orderDeliveryDetailId = orderDeliveryDetailId;
+	}
+
+	public String getBatchNumber() {
+		return batchNumber;
+	}
+
+	public void setBatchNumber(String batchNumber) {
+		this.batchNumber = batchNumber;
+	}
 
 	public String getExceptionOrderId() {
 		return exceptionOrderId;

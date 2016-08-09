@@ -23,8 +23,9 @@ public class OrderCreateDto implements Serializable {
     /* 订单信息集合 */
     private List<OrderDto> orderDtoList;
 
-    /* 收货地址信息 */
-    private OrderDeliveryDto orderDeliveryDto;
+    /* 发票类型 */
+    private Integer billType;
+
 
     public Integer getCustId() {
         return custId;
@@ -50,12 +51,12 @@ public class OrderCreateDto implements Serializable {
         this.orderDtoList = orderDtoList;
     }
 
-    public OrderDeliveryDto getOrderDeliveryDto() {
-        return orderDeliveryDto;
+    public Integer getBillType() {
+        return billType;
     }
 
-    public void setOrderDeliveryDto(OrderDeliveryDto orderDeliveryDto) {
-        this.orderDeliveryDto = orderDeliveryDto;
+    public void setBillType(Integer billType) {
+        this.billType = billType;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class OrderCreateDto implements Serializable {
                 "custId=" + custId +
                 ", receiveAddressId=" + receiveAddressId +
                 ", orderDtoList=" + orderDtoList +
-                ", orderDeliveryDto=" + orderDeliveryDto +
+                ", billType=" + billType +
                 '}';
     }
 }
