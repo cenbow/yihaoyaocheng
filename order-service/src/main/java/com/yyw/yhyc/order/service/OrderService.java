@@ -253,6 +253,7 @@ public class OrderService {
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
 			throw  new Exception("非法参数");
 		}
+		log.info("创建订单接口-请求参数orderCreateDto：" + orderCreateDto);
 
 		/* 获取当前登陆用户的企业id */
 		Integer currentLoginCustId = orderCreateDto.getUserDto().getCustId();
@@ -260,8 +261,11 @@ public class OrderService {
 		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
 		if(UtilHelper.isEmpty(enterprise)) throw new Exception("用户不存在");
 
+		log.info("创建订单接口-当前登陆用户信息enterprise：" + enterprise);
+
         /* 订单配送信息 */
 		OrderDelivery orderDelivery = handlerOrderDelivery(enterprise,orderCreateDto);
+		log.info("创建订单接口-订单配送信息orderDelivery ：" + orderDelivery);
 
         /* 订单信息 */
 		List<OrderDto> orderDtoList = orderCreateDto.getOrderDtoList();
@@ -286,12 +290,14 @@ public class OrderService {
 
 		/* 创建支付流水号 */
 		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginCustId);
+		log.info("创建订单接口-创建支付流水号,payFlowId = " + payFlowId);
 
 		/* 插入数据到订单支付表 */
 		insertOrderPay(orderNewList, orderCreateDto.getUserDto(), payFlowId);
 
 		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
 		insertOrderCombined(orderNewList,orderCreateDto.getUserDto(),payFlowId);
+		log.info("创建订单接口-完成，返回数据,orderNewList = " + orderNewList);
         return orderNewList;
     }
 
@@ -329,10 +335,13 @@ public class OrderService {
 		}
 
 		/* TODO  计算订单相关的价格 */
+		log.info("创建订单接口 ：计算订单相关的价格,计算前orderDto = " + orderDto);
 		orderDto = calculateOrderPrice(orderDto);
+		log.info("创建订单接口 ：计算订单相关的价格,计算后orderDto = " + orderDto);
 
 		/*  数据插入订单表、订单详情表 */
 		Order order = insertOrderAndOrderDetail(orderDto,userDto);
+		log.info("创建订单接口 ：插入订单表、订单详情表 order= " + order);
 
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
@@ -516,6 +525,7 @@ public class OrderService {
 		}
 		orderDelivery.setOrderId(order.getOrderId());
 		orderDelivery.setFlowId(order.getFlowId());
+		log.info("创建订单接口 ：插入订单收发货表 orderDelivery= " + orderDelivery);
 		orderDeliveryMapper.save(orderDelivery);
 	}
 
@@ -582,8 +592,8 @@ public class OrderService {
 		/* 创建订单编号 */
 		String orderFlowId = RandomUtil.createOrderFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),order.getOrderId() +"", orderFlowIdPrefix);
 		order.setFlowId(orderFlowId);
-		orderMapper.update(order);
 		log.info("更新数据到订单表：order参数=" + order);
+		orderMapper.update(order);
 
 
 		/* 插入订单详情表 */
@@ -614,8 +624,8 @@ public class OrderService {
 			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
 			orderDetail.setManufactures(productInfo.getFactoryName());//生产厂家
-			orderDetailService.save(orderDetail);
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
+			orderDetailService.save(orderDetail);
 		}
 		return order;
 	}
@@ -630,12 +640,14 @@ public class OrderService {
      */
 	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto) throws Exception {
 		if(UtilHelper.isEmpty(currentLoginCustId) || UtilHelper.isEmpty(orderDto)){
+			log.info("统一校验订单商品接口-currentLoginCustId：" + currentLoginCustId +",orderDto=" + orderDto);
 			throw new Exception("非法参数");
 		}
 
 		//TODO 校验采购商状态、资质
 		UsermanageEnterprise buyer = enterpriseMapper.getByPK(currentLoginCustId);
 		if(UtilHelper.isEmpty(buyer)){
+			log.info("统一校验订单商品接口-buyer ：" + buyer);
 			throw new Exception("采购商不存在!");
 		}
 		orderDto.setCustId(buyer.getId());
@@ -644,18 +656,21 @@ public class OrderService {
 		//TODO 校验要供应商状态、资质
 		UsermanageEnterprise seller = enterpriseMapper.getByPK(orderDto.getSupplyId());
 		if(UtilHelper.isEmpty(seller)){
+			log.info("统一校验订单商品接口-seller ：" + seller);
 			throw new Exception("供应商不存在!");
 		}
 		orderDto.setSupplyName(seller.getEnterpriseName());
 
 		//TODO 校验要采购商与供应商是否相同
 		if (!UtilHelper.isEmpty(orderDto.getSupplyId()) && currentLoginCustId.equals(orderDto.getSupplyId())){
+			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
 			throw new Exception("不能购买自己的商品");
 		}
 
 		//TODO 校验供应商下的商品信息、价格
 		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
 		if(UtilHelper.isEmpty(productInfoDtoList)){
+			log.info("统一校验订单商品接口 ：商品不能为空!" );
 			throw new Exception("商品不能为空!");
 		}
 		ProductInfo productInfo = null;
@@ -663,6 +678,7 @@ public class OrderService {
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
 			if(UtilHelper.isEmpty(productInfo )){
+				log.info("统一校验订单商品接口 ：商品(productId=" + productInfoDto.getId() + ")不存在!" );
 				throw new Exception("商品不存在!");
 			}
 			//TODO 商品状态、价格校验
@@ -674,6 +690,7 @@ public class OrderService {
 			//TODO 校验商品的账期(是否存在、是否有效)
 
 		}
+		log.info("统一校验订单商品接口 ：校验成功" );
 		return true;
 	}
 
@@ -1086,6 +1103,7 @@ public class OrderService {
 	 * @param userDto
      */
 	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
+		log.info("检查订单页的数据,userDto = " + userDto);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			return null;
 		}

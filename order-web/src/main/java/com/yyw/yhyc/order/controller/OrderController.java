@@ -112,8 +112,12 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
 
-		//todo 获取当前登陆人的企业用户id
-		Integer currentLoginCustId = 123;
+		/* 获取当前登陆人的企业用户id */
+		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
+		}
+		Integer currentLoginCustId = userDto.getCustId();
 
 		Map<String,Object> map = new HashMap<String, Object>();
 		boolean validateResult = false;
@@ -214,6 +218,7 @@ public class OrderController extends BaseJsonController {
 		/* 计算所有订单中，在线支付订单总额 */
 		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
 
+		logger.info("创建订单成功页面，请求参数 orderIds = " + orderIds);
 		if(UtilHelper.isEmpty(orderIds)){
 			throw new Exception("非法参数");
 		}

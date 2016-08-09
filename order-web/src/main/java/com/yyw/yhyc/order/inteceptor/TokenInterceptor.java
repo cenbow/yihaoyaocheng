@@ -1,6 +1,8 @@
 package com.yyw.yhyc.order.inteceptor;
 
 import com.yyw.yhyc.order.annotation.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -13,6 +15,9 @@ import java.util.UUID;
  * Created by lizhou on 2016/8/9
  */
 public class TokenInterceptor extends HandlerInterceptorAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger(TokenInterceptor.class);
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (handler instanceof HandlerMethod) {
@@ -27,6 +32,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
                 boolean needRemoveSession = annotation.remove();
                 if (needRemoveSession) {
                     if (isRepeatSubmit(request)) {
+                        logger.error("请勿重复提交表单数据!");
                         return false;
                     }
                     request.getSession(false).removeAttribute("token");
