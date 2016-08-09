@@ -17,7 +17,6 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.*;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 
 public interface OrderFacade {
@@ -154,7 +153,7 @@ public interface OrderFacade {
 	 */
 	public void  sellerCancelOrder(UserDto userDto, Integer orderId, String buyerCancelOrder);
 
-	public Map<String,Object> checkOrderPage() throws Exception;
+	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception;
 
 	/**
 	 * 导出销售订单

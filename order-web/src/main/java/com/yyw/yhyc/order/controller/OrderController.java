@@ -179,11 +179,13 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
 	public ModelAndView createOrder( OrderCreateDto orderCreateDto) throws Exception {
-		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
 		UserDto userDto = super.getLoginUser();
-		if(!UtilHelper.isEmpty(userDto) && !UtilHelper.isEmpty(userDto.getCustId())){
-			orderCreateDto.setCustId(userDto.getCustId());
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
 		}
+		orderCreateDto.setUserDto(userDto);
+
+		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
 
 		/* 计算所有订单中，在线支付订单总额 */
 		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
@@ -225,7 +227,7 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
 		UserDto userDto = super.getLoginUser();
-		Map<String,Object> dataMap = orderFacade.checkOrderPage();
+		Map<String,Object> dataMap = orderFacade.checkOrderPage(userDto);
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
 		model.addObject("userDto",userDto);
