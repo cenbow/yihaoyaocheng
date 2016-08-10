@@ -13,24 +13,46 @@ package com.yyw.yhyc.order.service;
 import java.util.List;
 
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderExceptionService")
 public class OrderExceptionService {
 
 	private OrderExceptionMapper	orderExceptionMapper;
+	private OrderSettlementMapper orderSettlementMapper;
+	private SystemDateMapper systemDateMapper;
+	private OrderMapper	orderMapper;
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
 	{
 		this.orderExceptionMapper = orderExceptionMapper;
 	}
-	
+	@Autowired
+	public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
+		this.orderSettlementMapper = orderSettlementMapper;
+	}
+	@Autowired
+	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+		this.systemDateMapper = systemDateMapper;
+	}
+	@Autowired
+	public void setOrderMapper(OrderMapper orderMapper)
+	{
+		this.orderMapper = orderMapper;
+	}
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -151,4 +173,31 @@ public class OrderExceptionService {
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
 		return orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
 	}
+	/**
+	 * 拒收订单卖家审核通过生成结算记录
+	 * @param custId
+	 * @param orderExceptionDto
+	 * @throws Exception
+	 */
+	private void saveRefuseOrderSettlement(Integer custId,OrderExceptionDto orderExceptionDto) throws Exception{
+		Order order = orderMapper.getByPK(orderExceptionDto.getOrderId());
+		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
+			throw new RuntimeException("未找到订单");
+		}
+		String now = systemDateMapper.getSystemDate();
+		OrderSettlement orderSettlement = new OrderSettlement();
+		orderSettlement.setBusinessType(2);
+		orderSettlement.setFlowId(orderExceptionDto.getExceptionOrderId());
+		orderSettlement.setCustId(orderExceptionDto.getCustId());
+		orderSettlement.setCustName(orderExceptionDto.getCustName());
+		orderSettlement.setSupplyId(orderExceptionDto.getSupplyId());
+		orderSettlement.setSupplyName(orderExceptionDto.getSupplyName());
+		orderSettlement.setConfirmSettlement("1");
+		orderSettlement.setPayTypeId(order.getPayTypeId());
+		orderSettlement.setSettlementTime(now);
+		orderSettlement.setCreateUser(orderExceptionDto.getCustName());
+		orderSettlement.setCreateTime(now);
+		orderSettlementMapper.save(orderSettlement);
+	}
+	
 }
