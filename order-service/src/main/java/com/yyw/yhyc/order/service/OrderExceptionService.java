@@ -10,10 +10,12 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -171,7 +173,17 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
-		return orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+
+		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+		return orderExceptionDto;
 	}
 	/**
 	 * 拒收订单卖家审核通过生成结算记录

@@ -549,27 +549,22 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderDto.getPayTypeId())){
 			throw new Exception("非法支付类型");
 		}
+
 		order.setPayTypeId(orderDto.getPayTypeId());
-
-
 		SystemPayType systemPayType = systemPayTypeService.getByPK(orderDto.getPayTypeId());
 		String orderFlowIdPrefix = "";
-		/* 下单后，选择不同支付方式，订单的状态不一样 */
 		/* 线下支付 */
 		if(SystemPayTypeEnum.PayOffline.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
-
 		/* 在线支付 */
 		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
-
 		/* 账期支付 */
 		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
+
+		order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 		order.setCreateTime(systemDateMapper.getSystemDate());
 		order.setCreateUser(userDto.getUserName());
 		order.setTotalCount( orderDto.getProductInfoDtoList().size());
