@@ -7,6 +7,7 @@ a:link {text-decoration: none;}
 a:visited {text-decoration: none;}
 a:hover {text-decoration: none;color: #25a5da;}
 a:active {text-decoration: none;}
+a.undeline{text-decoration: underline;color: #3b9ec9;}
 i{font-style: normal;}
 h4{font-size: 16px;}
 .font-size-14{font-size: 14px;}
@@ -149,7 +150,7 @@ em{font-style: normal;color:#fe4233;}
 .x_step>div{text-align: center;}
 
 /*步骤*/
-.progress{background: #fff;height: 90px;font-size: 14px;border-radius: 0;}
+.progress{background: #fff;min-height: 90px;font-size: 14px;border-radius: 0;}
 .progress .row{margin: 0 15px;}
 .progress .progress_bar{height:2px;background: #c9ccd3;margin: 0 15px;margin-top: 30px;}
 .progress .progress_bar>div{height:2px;}
@@ -565,3 +566,19 @@ em{font-style: normal;color:#fe4233;}
 
 /*药品经营范围*/
 .drugscope .checkbox-inline+.checkbox-inline, .radio-inline+.radio-inline{margin-left: 20px;}
+
+/*上海*/
+.table>tbody>tr>td div.fl{width:40%;}
+.table>tbody>tr>td div.fontbox{width: 60%;}
+.table>tbody>tr>td div.fl img{max-width: 100%;max-height:100%}
+.table>tbody>tr>td div.fontbox{padding: 30px 0 0 0;}
+.table>tbody>tr>td p.title{text-align: left;font-weight: 800;}
+.table>tbody>tr>td p.text{text-align: left;}
+.nav-tabs{border:1px solid #ddd;}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+    color: #f00;
+    border-top: 1px solid #f00;
+    outline:none;blr:expression(this.onFocus=this.blur());
+}
+.send_goods .radio-inline{margin: 0;}
+.openclosebtn{cursor: pointer;}

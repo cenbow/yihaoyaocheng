@@ -446,5 +446,17 @@ public class OrderController extends BaseJsonController {
 		return orderFacade.getOrderDetails(order);
 	}
 
+	@RequestMapping("/sellerOrderManage")
+	public ModelAndView buyer_order_manage(){
+		ModelAndView view = new ModelAndView("order/seller_order_manage");
+		return view;
+	}
+
+	@RequestMapping("/buyerOrderManage")
+	public ModelAndView login(){
+		ModelAndView view = new ModelAndView("order/buyer_order_manage");
+		return view;
+	}
+
 
 }

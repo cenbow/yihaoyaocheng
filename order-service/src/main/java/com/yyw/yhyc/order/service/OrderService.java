@@ -753,12 +753,12 @@ public class OrderService {
 		//获取各订单状态下的订单数量
         List<OrderDto> orderDtoList = orderMapper.findOrderStatusCount(orderDto);
         Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-        int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
-        BuyerOrderStatusEnum buyerorderstatusenum;
+        //int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付  0--为选择支付类型
+        BuyerOrderStatusEnum buyerorderstatusenum = null;
         if (!UtilHelper.isEmpty(orderDtoList)) {
             for (OrderDto od : orderDtoList) {
 				//获取买家视角订单状态
-                buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),payType);
+				buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
                 if(buyerorderstatusenum != null){
 					//统计买家视角订单数
                     if(orderStatusCountMap.containsKey(buyerorderstatusenum.getType())){
@@ -849,7 +849,7 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return BuyerOrderStatusEnum.BackOrder;//待发货
-            } else {
+            } else if(payType == 1 || payType == 3){
                 return BuyerOrderStatusEnum.PendingPayment;//待付款
             }
         }
@@ -889,7 +889,7 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return SellerOrderStatusEnum.BackOrder;//待发货
-            } else {
+            } else if(payType == 1 || payType == 3) {
                 return SellerOrderStatusEnum.PendingPayment;//待付款
             }
         }
@@ -999,12 +999,12 @@ public class OrderService {
 		//获取各订单状态下的订单数量
 		List<OrderDto> orderDtoList = orderMapper.findSellerOrderStatusCount(orderDto);
 		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-		int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
-		SellerOrderStatusEnum sellerOrderStatusEnum;
+		//int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
+		SellerOrderStatusEnum sellerOrderStatusEnum ;
 		if (!UtilHelper.isEmpty(orderDtoList)) {
 			for (OrderDto od : orderDtoList) {
 				//卖家视角订单状态
-				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),payType);
+				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
 				if(sellerOrderStatusEnum != null){
 					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
 						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),orderStatusCountMap.get(sellerOrderStatusEnum.getType())+od.getOrderCount());
