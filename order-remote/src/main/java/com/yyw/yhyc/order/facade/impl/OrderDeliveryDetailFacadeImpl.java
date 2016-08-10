@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -146,8 +147,8 @@ public class OrderDeliveryDetailFacadeImpl implements OrderDeliveryDetailFacade 
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception
+	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception
 	{
-		return orderDeliveryDetailService.confirmReceipt(list);
+		return orderDeliveryDetailService.confirmReceipt(list,user);
 	}
 }

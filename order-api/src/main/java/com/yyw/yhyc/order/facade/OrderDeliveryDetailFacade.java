@@ -16,6 +16,7 @@ import java.util.Map;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.UserDto;
 
 public interface OrderDeliveryDetailFacade {
 
@@ -101,5 +102,5 @@ public interface OrderDeliveryDetailFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list) throws Exception;
+	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception;
 }

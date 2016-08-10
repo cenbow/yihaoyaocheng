@@ -16,10 +16,7 @@ import java.util.Map;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.dto.OrderCreateDto;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.dto.OrderDto;
 
 public interface OrderFacade {
@@ -113,7 +110,7 @@ public interface OrderFacade {
 	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(OrderDto orderDto)throws Exception;
+	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto)throws Exception;
 
 
 	/**
@@ -135,10 +132,10 @@ public interface OrderFacade {
 
 	/**
 	 * 采购商取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
      */
-	public void  buyerCancelOrder(Integer custId,Integer orderId);
+	public void  buyerCancelOrder(UserDto userDto,Integer orderId);
 
 
 	/**
@@ -151,12 +148,12 @@ public interface OrderFacade {
 
 	/**
 	 * 卖家取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  sellerCancelOrder(Integer custId,Integer orderId,String buyerCancelOrder);
+	public void  sellerCancelOrder(UserDto userDto, Integer orderId, String buyerCancelOrder);
 
-	public Map<String,Object> checkOrderPage() throws Exception;
+	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception;
 
 	/**
 	 * 导出销售订单

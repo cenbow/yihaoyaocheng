@@ -47,8 +47,6 @@
         <result column="create_date" property="createDate"/>
         <result column="update_date" property="updateDate"/>
         <result column="update_staff" property="updateStaff"/>
-        <result column="enterprise_name" property="enterpriseName"/>
-        <result column="enterprise_code" property="enterpriseCode"/>
     </resultMap>
 
     <sql id="commonColumns">
@@ -82,8 +80,6 @@
         , create_date
         , update_date
         , update_staff
-        , enterprise_name
-        , enterprise_code
     </sql>
 
     <sql id="commonColumnsNotPK">
@@ -116,8 +112,6 @@
         , create_date
         , update_date
         , update_staff
-        , enterprise_name
-        , enterprise_code
     </sql>
 
     <sql id="commonProcessDateColumns">
@@ -151,8 +145,6 @@
         , date_format(create_date, '%Y-%m-%d %H:%i:%s') create_date
         , date_format(update_date, '%Y-%m-%d %H:%i:%s') update_date
         , update_staff
-        , enterprise_name
-        , enterprise_code
     </sql>
 
     <sql id="commonCondition">
@@ -246,12 +238,6 @@
         <if test="updateStaff!= null and updateStaff!= ''">
             AND update_staff=#{updateStaff}
         </if>
-        <if test="enterpriseName!= null and enterpriseName!= ''">
-            AND enterprise_name=#{enterpriseName}
-        </if>
-        <if test="enterpriseCode!= null and enterpriseCode!= ''">
-            AND enterprise_code=#{enterpriseCode}
-        </if>
     </sql>
 
     <insert id="save" parameterType="ProductInfo">
@@ -288,8 +274,6 @@
 				, str_to_date(#{createDate},'%Y-%m-%d %H:%i:%s')
 				, str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
 				, #{updateStaff}
-				, #{enterpriseName}
-				, #{enterpriseCode}
   ) ]]>
     </insert>
     <update id="update" parameterType="ProductInfo">
@@ -324,8 +308,6 @@
 			, create_date=str_to_date(#{createDate},'%Y-%m-%d %H:%i:%s')
 			, update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
 			, update_staff=#{updateStaff}
-			, enterprise_name=#{enterpriseName}
-			, enterprise_code=#{enterpriseCode}
 		WHERE id = #{id}  ]]>
     </update>
     <delete id="deleteByPK" parameterType="java.lang.Integer">

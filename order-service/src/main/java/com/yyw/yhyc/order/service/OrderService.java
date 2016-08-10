@@ -249,16 +249,19 @@ public class OrderService {
 	 */
 	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
-		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getOrderDeliveryDto())
-				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList())){
+		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
+				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
 			throw  new Exception("非法参数");
 		}
 
-		/* TODO 获取当前登陆用户的企业id */
-		Integer currentLoginCustId = 123;
+		/* 获取当前登陆用户的企业id */
+		Integer currentLoginCustId = orderCreateDto.getUserDto().getCustId();
+		if(UtilHelper.isEmpty(currentLoginCustId)) throw new Exception("非法参数");
+		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
+		if(UtilHelper.isEmpty(enterprise)) throw new Exception("用户不存在");
 
         /* 订单配送信息 */
-		OrderDeliveryDto orderDeliveryDto = orderCreateDto.getOrderDeliveryDto();
+		OrderDelivery orderDelivery = handlerOrderDelivery(enterprise,orderCreateDto);
 
         /* 订单信息 */
 		List<OrderDto> orderDtoList = orderCreateDto.getOrderDtoList();
@@ -270,10 +273,13 @@ public class OrderService {
 			}
 
             /* 校验所购买商品的合法性 */
-			validateProducts(orderDto);
+			validateProducts(currentLoginCustId,orderDto);
 
             /* 创建订单相关的所有信息 */
-			Order orderNew = createOrderInfo(orderDto,orderDeliveryDto);
+			if(UtilHelper.isEmpty(orderDto.getBillType())){
+				orderDto.setBillType(orderCreateDto.getBillType());
+			}
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -282,23 +288,43 @@ public class OrderService {
 		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginCustId);
 
 		/* 插入数据到订单支付表 */
-		insertOrderPay(orderNewList, currentLoginCustId, payFlowId);
+		insertOrderPay(orderNewList, orderCreateDto.getUserDto(), payFlowId);
 
 		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
-		insertOrderCombined(orderNewList,currentLoginCustId,payFlowId);
+		insertOrderCombined(orderNewList,orderCreateDto.getUserDto(),payFlowId);
         return orderNewList;
     }
 
+	private OrderDelivery handlerOrderDelivery(UsermanageEnterprise enterprise, OrderCreateDto orderCreateDto) throws Exception {
+		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())
+				|| !orderCreateDto.getCustId().equals(enterprise.getId()) ) {
+			throw  new Exception("非法参数");
+		}
+		UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderCreateDto.getReceiveAddressId());
+		if(UtilHelper.isEmpty(receiverAddress) || UtilHelper.isEmpty(receiverAddress.getEnterpriseId()) || !receiverAddress.getEnterpriseId().equals(enterprise.getEnterpriseId())){
+			throw new Exception("非法参数");
+		}
+		OrderDelivery  orderDelivery = new OrderDelivery();
+		orderDelivery.setReceivePerson(receiverAddress.getReceiverName());
+		orderDelivery.setReceiveProvince(receiverAddress.getProvinceCode());
+		orderDelivery.setReceiveCity(receiverAddress.getCityCode());
+		orderDelivery.setReceiveRegion(receiverAddress.getDistrictCode());
+		orderDelivery.setReceiveAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+		orderDelivery.setReceiveContactPhone(receiverAddress.getContactPhone());
+		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
+		orderDelivery.setCreateUser(orderCreateDto.getUserDto().getUserName());
+		return orderDelivery;
+	}
 
 
 	/**
 	 * 创建订单相关的所有信息
 	 * @param orderDto 订单、商品相关信息
-	 * @param orderDeliveryDto 订单发货、配送相关信息
+	 * @param orderDelivery 订单发货、配送相关信息
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDeliveryDto orderDeliveryDto) throws Exception{
-		if( null == orderDto || null == orderDeliveryDto){
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery,UserDto userDto) throws Exception{
+		if( null == orderDto || null == orderDelivery){
 			return null;
 		}
 
@@ -306,16 +332,16 @@ public class OrderService {
 		orderDto = calculateOrderPrice(orderDto);
 
 		/*  数据插入订单表、订单详情表 */
-		Order order = insertOrderAndOrderDetail(orderDto);
+		Order order = insertOrderAndOrderDetail(orderDto,userDto);
 
 		/* 订单配送发货信息表 */
-		insertOrderDeliver(order, orderDeliveryDto);
+		insertOrderDeliver(order, orderDelivery);
 
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
-		/* 删除购物车 */
-		deleteShoppingCart(orderDto);
+		/* TODO 删除购物车 */
+//		deleteShoppingCart(orderDto);
 
 		//TODO 短信、邮件等通知买家
 		//TODO 自动取消订单相关的定时任务
@@ -364,12 +390,12 @@ public class OrderService {
 	 * 插入合并订单表
 	 * 只有选择在线支付的订单才合成一个单
 	 * @param orderNewList 新生成订单的集合
-	 * @param currentLoginCustId  当前登陆人的企业id
+	 * @param userDto  当前登陆人的信息
 	 * @param payFlowId 支付流水号
 	 */
-	private void insertOrderCombined(List<Order> orderNewList, Integer currentLoginCustId,String payFlowId) {
+	private void insertOrderCombined(List<Order> orderNewList, UserDto userDto, String payFlowId) {
 		if(UtilHelper.isEmpty(orderNewList)) return;
-		if(UtilHelper.isEmpty(currentLoginCustId)) return;
+		if(UtilHelper.isEmpty(userDto)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
 
 		/* 在线支付订单的集合 */
@@ -383,7 +409,8 @@ public class OrderService {
 				continue;
 			}
 			orderCombined = new OrderCombined();
-			orderCombined.setCustId(currentLoginCustId);
+			orderCombined.setCustId(order.getCustId());
+			orderCombined.setCreateUser(userDto.getUserName());
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
 			orderCombined.setCombinedNumber(1);//合并订单数
 			//todo 价格相关
@@ -415,7 +442,8 @@ public class OrderService {
 
 			}
 			orderCombined = new OrderCombined();
-			orderCombined.setCustId(currentLoginCustId);
+			orderCombined.setCustId(userDto.getCustId());
+			orderCombined.setCreateUser(userDto.getUserName());
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
 			orderCombined.setCombinedNumber(payOnlineOrderList.size());//合并订单数
 			orderCombined.setCopeTotal(allCopeTotal);//	应付总价
@@ -441,13 +469,13 @@ public class OrderService {
 	/**
 	 * 插入订单支付表
 	 * @param orderNewList 新生成订单的集合
-	 * @param currentLoginCustId 当前登陆人的企业id
+	 * @param userDto 当前登陆人的信息
 	 * @param payFlowId 支付流水号
 	 * @throws Exception
      */
-	private void insertOrderPay(List<Order> orderNewList,Integer currentLoginCustId,String payFlowId) throws Exception {
+	private void insertOrderPay(List<Order> orderNewList, UserDto userDto, String payFlowId) throws Exception {
 		if(UtilHelper.isEmpty(orderNewList)) return;
-		if(UtilHelper.isEmpty(currentLoginCustId)) return;
+		if(UtilHelper.isEmpty(userDto)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
 		OrderPay orderPay = null ;
 		for(Order order : orderNewList){
@@ -458,7 +486,7 @@ public class OrderService {
 			orderPay.setPayTypeId(order.getPayTypeId());
 			orderPay.setCreateTime(systemDateMapper.getSystemDate());
 			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
-			orderPay.setCreateUser(currentLoginCustId + "");
+			orderPay.setCreateUser(userDto.getUserName());
 			orderPayMapper.save(orderPay);
 		}
 	}
@@ -473,29 +501,21 @@ public class OrderService {
 		orderTrace.setOrderId(order.getOrderId());
 		orderTrace.setOrderStatus(order.getOrderStatus());
 		orderTrace.setCreateTime(systemDateMapper.getSystemDate());
+		orderTrace.setCreateUser("");
 		orderTraceMapper.save(orderTrace);
 	}
 
 	/**
 	 * 插入订单收发货表
 	 * @param order
-	 * @param orderDeliveryDto
+	 * @param orderDelivery
      */
-	private void insertOrderDeliver(Order order, OrderDeliveryDto orderDeliveryDto) {
-		if(UtilHelper.isEmpty(order) || UtilHelper.isEmpty(orderDeliveryDto)){
+	private void insertOrderDeliver(Order order, OrderDelivery orderDelivery) {
+		if(UtilHelper.isEmpty(order) || UtilHelper.isEmpty(orderDelivery)){
 			return ;
 		}
-		OrderDelivery  orderDelivery = new OrderDelivery();
 		orderDelivery.setOrderId(order.getOrderId());
 		orderDelivery.setFlowId(order.getFlowId());
-		orderDelivery.setReceivePerson(orderDeliveryDto.getReceivePerson());
-		orderDelivery.setReceiveProvince(orderDeliveryDto.getReceiveProvince());
-		orderDelivery.setReceiveCity(orderDeliveryDto.getReceiveCity());
-		orderDelivery.setReceiveRegion(orderDeliveryDto.getReceiveRegion());
-		orderDelivery.setReceiveAddress(orderDeliveryDto.getReceiveAddress());
-		orderDelivery.setReceiveContactPhone(orderDeliveryDto.getReceiveContactPhone());
-		orderDelivery.setZipCode(orderDeliveryDto.getZipCode());
-		orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
 		orderDeliveryMapper.save(orderDelivery);
 	}
 
@@ -505,18 +525,22 @@ public class OrderService {
 	 * @return
 	 * @throws Exception
      */
-	private Order insertOrderAndOrderDetail(OrderDto orderDto)throws Exception {
-		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+	private Order insertOrderAndOrderDetail(OrderDto orderDto,UserDto userDto)throws Exception {
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 			throw new Exception("非法参数");
 		}
 		Order order = new Order();
 		order.setCustId(orderDto.getCustId());
-		order.setCustName("");//todo
+		order.setCustName(orderDto.getCustName());
 		order.setSupplyId(orderDto.getSupplyId());
-		order.setSupplyName("");//todo
+		order.setSupplyName(orderDto.getSupplyName());
 		order.setBillType(orderDto.getBillType());
 		order.setLeaveMessage(orderDto.getLeaveMessage());
+		if(UtilHelper.isEmpty(orderDto.getPayTypeId())){
+			throw new Exception("非法支付类型");
+		}
 		order.setPayTypeId(orderDto.getPayTypeId());
+
 
 		SystemPayType systemPayType = systemPayTypeService.getByPK(orderDto.getPayTypeId());
 		String orderFlowIdPrefix = "";
@@ -537,7 +561,7 @@ public class OrderService {
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
 		order.setCreateTime(systemDateMapper.getSystemDate());
-		order.setCreateUser("");
+		order.setCreateUser(userDto.getUserName());
 		order.setTotalCount( orderDto.getProductInfoDtoList().size());
 
 		/* 订单金额相关 */
@@ -578,7 +602,7 @@ public class OrderService {
 			orderDetail.setOrderId(order.getOrderId());
 			orderDetail.setSupplyId(order.getSupplyId());//供应商ID
 			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
-			orderDetail.setCreateUser("");
+			orderDetail.setCreateUser(userDto.getUserName());
 
 			//TODO 商品信息
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
@@ -596,16 +620,61 @@ public class OrderService {
 		return order;
 	}
 
+
+
 	/**
 	 * 校验要购买的商品(通用方法)
-	 * @param orderDto
-	 * @throws Exception
-	 */
-	public boolean validateProducts(OrderDto orderDto) {
-		//TODO 校验要购买的商品
+	 * @param currentLoginCustId 当前登陆人的企业id
+	 * @param orderDto 要提交订单的商品数据
+     * @return
+     */
+	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto) throws Exception {
+		if(UtilHelper.isEmpty(currentLoginCustId) || UtilHelper.isEmpty(orderDto)){
+			throw new Exception("非法参数");
+		}
+
+		//TODO 校验采购商状态、资质
+		UsermanageEnterprise buyer = enterpriseMapper.getByPK(currentLoginCustId);
+		if(UtilHelper.isEmpty(buyer)){
+			throw new Exception("采购商不存在!");
+		}
+		orderDto.setCustId(buyer.getId());
+		orderDto.setCustName(buyer.getEnterpriseName());
+
+		//TODO 校验要供应商状态、资质
+		UsermanageEnterprise seller = enterpriseMapper.getByPK(orderDto.getSupplyId());
+		if(UtilHelper.isEmpty(seller)){
+			throw new Exception("供应商不存在!");
+		}
+		orderDto.setSupplyName(seller.getEnterpriseName());
+
+		//TODO 校验要采购商与供应商是否相同
+		if (!UtilHelper.isEmpty(orderDto.getSupplyId()) && currentLoginCustId.equals(orderDto.getSupplyId())){
+			throw new Exception("不能购买自己的商品");
+		}
+
+		//TODO 校验供应商下的商品信息、价格
+		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
+		if(UtilHelper.isEmpty(productInfoDtoList)){
+			throw new Exception("商品不能为空!");
+		}
+		ProductInfo productInfo = null;
+		for(ProductInfoDto productInfoDto : productInfoDtoList){
+			if(UtilHelper.isEmpty(productInfoDto)) continue;
+			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
+			if(UtilHelper.isEmpty(productInfo )){
+				throw new Exception("商品不存在!");
+			}
+			//TODO 商品状态、价格校验
+		}
 
 		//TODO 特殊校验(选择账期支付方式的订单，校验买家账期、商品账期)
-		return false;
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
+			//TODO 校验商家的账期(是否存在、是否有效)
+			//TODO 校验商品的账期(是否存在、是否有效)
+
+		}
+		return true;
 	}
 
 
@@ -661,18 +730,18 @@ public class OrderService {
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();
 		//获取订单列表
-        List<OrderDto> buyerOrderList = orderMapper.listPgBuyerOrder(pagination, orderDto);
+        List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrder(pagination, orderDto);
         pagination.setResultList(buyerOrderList);
 
 		//获取各订单状态下的订单数量
         List<OrderDto> orderDtoList = orderMapper.findOrderStatusCount(orderDto);
         Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-        int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
-        BuyerOrderStatusEnum buyerorderstatusenum;
+        //int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付  0--为选择支付类型
+        BuyerOrderStatusEnum buyerorderstatusenum = null;
         if (!UtilHelper.isEmpty(orderDtoList)) {
             for (OrderDto od : orderDtoList) {
 				//获取买家视角订单状态
-                buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),payType);
+				buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
                 if(buyerorderstatusenum != null){
 					//统计买家视角订单数
                     if(orderStatusCountMap.containsKey(buyerorderstatusenum.getType())){
@@ -705,11 +774,31 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
-						//计算当前时间和支付剩余24小时的剩余秒数
-						time = CommonType.PAY_TIME*60*60-time;
+						if(time > 0){
+							//计算当前时间和支付剩余24小时的剩余秒数
+							time = CommonType.PAY_TIME*60*60-time;
+						}
 						if(time < 0)
 							time = 0l;
 						od.setResidualTime(time);
+					} catch (ParseException e) {
+						log.debug("date format error"+od.getCreateTime()+" "+od.getNowTime());
+						e.printStackTrace();
+						throw new RuntimeException("日期转换错误");
+					}
+
+				}
+				//卖家已发货
+				if(!UtilHelper.isEmpty(od.getNowTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
+					try {
+						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
+						if(time > 0){
+							//计算自动确认时间与当前时间剩余秒数
+							time = CommonType.AUTO_RECEIVE_TIME*60*60*24-time;
+						}
+						if(time < 0)
+							time = 0l;
+						od.setReceivedTime(time);
 					} catch (ParseException e) {
 						log.debug("date format error"+od.getCreateTime()+" "+od.getNowTime());
 						e.printStackTrace();
@@ -743,7 +832,7 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return BuyerOrderStatusEnum.BackOrder;//待发货
-            } else {
+            } else if(payType == 1 || payType == 3){
                 return BuyerOrderStatusEnum.PendingPayment;//待付款
             }
         }
@@ -760,12 +849,12 @@ public class OrderService {
             return BuyerOrderStatusEnum.Replenishing;//补货中
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType())) {//买家已取消+系统自动取消+后台取消
+		if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SellerCanceled.getType())) {//买家已取消+系统自动取消+后台取消+卖家已取消
             return BuyerOrderStatusEnum.Canceled;//已取消
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())) {// 买家全部收货+系统自动确认收货
-            return BuyerOrderStatusEnum.Finished;//补货中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType()) ) {// 买家全部收货+系统自动确认收货+买家部分收货
+            return BuyerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
             return BuyerOrderStatusEnum.PaidException;//打款异常
@@ -783,7 +872,7 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return SellerOrderStatusEnum.BackOrder;//待发货
-            } else {
+            } else if(payType == 1 || payType == 3) {
                 return SellerOrderStatusEnum.PendingPayment;//待付款
             }
         }
@@ -800,12 +889,12 @@ public class OrderService {
             return SellerOrderStatusEnum.Replenishing;//补货中
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType())) {//买家已取消+系统自动取消+后台取消
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SellerCanceled.getType())) {//买家已取消+系统自动取消+后台取消+卖家已取消
             return SellerOrderStatusEnum.Canceled;//已取消
         }
 
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())) {// 买家全部收货+系统自动确认收货
-            return SellerOrderStatusEnum.Finished;//补货中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())) {// 买家全部收货+系统自动确认收货+买家部分收货
+            return SellerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
             return SellerOrderStatusEnum.PaidException;//打款异常
@@ -815,11 +904,11 @@ public class OrderService {
 
 	/**
 	 * 采购商取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  updateOrderStatusForBuyer(Integer custId,Integer orderId){
-		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId)){
+	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId){
+		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
@@ -829,12 +918,12 @@ public class OrderService {
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该买家
-		if(custId == order.getCustId()){
+		if(userDto.getCustId() == order.getCustId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
 				String now = systemDateMapper.getSystemDate();
 				// TODO: 2016/8/1 需获取登录用户信息
-				order.setUpdateUser("zhangsan");
+				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
 				if(count == 0){
@@ -845,12 +934,12 @@ public class OrderService {
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
 				orderTrace.setNodeName("买家取消订单");
-				orderTrace.setDealStaff("zhangsan");
+				orderTrace.setDealStaff(userDto.getUserName());
 				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff("zhangsan");
+				orderTrace.setRecordStaff(userDto.getUserName());
 				orderTrace.setOrderStatus(order.getOrderStatus());
 				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser("zhangsan");
+				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -887,18 +976,18 @@ public class OrderService {
 		}
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		//销售订单列表
-		List<OrderDto> sellerOrderList = orderMapper.listPgSellerOrder(pagination, orderDto);
+		List<OrderDto> sellerOrderList = orderMapper.listPaginationSellerOrder(pagination, orderDto);
 		pagination.setResultList(sellerOrderList);
 
 		//获取各订单状态下的订单数量
 		List<OrderDto> orderDtoList = orderMapper.findSellerOrderStatusCount(orderDto);
 		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-		int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
-		SellerOrderStatusEnum sellerOrderStatusEnum;
+		//int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
+		SellerOrderStatusEnum sellerOrderStatusEnum ;
 		if (!UtilHelper.isEmpty(orderDtoList)) {
 			for (OrderDto od : orderDtoList) {
 				//卖家视角订单状态
-				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),payType);
+				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
 				if(sellerOrderStatusEnum != null){
 					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
 						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),orderStatusCountMap.get(sellerOrderStatusEnum.getType())+od.getOrderCount());
@@ -935,7 +1024,7 @@ public class OrderService {
 		log.debug("orderTotalMoney====>" + orderTotalMoney);
 
 		resultMap.put("orderStatusCount", orderStatusCountMap);
-		resultMap.put("buyerOrderList", pagination);
+		resultMap.put("sellerOrderList", pagination);
 		resultMap.put("orderCount", orderCount);
 		resultMap.put("orderTotalMoney", orderTotalMoney);
 		return resultMap;
@@ -943,11 +1032,11 @@ public class OrderService {
 
 	/**
 	 * 采购商取消订单
-	 * @param custId
+	 * @param userDto
 	 * @param orderId
 	 */
-	public void  updateOrderStatusForSeller(Integer custId,Integer orderId,String cancelResult){
-		if(UtilHelper.isEmpty(custId) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
+	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult){
+		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");
 		}
 		Order order =  orderMapper.getByPK(orderId);
@@ -957,13 +1046,13 @@ public class OrderService {
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该卖家
-		if(custId == order.getSupplyId()){
-			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
+		if(userDto.getCustId() == order.getSupplyId()){
+			if((SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) ) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
 				order.setCancelResult(cancelResult);
 				// TODO: 2016/8/1 需获取登录用户信息
-				order.setUpdateUser("zhangsan");
+				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
 				if(count == 0){
@@ -974,12 +1063,12 @@ public class OrderService {
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
 				orderTrace.setNodeName("卖家取消订单");
-				orderTrace.setDealStaff("zhangsan");
+				orderTrace.setDealStaff(userDto.getUserName());
 				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff("zhangsan");
+				orderTrace.setRecordStaff(userDto.getUserName());
 				orderTrace.setOrderStatus(order.getOrderStatus());
 				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser("zhangsan");
+				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -994,11 +1083,14 @@ public class OrderService {
 	/**
 	 * 检查订单页的数据
 	 * @return
+	 * @param userDto
      */
-	public Map<String,Object> checkOrderPage() throws Exception {
+	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			return null;
+		}
 		Map<String,Object> resultMap = new HashMap<String, Object>();
-		//TODO 获取当前登陆用户的的企业id
-		Integer currentLoginCustId = 123;
+		Integer currentLoginCustId = userDto.getCustId();
 
 		UsermanageEnterprise enterprise = enterpriseMapper.getByPK(currentLoginCustId);
 		if(UtilHelper.isEmpty(enterprise)){
@@ -1017,6 +1109,24 @@ public class OrderService {
 		shoppingCart.setCustId(currentLoginCustId);
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
 		resultMap.put("allShoppingCart",allShoppingCart);
+		if(UtilHelper.isEmpty(allShoppingCart)) return resultMap;
+
+		/*遍历购物车所有供应商信息*/
+		BigDecimal productPriceCount = null;
+		BigDecimal orderPriceCount = new BigDecimal(0);
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())) continue;
+			productPriceCount = new BigDecimal(0);
+			/*遍历购物车所有供应商下的商品信息*/
+			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				productPriceCount = productPriceCount.add(shoppingCartDto.getProductPrice().multiply(new BigDecimal(shoppingCartDto.getProductCount())));
+			}
+			shoppingCartListDto.setProductPriceCount(productPriceCount);
+			orderPriceCount = orderPriceCount.add(productPriceCount);
+		}
+		resultMap.put("allShoppingCart",allShoppingCart);
+		resultMap.put("orderPriceCount",orderPriceCount);
 		return resultMap;
 	}
 
@@ -1028,7 +1138,7 @@ public class OrderService {
 	 */
 	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		//销售订单列表
-		List<OrderDto> list = orderMapper.listPgSellerOrder(pagination, orderDto);
+		List<OrderDto> list = orderMapper.listPaginationSellerOrder(pagination, orderDto);
 		List<Object[]> dataset = new ArrayList<Object[]>();
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {

@@ -18,6 +18,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,13 +54,20 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@ResponseBody
 	public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetail(@RequestBody RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
 	{
+		//用户登录信息
+		UserDto userDto=super.getLoginUser();
 		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
 
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
-
-		return orderDeliveryDetailFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		OrderDeliveryDetailDto orderDeliveryDetailDto=requestModel.getParam();
+        if("1".equals(orderDeliveryDetailDto.getUserType())){
+			orderDeliveryDetailDto.setCustId(userDto.getCustId());
+		}else {
+			orderDeliveryDetailDto.setSupplyId(userDto.getCustId());
+		}
+		return orderDeliveryDetailFacade.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 	}
 
 	/**
@@ -101,6 +109,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,String> confirmReceipt(@RequestBody  RequestListModel<OrderDeliveryDetailDto> requestListModel) throws Exception
 	{
-		return orderDeliveryDetailFacade.confirmReceipt(requestListModel.getList());
+		UserDto user = super.getLoginUser();
+		return orderDeliveryDetailFacade.confirmReceipt(requestListModel.getList(),user);
 	}
 }

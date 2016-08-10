@@ -16,6 +16,7 @@ $.fn.pager = function(opts){
         size:9, //分页显示的长度，一般为9,也可以是7或者5，不能为偶数，其它的数也没什么意义
         dataType:'json',
         data : {},
+        contentType:'application/x-www-form-urlencoded',
         beforeSend:function(){},
 		wrongPageCall:function(page){alert("请输入一个正确的页码！")},
 		error:function(){},
@@ -45,7 +46,7 @@ $.fn.pager = function(opts){
         var pages = new Array(total+1).join('t,').replace(/t/g,function(){ return ++index;}).split(',');
         pages.pop();
         len = pages.length;
-         c = current;
+        c = current;
         if(len > size){
             if(current < leftSize){
                 pages.splice(size-1,len-size,'<span class="pager_dot">...</span>');
@@ -84,12 +85,14 @@ $.fn.pager = function(opts){
         }else{
             setClass(index);
             xhr && xhr.abort();
+            set.data.pageNo = index;
             xhr = $.ajax({
                 url:href+index,
                 timeout:set.timeout,
                 dataType:set.dataType,
                 type : 'POST', 
-                data : set.data,
+                data : JSON.stringify(set.data),
+                contentType : set.contentType,
                 beforeSend:function(){
                     set.beforeSend && set.beforeSend(index);
                 },

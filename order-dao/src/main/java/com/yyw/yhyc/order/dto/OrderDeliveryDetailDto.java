@@ -18,6 +18,7 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private Integer supplyId;     //供应商ID
     private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货 4 拒收‘,
     private String returnDesc;   //退换货说明
+    private String userType;     //1、采购商2、供应商
 
     public String getReturnType() {
         return returnType;
@@ -105,5 +106,13 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
 
     public void setSupplyId(Integer supplyId) {
         this.supplyId = supplyId;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

@@ -11,6 +11,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
@@ -19,6 +20,8 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.facade.OrderFacade;
 
 import org.slf4j.Logger;
@@ -30,7 +33,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,10 +110,14 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
+
+		//todo 获取当前登陆人的企业用户id
+		Integer currentLoginCustId = 123;
+
 		Map<String,Object> map = new HashMap<String, Object>();
 		boolean validateResult = false;
 		try{
-			validateResult = orderFacade.validateProducts(orderDto);
+			validateResult = orderFacade.validateProducts(currentLoginCustId,orderDto);
 		}catch (Exception e){
 			logger.error(e.getMessage());
 		}
@@ -121,18 +130,8 @@ public class OrderController extends BaseJsonController {
 	 * 请求数据格式：
 
 	 {
-		 "orderDeliveryDto":{
-			 "receivePerson":"收货人",
-			 "receiveProvince":"收货省码",
-			 "receiveCity":"收货市码",
-			 "receiveRegion":"收货区县码",
-			 "receiveProvinceName":"收货省名称",
-			 "receiveCityName":"收货市名称",
-			 "receiveRegionName":"收货区县名称",
-			 "receiveAddress":"省名称+市名称+区县名称+具体地址",
-			 "receiveContactPhone":"收货人联系电话",
-			 "zipCode":"邮政编码"
-		 },
+	 	 "custId":123,
+	 	 "receiveAddressId":2,
 		 "orderDtoList": [
 				 {
 					 "custId": "123",
@@ -179,21 +178,44 @@ public class OrderController extends BaseJsonController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
-	@ResponseBody
-	public List<Order> createOrder(@RequestBody OrderCreateDto orderCreateDto) throws Exception {
-		return orderFacade.createOrder(orderCreateDto);
-	}
+	public ModelAndView createOrder( OrderCreateDto orderCreateDto) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
+		}
+		orderCreateDto.setUserDto(userDto);
 
+		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
 
-	/**
-	 * 检查订单页的数据
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/checkOrder", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String,Object> checkOrder() throws Exception {
-		return orderFacade.checkOrderPage();
+		/* 计算所有订单中，在线支付订单总额 */
+		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
+		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
+		OrderDto orderDto = null;
+		if(!UtilHelper.isEmpty(orderList)){
+			for(Order order : orderList){
+				if(UtilHelper.isEmpty(order)) continue;
+				orderDto = new OrderDto();
+				orderDto.setOrderId(order.getOrderId());
+				orderDto.setFlowId(order.getFlowId());
+				orderDto.setSupplyName(order.getSupplyName());
+				orderDto.setOrderTotal(order.getOrderTotal());
+				orderDto.setFinalPay(order.getFinalPay());
+				orderDto.setPayStatus(order.getPayStatus());
+				orderDto.setPayTypeId(order.getPayTypeId());
+				orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
+				orderDtoList.add(orderDto);
+				if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
+					onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+				}
+			}
+		}
+
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDtoList",orderDtoList);
+		model.addObject("onLinePayOrderPriceCount",onLinePayOrderPriceCount);
+		model.addObject("userDto",userDto);
+		model.setViewName("order/createOrderSuccess");
+		return model;
 	}
 
 	/**
@@ -204,7 +226,11 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
+		UserDto userDto = super.getLoginUser();
+		Map<String,Object> dataMap = orderFacade.checkOrderPage(userDto);
 		ModelAndView model = new ModelAndView();
+		model.addObject("dataMap",dataMap);
+		model.addObject("userDto",userDto);
 		model.setViewName("order/checkOrderPage");
 		return model;
 	}
@@ -218,18 +244,6 @@ public class OrderController extends BaseJsonController {
 	public ModelAndView checkAccountInfo() throws Exception {
 		ModelAndView model = new ModelAndView();
 		model.setViewName("order/checkAccountInfo");
-		return model;
-	}
-	/**
-	 * 生成订单成功页面
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
-	@ResponseBody
-	public ModelAndView createOrderSuccess() throws Exception {
-		ModelAndView model = new ModelAndView();
-		model.setViewName("order/createOrderSuccess");
 		return model;
 	}
 
@@ -252,7 +266,10 @@ public class OrderController extends BaseJsonController {
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
-        return orderFacade.listPgBuyerOrder(pagination, requestModel.getParam());
+		OrderDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+        return orderFacade.listPgBuyerOrder(pagination, orderDto);
     }
 
 	/**
@@ -266,12 +283,12 @@ public class OrderController extends BaseJsonController {
 		/**
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
-		int custId = 1;
-		orderFacade.buyerCancelOrder(custId, orderId);
+		UserDto userDto = super.getLoginUser();
+		orderFacade.buyerCancelOrder(userDto, orderId);
 	}
 
 	/**
-	 * 采购订单查询
+	 * 销售订单查询
 	 * @return
 	 */
 	@RequestMapping(value = {"", "/listPgSellerOrder"}, method = RequestMethod.POST)
@@ -286,11 +303,14 @@ public class OrderController extends BaseJsonController {
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
-		return orderFacade.listPgSellerOrder(pagination, requestModel.getParam());
+		OrderDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setSupplyId(userDto.getCustId());
+		return orderFacade.listPgSellerOrder(pagination, orderDto);
 	}
 
 	/**
-	 * 采购商取消订单
+	 * 销售商取消订单
 	 * @return
 	 */
 	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
@@ -301,8 +321,8 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/sellerCancelOrder
 		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
 		 */
-		int custId = 1;
-		orderFacade.sellerCancelOrder(custId, order.getOrderId(), order.getCancelResult());
+		UserDto userDto = super.getLoginUser();
+		orderFacade.sellerCancelOrder(userDto, order.getOrderId(), order.getCancelResult());
 	}
 
 	/**
@@ -372,7 +392,9 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
 	{
-		order.setCustId(123);// 登录买家的id
+		// 登录买家的id
+		UserDto user = super.getLoginUser();
+		order.setCustId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
 	}
 
@@ -386,8 +408,23 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
 	{
-		order.setSupplyId(124); //登录卖家的id
+
+		// 登录买家的id
+		UserDto user = super.getLoginUser();
+		order.setSupplyId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
+	}
+
+	@RequestMapping("/sellerOrderManage")
+	public ModelAndView buyer_order_manage(){
+		ModelAndView view = new ModelAndView("order/seller_order_manage");
+		return view;
+	}
+
+	@RequestMapping("/buyerOrderManage")
+	public ModelAndView login(){
+		ModelAndView view = new ModelAndView("order/buyer_order_manage");
+		return view;
 	}
 
 

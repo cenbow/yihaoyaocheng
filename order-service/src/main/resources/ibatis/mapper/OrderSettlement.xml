@@ -265,24 +265,27 @@
 		]]>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="custId !=null and custId !=''">
-			AND ( s.cust_id = #{custId} OR s.supply_id = #{custId} )
+			AND s.cust_id = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND s.supply_id = #{supplyId}
 		</if>
 		<if test="flowId !=null and flowId !=''">
 			AND s.flow_id = #{flowId}
 		</if>
-		<if test="businessType !=null and businessType !=''">
+		<if test="businessType !=null and businessType !='' and businessType !='-1'">
 			AND s.business_type = #{businessType}
 		</if>
 		<if test="custName !=null and custName !=''">
-			AND s.cust_name = #{custName}
+			AND s.cust_name = CONCAT('%',#{custName},'%')
 		</if>
 		<if test="supplyName !=null and supplyName !=''">
-			AND s.supply_name = #{supplyName}
+			AND s.supply_name = CONCAT('%',#{supplyName},'%')
 		</if>
-		<if test="confirmSettlement !=null and confirmSettlement !=''">
+		<if test="confirmSettlement !=null and confirmSettlement !='' and confirmSettlement !='-1'">
 			AND s.confirm_settlement = #{confirmSettlement}
 		</if>
-		<if test="payType !=null and payType !=''">
+		<if test="payType !=null and payType !='' and payType !='-1'">
 			AND t.pay_states = 1
 			AND t.pay_type = #{payType}
 		</if>
@@ -292,13 +295,13 @@
 		<if test="endTime !=null and endTime!=''">
 			AND #{startTime} > s.order_time
 		</if>
-		<if test="province !=null and province != '' ">
+		<if test="province !=null and province != '' and province != '-1' ">
 			AND ue.province = #{province}
 		</if>
-		<if test="city !=null and city != '' ">
+		<if test="city !=null and city != '' and city != '-1'">
 			AND ue.city = #{city}
 		</if>
-		<if test="area !=null and area != '' ">
+		<if test="area !=null and area != '' and area !='-1'">
 			AND ue.district = #{area}
 		</if>
 	</select>

@@ -24,53 +24,65 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <div class="form-horizontal padding-t-26">
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">采购商区域</label>
-                        <div class="col-xs-3">
-                            <select class="form-control width-80"><option>省份</option><option>1</option><option>1</option></select>
-                            <select class="form-control width-80"><option>城市</option><option>1</option><option>1</option></select>
-                            <select class="form-control width-80"><option>区/县</option><option>1</option><option>1</option></select>
-                        </div>
-                        <label for="scope" class="col-xs-2 control-label">采购商 </label>
-                        <div class="col-xs-3">
-                            <input type="text" class="form-control" id="carnum" name="carnum" placeholder="">
-                        </div>
-                        <div class="col-xs-2"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">业务类型</label>
-                        <div class="col-xs-3">
-                            <select class="form-control"><option>请选择</option></select>
-                        </div>
-                        <label for="scope" class="col-xs-2 control-label">订单号</label>
-                        <div class="col-xs-3">
-                            <input type="text" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">支付方式</label>
-                        <div class="col-xs-3">
-                            <select class="form-control"><option>请选择</option></select>
-                        </div>
-                        <label for="scope" class="col-xs-2 control-label">结算状态</label>
-                        <div class="col-xs-3">
-                            <select class="form-control"><option>请选择</option></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">下单时间</label>
-                        <div class="col-xs-3">
-                            <div class="input-group input-large">
-                                <input type="text" class="form-control Wdate border-right-none" onclick="WdatePicker()">
-                                <span class="input-group-addon">至</span>
-                                <input type="text" class="form-control Wdate border-left-none" onclick="WdatePicker()">
+                <form>
+                    <div class="form-horizontal padding-t-26">
+                        <div class="form-group">
+
+                            <label for="scope" class="col-xs-2 control-label">采购商 </label>
+                            <div class="col-xs-3">
+                                <input type="text" class="form-control" id="carnum" name="supplyName" placeholder="">
                             </div>
-                            <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1年</a> ]</p>
+                            <label for="scope" class="col-xs-2 control-label">结算状态</label>
+                            <div class="col-xs-3">
+                                <select class="form-control" name="confirmSettlement">
+                                    <option value="-1">请选择</option>
+                                    <option value="0">未结算</option>
+                                    <option value="1">已结算</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-xs-5 text-right"><button class="btn btn-info">搜索</button></div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">业务类型</label>
+                            <div class="col-xs-3">
+                                <select class="form-control" name="businessType">
+                                        <option value="-1">请选择</option>
+                                        <option value="1">销售货款</option>
+                                        <option value="2">退货货款</option>
+                                        <option value="3">拒收</option>
+                                </select>
+                            </div>
+                            <label for="scope" class="col-xs-2 control-label">订单号</label>
+                            <div class="col-xs-3">
+                                <input type="text" class="form-control" name="flowId"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">支付方式</label>
+                            <div class="col-xs-3">
+                                <select class="form-control" name="payType">
+                                    <option value="-1">请选择</option>
+                                    <option value="1">线上支付</option>
+                                    <option value="2">待定</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">下单时间</label>
+                            <div class="col-xs-3">
+                                <div class="input-group input-large">
+                                    <input type="text" name="startTime" class="form-control Wdate border-right-none" onclick="WdatePicker()">
+                                    <span class="input-group-addon">至</span>
+                                    <input type="text" name="endTime" class="form-control Wdate border-left-none" onclick="WdatePicker()">
+                                </div>
+                                <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1年</a> ]</p>
+                            </div>
+                            <div class="col-xs-2 text-left">
+                                <input type="button" class="btn btn-info" value="搜索">
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="row margin-t-10">
                 <div class="col-xs-12">
@@ -136,7 +148,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="myModalOperate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
             <div class="modal-header">
@@ -146,20 +158,20 @@
             <div class="modal-body">
                 <div class="form-horizontal">
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">结算订单金额</label>
-                        <div class="col-xs-5 control-label text-left">500.00  元</div>
+                        <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额</label>
+                        <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额:</label>
                         <div class="col-xs-5"><input type="text" class="form-control" /></div>
-                        <div class="col-xs-4 control-label text-left">元</div>
+                        <div class="col-xs-4 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">应付实付差异</label>
-                        <div class="col-xs-5 control-label text-left">-100.00  元</div>
+                        <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
                     </div>
                     <div class="form-group">
-                        <label for="scope" class="col-xs-3 control-label">备注</label>
+                        <label for="scope" class="col-xs-3 control-label">备注:</label>
                         <div class="col-xs-5">
                             <textarea class="form-control" rows="3" cols="3"></textarea>
                         </div>
@@ -173,8 +185,41 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="myModalDetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">退款详情</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-3 control-label">实际结算金额:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-3 control-label">备注:</label>
+                        <div class="col-xs-5 control-label text-left"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!--#include file="footer.asp" -->
-<script type="text/javascript" src="${ctx }/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script>
@@ -188,19 +233,11 @@ alertModal("确定要删除吗？");
 <!--#include file="footer.asp" -->
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/order/order_settlement.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/order/order_settlement_buyer.js"></script>
 
 </body>
-<script id="helpDoc" type="text/html">
-    <div class="form-group padding-20">
-        {{each helpDocs as value i}}
-        <div class="col-xs-6 clearfix padding-tb-10">
-            <span class="fl"><i class="fa fa-file-o"></i>&nbsp;{{value.title}}</span>
-            <span class="fr"><a class="m-l-10 eyesee" href="{{value.fileUrl}}"><i class="fa fa-download"></i>下载</a></span>
-        </div>
-        {{/each}}
-    </div>
-</script>
+
 
 </html>
 

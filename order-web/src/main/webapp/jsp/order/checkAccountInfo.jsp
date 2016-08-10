@@ -5,7 +5,9 @@
   Time: 17:12
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <!doctype html>
 <html>
 <head>
@@ -26,9 +28,9 @@
 <div class="wapper check-info">
     <p class="pt35 f14">请于24小时内完成汇款，汇款账户如下：</p>
     <div class="mt45 f14 ci-hank-info">
-        <p>户名：上海九州通医药有限公司</p>
-        <p>账户：1109 0710 0910 708</p>
-        <p>开户行：招商银行股份有限公司北京青年路支行</p>
+        <p>户名：${dataMap.receiveAccountName}</p>
+        <p>账户：${dataMap.receiveAccountNo}</p>
+        <p>开户行：${dataMap.subbankName}</p>
     </div>
     <div class="ci-tips pt45">
         <p>线下转账说明：</p>
