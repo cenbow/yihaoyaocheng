@@ -26,7 +26,7 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form action="order/exportOrder" method="post" id="form0">
+                <form action="exportOrder" method="post" id="form0">
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
 
