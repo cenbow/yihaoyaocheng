@@ -6,7 +6,16 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<context:component-scan base-package="com.yyw.yhyc.order"/>
+	<context:component-scan base-package="com.yyw.yhyc"/>
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<!-- 密钥存放位置，由运维告知 测试 生产环境开启-->
+				<value>classpath*:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
 
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
@@ -48,6 +57,7 @@
 		</mvc:interceptor>
 	</mvc:interceptors>
 
+	<import resource="spring-dataSource.xml"/>
 	<import resource="dubbo-consumer.xml"/>
 
 </beans>
