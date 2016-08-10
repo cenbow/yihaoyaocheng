@@ -521,7 +521,9 @@
 		<result column="NOWTIME" property="nowTime"/>
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	<!--
 		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	-->
 	</resultMap>
 
 	<select id="listPaginationBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap">
@@ -649,9 +651,11 @@
 	<resultMap id="sellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	<!--
 		<association property="orderDelivery" column="ORDER_ID"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
 		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	-->
 	</resultMap>
 
 	<select id="listPaginationSellerOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap">
