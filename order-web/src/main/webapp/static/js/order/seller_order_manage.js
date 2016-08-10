@@ -191,15 +191,15 @@ function changeColor() {
 //类型 转换成操作
 function typeToOperate(order) {
     var result = '';
-    result = '<span id="order_' + order.orderId + '" ></span>';
+    //result = '<span id="order_' + order.orderId + '" ></span>';
 
     //<button type="button" class="btn btn-info btn-sm margin-r-10">取消订单</button>
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 2) {//账期支付+买家已下单
-        result = '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 1) {//在线支付+买家已付款
-        result = '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a><br/>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a><br/>';
     }
 
@@ -207,7 +207,7 @@ function typeToOperate(order) {
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a><br/>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 3) {//线下支付+买家已付款
-        result = '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a><br/>';
     }
     if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a><br/>';
