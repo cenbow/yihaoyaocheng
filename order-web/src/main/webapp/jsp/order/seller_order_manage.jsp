@@ -26,7 +26,7 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form action="exportOrder" method="post" id="form0">
+                <form action="order/exportOrder" method="post" id="form0">
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
 
@@ -107,7 +107,8 @@
                     <div id="myTabContent" class="tab-content">
                         <div class="tab-pane fade in active" id="home">
                             <div class="clearfix padding-tb-20">
-                                <div class="fl"><button type="button" class="btn btn-info" onclick="document.getElementById('form0').submit();">订单导出</button></div>
+                                <%--<div class="fl"><button type="button" class="btn btn-info" onclick="document.getElementById('form0').submit();">订单导出</button></div>--%>
+                                <div class="fl"><button type="button" class="btn btn-info" onclick="sellerOrderExport();">订单导出</button></div>
                                 <div class="fr padding-t-10"><span class="margin-r-20">订单数：<span id="orderCount"></span></span><span class="red">订单金额：<span id="orderTotalMoney"></span></span></div>
                             </div>
                             <table class="table table-box">
