@@ -1151,7 +1151,7 @@ public class OrderService {
 	 */
 	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		//销售订单列表
-		List<OrderDto> list = orderMapper.listPaginationSellerOrder(pagination, orderDto);
+		List<OrderDto> list = orderMapper.listPaginationExportSellerOrder(pagination, orderDto);
 		List<Object[]> dataset = new ArrayList<Object[]>();
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {

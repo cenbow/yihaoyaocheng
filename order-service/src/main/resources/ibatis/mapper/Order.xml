@@ -740,6 +740,97 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
+	<resultMap id="exportSellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+            <association property="orderDelivery" column="ORDER_ID"
+                         select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
+            <collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	</resultMap>
+
+	<select id="listPaginationExportSellerOrder" parameterType="OrderDto" resultMap="exportSellerOrderResultMap">
+		SELECT
+		T1.*,T4.PAY_TYPE,T4.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
+		WHERE
+		T1.SUPPLY_ID = #{supplyId}
+		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='orderStatus == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND T1.ORDER_ID IS NULL
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND T1.ORDER_ID IS NULL
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		<if test="province!= null and province!= ''">
+			AND T2.PROVINCE = #{province}
+		</if>
+		<if test="city!= null and city!= ''">
+			AND T2.CITY = #{city}
+		</if>
+		<if test="district!= null and district!= ''">
+			AND T2.DISTRICT = #{district}
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
+
+
 	<update id="cancelOrderForNoPay">
 		update t_order  set order_status=4
 		      where (pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=1) and order_status=1
