@@ -26,6 +26,9 @@ function pasretFormData() {
 //绑定搜索按钮事件
 function bindSearchBtn() {
     $("form .btn-info").on("click", function () {
+        $("input[name='orderStatus']").val('');
+        $($("#myTab").children()[0]).addClass('active');
+        $($("#myTab").children()[0]).siblings().removeClass('active');
         params.pageNo = 1;
         pasretFormData();
         doRefreshData(params);
@@ -63,27 +66,27 @@ function fillPagerUtil(data, requestParam) {
 }
 
 function setOrderCount(orderStatusCount) {
-    if(orderStatusCount){
+    if (orderStatusCount) {
         if (orderStatusCount['1'])
-            $($("span[name='statusCount']")[0]).html(orderStatusCount['1']);
+            $($("a[name='statusCount']")[0]).html('待付款('+orderStatusCount['1']+')');
         else
-            $($("span[name='statusCount']")[0]).html('');
+            $($("a[name='statusCount']")[0]).html('待付款');
         if (orderStatusCount['2'])
-            $($("span[name='statusCount']")[1]).html(orderStatusCount['2']);
+            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
         else
-            $($("span[name='statusCount']")[1]).html('');
+            $($("a[name='statusCount']")[1]).html('待发货');
         if (orderStatusCount['3'])
-            $($("span[name='statusCount']")[2]).html(orderStatusCount['3']);
+            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
         else
-            $($("span[name='statusCount']")[2]).html('');
+            $($("a[name='statusCount']")[2]).html('待收货');
         if (orderStatusCount['4'])
-            $($("span[name='statusCount']")[3]).html(orderStatusCount['4']);
+            $($("a[name='statusCount']")[3]).html('拒收中('+orderStatusCount['4']+')');
         else
-            $($("span[name='statusCount']")[3]).html('');
+            $($("a[name='statusCount']")[3]).html('拒收中');
         if (orderStatusCount['5'])
-            $($("span[name='statusCount']")[4]).html(orderStatusCount['5']);
+            $($("a[name='statusCount']")[4]).html('补货中('+orderStatusCount['5']+')');
         else
-            $($("span[name='statusCount']")[4]).html('');
+            $($("a[name='statusCount']")[4]).html('补货中');
     }
 }
 
@@ -169,7 +172,7 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td>" + order.flowId + "<br/><a href='" + order.flowId + "'>订单详情</a></td>";
+        tr += "<td>" + order.flowId + "<br/><a href='" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -195,20 +198,20 @@ function typeToOperate(order) {
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 1)//在线支付+买家已下单
         result = '<span id="order_' + order.orderId + '" ></span><br/>';
     if (order && order.orderStatus && order.payType && order.orderStatus == '1' && (order.payType == 1 || order.payType == 3)) {//买家已下单 + （在线支付 或 线下转账）
-        result += '<a href="#" >付款</a><br/>';
-        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" >取消</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">付款</a>';
+        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
     if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
         result = '<span id="order_f_' + order.orderId + '" ></span><br/>';
-        result += '<a href="#" >确认收货</a><br/>';
-        result += '<a href="#" >延期收货</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
     }
     if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
-        result += '<a href="#" >查看拒收订单</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }
 
     if(order && order.orderStatus && order.orderStatus == '10'){//补货中
-        result += '<a href="#" >查看补货订单</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     return result;
@@ -305,6 +308,30 @@ function calNYR(msg,seconds) {
 
     return str;
 
+}
+
+/**
+ * 获取最近n天日期
+ * @param day
+ */
+function selectDate(day){
+    var now = new Date();
+    var pre;
+    pre = now.valueOf()
+    pre = pre + day * 24 * 60 * 60 * 1000
+    pre = new Date(pre);
+
+    $("input[name='createBeginTime']").val(format(pre));
+    $("input[name='createEndTime']").val(format(now));
+    console.info(format(now));
+    console.info(format(pre));
+}
+
+function format(date){
+    var year  = date.getFullYear();
+    var month  = date.getMonth()+1;
+    var day  = date.getDate();
+    return year+'-'+month+'-'+day;
 }
 
 
