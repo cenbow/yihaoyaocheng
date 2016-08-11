@@ -18,6 +18,16 @@ public class OrderDetailsDto extends Order {
     private List<OrderDetail> details;
     //支付类型枚举名
     private String payTypeName;
+    //订单类型枚举值
+   private String orderStatusName;
+
+    public String getOrderStatusName() {
+        return orderStatusName;
+    }
+
+    public void setOrderStatusName(String orderStatusName) {
+        this.orderStatusName = orderStatusName;
+    }
 
     private OrderDeliveryDetail orderDeliveryDetail;
 

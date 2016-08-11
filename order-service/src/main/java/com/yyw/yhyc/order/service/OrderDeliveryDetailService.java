@@ -304,6 +304,8 @@ public class OrderDeliveryDetailService {
 		}else {
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
 		}
+		order.setDeliverTime(systemDateMapper.getSystemDate());
+		order.setReceiveType(1);//买家确认收货
 		order.setUpdateTime(systemDateMapper.getSystemDate());
 		order.setUpdateUser(user.getUserName());
 		orderMapper.update(order);

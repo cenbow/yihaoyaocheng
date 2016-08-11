@@ -706,6 +706,7 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderDetailsdto)){
 			return null;
 		}
+		orderDetailsdto.setOrderStatusName(SystemOrderStatusEnum.getName(orderDetailsdto.getOrderStatus()));
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
 			orderDeliveryDetail.setFlowId(order.getFlowId());
