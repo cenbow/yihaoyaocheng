@@ -258,5 +258,11 @@ public class OrderExceptionService {
 		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
 		return null;
 	}
-	
+
+
+	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
+
+		return orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+	}
+
 }

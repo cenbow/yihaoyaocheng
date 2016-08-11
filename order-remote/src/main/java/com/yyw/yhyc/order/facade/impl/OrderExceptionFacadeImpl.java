@@ -149,4 +149,11 @@ public class OrderExceptionFacadeImpl implements OrderExceptionFacade {
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
 		return orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
 	}
+
+	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
+
+
+		return orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
+	}
+
 }
