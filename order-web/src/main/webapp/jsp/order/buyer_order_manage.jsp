@@ -26,7 +26,7 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form>
+                <form id="form1">
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
@@ -116,6 +116,47 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">确认收货</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <form id="upForm">
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
+                            <div class="col-xs-5 control-label text-left"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额:</label>
+                            <div class="col-xs-5"><input name="refunSettlementMoney" type="text" class="form-control" /></div>
+                            <div class="col-xs-4 control-label text-left">元</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
+                            <div class="col-xs-5 control-label text-left"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-3 control-label">备注:</label>
+                            <div class="col-xs-5">
+                                <textarea class="form-control" name="remark" rows="3" cols="3"></textarea>
+                            </div>
+                            <input name="orderSettlementId" type="hidden"  />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </div>
     </div>

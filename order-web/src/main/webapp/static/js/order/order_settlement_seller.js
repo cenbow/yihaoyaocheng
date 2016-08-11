@@ -67,7 +67,7 @@ function fillPagerUtil(data,requestParam) {
 }
 
 function doRefreshData(requestParam){
-	var requestUrl = "/order/orderSettlement/listPg/t1";
+	var requestUrl = ctx+"/order/orderSettlement/listPg/t1";
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -193,7 +193,7 @@ function  bindSettlementOperate() {
 	$("#myModalOperate .btn-danger").click(function () {
 		var param = $("#upForm").serializeObject();
 		console.info(param);
-		var requestUrl = "/order/orderSettlement/refundSettlement";
+		var requestUrl = ctx+"/order/orderSettlement/refundSettlement";
 		$.ajax({
 			url : requestUrl,
 			data : JSON.stringify(param),
@@ -222,7 +222,7 @@ function bindOperateBtn() {
 		//$("#myModalOperate").modal();
 		var settlementId = $(this).attr("data-stmid");
 
-		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
+		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
 
 		$.ajax({
 			url : requestUrl,
@@ -244,7 +244,7 @@ function bindOperateBtn() {
 	$(".back-detail").on("click",function () {
 		var settlementId = $(this).attr("data-stmid");
 
-		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
+		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
 
 		$.ajax({
 			url : requestUrl,

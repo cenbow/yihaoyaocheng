@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.facade.OrderFacade;
 
@@ -431,15 +432,20 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/getBuyOrderDetails", method = RequestMethod.GET)
 	@ResponseBody
-	public OrderDetailsDto getBuyOrderDetails(Order order) throws Exception
+	public ModelAndView getBuyOrderDetails(Order order) throws Exception
 	{
 		// 登录买家的id
 		UserDto user = super.getLoginUser();
 		order.setCustId(user.getCustId());
-		return orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDetailsDto",orderDetailsDto);
+		model.setViewName("order/buyer_order_detail");
+		return model;
 	}
-
-
 
 	/**
 	 * 订单详情
@@ -447,13 +453,19 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
 	@ResponseBody
-	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
+	public ModelAndView getSupplyOrderDetails(Order order) throws Exception
 	{
-
-		// 登录买家的id
+		// 登录卖家的id
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
-		return orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDetailsDto",orderDetailsDto);
+		model.setViewName("order/seller_order_detail");
+		return model;
 	}
 
 	@RequestMapping("/sellerOrderManage")

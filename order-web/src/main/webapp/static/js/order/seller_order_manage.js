@@ -17,7 +17,7 @@ function fnInitPageUtil() {
 //初始化数据为  {"pageNo":1 ,"pageSize":22 ,"param":{"province":11。。。。}}格式
 function pasretFormData() {
     params = new Object();
-    var p = $("form").serializeObject()
+    var p = $("#form0").serializeObject()
     params.pageNo = 1;
     params.pageSize = 20;
     params.param = p;
@@ -91,7 +91,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = "/order/listPgSellerOrder";
+    var requestUrl = ctx+"/order/listPgSellerOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -236,7 +236,7 @@ function doCancle() {
     var cancelResult = $("#cancelResult").val().trim();
     var data = {orderId:orderId,cancelResult:cancelResult};
     $.ajax({
-        url: "/order/sellerCancelOrder",
+        url: ctx+"/order/sellerCancelOrder",
         data: JSON.stringify(data),
         type: 'POST',
         contentType: "application/json;charset=UTF-8",
@@ -295,7 +295,7 @@ function sellerOrderExport() {
     _data += "&payType=" + $.trim($('#payType').val());
     _data += "&createBeginTime=" + $.trim($('#createBeginTime').val());
     _data += "&createEndTime=" + $.trim($('#createEndTime').val());
-    var requestUrl = "/order/exportOrder";
+    var requestUrl = ctx+"/order/exportOrder";
     $.download(requestUrl,_data,'post' );
 
 }

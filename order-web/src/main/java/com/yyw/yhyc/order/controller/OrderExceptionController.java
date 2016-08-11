@@ -159,4 +159,11 @@ public class OrderExceptionController extends BaseJsonController{
 
 		return null;
 	}
+
+
+	@RequestMapping("/buyerRejectOrderManage")
+	public ModelAndView buyerExceptionOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/buyer_reject_order_manage");
+		return view;
+	}
 }
