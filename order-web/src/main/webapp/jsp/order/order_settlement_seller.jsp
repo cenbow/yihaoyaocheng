@@ -92,7 +92,7 @@
                                     <span class="input-group-addon">至</span>
                                     <input type="text" name="endTime" class="form-control Wdate border-left-none" onclick="WdatePicker()">
                                 </div>
-                                <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1年</a> ]</p>
+                                <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1月</a> ]</p>
                             </div>
                             <div class="col-xs-5 text-right">
                                 <input type="button" class="btn btn-info" value="搜索">
