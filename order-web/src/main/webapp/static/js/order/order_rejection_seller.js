@@ -3,8 +3,6 @@ var params = undefined;
 $(function(){
 	//初始化分页插件
 	fnInitPageUtil();
-	//初始化时间 按钮选择
-	initDateSel();
 	//初始化查询数据
 	pasretFormData();
 	//获取数据
@@ -12,21 +10,6 @@ $(function(){
 	//绑定 搜索的click事件
 	bindSearchBtn();
 })
-
-function initDateSel(){
-	$(".padding-t-10 a").on("click",function () {
-		var num = -3;
-		var curIndex = $(this).index();
-		if( curIndex==0){
-			num = -3;
-		}else if(curIndex==1){
-			num = -7;
-		}else if(curIndex ==2){
-			num = -30;
-		}
-		selectDate(num)
-	})
-}
 function fnInitPageUtil(){
 	$("#J_pager").pager();
 }
@@ -41,7 +24,7 @@ function pasretFormData(){
 }
 //绑定搜索按钮事件
 function bindSearchBtn(){
-	$("#searchForm .btn-info").on("click",function () {
+	$("form .btn-info").on("click",function () {
 		params.pageNo = 1;
 		pasretFormData();
 		doRefreshData(params);
@@ -155,9 +138,7 @@ function fillTableJson(data) {
 function typeToOperate(businessType,confirm,settlementId) {
 	var result = '';
 	if(businessType==2){//只有退款有操作
-		if(confirm ==0){
-			result = '<button type="button" class="btn btn-info btn-sm editbtn back-opreate" data-stmid = "'+settlementId+'">退款结算</button>';
-		}else  if(confirm ==1){
+		if(confirm ==1){
 			result = '<button type="button" class="btn btn-info btn-sm editbtn back-detail " data-stmid = "'+settlementId+'">退款详情</button>';
 		}
 	}
@@ -169,77 +150,9 @@ function changeColor(){
 	$(".table tr:not(:first):even").css({background:"#fff"});
 }
 
-function  bindSettlementOperate() {
-	/*$('#myModalOperate input[name="refunSettlementMoney"]').on("afterpaste",function(){
-		console.info(this.value);
-		$(this).val(this.value.replace(/\D/g,''));
-	});
-	$('#myModalOperate input[name="refunSettlementMoney"]').on("keyup",function(){
-		console.info(this.value);
-		$(this).val(this.value.replace(/\D/g,''));
-	})*/
-
-	$('#myModalOperate input[name="refunSettlementMoney"]').blur(function () {
-		var money = $(this).val();
-		var orderMoney = $("#myModalOperate .form-group:eq(0) div:first").html().replace("元","").trim();
-		var regStr = /\d+(\.\d+){0,1}/g;
-		if(regStr.test(money)){
-			var differentMoney = (parseFloat(money)-parseFloat(orderMoney));
-			$("#myModalOperate .form-group:eq(2) div:first").html(differentMoney+"元")
-		}else{
-			alert("请输入数字")
-		}
-	});
-	$("#myModalOperate .btn-danger").click(function () {
-		var param = $("#upForm").serializeObject();
-		console.info(param);
-		var requestUrl = "/order/orderSettlement/refundSettlement";
-		$.ajax({
-			url : requestUrl,
-			data : JSON.stringify(param),
-			type : 'POST',
-			dataType:'json',
-			contentType : "application/json;charset=UTF-8",
-			success : function(data) {
-				if(data){
-                    //Maskremove();
-					$("#myModalOperate").modal("hide");
-					alert("保存成功");
-				};
-			},
-			error : function(XMLHttpRequest, textStatus, errorThrown) {
-				alertModal("保存失败",function(){
-					closeAlert();
-				});
-			}
-		});
-	});
-
-}
-
 function bindOperateBtn() {
 	$(".back-opreate").on("click",function () {
 		//$("#myModalOperate").modal();
-		var settlementId = $(this).attr("data-stmid");
-
-		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
-
-		$.ajax({
-			url : requestUrl,
-			type : 'GET',
-			dataType:'json',
-			success : function(data) {
-				$("#myModalOperate .form-group:eq(0) div" ).html(data.settlementMoney+"元")
-				$('#myModalOperate input[name="orderSettlementId"]').val(settlementId);
-				$("#myModalOperate").modal();
-				bindSettlementOperate();
-			},
-			error : function(XMLHttpRequest, textStatus, errorThrown) {
-				alertModal("退款详情信息错误",function(){
-					closeAlert();
-				});
-			}
-		});
 	});
 	$(".back-detail").on("click",function () {
 		var settlementId = $(this).attr("data-stmid");
@@ -258,7 +171,7 @@ function bindOperateBtn() {
 				$("#myModalDetail").modal();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
-				alertModal("查询结算列表错误",function(){
+				alertModal("退款详情信息错误",function(){
 					closeAlert();
 				});
 			}
@@ -267,20 +180,3 @@ function bindOperateBtn() {
 }
 
 
-function selectDate(day){
-	var now = new Date();
-	var pre;
-	pre = now.valueOf()
-	pre = pre + day * 24 * 60 * 60 * 1000
-	pre = new Date(pre);
-
-	$("input[name='startTime']").val(format(pre));
-	$("input[name='endTime']").val(format(now));
-}
-
-function format(date){
-	var year  = date.getFullYear();
-	var month  = date.getMonth()+1;
-	var day  = date.getDate();
-	return year+'-'+month+'-'+day;
-}
