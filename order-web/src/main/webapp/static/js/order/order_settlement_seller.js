@@ -185,7 +185,8 @@ function  bindSettlementOperate() {
 			contentType : "application/json;charset=UTF-8",
 			success : function(data) {
 				if(data){
-					//$("#myModalOperate").fade();
+                    //Maskremove();
+					$("#myModalOperate").modal("hide");
 					alert("保存成功");
 				};
 			},
