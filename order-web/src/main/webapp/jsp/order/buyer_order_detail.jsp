@@ -290,7 +290,7 @@
 
                 <p>
 
-                <p>确认收货商品金额：${orderDetailsDto.orderTotal}元
+                <p>确认收货商品金额：${orderDetailsDto.receiveTotal}元
 
                 <p>
 
@@ -302,7 +302,7 @@
 
                 <p>
 
-                <p class="red">结算订单金额：${orderDetailsDto.orgTotal}元
+                <p class="red">结算订单金额：${orderDetailsDto.receiveTotal}元
 
                 <p>
             </div>
@@ -340,22 +340,22 @@
                     <div class="form-group">
                         <label for="scope" class="col-xs-3 control-label">订单金额</label>
 
-                        <div class="col-xs-5 control-label text-left">500.00 元</div>
+                        <div class="col-xs-5 control-label text-left">${orderDetailsDto.orgTotal}元</div>
                     </div>
                     <div class="form-group">
                         <label for="scope" class="col-xs-3 control-label">实际收款金额</label>
 
-                        <div class="col-xs-5 control-label text-left">500.00 元</div>
+                        <div class="col-xs-5 control-label text-left">${orderDetailsDto.finalPay} 元</div>
                     </div>
                     <div class="form-group">
                         <label for="scope" class="col-xs-3 control-label">应收实收差异</label>
 
-                        <div class="col-xs-5 control-label text-left">500.00 元</div>
+                        <div class="col-xs-5 control-label text-left">${orderDetailsDto.orgTotal-orderDetailsDto.finalPay}元</div>
                     </div>
                     <div class="form-group">
                         <label for="scope" class="col-xs-3 control-label">备注</label>
 
-                        <div class="col-xs-5 control-label text-left">500.00 元</div>
+                        <div class="col-xs-5 control-label text-left">${orderDetailsDto.remark}</div>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.OrderDetail;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -20,6 +21,18 @@ public class OrderDetailsDto extends Order {
     private String payTypeName;
     //订单类型枚举值
    private String orderStatusName;
+    /**
+     *	确认收货金额
+     */
+    private java.math.BigDecimal receiveTotal;
+
+    public BigDecimal getReceiveTotal() {
+        return receiveTotal;
+    }
+
+    public void setReceiveTotal(BigDecimal receiveTotal) {
+        this.receiveTotal = receiveTotal;
+    }
 
     public String getOrderStatusName() {
         return orderStatusName;
