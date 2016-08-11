@@ -91,7 +91,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = "/order/listPgBuyerOrder";
+    var requestUrl = ctx+"/order/listPgBuyerOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -224,7 +224,7 @@ function typeToOperate(order) {
 function cancleOrder(orderId) {
     if (window.confirm("订单取消后将无法恢复，确定取消？")) {
         $.ajax({
-            url: "/order/buyerCancelOrder/"+orderId,
+            url: ctx+"/order/buyerCancelOrder/"+orderId,
             type: 'GET',
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
