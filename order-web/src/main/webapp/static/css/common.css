@@ -582,3 +582,20 @@ em{font-style: normal;color:#fe4233;}
 }
 .send_goods .radio-inline{margin: 0;}
 .openclosebtn{cursor: pointer;}
+.drugscope .checkbox-inline+.checkbox-inline, .radio-inline+.radio-inline{margin-left: 20px;}
+
+/*上海*/
+.table>tbody>tr>td div.fl{width:40%;}
+.table>tbody>tr>td div.fontbox{width: 60%;}
+.table>tbody>tr>td div.fl img{max-width: 100%;max-height:100%}
+.table>tbody>tr>td div.fontbox{padding: 30px 0 0 0;}
+.table>tbody>tr>td p.title{text-align: left;font-weight: 800;}
+.table>tbody>tr>td p.text{text-align: left;}
+.nav-tabs{border:1px solid #ddd;}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+	color: #f00;
+	border-top: 1px solid #f00;
+	outline:none;blr:expression(this.onFocus=this.blur());
+}
+.send_goods .radio-inline{margin: 0;}
+.openclosebtn{cursor: pointer;}

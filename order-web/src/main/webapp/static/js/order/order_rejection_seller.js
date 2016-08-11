@@ -3,8 +3,6 @@ var params = undefined;
 $(function(){
 	//初始化分页插件
 	fnInitPageUtil();
-	//初始化时间 按钮选择
-	initDateSel();
 	//初始化查询数据
 	pasretFormData();
 	//获取数据
@@ -12,21 +10,6 @@ $(function(){
 	//绑定 搜索的click事件
 	bindSearchBtn();
 })
-
-function initDateSel(){
-	$(".padding-t-10 a").on("click",function () {
-		var num = -3;
-		var curIndex = $(this).index();
-		if( curIndex==0){
-			num = -3;
-		}else if(curIndex==1){
-			num = -7;
-		}else if(curIndex ==2){
-			num = -30;
-		}
-		selectDate(num)
-	})
-}
 function fnInitPageUtil(){
 	$("#J_pager").pager();
 }
@@ -67,7 +50,7 @@ function fillPagerUtil(data,requestParam) {
 }
 
 function doRefreshData(requestParam){
-	var requestUrl = ctx+"/order/orderSettlement/listPg/t1";
+	var requestUrl = "/order/orderSettlement/listPg/t1";
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -174,7 +157,7 @@ function bindOperateBtn() {
 	$(".back-detail").on("click",function () {
 		var settlementId = $(this).attr("data-stmid");
 
-		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
+		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
 
 		$.ajax({
 			url : requestUrl,
@@ -196,20 +179,4 @@ function bindOperateBtn() {
 	});
 }
 
-function selectDate(day){
-	var now = new Date();
-	var pre;
-	pre = now.valueOf()
-	pre = pre + day * 24 * 60 * 60 * 1000
-	pre = new Date(pre);
 
-	$("input[name='startTime']").val(format(pre));
-	$("input[name='endTime']").val(format(now));
-}
-
-function format(date){
-	var year  = date.getFullYear();
-	var month  = date.getMonth()+1;
-	var day  = date.getDate();
-	return year+'-'+month+'-'+day;
-}

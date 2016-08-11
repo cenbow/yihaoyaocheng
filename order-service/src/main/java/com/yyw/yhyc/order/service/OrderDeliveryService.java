@@ -354,6 +354,7 @@ public class OrderDeliveryService {
 				//发货成功更新订单状态
 				Order order = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
 				order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+				order.setDeliverTime(systemDateMapper.getSystemDate());
 				order.setUpdateTime(systemDateMapper.getSystemDate());
 				order.setUpdateUser("登录用户");
 				orderMapper.update(order);

@@ -2,12 +2,12 @@
    {
         "name": "结算管理-应付管理",
         "icon":"fa fa-building-o",
-        "url":"breed_payment.asp",
+        "url":"breed_payment.asp"
    },
    {
         "name": "结算管理-应付管理",
         "icon":"fa fa-building-o",
-        "url":"breed_payment1.asp",
+        "url":"breed_payment1.asp"
    },
    {
         "name": "销售订单管理",
