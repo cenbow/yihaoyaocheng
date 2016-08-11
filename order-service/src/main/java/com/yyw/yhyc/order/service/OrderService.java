@@ -707,8 +707,13 @@ public class OrderService {
 		BigDecimal total=new BigDecimal(0);
 		for (OrderDetail detail:orderDetailsdto.getDetails())
 		{
-			BigDecimal count=new BigDecimal(detail.getRecieveCount());
-			total=total.add(detail.getProductPrice().multiply(count));
+			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
+				BigDecimal count=new BigDecimal(detail.getRecieveCount());
+				total=total.add(detail.getProductPrice().multiply(count));
+			}else {
+				BigDecimal count=new BigDecimal(detail.getProductCount());
+				total=total.add(detail.getProductPrice().multiply(count));
+			}
 		}
 		orderDetailsdto.setReceiveTotal(total);
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
