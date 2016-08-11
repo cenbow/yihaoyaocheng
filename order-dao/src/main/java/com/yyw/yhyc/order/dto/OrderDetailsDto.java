@@ -26,6 +26,8 @@ public class OrderDetailsDto extends Order {
      */
     private java.math.BigDecimal receiveTotal;
 
+    private OrderDeliveryDetail orderDeliveryDetail;
+
     public BigDecimal getReceiveTotal() {
         return receiveTotal;
     }
@@ -42,7 +44,6 @@ public class OrderDetailsDto extends Order {
         this.orderStatusName = orderStatusName;
     }
 
-    private OrderDeliveryDetail orderDeliveryDetail;
 
     public OrderDeliveryDetail getOrderDeliveryDetail() {
         return orderDeliveryDetail;

@@ -438,14 +438,14 @@ public class OrderController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		order.setCustId(user.getCustId());
 		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
-
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
 		ModelAndView model = new ModelAndView();
 		model.addObject("orderDetailsDto",orderDetailsDto);
 		model.setViewName("order/buyer_order_detail");
 		return model;
 	}
-
-
 
 	/**
 	 * 订单详情
@@ -453,13 +453,19 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
 	@ResponseBody
-	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
+	public ModelAndView getSupplyOrderDetails(Order order) throws Exception
 	{
-
-		// 登录买家的id
+		// 登录卖家的id
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
-		return orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDetailsDto",orderDetailsDto);
+		model.setViewName("order/seller_order_detail");
+		return model;
 	}
 
 	@RequestMapping("/sellerOrderManage")
