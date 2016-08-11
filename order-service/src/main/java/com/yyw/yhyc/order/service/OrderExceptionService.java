@@ -211,5 +211,10 @@ public class OrderExceptionService {
 		orderSettlement.setCreateTime(now);
 		orderSettlementMapper.save(orderSettlement);
 	}
-	
+
+	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
+
+		return orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+	}
+
 }

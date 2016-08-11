@@ -103,4 +103,12 @@ public interface OrderExceptionFacade {
 	 */
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception;
 
+	/**
+	 * 根据查询条件查询分页记录
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception;
+
+
 }

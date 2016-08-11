@@ -13,7 +13,9 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
@@ -28,6 +30,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -129,5 +133,30 @@ public class OrderExceptionController extends BaseJsonController{
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
 		modelAndView.setViewName("orderException/getOrderExceptionDetails");
 		return modelAndView;
+	}
+
+
+	/**
+	 * 分页查询记录
+	 * @return
+	 */
+	@RequestMapping(value = {"/buyerRejcetOrderManage"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView buyerRejcetOrderManage()throws Exception{
+
+		ModelAndView model = new ModelAndView();
+		model.setViewName("order/order_rejection_seller");
+		return model;
+	}
+	/**
+	 * 分页查询记录
+	 * @return
+	 */
+	@RequestMapping(value = {"/buyerRejcetOrderManage/list"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Pagination<OrderExceptionDto> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel)throws Exception{
+
+
+		return null;
 	}
 }

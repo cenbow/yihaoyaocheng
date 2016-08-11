@@ -277,4 +277,53 @@
 		</if>
 	</select>
 
+	<resultMap id="OrderExceptionlistResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	</resultMap>
+
+	<select id="listPaginationSellerByProperty" parameterType="OrderExceptionDto"  resultMap="OrderExceptionlistResultMap">
+
+		SELECT e.*,t.pay_type,t.pay_type_name FROM t_order_exception  e
+
+		INNER JOIN t_order o ON e.order_id = o.order_id
+
+		INNER JOIN t_system_pay_type t ON o.pay_type_id = t.pay_type_id
+
+		LEFT JOIN t_passport_user u ON u.id = e.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
+
+		WHERE 1=1
+
+		<if test="custId !=null and custId !=''">
+			AND e.cust_id = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND e.supply_id = #{supplyId}
+		</if>
+		<if test="flowId !=null and flowId !=''">
+			AND e.flow_id = #{flowId}
+		</if>
+
+		<if test="custName !=null and custName !=''">
+			AND e.cust_name = CONCAT('%',#{custName},'%')
+		</if>
+
+		<if test="startTime !=null and startTime!=''">
+			AND e.order_create_time > #{startTime}
+		</if>
+		<if test="endTime !=null and endTime!=''">
+			AND #{startTime} > e.order_create_time
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
+		</if>
+	</select>
+
 </mapper>
