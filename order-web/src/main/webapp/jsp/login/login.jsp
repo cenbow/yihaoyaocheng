@@ -11,7 +11,7 @@
     <title>login</title>
 </head>
 <body>
-<form action="/doLogin" method="post">
+<form action="<%=request.getContextPath().toString()%>/doLogin" method="post">
     *用户id:<input type="text" name="custId"/><b>例:10000</b><br/>
     *用户名称:<input type="text" name="custName"/><b>例:上海九州通</b><br/>
     *用户登录名:<input type="text" name="userName"/><b>例:shanghaijiuzhoutong</b><br/>

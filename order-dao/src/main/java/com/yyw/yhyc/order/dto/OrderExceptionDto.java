@@ -34,6 +34,12 @@ public class OrderExceptionDto extends OrderException {
     /* 原订单信息 */
     private Order order;
 
+    /*拒收查询开始时间*/
+    private String startTime;
+
+    /*拒收查询结束时间*/
+    private String endTime;
+
     public OrderExceptionDto() {
     }
 
@@ -115,6 +121,22 @@ public class OrderExceptionDto extends OrderException {
 
     public void setOrderPriceCount(BigDecimal orderPriceCount) {
         this.orderPriceCount = orderPriceCount;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 
     @Override
