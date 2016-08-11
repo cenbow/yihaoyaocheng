@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.annotation.Token;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
@@ -111,8 +112,12 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
 
-		//todo 获取当前登陆人的企业用户id
-		Integer currentLoginCustId = 123;
+		/* 获取当前登陆人的企业用户id */
+		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
+		}
+		Integer currentLoginCustId = userDto.getCustId();
 
 		Map<String,Object> map = new HashMap<String, Object>();
 		boolean validateResult = false;
@@ -177,8 +182,10 @@ public class OrderController extends BaseJsonController {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
+	@Token(remove=true)
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
-	public ModelAndView createOrder( OrderCreateDto orderCreateDto) throws Exception {
+	@ResponseBody
+	public String createOrder( OrderCreateDto orderCreateDto) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw new Exception("用户未登录");
@@ -187,34 +194,57 @@ public class OrderController extends BaseJsonController {
 
 		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
 
-		/* 计算所有订单中，在线支付订单总额 */
-		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
-		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
-		OrderDto orderDto = null;
+		String orderIdStr = "";
 		if(!UtilHelper.isEmpty(orderList)){
 			for(Order order : orderList){
 				if(UtilHelper.isEmpty(order)) continue;
-				orderDto = new OrderDto();
-				orderDto.setOrderId(order.getOrderId());
-				orderDto.setFlowId(order.getFlowId());
-				orderDto.setSupplyName(order.getSupplyName());
-				orderDto.setOrderTotal(order.getOrderTotal());
-				orderDto.setFinalPay(order.getFinalPay());
-				orderDto.setPayStatus(order.getPayStatus());
-				orderDto.setPayTypeId(order.getPayTypeId());
-				orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
-				orderDtoList.add(orderDto);
-				if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
-					onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+				if(UtilHelper.isEmpty(orderIdStr)){
+					orderIdStr += order.getOrderId();
+				}else{
+					orderIdStr += ","+order.getOrderId();
 				}
 			}
 		}
+		return "/order/createOrderSuccess?orderIds="+orderIdStr;
+	}
 
+	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
+	public ModelAndView createOrderSuccess(@RequestParam("orderIds") String orderIds) throws Exception {
+		UserDto userDto = super.getLoginUser();
 		ModelAndView model = new ModelAndView();
+
+		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
+		OrderDto orderDto = null;
+		/* 计算所有订单中，在线支付订单总额 */
+		BigDecimal onLinePayOrderPriceCount = new BigDecimal(0);
+
+		logger.info("创建订单成功页面，请求参数 orderIds = " + orderIds);
+		if(UtilHelper.isEmpty(orderIds)){
+			throw new Exception("非法参数");
+		}
+		String [] orderIdStr = orderIds.split(",");
+		for(String orderId : orderIdStr){
+			if(UtilHelper.isEmpty(orderId) || "null".equalsIgnoreCase(orderId)) continue;
+			orderDto = new OrderDto();
+			Order order = orderFacade.getByPK(Integer.valueOf(orderId));
+			orderDto.setOrderId(order.getOrderId());
+			orderDto.setFlowId(order.getFlowId());
+			orderDto.setSupplyName(order.getSupplyName());
+			orderDto.setOrderTotal(order.getOrderTotal());
+			orderDto.setFinalPay(order.getFinalPay());
+			orderDto.setPayStatus(order.getPayStatus());
+			orderDto.setPayTypeId(order.getPayTypeId());
+			orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
+			orderDtoList.add(orderDto);
+			if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
+				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+			}
+		}
+
+		model.setViewName("order/createOrderSuccess");
 		model.addObject("orderDtoList",orderDtoList);
 		model.addObject("onLinePayOrderPriceCount",onLinePayOrderPriceCount);
 		model.addObject("userDto",userDto);
-		model.setViewName("order/createOrderSuccess");
 		return model;
 	}
 
@@ -223,6 +253,7 @@ public class OrderController extends BaseJsonController {
 	 * @return
 	 * @throws Exception
      */
+	@Token(save=true)
 	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
@@ -327,26 +358,36 @@ public class OrderController extends BaseJsonController {
 
 	/**
 	 * 导出销售订单信息
-	 * @param response
 	 */
-	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(@RequestParam("orderId") String orderId,@RequestParam("supplyId") Integer supplyId,@RequestParam("custName") String custName,@RequestParam("payType") Integer payType,HttpServletResponse response){
+	public void exportOrder(){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
 		pagination.setPageSize(6000);      //默认6000条数据
-		try{
-			custName = new String(custName.getBytes("iso8859-1"),"UTF-8");
-		}catch (Exception e){
-			e.printStackTrace();
-		}
+		String province=request.getParameter("province");
+		String city=request.getParameter("city");
+		String district=request.getParameter("district");
+		String flowId=request.getParameter("flowId");
+		String custName=request.getParameter("custName");
+		String payType=request.getParameter("payType");
+		String createBeginTime=request.getParameter("createBeginTime");
+		String createEndTime=request.getParameter("createEndTime");
 		OrderDto orderDto=new OrderDto();
-		orderDto.setSupplyId(supplyId);
-		orderDto.setFlowId(orderId);
-		orderDto.setPayType(payType);
+		orderDto.setProvince(province);
+		orderDto.setCity(city);
+		orderDto.setDistrict(district);
+		orderDto.setFlowId(flowId);
 		orderDto.setCustName(custName);
+		if(!UtilHelper.isEmpty(payType)) {
+			orderDto.setPayType(Integer.parseInt(payType));
+		}
+		orderDto.setCreateBeginTime(createBeginTime);
+		orderDto.setCreateEndTime(createEndTime);
+		UserDto userDto = super.getLoginUser();
+		orderDto.setSupplyId(userDto.getCustId());
 		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {

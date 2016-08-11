@@ -75,10 +75,10 @@
                             <label class="col-xs-2 control-label">下单时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
-                                    <input type="text" name="createBeginTime"
+                                    <input type="text" name="createBeginTime" id="createBeginTime"
                                            class="form-control Wdate border-right-none" onclick="WdatePicker()">
                                     <span class="input-group-addon">至</span>
-                                    <input type="text" name="createEndTime" class="form-control Wdate border-left-none"
+                                    <input type="text" name="createEndTime" id="createEndTime" class="form-control Wdate border-left-none"
                                            onclick="WdatePicker()">
                                 </div>
                                 <p class="padding-t-10">[ <a class="blue" onclick="selectDate(-3)">最近三天</a> <a class="blue" onclick="selectDate(-7)">最近1周</a> <a
@@ -107,7 +107,8 @@
                     <div id="myTabContent" class="tab-content">
                         <div class="tab-pane fade in active" id="home">
                             <div class="clearfix padding-tb-20">
-                                <div class="fl"><button type="button" class="btn btn-info" onclick="document.getElementById('form0').submit();">订单导出</button></div>
+                                <%--<div class="fl"><button type="button" class="btn btn-info" onclick="document.getElementById('form0').submit();">订单导出</button></div>--%>
+                                <div class="fl"><button type="button" class="btn btn-info" onclick="sellerOrderExport();">订单导出</button></div>
                                 <div class="fr padding-t-10"><span class="margin-r-20">订单数：<span id="orderCount"></span></span><span class="red">订单金额：<span id="orderTotalMoney"></span></span></div>
                             </div>
                             <table class="table table-box">

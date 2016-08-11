@@ -15,6 +15,8 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.facade.OrderExceptionFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +25,16 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.bo.Pagination;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
+/**
+ * 异常(包括补货、拒收、退货、换货等订单)订单控制器
+ */
 @Controller
-@RequestMapping(value = "/order/orderException")
+@RequestMapping(value = "/orderException")
 public class OrderExceptionController extends BaseJsonController{
 	private static final Logger logger = LoggerFactory.getLogger(OrderExceptionController.class);
 
@@ -96,20 +99,35 @@ public class OrderExceptionController extends BaseJsonController{
 		orderExceptionFacade.update(orderException);
 	}
 
+
 	/**
 	 * 退货订单详情
+	 * @param userType userType==1 表示以采购商身份查看 ，userType==2 表示以供应商身份查看
+	 * @param exceptionOrderId 异常订单编码
 	 * @return
-	 */
-	@RequestMapping(value = "/getOrderExceptionDetails", method = RequestMethod.POST)
-	@ResponseBody
-	public OrderExceptionDto getOrderExceptionDetails(@RequestBody OrderExceptionDto orderExceptionDto) throws Exception
-	{
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/getDetails-{userType}/{exceptionOrderId}", method = RequestMethod.GET)
+	public ModelAndView getOrderExceptionDetails(@PathVariable("userType") int userType,@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
 		UserDto user = super.getLoginUser();
-		if(orderExceptionDto.getUserType()==1){
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		if (userType == 1) {
 			orderExceptionDto.setCustId(user.getCustId());
-		}else if(orderExceptionDto.getUserType()==2){
+		} else if(userType == 2) {
 			orderExceptionDto.setSupplyId(user.getCustId());
 		}
-		return orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
+		orderExceptionDto.setUserType(userType);
+		if (userType == 1) {
+			orderExceptionDto.setOrderStatusName(BuyerOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+		} else if (userType == 2) {
+			orderExceptionDto.setOrderStatusName(SellerOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+		}
+
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/getOrderExceptionDetails");
+		return modelAndView;
 	}
 }
