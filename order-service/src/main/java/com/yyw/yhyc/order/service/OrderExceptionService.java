@@ -11,11 +11,18 @@
 package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
+import com.yyw.yhyc.utils.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +38,8 @@ import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderExceptionService")
 public class OrderExceptionService {
+
+	private Log log = LogFactory.getLog(OrderExceptionService.class);
 
 	private OrderExceptionMapper	orderExceptionMapper;
 	private OrderSettlementMapper orderSettlementMapper;
@@ -210,6 +219,44 @@ public class OrderExceptionService {
 		orderSettlement.setCreateUser(orderExceptionDto.getCustName());
 		orderSettlement.setCreateTime(now);
 		orderSettlementMapper.save(orderSettlement);
+	}
+
+	/**
+	 * 采购商拒收订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+     * @return
+     */
+	public Map<String, Object> listPgBuyerRejectOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+
+		if(UtilHelper.isEmpty(orderExceptionDto))
+			throw new RuntimeException("参数错误");
+		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderExceptionDto.setEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderExceptionDto.getEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+
+		}
+
+		int orderCount = 0;
+		BigDecimal orderTotalMoney = null;
+
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRejectOrder(pagination, orderExceptionDto);
+		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+		resultMap.put("rejectOrderStatusCount", null);
+		resultMap.put("rejectOrderList", pagination);
+		resultMap.put("rejectOrderCount", orderCount);
+		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		return null;
 	}
 	
 }

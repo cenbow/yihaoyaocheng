@@ -152,6 +152,8 @@ public class OrderExceptionDto extends OrderException {
                 ", orderPriceCount=" + orderPriceCount +
                 ", orderStatusName='" + orderStatusName + '\'' +
                 ", order=" + order +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
                 '}';
     }
 }

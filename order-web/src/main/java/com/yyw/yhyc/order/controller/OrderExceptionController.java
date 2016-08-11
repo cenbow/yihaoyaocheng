@@ -18,17 +18,20 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.facade.OrderExceptionFacade;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.bo.Pagination;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 异常(包括补货、拒收、退货、换货等订单)订单控制器
@@ -40,6 +43,9 @@ public class OrderExceptionController extends BaseJsonController{
 
 	@Reference
 	private OrderExceptionFacade orderExceptionFacade;
+
+	@Autowired
+	private OrderExceptionService orderExceptionService;
 
 	/**
 	* 通过主键查询实体对象
@@ -136,5 +142,22 @@ public class OrderExceptionController extends BaseJsonController{
 	public ModelAndView buyerExceptionOrderManage(){
 		ModelAndView view = new ModelAndView("orderException/buyer_reject_order_manage");
 		return view;
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgBuyerRejectOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgBuyerRejectOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgBuyerRejectOrder(pagination, orderDto);
 	}
 }

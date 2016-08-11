@@ -27,4 +27,13 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
 	 */
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto);
+
+
+	/**
+	 * 采购商拒收订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+     * @return
+     */
+	public List<OrderExceptionDto> listPaginationBuyerRejectOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
 }
