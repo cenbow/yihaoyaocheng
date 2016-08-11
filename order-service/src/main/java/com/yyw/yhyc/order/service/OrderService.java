@@ -753,7 +753,7 @@ public class OrderService {
             }
         }
 
-        BigDecimal orderTotalMoney = new BigDecimal(0);
+        BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
         int orderCount = 0;
 		long time = 0l;
         if(!UtilHelper.isEmpty(buyerOrderList)){
@@ -768,8 +768,8 @@ public class OrderService {
                         od.setOrderStatusName("未知类型");
                 }
 				//统计订单总额
-                if(!UtilHelper.isEmpty(od.getOrderTotal()))
-                    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
+                //if(!UtilHelper.isEmpty(od.getOrderTotal()))
+                //    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 				//在线支付 + 未付款订单
 				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
@@ -818,7 +818,7 @@ public class OrderService {
         resultMap.put("orderStatusCount", orderStatusCountMap);
         resultMap.put("buyerOrderList", pagination);
         resultMap.put("orderCount", orderCount);
-        resultMap.put("orderTotalMoney", orderTotalMoney);
+        resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
         return resultMap;
     }
 
@@ -998,7 +998,7 @@ public class OrderService {
 			}
 		}
 
-		BigDecimal orderTotalMoney = new BigDecimal(0);
+		BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
 		int orderCount = 0;
 		if(!UtilHelper.isEmpty(sellerOrderList)){
 			orderCount = sellerOrderList.size();
@@ -1012,8 +1012,8 @@ public class OrderService {
 						od.setOrderStatusName("未知类型");
 				}
 				//统计订单总额
-				if(!UtilHelper.isEmpty(od.getOrderTotal()))
-					orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
+				//if(!UtilHelper.isEmpty(od.getOrderTotal()))
+				//	orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 			}
 		}
 
@@ -1026,7 +1026,7 @@ public class OrderService {
 		resultMap.put("orderStatusCount", orderStatusCountMap);
 		resultMap.put("sellerOrderList", pagination);
 		resultMap.put("orderCount", orderCount);
-		resultMap.put("orderTotalMoney", orderTotalMoney);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
 		return resultMap;
 	}
 
