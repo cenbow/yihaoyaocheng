@@ -252,6 +252,8 @@
                         </thead>
                         <tbody>
                         <%--遍历该供应商的商品信息  开始--%>
+                        <input type="hidden" id="flowId" name="flowId" value="${orderDetailsDto.flowId}"/>
+                        <input type="hidden" id="userType" name="userType" value="1"/>
                         <c:choose>
                             <c:when test="${orderDetailsDto != null && fn:length(orderDetailsDto.details) gt 0 }">
                                 <c:forEach var="details" items="${orderDetailsDto.details}" varStatus="detailsVarStatus">
@@ -281,7 +283,7 @@
                         <%--遍历该供应商的商品信息  结束--%>
                         </tbody>
                     </table>
-                    <div><a class="undeline lookgoodlist">查看收货商品清单</a></div>
+                    <div><a class="undeline" onclick="listPg()">查看收货商品清单</a></div>
                     <div class="text-right">
                         <p>商品金额：${orderDetailsDto.orderTotal}元
 
@@ -370,7 +372,7 @@
                 <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
             </div>
             <div class="modal-body">
-                <table class="table table-box">
+                <table class="table table-box2">
                     <colgroup>
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -398,39 +400,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>1000000000007</td>
-                        <td>p123456789</td>
-                        <td>0253265</td>
-                        <td>葵花牌葵花牌葵</td>
-                        <td>小儿感冒颗粒</td>
-                        <td>10gx10包</td>
-                        <td>颗粒剂</td>
-                        <td>黑龙江哈药六盘...</td>
-                        <td>10</td>
-                        <td>10</td>
-                    </tr>
                     </tbody>
                 </table>
-                <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
-                        href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)"
-                                                                               class="pager_item">1</a><a
-                        href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
-                                                                             class="pager_item active">3</a><a
-                        href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
-                                                                             class="pager_item">5</a><a
-                        href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
-                                                                             class="pager_item">7</a><a
-                        href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
-                        href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)"
-                                                                              class="pager_next">下一页</a><span
-                        class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
-                                                                                                          name="page"
-                                                                                                          class="input_item input_item_shortest page-num"
-                                                                                                          autocomplete="off"
-                                                                                                          id="page-num0">页</span><a
-                        href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label>
-                </div>
+                <div class="pager" id="J_pager2"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -445,6 +417,9 @@
 
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
 <script>
     $(".gathering").click(function(){
         $("#myModal1").modal();
