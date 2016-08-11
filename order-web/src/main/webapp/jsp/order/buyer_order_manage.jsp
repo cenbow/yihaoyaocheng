@@ -11,6 +11,8 @@
     <%@ include file="../config.jsp" %>
     <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
 
+    <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
+
 </head>
 <body>
 <!--框架右侧内容 start-->
@@ -60,8 +62,8 @@
                                     <input type="text" name="createEndTime" class="form-control Wdate border-left-none"
                                            onclick="WdatePicker()">
                                 </div>
-                                <p class="padding-t-10">[ <a class="blue">最近三天</a> <a class="blue">最近1周</a> <a
-                                        class="blue">最近1月</a> ]</p>
+                                <p class="padding-t-10">[ <a class="blue" onclick="selectDate(-3)">最近三天</a> <a class="blue" onclick="selectDate(-7)">最近1周</a> <a
+                                        class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
                             <div class="col-xs-2 text-left">
                                 <input type="button" class="btn btn-info" value="搜索">
@@ -72,50 +74,44 @@
             </div>
             <div class="row margin-t-10">
                 <div class="col-xs-12">
-                    <input type="button" class="btn btn-info" onclick="changeStatus('');" value="全部订单">
-                    <input type="button" class="btn btn-info" onclick="changeStatus('1');" value="待付款"><span name="statusCount"></span>
-                    <input type="button" class="btn btn-info" onclick="changeStatus('2');" value="待发货"><span name="statusCount"></span>
-                    <input type="button" class="btn btn-info" onclick="changeStatus('3');" value="待收货"><span name="statusCount"></span>
-                    <input type="button" class="btn btn-info" onclick="changeStatus('4');" value="拒收中"><span name="statusCount"></span>
-                    <input type="button" class="btn btn-info" onclick="changeStatus('5');" value="补货中"><span name="statusCount"></span>
-                    <input type="button" class="btn btn-info" onclick="changeStatus('7');" value="已完成"><span name="statusCount"></span>
-                    <input type="button" class="btn btn-info" onclick="changeStatus('6');" value="已取消"><span name="statusCount"></span>
-                </div>
-            </div>
-            <div class="row margin-t-10">
-                <div class="col-xs-12">
-                    订单金额:<span id="orderTotalMoney"></span>
-                    订单数:<span id="orderCount"></span>
-                </div>
-            </div>
-            <div class="row margin-t-10">
-                <div class="col-xs-12">
-                    <div class="panel">
-                        <div class="panel-body">
-                            <div class="row">
-                                <table class="table table-box">
-                                    <colgroup>
-                                        <col style="width: 20%;"/>
-                                        <col style="width: 15%;"/>
-                                        <col style="width: 20%;"/>
-                                        <col style="width: 15%;"/>
-                                        <col style="width: 15%;"/>
-                                        <col style="width: 15%;"/>
-                                    </colgroup>
-                                    <thead>
-                                    <tr>
-                                        <th>订单号</th>
-                                        <th>下单时间</th>
-                                        <th>供应商</th>
-                                        <th>订单状态</th>
-                                        <th>订单金额</th>
-                                        <th>操作</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部订单</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount">待付款</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount">待发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount">待收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount">拒收中</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount">补货中</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('7');" name="statusCount">已完成</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('6');" name="statusCount">已取消</a></li>
+                    </ul>
+
+                    <div id="myTabContent" class="tab-content">
+                        <div class="tab-pane fade in active" id="home">
+                            <div class="clearfix padding-tb-20">
+                                <div class="fr padding-t-10"><span class="margin-r-20">订单数：<span id="orderCount"></span></span><span class="red">订单金额：<span id="orderTotalMoney"></span></span></div>
                             </div>
+                            <table class="table table-box">
+                                <colgroup>
+                                    <col style="width: 20%;"/>
+                                    <col style="width: 15%;"/>
+                                    <col style="width: 20%;"/>
+                                    <col style="width: 15%;"/>
+                                    <col style="width: 15%;"/>
+                                    <col style="width: 15%;"/>
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>下单时间</th>
+                                    <th>供应商</th>
+                                    <th>订单状态</th>
+                                    <th>订单金额</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                             <div class="pager" id="J_pager"></div>
                         </div>
                     </div>

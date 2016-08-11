@@ -359,26 +359,36 @@ public class OrderController extends BaseJsonController {
 
 	/**
 	 * 导出销售订单信息
-	 * @param response
 	 */
-	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(@RequestParam("orderId") String orderId,@RequestParam("supplyId") Integer supplyId,@RequestParam("custName") String custName,@RequestParam("payType") Integer payType,HttpServletResponse response){
+	public void exportOrder(){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
 		pagination.setPageSize(6000);      //默认6000条数据
-		try{
-			custName = new String(custName.getBytes("iso8859-1"),"UTF-8");
-		}catch (Exception e){
-			e.printStackTrace();
-		}
+		String province=request.getParameter("province");
+		String city=request.getParameter("city");
+		String district=request.getParameter("district");
+		String flowId=request.getParameter("flowId");
+		String custName=request.getParameter("custName");
+		String payType=request.getParameter("payType");
+		String createBeginTime=request.getParameter("createBeginTime");
+		String createEndTime=request.getParameter("createEndTime");
 		OrderDto orderDto=new OrderDto();
-		orderDto.setSupplyId(supplyId);
-		orderDto.setFlowId(orderId);
-		orderDto.setPayType(payType);
+		orderDto.setProvince(province);
+		orderDto.setCity(city);
+		orderDto.setDistrict(district);
+		orderDto.setFlowId(flowId);
 		orderDto.setCustName(custName);
+		if(!UtilHelper.isEmpty(payType)) {
+			orderDto.setPayType(Integer.parseInt(payType));
+		}
+		orderDto.setCreateBeginTime(createBeginTime);
+		orderDto.setCreateEndTime(createEndTime);
+		UserDto userDto = super.getLoginUser();
+		orderDto.setSupplyId(userDto.getCustId());
 		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
@@ -450,6 +460,18 @@ public class OrderController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
 		return orderFacade.getOrderDetails(order);
+	}
+
+	@RequestMapping("/sellerOrderManage")
+	public ModelAndView buyer_order_manage(){
+		ModelAndView view = new ModelAndView("order/seller_order_manage");
+		return view;
+	}
+
+	@RequestMapping("/buyerOrderManage")
+	public ModelAndView login(){
+		ModelAndView view = new ModelAndView("order/buyer_order_manage");
+		return view;
 	}
 
 

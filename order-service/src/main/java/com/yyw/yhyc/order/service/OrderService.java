@@ -549,27 +549,22 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderDto.getPayTypeId())){
 			throw new Exception("非法支付类型");
 		}
+
 		order.setPayTypeId(orderDto.getPayTypeId());
-
-
 		SystemPayType systemPayType = systemPayTypeService.getByPK(orderDto.getPayTypeId());
 		String orderFlowIdPrefix = "";
-		/* 下单后，选择不同支付方式，订单的状态不一样 */
 		/* 线下支付 */
 		if(SystemPayTypeEnum.PayOffline.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
-
 		/* 在线支付 */
 		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
-
 		/* 账期支付 */
 		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(  systemPayType.getPayType() )){
-			order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
 		}
+
+		order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 		order.setCreateTime(systemDateMapper.getSystemDate());
 		order.setCreateUser(userDto.getUserName());
 		order.setTotalCount( orderDto.getProductInfoDtoList().size());
@@ -754,12 +749,12 @@ public class OrderService {
 		//获取各订单状态下的订单数量
         List<OrderDto> orderDtoList = orderMapper.findOrderStatusCount(orderDto);
         Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-        int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
-        BuyerOrderStatusEnum buyerorderstatusenum;
+        //int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付  0--为选择支付类型
+        BuyerOrderStatusEnum buyerorderstatusenum = null;
         if (!UtilHelper.isEmpty(orderDtoList)) {
             for (OrderDto od : orderDtoList) {
 				//获取买家视角订单状态
-                buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),payType);
+				buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
                 if(buyerorderstatusenum != null){
 					//统计买家视角订单数
                     if(orderStatusCountMap.containsKey(buyerorderstatusenum.getType())){
@@ -771,7 +766,7 @@ public class OrderService {
             }
         }
 
-        BigDecimal orderTotalMoney = new BigDecimal(0);
+        BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
         int orderCount = 0;
 		long time = 0l;
         if(!UtilHelper.isEmpty(buyerOrderList)){
@@ -786,8 +781,8 @@ public class OrderService {
                         od.setOrderStatusName("未知类型");
                 }
 				//统计订单总额
-                if(!UtilHelper.isEmpty(od.getOrderTotal()))
-                    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
+                //if(!UtilHelper.isEmpty(od.getOrderTotal()))
+                //    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 				//在线支付 + 未付款订单
 				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
@@ -836,7 +831,7 @@ public class OrderService {
         resultMap.put("orderStatusCount", orderStatusCountMap);
         resultMap.put("buyerOrderList", pagination);
         resultMap.put("orderCount", orderCount);
-        resultMap.put("orderTotalMoney", orderTotalMoney);
+        resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
         return resultMap;
     }
 
@@ -850,7 +845,7 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return BuyerOrderStatusEnum.BackOrder;//待发货
-            } else {
+            } else if(payType == 1 || payType == 3){
                 return BuyerOrderStatusEnum.PendingPayment;//待付款
             }
         }
@@ -890,7 +885,7 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return SellerOrderStatusEnum.BackOrder;//待发货
-            } else {
+            } else if(payType == 1 || payType == 3) {
                 return SellerOrderStatusEnum.PendingPayment;//待付款
             }
         }
@@ -1000,12 +995,12 @@ public class OrderService {
 		//获取各订单状态下的订单数量
 		List<OrderDto> orderDtoList = orderMapper.findSellerOrderStatusCount(orderDto);
 		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-		int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
-		SellerOrderStatusEnum sellerOrderStatusEnum;
+		//int payType = orderDto.getPayType();//支付方式 1--在线支付  2--账期支付 3--线下支付
+		SellerOrderStatusEnum sellerOrderStatusEnum ;
 		if (!UtilHelper.isEmpty(orderDtoList)) {
 			for (OrderDto od : orderDtoList) {
 				//卖家视角订单状态
-				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),payType);
+				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
 				if(sellerOrderStatusEnum != null){
 					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
 						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),orderStatusCountMap.get(sellerOrderStatusEnum.getType())+od.getOrderCount());
@@ -1016,7 +1011,7 @@ public class OrderService {
 			}
 		}
 
-		BigDecimal orderTotalMoney = new BigDecimal(0);
+		BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
 		int orderCount = 0;
 		if(!UtilHelper.isEmpty(sellerOrderList)){
 			orderCount = sellerOrderList.size();
@@ -1030,8 +1025,8 @@ public class OrderService {
 						od.setOrderStatusName("未知类型");
 				}
 				//统计订单总额
-				if(!UtilHelper.isEmpty(od.getOrderTotal()))
-					orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
+				//if(!UtilHelper.isEmpty(od.getOrderTotal()))
+				//	orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 			}
 		}
 
@@ -1044,7 +1039,7 @@ public class OrderService {
 		resultMap.put("orderStatusCount", orderStatusCountMap);
 		resultMap.put("sellerOrderList", pagination);
 		resultMap.put("orderCount", orderCount);
-		resultMap.put("orderTotalMoney", orderTotalMoney);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
 		return resultMap;
 	}
 
@@ -1157,7 +1152,7 @@ public class OrderService {
 	 */
 	public byte[] exportOrder(Pagination<OrderDto> pagination, OrderDto orderDto){
 		//销售订单列表
-		List<OrderDto> list = orderMapper.listPaginationSellerOrder(pagination, orderDto);
+		List<OrderDto> list = orderMapper.listPaginationExportSellerOrder(pagination, orderDto);
 		List<Object[]> dataset = new ArrayList<Object[]>();
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {

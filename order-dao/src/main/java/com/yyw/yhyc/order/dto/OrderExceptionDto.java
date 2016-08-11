@@ -1,21 +1,41 @@
 package com.yyw.yhyc.order.dto;
 
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Created by liqiang on 2016/8/8.
+ * Created by liqiang on 2016/8/8
  */
 public class OrderExceptionDto extends OrderException {
+
+    private static final long serialVersionUID = 418384253516688599L;
+
     private int payType;                                    //支付类型
     private String payTypeName;                             //支付类型名称
     private List<OrderReturnDto>  orderReturnList;         //退货商品列表
     private OrderDelivery orderDelivery;                    //订单收货信息
     private UsermanageEnterprise  usermanageEnterprise;    //订单发货信息
-    private int  userType;                                  //1、采购商2、供应商
+    private Integer  userType;                                  //1、采购商2、供应商
+
+    /* 商品总金额 */
+    private BigDecimal productPriceCount;
+
+    /* 订单总金额 */
+    private BigDecimal orderPriceCount;
+
+    /* 异常订单状态 */
+    private String orderStatusName;
+
+    /* 原订单信息 */
+    private Order order;
+
+    public OrderExceptionDto() {
+    }
 
     public String getPayTypeName() {
         return payTypeName;
@@ -57,11 +77,59 @@ public class OrderExceptionDto extends OrderException {
         this.usermanageEnterprise = usermanageEnterprise;
     }
 
-    public int getUserType() {
+    public Integer getUserType() {
         return userType;
     }
 
-    public void setUserType(int userType) {
+    public void setUserType(Integer userType) {
         this.userType = userType;
+    }
+
+    public String getOrderStatusName() {
+        return orderStatusName;
+    }
+
+    public void setOrderStatusName(String orderStatusName) {
+        this.orderStatusName = orderStatusName;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public BigDecimal getProductPriceCount() {
+        return productPriceCount;
+    }
+
+    public void setProductPriceCount(BigDecimal productPriceCount) {
+        this.productPriceCount = productPriceCount;
+    }
+
+    public BigDecimal getOrderPriceCount() {
+        return orderPriceCount;
+    }
+
+    public void setOrderPriceCount(BigDecimal orderPriceCount) {
+        this.orderPriceCount = orderPriceCount;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderExceptionDto{" +
+                "payType=" + payType +
+                ", payTypeName='" + payTypeName + '\'' +
+                ", orderReturnList=" + orderReturnList +
+                ", orderDelivery=" + orderDelivery +
+                ", usermanageEnterprise=" + usermanageEnterprise +
+                ", userType=" + userType +
+                ", productPriceCount=" + productPriceCount +
+                ", orderPriceCount=" + orderPriceCount +
+                ", orderStatusName='" + orderStatusName + '\'' +
+                ", order=" + order +
+                '}';
     }
 }

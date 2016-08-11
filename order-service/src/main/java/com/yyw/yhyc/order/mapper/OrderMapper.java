@@ -44,4 +44,10 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public void doneOrderForDelivery(List<Integer> li);
 
 	public Order getOrderbyFlowId(String flowId);
+
+	public List<OrderDto> listPaginationExportSellerOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
+	public java.math.BigDecimal findSellerOrderTotal(OrderDto orderDto);
+
+	public java.math.BigDecimal findBuyerOrderTotal(OrderDto orderDto);
 }

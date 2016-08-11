@@ -17,6 +17,11 @@
             <artifactId>order-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.yyw.yhyc</groupId>
+            <artifactId>order-service</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- spring start -->
         <dependency>

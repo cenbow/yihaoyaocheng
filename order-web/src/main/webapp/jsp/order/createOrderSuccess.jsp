@@ -102,7 +102,7 @@
         <p class="f18 red fb tc mt40">在线支付总金额： ¥ <fmt:formatNumber value="${onLinePayOrderPriceCount}" minFractionDigits="2"/></p>
         <div class="mt45 tc btn">
             <a href="#" class="os-btn-pay">立即在线支付</a>
-            <a href="#" class="os-btn-order">订单中心</a>
+            <a href="<%=request.getContextPath()%>/order/buyerOrderManage" class="os-btn-order">订单中心</a>
         </div>
     </div>
 </div>

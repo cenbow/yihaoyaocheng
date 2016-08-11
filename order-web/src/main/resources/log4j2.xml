@@ -22,12 +22,12 @@
     </appenders>
 
     <loggers>
-        <root level="ERROR">
+        <root level="INFO">
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE" />
         </root>
 
         <logger name="org.springframework" level="INFO"/>
-        <logger name="com.yyw.yhyc.order" level="ERROR"/>
+        <logger name="com.yyw.yhyc.order" level="INFO"/>
     </loggers>
 </configuration>
