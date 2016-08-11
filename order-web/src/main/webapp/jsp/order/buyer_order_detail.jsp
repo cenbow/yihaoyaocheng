@@ -11,7 +11,8 @@
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <link href="http://static.yaoex.com/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
     <link href="http://static.yaoex.com/css/font-awesome.css" type="text/css" rel="stylesheet" />
-    <link href="/static/css/common.css" rel="stylesheet" />
+    <%@ include file="../config.jsp"%>
+    <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
 
 </head>
 <body>
@@ -187,7 +188,7 @@
                     </c:if>
                     <c:if test="${orderDetailsDto.orderDelivery.deliveryMethod==2}">
                         <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">配送方式</label>
+                            <label for="scope" class="col-xs-2 control-label">配送方式</label>
                             <div class="col-xs-3 control-label text-left">第三方物流</div>
                             <label for="scope" class="col-xs-2 control-label">物流公司</label>
                             <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryContactPerson}</div>
@@ -219,114 +220,113 @@
                     </div>
                     <div class="form-group">
                         <label for="scope" class="col-xs-2 control-label">发票信息:</label>
-                         <div class="col-xs-3 control-label text-left">
-                                <c:if test="${orderDetailsDto.payStatus==1}">增值税专用发票</c:if>
-                                <c:if test="${orderDetailsDto.payStatus==2}">增值税普通发票</c:if>
-                         </div>
+                        <div class="col-xs-3 control-label text-left">
+                            <c:if test="${orderDetailsDto.payStatus==1}">增值税专用发票</c:if>
+                            <c:if test="${orderDetailsDto.payStatus==2}">增值税普通发票</c:if>
+                        </div>
                     </div>
                 </div>
-    </div>
-    <div class="row choseuser margin-t-20 border-gray">
-        <h2 class="row">商品清单</h2>
-
-        <div class="modify padding-20">
-            <table class="table table-box">
-                <colgroup>
-                    <col style="width: 30%;"/>
-                    <col style="width: 15%;"/>
-                    <col style="width: 15%;"/>
-                    <col style="width: 15%;"/>
-                    <col style="width: 15%;"/>
-                    <col style="width: 10%;"/>
-                </colgroup>
-                <thead>
-                <tr>
-                    <th>商品</th>
-                    <th>单价</th>
-                    <th>数量</th>
-                    <th>金额</th>
-                    <th>确认收货数量</th>
-                    <th>确认收货金额</th>
-                </tr>
-                </thead>
-                <tbody>
-                <%--遍历该供应商的商品信息  开始--%>
-                <c:choose>
-                    <c:when test="${orderDetailsDto != null && fn:length(orderDetailsDto.details) gt 0 }">
-                        <c:forEach var="details" items="${orderDetailsDto.details}" varStatus="detailsVarStatus">
-                            <input type="hidden" name="productId" value="${orderDetailsDto.details.orderDetailId}"/>
-                            <%--  <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
-                              <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
-                              <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>--%>
-                            <
-                            <tr>
-                                <td>
-                                    <div class="clearfix">
-                                        <div class="fl"><img src="images/img_03.jpg"/></div>
-                                        <div class="fl fontbox">
-                                            <p class="title">${details.productName}</p>
-
-                                            <p class="text">${details.manufactures}</p>
-
-                                            <p class="text">${details.specification}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>¥ ${details.productPrice}</td>
-                                <td>x${details.productCount}</td>
-                                <td>¥ ${details.productPrice * details.productCount}</td>
-                                <td>x ${details.recieveCount}</td>
-                                <td>¥ ${details.productPrice * details.recieveCount}</td>
-                            </tr>
-                        </c:forEach>
-                    </c:when>
-                </c:choose>
-                <%--遍历该供应商的商品信息  结束--%>
-                </tbody>
-            </table>
-            <div><a class="undeline lookgoodlist">查看收货商品清单</a></div>
-            <div class="text-right">
-                <p>商品金额：${orderDetailsDto.orderTotal}元
-
-                <p>
-
-                <p>确认收货商品金额：${orderDetailsDto.receiveTotal}元
-
-                <p>
-
-                <p>优惠券：- 00.00元
-
-                <p>
-
-                <p class="red">订单金额：${orderDetailsDto.orgTotal}元
-
-                <p>
-
-                <p class="red">结算订单金额：${orderDetailsDto.receiveTotal}元
-
-                <p>
             </div>
-            <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
-                    href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a
-                    href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
-                                                                         class="pager_item active">3</a><a
-                    href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
-                                                                         class="pager_item">5</a><a
-                    href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
-                                                                         class="pager_item">7</a><a
-                    href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
-                    href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span
-                    class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
-                                                                                                      name="page"
-                                                                                                      class="input_item input_item_shortest page-num"
-                                                                                                      autocomplete="off"
-                                                                                                      id="page-num0">页</span><a
-                    href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>
+            <div class="row choseuser margin-t-20 border-gray">
+                <h2 class="row">商品清单</h2>
+
+                <div class="modify padding-20">
+                    <table class="table table-box">
+                        <colgroup>
+                            <col style="width: 30%;"/>
+                            <col style="width: 15%;"/>
+                            <col style="width: 15%;"/>
+                            <col style="width: 15%;"/>
+                            <col style="width: 15%;"/>
+                            <col style="width: 10%;"/>
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>商品</th>
+                            <th>单价</th>
+                            <th>数量</th>
+                            <th>金额</th>
+                            <th>确认收货数量</th>
+                            <th>确认收货金额</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%--遍历该供应商的商品信息  开始--%>
+                        <c:choose>
+                            <c:when test="${orderDetailsDto != null && fn:length(orderDetailsDto.details) gt 0 }">
+                                <c:forEach var="details" items="${orderDetailsDto.details}" varStatus="detailsVarStatus">
+                                    <input type="hidden" name="productId" value="${details.orderDetailId}"/>
+                                    <%--  <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
+                                      <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
+                                      <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>--%>
+                                    <tr>
+                                        <td>
+                                            <div class="clearfix">
+                                                <div class="fl"><img src="images/img_03.jpg"/></div>
+                                                <div class="fl fontbox">
+                                                    <p class="title">${details.productName}</p>
+
+                                                    <p class="text">${details.manufactures}</p>
+
+                                                    <p class="text">${details.specification}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>￥ ${details.productPrice}</td>
+                                        <td>x${details.productCount}</td>
+                                        <td>￥ ${details.productPrice * details.productCount}</td>
+                                        <td>x ${details.recieveCount}</td>
+                                        <td>￥ ${details.productPrice * details.recieveCount}</td>
+                                    </tr>
+                                </c:forEach>
+                            </c:when>
+                        </c:choose>
+                        <%--遍历该供应商的商品信息  结束--%>
+                        </tbody>
+                    </table>
+                    <div><a class="undeline lookgoodlist">查看收货商品清单</a></div>
+                    <div class="text-right">
+                        <p>商品金额：${orderDetailsDto.orderTotal}元
+
+                        <p>
+
+                        <p>确认收货商品金额：${orderDetailsDto.receiveTotal}元
+
+                        <p>
+
+                        <p>优惠券：- 00.00元
+
+                        <p>
+
+                        <p class="red">订单金额：${orderDetailsDto.orgTotal}元
+
+                        <p>
+
+                        <p class="red">结算订单金额：${orderDetailsDto.receiveTotal}元
+
+                        <p>
+                    </div>
+                    <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
+                            href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a
+                            href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
+                                                                                 class="pager_item active">3</a><a
+                            href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
+                                                                                 class="pager_item">5</a><a
+                            href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
+                                                                                 class="pager_item">7</a><a
+                            href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
+                            href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span
+                            class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
+                                                                                                              name="page"
+                                                                                                              class="input_item input_item_shortest page-num"
+                                                                                                              autocomplete="off"
+                                                                                                              id="page-num0">页</span><a
+                            href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>
+                </div>
+            </div>
+
         </div>
     </div>
-
-</div>
-</div>
 </div>
 <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width:650px;">
@@ -441,25 +441,21 @@
         </div>
     </div>
 </div>
-<!--#include file="footer.asp" -->
+</body>
+<script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
+</html>
+
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
-<script src="http://static.yaoex.com/js/jquery-1.11.3.min.js" type="text/javascript" ></script>
-<script src="http://static.yaoex.com/js/arttemplate.min.js" type="text/javascript" ></script>
-<script src="/static/js/menu_data.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
 <script>
-    $(".gathering").click(function () {
+    $(".gathering").click(function(){
         $("#myModal1").modal();
     });
-    $(".lookgoodlist").click(function () {
+    $(".lookgoodlist").click(function(){
         $("#myModal2").modal();
     });
-    $("#delete").click(function () {
+    $("#delete").click(function(){
         alertModal("确定要删除吗？");
     });
 </script>
-
-</body>
-
-
-</html>
