@@ -26,7 +26,7 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form>
+                <form id="form1">
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">

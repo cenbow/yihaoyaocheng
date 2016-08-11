@@ -5,9 +5,9 @@ $(function () {
     //初始化分页插件
     fnInitPageUtil();
     //初始化查询数据
-    pasretFormData();
+    //pasretFormData();
     //获取数据
-    doRefreshData(params);
+    //doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
 })
