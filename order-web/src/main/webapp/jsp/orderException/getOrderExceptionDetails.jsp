@@ -225,109 +225,18 @@
                                 </c:choose>
                             </tbody>
                         </table>
-                        <%--<div><a class="undeline lookgoodlist">查看收货商品清单</a></div>--%>
+
                         <div class="text-right">
                             <p>商品金额： <fmt:formatNumber value="${orderExceptionDto.productPriceCount}" minFractionDigits="2"/>元<p>
                             <p class="red">订单金额：<fmt:formatNumber value="${orderExceptionDto.productPriceCount}" minFractionDigits="2"/>元<p>
                         </div>
-                        <%--<div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)" class="pager_item active">3</a><a href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)" class="pager_item">5</a><a href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)" class="pager_item">7</a><a href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text" name="page" class="input_item input_item_shortest page-num" autocomplete="off" id="page-num0">页</span><a href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>--%>
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
-    <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog" style="width:650px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">收款详情</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">订单金额</label>
-                            <div class="col-xs-5 control-label text-left">500.00  元</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">实际收款金额</label>
-                            <div class="col-xs-5 control-label text-left">500.00  元</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">应收实收差异</label>
-                            <div class="col-xs-5 control-label text-left">500.00  元</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">备注</label>
-                            <div class="col-xs-5 control-label text-left">500.00  元</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog" style="width: 1000px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">收货商品清单</h4>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-box">
-                        <colgroup>
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                        </colgroup>
-                        <thead>
-                        <tr>
-                            <th>订单行号</th>
-                            <th>商品编码</th>
-                            <th>批号</th>
-                            <th>商品名</th>
-                            <th>通用名</th>
-                            <th>规格</th>
-                            <th>剂型</th>
-                            <th>生产企业</th>
-                            <th>采购数量</th>
-                            <th>收货数量</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1000000000007</td>
-                            <td>p123456789</td>
-                            <td>0253265</td>
-                            <td>葵花牌葵花牌葵</td>
-                            <td>小儿感冒颗粒</td>
-                            <td>10gx10包</td>
-                            <td>颗粒剂</td>
-                            <td>黑龙江哈药六盘...</td>
-                            <td>10</td>
-                            <td>10</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)" class="pager_item active">3</a><a href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)" class="pager_item">5</a><a href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)" class="pager_item">7</a><a href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text" name="page" class="input_item input_item_shortest page-num" autocomplete="off" id="page-num0">页</span><a href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 </div>
     <div class="footer">
         <p>监管机构：国家食品药品监督管理局   广东省食品药品监督管理局   广州市食品药品监督管理局</p>
@@ -338,18 +247,8 @@
 </body>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-</html>
-
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
-<script>
-    $(".gathering").click(function(){
-        $("#myModal1").modal();
-    });
-    $(".lookgoodlist").click(function(){
-        $("#myModal2").modal();
-    });
-    $("#delete").click(function(){
-        alertModal("确定要删除吗？");
-    });
-</script>
+</html>
+
+
