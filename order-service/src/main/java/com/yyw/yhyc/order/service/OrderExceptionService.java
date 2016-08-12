@@ -14,14 +14,17 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
+import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,10 +36,6 @@ import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
-import com.yyw.yhyc.order.mapper.OrderMapper;
-import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderExceptionService")
 public class OrderExceptionService {
@@ -47,6 +46,7 @@ public class OrderExceptionService {
 	private OrderSettlementMapper orderSettlementMapper;
 	private SystemDateMapper systemDateMapper;
 	private OrderMapper	orderMapper;
+	private OrderTraceMapper orderTraceMapper;
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
@@ -65,6 +65,11 @@ public class OrderExceptionService {
 	public void setOrderMapper(OrderMapper orderMapper)
 	{
 		this.orderMapper = orderMapper;
+	}
+
+	@Autowired
+	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
+		this.orderTraceMapper = orderTraceMapper;
 	}
 	/**
 	 * 通过主键查询实体对象
@@ -209,26 +214,26 @@ public class OrderExceptionService {
 	/**
 	 * 拒收订单卖家审核通过生成结算记录
 	 * @param custId
-	 * @param orderExceptionDto
+	 * @param orderException
 	 * @throws Exception
 	 */
-	private void saveRefuseOrderSettlement(Integer custId,OrderExceptionDto orderExceptionDto) throws Exception{
-		Order order = orderMapper.getByPK(orderExceptionDto.getOrderId());
+	private void saveRefuseOrderSettlement(Integer custId,OrderException orderException){
+		Order order = orderMapper.getByPK(orderException.getOrderId());
 		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
 			throw new RuntimeException("未找到订单");
 		}
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
 		orderSettlement.setBusinessType(2);
-		orderSettlement.setFlowId(orderExceptionDto.getExceptionOrderId());
-		orderSettlement.setCustId(orderExceptionDto.getCustId());
-		orderSettlement.setCustName(orderExceptionDto.getCustName());
-		orderSettlement.setSupplyId(orderExceptionDto.getSupplyId());
-		orderSettlement.setSupplyName(orderExceptionDto.getSupplyName());
+		orderSettlement.setFlowId(orderException.getExceptionOrderId());
+		orderSettlement.setCustId(orderException.getCustId());
+		orderSettlement.setCustName(orderException.getCustName());
+		orderSettlement.setSupplyId(orderException.getSupplyId());
+		orderSettlement.setSupplyName(orderException.getSupplyName());
 		orderSettlement.setConfirmSettlement("1");
 		orderSettlement.setPayTypeId(order.getPayTypeId());
 		orderSettlement.setSettlementTime(now);
-		orderSettlement.setCreateUser(orderExceptionDto.getCustName());
+		orderSettlement.setCreateUser(orderException.getCustName());
 		orderSettlement.setCreateTime(now);
 		orderSettlementMapper.save(orderSettlement);
 	}
@@ -364,11 +369,9 @@ public class OrderExceptionService {
 
 
 
-	/**
-	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
-     */
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
+		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
 		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
 		Integer sourceType = orderExceptionDto.getType() ;
 		//查询
@@ -411,6 +414,84 @@ public class OrderExceptionService {
 		}
 		pagination.setResultList(list);
 		return pagination;
+	}
+
+
+	/**
+	 * 审核退货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getRejectOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+			orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
+		}
+		return orderExceptionDto;
+	}
+
+	/**
+	 * 卖家审核拒收订单
+	 * @param userDto
+	 * @param orderException
+     */
+	public void sellerReviewRejectOrder(UserDto userDto,OrderException orderException){
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
+			throw new RuntimeException("参数异常");
+
+		// 验证审核状态
+		if(!(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())))
+			throw new RuntimeException("参数异常");
+
+		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
+		if(UtilHelper.isEmpty(oe))
+			throw new RuntimeException("未找到拒收订单");
+		if(userDto.getCustId() != oe.getSupplyId()){
+			log.info("拒收订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("未找到拒收订单");
+		}
+		//判断是否是拒收订单
+		if(!"4".equals(oe.getReturnType())){
+			log.info("拒收订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("该订单不是拒收订单");
+		}
+		if(!SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(oe.getOrderStatus())){
+			log.info("拒收订单状态不正确,OrderException:"+oe);
+			throw new RuntimeException("拒收订单状态不正确");
+		}
+		String now = systemDateMapper.getSystemDate();
+		oe.setRemark(orderException.getRemark());
+		oe.setOrderStatus(orderException.getOrderStatus());
+		oe.setUpdateUser(userDto.getUserName());
+		oe.setUpdateTime(now);
+		int count = orderExceptionMapper.update(oe);
+		if(count == 0){
+			log.error("OrderException info :"+oe);
+			throw new RuntimeException("拒收订单审核失败");
+		}
+
+		//插入日志表
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setOrderId(oe.getExceptionId());
+		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus())+oe.getRemark());
+		orderTrace.setDealStaff(userDto.getUserName());
+		orderTrace.setRecordDate(now);
+		orderTrace.setRecordStaff(userDto.getUserName());
+		orderTrace.setOrderStatus(oe.getOrderStatus());
+		orderTrace.setCreateTime(now);
+		orderTrace.setCreateUser(userDto.getUserName());
+		orderTraceMapper.save(orderTrace);
+
+		//拒收订单卖家审核通过生成结算记录
+		this.saveRefuseOrderSettlement(userDto.getCustId(),oe);
+
 	}
 
 }

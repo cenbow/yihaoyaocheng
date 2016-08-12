@@ -202,4 +202,37 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRejectOrder(pagination, orderDto);
 	}
+
+
+	/**
+	 * 退货订单信息
+	 * @param exceptionOrderId 异常订单编码
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getRejectOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
+	public ModelAndView getOrderExceptionDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_regect_order");
+		return modelAndView;
+	}
+
+	/**
+	 * 采购商审核拒收订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
+	}
 }
+
+
