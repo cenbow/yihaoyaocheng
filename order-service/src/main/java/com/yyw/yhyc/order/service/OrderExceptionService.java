@@ -22,6 +22,8 @@ import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
@@ -190,8 +192,9 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		Integer userType = orderExceptionDto.getUserType();
 		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
-
+		/* 计算商品总额 */
 		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
@@ -199,6 +202,15 @@ public class OrderExceptionService {
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		/* 获得拒收订单的状态名 */
+		if (userType == 1) {
+			BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+			orderExceptionDto.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
+		} else if (userType == 2) {
+			SellerOrderExceptionStatusEnum sellerOrderExceptionStatus = getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+			orderExceptionDto.setOrderStatusName(sellerOrderExceptionStatus.getValue());
 		}
 		return orderExceptionDto;
 	}
@@ -215,7 +227,7 @@ public class OrderExceptionService {
 		}
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
-		orderSettlement.setBusinessType(2);
+		orderSettlement.setBusinessType(3);
 		orderSettlement.setFlowId(orderExceptionDto.getExceptionOrderId());
 		orderSettlement.setCustId(orderExceptionDto.getCustId());
 		orderSettlement.setCustName(orderExceptionDto.getCustName());
@@ -226,6 +238,9 @@ public class OrderExceptionService {
 		orderSettlement.setSettlementTime(now);
 		orderSettlement.setCreateUser(orderExceptionDto.getCustName());
 		orderSettlement.setCreateTime(now);
+		orderSettlement.setOrderTime(orderExceptionDto.getCreateTime());
+		orderSettlement.setSettlementMoney(orderExceptionDto.getOrderMoney());
+		orderSettlement.setRefunSettlementMoney(orderExceptionDto.getOrderMoney());
 		orderSettlementMapper.save(orderSettlement);
 	}
 
@@ -360,9 +375,26 @@ public class OrderExceptionService {
 
 
 
+	/**
+	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
+     */
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		List<OrderExceptionDto> list = null;
+
+		if(orderExceptionDto.getType() == 1){
+			//查询全部
+		}else if(orderExceptionDto.getType()==2){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());
+		}else if(orderExceptionDto.getType()==3){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType());
+		}else if(orderExceptionDto.getType()==4){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
+		}else if(orderExceptionDto.getType()==5){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.SellerClosed.getType());
+		}
+		list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+
 		pagination.setResultList(list);
 		return pagination;
 	}
