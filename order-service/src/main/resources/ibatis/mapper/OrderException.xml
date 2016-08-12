@@ -282,7 +282,7 @@
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
 	</resultMap>
-	<select id="listPaginationBuyerRejectOrder" parameterMap="OrderExceptionDto" resultMap="buyerRejectOrderResultMap">
+	<select id="listPaginationBuyerRejectOrder" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap">
 		SELECT
 			T1.*, T3.PAY_TYPE,
 			T3.PAY_TYPE_NAME
@@ -293,7 +293,7 @@
 		WHERE
 			T1.ORDER_STATUS = '4'
 		AND	T1.CUST_ID = #{custId}
-		AND T1.EXCEPTION_ORDER_ID LIKE LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
 		<if test="startTime!= null and startTime!= ''">

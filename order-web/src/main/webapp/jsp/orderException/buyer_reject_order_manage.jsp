@@ -97,7 +97,6 @@
                                     <th>供应商</th>
                                     <th>订单状态</th>
                                     <th>订单金额</th>
-                                    <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
