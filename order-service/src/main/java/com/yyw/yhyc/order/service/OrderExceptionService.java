@@ -251,12 +251,13 @@ public class OrderExceptionService {
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRejectOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+		pagination.setResultList(orderExceptionDtoList);
 
 		resultMap.put("rejectOrderStatusCount", null);
 		resultMap.put("rejectOrderList", pagination);
 		resultMap.put("rejectOrderCount", orderCount);
 		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
-		return null;
+		return resultMap;
 	}
 
 

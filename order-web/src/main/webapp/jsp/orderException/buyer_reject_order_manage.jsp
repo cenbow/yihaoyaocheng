@@ -4,8 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>拒收订单管理</title>
-    <!--#include file="header.asp" -->
-    <!--#include file="sidebar.asp" -->
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -99,7 +97,6 @@
                                     <th>供应商</th>
                                     <th>订单状态</th>
                                     <th>订单金额</th>
-                                    <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -113,10 +110,8 @@
         </div>
     </div>
 </div>
-<!--#include file="footer.asp" -->
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
-<!--#include file="footer.asp" -->
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
