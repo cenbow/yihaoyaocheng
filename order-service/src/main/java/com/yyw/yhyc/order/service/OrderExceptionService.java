@@ -20,6 +20,11 @@ import java.util.Map;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -182,8 +187,9 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		Integer userType = orderExceptionDto.getUserType();
 		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
-
+		/* 计算商品总额 */
 		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
@@ -191,6 +197,15 @@ public class OrderExceptionService {
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		/* 获得拒收订单的状态名 */
+		if (userType == 1) {
+			BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+			orderExceptionDto.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
+		} else if (userType == 2) {
+			SellerOrderExceptionStatusEnum sellerOrderExceptionStatus = getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+			orderExceptionDto.setOrderStatusName(sellerOrderExceptionStatus.getValue());
 		}
 		return orderExceptionDto;
 	}
@@ -250,23 +265,131 @@ public class OrderExceptionService {
 		}
 
 		int orderCount = 0;
-		BigDecimal orderTotalMoney = null;
+		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerExceptionOrderTotal(orderExceptionDto);
+
+		log.info("orderTotalMoney:"+orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRejectOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+
+		BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum;
+		if(!UtilHelper.isEmpty(orderExceptionDtoList)){
+			orderCount = pagination.getTotal();
+			for(OrderExceptionDto oed : orderExceptionDtoList){
+				buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+				if(!UtilHelper.isEmpty(buyerOrderExceptionStatusEnum))
+					oed.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
+				else
+					oed.setOrderStatusName("未知状态");
+			}
+		}
+
 		pagination.setResultList(orderExceptionDtoList);
 
-		resultMap.put("rejectOrderStatusCount", null);
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findBuyerRejectOrderStatusCount(orderExceptionDto);;
+
+		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
+			for (OrderExceptionDto oed : orderExceptionDtos) {
+				//卖家视角订单状态
+				buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+				if(buyerOrderExceptionStatusEnum != null){
+					if(orderStatusCountMap.containsKey(buyerOrderExceptionStatusEnum.getType())){
+						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),orderStatusCountMap.get(buyerOrderExceptionStatusEnum.getType())+oed.getOrderCount());
+					}else{
+						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),oed.getOrderCount());
+					}
+				}
+			}
+		}
+		log.info("orderStatusCountMap:"+orderStatusCountMap);
+
+		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
 		resultMap.put("rejectOrderList", pagination);
 		resultMap.put("rejectOrderCount", orderCount);
 		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
 		return resultMap;
 	}
 
+	/**
+	 * 获取采购商视角异常订单状态
+	 * @param systemExceptionOrderStatus
+	 * @param payType
+     * @return
+     */
+	BuyerOrderExceptionStatusEnum getBuyerOrderExceptionStatus(String systemExceptionOrderStatus,int payType){
+		BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = null;
+		if(SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(systemExceptionOrderStatus)){//拒收申请中
+			buyerOrderExceptionStatusEnum = BuyerOrderExceptionStatusEnum.WaitingConfirmation;//待确认
+		}
+		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(systemExceptionOrderStatus)){//卖家已确认
+			if(payType == 1 || payType == 2){//在线支付+账期支付
+				buyerOrderExceptionStatusEnum = BuyerOrderExceptionStatusEnum.Refunded;//已完成
+			}
+			if(payType == 3){//线下支付
+				buyerOrderExceptionStatusEnum = BuyerOrderExceptionStatusEnum.Refunding;//退款中
+			}
+		}
+		if(SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(systemExceptionOrderStatus)){//卖家已关闭
+			buyerOrderExceptionStatusEnum = BuyerOrderExceptionStatusEnum.Closed;//已关闭
+		}
+		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) && payType == 3){//已退款+线下支付
+			buyerOrderExceptionStatusEnum = BuyerOrderExceptionStatusEnum.Refunded;//已关闭
+		}
+		return buyerOrderExceptionStatusEnum;
+	}
 
+	/**
+	 * 获取卖家视角异常订单状态
+	 * @param systemExceptionOrderStatus
+	 * @param payType
+	 * @return
+	 */
+	SellerOrderExceptionStatusEnum getSellerOrderExceptionStatus(String systemExceptionOrderStatus, int payType){
+		SellerOrderExceptionStatusEnum sellerOrderExceptionStatusEnum = null;
+		if(SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(systemExceptionOrderStatus)){//拒收申请中
+			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.WaitingConfirmation;//待确认
+		}
+		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(systemExceptionOrderStatus)){//卖家已确认
+			if(payType == 1 || payType == 2){//在线支付+账期支付
+				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已完成
+			}
+			if(payType == 3){//线下支付
+				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunding;//退款中
+			}
+		}
+		if(SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(systemExceptionOrderStatus)){//卖家已关闭
+			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Closed;//已关闭
+		}
+		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) && payType == 3){//已退款+线下支付
+			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已关闭
+		}
+		return sellerOrderExceptionStatusEnum;
+	}
+
+
+
+	/**
+	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
+     */
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		List<OrderExceptionDto> list = null;
+
+		if(orderExceptionDto.getType() == 1){
+			//查询全部
+		}else if(orderExceptionDto.getType()==2){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());
+		}else if(orderExceptionDto.getType()==3){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType());
+		}else if(orderExceptionDto.getType()==4){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
+		}else if(orderExceptionDto.getType()==5){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.SellerClosed.getType());
+		}
+		list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+
 		pagination.setResultList(list);
 		return pagination;
 	}

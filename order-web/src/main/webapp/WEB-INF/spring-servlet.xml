@@ -47,21 +47,26 @@
 	<!-- 静态资源映射 -->
 	<mvc:resources mapping="/static/**" location="/static/"/>
 
+
 	<!-- mvc 拦截器 -->
 	<mvc:interceptors>
-		<!--<mvc:interceptor>
-			&lt;!&ndash; 如果不写或则 /* 表示拦截所有 &ndash;&gt;
-			<mvc:mapping path="/**/*"/>
-			&lt;!&ndash; 拦截器处理类 &ndash;&gt;
-			<ref bean="loginInteceptor"/>
-		</mvc:interceptor>-->
+		<!-- 登录拦截 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/order/*" />
+			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
+		</mvc:interceptor>
+
+		<!-- 获取用户信息 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/order/*" />
+			<ref bean="getUserInteceptor"/>
+		</mvc:interceptor>
 
 		<!-- 配置Token拦截器，防止用户重复提交数据 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
 			<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>
 		</mvc:interceptor>
-
 	</mvc:interceptors>
 
 	<import resource="spring-dataSource.xml"/>

@@ -68,25 +68,13 @@ function fillPagerUtil(data, requestParam) {
 function setOrderCount(orderStatusCount) {
     if (orderStatusCount) {
         if (orderStatusCount['1'])
-            $($("a[name='statusCount']")[0]).html('待付款('+orderStatusCount['1']+')');
+            $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
         else
-            $($("a[name='statusCount']")[0]).html('待付款');
+            $($("a[name='statusCount']")[0]).html('待确认');
         if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
+            $($("a[name='statusCount']")[1]).html('退款中('+orderStatusCount['2']+')');
         else
-            $($("a[name='statusCount']")[1]).html('待发货');
-        if (orderStatusCount['3'])
-            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
-        else
-            $($("a[name='statusCount']")[2]).html('待收货');
-        if (orderStatusCount['4'])
-            $($("a[name='statusCount']")[3]).html('拒收中('+orderStatusCount['4']+')');
-        else
-            $($("a[name='statusCount']")[3]).html('拒收中');
-        if (orderStatusCount['5'])
-            $($("a[name='statusCount']")[4]).html('补货中('+orderStatusCount['5']+')');
-        else
-            $($("a[name='statusCount']")[4]).html('补货中');
+            $($("a[name='statusCount']")[1]).html('退款中');
     }
 }
 
@@ -105,17 +93,17 @@ function doRefreshData(requestParam) {
             }
             console.info(data);
             //设置订单数量
-            setOrderCount(data.orderStatusCount);
+            setOrderCount(data.rejectOrderStatusCount);
             //填充表格数据
-            fillTableJson(data.buyerOrderList);
+            fillTableJson(data.rejectOrderList);
             //设置分页组件参数
             // fillPagerUtil(data,requestParam);
-            var totalpage = data.buyerOrderList.totalPage;
-            var nowpage = data.buyerOrderList.pageNo;
-            var totalCount = data.buyerOrderList.total;
-            dataList = data.buyerOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
-            $("#orderCount").html(data.orderCount);
+            var totalpage = data.rejectOrderList.totalPage;
+            var nowpage = data.rejectOrderList.pageNo;
+            var totalCount = data.rejectOrderList.total;
+            dataList = data.rejectOrderList.resultList;
+            $("#orderTotalMoney").html("&yen" + data.rejectOrderTotalMoney);
+            $("#orderCount").html(data.rejectOrderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
             $("#J_pager").attr("url", requestUrl);
@@ -128,7 +116,7 @@ function doRefreshData(requestParam) {
                     console.info(data);
                     var nowpage = data.buyerOrderList.page;
                     $("#nowpageedit").val(nowpage);
-                    fillTableJson(data.buyerOrderList);
+                    fillTableJson(data.rejectOrderList);
                 }
             });
         },
@@ -171,14 +159,15 @@ function fillTableJson(data) {
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
         var tr = "<tr>";
-        tr += "<td>" + order.flowId + "<br/><a href='" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + order.orderMoney + "<br/>" + order.payTypeName + "</td>";
         tr += "</tr>";
         trs += tr;
     }
+    console.info(trs);
     $(".table-box tbody").append(trs);
     changeColor();
 }

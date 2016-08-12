@@ -373,7 +373,6 @@ public class OrderService {
 		orderDto.setPreferentialMoney(new BigDecimal(0));//优惠了的金额(如果使用了优惠)
 		orderDto.setOrgTotal(orderTotal);//订单优惠后的金额(如果使用了优惠)
 		orderDto.setSettlementMoney(orderTotal);//结算金额
-		orderDto.setFinalPay(orderTotal);//最后支付金额
 		return orderDto;
 	}
 
@@ -575,7 +574,6 @@ public class OrderService {
 		order.setPreferentialMoney(orderDto.getPreferentialMoney());//优惠了的金额(如果使用了优惠)
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
-		order.setFinalPay(orderDto.getFinalPay());//最后支付金额
 
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
@@ -784,7 +782,7 @@ public class OrderService {
         int orderCount = 0;
 		long time = 0l;
         if(!UtilHelper.isEmpty(buyerOrderList)){
-            orderCount = buyerOrderList.size();
+            orderCount = pagination.getTotal();
             for(OrderDto od : buyerOrderList){
                 if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//获取买家视角订单状态
@@ -1028,7 +1026,7 @@ public class OrderService {
 		BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
 		int orderCount = 0;
 		if(!UtilHelper.isEmpty(sellerOrderList)){
-			orderCount = sellerOrderList.size();
+			orderCount = pagination.getTotal();
 			for(OrderDto od : sellerOrderList){
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//卖家视角订单状态

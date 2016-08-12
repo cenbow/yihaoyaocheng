@@ -1,5 +1,7 @@
 package com.yyw.yhyc.order.dto;
 
+import com.yyw.yhyc.order.enmu.CustTypeEnum;
+
 import java.io.Serializable;
 
 /**
@@ -8,9 +10,12 @@ import java.io.Serializable;
 public class UserDto  implements Serializable{
 
     private static final long serialVersionUID = 6520425576062439132L;
-    private int custId;//用户id
-    private String custName;//用户名称
+    public static final String REQUEST_KEY = "loginUserDto";
+
+    private int custId;//商户id
+    private String custName;//商户名称
     private String userName;//帐号名称
+    private CustTypeEnum custType;//商户类型
 
     public int getCustId() {
         return custId;
@@ -36,12 +41,21 @@ public class UserDto  implements Serializable{
         this.userName = userName;
     }
 
+    public CustTypeEnum getCustType() {
+        return custType;
+    }
+
+    public void setCustType(CustTypeEnum custType) {
+        this.custType = custType;
+    }
+
     @Override
     public String toString() {
         return "UserDto{" +
                 "custId=" + custId +
                 ", custName='" + custName + '\'' +
                 ", userName='" + userName + '\'' +
+                ", custType=" + custType +
                 '}';
     }
 }
