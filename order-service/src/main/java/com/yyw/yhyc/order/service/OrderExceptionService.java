@@ -372,7 +372,6 @@ public class OrderExceptionService {
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
 		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
-		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
 		Integer sourceType = orderExceptionDto.getType() ;
 		//查询
 		orderExceptionDto.setType(2);
