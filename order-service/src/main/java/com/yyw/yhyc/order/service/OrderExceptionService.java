@@ -222,7 +222,7 @@ public class OrderExceptionService {
 		}
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
-		orderSettlement.setBusinessType(2);
+		orderSettlement.setBusinessType(3);
 		orderSettlement.setFlowId(orderExceptionDto.getExceptionOrderId());
 		orderSettlement.setCustId(orderExceptionDto.getCustId());
 		orderSettlement.setCustName(orderExceptionDto.getCustName());
