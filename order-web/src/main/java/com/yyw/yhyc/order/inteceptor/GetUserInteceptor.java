@@ -47,6 +47,8 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
             userDto.setCustType(custTypeEnum);
 
             request.setAttribute(UserDto.REQUEST_KEY, userDto);
+
+            log.info("userDto-->" + userDto.toString());
         }
 
         return true;
