@@ -140,7 +140,7 @@ public class OrderExceptionController extends BaseJsonController{
 	 * 分页查询记录
 	 * @return
 	 */
-	@RequestMapping(value = {"/buyerRejcetOrderManage"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/sellerRejcetOrderManage"}, method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView buyerRejcetOrderManage()throws Exception{
 
@@ -152,12 +152,20 @@ public class OrderExceptionController extends BaseJsonController{
 	 * 分页查询记录
 	 * @return
 	 */
-	@RequestMapping(value = {"/buyerRejcetOrderManage/list"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/sellerRejcetOrderManage/list{type}"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Pagination<OrderExceptionDto> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel)throws Exception{
+	public Pagination<OrderExceptionDto> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel,@PathVariable("type") Integer type)throws Exception{
 
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
 
-		return null;
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+
+		OrderExceptionDto orderExceptionDto = requestModel.getParam()==null?new OrderExceptionDto():requestModel.getParam();
+		orderExceptionDto.setType(type);
+
+		return orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
 	}
 
 

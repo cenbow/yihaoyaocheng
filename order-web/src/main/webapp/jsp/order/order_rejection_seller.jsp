@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>卖家拒收订单管理</title>
+    <title>基本信息完善</title>
     <!--#include file="header.asp" -->
     <!--#include file="sidebar.asp" -->
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
@@ -52,38 +52,17 @@
                             <div class="col-xs-2"></div>
                         </div>
                         <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">业务类型</label>
-                            <div class="col-xs-3">
-                                <select class="form-control" name="businessType">
-                                        <option value="-1">请选择</option>
-                                        <option value="1">销售货款</option>
-                                        <option value="2">退货货款</option>
-                                        <option value="3">拒收</option>
-                                </select>
-                            </div>
-                            <label for="scope" class="col-xs-2 control-label">订单号</label>
+
+                            <label for="scope" class="col-xs-2 control-label">拒收订单号</label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" name="flowId"/>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">支付方式</label>
+                            <label for="scope" class="col-xs-2 control-label">原订单号</label>
                             <div class="col-xs-3">
-                                <select class="form-control" name="payType">
-                                    <option value="-1">请选择</option>
-                                    <option value="1">线上支付</option>
-                                    <option value="2">待定</option>
-                                </select>
-                            </div>
-                            <label for="scope" class="col-xs-2 control-label">结算状态</label>
-                            <div class="col-xs-3">
-                                <select class="form-control" name="confirmSettlement">
-                                    <option value="-1">请选择</option>
-                                    <option value="0">未结算</option>
-                                    <option value="1">已结算</option>
-                                </select>
+                                <input type="text" class="form-control" name="orderId"/>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">下单时间</label>
                             <div class="col-xs-3">
@@ -92,7 +71,6 @@
                                     <span class="input-group-addon">至</span>
                                     <input type="text" name="endTime" class="form-control Wdate border-left-none" onclick="WdatePicker()">
                                 </div>
-                                <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1年</a> ]</p>
                             </div>
                             <div class="col-xs-5 text-right">
                                 <input type="button" class="btn btn-info" value="搜索">
@@ -108,26 +86,20 @@
                             <div class="row">
                                 <table class="table table-box">
                                     <colgroup>
+                                        <col style="width: 15%;" />
+                                        <col style="width: 20%;" />
+                                        <col style="width: 20%;" />
+                                        <col style="width: 20%;" />
+                                        <col style="width: 15%;" />
                                         <col style="width: 10%;" />
-                                        <col style="width: 10%;" />
-                                        <col style="width: 10%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 5%;" />
-                                        <col style="width: 5%;" />
                                     </colgroup>
                                     <thead>
                                     <tr>
-                                        <th>订单号</th>
-                                        <th>支付方式</th>
-                                        <th>业务类型</th>
-                                        <th>采购商</th>
+                                        <th>拒收订单号</th>
                                         <th>下单时间</th>
-                                        <th>结算时间</th>
-                                        <th>结算订单金额(元)</th>
-                                        <th>结算状态</th>
+                                        <th>采购商</th>
+                                        <th>订单状态</th>
+                                        <th>订单金额</th>
                                         <th>操作</th>
                                     </tr>
                                     </thead>
@@ -138,17 +110,12 @@
                                         <td>销售应付</td>
                                         <td>上海国邦医药邦医药...</td>
                                         <td>2016-10-10 02:12:12</td>
-                                        <td>2016-10-10 02:12:12</td>
-                                        <td>500.00</td>
-                                        <td>已结算</td>
+
                                         <td><button type="button" class="btn btn-info btn-sm editbtn">付款</button></td>
                                     </tr>
                                     <tr>
                                         <td>ZXD20160714</td>
                                         <td>线下转账</td>
-                                        <td>销售应付</td>
-                                        <td>上海国邦医药邦医药...</td>
-                                        <td>2016-10-10 02:12:12</td>
                                         <td>2016-10-10 02:12:12</td>
                                         <td>500.00</td>
                                         <td>已结算</td>
