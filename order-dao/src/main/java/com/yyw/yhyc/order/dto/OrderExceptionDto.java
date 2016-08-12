@@ -49,6 +49,8 @@ public class OrderExceptionDto extends OrderException {
     private List<String> payTypes; //支付类型
 
     private int orderCount;             //订单数量
+    private int waitingConfirmCount;   // 待确认 数量
+    private int refundingCount ;     //退款中数量
 
     public OrderExceptionDto() {
     }
@@ -195,6 +197,22 @@ public class OrderExceptionDto extends OrderException {
         this.orderCount = orderCount;
     }
 
+    public int getWaitingConfirmCount() {
+        return waitingConfirmCount;
+    }
+
+    public void setWaitingConfirmCount(int waitingConfirmCount) {
+        this.waitingConfirmCount = waitingConfirmCount;
+    }
+
+    public int getRefundingCount() {
+        return refundingCount;
+    }
+
+    public void setRefundingCount(int refundingCount) {
+        this.refundingCount = refundingCount;
+    }
+
     @Override
     public String toString() {
         return "OrderExceptionDto{" +
@@ -213,10 +231,11 @@ public class OrderExceptionDto extends OrderException {
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
                 ", area='" + area + '\'' +
-                ", type=" + type + '\'' +
-                ",orderCount=" + orderCount +
                 ", type=" + type +
                 ", payTypes=" + payTypes +
+                ", orderCount=" + orderCount +
+                ", waitingConfirmCount=" + waitingConfirmCount +
+                ", refundingCount=" + refundingCount +
                 '}';
     }
 }
