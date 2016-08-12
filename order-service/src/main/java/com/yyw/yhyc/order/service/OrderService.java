@@ -1265,6 +1265,9 @@ public class OrderService {
 		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
 			throw new RuntimeException("未找到订单");
 		}
+		if(!SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){
+			throw new RuntimeException("当前订单状态不能进行收款确认");
+		}
 		String now = systemDateMapper.getSystemDate();
 		orderSettlement.setBusinessType(1);
 		orderSettlement.setFlowId(order.getFlowId());
@@ -1277,6 +1280,8 @@ public class OrderService {
 		orderSettlement.setSettlementTime(now);
 		orderSettlement.setCreateUser(order.getCustName());
 		orderSettlement.setCreateTime(now);
+		orderSettlement.setOrderTime(order.getCreateTime());
+		orderSettlement.setSettlementMoney(order.getOrgTotal());
 		orderSettlementMapper.save(orderSettlement);
 		//TODO 订单记录表
 		insertOrderTrace(order);

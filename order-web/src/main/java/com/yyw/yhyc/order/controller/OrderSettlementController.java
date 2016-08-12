@@ -73,9 +73,9 @@ public class OrderSettlementController extends BaseJsonController {
 		//TODO custId
 		UserDto dto = super.getLoginUser();
 		if(type==1){
-			//orderSettlementDto.setCustId(dto.getCustId());
+			orderSettlementDto.setCustId(dto.getCustId());
 		}else if(type==2){
-			//orderSettlementDto.setSupplyId(dto.getCustId());
+			orderSettlementDto.setSupplyId(dto.getCustId());
         }
 		return orderSettlementFacade.listPaginationByProperty(pagination, orderSettlementDto);
 	}
