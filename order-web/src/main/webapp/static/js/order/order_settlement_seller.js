@@ -131,21 +131,24 @@ function fillTableJson(data) {
 	var list = data.resultList;
 	$(".table-box tbody").html("");
 	var trs = "";
-	for (var i = 0; i < list.length; i++) {
-		var orderSettlemnt = list[i];
-		var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId);
-		var tr = "<tr>";
-		tr += "<td>" + orderSettlemnt.flowId + "</td>";
-		tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
-		tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
-		tr += "<td>" + orderSettlemnt.supplyName + "</td>";
-		tr += "<td>" + orderSettlemnt.orderTime + "</td>";
-		tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
-		tr += "<td>" + orderSettlemnt.settlementMoney + "</td>";
-		tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
-		tr += "<td>" +operation + "</td>";
-		tr += "</tr>";
-		trs += tr;		
+	if(list && list.length>0){
+
+		for (var i = 0; i < list.length; i++) {
+			var orderSettlemnt = list[i];
+			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId);
+			var tr = "<tr>";
+			tr += "<td>" + orderSettlemnt.flowId + "</td>";
+			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.supplyName + "</td>";
+			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
+			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
+			tr += "<td>" + orderSettlemnt.settlementMoney + "</td>";
+			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
+			tr += "<td>" +operation + "</td>";
+			tr += "</tr>";
+			trs += tr;
+		}
 	}
 	$(".table-box tbody").append(trs);
 	changeColor();
