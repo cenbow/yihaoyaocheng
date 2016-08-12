@@ -17,7 +17,7 @@ function fnInitPageUtil() {
 //初始化数据为  {"pageNo":1 ,"pageSize":22 ,"param":{"province":11。。。。}}格式
 function pasretFormData() {
     params = new Object();
-    var p = $("form").serializeObject()
+    var p = $("#form0").serializeObject()
     params.pageNo = 1;
     params.pageSize = 20;
     params.param = p;
@@ -91,7 +91,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/order/listPgBuyerOrder";
+    var requestUrl = ctx+"/orderException/listPgBuyerRejectOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
