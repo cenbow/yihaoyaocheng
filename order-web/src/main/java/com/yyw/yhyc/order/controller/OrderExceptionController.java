@@ -145,7 +145,7 @@ public class OrderExceptionController extends BaseJsonController{
 	 */
 	@RequestMapping(value = {"/sellerRejcetOrderManage"}, method = RequestMethod.GET)
 	@ResponseBody
-	public ModelAndView buyerRejcetOrderManage()throws Exception{
+	public ModelAndView sllererRejcetOrderManage()throws Exception{
 
 		ModelAndView model = new ModelAndView();
 		model.setViewName("orderException/order_rejection_seller");
@@ -153,7 +153,6 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 	/**
 	 * 分页查询记录
-	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
 	 */
 	@RequestMapping(value = {"/sellerRejcetOrderManage/list{type}"}, method = RequestMethod.POST)
 	@ResponseBody
@@ -174,7 +173,7 @@ public class OrderExceptionController extends BaseJsonController{
 			orderExceptionDto.setSupplyId(dto.getCustId());
 		}
 		Map<String,Object> map = new HashMap<String,Object>();
-		pagination = orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		pagination = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
 		map.put("pagination",pagination);
 		map.put("orderExceptionDto",orderExceptionDto);
 		return map;
