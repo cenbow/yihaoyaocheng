@@ -1,5 +1,5 @@
 function listPg(requestParam) {
-    var requestUrl = "/order/orderDeliveryDetail/listPg";
+    var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
     var flowId=$("#flowId").val().trim();
     var userType=$("#userType").val().trim();
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
