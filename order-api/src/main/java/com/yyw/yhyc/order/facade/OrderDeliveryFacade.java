@@ -16,6 +16,8 @@ import java.util.Map;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -104,5 +106,13 @@ public interface OrderDeliveryFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request) throws Exception;
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception;
+
+	/**
+	 * 更具登录用户获取地址列表
+	 * @param user
+	 * @return
+	 * @throws Exception
+	 */
+	public List<UsermanageReceiverAddress> getReceiveAddressList(UserDto user);
 }

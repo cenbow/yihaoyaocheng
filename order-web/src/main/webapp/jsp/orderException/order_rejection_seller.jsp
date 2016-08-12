@@ -53,11 +53,11 @@
 
                             <label for="scope" class="col-xs-2 control-label">拒收订单号</label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" name="flowId"/>
+                                <input type="text" class="form-control" name="exceptionOrderId"/>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">原订单号</label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" name="orderId"/>
+                                <input type="text" class="form-control" name="flowId"/>
                             </div>
                         </div>
 
@@ -79,50 +79,42 @@
             </div>
             <div class="row margin-t-10">
                 <div class="col-xs-12">
-                    <div class="panel">
-                        <div class="panel-body">
-                            <div class="row">
-                                <table class="table table-box">
-                                    <colgroup>
-                                        <col style="width: 15%;" />
-                                        <col style="width: 20%;" />
-                                        <col style="width: 20%;" />
-                                        <col style="width: 20%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 10%;" />
-                                    </colgroup>
-                                    <thead>
-                                    <tr>
-                                        <th>拒收订单号</th>
-                                        <th>下单时间</th>
-                                        <th>采购商</th>
-                                        <th>订单状态</th>
-                                        <th>订单金额</th>
-                                        <th>操作</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>ZXD20160714</td>
-                                        <td>线下转账</td>
-                                        <td>销售应付</td>
-                                        <td>上海国邦医药邦医药...</td>
-                                        <td>2016-10-10 02:12:12</td>
-
-                                        <td><button type="button" class="btn btn-info btn-sm editbtn">付款</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>ZXD20160714</td>
-                                        <td>线下转账</td>
-                                        <td>2016-10-10 02:12:12</td>
-                                        <td>500.00</td>
-                                        <td>已结算</td>
-                                        <td><button type="button" class="btn btn-info btn-sm editbtn">付款</button></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab"  >全部订单</a></li>
+                        <li><a data-toggle="tab"  name="statusCount">待确认</a></li>
+                        <li><a data-toggle="tab" name="statusCount">退款中</a></li>
+                        <li><a data-toggle="tab"  name="statusCount">已完成</a></li>
+                        <li><a data-toggle="tab"  name="statusCount">已关闭</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <div class="tab-pane fade in active" id="home">
+                            <div class="clearfix padding-tb-20">
+                                <div class="fr padding-t-10"><span class="margin-r-20">订单数：<span id="orderCount"></span></span><span class="red">订单金额：<span id="orderTotalMoney"></span></span></div>
                             </div>
-                            <div class="pager" id="J_pager" ></div>
+                            <table class="table table-box">
+                                <colgroup>
+                                    <col style="width: 20%;"/>
+                                    <col style="width: 20%;"/>
+                                    <col style="width: 25%;"/>
+                                    <col style="width: 15%;"/>
+                                    <col style="width: 15%;"/>
+                                    <col style="width: 5%;"/>
+                                    <%--<col style="width: 15%;"/>--%>
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>拒收订单号</th>
+                                    <th>下单时间</th>
+                                    <th>采购商</th>
+                                    <th>订单状态</th>
+                                    <th>订单金额</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <div class="pager" id="J_pager"></div>
                         </div>
                     </div>
                 </div>
@@ -217,7 +209,7 @@ alertModal("确定要删除吗？");
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/order/order_rejection_seller.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/orderException/order_rejection_seller.js"></script>
 
 </body>
 

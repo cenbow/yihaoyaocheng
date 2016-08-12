@@ -1,104 +1,65 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
 <%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: lizhou
-  Date: 2016/8/10
-  Time: 11:00
-  To change this template use File | Settings | Editor | File and Code Templates.
---%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>拒收订单详情-1号药城</title>
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <link href="http://static.yaoex.com/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-    <link href="http://static.yaoex.com/css/font-awesome.css" type="text/css" rel="stylesheet" />
-    <%@ include file="../config.jsp"%>
+    <title>审核订单</title>
+    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
+    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
+    <%@ include file="../config.jsp" %>
+    <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
     <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
 </head>
 <body>
-<div id="container" class="container">
-    <div id="header" class="header clearfix">
-        <a class="fl" href="#" title="1号药城"><img src="${STATIC_URL}/static/images/logo.jpg" /></a>
-        <ul class="fr">
-            <li class="red"><span>您好，上海九州通有限公司</span></li>
-            <li><i class="fa fa-home"></i><a href="#">1号药城首页</a></li>
-            <li><i class="fa fa-user"></i><a href="#">我的1号药城</a></li>
-            <li><i class="fa fa-power-off"></i><a href="#">退出</a></li>
-        </ul>
-    </div><div style="overflow:hidden;">
-    <div id="sidebar">
-
-    </div>
-    <script id="test" type="text/html">
-        <ul id="menuInit">
-            {{each testMenu as value i}}
-            <li>
-                <a href="{{value.url}}"><i class="{{value.icon}}"></i>{{value.name}}{{if value.submenu}}<span class="dcjq-icon"></span>{{else}}<span class="dcjq-icon" style="display: none;"></span>{{/if}}
-                </a>
-                {{if value.submenu}}
-                <ul class="sub" style="display: none;">
-                    {{each value.submenu as v j}}
-                    <li><a href="{{v.url}}">{{v.name}}</a></li>
-                    {{/each}}
-                </ul>
-                {{/if}}
-                {{/each}}
-            </li>
-        </ul>
-    </script>
-    <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
-    <script type="text/javascript" src="http://static.yaoex.com/js/arttemplate.min.js"></script>
-    <script type="text/javascript" src="${STATIC_URL}/static/js/menu_data.js"></script>
-    <script type="text/javascript" >
-        $(function(){
-            console.log(menu['testMenu']);
-            if(!window.renderFn){
-                var renderFn = template.compile($("#test").html());
-                window.renderFn = renderFn;
-            }
-            var html =renderFn(menu);
-            $("#sidebar").append(html);
-        })
-    </script>
     <!--框架右侧内容 start-->
     <div id="main-content" class="main-content">
         <div class="wrapper">
             <div class="qy_basenews">
                 <div class="row no-margin">
                     <ol class="breadcrumb">
-                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>
-                            <c:choose>
-                                <c:when test="${orderExceptionDto.userType == 1}">
-                                    采购订单管理
-                                </c:when>
-                                <c:when test="${orderExceptionDto.userType == 2}">
-                                    供应订单管理
-                                </c:when>
-                            </c:choose>
-                        </a></li>
-                        <li class="active">拒收订单管理>订单详情</li>
-
+                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>拒收订单管理</a></li>
+                        <li class="active">审核订单</li>
                     </ol>
                 </div>
                 <div class="border-gray">
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">拒收订单号</label>
+                            <label class="col-xs-2 control-label">拒收订单号</label>
                             <div class="col-xs-2 control-label text-left">${orderExceptionDto.exceptionOrderId}</div>
-                            <label for="scope" class="col-xs-2 control-label">订单状态</label>
+                            <label class="col-xs-2 control-label">订单状态</label>
                             <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
-                            <label for="scope" class="col-xs-2 control-label">关联订单号</label>
-                            <div class="col-xs-2 control-label text-left">${orderExceptionDto.flowId}</div>
+                            <label class="col-xs-2 control-label">原订单号</label>
+                            <div class="col-xs-2 control-label text-left"><a href="#">${orderExceptionDto.flowId}</a></div>
                         </div>
                     </div>
                 </div>
+                <div class="row choseuser margin-t-20 border-gray">
+                    <div class="form-horizontal padding-t-26">
+                            <input type="hidden" value="${orderExceptionDto.exceptionId}" id="exceptionId"/>
+                            <div class="form-group">
+                                <label class="col-xs-2 control-label">买家拒收说明:</label>
+                                <div class="col-xs-9 control-label text-left">货物已损坏，双方同意当场销毁</div>
+                            </div>
+                            <div class="form-group">
+                                <label  class="col-xs-2 control-label">审核说明：</label>
+                                <div class="col-xs-9">
+                                    <textarea class="form-control" rows="5" id="remark" maxlength="50"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-xs-2"></label>
+                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(2)">通过</button></div>
+                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(3)">不通过</button></div>
+                            </div>
+                    </div>
+                </div>
+
                 <div class="row choseuser margin-t-20 border-gray">
                     <h2 class="row">订单信息</h2>
                     <div class="modify">
@@ -172,7 +133,7 @@
                 </div>
 
                 <div class="row choseuser margin-t-20 border-gray">
-                    <h2 class="row">商品清单</h2>
+                    <h2 class="row">拒收商品清单</h2>
                     <div class="modify padding-20">
                         <table class="table table-box">
                             <colgroup>
@@ -192,37 +153,37 @@
                             </tr>
                             </thead>
                             <tbody>
-                                <c:choose>
-                                    <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
-                                            <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}">
-                                                <tr>
-                                                    <td>
-                                                        <div class="clearfix">
-                                                            <div class="fl">
-                                                                <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
-                                                            </div>
-                                                            <div class="fl fontbox">
-                                                                <p class="title">${orderReturnDto.productName}</p>
-                                                                <p class="text">${orderReturnDto.manufactures}</p>
-                                                                <p class="text">${orderReturnDto.specification}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>${orderReturnDto.batchNumber}</td>
-                                                    <td>¥ <fmt:formatNumber value="${orderReturnDto.productPrice}" minFractionDigits="2"/></td>
-                                                    <td>x ${orderReturnDto.returnCount}</td>
-                                                    <td>¥ <fmt:formatNumber value="${orderReturnDto.returnPay}" minFractionDigits="2"/></td>
-                                                </tr>
-                                            </c:forEach>
-                                    </c:when>
-                                    <c:otherwise>
+                            <c:choose>
+                                <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
+                                    <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}">
                                         <tr>
-                                            <td colspan="6">
-                                                    暂无拒收商品信息
+                                            <td>
+                                                <div class="clearfix">
+                                                    <div class="fl">
+                                                        <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    </div>
+                                                    <div class="fl fontbox">
+                                                        <p class="title">${orderReturnDto.productName}</p>
+                                                        <p class="text">${orderReturnDto.manufactures}</p>
+                                                        <p class="text">${orderReturnDto.specification}</p>
+                                                    </div>
+                                                </div>
                                             </td>
+                                            <td>${orderReturnDto.batchNumber}</td>
+                                            <td>¥ <fmt:formatNumber value="${orderReturnDto.productPrice}" minFractionDigits="2"/></td>
+                                            <td>x ${orderReturnDto.returnCount}</td>
+                                            <td>¥ <fmt:formatNumber value="${orderReturnDto.returnPay}" minFractionDigits="2"/></td>
                                         </tr>
-                                    </c:otherwise>
-                                </c:choose>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <tr>
+                                        <td colspan="6">
+                                            暂无拒收商品信息
+                                        </td>
+                                    </tr>
+                                </c:otherwise>
+                            </c:choose>
                             </tbody>
                         </table>
 
@@ -249,6 +210,39 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+    function review(type){
+        if(type == 2 || type == 3){
+            var exceptionId = $("#exceptionId").val();
+            if(exceptionId == ''){
+                alertModal("订单编号错误");
+                return;
+            }
+            var remark = $("#remark").val().trim();
+            var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
+
+            $.ajax({
+                url: ctx+"/orderException/sellerReviewRejectOrder",
+                data: JSON.stringify(data),
+                type: 'POST',
+                contentType: "application/json;charset=UTF-8",
+                success: function (data) {
+                    if (data.statusCode || data.message) {
+                        alertModal(data.message);
+                        return;
+                    }
+                    alertModal("操作成功");
+                    setTimeout(function(){
+                        window.location.href=ctx+"/orderException/buyerRejectOrderManage";
+                    },1000)
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alertModal("审核失败");
+                }
+            });
+        }
+    }
+</script>
 </html>
 
 

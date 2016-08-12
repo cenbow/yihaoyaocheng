@@ -43,10 +43,26 @@ public class OrderExceptionDto extends OrderException {
     private String province;            //省
     private String city;                //市
     private String area;                //区
-
     private Integer type;
 
+<<<<<<< Updated upstream
+=======
+    private List<String> payTypes; //支付类型
+
+>>>>>>> Stashed changes
+    private int orderCount;             //订单数量
+    private int waitingConfirmCount;   // 待确认 数量
+    private int refundingCount ;     //退款中数量
+
     public OrderExceptionDto() {
+    }
+
+    public int getPayType() {
+        return payType;
+    }
+
+    public void setPayType(int payType) {
+        this.payType = payType;
     }
 
     public String getPayTypeName() {
@@ -63,14 +79,6 @@ public class OrderExceptionDto extends OrderException {
 
     public void setOrderReturnList(List<OrderReturnDto> orderReturnList) {
         this.orderReturnList = orderReturnList;
-    }
-
-    public int getPayType() {
-        return payType;
-    }
-
-    public void setPayType(int payType) {
-        this.payType = payType;
     }
 
     public OrderDelivery getOrderDelivery() {
@@ -97,22 +105,6 @@ public class OrderExceptionDto extends OrderException {
         this.userType = userType;
     }
 
-    public String getOrderStatusName() {
-        return orderStatusName;
-    }
-
-    public void setOrderStatusName(String orderStatusName) {
-        this.orderStatusName = orderStatusName;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
     public BigDecimal getProductPriceCount() {
         return productPriceCount;
     }
@@ -127,6 +119,22 @@ public class OrderExceptionDto extends OrderException {
 
     public void setOrderPriceCount(BigDecimal orderPriceCount) {
         this.orderPriceCount = orderPriceCount;
+    }
+
+    public String getOrderStatusName() {
+        return orderStatusName;
+    }
+
+    public void setOrderStatusName(String orderStatusName) {
+        this.orderStatusName = orderStatusName;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public String getStartTime() {
@@ -177,7 +185,53 @@ public class OrderExceptionDto extends OrderException {
         this.type = type;
     }
 
+<<<<<<< Updated upstream
+=======
+    public List<String> getPayTypes() {
+        return payTypes;
+    }
+>>>>>>> Stashed changes
+    public int getOrderCount() {
+        return orderCount;
+    }
 
+<<<<<<< Updated upstream
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }
+
+    public int getWaitingConfirmCount() {
+        return waitingConfirmCount;
+    }
+
+    public void setWaitingConfirmCount(int waitingConfirmCount) {
+        this.waitingConfirmCount = waitingConfirmCount;
+    }
+
+=======
+    public void setPayTypes(List<String> payTypes) {
+        this.payTypes = payTypes;
+    }
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }
+
+    public int getWaitingConfirmCount() {
+        return waitingConfirmCount;
+    }
+
+    public void setWaitingConfirmCount(int waitingConfirmCount) {
+        this.waitingConfirmCount = waitingConfirmCount;
+    }
+
+>>>>>>> Stashed changes
+    public int getRefundingCount() {
+        return refundingCount;
+    }
+
+    public void setRefundingCount(int refundingCount) {
+        this.refundingCount = refundingCount;
+    }
 
     @Override
     public String toString() {
@@ -198,6 +252,13 @@ public class OrderExceptionDto extends OrderException {
                 ", city='" + city + '\'' +
                 ", area='" + area + '\'' +
                 ", type=" + type +
+<<<<<<< Updated upstream
+=======
+                ", payTypes=" + payTypes +
+>>>>>>> Stashed changes
+                ", orderCount=" + orderCount +
+                ", waitingConfirmCount=" + waitingConfirmCount +
+                ", refundingCount=" + refundingCount +
                 '}';
     }
 }

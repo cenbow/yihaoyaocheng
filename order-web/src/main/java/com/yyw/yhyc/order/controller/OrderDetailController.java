@@ -26,6 +26,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 
 @Controller
 @RequestMapping(value = "/order/orderDetail")
@@ -99,9 +105,42 @@ public class OrderDetailController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/downLoad"}, method = RequestMethod.GET)
 	@ResponseBody
-	public void downLoad(@RequestParam("filePath") String filePath,@RequestParam("fileName")  String fileName,@RequestParam("isOnLine") boolean isOnLine, HttpServletResponse response) throws Exception {
+	public void downLoad(@RequestParam("filePath") String filePath,@RequestParam("fileName")  String fileName ) throws Exception {
 		//下载已有的文件
-		FileUtil.downLoad(filePath,fileName,response,isOnLine);
+		String zhPath = new String(filePath.getBytes("iso8859-1"),"UTF-8");
+		String zhName = new String(fileName.getBytes("iso8859-1"),"UTF-8");
+		downLoad(zhPath, zhName, response, false);
+	}
+
+
+
+	public static void downLoad(String filePath,String fileName , HttpServletResponse response, boolean isOnLine)
+			throws Exception {
+		//下载已有的文件
+		String name = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls";
+		File f = new File(filePath);
+		if (!f.exists()) {
+			response.sendError(404, "File not found!");
+			return;
+		}
+		BufferedInputStream br = new BufferedInputStream(new FileInputStream(f));
+		byte[] buf = new byte[1024];
+		int len = 0;
+		response.reset(); //非常重要
+		if (isOnLine) { //在线打开方式
+			URL u = new URL("file:///" + filePath);
+			response.setContentType(u.openConnection().getContentType());
+			response.setHeader("Content-Disposition", "inline; filename=" + f.getName());
+			//文件名应该编码成UTF-8
+		} else { //纯下载方式
+			response.setContentType("application/x-msdownload;charset=UTF-8");
+			response.setHeader("Content-Disposition", "attachment;filename="+name);
+		}
+		OutputStream out = response.getOutputStream();
+		while ((len = br.read(buf)) > 0)
+			out.write(buf, 0, len);
+		br.close();
+		out.close();
 	}
 
 }

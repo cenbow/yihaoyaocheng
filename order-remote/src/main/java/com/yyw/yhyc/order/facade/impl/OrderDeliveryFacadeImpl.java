@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -148,7 +150,17 @@ public class OrderDeliveryFacadeImpl implements OrderDeliveryFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request) throws Exception{
-		return orderDeliveryService.sendOrderDelivery(orderDeliveryDto,request);
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception{
+		return orderDeliveryService.sendOrderDelivery(orderDeliveryDto);
+	}
+
+	/**
+	 * 更具登录用户获取地址列表
+	 * @param user
+	 * @return
+	 * @throws Exception
+	 */
+	public List<UsermanageReceiverAddress> getReceiveAddressList(UserDto user){
+		return orderDeliveryService.getReceiveAddressList(user);
 	}
 }

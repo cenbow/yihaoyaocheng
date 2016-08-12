@@ -37,7 +37,35 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
      */
 	public List<OrderExceptionDto> listPaginationBuyerRejectOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
 
+	/**
+	 * 查询采购商拒收订单总金额
+	 * @param orderExceptionDto
+	 * @return
+     */
+	public java.math.BigDecimal findBuyerExceptionOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商拒收订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+     */
+	public List<OrderExceptionDto> findBuyerRejectOrderStatusCount(OrderExceptionDto orderExceptionDto);
 
 	public List<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto);
+
+
+	/**
+	 * 查询采购商拒收订单总金额
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.math.BigDecimal findSellerExceptionOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商拒收订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.lang.Integer findSellerRejectOrderStatusCount(OrderExceptionDto orderExceptionDto);
 
 }
