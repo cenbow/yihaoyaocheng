@@ -44,18 +44,19 @@
                     <form action="${ctx}/order/addForConfirmMoney" method="post" id="confirmForm" >
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">订单金额</label>
-                            <div class="col-xs-9 control-label text-left">${orderDetailsDto.orgTotal}元</div>
+                            <div class="col-xs-9 control-label text-left" >${orderDetailsDto.orgTotal}元</div>
+                            <input type="hidden" id="orgTotalMoney"  value="${orderDetailsDto.orgTotal}"/>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">实际收款金额</label>
                             <div class="col-xs-2">
-                                <input class="form-control" type="text" id="refunSettlementMoney" name="refunSettlementMoney" />
+                                <input class="form-control" type="text" id="refunSettlementMoney" oninput="changediffMoney();" name="refunSettlementMoney" />
                             </div>
                             <div class="col-xs-8 control-label text-left">元</div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">应收实收差异</label>
-                            <div class="col-xs-9 control-label text-left">500.00  元</div>
+                            <div class="col-xs-9 control-label text-left"><div  id="diffMoney" style="float:left"></div>元</div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">备注</label>

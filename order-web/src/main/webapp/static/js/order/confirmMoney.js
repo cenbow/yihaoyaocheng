@@ -6,7 +6,7 @@ function submitForm(){
         return false;
     }
     var p = $("#confirmForm").serializeObject();
-    if (window.confirm("确认收款金额为"+settlementMoney+"元？")) {
+    if (window.confirm("确认收款金额为"+refunSettlementMoney+"元？")) {
         $.ajax({
             url: ctx+"/order/addForConfirmMoney",
             type: 'POST',
@@ -26,6 +26,12 @@ function submitForm(){
         });
     }
 
+}
+
+function changediffMoney(){
+    var orgTotal = $("#orgTotalMoney").val();
+    var refunSettlementMoney=$("#refunSettlementMoney").val().trim() - Number(orgTotal);
+    $("#diffMoney").text(refunSettlementMoney);
 }
 //表单转换成 josn
 $.fn.serializeObject = function () {
