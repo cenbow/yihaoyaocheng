@@ -122,6 +122,7 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setUserType(userType);
 		if (userType == 1) {
 			orderExceptionDto.setCustId(user.getCustId());
 		} else if(userType == 2) {
@@ -129,11 +130,6 @@ public class OrderExceptionController extends BaseJsonController{
 		}
 		orderExceptionDto = orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
 		orderExceptionDto.setUserType(userType);
-		if (userType == 1) {
-			orderExceptionDto.setOrderStatusName(BuyerOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
-		} else if (userType == 2) {
-			orderExceptionDto.setOrderStatusName(SellerOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
-		}
 
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);

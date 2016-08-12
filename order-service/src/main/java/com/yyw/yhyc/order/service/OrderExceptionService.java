@@ -187,8 +187,9 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		Integer userType = orderExceptionDto.getUserType();
 		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
-
+		/* 计算商品总额 */
 		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
@@ -196,6 +197,15 @@ public class OrderExceptionService {
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		/* 获得拒收订单的状态名 */
+		if (userType == 1) {
+			BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+			orderExceptionDto.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
+		} else if (userType == 2) {
+			SellerOrderExceptionStatusEnum sellerOrderExceptionStatus = getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+			orderExceptionDto.setOrderStatusName(sellerOrderExceptionStatus.getValue());
 		}
 		return orderExceptionDto;
 	}
