@@ -38,6 +38,6 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	public List<OrderExceptionDto> listPaginationBuyerRejectOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
 
 
-	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto);
+	public List<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto);
 
 }
