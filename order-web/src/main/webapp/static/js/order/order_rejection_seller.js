@@ -50,7 +50,7 @@ function fillPagerUtil(data,requestParam) {
 }
 
 function doRefreshData(requestParam){
-	var requestUrl = "/orderException/sellerRejcetOrderManage/list1";
+	var requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list1";
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),

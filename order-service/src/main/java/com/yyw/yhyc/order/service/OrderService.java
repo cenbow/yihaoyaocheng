@@ -784,7 +784,7 @@ public class OrderService {
         int orderCount = 0;
 		long time = 0l;
         if(!UtilHelper.isEmpty(buyerOrderList)){
-            orderCount = buyerOrderList.size();
+            orderCount = pagination.getTotal();
             for(OrderDto od : buyerOrderList){
                 if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//获取买家视角订单状态
@@ -1028,7 +1028,7 @@ public class OrderService {
 		BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
 		int orderCount = 0;
 		if(!UtilHelper.isEmpty(sellerOrderList)){
-			orderCount = sellerOrderList.size();
+			orderCount = pagination.getTotal();
 			for(OrderDto od : sellerOrderList){
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//卖家视角订单状态

@@ -156,7 +156,7 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 	/**
 	 * 分页查询记录
-	 * @return
+	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
 	 */
 	@RequestMapping(value = {"/sellerRejcetOrderManage/list{type}"}, method = RequestMethod.POST)
 	@ResponseBody
@@ -170,6 +170,9 @@ public class OrderExceptionController extends BaseJsonController{
 
 		OrderExceptionDto orderExceptionDto = requestModel.getParam()==null?new OrderExceptionDto():requestModel.getParam();
 		orderExceptionDto.setType(type);
+
+        UserDto dto = super.getLoginUser();
+        orderExceptionDto.setSupplyId(dto.getCustId());
 
 		return orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
 	}
