@@ -334,7 +334,7 @@
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
-		T1.RETURN_TYPE = '4'
+		T1.ORDER_STATUS = '4'
 		AND	T1.CUST_ID = #{custId}
 		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
@@ -377,7 +377,7 @@
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
-		T1.RETURN_TYPE = '4'
+		T1.ORDER_STATUS = '4'
 		AND	T1.CUST_ID = #{custId}
 		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
@@ -388,7 +388,7 @@
 		<if test="endTime!= null and endTime!= ''">
 			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
 		</if>
-		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
+		ORDER BY T1.ORDER_STATUS,T3.PAY_TYPE
 	</select>
 
 	<resultMap id="OrderExceptionlistResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">

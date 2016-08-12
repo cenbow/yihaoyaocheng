@@ -172,7 +172,7 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td>" + order.flowId + "<br/><a href='" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.flowId + "<br/><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='btn btn-info btn-sm margin-r-10' target='_blank'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -199,22 +199,23 @@ function typeToOperate(order) {
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 1) {//在线支付+买家已付款
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a><br/>';
-        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
+        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
 
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 3) {//线下支付+买家已下单
-        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a><br/>';
+        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+        result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">收款确认</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 3) {//线下支付+买家已付款
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }
 
     if (order && order.orderStatus && order.orderStatus == '10') {//补货中
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a><br/>';
+        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     return result;
