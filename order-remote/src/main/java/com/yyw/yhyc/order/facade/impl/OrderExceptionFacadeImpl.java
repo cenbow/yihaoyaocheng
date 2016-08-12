@@ -140,20 +140,18 @@ public class OrderExceptionFacadeImpl implements OrderExceptionFacade {
 		return orderExceptionService.findByCount(orderException);
 	}
 
-	/**
-	 * 退回订单详情
-	 * @param orderExceptionDto
-	 * @return
-	 * @throws Exception
-	 */
-	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
-		return orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
-	}
-
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
 
 		return orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
+	}
+
+	/**
+	 * 退回订单详情
+
+	 */
+	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		return orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
 	}
 
 }

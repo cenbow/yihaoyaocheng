@@ -26,8 +26,10 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.facade.OrderFacade;
 
+import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -49,6 +51,10 @@ public class OrderController extends BaseJsonController {
 
     @Reference
     private OrderFacade orderFacade;
+	@Autowired
+	private OrderService orderService;
+
+
 
     /**
      * 通过主键查询实体对象
@@ -418,15 +424,17 @@ public class OrderController extends BaseJsonController {
 	 * @return
 	 */
 	@RequestMapping(value = "/addForConfirmMoney", method = RequestMethod.POST)
-	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
+	@ResponseBody
+	public String addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		UserDto user = super.getLoginUser();
-		orderFacade.addForConfirmMoney(user.getCustId(), orderSettlement);
+		orderService.addForConfirmMoney(user.getCustId(), orderSettlement);
+		return "success";
 	}
 
 	/**
-	 * 订单详情
+	 * 获取确认订单页面
 	 * @return
 	 */
 	@RequestMapping(value = "/getConfirmMoneyView", method = RequestMethod.GET)
@@ -437,7 +445,12 @@ public class OrderController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
 		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
-
+		//如果订单状态不为买家已下单或者订单支付类型不为现在支付则不能进行确认付款
+		if(UtilHelper.isEmpty(orderDetailsDto)
+				|| !SystemPayTypeEnum.PayOffline.getPayTypeName().equals(orderDetailsDto.getPayTypeName())
+				|| !SystemOrderStatusEnum.BuyerOrdered.getType().equals(orderDetailsDto.getOrderStatus())){
+			return null;
+		}
 		ModelAndView model = new ModelAndView();
 		model.addObject("orderDetailsDto",orderDetailsDto);
 		model.setViewName("order/confirmMoneyView");

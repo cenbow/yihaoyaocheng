@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -122,6 +123,7 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setUserType(userType);
 		if (userType == 1) {
 			orderExceptionDto.setCustId(user.getCustId());
 		} else if(userType == 2) {
@@ -129,11 +131,6 @@ public class OrderExceptionController extends BaseJsonController{
 		}
 		orderExceptionDto = orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
 		orderExceptionDto.setUserType(userType);
-		if (userType == 1) {
-			orderExceptionDto.setOrderStatusName(BuyerOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
-		} else if (userType == 2) {
-			orderExceptionDto.setOrderStatusName(SellerOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
-		}
 
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
@@ -151,16 +148,16 @@ public class OrderExceptionController extends BaseJsonController{
 	public ModelAndView buyerRejcetOrderManage()throws Exception{
 
 		ModelAndView model = new ModelAndView();
-		model.setViewName("order/order_rejection_seller");
+		model.setViewName("orderException/order_rejection_seller");
 		return model;
 	}
 	/**
 	 * 分页查询记录
-	 * @return
+	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
 	 */
 	@RequestMapping(value = {"/sellerRejcetOrderManage/list{type}"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Pagination<OrderExceptionDto> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel,@PathVariable("type") Integer type)throws Exception{
+	public Map<String,Object> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel,@PathVariable("type") Integer type)throws Exception{
 
 		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
 
@@ -171,7 +168,15 @@ public class OrderExceptionController extends BaseJsonController{
 		OrderExceptionDto orderExceptionDto = requestModel.getParam()==null?new OrderExceptionDto():requestModel.getParam();
 		orderExceptionDto.setType(type);
 
-		return orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+        UserDto dto = super.getLoginUser();
+		if(dto!=null){
+			orderExceptionDto.setSupplyId(dto.getCustId());
+		}
+		Map<String,Object> map = new HashMap<String,Object>();
+		pagination = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		map.put("pagination",pagination);
+		map.put("orderExceptionDto",orderExceptionDto);
+		return map;
 	}
 
 
@@ -197,4 +202,37 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRejectOrder(pagination, orderDto);
 	}
+
+
+	/**
+	 * 退货订单信息
+	 * @param exceptionOrderId 异常订单编码
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getRejectOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
+	public ModelAndView getOrderExceptionDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_regect_order");
+		return modelAndView;
+	}
+
+	/**
+	 * 采购商审核拒收订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
+	}
 }
+
+

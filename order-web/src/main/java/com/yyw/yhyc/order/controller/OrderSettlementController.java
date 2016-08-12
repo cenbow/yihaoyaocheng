@@ -73,9 +73,9 @@ public class OrderSettlementController extends BaseJsonController {
 		//TODO custId
 		UserDto dto = super.getLoginUser();
 		if(type==1){
-			//orderSettlementDto.setCustId(dto.getCustId());
+			orderSettlementDto.setCustId(dto.getCustId());
 		}else if(type==2){
-			//orderSettlementDto.setSupplyId(dto.getCustId());
+			orderSettlementDto.setSupplyId(dto.getCustId());
         }
 		return orderSettlementFacade.listPaginationByProperty(pagination, orderSettlementDto);
 	}
@@ -152,7 +152,7 @@ public class OrderSettlementController extends BaseJsonController {
 	 * type 1 应收 2 应付
 	 * @return
 	 */
-	@RequestMapping(value = {"/list{type}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/list/{type}"}, method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView showOrderSettlementList2(OrderSettlement settlement, @PathVariable("type") Integer type, HttpServletRequest request, HttpServletResponse response)throws Exception{
 
@@ -161,7 +161,7 @@ public class OrderSettlementController extends BaseJsonController {
         model.addObject("type",type);
 		if(type==1){ //卖家
 			model.setViewName("order/order_settlement_seller");
-		}else{
+		}else if(type==2){//卖家应付
 			model.setViewName("order/order_settlement_buyer");
 		}
 		return model;
