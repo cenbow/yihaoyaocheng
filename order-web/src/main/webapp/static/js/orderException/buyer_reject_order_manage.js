@@ -68,25 +68,13 @@ function fillPagerUtil(data, requestParam) {
 function setOrderCount(orderStatusCount) {
     if (orderStatusCount) {
         if (orderStatusCount['1'])
-            $($("a[name='statusCount']")[0]).html('待付款('+orderStatusCount['1']+')');
+            $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
         else
-            $($("a[name='statusCount']")[0]).html('待付款');
+            $($("a[name='statusCount']")[0]).html('待确认');
         if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
+            $($("a[name='statusCount']")[1]).html('退款中('+orderStatusCount['2']+')');
         else
-            $($("a[name='statusCount']")[1]).html('待发货');
-        if (orderStatusCount['3'])
-            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
-        else
-            $($("a[name='statusCount']")[2]).html('待收货');
-        if (orderStatusCount['4'])
-            $($("a[name='statusCount']")[3]).html('拒收中('+orderStatusCount['4']+')');
-        else
-            $($("a[name='statusCount']")[3]).html('拒收中');
-        if (orderStatusCount['5'])
-            $($("a[name='statusCount']")[4]).html('补货中('+orderStatusCount['5']+')');
-        else
-            $($("a[name='statusCount']")[4]).html('补货中');
+            $($("a[name='statusCount']")[1]).html('退款中');
     }
 }
 
