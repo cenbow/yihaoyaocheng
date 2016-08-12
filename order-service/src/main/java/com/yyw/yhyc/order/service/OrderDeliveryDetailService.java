@@ -20,6 +20,7 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
@@ -317,12 +318,9 @@ public class OrderDeliveryDetailService {
 			orderException.setFlowId(flowId);
 			orderException.setCreateTime(systemDateMapper.getSystemDate());
 			orderException.setCreateUser(user.getUserName());
-			if (returnType.equals("4"))
-				orderException.setReturnType(SystemOrderStatusEnum.Rejecting.getType());
-			else if (returnType.equals("3"))
-				orderException.setReturnType(SystemOrderStatusEnum.Replenishing.getType());
+			orderException.setReturnType(returnType);
 			orderException.setReturnDesc(returnDesc);
-			orderException.setOrderStatus("1");//待确认
+			orderException.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());//待确认
 			orderException.setCustId(order.getCustId());
 			orderException.setCustName(order.getCustName());
 			orderException.setSupplyId(order.getSupplyId());
