@@ -21,6 +21,7 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
@@ -201,7 +202,7 @@ public class OrderDeliveryService {
 	 * @throws Exception
 	 */
 
-	public Map sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request){
+	public Map sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception{
 		Map<String,String> map=new HashMap<String, String>();
 		if(UtilHelper.isEmpty(orderDeliveryDto)){
 			map.put("code", "0");
@@ -213,24 +214,11 @@ public class OrderDeliveryService {
 			map.put("msg", "订单id不能为空");
 			return map;
 		}
-		if(UtilHelper.isEmpty(orderDeliveryDto.getFlowId())){
-			map.put("code", "0");
-			map.put("msg", "订单编号不能为空");
-			return map;
-		}
-
-		if(UtilHelper.isEmpty(orderDeliveryDto.getExcelPath())){
-			map.put("code", "0");
-			map.put("msg", "批次号文件流不能为空");
-			return map;
-		}
-
 		if(UtilHelper.isEmpty(orderDeliveryDto.getReceiverAddressId())){
 			map.put("code", "0");
 			map.put("msg", "发货地址不能为空");
 			return map;
 		}
-
 		if(UtilHelper.isEmpty(orderDeliveryDto.getDeliveryMethod())){
 			map.put("code", "0");
 			map.put("msg", "配送方式不能为空");
@@ -239,24 +227,21 @@ public class OrderDeliveryService {
 
 		//根据orderId查询订单收发货信息是否存在,更新发货信息
 		OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getOrderId());
+		orderDeliveryDto.setFlowId(orderDelivery.getFlowId());
 		if(UtilHelper.isEmpty(orderDelivery)){
 			map.put("code", "0");
 			map.put("msg", "订单地址不存在");
 			return map;
 		}
 
-		//验证通过生成发货信息并上传文件
-		String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
-
-		String filePath= FileUtil.updateFile(request.getRealPath("/") + FILE_TEMPLATE_PATH, fileName, orderDeliveryDto.getExcelPath());
 
 		//验证批次号并生成订单发货数据
-		readExcelOrderDeliveryDetail(filePath,map,orderDeliveryDto,request);
+		readExcelOrderDeliveryDetail(orderDeliveryDto.getPath()+orderDeliveryDto.getFileName(),map,orderDeliveryDto);
 
 		return map;
 	}
 	//读取验证订单批次信息excel
-	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto,HttpServletRequest request){
+	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto){
 
 		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
 		Map<String,String> errorMap=null;
@@ -267,6 +252,12 @@ public class OrderDeliveryService {
 
 		try{
 		List<Map<String, String>> 	list = ExcelUtil.readExcel(excelPath);
+		if(list.size()>0){
+			list.remove(0);
+		}else {
+			map.put("code","0");
+			map.put("msg","读取文件错误");
+		}
 		for (Map<String,String> rowMap:list) {
 			StringBuffer stringBuffer=new StringBuffer();
 			if(UtilHelper.isEmpty(rowMap.get("1"))){
@@ -344,7 +335,7 @@ public class OrderDeliveryService {
 
 			}
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto,list,detailMap,excelPath,request);
+			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto,list,detailMap,excelPath);
 
 			if(errorList.size()>0){
 				map.put("code","2");
@@ -397,7 +388,7 @@ public class OrderDeliveryService {
 	}
 
 	/*生产excel和订单发货信息 */
-	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,HttpServletRequest request) {
+	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath) {
 		String filePath = "";
 		//生成错误excel和发货记录
 		if (errorList.size() > 0) {
@@ -405,10 +396,10 @@ public class OrderDeliveryService {
 			List<Object[]> dataset = new ArrayList<Object[]>();
 			for (Map<String, String> dataMap : errorList) {
 				dataset.add(new Object[]{
-						dataMap.get(0), dataMap.get(1), dataMap.get(2), dataMap.get(3), dataMap.get(4), dataMap.get(5)
+						dataMap.get("0"), dataMap.get("1"), dataMap.get("2"), dataMap.get("3"), dataMap.get("4"), dataMap.get("5")
 				});
 			}
-			filePath = request.getRealPath("/")+FILE_TEMPLATE_PATH+ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset, request.getRealPath("/") +FILE_TEMPLATE_PATH);
+			filePath = orderDeliveryDto.getPath()+ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset,orderDeliveryDto.getPath());
 
 			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
 			orderDeliveryDetail.setOrderId(orderId);
@@ -463,5 +454,12 @@ public class OrderDeliveryService {
 	}
 
 
+
+	public List<UsermanageReceiverAddress> getReceiveAddressList(UserDto user){
+		UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
+		receiverAddress.setEnterpriseId(String.valueOf(user.getCustId()));
+		List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
+		return receiverAddressList;
+	}
 
 }

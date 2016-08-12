@@ -1,6 +1,7 @@
 package com.yyw.yhyc.order.dto;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 
@@ -23,8 +24,26 @@ public class OrderDeliveryDto extends OrderDelivery {
     /* 用户收发货地址id */
     private int receiverAddressId;
 
-    /* 批号导入EXCEL */
-    private File excelPath;
+    //上传路径
+    private String path;
+    //文件名
+    private String fileName;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     UserDto userDto;
 
@@ -34,14 +53,6 @@ public class OrderDeliveryDto extends OrderDelivery {
 
     public void setUserDto(UserDto userDto) {
         this.userDto = userDto;
-    }
-
-    public File getExcelPath() {
-        return excelPath;
-    }
-
-    public void setExcelPath(File excelPath) {
-        this.excelPath = excelPath;
     }
 
     public int getReceiverAddressId() {

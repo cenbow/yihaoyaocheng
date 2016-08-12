@@ -169,6 +169,7 @@ public class OrderExceptionController extends BaseJsonController{
 		orderExceptionDto.setType(type);
 
         UserDto dto = super.getLoginUser();
+<<<<<<< Updated upstream
 		if(dto!=null){
 			orderExceptionDto.setSupplyId(dto.getCustId());
 		}
@@ -177,6 +178,11 @@ public class OrderExceptionController extends BaseJsonController{
 		map.put("pagination",pagination);
 		map.put("orderExceptionDto",orderExceptionDto);
 		return map;
+=======
+        orderExceptionDto.setSupplyId(dto.getCustId());
+
+		return orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+>>>>>>> Stashed changes
 	}
 
 

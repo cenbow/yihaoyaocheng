@@ -195,11 +195,11 @@ function typeToOperate(order) {
 
     //<button type="button" class="btn btn-info btn-sm margin-r-10">取消订单</button>
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 2) {//账期支付+买家已下单
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
+        result += '<a href="javascript:sendDelivery(' + order.orderId + ')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 1) {//在线支付+买家已付款
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
+        result += '<a href="javascript:sendDelivery(' + order.orderId + ')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
 
@@ -208,7 +208,7 @@ function typeToOperate(order) {
         result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">收款确认</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 3) {//线下支付+买家已付款
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
+        result += '<a href="javascript:sendDelivery(' + order.orderId + ')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
@@ -230,6 +230,109 @@ function cancleOrder(orderId) {
     $("#cancelResult").val('');
     $("#myModalOperate").modal().hide();
 
+}
+/**
+ * 发货
+ * * @param orderId
+ */
+
+function sendDelivery(orderId) {
+    $("#sendOrderId").val(orderId);
+    $("#myModalSendDelivery").modal().hide();
+    $.ajax({
+        url: ctx+"/order/orderDelivery/getReceiveAddressList",
+        type: 'GET',
+        success: function (data) {
+            console.info(data);
+            if (data!=null) {
+                    $("#warehouse").html("");
+                    var divs = "";
+                    for (var i = 0; i < data.length; i++) {
+                        var delivery = data[i];
+                        var div = "<label class='radio-inline no-margin'>";
+                        if(delivery.defaultAddress==1){
+                            div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                        }else{
+                            div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                        }
+                        div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                        "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                        divs += div;
+                    }
+                    $("#warehouse").append(divs);
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("加载失败");
+        }
+    });
+}
+
+
+//选择文件
+function closeFileInput(target) {
+    var flag=checkImgType(target);
+    if(!flag) return ;
+}
+
+function checkImgType(this_) {
+    var filepath = $(this_).val();
+    var extStart = filepath.lastIndexOf(".");
+    var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+    if (ext != ".XLSX" && ext != ".XLS") {
+        alert("请上传正确格式的文件");
+        $(this_).val("");
+        return false;
+    }
+    return true;
+
+}
+
+function sendDeliverysubmit(){
+
+    var delivery = $("input[type=radio][name=delivery]:checked");
+    var ownw = $("input[type=radio][name=ownw]:checked");
+        $("#receiverAddressId").val(delivery.val())
+        $("#deliveryMethod").val(ownw.val())
+    if(ownw.val()==1){
+        $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
+        $("#deliveryExpressNo").val($("#deliveryContactPerson1").val())
+    }else{
+        $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
+        $("#deliveryExpressNo").val($("#deliveryContactPerson2").val())
+    }
+    $("#sendform").ajaxSubmit({
+        url :'/order/orderDelivery/sendOrderDelivery',
+        dataType: 'text',
+        type: 'POST',
+        success: function(data) {
+            console.info(data);
+            var obj=eval("(" + data + ")");
+                if(obj.code==0){
+                    alertModal(obj.msg);
+                }else{
+                    $("#myModalPrompt").modal().hide();
+                    $("#msgDiv").html("");
+                    var div = "";
+                    if(obj.code==1){
+                        div += " <p class='font-size-20 red'><b>发货成功</b></p><p>可在订单详情中查看批号的导入详情!</p> "
+                    }else{
+                        div += "<p class='font-size-20 red'><b>发货失败</b></p><p>批号信息导入有误，可以直接下载导入失败原因，也可以进入订单详情下载导入失败原因！</p>";
+                        div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息.xls'><i class='fa fa-download'></i>&nbsp;批号导入模版下载</a></p>";
+                    }
+                    $("#msgDiv").append(div);
+                }
+            }
+    });
+
+}
+
+function totab(tab){
+    var ownw= $("*[name='ownw']");
+    for(var i=0;i<ownw.length;i++){
+        ownw.attr("checked","false")
+    }
+    $("#ownw"+tab).attr("checked","true")
 }
 
 function doCancle() {

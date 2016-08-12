@@ -66,10 +66,15 @@ function fillPagerUtil(data,requestParam) {
 		}});
 }
 
+<<<<<<< Updated upstream:order-web/src/main/webapp/static/js/orderException/order_rejection_seller.js
 function doRefreshData(requestParam,requestUrl){
 	if(!requestUrl || requestUrl == ''){
 		requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list1";
 	}
+=======
+function doRefreshData(requestParam){
+	var requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list1";
+>>>>>>> Stashed changes:order-web/src/main/webapp/static/js/order/order_rejection_seller.js
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),

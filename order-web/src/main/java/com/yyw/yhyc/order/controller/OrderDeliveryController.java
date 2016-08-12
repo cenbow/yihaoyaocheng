@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -20,15 +21,21 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderDeliveryFacade;
+import com.yyw.yhyc.order.service.OrderDeliveryService;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -38,6 +45,8 @@ public class OrderDeliveryController extends BaseJsonController {
 
 	@Reference
 	private OrderDeliveryFacade orderDeliveryFacade;
+
+	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	/**
 	* 通过主键查询实体对象
@@ -104,10 +113,52 @@ public class OrderDeliveryController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request) throws Exception
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,@RequestParam("excelFile") MultipartFile excelFile) throws Exception
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto,request);
+		orderDeliveryDto.setPath(request.getRealPath("/") + FILE_TEMPLATE_PATH);
+		//验证通过生成发货信息并上传文件
+		if(!UtilHelper.isEmpty(excelFile)){
+			String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
+			SaveFileFromInputStream(excelFile.getInputStream(), orderDeliveryDto.getPath(), fileName);
+			orderDeliveryDto.setFileName(fileName);
+		}else
+			return null;
+		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto);
 	}
+
+	/**
+	 * 获取发货列表
+	 * @return
+	 */
+	@RequestMapping(value = "/getReceiveAddressList", method = RequestMethod.GET)
+	@ResponseBody
+	public List<UsermanageReceiverAddress> getReceiveAddressList(){
+		UserDto user = super.getLoginUser();
+		return orderDeliveryFacade.getReceiveAddressList(user);
+	}
+
+
+
+	public void SaveFileFromInputStream(InputStream stream,String path,String filename) throws IOException
+	{
+		File tempFile = new File(path);
+		if(!tempFile.exists()){
+			tempFile.mkdirs();
+		}
+		FileOutputStream fs=new FileOutputStream( path + "/"+ filename);
+		byte[] buffer =new byte[1024*1024];
+		int bytesum = 0;
+		int byteread = 0;
+		while ((byteread=stream.read(buffer))!=-1)
+		{
+			bytesum+=byteread;
+			fs.write(buffer,0,byteread);
+			fs.flush();
+		}
+		fs.close();
+		stream.close();
+	}
+
 }
