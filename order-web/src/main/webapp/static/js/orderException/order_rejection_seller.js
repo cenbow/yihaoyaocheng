@@ -9,7 +9,21 @@ $(function(){
 	doRefreshData(params);
 	//绑定 搜索的click事件
 	bindSearchBtn();
+	//绑定切换tabs的事件
+	bindChangeTabs();
 })
+
+function  bindChangeTabs() {
+	$(".nav-tabs li").on("click",function () {
+		var index = $(this).index();
+		index = index+1;
+		params.pageNo = 1;
+		pasretFormData();
+		var requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list"+index;
+		doRefreshData(params,requestUrl)
+	})
+}
+
 function fnInitPageUtil(){
 	$("#J_pager").pager();
 }
@@ -27,7 +41,10 @@ function bindSearchBtn(){
 	$("form .btn-info").on("click",function () {
 		params.pageNo = 1;
 		pasretFormData();
-		doRefreshData(params);
+		var index  = $(".nav-tabs .active").index();
+		index = index+1;
+		var requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list"+index;
+		doRefreshData(params,requestUrl);
 	})
 }
 
@@ -49,8 +66,10 @@ function fillPagerUtil(data,requestParam) {
 		}});
 }
 
-function doRefreshData(requestParam){
-	var requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list1";
+function doRefreshData(requestParam,requestUrl){
+	if(!requestUrl || requestUrl == ''){
+		requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list1";
+	}
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -62,9 +81,10 @@ function doRefreshData(requestParam){
 			fillTableJson(data);
 			//设置分页组件参数
 			// fillPagerUtil(data,requestParam);
-			var totalpage = data.totalPage;
-			var nowpage = data.pageNo;
-			var totalCount = data.total;
+			var pagination = data.pagination;
+			var totalpage = pagination.totalPage;
+			var nowpage = pagination.pageNo;
+			var totalCount = pagination.total;
 			$("#J_pager").attr("current",nowpage);
 			$("#J_pager").attr("total",totalpage);
 			$("#J_pager").attr("url",requestUrl);
@@ -74,7 +94,7 @@ function doRefreshData(requestParam){
 				asyn:1,
 				contentType:'application/json;charset=UTF-8',
 				callback:function(data,index){
-					var nowpage = data.page;
+					var nowpage = data.pagination.page;
 					$("#nowpageedit").val(nowpage);
 					fillTableJson(data);
 				}});
@@ -111,7 +131,7 @@ $.fn.serializeObject = function() {
  */
 function fillTableJson(data) {
 	var indexNum = 1 ;
-	var list = data.resultList;
+	var list = data.pagination.resultList;
 	$(".table-box tbody").html("");
 	var trs = "";
 	if(list && list.length>0){
@@ -122,7 +142,7 @@ function fillTableJson(data) {
 			tr += "<td>" + oe.flowId + "</td>";
 			tr += "<td>" + oe.createTime + "</td>";
 			tr += "<td>" + oe.custName + "</td>";
-			tr += "<td>" + oe.supplyName + "</td>";
+			tr += "<td>" + oe.orderStatusName + "</td>";
 			tr += "<td>" + oe.orderMoneyTotal + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
@@ -130,6 +150,10 @@ function fillTableJson(data) {
 		}
 	}
 	$(".table-box tbody").append(trs);
+	$(".nav-tabs li:eq(1) a").html("待确认("+data.orderExceptionDto.waitingConfirmCount+")");
+	$(".nav-tabs li:eq(2) a").html("退款中("+data.orderExceptionDto.refundingCount+")");
+	$("#orderCount").html(data.pagination.total);
+	$("#orderTotalMoney").html(data.orderExceptionDto.orderMoneyTotal);
 	changeColor();
 	bindOperateBtn();
 }

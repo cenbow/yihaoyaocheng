@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -147,7 +148,7 @@ public class OrderExceptionController extends BaseJsonController{
 	public ModelAndView buyerRejcetOrderManage()throws Exception{
 
 		ModelAndView model = new ModelAndView();
-		model.setViewName("order/order_rejection_seller");
+		model.setViewName("orderException/order_rejection_seller");
 		return model;
 	}
 	/**
@@ -156,7 +157,7 @@ public class OrderExceptionController extends BaseJsonController{
 	 */
 	@RequestMapping(value = {"/sellerRejcetOrderManage/list{type}"}, method = RequestMethod.POST)
 	@ResponseBody
-	public Pagination<OrderExceptionDto> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel,@PathVariable("type") Integer type)throws Exception{
+	public Map<String,Object> listPgbuyerRejcetOrderManage(@RequestBody RequestModel<OrderExceptionDto> requestModel,@PathVariable("type") Integer type)throws Exception{
 
 		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
 
@@ -168,9 +169,14 @@ public class OrderExceptionController extends BaseJsonController{
 		orderExceptionDto.setType(type);
 
         UserDto dto = super.getLoginUser();
-        orderExceptionDto.setSupplyId(dto.getCustId());
-
-		return orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		if(dto!=null){
+			orderExceptionDto.setSupplyId(dto.getCustId());
+		}
+		Map<String,Object> map = new HashMap<String,Object>();
+		pagination = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		map.put("pagination",pagination);
+		map.put("orderExceptionDto",orderExceptionDto);
+		return map;
 	}
 
 

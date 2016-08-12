@@ -12,10 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
@@ -349,18 +346,18 @@ public class OrderExceptionService {
 			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.WaitingConfirmation;//待确认
 		}
 		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(systemExceptionOrderStatus)){//卖家已确认
-			if(payType == 1 || payType == 2){//在线支付+账期支付
+			if(payType ==2){//账期支付
 				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已完成
 			}
-			if(payType == 3){//线下支付
+			if(payType == 1|| payType ==3){//线下支付+在线支付
 				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunding;//退款中
 			}
 		}
 		if(SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(systemExceptionOrderStatus)){//卖家已关闭
 			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Closed;//已关闭
 		}
-		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) && payType == 3){//已退款+线下支付
-			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已关闭
+		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) &&( payType == 1 ||payType==3 )){//已退款+线下支付/在线支付
+			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已完成
 		}
 		return sellerOrderExceptionStatusEnum;
 	}
@@ -372,21 +369,46 @@ public class OrderExceptionService {
      */
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		List<OrderExceptionDto> list = null;
-
-		if(orderExceptionDto.getType() == 1){
-			//查询全部
-		}else if(orderExceptionDto.getType()==2){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());
-		}else if(orderExceptionDto.getType()==3){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType());
-		}else if(orderExceptionDto.getType()==4){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
-		}else if(orderExceptionDto.getType()==5){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.SellerClosed.getType());
+		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		Integer sourceType = orderExceptionDto.getType() ;
+		//查询
+		orderExceptionDto.setType(2);
+		Integer waitCount = pagination.getTotal();
+		Integer refundCount = pagination.getTotal();
+		BigDecimal totalMoney = orderExceptionMapper.findSellerExceptionOrderTotal(orderExceptionDto);
+		if(sourceType != 2){
+			waitCount = orderExceptionMapper.findSellerRejectOrderStatusCount(orderExceptionDto);
 		}
-		list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
-
+		orderExceptionDto.setType(3);
+		if(sourceType!=3){
+			refundCount = orderExceptionMapper.findSellerRejectOrderStatusCount(orderExceptionDto);
+		}
+		orderExceptionDto.setWaitingConfirmCount(waitCount);
+		orderExceptionDto.setRefundingCount(refundCount);
+		orderExceptionDto.setOrderMoneyTotal(totalMoney);
+		orderExceptionDto.setType(sourceType);
+		if(!UtilHelper.isEmpty(list)){ //查全部的时候转换
+			for (OrderExceptionDto oed:list ) {
+				switch (sourceType){
+					case 1 :
+						SellerOrderExceptionStatusEnum statusEnum= getSellerOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+						oed.setOrderStatusName(statusEnum.getValue());
+						break;
+					case 2:
+						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.WaitingConfirmation.getValue());
+						break;
+					case 3:
+						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.Refunding.getValue());
+						break;
+					case 4:
+						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.Refunded.getValue());
+						break;
+					case 5:
+						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.Closed.getValue());
+						break;
+				}
+			}
+		}
 		pagination.setResultList(list);
 		return pagination;
 	}
