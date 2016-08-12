@@ -218,6 +218,9 @@ public class OrderExceptionService {
 		orderSettlement.setSettlementTime(now);
 		orderSettlement.setCreateUser(orderExceptionDto.getCustName());
 		orderSettlement.setCreateTime(now);
+		orderSettlement.setOrderTime(orderExceptionDto.getCreateTime());
+		orderSettlement.setSettlementMoney(orderExceptionDto.getOrderMoney());
+		orderSettlement.setRefunSettlementMoney(orderExceptionDto.getOrderMoney());
 		orderSettlementMapper.save(orderSettlement);
 	}
 

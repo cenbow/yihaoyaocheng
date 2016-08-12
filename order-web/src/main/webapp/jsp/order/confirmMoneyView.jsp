@@ -41,7 +41,7 @@
         </div>
             <div class="row margin-t-20">
                 <div class="form-horizontal padding-t-26">
-                    <form action="${ctx}/order/addForConfirmMoney" method="post" id="form0">
+                    <form action="${ctx}/order/addForConfirmMoney" method="post" id="confirmForm" >
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">订单金额</label>
                             <div class="col-xs-9 control-label text-left">${orderDetailsDto.orgTotal}元</div>
@@ -49,7 +49,7 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">实际收款金额</label>
                             <div class="col-xs-2">
-                                <input class="form-control" type="text" name="orderSettlement.settlementMoney" />
+                                <input class="form-control" type="text" id="refunSettlementMoney" name="refunSettlementMoney" />
                             </div>
                             <div class="col-xs-8 control-label text-left">元</div>
                         </div>
@@ -60,13 +60,14 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">备注</label>
                             <div class="col-xs-9">
-                                <textarea class="form-control" rows="5" name="orderSettlement.remark"></textarea>
+                                <textarea class="form-control" rows="5" id="remark" name="remark"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-xs-2"></label>
-                            <div class="col-xs-9"><button type="button" class="btn btn-danger" onclick="submit">确认收款</button></div>
+                            <div class="col-xs-9"><button type="button" class="btn btn-danger" onclick="submitForm();">确认收款</button></div>
                         </div>
+                        <input type="hidden" id="orderId" name="orderId" value="${orderDetailsDto.orderId}"/>
                     </form>
                 </div>
             </div>
@@ -399,6 +400,7 @@
 
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/order/confirmMoney.js"></script>
 <script>
     $(".gathering").click(function(){
         $("#myModal1").modal();
