@@ -48,6 +48,8 @@ public class OrderExceptionDto extends OrderException {
 
     private List<String> payTypes; //支付类型
 
+    private int orderCount;             //订单数量
+
     public OrderExceptionDto() {
     }
 
@@ -182,9 +184,15 @@ public class OrderExceptionDto extends OrderException {
     public List<String> getPayTypes() {
         return payTypes;
     }
+    public int getOrderCount() {
+        return orderCount;
+    }
 
     public void setPayTypes(List<String> payTypes) {
         this.payTypes = payTypes;
+    }
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
     }
 
     @Override
@@ -205,6 +213,8 @@ public class OrderExceptionDto extends OrderException {
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
                 ", area='" + area + '\'' +
+                ", type=" + type + '\'' +
+                ",orderCount=" + orderCount +
                 ", type=" + type +
                 ", payTypes=" + payTypes +
                 '}';

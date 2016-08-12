@@ -45,7 +45,6 @@
 		<result column="is_check" property="isCheck"/>
 		<result column="enterprise_code" property="enterpriseCode"/>
 		<result column="is_3merge1" property="is3merge1"/>
-		<result column="bd_user_id" property="bdUserId"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -77,7 +76,6 @@
 		, is_check
 		, enterprise_code
 		, is_3merge1
-		, bd_user_id
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -108,7 +106,6 @@
 				, is_check
 				, enterprise_code
 				, is_3merge1
-				, bd_user_id
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -140,7 +137,6 @@
 		, is_check
 		, enterprise_code
 		, is_3merge1
-		, bd_user_id
 	</sql>
 	
 	<sql id="commonCondition">
@@ -228,9 +224,6 @@
 		<if test="is3merge1!= null and is3merge1!= ''"> 
 			AND is_3merge1=#{is3merge1}
 		</if>
-		<if test="bdUserId!= null and bdUserId!= ''"> 
-			AND bd_user_id=#{bdUserId}
-		</if>
 	</sql>
 	
 	<insert id="save" parameterType="UsermanageEnterprise">
@@ -265,7 +258,6 @@
 				, #{isCheck}
 				, #{enterpriseCode}
 				, #{is3merge1}
-				, #{bdUserId}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="UsermanageEnterprise">
@@ -298,7 +290,6 @@
 			, is_check=#{isCheck} 
 			, enterprise_code=#{enterpriseCode} 
 			, is_3merge1=#{is3merge1} 
-			, bd_user_id=#{bdUserId} 
 		WHERE id = #{id}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
