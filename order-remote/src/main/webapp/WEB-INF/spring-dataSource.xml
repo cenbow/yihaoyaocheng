@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName">
+            <value>${jdbc.connection.driver_class}</value>
+        </property>
+        <property name="url">
+            <value>${jdbc.connection.url} </value>
+        </property>
+        <property name="username">
+            <value>${jdbc.connection.username}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.connection.password}</value>
+        </property>
+        <property name="maxActive">
+            <value>${jdbc.max.pool.size}</value>
+        </property>
+        <property name="initialSize">
+            <value>${jdbc.min.pool.size}</value>
+        </property>
+        <property name="minIdle">
+            <value>${jdbc.min.pool.size}</value>
+        </property>
+        <property name="testWhileIdle" value="true" />
+        <property name="validationQuery" value="select 1" />
+        <!--解密方式和解密密钥key序号，由运维提供，若不加密，则不需要配置 测试 生产环境开启
+        <property name="filters" value="config" />
+        <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=${xyydb.xyy.key}" />
+        <解密方式和解密密钥key序号，由运维提供，若不加密，则不需要配置-->
+    </bean>
+
+    <!-- SqlSessionFactoryBean  spring整合ibatis的入口 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis.xml" />
+        <property name="typeAliasesPackage" value="com.yyw.yhyc" />
+        <property name="mapperLocations" value="classpath*:ibatis/mapper/**/*.xml" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="plugins">
+            <list>
+                <bean id="paginationPlugin" class="com.yyw.yhyc.plugin.PaginationPlugin"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.yyw.yhyc.order.mapper,com.yyw.yhyc.product.mapper,com.yyw.yhyc.usermanage.mapper" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+        <property name="rollbackOnCommitFailure" value="true" />
+    </bean>
+
+    <!-- 配置事务 -->
+    <aop:config proxy-target-class="true">
+        <aop:advisor pointcut="execution(* com.yyw.yhyc.*.service..*Service*.*(..))" advice-ref="txAdvice" />
+    </aop:config>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="find*" rollback-for="Exception" read-only="true" />
+            <tx:method name="retrieve*" rollback-for="Exception" read-only="true" />
+            <tx:method name="list*" rollback-for="Exception" read-only="true" />
+            <tx:method name="get*" rollback-for="Exception" read-only="true" />
+            <tx:method name="apply*" rollback-for="Exception" read-only="false" />
+            <tx:method name="change*" rollback-for="Exception" read-only="false" />
+            <tx:method name="del*" rollback-for="Exception" read-only="false" />
+            <tx:method name="batch*" rollback-for="Exception" read-only="false" />
+            <tx:method name="create*" rollback-for="Exception" read-only="false" />
+            <tx:method name="modify*" rollback-for="Exception" read-only="false" />
+            <tx:method name="save*" rollback-for="Exception" read-only="false" />
+            <tx:method name="clear*" rollback-for="Exception" read-only="false" />
+            <tx:method name="update*" rollback-for="Exception" read-only="false" />
+            <tx:method name="edit*" rollback-for="Exception" read-only="false" />
+            <tx:method name="move*" rollback-for="Exception" read-only="false" />
+            <tx:method name="remove*" rollback-for="Exception" read-only="false" />
+            <tx:method name="delete*" rollback-for="Exception" read-only="false" />
+            <tx:method name="add*" rollback-for="Exception" read-only="false" />
+            <tx:method name="new*" rollback-for="Exception" read-only="false" />
+            <tx:method name="gen*" rollback-for="Exception" />
+            <tx:method name="insert*" rollback-for="Exception" read-only="false" />
+            <tx:method name="adviseUser" rollback-for="Exception" read-only="false" />
+            <tx:method name="call*" rollback-for="Exception" read-only="false" />
+            <tx:method name="close*" rollback-for="Exception" read-only="false" />
+            <tx:method name="publish*" rollback-for="Exception" read-only="false" />
+            <tx:method name="up*" rollback-for="Exception" read-only="false" />
+            <tx:method name="down*" rollback-for="Exception" read-only="false" />
+            <tx:method name="back*" rollback-for="Exception" read-only="false" />
+            <tx:method name="select*" rollback-for="Exception" read-only="true" />
+            <tx:method name="view*" rollback-for="Exception" read-only="true" />
+            <tx:method name="query*" rollback-for="Exception" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+
+</beans>
