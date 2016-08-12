@@ -16,7 +16,7 @@ function fnInitPageUtil(){
 //初始化数据为  {"pageNo":1 ,"pageSize":22 ,"param":{"province":11。。。。}}格式
 function pasretFormData(){
 	params = new Object();
-	var p = $("form").serializeObject()
+	var p = $("form:first").serializeObject()
 	params.pageNo = 1;
 	params.pageSize = 15;
 	params.param = p;
@@ -50,7 +50,7 @@ function fillPagerUtil(data,requestParam) {
 }
 
 function doRefreshData(requestParam){
-	var requestUrl = "/orderException/buyerRejcetOrderManage/list";
+	var requestUrl = "/orderException/sellerRejcetOrderManage/list1";
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -116,17 +116,14 @@ function fillTableJson(data) {
 	var trs = "";
 	if(list && list.length>0){
 		for (var i = 0; i < list.length; i++) {
-			var orderSettlemnt = list[i];
-			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId);
+			var oe = list[i];
+			var operation = typeToOperate(oe.orderSettlementId);
 			var tr = "<tr>";
-			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
-			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
-			tr += "<td>" + orderSettlemnt.supplyName + "</td>";
-			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
-			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
-			tr += "<td>" + orderSettlemnt.settlementMoney + "</td>";
-			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
+			tr += "<td>" + oe.flowId + "</td>";
+			tr += "<td>" + oe.createTime + "</td>";
+			tr += "<td>" + oe.custName + "</td>";
+			tr += "<td>" + oe.supplyName + "</td>";
+			tr += "<td>" + oe.orderMoneyTotal + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
 			trs += tr;
@@ -139,11 +136,7 @@ function fillTableJson(data) {
 //类型 转换成操作
 function typeToOperate(businessType,confirm,settlementId) {
 	var result = '';
-	if(businessType==2){//只有退款有操作
-		if(confirm ==1){
-			result = '<button type="button" class="btn btn-info btn-sm editbtn back-detail " data-stmid = "'+settlementId+'">退款详情</button>';
-		}
-	}
+
 	return result;
 }
 
