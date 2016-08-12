@@ -159,10 +159,6 @@ public class UsermanageEnterprise extends Model{
 	  */
 	private Byte is3merge1;
 
-	/**
-	  *	bd用户id
-	  */
-	private Integer bdUserId;
 
 	/**
 	  *	主键id
@@ -612,22 +608,7 @@ public class UsermanageEnterprise extends Model{
 		this.is3merge1 = is3merge1;
 	}
 	
-	/**
-	  *	bd用户id
-	  */
-	public Integer getBdUserId()
-	{
-		return bdUserId;
-	}
-	
-	/**
-	  *	bd用户id
-	  */
-	public void setBdUserId(Integer bdUserId)
-	{
-		this.bdUserId = bdUserId;
-	}
-	
+
 	public String toString()
 	{
 		return "UsermanageEnterprise [" + 
@@ -659,7 +640,6 @@ public class UsermanageEnterprise extends Model{
 					", isCheck=" + isCheck + 
 					", enterpriseCode=" + enterpriseCode + 
 					", is3merge1=" + is3merge1 + 
-					", bdUserId=" + bdUserId + 
 				"]";
 	}
 }
