@@ -3,7 +3,7 @@
  * Created On: 2016-8-8 10:31:59
  *
  * Amendment History:
- * 
+ *
  * Amended By       Amended On      Amendment Description
  * ------------     -----------     ---------------------------------------------
  *
@@ -351,30 +351,19 @@ public class OrderExceptionService {
 			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.WaitingConfirmation;//待确认
 		}
 		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(systemExceptionOrderStatus)){//卖家已确认
-<<<<<<< Updated upstream
 			if(payType ==2){//账期支付
 				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已完成
 			}
 			if(payType == 1|| payType ==3){//线下支付+在线支付
-=======
-			if(payType == 1 || payType == 2){//在线支付+账期支付
-				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已完成
-			}
-			if(payType == 3){//线下支付
->>>>>>> Stashed changes
 				sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunding;//退款中
 			}
 		}
 		if(SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(systemExceptionOrderStatus)){//卖家已关闭
 			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Closed;//已关闭
 		}
-<<<<<<< Updated upstream
-		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) &&( payType == 1 ||payType==3 )){//已退款+线下支付/在线支付
+		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) &&( payType == 1 ||payType==3 )) {//已退款+线下支付/在线支付
+
 			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已完成
-=======
-		if(SystemOrderExceptionStatusEnum.Refunded.getType().equals(systemExceptionOrderStatus) && payType == 3){//已退款+线下支付
-			sellerOrderExceptionStatusEnum = SellerOrderExceptionStatusEnum.Refunded;//已关闭
->>>>>>> Stashed changes
 		}
 		return sellerOrderExceptionStatusEnum;
 	}

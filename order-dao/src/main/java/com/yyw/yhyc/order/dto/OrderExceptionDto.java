@@ -45,11 +45,9 @@ public class OrderExceptionDto extends OrderException {
     private String area;                //区
     private Integer type;
 
-<<<<<<< Updated upstream
-=======
+
     private List<String> payTypes; //支付类型
 
->>>>>>> Stashed changes
     private int orderCount;             //订单数量
     private int waitingConfirmCount;   // 待确认 数量
     private int refundingCount ;     //退款中数量
@@ -185,17 +183,18 @@ public class OrderExceptionDto extends OrderException {
         this.type = type;
     }
 
-<<<<<<< Updated upstream
-=======
     public List<String> getPayTypes() {
         return payTypes;
     }
->>>>>>> Stashed changes
+
+    public void setPayTypes(List<String> payTypes) {
+        this.payTypes = payTypes;
+    }
+
     public int getOrderCount() {
         return orderCount;
     }
 
-<<<<<<< Updated upstream
     public void setOrderCount(int orderCount) {
         this.orderCount = orderCount;
     }
@@ -208,23 +207,6 @@ public class OrderExceptionDto extends OrderException {
         this.waitingConfirmCount = waitingConfirmCount;
     }
 
-=======
-    public void setPayTypes(List<String> payTypes) {
-        this.payTypes = payTypes;
-    }
-    public void setOrderCount(int orderCount) {
-        this.orderCount = orderCount;
-    }
-
-    public int getWaitingConfirmCount() {
-        return waitingConfirmCount;
-    }
-
-    public void setWaitingConfirmCount(int waitingConfirmCount) {
-        this.waitingConfirmCount = waitingConfirmCount;
-    }
-
->>>>>>> Stashed changes
     public int getRefundingCount() {
         return refundingCount;
     }
@@ -252,10 +234,7 @@ public class OrderExceptionDto extends OrderException {
                 ", city='" + city + '\'' +
                 ", area='" + area + '\'' +
                 ", type=" + type +
-<<<<<<< Updated upstream
-=======
                 ", payTypes=" + payTypes +
->>>>>>> Stashed changes
                 ", orderCount=" + orderCount +
                 ", waitingConfirmCount=" + waitingConfirmCount +
                 ", refundingCount=" + refundingCount +
