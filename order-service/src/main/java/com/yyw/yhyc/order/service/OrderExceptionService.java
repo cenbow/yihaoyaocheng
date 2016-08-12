@@ -217,30 +217,27 @@ public class OrderExceptionService {
 	/**
 	 * 拒收订单卖家审核通过生成结算记录
 	 * @param custId
-	 * @param orderExceptionDto
+	 * @param orderException
 	 * @throws Exception
 	 */
-	private void saveRefuseOrderSettlement(Integer custId,OrderExceptionDto orderExceptionDto) throws Exception{
-		Order order = orderMapper.getByPK(orderExceptionDto.getOrderId());
+	private void saveRefuseOrderSettlement(Integer custId,OrderException orderException){
+		Order order = orderMapper.getByPK(orderException.getOrderId());
 		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
 			throw new RuntimeException("未找到订单");
 		}
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
-		orderSettlement.setBusinessType(3);
-		orderSettlement.setFlowId(orderExceptionDto.getExceptionOrderId());
-		orderSettlement.setCustId(orderExceptionDto.getCustId());
-		orderSettlement.setCustName(orderExceptionDto.getCustName());
-		orderSettlement.setSupplyId(orderExceptionDto.getSupplyId());
-		orderSettlement.setSupplyName(orderExceptionDto.getSupplyName());
+		orderSettlement.setBusinessType(2);
+		orderSettlement.setFlowId(orderException.getExceptionOrderId());
+		orderSettlement.setCustId(orderException.getCustId());
+		orderSettlement.setCustName(orderException.getCustName());
+		orderSettlement.setSupplyId(orderException.getSupplyId());
+		orderSettlement.setSupplyName(orderException.getSupplyName());
 		orderSettlement.setConfirmSettlement("1");
 		orderSettlement.setPayTypeId(order.getPayTypeId());
 		orderSettlement.setSettlementTime(now);
-		orderSettlement.setCreateUser(orderExceptionDto.getCustName());
+		orderSettlement.setCreateUser(orderException.getCustName());
 		orderSettlement.setCreateTime(now);
-		orderSettlement.setOrderTime(orderExceptionDto.getCreateTime());
-		orderSettlement.setSettlementMoney(orderExceptionDto.getOrderMoney());
-		orderSettlement.setRefunSettlementMoney(orderExceptionDto.getOrderMoney());
 		orderSettlementMapper.save(orderSettlement);
 	}
 
@@ -375,26 +372,9 @@ public class OrderExceptionService {
 
 
 
-	/**
-	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
-     */
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		List<OrderExceptionDto> list = null;
-
-		if(orderExceptionDto.getType() == 1){
-			//查询全部
-		}else if(orderExceptionDto.getType()==2){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());
-		}else if(orderExceptionDto.getType()==3){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType());
-		}else if(orderExceptionDto.getType()==4){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
-		}else if(orderExceptionDto.getType()==5){
-			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.SellerClosed.getType());
-		}
-		list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
-
+		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
 		pagination.setResultList(list);
 		return pagination;
 	}
@@ -442,7 +422,7 @@ public class OrderExceptionService {
 		}
 		//判断是否是拒收订单
 		if(!"4".equals(oe.getReturnType())){
-			log.info("该订单不是拒收订单,OrderException:"+oe+",UserDto:"+userDto);
+			log.info("拒收订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
 			throw new RuntimeException("该订单不是拒收订单");
 		}
 		if(!SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(oe.getOrderStatus())){
@@ -471,6 +451,9 @@ public class OrderExceptionService {
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(userDto.getUserName());
 		orderTraceMapper.save(orderTrace);
+
+		//拒收订单卖家审核通过生成结算记录
+		this.saveRefuseOrderSettlement(userDto.getCustId(),oe);
 
 	}
 

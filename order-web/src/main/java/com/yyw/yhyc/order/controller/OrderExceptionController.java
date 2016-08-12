@@ -224,11 +224,6 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
 	@ResponseBody
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
-		// TODO: 2016/8/1 需要从usercontex获取登录用户id
-		/**
-		 *  http://localhost:8088/order/sellerCancelOrder
-		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
-		 */
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
 	}
