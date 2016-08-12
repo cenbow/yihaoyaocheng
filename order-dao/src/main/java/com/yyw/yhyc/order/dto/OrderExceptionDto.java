@@ -46,6 +46,8 @@ public class OrderExceptionDto extends OrderException {
 
     private Integer type;
 
+    private int orderCount;             //订单数量
+
     public OrderExceptionDto() {
     }
 
@@ -177,7 +179,13 @@ public class OrderExceptionDto extends OrderException {
         this.type = type;
     }
 
+    public int getOrderCount() {
+        return orderCount;
+    }
 
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }
 
     @Override
     public String toString() {
@@ -197,7 +205,8 @@ public class OrderExceptionDto extends OrderException {
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
                 ", area='" + area + '\'' +
-                ", type=" + type +
+                ", type=" + type + '\'' +
+                ",orderCount=" + orderCount +
                 '}';
     }
 }

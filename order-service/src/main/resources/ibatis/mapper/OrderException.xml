@@ -291,7 +291,7 @@
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
-			T1.ORDER_STATUS = '4'
+			T1.RETURN_TYPE = '4'
 		AND	T1.CUST_ID = #{custId}
 		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
@@ -305,26 +305,90 @@
 		<if test="orderStatus!= null and orderStatus!= ''">
 			<choose>
 				<when test='orderStatus == "1"'><!--待确认-->
-					T1.ORDER_STATUS = '1' <!--拒收申请中-->
+					AND T1.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='orderStatus == "4"'><!--已完成-->
-					(
+					AND (
 						(T1.ORDER_STATUS = '2' AND (T3.PAY_TYPE = 1 OR T3.PAY_TYPE = 2)) OR
 						(T1.ORDER_STATUS = '4' AND T3.PAY_TYPE = 3)
 					)<!--卖家已确认+（在线支付 or 账期支付）  或者 已退款+线下支付-->
 				</when>
 				<when test='orderStatus == "2"'><!--退款中-->
-					T1.ORDER_STATUS = '2' AND T3.PAY_TYPE = 3 <!--卖家已确认+线下支付-->
+					AND T1.ORDER_STATUS = '2' AND T3.PAY_TYPE = 3 <!--卖家已确认+线下支付-->
 				</when>
 				<when test='orderStatus == "3"'><!--已关闭-->
-					T1.ORDER_STATUS = '3' <!--卖家已关闭-->
+					AND T1.ORDER_STATUS = '3' <!--卖家已关闭-->
 				</when>
 				<otherwise>
-					T1.EXCEPTION_ID IS NULL
+					AND T1.EXCEPTION_ID IS NULL
 				</otherwise>
 			</choose>
 		</if>
 		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
+	<select id="findBuyerExceptionOrderTotal" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal">
+		SELECT
+		SUM(ORDER_MONEY)
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.ORDER_STATUS = '4'
+		AND	T1.CUST_ID = #{custId}
+		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--拒收申请中-->
+				</when>
+				<when test='orderStatus == "4"'><!--已完成-->
+					AND (
+					(T1.ORDER_STATUS = '2' AND (T3.PAY_TYPE = 1 OR T3.PAY_TYPE = 2)) OR
+					(T1.ORDER_STATUS = '4' AND T3.PAY_TYPE = 3)
+					)<!--卖家已确认+（在线支付 or 账期支付）  或者 已退款+线下支付-->
+				</when>
+				<when test='orderStatus == "2"'><!--退款中-->
+					AND T1.ORDER_STATUS = '2' AND T3.PAY_TYPE = 3 <!--卖家已确认+线下支付-->
+				</when>
+				<when test='orderStatus == "3"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '3' <!--卖家已关闭-->
+				</when>
+				<otherwise>
+					AND T1.EXCEPTION_ID IS NULL
+				</otherwise>
+			</choose>
+		</if>
+		AND T1.ORDER_MONEY IS NOT NULL
+	</select>
+	<select id="findBuyerRejectOrderStatusCount" parameterType="OrderExceptionDto" resultType="OrderExceptionDto">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T3.PAY_TYPE AS payType
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.ORDER_STATUS = '4'
+		AND	T1.CUST_ID = #{custId}
+		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		ORDER BY T1.ORDER_STATUS,T3.PAY_TYPE
 	</select>
 
 	<resultMap id="OrderExceptionlistResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
