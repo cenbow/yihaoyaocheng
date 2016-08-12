@@ -20,6 +20,8 @@ import java.util.Map;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -261,9 +263,26 @@ public class OrderExceptionService {
 	}
 
 
+	/**
+	 * 1 全部 2 待确认 3退款中 4已完成 5已关闭
+     */
 	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		List<OrderExceptionDto> list = null;
+
+		if(orderExceptionDto.getType() == 1){
+			//查询全部
+		}else if(orderExceptionDto.getType()==2){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());
+		}else if(orderExceptionDto.getType()==3){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType());
+		}else if(orderExceptionDto.getType()==4){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
+		}else if(orderExceptionDto.getType()==5){
+			orderExceptionDto.setOrderStatus(SystemOrderExceptionStatusEnum.SellerClosed.getType());
+		}
+		list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+
 		pagination.setResultList(list);
 		return pagination;
 	}
