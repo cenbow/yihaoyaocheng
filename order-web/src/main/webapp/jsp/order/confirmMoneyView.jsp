@@ -35,30 +35,41 @@
                         <label for="scope" class="col-xs-2 control-label">订单状态 </label>
 
                         <div class="col-xs-6 control-label text-left"><span
-                                class="red margin-r-10">${orderDetailsDto.orderStatusName}</span>
-                            <c:if test="${orderDetailsDto.orderStatus==9}">
-                            <a class="undeline">查看拒收订单</a></div>
-                        </c:if>
-                        <c:if test="${orderDetailsDto.orderStatus==10}">
-                        <a class="undeline">查看补货订单</a></div>
-                    </c:if>
-                </div>
-            </div>
-            <div class="container-fluid progress">
-                <div class="row progress_bar">
-                    <div class="col-xs-3 cur"><span>1</span></div>
-                    <div class="col-xs-3 cur"><span>2</span></div>
-                    <div class="col-xs-3 cur"><span>3</span></div>
-                    <div class="col-xs-3"><span>4</span></div>
-                </div>
-                <div class="row progress_num">
-                    <div class="col-xs-3">待发货</div>
-                    <div class="col-xs-3">待收货</div>
-                    <div class="col-xs-3">拒收中</div>
-                    <div class="col-xs-3">已完成</div>
+                                class="red margin-r-10">${orderDetailsDto.orderStatusName}</span></div>
                 </div>
             </div>
         </div>
+            <div class="row margin-t-20">
+                <div class="form-horizontal padding-t-26">
+                    <form action="${ctx}/order/addForConfirmMoney" method="post" id="form0">
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">订单金额</label>
+                            <div class="col-xs-9 control-label text-left">${orderDetailsDto.orgTotal}元</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">实际收款金额</label>
+                            <div class="col-xs-2">
+                                <input class="form-control" type="text" name="orderSettlement.settlementMoney" />
+                            </div>
+                            <div class="col-xs-8 control-label text-left">元</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">应收实收差异</label>
+                            <div class="col-xs-9 control-label text-left">500.00  元</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">备注</label>
+                            <div class="col-xs-9">
+                                <textarea class="form-control" rows="5" name="orderSettlement.remark"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-2"></label>
+                            <div class="col-xs-9"><button type="button" class="btn btn-danger" onclick="submit">确认收款</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         <div class="row choseuser margin-t-20 border-gray">
             <h2 class="row">订单信息</h2>
 
@@ -167,66 +178,6 @@
             </div>
         </div>
         <div class="row choseuser margin-t-20 border-gray">
-            <div class="modify">
-                <div class="form-horizontal padding-t-26">
-                    <div class="form-group">
-                        <label class="col-xs-12 color999 padding-l-40 font-size-16">配送信息</label>
-                    </div>
-                    <c:if test="${orderDetailsDto.orderDelivery.deliveryMethod==1}">
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">配送方式</label>
-                            <div class="col-xs-3 control-label text-left">自有物流</div>
-                            <label for="scope" class="col-xs-2 control-label">联系人</label>
-                            <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryContactPerson}</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">预计到达时间</label>
-                            <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryDate}</div>
-                            <label for="scope" class="col-xs-2 control-label">联系人电话</label>
-                            <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryExpressNo}</div>
-                        </div>
-                    </c:if>
-                    <c:if test="${orderDetailsDto.orderDelivery.deliveryMethod==2}">
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">配送方式</label>
-                            <div class="col-xs-3 control-label text-left">第三方物流</div>
-                            <label for="scope" class="col-xs-2 control-label">物流公司</label>
-                            <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryContactPerson}</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">物流单号</label>
-                            <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryExpressNo}</div>
-                        </div>
-                    </c:if>
-                </div>
-                <div class="form-horizontal padding-t-26">
-                    <div class="form-group">
-                        <label class="col-xs-12 color999 padding-l-40 font-size-16">支付信息</label>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">支付方式:</label>
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.payTypeName}</div>
-                        <label for="scope" class="col-xs-2 control-label">支付状态</label>
-
-                        <div class="col-xs-3 control-label text-left">
-                            <c:if test="${orderDetailsDto.payStatus==1}">已支付</c:if>
-                            <c:if test="${orderDetailsDto.payStatus==0}">未支付</c:if>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-horizontal padding-t-26">
-                    <div class="form-group">
-                        <label class="col-xs-12 color999 padding-l-40 font-size-16">发票信息</label>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">发票信息:</label>
-                        <div class="col-xs-3 control-label text-left">
-                            <c:if test="${orderDetailsDto.payStatus==1}">增值税专用发票</c:if>
-                            <c:if test="${orderDetailsDto.payStatus==2}">增值税普通发票</c:if>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="row choseuser margin-t-20 border-gray">
                 <h2 class="row">商品清单</h2>
 
@@ -252,13 +203,14 @@
                         </thead>
                         <tbody>
                         <%--遍历该供应商的商品信息  开始--%>
-                        <input type="hidden" id="flowId" name="flowId" value="${orderDetailsDto.flowId}"/>
-                        <input type="hidden" id="userType" name="userType" value="1"/>
                         <c:choose>
                             <c:when test="${orderDetailsDto != null && fn:length(orderDetailsDto.details) gt 0 }">
                                 <c:forEach var="details" items="${orderDetailsDto.details}" varStatus="detailsVarStatus">
                                     <input type="hidden" name="productId" value="${details.orderDetailId}"/>
-                                   <tr>
+                                    <%--  <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
+                                      <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
+                                      <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>--%>
+                                    <tr>
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl"><img src="images/img_03.jpg"/></div>
@@ -283,7 +235,7 @@
                         <%--遍历该供应商的商品信息  结束--%>
                         </tbody>
                     </table>
-                    <div><a class="undeline" onclick="listPg()">查看收货商品清单</a></div>
+                    <div><a class="undeline lookgoodlist">查看收货商品清单</a></div>
                     <div class="text-right">
                         <p>商品金额：${orderDetailsDto.orderTotal}元
 
@@ -372,7 +324,7 @@
                 <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
             </div>
             <div class="modal-body">
-                <table class="table table-box2">
+                <table class="table table-box">
                     <colgroup>
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -400,9 +352,39 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <tr>
+                        <td>1000000000007</td>
+                        <td>p123456789</td>
+                        <td>0253265</td>
+                        <td>葵花牌葵花牌葵</td>
+                        <td>小儿感冒颗粒</td>
+                        <td>10gx10包</td>
+                        <td>颗粒剂</td>
+                        <td>黑龙江哈药六盘...</td>
+                        <td>10</td>
+                        <td>10</td>
+                    </tr>
                     </tbody>
                 </table>
-                <div class="pager" id="J_pager2"></div>
+                <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
+                        href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)"
+                                                                               class="pager_item">1</a><a
+                        href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
+                                                                             class="pager_item active">3</a><a
+                        href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
+                                                                             class="pager_item">5</a><a
+                        href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
+                                                                             class="pager_item">7</a><a
+                        href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
+                        href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)"
+                                                                              class="pager_next">下一页</a><span
+                        class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
+                                                                                                          name="page"
+                                                                                                          class="input_item input_item_shortest page-num"
+                                                                                                          autocomplete="off"
+                                                                                                          id="page-num0">页</span><a
+                        href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -417,9 +399,6 @@
 
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
 <script>
     $(".gathering").click(function(){
         $("#myModal1").modal();

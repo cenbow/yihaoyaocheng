@@ -15,7 +15,12 @@
         <dependency>
             <groupId>com.yyw.yhyc</groupId>
             <artifactId>base-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${base-common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>yhyc-authority</groupId>
+            <artifactId>yhyc-authority</artifactId>
+            <version>${yhyc-authority.version}</version>
         </dependency>
 
         <!-- spring start -->

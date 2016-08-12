@@ -421,11 +421,28 @@ public class OrderController extends BaseJsonController {
 	public void addForConfirmMoney(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
-		int custId = 1;
-		orderFacade.addForConfirmMoney(custId, orderSettlement);
+		UserDto user = super.getLoginUser();
+		orderFacade.addForConfirmMoney(user.getCustId(), orderSettlement);
 	}
 
+	/**
+	 * 订单详情
+	 * @return
+	 */
+	@RequestMapping(value = "/getConfirmMoneyView", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView getConfirmMoneyView(Order order) throws Exception
+	{
+		// 登录卖家的id
+		UserDto user = super.getLoginUser();
+		order.setSupplyId(user.getCustId());
+		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
 
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDetailsDto",orderDetailsDto);
+		model.setViewName("order/confirmMoneyView");
+		return model;
+	}
 	/**
 	 * 订单详情
 	 * @return
@@ -438,14 +455,14 @@ public class OrderController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		order.setCustId(user.getCustId());
 		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
-
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
 		ModelAndView model = new ModelAndView();
 		model.addObject("orderDetailsDto",orderDetailsDto);
 		model.setViewName("order/buyer_order_detail");
 		return model;
 	}
-
-
 
 	/**
 	 * 订单详情
@@ -453,13 +470,19 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/getSupplyOrderDetails", method = RequestMethod.GET)
 	@ResponseBody
-	public OrderDetailsDto getSupplyOrderDetails(Order order) throws Exception
+	public ModelAndView getSupplyOrderDetails(Order order) throws Exception
 	{
-
-		// 登录买家的id
+		// 登录卖家的id
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
-		return orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
+		ModelAndView model = new ModelAndView();
+		model.addObject("orderDetailsDto",orderDetailsDto);
+		model.setViewName("order/seller_order_detail");
+		return model;
 	}
 
 	@RequestMapping("/sellerOrderManage")

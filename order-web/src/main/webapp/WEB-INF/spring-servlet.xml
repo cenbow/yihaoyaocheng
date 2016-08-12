@@ -49,12 +49,12 @@
 
 	<!-- mvc 拦截器 -->
 	<mvc:interceptors>
-		<mvc:interceptor>
-			<!-- 如果不写或则 /* 表示拦截所有 -->
+		<!--<mvc:interceptor>
+			&lt;!&ndash; 如果不写或则 /* 表示拦截所有 &ndash;&gt;
 			<mvc:mapping path="/**/*"/>
-			<!-- 拦截器处理类 -->
+			&lt;!&ndash; 拦截器处理类 &ndash;&gt;
 			<ref bean="loginInteceptor"/>
-		</mvc:interceptor>
+		</mvc:interceptor>-->
 
 		<!-- 配置Token拦截器，防止用户重复提交数据 -->
 		<mvc:interceptor>

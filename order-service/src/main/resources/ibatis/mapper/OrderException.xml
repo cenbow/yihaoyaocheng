@@ -277,4 +277,103 @@
 		</if>
 	</select>
 
+
+	<resultMap id="buyerRejectOrderResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	</resultMap>
+	<select id="listPaginationBuyerRejectOrder" parameterMap="OrderExceptionDto" resultMap="buyerRejectOrderResultMap">
+		SELECT
+			T1.*, T3.PAY_TYPE,
+			T3.PAY_TYPE_NAME
+		FROM
+			T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+			T1.ORDER_STATUS = '4'
+		AND	T1.CUST_ID = #{custId}
+		AND T1.EXCEPTION_ORDER_ID LIKE LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					T1.ORDER_STATUS = '1' <!--拒收申请中-->
+				</when>
+				<when test='orderStatus == "4"'><!--已完成-->
+					(
+						(T1.ORDER_STATUS = '2' AND (T3.PAY_TYPE = 1 OR T3.PAY_TYPE = 2)) OR
+						(T1.ORDER_STATUS = '4' AND T3.PAY_TYPE = 3)
+					)<!--卖家已确认+（在线支付 or 账期支付）  或者 已退款+线下支付-->
+				</when>
+				<when test='orderStatus == "2"'><!--退款中-->
+					T1.ORDER_STATUS = '2' AND T3.PAY_TYPE = 3 <!--卖家已确认+线下支付-->
+				</when>
+				<when test='orderStatus == "3"'><!--已关闭-->
+					T1.ORDER_STATUS = '3' <!--卖家已关闭-->
+				</when>
+				<otherwise>
+					T1.EXCEPTION_ID IS NULL
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
+
+	<resultMap id="OrderExceptionlistResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	</resultMap>
+
+	<select id="listPaginationSellerByProperty" parameterType="OrderExceptionDto"  resultMap="OrderExceptionlistResultMap">
+
+		SELECT e.*,t.pay_type,t.pay_type_name FROM t_order_exception  e
+
+		INNER JOIN t_order o ON e.order_id = o.order_id
+
+		INNER JOIN t_system_pay_type t ON o.pay_type_id = t.pay_type_id
+
+		LEFT JOIN t_passport_user u ON u.id = e.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
+
+		WHERE 1=1
+
+		<if test="custId !=null and custId !=''">
+			AND e.cust_id = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND e.supply_id = #{supplyId}
+		</if>
+		<if test="flowId !=null and flowId !=''">
+			AND e.flow_id = #{flowId}
+		</if>
+
+		<if test="custName !=null and custName !=''">
+			AND e.cust_name = CONCAT('%',#{custName},'%')
+		</if>
+
+		<if test="startTime !=null and startTime!=''">
+			AND e.order_create_time > #{startTime}
+		</if>
+		<if test="endTime !=null and endTime!=''">
+			AND #{startTime} > e.order_create_time
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
+		</if>
+	</select>
+
 </mapper>

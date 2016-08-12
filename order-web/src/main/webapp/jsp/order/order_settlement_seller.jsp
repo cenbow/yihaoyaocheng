@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>基本信息完善</title>
+    <title>结算管理-应收</title>
     <!--#include file="header.asp" -->
     <!--#include file="sidebar.asp" -->
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
