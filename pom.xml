@@ -397,9 +397,21 @@
     <!-- 配置默认中央仓库 -->
     <repositories>
         <repository>
-            <id>yyw-central</id>
+            <id>yiyaowang-releases</id>
             <name>local private nexus</name>
             <url>http://maven.yiyaowang.com/nexus/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>yiyaowang-snapshots</id>
+            <name>local private nexus (snapshots)</name>
+            <url>http://maven.yiyaowang.com/nexus/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 
