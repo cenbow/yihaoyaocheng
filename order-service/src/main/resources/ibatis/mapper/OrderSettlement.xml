@@ -293,7 +293,7 @@
 			AND s.order_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{startTime} > s.order_time
+			AND #{endTime} > s.order_time
 		</if>
 		<if test="province !=null and province != '' and province != '-1' ">
 			AND ue.province = #{province}
