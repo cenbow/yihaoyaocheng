@@ -368,7 +368,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(String province,String city,String district,String flowId,String custName,String payType,String createBeginTime,String createEndTime,String orderStatus){
+	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
@@ -381,7 +381,7 @@ public class OrderController extends BaseJsonController {
 		orderDto.setFlowId(flowId);
 		orderDto.setCustName(custName);
 		if(!UtilHelper.isEmpty(payType)) {
-			orderDto.setPayType(Integer.parseInt(payType));
+			orderDto.setPayType(payType);
 		}
 		orderDto.setCreateBeginTime(createBeginTime);
 		orderDto.setCreateEndTime(createEndTime);

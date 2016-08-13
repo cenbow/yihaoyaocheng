@@ -203,7 +203,7 @@ function typeToOperate(order) {
     }
     if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
         result += '<span id="order_f_' + order.orderId + '" ></span><br/>';
-        result += '<a href="javascript:listPg(ZQD2016081116114899)" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+        result += '<a href="javascript:listPg(\''+order.flowId+'\')" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
     }
     if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
@@ -421,13 +421,9 @@ function confirmReceipt(){
     var flowId = $("#crflowId").val();
     var list=[];
 
-    $("#bodyDiv").hide();
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
-    if($("#bodyDiv").display=='block'){
-        alertModal("请选择处理类型");
-    }
-    if($("#bodyDiv").display=='none'){
+    if($("#bodyDiv:visible").size() == 0){
         for(var i=0;i<productCount.length;i++){
             if($(recieveCount[i]).val()==null){
                 alertModal("请填写收货数量");
@@ -437,7 +433,7 @@ function confirmReceipt(){
                 $("#bodyDiv").show();//display="block";
                 return;
             }
-            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
         }
     }
 
@@ -452,25 +448,15 @@ function confirmReceipt(){
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             console.info(data);
-        }
-    });
-
-           /* $("#confirmReceiptForm").ajaxSubmit({
-
-        dataType: 'text',
-        type: 'POST',
-        success: function(data) {
-            console.info(data);
-            var obj=eval("(" + data + ")");
-            if(obj.code==0){
-                alertModal(obj.msg);
+            //var obj=eval("(" + data + ")");
+            if(data.code==0){
+                alertModal(data.msg);
             }else{
-                alertModal(obj.msg);
-                $("#myModal2").modal().hide();
+                alertModal(data.msg);
+                $("#myModalConfirmReceipt").modal("hide");
             }
         }
-    });*/
-
+    });
 
 }
 

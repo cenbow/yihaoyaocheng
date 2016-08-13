@@ -38,7 +38,6 @@
                                 <input type="text" class="form-control" id="supplyName" name="supplyName"
                                        placeholder="">
                             </div>
-                            <a href="javascript:listPg('YJ20151110000001-001')" class="btn btn-info btn-sm margin-r-10">确认收货</a>
                         </div>
                         <div class="form-group">
                             <label for="payType" class="col-xs-2 control-label">支付方式</label>
