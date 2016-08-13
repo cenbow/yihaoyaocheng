@@ -399,6 +399,7 @@ function sellerOrderExport() {
     _data += "&payType=" + $.trim($('#payType').val());
     _data += "&createBeginTime=" + $.trim($('#createBeginTime').val());
     _data += "&createEndTime=" + $.trim($('#createEndTime').val());
+    _data += "&orderStatus=" + $.trim($('#orderStatus').val());
     var requestUrl = ctx+"/order/exportOrder";
     $.download(requestUrl,_data,'post' );
 
