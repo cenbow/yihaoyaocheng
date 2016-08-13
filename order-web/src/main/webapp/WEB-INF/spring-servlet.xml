@@ -52,13 +52,13 @@
 	<mvc:interceptors>
 		<!-- 登录拦截 -->
 		<mvc:interceptor>
-			<mvc:mapping path="/order/*" />
+			<mvc:mapping path="/*/**" />
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
 		</mvc:interceptor>
 
 		<!-- 获取用户信息 -->
 		<mvc:interceptor>
-			<mvc:mapping path="/order/*" />
+			<mvc:mapping path="/*/**" />
 			<ref bean="getUserInteceptor"/>
 		</mvc:interceptor>
 

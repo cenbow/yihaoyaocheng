@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.facade;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.bo.OrderException;
@@ -108,7 +109,7 @@ public interface OrderExceptionFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception;
+	public Map<String,Object> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception;
 
 
 }
