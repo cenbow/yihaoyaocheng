@@ -67,7 +67,7 @@ function fillPagerUtil(data,requestParam) {
 }
 
 function doRefreshData(requestParam){
-	var requestUrl = ctx+"/order/orderSettlement/listPg/t1";
+	var requestUrl = ctx+"/order/orderSettlement/listPg/t2";
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
