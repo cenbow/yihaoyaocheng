@@ -368,20 +368,12 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(){
+	public void exportOrder(String province,String city,String district,String flowId,String custName,String payType,String createBeginTime,String createEndTime,String orderStatus){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
 		pagination.setPageNo(1);
 		pagination.setPageSize(6000);      //默认6000条数据
-		String province=request.getParameter("province");
-		String city=request.getParameter("city");
-		String district=request.getParameter("district");
-		String flowId=request.getParameter("flowId");
-		String custName=request.getParameter("custName");
-		String payType=request.getParameter("payType");
-		String createBeginTime=request.getParameter("createBeginTime");
-		String createEndTime=request.getParameter("createEndTime");
 		OrderDto orderDto=new OrderDto();
 		orderDto.setProvince(province);
 		orderDto.setCity(city);
@@ -393,6 +385,7 @@ public class OrderController extends BaseJsonController {
 		}
 		orderDto.setCreateBeginTime(createBeginTime);
 		orderDto.setCreateEndTime(createEndTime);
+		orderDto.setOrderStatus(orderStatus);
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
 		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
