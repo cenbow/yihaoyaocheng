@@ -138,7 +138,7 @@ function fillTableJson(data) {
 	if(list && list.length>0){
 		for (var i = 0; i < list.length; i++) {
 			var oe = list[i];
-			var operation = typeToOperate(oe.orderStatusName,oe.flowId);
+			var operation = typeToOperate(oe.orderStatusName,oe.exceptionId);
 			var tr = "<tr>";
 			tr += "<td>" + oe.flowId +'<br><a href="'+ctx+'/order/getBuyOrderDetails?flowId='+oe.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">订单详情</a>' + "</td>";
 			tr += "<td>" + oe.createTime + "</td>";
@@ -156,13 +156,13 @@ function fillTableJson(data) {
 	$("#orderCount").html(data.pagination.total);
 	$("#orderTotalMoney").html(data.orderExceptionDto.orderMoneyTotal);
 	changeColor();
-	bindOperateBtn();
+	//bindOperateBtn();
 }
 //类型 转换成操作
-function typeToOperate(statusName,flowId) {
+function typeToOperate(statusName,exceptionId) {
 	var result = '';
 	if(statusName&&statusName=='待确认'){
-		result = '<button type="button" class="btn btn-info btn-sm editbtn back-detail " data-stmid = "'+flowId+'">审核</button>';
+		result = '<a href="'+ctx+'/orderException/getRejectOrderDetails/'+exceptionId+'" target="_blank" class="btn btn-info btn-sm editbtn back-detail " data-stmid = "'+exceptionId+'">审核</a>';
 	}
 	return result;
 }
