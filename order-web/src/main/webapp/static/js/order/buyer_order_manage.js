@@ -440,7 +440,7 @@ function confirmReceipt(){
 
     $.ajax({
         url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
-        data: {'list':list},
+        data: JSON.stringify(list),
         type: 'POST',
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",

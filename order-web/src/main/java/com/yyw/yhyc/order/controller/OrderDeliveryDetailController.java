@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.JsonHelper;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -107,9 +109,10 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/confirmReceipt", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,String> confirmReceipt(@RequestBody  RequestListModel<OrderDeliveryDetailDto> requestListModel) throws Exception
+	public Map<String,String> confirmReceipt(@RequestBody  String listStr) throws Exception
 	{
+		List<OrderDeliveryDetailDto> list = new JsonHelper<OrderDeliveryDetailDto>().fromList(listStr, OrderDeliveryDetailDto.class);
 		UserDto user = super.getLoginUser();
-		return orderDeliveryDetailFacade.confirmReceipt(requestListModel.getList(),user);
+		return orderDeliveryDetailFacade.confirmReceipt(list, user);
 	}
 }
