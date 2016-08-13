@@ -413,8 +413,6 @@ public class OrderExceptionService {
 						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.Closed.getValue());
 						break;
 				}
-				oed.setOrderStatusName(SellerOrderExceptionStatusEnum.WaitingConfirmation.getValue());
-
 			}
 		}
 		pagination.setResultList(list);
