@@ -82,12 +82,16 @@ public class OrderSettlementService {
                         osd.setBusinessTypeName("销售货款");
                     } else if (osd.getBusinessType() == 2) {
                         osd.setBusinessTypeName("退款货款");
+                    } else{
+                        osd.setBusinessTypeName("拒收");
                     }
                 } else {// type =2 买家
                     if (osd.getBusinessType() == 1) {
                         osd.setBusinessTypeName("采购货款");
                     } else if (osd.getBusinessType() == 2) {
                         osd.setBusinessTypeName("退款货款");
+                    } else{
+                        osd.setBusinessTypeName("拒收");
                     }
                 }
 
