@@ -1282,6 +1282,7 @@ public class OrderService {
 		orderSettlement.setCreateTime(now);
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(order.getOrgTotal());
+		orderSettlement.setRefunSettlementMoney(orderSettlement.getRefunSettlementMoney());
 		orderSettlementMapper.save(orderSettlement);
 		//TODO 订单记录表
 		insertOrderTrace(order);
@@ -1296,6 +1297,7 @@ public class OrderService {
 		order.setSettlementTime(now);
 		order.setUpdateUser(order.getCustName());
 		order.setUpdateTime(now);
+		order.setFinalPay(orderSettlement.getRefunSettlementMoney());
 		orderMapper.update(order);
 	}
 }
