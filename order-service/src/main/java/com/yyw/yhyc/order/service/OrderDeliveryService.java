@@ -275,7 +275,7 @@ public class OrderDeliveryService {
 				stringBuffer.append("数量为空,");
 			}
 
-			if(!rowMap.get("1").equals(orderDeliveryDto.getFlowId())){
+			if(!rowMap.get("1").trim().equals(orderDeliveryDto.getFlowId())){
 				stringBuffer.append("订单编码与发货订单编码不相同,");
 			}
 
@@ -438,8 +438,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setOrderId(orderId);
 				orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
 				orderDeliveryDetail.setDeliveryStatus(1);
-				orderDeliveryDetail.setBatchNumber(rowMap.get("2"));
-				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
+				orderDeliveryDetail.setBatchNumber(rowMap.get("3"));
+				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("1")));
 				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
 				orderDeliveryDetail.setImportFileUrl(excelPath);
 				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
