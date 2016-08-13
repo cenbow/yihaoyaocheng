@@ -369,15 +369,16 @@ public class OrderExceptionService {
 
 
 
-	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
+	public Map<String,Object> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
 		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
 		Integer sourceType = orderExceptionDto.getType() ;
+		//查询总价
+		BigDecimal totalMoney = orderExceptionMapper.findSellerExceptionOrderTotal(orderExceptionDto);
 		//查询
-		orderExceptionDto.setType(2);
 		Integer waitCount = pagination.getTotal();
 		Integer refundCount = pagination.getTotal();
-		BigDecimal totalMoney = orderExceptionMapper.findSellerExceptionOrderTotal(orderExceptionDto);
+		orderExceptionDto.setType(2);
 		if(sourceType != 2){
 			waitCount = orderExceptionMapper.findSellerRejectOrderStatusCount(orderExceptionDto);
 		}
@@ -408,11 +409,20 @@ public class OrderExceptionService {
 					case 5:
 						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.Closed.getValue());
 						break;
+					default:
+						oed.setOrderStatusName(SellerOrderExceptionStatusEnum.Closed.getValue());
+						break;
 				}
+				oed.setOrderStatusName(SellerOrderExceptionStatusEnum.WaitingConfirmation.getValue());
+
 			}
 		}
 		pagination.setResultList(list);
-		return pagination;
+
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("pagination",pagination);
+		map.put("orderExceptionDto",orderExceptionDto);
+		return map;
 	}
 
 
