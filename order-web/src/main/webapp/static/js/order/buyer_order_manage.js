@@ -424,17 +424,23 @@ function confirmReceipt(){
     $("#bodyDiv").hide();
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
-   for(var i=0;i<productCount.length;i++){
-       if($(recieveCount[i]).val()==null){
-           alertModal("请填写收货数量");
-           return;
-       }
-       if($(recieveCount[i]).val()!=$(productCount[i]).html()){
-           $("#bodyDiv").show();//display="block";
-           return;
-       }
-       list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc})
-   }
+    if($("#bodyDiv").display=='block'){
+        alertModal("请选择处理类型");
+    }
+    if($("#bodyDiv").display=='none'){
+        for(var i=0;i<productCount.length;i++){
+            if($(recieveCount[i]).val()==null){
+                alertModal("请填写收货数量");
+                return;
+            }
+            if($(recieveCount[i]).val()!=$(productCount[i]).html()){
+                $("#bodyDiv").show();//display="block";
+                return;
+            }
+            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+        }
+    }
+
 
     console.info(list);
 
