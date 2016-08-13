@@ -203,7 +203,7 @@ function typeToOperate(order) {
     }
     if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
         result += '<span id="order_f_' + order.orderId + '" ></span><br/>';
-        result += '<a href="javascript:listPg('+order.flowId+')" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+        result += '<a href="javascript:listPg(\''+order.flowId+'\')" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
     }
     if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
