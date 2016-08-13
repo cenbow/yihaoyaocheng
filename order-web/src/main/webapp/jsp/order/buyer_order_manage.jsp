@@ -38,7 +38,7 @@
                                 <input type="text" class="form-control" id="supplyName" name="supplyName"
                                        placeholder="">
                             </div>
-
+                            <a href="javascript:listPg('YJ20151110000001-001')" class="btn btn-info btn-sm margin-r-10">确认收货</a>
                         </div>
                         <div class="form-group">
                             <label for="payType" class="col-xs-2 control-label">支付方式</label>
@@ -117,47 +117,75 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="myModalReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="width:650px;">
+<div class="modal fade" id="myModalConfirmReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">确认收货</h4>
+                <h4 class="modal-title" id="myModalLabel1">确认收货</h4>
             </div>
             <div class="modal-body">
-                <div class="form-horizontal">
-                    <form id="upForm">
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">结算订单金额:</label>
-                            <div class="col-xs-5 control-label text-left"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label"><em>*</em>实际结算金额:</label>
-                            <div class="col-xs-5"><input name="refunSettlementMoney" type="text" class="form-control" /></div>
-                            <div class="col-xs-4 control-label text-left">元</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">应付实付差异:</label>
-                            <div class="col-xs-5 control-label text-left"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-3 control-label">备注:</label>
-                            <div class="col-xs-5">
-                                <textarea class="form-control" name="remark" rows="3" cols="3"></textarea>
+                <form method="post" id="confirmReceiptForm" enctype="multipart/form-data">
+                    <input type='hidden' name='flowId' id="crflowId" >
+                <table class="table table-box2">
+                    <colgroup>
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                        <col style="width: 10%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>订单行号</th>
+                        <th>商品编码</th>
+                        <th>批号</th>
+                        <th>商品名</th>
+                        <th>通用名</th>
+                        <th>规格</th>
+                        <th>剂型</th>
+                        <th>生产企业</th>
+                        <th>采购数量</th>
+                        <th>收货数量</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                    <div class="modal-body" id="bodyDiv" style="display: none">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label for="scope" class="col-xs-3 control-label">请选择对剩余商品的处理并确认，默认做为拒收处理：</label>
+                                <div class="col-xs-8">
+                                    <input type='hidden' name='list.returnType' id="returnType" >
+                                    <input type="radio" checked="true"  name="ownw" value="4">拒收
+                                    <input type="radio" name="ownw" value="3">补货
+                                </div>
                             </div>
-                            <input name="orderSettlementId" type="hidden"  />
+                            <div class="form-group">
+                                <label for="cancelResult" class="col-xs-3 control-label">拒收/补货说明：:</label>
+                                <div class="col-xs-5 control-label text-left">
+                                    <textarea type="text" class="form-control" id="returnDesc" name="list.returnDesc"
+                                      placeholder="" maxlength="200"></textarea>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger">确定</button>
+                <button type="button" class="btn btn-default" onclick="confirmReceipt()">确定</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </div>
     </div>
 </div>
+
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>

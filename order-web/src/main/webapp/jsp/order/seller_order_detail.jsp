@@ -330,23 +330,6 @@
 
                         <p>
                     </div>
-                    <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
-                            href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a
-                            href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
-                                                                                 class="pager_item active">3</a><a
-                            href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
-                                                                                 class="pager_item">5</a><a
-                            href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
-                                                                                 class="pager_item">7</a><a
-                            href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
-                            href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span
-                            class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
-                                                                                                              name="page"
-                                                                                                              class="input_item input_item_shortest page-num"
-                                                                                                              autocomplete="off"
-                                                                                                              id="page-num0">页</span><a
-                            href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>
-                </div>
             </div>
 
         </div>

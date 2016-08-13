@@ -203,7 +203,7 @@ function typeToOperate(order) {
     }
     if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
         result += '<span id="order_f_' + order.orderId + '" ></span><br/>';
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+        result += '<a href="javascript:listPg(ZQD2016081116114899)" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
     }
     if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
@@ -333,6 +333,142 @@ function format(date){
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
 }
+
+
+function listPg(flowId) {
+    $("#crflowId").val(flowId);
+    var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
+    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:1}};
+    $.ajax({
+        url : requestUrl,
+        data : JSON.stringify(requestParam),
+        type : 'POST',
+        dataType:'json',
+        contentType : "application/json;charset=UTF-8",
+        success : function(data) {
+
+            //填充表格数据
+            fillTable(data);
+            var totalpage = data.totalPage;
+            var nowpage = data.pageNo;
+            var totalCount = data.total;
+            $("#J_pager2").attr("current",nowpage);
+            $("#J_pager2").attr("total",totalpage);
+            $("#J_pager2").attr("url",requestUrl);
+            $("#J_pager2").pager({
+                data:requestParam,
+                requestType:"post",
+                asyn:1,
+                contentType:'application/json;charset=UTF-8',
+                callback:function(data,index){
+                    var nowpage = data.page;
+                    $("#nowpageedit").val(nowpage);
+                    fillTable(data);
+                }});
+        },
+        error : function(XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败",function(){
+            });
+        }
+    });
+}
+
+/**
+ * 填充表格数据
+ * @param data
+ */
+function fillTable(data) {
+    console.info(data)
+    var indexNum = 1;
+    if (!data || !data.resultList)
+        return;
+    var list = data.resultList;
+    $(".table-box2 tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderDeliveryDetail = list[i];
+        var tr = "<tr>";
+
+        tr += "<td>" + orderDeliveryDetail.orderLineNo + "" +
+        "<input type='hidden' name='list.orderDeliveryDetailId' value='"+orderDeliveryDetail.orderDeliveryDetailId+"' >" +
+        "<input type='hidden' name='list.orderDetailId' value='"+orderDeliveryDetail.orderDetailId+"' >" +
+        "<input type='hidden' name='list.flowId' value='"+orderDeliveryDetail.flowId+"' >" +
+        "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
+        tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+        tr += "<td>" + orderDeliveryDetail.brandName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.specification + "</td>";
+        tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
+        tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td><span name='list.productCount'>" + orderDeliveryDetail.deliveryProductCount + "</span></td>";
+        tr += "<td><input class='form-control' type='text' id='recieveCount' name='list.recieveCount'  /></td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $(".table-box2 tbody").append(trs);
+    $("#myModalConfirmReceipt").modal().hide();
+    $("#bodyDiv").hide();
+}
+
+
+function confirmReceipt(){
+    //确认发货
+    var productCount = $("[name='list.productCount']");
+    var recieveCount = $("[name='list.recieveCount']");
+    var orderDetailId = $("[name='list.orderDetailId']");
+    var orderDeliveryDetailId = $("[name='list.orderDeliveryDetailId']");
+    var flowId = $("#crflowId").val();
+    var list=[];
+
+    $("#bodyDiv").hide();
+    var returnDesc= $("#returnDesc").val();
+    var ownw = $("input[type=radio][name=ownw]:checked");
+   for(var i=0;i<productCount.length;i++){
+       if($(recieveCount[i]).val()==null){
+           alertModal("请填写收货数量");
+           return;
+       }
+       if($(recieveCount[i]).val()!=$(productCount[i]).html()){
+           $("#bodyDiv").show();//display="block";
+           return;
+       }
+       list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc})
+   }
+
+    console.info(list);
+
+    $.ajax({
+        url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
+        data: {'list':list},
+        type: 'POST',
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            console.info(data);
+        }
+    });
+
+           /* $("#confirmReceiptForm").ajaxSubmit({
+
+        dataType: 'text',
+        type: 'POST',
+        success: function(data) {
+            console.info(data);
+            var obj=eval("(" + data + ")");
+            if(obj.code==0){
+                alertModal(obj.msg);
+            }else{
+                alertModal(obj.msg);
+                $("#myModal2").modal().hide();
+            }
+        }
+    });*/
+
+
+}
+
+
 
 
 
