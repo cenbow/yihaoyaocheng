@@ -172,10 +172,8 @@ public class OrderExceptionController extends BaseJsonController{
 			orderExceptionDto.setSupplyId(dto.getCustId());
 			orderExceptionDto.setSupplyId(dto.getCustId());
 		}
-		Map<String,Object> map = new HashMap<String,Object>();
-		pagination = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
-		map.put("pagination",pagination);
-		map.put("orderExceptionDto",orderExceptionDto);
+		Map<String,Object> map = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+
 		return map;
 	}
 

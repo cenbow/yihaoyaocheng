@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,8 +141,7 @@ public class OrderExceptionFacadeImpl implements OrderExceptionFacade {
 		return orderExceptionService.findByCount(orderException);
 	}
 
-	public Pagination<OrderExceptionDto> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
-
+	public Map<String,Object> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
 		return orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
 	}

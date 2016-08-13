@@ -138,9 +138,9 @@ function fillTableJson(data) {
 	if(list && list.length>0){
 		for (var i = 0; i < list.length; i++) {
 			var oe = list[i];
-			var operation = typeToOperate(oe.orderSettlementId);
+			var operation = typeToOperate(oe.orderStatusName,oe.exceptionId);
 			var tr = "<tr>";
-			tr += "<td>" + oe.flowId + "</td>";
+			tr += "<td>" + oe.flowId +'<br><a href="'+ctx+'/order/getBuyOrderDetails?flowId='+oe.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">订单详情</a>' + "</td>";
 			tr += "<td>" + oe.createTime + "</td>";
 			tr += "<td>" + oe.custName + "</td>";
 			tr += "<td>" + oe.orderStatusName + "</td>";
@@ -156,12 +156,14 @@ function fillTableJson(data) {
 	$("#orderCount").html(data.pagination.total);
 	$("#orderTotalMoney").html(data.orderExceptionDto.orderMoneyTotal);
 	changeColor();
-	bindOperateBtn();
+	//bindOperateBtn();
 }
 //类型 转换成操作
-function typeToOperate(businessType,confirm,settlementId) {
+function typeToOperate(statusName,exceptionId) {
 	var result = '';
-
+	if(statusName&&statusName=='待确认'){
+		result = '<a href="'+ctx+'/orderException/getRejectOrderDetails/'+exceptionId+'" target="_blank" class="btn btn-info btn-sm editbtn back-detail " data-stmid = "'+exceptionId+'">审核</a>';
+	}
 	return result;
 }
 
@@ -175,8 +177,9 @@ function bindOperateBtn() {
 		//$("#myModalOperate").modal();
 	});
 	$(".back-detail").on("click",function () {
-		var settlementId = $(this).attr("data-stmid");
-
+		var flowId = $(this).attr("data-stmid");
+		alert(flowId);
+		return;
 		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
 
 		$.ajax({
@@ -184,11 +187,7 @@ function bindOperateBtn() {
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
-				$("#myModalDetail .form-group:eq(0) div" ).html(data.settlementMoney+"元")
-				$("#myModalDetail .form-group:eq(1) div" ).html(data.refunSettlementMoney+"元")
-				$("#myModalDetail .form-group:eq(2) div" ).html(data.differentMoney+"元")
-				$("#myModalDetail .form-group:eq(3) div" ).html(data.remark)
-				$("#myModalDetail").modal();
+
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
 				alertModal("退款详情信息错误",function(){

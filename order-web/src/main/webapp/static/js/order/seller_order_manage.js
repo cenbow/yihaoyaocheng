@@ -302,7 +302,7 @@ function sendDeliverysubmit(){
         $("#deliveryExpressNo").val($("#deliveryContactPerson2").val())
     }
     $("#sendform").ajaxSubmit({
-        url :'/order/orderDelivery/sendOrderDelivery',
+        url :ctx+'/order/orderDelivery/sendOrderDelivery',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
