@@ -1286,7 +1286,9 @@ public class OrderService {
 		//TODO 订单记录表
 		insertOrderTrace(order);
 		order.setFinalPay(orderSettlement.getSettlementMoney());
-		order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+		// 2016-8-13修改 收款确认后订单状态为 5-买家已付款
+		// order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+		order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
 		order.setConfirmSettlement("1");
 		order.setSettlementMoney(orderSettlement.getSettlementMoney());
 		order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
