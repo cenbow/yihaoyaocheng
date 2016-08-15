@@ -947,7 +947,6 @@ public class OrderService {
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
 				String now = systemDateMapper.getSystemDate();
-				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
@@ -1076,7 +1075,6 @@ public class OrderService {
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
 				order.setCancelResult(cancelResult);
-				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
