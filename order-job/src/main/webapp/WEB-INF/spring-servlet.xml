@@ -7,7 +7,20 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<context:component-scan base-package="com.yyw.yhyc,com.gangling.scheduler"/>
+	<bean class="com.yyw.yhyc.helper.SpringBeanHelper"/>
 
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<!-- 密钥存放位置，由运维告知 测试 生产环境开启-->
+				<!--<value>file:/etc/dbprivatekey.properties</value>-->
+				<value>classpath*:jdbc.properties</value>
+				<!--<value>classpath*:redis.properties</value>-->
+			</list>
+		</property>
+	</bean>
+
+	<import resource="spring-dataSource.xml"/>
 	<import resource="dubbo-provider.xml"/>
 	<import resource="dubbo-consumer.xml"/>
 

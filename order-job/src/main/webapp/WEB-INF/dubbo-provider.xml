@@ -7,7 +7,7 @@
        http://code.alibabatech.com/schema/dubbo
        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-    <dubbo:service interface="com.yyw.yhyc.order.service.OrderCancelForNoPayJobService" ref="orderCancelForNoPayJobService"/>
-    <dubbo:service interface="com.yyw.yhyc.order.service.OrderCancelForNoDeliveryJobService" ref="orderCancelForNoDeliveryJobService"/>
-    <dubbo:service interface="com.yyw.yhyc.order.service.OrderDoneForDeliveryJobService" ref="orderDoneForDeliveryJobService"/>
+    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoPayJobService" ref="orderCancelForNoPayJobService"/>
+    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoDeliveryJobService" ref="orderCancelForNoDeliveryJobService"/>
+    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService" ref="orderDoneForDeliveryJobService"/>
 </beans>
