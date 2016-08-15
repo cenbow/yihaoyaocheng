@@ -89,6 +89,7 @@
 		<result column="Delay_log" property="delayLog"/>
 		<result column="receive_Type" property="receiveType"/>
 		<result column="pay_type_name" property="payTypeName"/>
+		<result column="pay_type" property="payType"/>
 		<association property="orderDelivery" column="order_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
 		<association property="details" column="order_id"
@@ -203,6 +204,44 @@
 		, bill_type
 		, Delay_log
 		, receive_Type
+	</sql>
+
+
+	<sql id="commonProcessDateOrderColumns">
+		o.order_id
+		, o.flow_id
+		, o.cust_name
+		, o.cust_id
+		, o.supply_name
+		, o.supply_id
+		, o.cancel_result
+		, o.org_total
+		, o.freight
+		, o.order_total
+		, o.final_pay
+		, o.total_count
+		, o.order_status
+		, o.remark
+		, o.leave_message
+		, o.order_combined_id
+		, o.confirm_settlement
+		, o.settlement_money
+		, o.preferential_money
+		, o.preferential_remark
+		, o.pay_status
+		, o.pay_type_id
+		, date_format(o.create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(o.pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, date_format(o.cancel_time, '%Y-%m-%d %H:%i:%s') cancel_time
+		, date_format(o.deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
+		, date_format(o.receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(o.settlement_time, '%Y-%m-%d %H:%i:%s') settlement_time
+		, o.create_user
+		, date_format(o.update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, o.update_user
+		, o.bill_type
+		, o.Delay_log
+		, o.receive_Type
 	</sql>
 	
 	<sql id="commonCondition">
@@ -670,7 +709,9 @@
 
 
 	<select id="getOrderDetails" parameterType="Order"  resultMap="OrderDetailsResultMapper">
-		SELECT s.pay_type_name,o.* from t_order o,t_system_pay_type s
+		SELECT s.pay_type_name,s.pay_type,
+		<include refid="commonProcessDateOrderColumns"/>
+		from t_order o,t_system_pay_type s
 		WHERE o.pay_type_id=s.pay_type_id
 		AND  o.flow_Id=#{flowId}
 		<if test="custId!= null and custId!= ''">

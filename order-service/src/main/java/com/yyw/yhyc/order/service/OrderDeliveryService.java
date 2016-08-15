@@ -28,6 +28,8 @@ import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
 import com.yyw.yhyc.utils.FileUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,9 @@ public class OrderDeliveryService {
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 
 	private String FILE_TEMPLATE_PATH="include/excel/";
+
+	private Log log = LogFactory.getLog(OrderDeliveryService.class);
+
 
 	@Autowired
 	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
@@ -328,7 +333,7 @@ public class OrderDeliveryService {
 					detailMap.put(code,orderDetail.getOrderDetailId());
 					if(orderDetail.getProductCount()!=Integer.parseInt(codeMap.get(code))){
 						errorMap=new HashMap<String, String>();
-						errorMap.put("5",code+"的导入数量不等于采购数量");
+						errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
 						errorList.add(errorMap);
 					}
 				}
@@ -372,7 +377,7 @@ public class OrderDeliveryService {
 		}catch (Exception e){
 			map.put("code", "0");
 			map.put("msg", "Excel读取出错");
-			e.getMessage();
+			log.info(e.getMessage());
 		}
 		return map;
 	}
@@ -439,7 +444,7 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
 				orderDeliveryDetail.setDeliveryStatus(1);
 				orderDeliveryDetail.setBatchNumber(rowMap.get("3"));
-				orderDeliveryDetail.setOrderDetailId(Integer.parseInt(rowMap.get("1")));
+				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
 				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
 				orderDeliveryDetail.setImportFileUrl(excelPath);
 				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());

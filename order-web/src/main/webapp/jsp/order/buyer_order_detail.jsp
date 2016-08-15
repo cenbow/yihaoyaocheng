@@ -45,18 +45,123 @@
                 </div>
             </div>
             <div class="container-fluid progress">
+
+            <c:if test="${orderDetailsDto.payType!=3&&orderDetailsDto.orderStatus==1}">
                 <div class="row progress_bar">
                     <div class="col-xs-3 cur"><span>1</span></div>
-                    <div class="col-xs-3 cur"><span>2</span></div>
-                    <div class="col-xs-3 cur"><span>3</span></div>
+                    <div class="col-xs-3"><span>2</span></div>
+                    <div class="col-xs-3"><span>3</span></div>
                     <div class="col-xs-3"><span>4</span></div>
                 </div>
                 <div class="row progress_num">
+                    <div class="col-xs-3">待付款</div>
                     <div class="col-xs-3">待发货</div>
                     <div class="col-xs-3">待收货</div>
-                    <div class="col-xs-3">拒收中</div>
                     <div class="col-xs-3">已完成</div>
                 </div>
+            </c:if>
+                <c:if test="${orderDetailsDto.payType!=3&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4)}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3"><span>2</span></div>
+                        <div class="col-xs-3"><span>3</span></div>
+                        <div class="col-xs-3"><span>4</span></div>
+                        <div class="col-xs-3 cur"><span>5</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待付款</div>
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">已完成</div>
+                        <div class="col-xs-3">已取消</div>
+                    </div>
+                </c:if>
+                <c:if test="${orderDetailsDto.payType!=3&&orderDetailsDto.orderStatus==9}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3 cur"><span>2</span></div>
+                        <div class="col-xs-3 cur"><span>3</span></div>
+                        <div class="col-xs-3 cur"><span>4</span></div>
+                        <div class="col-xs-3 "><span>5</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待付款</div>
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">拒收中</div>
+                        <div class="col-xs-3">已完成</div>
+                    </div>
+                </c:if>
+                <c:if test="${orderDetailsDto.payType!=3&&orderDetailsDto.orderStatus==10}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3 cur"><span>2</span></div>
+                        <div class="col-xs-3 cur"><span>3</span></div>
+                        <div class="col-xs-3 cur"><span>4</span></div>
+                        <div class="col-xs-3 "><span>5</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待付款</div>
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">补货中</div>
+                        <div class="col-xs-3">已完成</div>
+                    </div>
+                </c:if>
+                <c:if test="${orderDetailsDto.payType==3&&orderDetailsDto.orderStatus==1}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3"><span>2</span></div>
+                        <div class="col-xs-3"><span>3</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">已完成</div>
+                    </div>
+                </c:if>
+                <c:if test="${orderDetailsDto.payType!=1&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4)}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3"><span>2</span></div>
+                        <div class="col-xs-3"><span>3</span></div>
+                        <div class="col-xs-3 cur"><span>4</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">已完成</div>
+                        <div class="col-xs-3">已取消</div>
+                    </div>
+                </c:if>
+                <c:if test="${orderDetailsDto.payType!=1&&orderDetailsDto.orderStatus==9}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3 cur"><span>2</span></div>
+                        <div class="col-xs-3 cur"><span>3</span></div>
+                        <div class="col-xs-3"><span>4</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">拒收中</div>
+                        <div class="col-xs-3">已完成</div>
+                    </div>
+                </c:if>
+                <c:if test="${orderDetailsDto.payType!=1&&orderDetailsDto.orderStatus==10}">
+                    <div class="row progress_bar">
+                        <div class="col-xs-3 cur"><span>1</span></div>
+                        <div class="col-xs-3 cur"><span>2</span></div>
+                        <div class="col-xs-3 cur"><span>3</span></div>
+                        <div class="col-xs-3"><span>4</span></div>
+                    </div>
+                    <div class="row progress_num">
+                        <div class="col-xs-3">待发货</div>
+                        <div class="col-xs-3">待收货</div>
+                        <div class="col-xs-3">补货中</div>
+                        <div class="col-xs-3">已完成</div>
+                    </div>
+                </c:if>
             </div>
         </div>
         <div class="row choseuser margin-t-20 border-gray">
@@ -221,8 +326,8 @@
                     <div class="form-group">
                         <label for="scope" class="col-xs-2 control-label">发票信息:</label>
                         <div class="col-xs-3 control-label text-left">
-                            <c:if test="${orderDetailsDto.payStatus==1}">增值税专用发票</c:if>
-                            <c:if test="${orderDetailsDto.payStatus==2}">增值税普通发票</c:if>
+                            <c:if test="${orderDetailsDto.billType==1}">增值税专用发票</c:if>
+                            <c:if test="${orderDetailsDto.billType==2}">增值税普通发票</c:if>
                         </div>
                     </div>
                 </div>
@@ -392,6 +497,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 </body>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
