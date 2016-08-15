@@ -14,7 +14,7 @@
     );
 })($);
 
-
+/* 选择收货地址 */
 function changeReceiveAddress(id){
     $(id).click(function(){
         $(''+id+' b').hide();
@@ -28,6 +28,8 @@ function changeReceiveAddress(id){
         $(_node).val(_value)
     })
 }
+
+/* 选择发票类型 */
 function changeBillType(id,_node){
     $(id).click(function(){
         $(''+id+' b').hide();
@@ -44,16 +46,27 @@ function changeBillType(id,_node){
 
 
 
-
-
 //检查订单页
 (function($){
+
     /* 选择收货地址 */
     changeReceiveAddress('.goi-con li');
 
     /* 选择发票类型 */
     changeBillType('.goi-con-bill li');
-    
+
+    /* 支付方式单选按钮 */
+    $('.radio-select label').click(function(){
+        $('.radio-skin').removeClass('radio-skin-selected');
+        $(this).find('i:first').addClass('radio-skin-selected');
+        var  _supplyId = $(this).find('i:first').attr("supplyId");
+        var _payTypeId = $(this).find('i:first').attr("payTypeId");
+        var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
+        $(_supplyPayTypeId).val(_payTypeId);
+    })
+
+
+
     //查看更多
     var extend = true, $table = $('.common-table'),
         $showtr = $table.find('tr').eq(0).height()+$table.find('tr').eq(1).height();
