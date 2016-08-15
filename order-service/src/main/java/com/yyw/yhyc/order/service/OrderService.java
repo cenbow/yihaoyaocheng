@@ -796,7 +796,7 @@ public class OrderService {
                 //if(!UtilHelper.isEmpty(od.getOrderTotal()))
                 //    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 				//在线支付 + 未付款订单
-				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
 						if(time > 0){
@@ -814,7 +814,7 @@ public class OrderService {
 
 				}
 				//卖家已发货
-				if(!UtilHelper.isEmpty(od.getNowTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getDeliverTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
 						if(time > 0){
