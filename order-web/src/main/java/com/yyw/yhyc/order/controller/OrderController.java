@@ -235,6 +235,8 @@ public class OrderController extends BaseJsonController {
 			orderDto = new OrderDto();
 			Order order = orderFacade.getByPK(Integer.valueOf(orderId));
 			orderDto.setOrderId(order.getOrderId());
+			orderDto.setCustId(order.getCustId());
+			orderDto.setSupplyId(order.getSupplyId());
 			orderDto.setFlowId(order.getFlowId());
 			orderDto.setSupplyName(order.getSupplyName());
 			orderDto.setOrderTotal(order.getOrderTotal());
@@ -244,7 +246,7 @@ public class OrderController extends BaseJsonController {
 			orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
 			orderDtoList.add(orderDto);
 			if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
-				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getSettlementMoney());
 			}
 		}
 
@@ -295,7 +297,6 @@ public class OrderController extends BaseJsonController {
     @RequestMapping(value = {"", "/listPgBuyerOrder"}, method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> listPgBuyerOrder(@RequestBody RequestModel<OrderDto> requestModel){
-		// TODO: 2016/8/1 需要从usercontex获取登录用户id
         /**
 		 * http://localhost:8088/order/listPgBuyerOrder
          * {"pageSize":2,"pageNo":2,"param":{"custId":1,"flowId":"1","payType":1,"supplyName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1"}}
@@ -307,7 +308,7 @@ public class OrderController extends BaseJsonController {
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
-        return orderFacade.listPgBuyerOrder(pagination, orderDto);
+        return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
 	/**
@@ -317,12 +318,11 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/buyerCancelOrder/{orderId}", method = RequestMethod.GET)
 	@ResponseBody
 	public void buyerCancelOrder(@PathVariable("orderId") Integer orderId){
-		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		UserDto userDto = super.getLoginUser();
-		orderFacade.buyerCancelOrder(userDto, orderId);
+		orderService.updateOrderStatusForBuyer(userDto, orderId);
 	}
 
 	/**
@@ -332,7 +332,6 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = {"", "/listPgSellerOrder"}, method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> listPgSellerOrder(@RequestBody RequestModel<OrderDto> requestModel){
-		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
 		 * http://localhost:8088/order/listPgSellerOrder
 		 * {"pageSize":2,"pageNo":2,"param":{"supplyId":1,"flowId":"1","payType":1,"custName":"上","createBeginTime":"2016-01-02","createEndTime":"2016-8-20","orderStatus":"1","province":"","city":"","district":""}}
@@ -344,7 +343,7 @@ public class OrderController extends BaseJsonController {
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
-		return orderFacade.listPgSellerOrder(pagination, orderDto);
+		return orderService.listPgSellerOrder(pagination, orderDto);
 	}
 
 	/**
@@ -354,13 +353,12 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
 	@ResponseBody
 	public void sellerCancelOrder(@RequestBody Order order){
-		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		/**
 		 *  http://localhost:8088/order/sellerCancelOrder
 		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
 		 */
 		UserDto userDto = super.getLoginUser();
-		orderFacade.sellerCancelOrder(userDto, order.getOrderId(), order.getCancelResult());
+		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
 	}
 
 	/**

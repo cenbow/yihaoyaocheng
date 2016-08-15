@@ -22,12 +22,12 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        User u = (User) request.getAttribute("loginUser");
+        /*User u = (User) request.getAttribute("loginUser");
         if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getAttribute(UserDto.REQUEST_KEY))){
             UserDto userDto = new UserDto();
-            userDto.setUserName(u.getUsername());
-            userDto.setCustId(u.getEnterprise_id());
-            userDto.setCustName(u.getEnterprise_id().toString());
+            userDto.setUserName("压索");
+            userDto.setCustId(123);
+            userDto.setCustName("哈塞");
 
             CustTypeEnum custTypeEnum = null;
             switch (u.getRole_id()){
@@ -49,8 +49,15 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
             request.setAttribute(UserDto.REQUEST_KEY, userDto);
 
             log.info("userDto-->" + userDto.toString());
-        }
+        }*/
 
+        UserDto userDto = new UserDto();
+        userDto.setUserName("压索");
+        userDto.setCustId(322);
+        userDto.setCustName("哈塞");
+        request.setAttribute(UserDto.REQUEST_KEY, userDto);
+
+        log.info("userDto-->" + userDto.toString());
         return true;
     }
 

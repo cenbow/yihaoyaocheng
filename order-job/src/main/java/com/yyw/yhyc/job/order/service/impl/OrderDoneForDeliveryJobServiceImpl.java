@@ -1,13 +1,13 @@
-package com.yyw.yhyc.order.service.impl;
+package com.yyw.yhyc.job.order.service.impl;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.gangling.scheduler.AbstractJob;
 import com.gangling.scheduler.ExecResult;
 import com.gangling.scheduler.JobExecContext;
-import com.yyw.yhyc.order.facade.OrderFacade;
-import com.yyw.yhyc.order.service.OrderDoneForDeliveryJobService;
+import com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService;
+import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 public class OrderDoneForDeliveryJobServiceImpl extends AbstractJob implements OrderDoneForDeliveryJobService {
     private static final Logger logger = LoggerFactory.getLogger(OrderDoneForDeliveryJobServiceImpl.class);
 
-    @Reference
-    private OrderFacade orderFacade;
+    @Autowired
+    private OrderService orderService;
 
     /**
      * 系统自动确认收货
@@ -27,7 +27,7 @@ public class OrderDoneForDeliveryJobServiceImpl extends AbstractJob implements O
     @Override
     protected ExecResult doTask(JobExecContext jobExecContext) {
         try {
-            orderFacade.doneOrderForDelivery();
+            orderService.updateDoneOrderForDelivery();
             return new ExecResult(0, "succeed!");
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);

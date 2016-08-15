@@ -40,8 +40,8 @@
 	</resultMap>
 
 	<resultMap type="ShoppingCartListDto" id="ShoppingCartListDtoResultMapper">
-		<association property="buyer" column="CUST_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByPK"/>
-		<association property="seller" column="SUPPLY_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByPK"/>
+		<association property="buyer" column="CUST_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"/>
+		<association property="seller" column="SUPPLY_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"/>
 		<collection property="shoppingCartDtoList" javaType="ArrayList" ofType="ShoppingCartDto"
 					column="{custId=CUST_ID,supplyId=SUPPLY_ID}"
 					select="com.yyw.yhyc.order.mapper.ShoppingCartMapper.listShoppingCartDtoByProperty"/>

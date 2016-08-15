@@ -20,8 +20,10 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderSettlementFacade;
+import com.yyw.yhyc.order.service.OrderSettlementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -36,6 +38,9 @@ public class OrderSettlementController extends BaseJsonController {
 
 	@Reference
 	private OrderSettlementFacade orderSettlementFacade;
+
+	@Autowired
+	private OrderSettlementService orderSettlementService;
 
 	/**
 	* 通过主键查询实体对象
@@ -119,14 +124,13 @@ public class OrderSettlementController extends BaseJsonController {
 	public OrderSettlement refundSettlement(@RequestBody OrderSettlement orderSettlement) throws Exception
 	{
 
-		// TODO: 2016/8/3  需获取登录用户信息
 		/**
 		 * {"orderSettlementId":1,"supplyId":512,"updateUser":"zhangba","remark":"苟利国家生死以","refunSettlementMoney":998.222}
 		 */
 		UserDto userDto = super.getLoginUser();
 		orderSettlement.setSupplyId(userDto.getCustId());
 		orderSettlement.setUpdateUser(userDto.getUserName());
-		orderSettlementFacade.refundSettlement(orderSettlement);
+		orderSettlementService.updateRefundSettlement(orderSettlement);
 		return  orderSettlement;
 	}
 	/**

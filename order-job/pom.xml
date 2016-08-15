@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>com.yyw.yhyc</groupId>
-            <artifactId>order-api</artifactId>
+            <artifactId>order-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -23,11 +23,6 @@
             <groupId>com.gangling.scheduler</groupId>
             <artifactId>scheduler-interface</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.8.0</version>
         </dependency>
 
         <!-- spring start -->

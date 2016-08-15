@@ -114,7 +114,7 @@ function doRefreshData(requestParam) {
             var nowpage = data.sellerOrderList.pageNo;
             var totalCount = data.sellerOrderList.total;
             dataList = data.sellerOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
             $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
@@ -172,11 +172,11 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td>" + order.flowId + "<br/><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='btn btn-info btn-sm margin-r-10' target='_blank'>订单详情</a></td>";
+        tr += "<td>" + order.flowId + "<br/><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + fmoney(order.orderTotal,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
         tr += "</tr>";
         trs += tr;
@@ -205,7 +205,7 @@ function typeToOperate(order) {
 
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 3) {//线下支付+买家已下单
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
-        result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">收款确认</a>';
+        result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">收款确认</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 3) {//线下支付+买家已付款
         result += '<a href="javascript:sendDelivery(' + order.orderId + ')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
@@ -406,4 +406,18 @@ function format(date){
     var month  = date.getMonth()+1;
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
+}
+
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
 }

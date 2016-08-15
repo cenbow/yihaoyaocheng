@@ -114,7 +114,7 @@ function doRefreshData(requestParam) {
             var nowpage = data.buyerOrderList.pageNo;
             var totalCount = data.buyerOrderList.total;
             dataList = data.buyerOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
             $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
@@ -172,11 +172,11 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td>" + order.flowId + "<br/><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='btn btn-info btn-sm margin-r-10' target='_blank'>订单详情</a></td>";
+        tr += "<td>" + order.flowId + "<br/><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='btn btn-info btn-sm margin-r-10' >订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + fmoney(order.orderTotal,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
         tr += "</tr>";
         trs += tr;
@@ -460,6 +460,19 @@ function confirmReceipt(){
 
 }
 
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
+}
 
 
 
