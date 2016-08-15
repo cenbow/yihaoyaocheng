@@ -143,7 +143,7 @@
                                                 <div class="tips-frame tc">
                                                     <i class="common-icon frame-icon"></i>
                                                     <p>
-                                                      <a href="<%=request.getContextPath()%>/order/accountPayInfo/getByCustId/${userDto.custId}" target="_blank" class="blue">点击查看收款账户信息</a>
+                                                      <a href="<%=request.getContextPath()%>/order/accountPayInfo/getByCustId/${shoppingCart.seller.enterpriseId}" target="_blank" class="blue">点击查看收款账户信息</a>
                                                     </p>
                                               </div>
                                             </i>

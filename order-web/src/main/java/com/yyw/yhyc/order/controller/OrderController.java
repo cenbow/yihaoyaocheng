@@ -235,6 +235,8 @@ public class OrderController extends BaseJsonController {
 			orderDto = new OrderDto();
 			Order order = orderFacade.getByPK(Integer.valueOf(orderId));
 			orderDto.setOrderId(order.getOrderId());
+			orderDto.setCustId(order.getCustId());
+			orderDto.setSupplyId(order.getSupplyId());
 			orderDto.setFlowId(order.getFlowId());
 			orderDto.setSupplyName(order.getSupplyName());
 			orderDto.setOrderTotal(order.getOrderTotal());
