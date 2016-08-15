@@ -103,6 +103,28 @@
 		, return_desc
 	</sql>
 
+	<sql id="T1commonProcessDateColumns">
+		T1.exception_id
+		, T1.return_type
+		, T1.exception_order_id
+		, T1.order_id
+		, T1.flow_id
+		, T1.order_status
+		, T1.cust_name
+		, T1.cust_id
+		, T1.supply_name
+		, T1.supply_id
+		, T1.remark
+		, T1.order_money_total
+		, T1.order_money
+		, T1.create_user
+		, date_format(T1.create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, T1.update_user
+		, date_format(T1.update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, date_format(T1.order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
+		, T1.return_desc
+	</sql>
+
 	<sql id="commonCondition">
 		<if test="exceptionId!= null and exceptionId!= ''">
 			AND exception_id=#{exceptionId}
@@ -284,7 +306,7 @@
 	</resultMap>
 	<select id="listPaginationBuyerRejectOrder" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap">
 		SELECT
-			T1.*, T3.PAY_TYPE,
+		<include refid="T1commonProcessDateColumns"/>, T3.PAY_TYPE,
 			T3.PAY_TYPE_NAME
 		FROM
 			T_ORDER_EXCEPTION T1

@@ -120,58 +120,17 @@
                         <label for="scope" class="col-xs-2 control-label">支付方式</label>
 
                         <div class="col-xs-3 control-label text-left">${orderDetailsDto.payTypeName}</div>
+                        <label for="scope" class="col-xs-2 control-label">发票信息:</label>
+                        <div class="col-xs-3 control-label text-left">
+                            <c:if test="${orderDetailsDto.billType==1}">增值税专用发票</c:if>
+                            <c:if test="${orderDetailsDto.billType==2}">增值税普通发票</c:if>
+                        </div>
+
+                    </div>
+                    <div class="form-group">
                         <label for="scope" class="col-xs-2 control-label">下单时间</label>
 
                         <div class="col-xs-3 control-label text-left">${orderDetailsDto.createTime}</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">付款时间</label>
-
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.payTime}</div>
-                        <label for="scope" class="col-xs-2 control-label">收款确认时间</label>
-
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.payTime}<a
-                                class="undeline margin-l-10 gathering">收款详情</a></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">发货时间</label>
-
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.deliverTime}</div>
-                        <label for="scope" class="col-xs-2 control-label">延期收货时间</label>
-
-                        <div class="col-xs-3 control-label text-left">
-                            <p>${orderDetailsDto.delayLog}</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">确认收货时间</label>
-
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.receiveTime}</div>
-                        <label for="scope" class="col-xs-2 control-label">确认收货类型</label>
-
-                        <div class="col-xs-3 control-label text-left">
-                            <c:if test="${orderDetailsDto.receiveType!=null&&orderDetailsDto.receiveType == 1}">
-                                买家确认收货
-                            </c:if>
-                            <c:if test="${orderDetailsDto.receiveType!=null&&orderDetailsDto.receiveType == 2}">
-                                系统确认收货
-                            </c:if>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">取消订单时间</label>
-
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.cancelTime}</div>
-                        <label for="scope" class="col-xs-2 control-label">取消原因</label>
-
-                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.cancelResult}</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">备注</label>
-
-                        <div class="col-xs-8 control-label text-left">${orderDetailsDto.remark}</div>
-                    </div>
-                    <div class="form-group">
                         <label for="scope" class="col-xs-2 control-label">买家留言</label>
 
                         <div class="col-xs-8 control-label text-left">${orderDetailsDto.leaveMessage}</div>
@@ -199,8 +158,6 @@
                             <th>单价</th>
                             <th>数量</th>
                             <th>金额</th>
-                            <th>确认收货数量</th>
-                            <th>确认收货金额</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -228,8 +185,6 @@
                                         <td>￥ ${details.productPrice}</td>
                                         <td>x${details.productCount}</td>
                                         <td>￥ ${details.productPrice * details.productCount}</td>
-                                        <td>x ${details.recieveCount}</td>
-                                        <td>￥ ${details.productPrice * details.recieveCount}</td>
                                     </tr>
                                 </c:forEach>
                             </c:when>
@@ -237,7 +192,6 @@
                         <%--遍历该供应商的商品信息  结束--%>
                         </tbody>
                     </table>
-                    <div><a class="undeline lookgoodlist">查看收货商品清单</a></div>
                     <div class="text-right">
                         <p>商品金额：${orderDetailsDto.orderTotal}元
 
@@ -259,22 +213,6 @@
 
                         <p>
                     </div>
-                    <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
-                            href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)" class="pager_item">1</a><a
-                            href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
-                                                                                 class="pager_item active">3</a><a
-                            href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
-                                                                                 class="pager_item">5</a><a
-                            href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
-                                                                                 class="pager_item">7</a><a
-                            href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
-                            href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)" class="pager_next">下一页</a><span
-                            class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
-                                                                                                              name="page"
-                                                                                                              class="input_item input_item_shortest page-num"
-                                                                                                              autocomplete="off"
-                                                                                                              id="page-num0">页</span><a
-                            href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label></div>
                 </div>
             </div>
 
@@ -310,82 +248,6 @@
 
                         <div class="col-xs-5 control-label text-left">${orderDetailsDto.remark}</div>
                     </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width: 1000px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
-            </div>
-            <div class="modal-body">
-                <table class="table table-box">
-                    <colgroup>
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                    </colgroup>
-                    <thead>
-                    <tr>
-                        <th>订单行号</th>
-                        <th>商品编码</th>
-                        <th>批号</th>
-                        <th>商品名</th>
-                        <th>通用名</th>
-                        <th>规格</th>
-                        <th>剂型</th>
-                        <th>生产企业</th>
-                        <th>采购数量</th>
-                        <th>收货数量</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>1000000000007</td>
-                        <td>p123456789</td>
-                        <td>0253265</td>
-                        <td>葵花牌葵花牌葵</td>
-                        <td>小儿感冒颗粒</td>
-                        <td>10gx10包</td>
-                        <td>颗粒剂</td>
-                        <td>黑龙江哈药六盘...</td>
-                        <td>10</td>
-                        <td>10</td>
-                    </tr>
-                    </tbody>
-                </table>
-                <div class="pager" id="J_pager" current="3" total="20" url="http://www.baidu.com"><a
-                        href="javascript:void(0)" class="pager_prev">上一页</a><a href="javascript:void(0)"
-                                                                               class="pager_item">1</a><a
-                        href="javascript:void(0)" class="pager_item">2</a><a href="javascript:void(0)"
-                                                                             class="pager_item active">3</a><a
-                        href="javascript:void(0)" class="pager_item">4</a><a href="javascript:void(0)"
-                                                                             class="pager_item">5</a><a
-                        href="javascript:void(0)" class="pager_item">6</a><a href="javascript:void(0)"
-                                                                             class="pager_item">7</a><a
-                        href="javascript:void(0)" class="pager_item">8</a><span class="pager_dot">...</span><a
-                        href="javascript:void(0)" class="pager_item">20</a><a href="javascript:void(0)"
-                                                                              class="pager_next">下一页</a><span
-                        class="page_total">共<em>20</em>页</span><label class="form_pageJump"><span>到<input type="text"
-                                                                                                          name="page"
-                                                                                                          class="input_item input_item_shortest page-num"
-                                                                                                          autocomplete="off"
-                                                                                                          id="page-num0">页</span><a
-                        href="javascript:void(0)" class="btn_blue btn_submit" data-form-button="submit">确定</a></label>
                 </div>
             </div>
             <div class="modal-footer">
