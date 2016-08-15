@@ -2,23 +2,6 @@
  * Created by lizhou on 2016/8/5.
  */
 
-/**
- * 获取检查订单页数据
- */
-function checkOrderPage(){
-    $.ajax({
-        "url" : ctx + "/order/checkOrder",
-        "type":"post",
-        "dataType" : "json",
-        success:function(data){
-            alert("创建订单成功！");
-        },
-        error:function (data) {
-            alert("创建订单失败！");
-        }
-    });
-}
-
 //支付方式单选按钮
 function selectPayTypeId(_supplyId,_payTypeId){
     var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
@@ -112,14 +95,31 @@ function createOrder(){
     // });
 
     $("#createOrderForm").attr({"action": ctx + "/order/createOrder"});
-    $("#createOrderForm").ajaxSubmit(function(resultJson) {
-        var _targetUrl = ctx + resultJson;
-        // window.open(_targetUrl,'_self');
+    $("#createOrderForm").ajaxSubmit(function(_resultJsonObj) {
+        console.info("_resultJsonObj=" + _resultJsonObj +",_resultJsonObj.url=" + _resultJsonObj.url);
+
+        if(_resultJsonObj.message != null && _resultJsonObj.message != "" && typeof _resultJsonObj.url != "undefined"){
+            console.info(_resultJsonObj.message );
+            alert("服务器异常!");
+        }
+
+        try{
+            if(_resultJsonObj.url == null || "" == _resultJsonObj.url || typeof _resultJsonObj.url == "undefined"){
+                console.info();
+                alert("服务器异常!");
+            }
+
+            /* 由于Java 后端代码使用登录拦截器，若登录拦截器异常，则返回的 _resultJsonObj 变量 是 登录页面的html代码 。所以此处校验返回的url是否为创建订单页的url */
+            var existUrlStr = _resultJsonObj.url.indexOf("/order/createOrderSuccess?orderIds=") != -1;
+            console.info("existUrlStr = " + existUrlStr);
+            if( existUrlStr ){
+                window.location.href = ctx + _resultJsonObj.url;
+            }
+        }catch (e){
+            console.info(e.name + ": " + e.message);
+            alert("服务器异常!");
+        }
         
-        window.opener=null;window.open('','_self');window.close();
-        window.open(_targetUrl,'_self');
-        // window.history.forward(1);
-        // window.location.href = _targetUrl;  
     });
     
 }
