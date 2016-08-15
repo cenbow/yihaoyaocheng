@@ -708,8 +708,6 @@ public class OrderService {
 			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
 				BigDecimal count=new BigDecimal(detail.getRecieveCount());
 				total=total.add(detail.getProductPrice().multiply(count));
-			}else {
-				total=total.add(detail.getProductPrice().multiply(proudcutCount));
 			}
 			productTotal=productTotal.add(detail.getProductPrice().multiply(proudcutCount));
 		}

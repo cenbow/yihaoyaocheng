@@ -206,6 +206,8 @@ public class OrderDeliveryDetailService {
 			returnMap.put("code","0");
 			returnMap.put("msg","参数不能为空");
 			return returnMap;
+		}else{
+			flowId=list.get(0).getFlowId();
 		}
 
 		//统计退款总金额
