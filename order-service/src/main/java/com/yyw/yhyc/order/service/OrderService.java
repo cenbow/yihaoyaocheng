@@ -796,7 +796,7 @@ public class OrderService {
                 //if(!UtilHelper.isEmpty(od.getOrderTotal()))
                 //    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 				//在线支付 + 未付款订单
-				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
 						if(time > 0){
@@ -814,7 +814,7 @@ public class OrderService {
 
 				}
 				//卖家已发货
-				if(!UtilHelper.isEmpty(od.getNowTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getDeliverTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
 						if(time > 0){
@@ -947,7 +947,6 @@ public class OrderService {
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
 				String now = systemDateMapper.getSystemDate();
-				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
@@ -1076,7 +1075,6 @@ public class OrderService {
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
 				order.setCancelResult(cancelResult);
-				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
