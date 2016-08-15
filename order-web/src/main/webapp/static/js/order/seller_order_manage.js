@@ -114,7 +114,7 @@ function doRefreshData(requestParam) {
             var nowpage = data.sellerOrderList.pageNo;
             var totalCount = data.sellerOrderList.total;
             dataList = data.sellerOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
             $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
@@ -176,7 +176,7 @@ function fillTableJson(data) {
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + fmoney(order.orderTotal,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
         tr += "</tr>";
         trs += tr;
@@ -383,4 +383,18 @@ function format(date){
     var month  = date.getMonth()+1;
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
+}
+
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
 }
