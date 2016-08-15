@@ -1169,7 +1169,6 @@ public class OrderService {
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {
 			String orderStatusName="未知类型";
-			String billTypeName="未知类型";
 			if(!UtilHelper.isEmpty(order.getOrderStatus()) && !UtilHelper.isEmpty(order.getPayType())){
 				//卖家视角订单状态
 				sellerOrderStatusEnum = getSellerOrderStatus(order.getOrderStatus(), order.getPayType());
@@ -1177,14 +1176,7 @@ public class OrderService {
 					orderStatusName=sellerOrderStatusEnum.getValue();
 				}
 			}
-			if(!UtilHelper.isEmpty(order.getBillType())){
-				if(order.getBillType()==1){
-					billTypeName="增值税专用发票";
-				}else if(order.getBillType()==2){
-					billTypeName="增值税普通发票";
-				}
-			}
-			dataset.add(new Object[]{"下单时间styleColor",order.getCreateTime(),"订单号styleColor",order.getFlowId(),"订单状态styleColor",orderStatusName,"发票类型styleColor",billTypeName});
+			dataset.add(new Object[]{"下单时间styleColor",order.getCreateTime(),"订单号styleColor",order.getFlowId(),"订单状态styleColor",orderStatusName,"发票类型styleColor",BillTypeEnum.getBillTypeName(order.getBillType())});
 			dataset.add(new Object[]{"采购商styleColor",order.getCustName(),"收货人styleColor",order.getOrderDelivery().getReceivePerson(),"收货地址styleColor",order.getOrderDelivery().getReceiveAddress(),"联系方式styleColor",order.getOrderDelivery().getReceiveContactPhone()});
 			dataset.add(new Object[]{"商品编码styleColor","品名styleColor","规格styleColor","厂商styleColor","单价（元）styleColor","数量styleColor","金额（元）styleColor","促销信息styleColor"});
 			Double productTotal=0d;
