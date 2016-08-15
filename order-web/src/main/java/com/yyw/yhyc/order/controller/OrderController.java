@@ -244,7 +244,7 @@ public class OrderController extends BaseJsonController {
 			orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
 			orderDtoList.add(orderDto);
 			if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
-				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getFinalPay());
+				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getSettlementMoney());
 			}
 		}
 
