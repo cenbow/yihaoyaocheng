@@ -306,7 +306,7 @@ public class OrderController extends BaseJsonController {
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
-        return orderFacade.listPgBuyerOrder(pagination, orderDto);
+        return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
 	/**
@@ -320,7 +320,7 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		UserDto userDto = super.getLoginUser();
-		orderFacade.buyerCancelOrder(userDto, orderId);
+		orderService.updateOrderStatusForBuyer(userDto, orderId);
 	}
 
 	/**
@@ -341,7 +341,7 @@ public class OrderController extends BaseJsonController {
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
-		return orderFacade.listPgSellerOrder(pagination, orderDto);
+		return orderService.listPgSellerOrder(pagination, orderDto);
 	}
 
 	/**
@@ -356,7 +356,7 @@ public class OrderController extends BaseJsonController {
 		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
 		 */
 		UserDto userDto = super.getLoginUser();
-		orderFacade.sellerCancelOrder(userDto, order.getOrderId(), order.getCancelResult());
+		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
 	}
 
 	/**
