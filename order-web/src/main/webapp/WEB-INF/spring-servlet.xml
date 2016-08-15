@@ -50,14 +50,13 @@
 
 	<!-- mvc 拦截器 -->
 	<mvc:interceptors>
-		<!--&lt;!&ndash; 登录拦截 &ndash;&gt;
+		<!-- 登录拦截 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
 		</mvc:interceptor>
 
-		&lt;!&ndash; 获取用户信息 &ndash;&gt;
-		-->
+		<!-- 获取用户信息 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<ref bean="getUserInteceptor"/>
