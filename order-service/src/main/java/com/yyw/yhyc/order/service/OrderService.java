@@ -947,6 +947,8 @@ public class OrderService {
 				String now = systemDateMapper.getSystemDate();
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
+				order.setCancelTime(now);
+				order.setCancelResult("买家主动取消");
 				int count = orderMapper.update(order);
 				if(count == 0){
 					log.error("order info :"+order);
@@ -1072,9 +1074,11 @@ public class OrderService {
 			if((SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()) ) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())){//已下单订单+买家已付款订单
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
-				order.setCancelResult(cancelResult);
+				order.setCancelResult("卖家取消");
+				order.setRemark(cancelResult);
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
+				order.setCancelTime(now);
 				int count = orderMapper.update(order);
 				if(count == 0){
 					log.error("order info :"+order);

@@ -540,8 +540,12 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		WHERE
 		T1.CUST_ID = #{custId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -571,8 +575,12 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		WHERE
 		T1.CUST_ID = #{custId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -642,8 +650,12 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		WHERE
 		T1.CUST_ID = #{custId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -734,8 +746,12 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -776,8 +792,12 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -858,8 +878,12 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -948,8 +972,12 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
