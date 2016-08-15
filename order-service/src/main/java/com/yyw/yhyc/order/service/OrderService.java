@@ -796,7 +796,7 @@ public class OrderService {
                 //if(!UtilHelper.isEmpty(od.getOrderTotal()))
                 //    orderTotalMoney = orderTotalMoney.add(od.getOrderTotal());
 				//在线支付 + 未付款订单
-				if(!UtilHelper.isEmpty(od.getNowTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && 1 == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
 						if(time > 0){
@@ -814,7 +814,7 @@ public class OrderService {
 
 				}
 				//卖家已发货
-				if(!UtilHelper.isEmpty(od.getNowTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getDeliverTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
 						if(time > 0){
@@ -947,7 +947,6 @@ public class OrderService {
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
 				String now = systemDateMapper.getSystemDate();
-				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
@@ -1076,7 +1075,6 @@ public class OrderService {
 				order.setOrderStatus(SystemOrderStatusEnum.SellerCanceled.getType());//标记订单为卖家取消状态
 				String now = systemDateMapper.getSystemDate();
 				order.setCancelResult(cancelResult);
-				// TODO: 2016/8/1 需获取登录用户信息
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				int count = orderMapper.update(order);
@@ -1169,7 +1167,6 @@ public class OrderService {
 		SellerOrderStatusEnum sellerOrderStatusEnum;
 		for(OrderDto order:list) {
 			String orderStatusName="未知类型";
-			String billTypeName="未知类型";
 			if(!UtilHelper.isEmpty(order.getOrderStatus()) && !UtilHelper.isEmpty(order.getPayType())){
 				//卖家视角订单状态
 				sellerOrderStatusEnum = getSellerOrderStatus(order.getOrderStatus(), order.getPayType());
@@ -1177,14 +1174,7 @@ public class OrderService {
 					orderStatusName=sellerOrderStatusEnum.getValue();
 				}
 			}
-			if(!UtilHelper.isEmpty(order.getBillType())){
-				if(order.getBillType()==1){
-					billTypeName="增值税专用发票";
-				}else if(order.getBillType()==2){
-					billTypeName="增值税普通发票";
-				}
-			}
-			dataset.add(new Object[]{"下单时间styleColor",order.getCreateTime(),"订单号styleColor",order.getFlowId(),"订单状态styleColor",orderStatusName,"发票类型styleColor",billTypeName});
+			dataset.add(new Object[]{"下单时间styleColor",order.getCreateTime(),"订单号styleColor",order.getFlowId(),"订单状态styleColor",orderStatusName,"发票类型styleColor",BillTypeEnum.getBillTypeName(order.getBillType())});
 			dataset.add(new Object[]{"采购商styleColor",order.getCustName(),"收货人styleColor",order.getOrderDelivery().getReceivePerson(),"收货地址styleColor",order.getOrderDelivery().getReceiveAddress(),"联系方式styleColor",order.getOrderDelivery().getReceiveContactPhone()});
 			dataset.add(new Object[]{"商品编码styleColor","品名styleColor","规格styleColor","厂商styleColor","单价（元）styleColor","数量styleColor","金额（元）styleColor","促销信息styleColor"});
 			Double productTotal=0d;
