@@ -1,17 +1,6 @@
 /**
- * Created by lizhou on 2016/8/5.
+ * Created by lizhou on 2016/8/5
  */
-
-//支付方式单选按钮
-function selectPayTypeId(_supplyId,_payTypeId){
-    var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
-    $(_supplyPayTypeId).val(_payTypeId);
-
-    $('.radio-select label').click(function(){
-        $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
-        $(this).find('i:first').addClass('radio-skin-selected');
-    })
-}
 
 /**
  *   发送创建订单请求
