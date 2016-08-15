@@ -1,13 +1,13 @@
-package com.yyw.yhyc.order.service.impl;
+package com.yyw.yhyc.job.order.service.impl;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.gangling.scheduler.AbstractJob;
 import com.gangling.scheduler.ExecResult;
 import com.gangling.scheduler.JobExecContext;
-import com.yyw.yhyc.order.facade.OrderFacade;
-import com.yyw.yhyc.order.service.OrderCancelForNoPayJobService;
+import com.yyw.yhyc.job.order.service.OrderCancelForNoPayJobService;
+import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 public class OrderCancelForNoPayJobServiceImpl extends AbstractJob implements OrderCancelForNoPayJobService {
     private static final Logger logger = LoggerFactory.getLogger(OrderCancelForNoPayJobServiceImpl.class);
 
-    @Reference
-    private OrderFacade orderFacade;
+    @Autowired
+    private OrderService orderService;
 
     /**
      * 系统自动取消订单
@@ -28,7 +28,7 @@ public class OrderCancelForNoPayJobServiceImpl extends AbstractJob implements Or
     @Override
     protected ExecResult doTask(JobExecContext jobExecContext) {
         try {
-            orderFacade.cancelOrderForNoPay();
+            orderService.updateCancelOrderForNoPay();
             return new ExecResult(0, "succeed!");
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);
