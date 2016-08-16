@@ -231,6 +231,60 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
 	}
+
+	/**
+	 * 买家补货订单管理
+	 * @return
+     */
+	@RequestMapping("/buyerReplenishmentOrderManage")
+	public ModelAndView buyerReplenishmentOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/buyer_replenishment_order_manage");
+		return view;
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgBuyerReplenishmentOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgBuyerReplenishmentOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgBuyerReplenishmentOrder(pagination, orderDto);
+	}
+
+
+	@RequestMapping("/BuyerChangeGoodsOrderManage")
+	public ModelAndView buyerChangeGoodsOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/buyer_change_order_manage");
+		return view;
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/listPgBuyerChangeGoodsOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgBuyerChangeGoodsOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		//UserDto userDto = super.getLoginUser();
+		if(orderDto==null){
+			orderDto=new OrderExceptionDto();
+		}
+		orderDto.setCustId(333);
+		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
+	}
 }
 
 

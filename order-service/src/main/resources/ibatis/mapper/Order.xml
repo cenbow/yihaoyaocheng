@@ -51,6 +51,7 @@
 		<result column="bill_type" property="billType"/>
 		<result column="Delay_log" property="delayLog"/>
 		<result column="receive_Type" property="receiveType"/>
+		<result column="payment_term_status" property="paymentTermStatus"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -89,6 +90,7 @@
 		<result column="Delay_log" property="delayLog"/>
 		<result column="receive_Type" property="receiveType"/>
 		<result column="pay_type_name" property="payTypeName"/>
+		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="pay_type" property="payType"/>
 		<association property="orderDelivery" column="order_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
@@ -131,6 +133,7 @@
 		, bill_type
 		, Delay_log
 		, receive_Type
+		, payment_term_status
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -167,6 +170,7 @@
 				, bill_type
 				, Delay_log
 				, receive_Type
+				, payment_term_status
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -204,6 +208,7 @@
 		, bill_type
 		, Delay_log
 		, receive_Type
+		, payment_term_status
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -241,6 +246,7 @@
 		, T1.bill_type
 		, T1.Delay_log
 		, T1.receive_Type
+		, T1.payment_term_status
 	</sql>
 
 
@@ -279,6 +285,7 @@
 		, o.bill_type
 		, o.Delay_log
 		, o.receive_Type
+		, o.payment_term_status
 	</sql>
 	
 	<sql id="commonCondition">
@@ -384,6 +391,9 @@
 		<if test="receiveType!= null and receiveType!= ''"> 
 			AND receive_Type=#{receiveType}
 		</if>
+		<if test="paymentTermStatus!= null and paymentTermStatus!= ''"> 
+			AND payment_term_status=#{paymentTermStatus}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="Order">
@@ -424,6 +434,7 @@
 				, #{billType}
 				, #{delayLog}
 				, #{receiveType}
+				, #{payment_term_status}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -526,6 +537,9 @@
 		</if>
 		<if test="receiveType!= null and receiveType!= ''">
 			, receive_Type=#{receiveType}
+		</if>
+		<if test="paymentTermStatus!= null and paymentTermStatus!= ''">
+			, payment_term_status=#{paymentTermStatus}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
