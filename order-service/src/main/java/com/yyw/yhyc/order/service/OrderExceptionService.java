@@ -188,11 +188,14 @@ public class OrderExceptionService {
 	public OrderExceptionDto getOrderExceptionDetails(OrderExceptionDto orderExceptionDto) throws Exception{
 		Integer userType = orderExceptionDto.getUserType();
 		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+		if(UtilHelper.isEmpty(orderExceptionDto)) {
+			return orderExceptionDto;
+		}
 		/* 计算商品总额 */
-		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
-				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				if(UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
