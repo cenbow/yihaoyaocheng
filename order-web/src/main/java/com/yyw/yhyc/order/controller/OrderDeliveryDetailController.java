@@ -59,7 +59,6 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		//用户登录信息
 		UserDto userDto=super.getLoginUser();
 		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
-
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
@@ -71,6 +70,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		}
 		return orderDeliveryDetailFacade.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 	}
+
 
 	/**
 	* 新增记录
@@ -115,4 +115,32 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		return orderDeliveryDetailFacade.confirmReceipt(list, user);
 	}
+
+    /**
+     * 分页查询记录
+     * @return
+     */
+    @RequestMapping(value = { "/listPgReturn"}, method = RequestMethod.POST)
+    @ResponseBody
+    public Pagination<OrderDeliveryDetailDto> listPgOrderDeliveryDetailReturn(@RequestBody RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
+    {
+        //获取用户信息
+        UserDto userDto=super.getLoginUser();
+        Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
+        if(userDto==null){
+            userDto = new UserDto();
+            userDto.setCustId(123);
+        }
+        pagination.setPaginationFlag(requestModel.isPaginationFlag());
+        pagination.setPageNo(requestModel.getPageNo());
+        pagination.setPageSize(requestModel.getPageSize());
+        OrderDeliveryDetailDto orderDeliveryDetailDto=requestModel.getParam();
+        if("1".equals(orderDeliveryDetailDto.getUserType())){
+            orderDeliveryDetailDto.setCustId(userDto.getCustId());
+        }else {
+            orderDeliveryDetailDto.setSupplyId(userDto.getCustId());
+        }
+        return orderDeliveryDetailFacade.listPaginationByProperty(pagination, orderDeliveryDetailDto);
+    }
+
 }
