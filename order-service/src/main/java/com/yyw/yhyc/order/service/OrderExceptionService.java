@@ -180,7 +180,7 @@ public class OrderExceptionService {
 	}
 
 	/**
-	 * 退货订单详情
+	 * 拒收订单详情
 	 * @param orderExceptionDto
 	 * @return
 	 * @throws Exception
@@ -732,5 +732,80 @@ public class OrderExceptionService {
 	 */
 	public int updateOrderStatus(OrderException orderException){
 		return  orderExceptionMapper.updateOrderStatus(orderException);
+	}
+	/**
+	 * 供应商补货订单管理-分页查询
+	 * @param pagination
+	 * @param orderExceptionDto
+     * @return
+     */
+	public Map<String, Object> listPgSellerReplenishmentOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) {
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+
+		/* 非法参数过滤 */
+		if(UtilHelper.isEmpty(pagination) || UtilHelper.isEmpty(orderExceptionDto)) throw new RuntimeException("参数错误");
+		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+
+		/* 转换日期查询条件 */
+		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderExceptionDto.setEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderExceptionDto.getEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+		}
+
+		/* 查询供应商补货订单总金额 */
+		BigDecimal orderTotalMoney = orderExceptionMapper.findSellerReplenishmentOrderTotal(orderExceptionDto);
+		log.info("orderTotalMoney:"+orderTotalMoney);
+
+		/* 供应商补货订单查询 */
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationSellerReplenishmentOrder(pagination, orderExceptionDto);
+		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+		/* 根据供应商的视角 获取补货订单状态名称 */
+		int orderCount = 0;
+		SellerReplenishmentOrderStatusEnum sellerReplenishmentOrderStatusEnum;
+		if (!UtilHelper.isEmpty(orderExceptionDtoList)) {
+			orderCount = pagination.getTotal();
+			for(OrderExceptionDto oed : orderExceptionDtoList) {
+				sellerReplenishmentOrderStatusEnum = getSellerReplenishmentOrderStatus(oed.getOrderStatus());
+				if (!UtilHelper.isEmpty(sellerReplenishmentOrderStatusEnum)) {
+					oed.setOrderStatusName(sellerReplenishmentOrderStatusEnum.getValue());
+				} else {
+					oed.setOrderStatusName("未知状态");
+				}
+			}
+		}
+		pagination.setResultList(orderExceptionDtoList);
+
+		/* 补货订单状态统计 */
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findSellerReplenishmentStatusCount(orderExceptionDto);;
+
+		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
+			for (OrderExceptionDto oed : orderExceptionDtos) {
+				sellerReplenishmentOrderStatusEnum = getSellerReplenishmentOrderStatus(oed.getOrderStatus());
+				if(sellerReplenishmentOrderStatusEnum != null){
+					if(orderStatusCountMap.containsKey(sellerReplenishmentOrderStatusEnum.getType())){
+						orderStatusCountMap.put(sellerReplenishmentOrderStatusEnum.getType(),orderStatusCountMap.get(sellerReplenishmentOrderStatusEnum.getType())+oed.getOrderCount());
+					}else{
+						orderStatusCountMap.put(sellerReplenishmentOrderStatusEnum.getType(),oed.getOrderCount());
+					}
+				}
+			}
+		}
+		log.info("orderStatusCountMap:"+orderStatusCountMap);
+
+		/* 把需要响应到页面的数据塞入 map 中 */
+		resultMap.put("orderStatusCount", orderStatusCountMap);
+		resultMap.put("orderList", pagination);
+		resultMap.put("orderCount", orderCount);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		return resultMap;
 	}
 }

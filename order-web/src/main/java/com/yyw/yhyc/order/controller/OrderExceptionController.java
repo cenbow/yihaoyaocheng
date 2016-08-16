@@ -13,12 +13,8 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.order.bo.OrderException;
-import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
-import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
-import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.facade.OrderExceptionFacade;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import org.slf4j.Logger;
@@ -32,10 +28,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,17 +104,17 @@ public class OrderExceptionController extends BaseJsonController{
 
 
 	/**
-	 * 退货订单详情
+	 * 拒收订单详情
 	 * @param userType userType==1 表示以采购商身份查看 ，userType==2 表示以供应商身份查看
-	 * @param exceptionOrderId 异常订单编码
+	 * @param flowId 原始订单编号
 	 * @return
 	 * @throws Exception
      */
-	@RequestMapping(value = "/getDetails-{userType}/{exceptionOrderId}", method = RequestMethod.GET)
-	public ModelAndView getOrderExceptionDetails(@PathVariable("userType") int userType,@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+	@RequestMapping(value = "/getDetails-{userType}/{flowId}", method = RequestMethod.GET)
+	public ModelAndView getOrderExceptionDetails(@PathVariable("userType") int userType,@PathVariable("flowId")String flowId) throws Exception {
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
-		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setFlowId(flowId);
 		orderExceptionDto.setUserType(userType);
 		if (userType == 1) {
 			orderExceptionDto.setCustId(user.getCustId());
@@ -278,12 +270,38 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
-		//UserDto userDto = super.getLoginUser();
-		if(orderDto==null){
-			orderDto=new OrderExceptionDto();
-		}
-		orderDto.setCustId(333);
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
+	}
+
+
+
+	/**
+	 * 卖家补货订单管理-页面
+	 * @return
+	 */
+	@RequestMapping("/sellerReplenishmentOrderManage")
+	public ModelAndView sellerReplenishmentOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/seller_replenishment_order_manage");
+		return view;
+	}
+
+	/**
+	 * 卖家补货订单管理-接口
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgSellerReplenishmentOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerReplenishmentOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgSellerReplenishmentOrder(pagination, orderDto);
 	}
 
 	/**

@@ -281,7 +281,7 @@
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
 		<association property="order" column="order_id" select="com.yyw.yhyc.order.mapper.OrderMapper.getByPK"></association>
-		<association property="orderDelivery" column="order_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
+		<association property="orderDelivery" column="flow_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
 		<association property="usermanageEnterprise" column="supply_id" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"></association>
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
@@ -293,7 +293,7 @@
 		t_order_exception T1
 		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
 		LEFT JOIN t_system_pay_type T3 ON T2.pay_type_id = T3.pay_type_id
-		WHERE T1.exception_order_id=#{exceptionOrderId}
+		WHERE T1.flow_id=#{flowId} AND return_type=4
 		<if test="custId!= null and custId!= ''">
 			AND T1.cust_Id=#{custId}
 		</if>
@@ -840,6 +840,133 @@
 
 
 	<select id="findBuyerReplenishmentStatusCount" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap" useCache="false">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount
+		FROM
+		T_ORDER_EXCEPTION T1
+		WHERE
+		T1.RETURN_TYPE = '3'<!--补货订单-->
+		AND	T1.CUST_ID = #{custId}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		GROUP BY T1.ORDER_STATUS
+	</select>
+
+
+	<select id="listPaginationSellerReplenishmentOrder" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap"  useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>, T3.PAY_TYPE,
+		T3.PAY_TYPE_NAME
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.RETURN_TYPE = '3'<!--补货订单-->
+		AND	T1.CUST_ID = #{custId}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "2"'><!--待发货-->
+					AND T1.ORDER_STATUS = '2' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "4"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '3' <!--已关闭-->
+				</when>
+				<when test='orderStatus == "3"'><!--待收货-->
+					AND T1.ORDER_STATUS = '4' <!--待收货-->
+				</when>
+				<when test='orderStatus == "5"'>
+					AND (T1.ORDER_STATUS = '5' OR T1.ORDER_STATUS = '6') <!--买家已收货 + 系统自动确认收货-->
+				</when>
+				<otherwise>
+					<![CDATA[ AND 1<>1]]>
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
+
+	<select id="findSellerReplenishmentOrderTotal" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal"  useCache="false">
+		SELECT
+		SUM(T1.ORDER_MONEY)
+		FROM
+		T_ORDER_EXCEPTION T1
+		WHERE
+		T1.RETURN_TYPE = '3'<!--补货订单-->
+		AND	T1.CUST_ID = #{custId}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "2"'><!--待发货-->
+					AND T1.ORDER_STATUS = '2' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "4"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '3' <!--已关闭-->
+				</when>
+				<when test='orderStatus == "3"'><!--待收货-->
+					AND T1.ORDER_STATUS = '4' <!--待收货-->
+				</when>
+				<when test='orderStatus == "5"'>
+					AND (T1.ORDER_STATUS = '5' OR T1.ORDER_STATUS = '6') <!--买家已收货 + 系统自动确认收货-->
+				</when>
+				<otherwise>
+					<![CDATA[ AND 1<>1]]>
+				</otherwise>
+			</choose>
+		</if>
+		AND T1.ORDER_MONEY IS NOT NULL
+	</select>
+
+
+	<select id="findSellerReplenishmentStatusCount" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap" useCache="false">
 		SELECT
 		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount
 		FROM
