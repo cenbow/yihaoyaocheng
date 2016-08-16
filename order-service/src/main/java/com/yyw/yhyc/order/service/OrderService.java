@@ -711,6 +711,21 @@ public class OrderService {
 			}
 			productTotal=productTotal.add(detail.getProductPrice().multiply(proudcutCount));
 		}
+
+		if(orderDetailsdto.getPayType()==SystemPayTypeEnum.PayOffline.getPayType()){
+			OrderSettlement orderSettlement=new OrderSettlement();
+			orderSettlement.setOrderId(orderDetailsdto.getOrderId());
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setPayTypeId(orderDetailsdto.getPayTypeId());
+			List<OrderSettlement> settlements= orderSettlementMapper.listByProperty(orderSettlement);
+			if(settlements.size()>0){
+				orderDetailsdto.setSettlementRemark(settlements.get(0).getRemark());
+			}
+
+		}
+
+
+
 		orderDetailsdto.setProductTotal(productTotal);
 		orderDetailsdto.setReceiveTotal(total);
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据

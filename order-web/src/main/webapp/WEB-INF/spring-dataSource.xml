@@ -109,12 +109,12 @@
     <property name="beanNames">
         <list>
             <!-- 这里配置需要拦截的bean id列表 -->
-            <value>orderFacade</value>
-            <value>orderCombinedFacade</value>
-            <value>orderDeliveryFacade</value>
-            <value>orderExceptionFacade</value>
-            <value>orderReturnFacade</value>
-            <value>orderSettlementFacade</value>
+            <value>orderService</value>
+            <value>orderCombinedService</value>
+            <value>orderDeliveryService</value>
+            <value>orderExceptionService</value>
+            <value>orderReturnService</value>
+            <value>orderSettlementService</value>
         </list>
     </property>
     <property name="interceptorNames">
