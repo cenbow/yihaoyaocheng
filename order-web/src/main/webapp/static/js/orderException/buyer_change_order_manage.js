@@ -79,7 +79,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerRejectOrder";
+    var requestUrl = ctx+"/orderException/listPgBuyerChangeGoodsOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -159,7 +159,7 @@ function fillTableJson(data) {
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
