@@ -725,4 +725,12 @@ public class OrderExceptionService {
 		return null;
 	}
 
+	/**
+	 * 修改状态
+	 * @param orderException
+	 * @return
+	 */
+	public int updateOrderStatus(OrderException orderException){
+		return  orderExceptionMapper.updateOrderStatus(orderException);
+	}
 }

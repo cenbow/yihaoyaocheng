@@ -285,6 +285,31 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(333);
 		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
 	}
+
+	/**
+	 * 修改订单状态
+	 * @param orderStatus
+	 * @param id
+     * @return
+     */
+	@RequestMapping(value = {"/updateOrderStatus/{id}/{orderStatus}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> updateOrderStatus(@PathVariable("orderStatus") String orderStatus, @PathVariable("id") Integer id) throws Exception{
+		UserDto u = super.getLoginUser();
+		OrderException orderException = new OrderException();
+		orderException.setOrderStatus(orderStatus);
+		orderException.setExceptionId(id);
+		orderException.setCustId(u.getCustId());
+
+		int row = orderExceptionService.updateOrderStatus(orderException);
+		Map<String, Object> map = new HashMap<>();
+		if(row >0 )
+			map.put("result", "S");
+		else
+			map.put("result", "F");
+
+		return map;
+	}
 }
 
 

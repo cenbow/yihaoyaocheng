@@ -114,4 +114,10 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 */
 	public List<OrderExceptionDto> findBuyerReplenishmentStatusCount(OrderExceptionDto orderExceptionDto);
 
+	/**
+	 * 修改状态
+	 * @param orderException
+	 * @return
+     */
+	int updateOrderStatus(OrderException orderException);
 }

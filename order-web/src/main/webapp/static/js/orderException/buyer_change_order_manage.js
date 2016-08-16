@@ -67,14 +67,14 @@ function fillPagerUtil(data, requestParam) {
 
 function setOrderCount(orderStatusCount) {
     if (orderStatusCount) {
-        if (orderStatusCount['1'])
-            $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
-        else
-            $($("a[name='statusCount']")[0]).html('待确认');
-        if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('退款中('+orderStatusCount['2']+')');
-        else
-            $($("a[name='statusCount']")[1]).html('退款中');
+        for (var o in orderStatusCount){
+            var  $a = $("a[name='statusCount" + o +"']");
+            var text = $a.text();
+            var index = text.indexOf("(");
+            if(index>0) text = text.substr(0, index);
+
+            $a.html(text + '<span style="color: red;">('+orderStatusCount[o]+')</span>');
+        }
     }
 }
 
@@ -164,6 +164,22 @@ function fillTableJson(data) {
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
+
+        switch (order.orderStatus){
+            case "1" :
+                tr += "<td><a class='blue' href='javascript:void(0);' onclick='cancleOrder("+ order.exceptionId + ",2)'>取消</a></td>";
+                break;
+            case "4" :
+                tr += "<td><a class='blue' href='#'>发货</a></td>";
+                break;
+            case "7" :
+                tr += "<td><a class='blue' href='#'>确认收货</a></td>";
+                break;
+            default:
+                tr += "<td></td>";
+                break;
+        }
+
         tr += "</tr>";
         trs += tr;
     }
@@ -215,5 +231,35 @@ function fmoney(s, n)
     return t.split("").reverse().join("") + "." + r;
 }
 
+/**
+ * 取消订单
+ * @param orderId
+ */
+function cancleOrder(id, status) {
+    if (window.confirm("订单取消后将无法恢复，确定取消？")) {
+        $.ajax({
+            url: ctx+"/orderException/updateOrderStatus/"+id+"/"+status,
+            type: 'GET',
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if(data.statusCode || data.message){
+                    alertModal(data.message);
+                    return;
+                }
+
+                if(data.result == "F"){
+                    alertModal("取消失败");
+                }else {
+                    pasretFormData();
+                    doRefreshData(params);
+                    alertModal("取消成功");
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alertModal("取消失败");
+            }
+        });
+    }
+}
 
 
