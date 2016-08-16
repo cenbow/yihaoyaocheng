@@ -114,7 +114,7 @@ function doRefreshData(requestParam) {
             var nowpage = data.sellerOrderList.pageNo;
             var totalCount = data.sellerOrderList.total;
             dataList = data.sellerOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
             $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
@@ -176,7 +176,7 @@ function fillTableJson(data) {
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + fmoney(order.orderTotal,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
         tr += "</tr>";
         trs += tr;
@@ -239,6 +239,17 @@ function cancleOrder(orderId) {
 function sendDelivery(orderId) {
     $("#sendOrderId").val(orderId);
     $("#myModalSendDelivery").modal().hide();
+
+    $("#excelFile").val("");
+    $("#receiverAddressId").val("");
+    $("#deliveryContactPerson").val("");
+    $("#deliveryExpressNo").val("");
+    $("#deliveryExpressNo2").val("");
+    $("#deliveryContactPerson2").val("");
+    $("#deliveryExpressNo1").val("");
+    $("#deliveryContactPerson1").val("");
+    $("#deliveryDate").val("");
+
     $.ajax({
         url: ctx+"/order/orderDelivery/getReceiveAddressList",
         type: 'GET',
@@ -279,7 +290,7 @@ function checkImgType(this_) {
     var filepath = $(this_).val();
     var extStart = filepath.lastIndexOf(".");
     var ext = filepath.substring(extStart, filepath.length).toUpperCase();
-    if (ext != ".XLSX" && ext != ".XLS") {
+    if (ext != ".XLS") {
         alert("请上传正确格式的文件");
         $(this_).val("");
         return false;
@@ -292,11 +303,35 @@ function sendDeliverysubmit(){
 
     var delivery = $("input[type=radio][name=delivery]:checked");
     var ownw = $("input[type=radio][name=ownw]:checked");
+
+    if($("#excelFile").val()==null||$("#excelFile").val()==""){
+        alertModal("请上传文件")
+        return;
+    }
+
+    if(delivery.val()==null||delivery.val()==""){
+        alertModal("发货仓库不能为空")
+        return;
+    }
+
+
+
+    var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+
+
         $("#receiverAddressId").val(delivery.val())
         $("#deliveryMethod").val(ownw.val())
     if(ownw.val()==1){
+
+        if($("#deliveryExpressNo1").val()!=null&&$("#deliveryExpressNo1").val()!=""){
+            if (!reg.test($("#deliveryExpressNo1").val())) {
+                alertModal("请填写正确的手机号")
+            };
+        }
+
         $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
         $("#deliveryExpressNo").val($("#deliveryContactPerson1").val())
+
     }else{
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryContactPerson2").val())
@@ -316,9 +351,12 @@ function sendDeliverysubmit(){
                     var div = "";
                     if(obj.code==1){
                         div += " <p class='font-size-20 red'><b>发货成功</b></p><p>可在订单详情中查看批号的导入详情!</p> "
+                        $("#myModalSendDelivery").modal("hide");
+                        pasretFormData();
+                        doRefreshData(params);
                     }else{
                         div += "<p class='font-size-20 red'><b>发货失败</b></p><p>批号信息导入有误，可以直接下载导入失败原因，也可以进入订单详情下载导入失败原因！</p>";
-                        div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息.xls'><i class='fa fa-download'></i>&nbsp;批号导入模版下载</a></p>";
+                        div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息.xls'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
                     }
                     $("#msgDiv").append(div);
                 }
@@ -383,4 +421,18 @@ function format(date){
     var month  = date.getMonth()+1;
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
+}
+
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
 }

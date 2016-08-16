@@ -114,7 +114,7 @@ function doRefreshData(requestParam) {
             var nowpage = data.buyerOrderList.pageNo;
             var totalCount = data.buyerOrderList.total;
             dataList = data.buyerOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + data.orderTotalMoney);
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
             $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
@@ -176,7 +176,7 @@ function fillTableJson(data) {
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + order.orderTotal + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + fmoney(order.orderTotal,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
         tr += "</tr>";
         trs += tr;
@@ -214,6 +214,9 @@ function typeToOperate(order) {
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
+    if(order && order.orderStatus && (order.orderStatus == '8'||order.orderStatus == '11'||order.orderStatus == '14')){//补货中
+        result += '<a href="javascript:void(0);" class="btn btn-info btn-sm margin-r-10" onClick="showSalesReturn(\''+order.flowId+'\')">申请退货/换货</a>';
+    }
     return result;
 }
 
@@ -423,6 +426,7 @@ function confirmReceipt(){
 
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
+
     if($("#bodyDiv:visible").size() == 0){
         for(var i=0;i<productCount.length;i++){
             if($(recieveCount[i]).val()==null){
@@ -435,6 +439,20 @@ function confirmReceipt(){
             }
             list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
         }
+    }else{
+        var ownw = $("input[type=radio][name=ownw]:checked");
+        if(ownw.val()==null||ownw.val()==""){
+            alertModal("请选择处理类型");
+            return;
+        }
+        for(var i=0;i<productCount.length;i++){
+            if($(recieveCount[i]).val()==null){
+                alertModal("请填写收货数量");
+                return;
+            }
+            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+        }
+
     }
 
 
@@ -454,13 +472,25 @@ function confirmReceipt(){
             }else{
                 alertModal(data.msg);
                 $("#myModalConfirmReceipt").modal("hide");
+                pasretFormData();
+                doRefreshData(params);
             }
         }
     });
 
 }
 
-
-
-
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
+}
 

@@ -192,7 +192,7 @@ public class OrderController extends BaseJsonController {
 	@Token(remove=true)
 	@RequestMapping(value = "/createOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public String createOrder( OrderCreateDto orderCreateDto) throws Exception {
+	public Map<String,Object> createOrder( OrderCreateDto orderCreateDto) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw new Exception("用户未登录");
@@ -212,7 +212,9 @@ public class OrderController extends BaseJsonController {
 				}
 			}
 		}
-		return "/order/createOrderSuccess?orderIds="+orderIdStr;
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("url","/order/createOrderSuccess?orderIds="+orderIdStr);
+		return map;
 	}
 
 	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
@@ -235,6 +237,8 @@ public class OrderController extends BaseJsonController {
 			orderDto = new OrderDto();
 			Order order = orderFacade.getByPK(Integer.valueOf(orderId));
 			orderDto.setOrderId(order.getOrderId());
+			orderDto.setCustId(order.getCustId());
+			orderDto.setSupplyId(order.getSupplyId());
 			orderDto.setFlowId(order.getFlowId());
 			orderDto.setSupplyName(order.getSupplyName());
 			orderDto.setOrderTotal(order.getOrderTotal());

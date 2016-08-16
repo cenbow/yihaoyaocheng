@@ -21,10 +21,47 @@ public class OrderDetailsDto extends Order {
     private String payTypeName;
     //订单类型枚举值
    private String orderStatusName;
+
+    //结算备注。
+   private String  settlementRemark;
+
+    public String getSettlementRemark() {
+        return settlementRemark;
+    }
+
+    public void setSettlementRemark(String settlementRemark) {
+        this.settlementRemark = settlementRemark;
+    }
+
+    //订单类型
+    private int payType;
+
+    public int getPayType() {
+        return payType;
+    }
+
+    public void setPayType(int payType) {
+        this.payType = payType;
+    }
+
     /**
      *	确认收货金额
      */
     private java.math.BigDecimal receiveTotal;
+
+    /**
+     *	商品总金额
+     */
+    private java.math.BigDecimal productTotal;
+
+
+    public BigDecimal getProductTotal() {
+        return productTotal;
+    }
+
+    public void setProductTotal(BigDecimal productTotal) {
+        this.productTotal = productTotal;
+    }
 
     private OrderDeliveryDetail orderDeliveryDetail;
 

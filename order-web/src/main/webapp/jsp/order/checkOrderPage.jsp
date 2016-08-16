@@ -130,20 +130,20 @@
                                 <div class="fl radio-select">
                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" id="${shoppingCart.seller.enterpriseId}_payTypeId"/>
                                     选择支付方式：
-                                    <label onclick="selectPayTypeId(${shoppingCart.seller.enterpriseId},'<%=SystemPayTypeEnum.PayOnline.getPayType()%>')">
-                                        <i class="inside-icon radio-skin"></i>在线支付
+                                    <label>
+                                        <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOnline.getPayType()%>"></i>在线支付
                                     </label>
-                                    <label onclick="selectPayTypeId(${shoppingCart.seller.enterpriseId},'<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>')">
-                                        <i class="inside-icon radio-skin"></i>账期支付
+                                    <label>
+                                        <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>"></i>账期支付
                                     </label>
-                                    <label onclick="selectPayTypeId(${shoppingCart.seller.enterpriseId},'<%=SystemPayTypeEnum.PayOffline.getPayType()%>')">
-                                        <i class="inside-icon radio-skin"></i>
+                                    <label>
+                                        <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOffline.getPayType()%>" ></i>
                                           <span class="pr"> 线下转账
                                             <i class="common-icon query-icon">
                                                 <div class="tips-frame tc">
                                                     <i class="common-icon frame-icon"></i>
                                                     <p>
-                                                      <a href="<%=request.getContextPath()%>/order/accountPayInfo/getByCustId/${userDto.custId}" target="_blank" class="blue">点击查看收款账户信息</a>
+                                                      <a href="<%=request.getContextPath()%>/order/accountPayInfo/getByCustId/${shoppingCart.seller.enterpriseId}" target="_blank" class="blue">点击查看收款账户信息</a>
                                                     </p>
                                               </div>
                                             </i>

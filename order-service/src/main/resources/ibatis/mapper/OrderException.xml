@@ -315,9 +315,15 @@
 		WHERE
 			T1.RETURN_TYPE = '4'
 		AND	T1.CUST_ID = #{custId}
-		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
 		<if test="startTime!= null and startTime!= ''">
 			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
 		</if>
@@ -359,9 +365,15 @@
 		T1.RETURN_TYPE = '4'
 
 		AND	T1.CUST_ID = #{custId}
-		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
 		<if test="startTime!= null and startTime!= ''">
 			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
 		</if>
@@ -402,9 +414,15 @@
 		WHERE
 		T1.RETURN_TYPE = '4'
 		AND	T1.CUST_ID = #{custId}
-		AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
-		AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
-		AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
 		<if test="startTime!= null and startTime!= ''">
 			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
 		</if>
