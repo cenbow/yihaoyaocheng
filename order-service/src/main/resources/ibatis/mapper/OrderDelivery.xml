@@ -300,7 +300,7 @@
 	<select id="getByOrderId" parameterType="java.lang.Integer" resultMap="OrderDeliveryResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
-		FROM t_order_delivery WHERE order_id = #{orderId}
+		FROM t_order_delivery WHERE flow_id = #{flowId}
 	</select>
 
 </mapper>

@@ -22,6 +22,17 @@ public class OrderDetailsDto extends Order {
     //订单类型枚举值
    private String orderStatusName;
 
+    //结算备注。
+   private String  settlementRemark;
+
+    public String getSettlementRemark() {
+        return settlementRemark;
+    }
+
+    public void setSettlementRemark(String settlementRemark) {
+        this.settlementRemark = settlementRemark;
+    }
+
     //订单类型
     private int payType;
 

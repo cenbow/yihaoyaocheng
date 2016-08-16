@@ -22,37 +22,37 @@ public class Order extends Model{
 	/**
 	  *	订单ID主键
 	  */
-	private java.lang.Integer orderId;
+	private Integer orderId;
 
 	/**
 	  *	订单编号
 	  */
-	private java.lang.String flowId;
+	private String flowId;
 
 	/**
 	  *	采购商名称
 	  */
-	private java.lang.String custName;
+	private String custName;
 
 	/**
 	  *	客户ID
 	  */
-	private java.lang.Integer custId;
+	private Integer custId;
 
 	/**
 	  *	供应商名称
 	  */
-	private java.lang.String supplyName;
+	private String supplyName;
 
 	/**
 	  *	供应商ID
 	  */
-	private java.lang.Integer supplyId;
+	private Integer supplyId;
 
 	/**
 	  *	取消原因
 	  */
-	private java.lang.String cancelResult;
+	private String cancelResult;
 
 	/**
 	  *	订单优惠后金额
@@ -77,32 +77,32 @@ public class Order extends Model{
 	/**
 	  *	商品总数量
 	  */
-	private java.lang.Integer totalCount;
+	private Integer totalCount;
 
 	/**
 	  *	订单状态
 	  */
-	private java.lang.String orderStatus;
+	private String orderStatus;
 
 	/**
 	  *	备注信息
 	  */
-	private java.lang.String remark;
+	private String remark;
 
 	/**
 	  *	买家留言
 	  */
-	private java.lang.String leaveMessage;
+	private String leaveMessage;
 
 	/**
 	  *	订单合并付款ID
 	  */
-	private java.lang.Integer orderCombinedId;
+	private Integer orderCombinedId;
 
 	/**
 	  *	卖家是否确认结算
 	  */
-	private java.lang.String confirmSettlement;
+	private String confirmSettlement;
 
 	/**
 	  *	结算金额
@@ -117,82 +117,97 @@ public class Order extends Model{
 	/**
 	  *	优惠金额备注
 	  */
-	private java.lang.String preferentialRemark;
+	private String preferentialRemark;
 
 	/**
 	  *	支付状态
 	  */
-	private java.lang.String payStatus;
+	private String payStatus;
 
 	/**
 	  *	支付类型表ID
 	  */
-	private java.lang.Integer payTypeId;
+	private Integer payTypeId;
 
 	/**
 	  *	订单生成时间
 	  */
-	private java.lang.String createTime;
+	private String createTime;
 
 	/**
 	  *	支付时间
 	  */
-	private java.lang.String payTime;
+	private String payTime;
 
 	/**
 	  *	取消时间
 	  */
-	private java.lang.String cancelTime;
+	private String cancelTime;
 
 	/**
 	  *	发货时间
 	  */
-	private java.lang.String deliverTime;
+	private String deliverTime;
 
 	/**
 	  *	收货时间
 	  */
-	private java.lang.String receiveTime;
+	private String receiveTime;
 
 	/**
 	  *	结算时间
 	  */
-	private java.lang.String settlementTime;
+	private String settlementTime;
 
 	/**
 	  *	
 	  */
-	private java.lang.String createUser;
+	private String createUser;
 
 	/**
 	  *	订单最后更新时间
 	  */
-	private java.lang.String updateTime;
+	private String updateTime;
 
 	/**
 	  *	
 	  */
-	private java.lang.String updateUser;
+	private String updateUser;
 
 	/**
 	  *	发票类型 1 增值税专用发票 2 增值税普通发票
 	  */
-	private java.lang.Integer billType;
+	private Integer billType;
 
 	/**
 	  *	延期收货日志（时间 第n次延期）
 	  */
-	private java.lang.String delayLog;
+	private String delayLog;
 
 	/**
 	  *	1,买家确认收货 2,系统自动确认收货
 	  */
-	private java.lang.Integer receiveType;
+	private Integer receiveType;
+	
+	/**
+	  *	账期还款状态 0 未还款  1 已还款
+	  */
+	private Integer paymentTermStatus;
+	
+	
+
+	public Integer getPaymentTermStatus() {
+		return paymentTermStatus;
+	}
+
+	public void setPaymentTermStatus(Integer paymentTermStatus) {
+		this.paymentTermStatus = paymentTermStatus;
+	}
 
 	/**
 	  *	订单ID主键
 	  */
-	public java.lang.Integer getOrderId() 
+	public Integer getOrderId()
 	{
 		return orderId;
 	}
@@ -200,7 +215,7 @@ public class Order extends Model{
 	/**
 	  *	订单ID主键
 	  */
-	public void setOrderId(java.lang.Integer orderId) 
+	public void setOrderId(Integer orderId)
 	{
 		this.orderId = orderId;
 	}
@@ -208,7 +223,7 @@ public class Order extends Model{
 	/**
 	  *	订单编号
 	  */
-	public java.lang.String getFlowId() 
+	public String getFlowId()
 	{
 		return flowId;
 	}
@@ -216,7 +231,7 @@ public class Order extends Model{
 	/**
 	  *	订单编号
 	  */
-	public void setFlowId(java.lang.String flowId) 
+	public void setFlowId(String flowId)
 	{
 		this.flowId = flowId;
 	}
@@ -224,7 +239,7 @@ public class Order extends Model{
 	/**
 	  *	采购商名称
 	  */
-	public java.lang.String getCustName() 
+	public String getCustName()
 	{
 		return custName;
 	}
@@ -232,7 +247,7 @@ public class Order extends Model{
 	/**
 	  *	采购商名称
 	  */
-	public void setCustName(java.lang.String custName) 
+	public void setCustName(String custName)
 	{
 		this.custName = custName;
 	}
@@ -240,7 +255,7 @@ public class Order extends Model{
 	/**
 	  *	客户ID
 	  */
-	public java.lang.Integer getCustId() 
+	public Integer getCustId()
 	{
 		return custId;
 	}
@@ -248,7 +263,7 @@ public class Order extends Model{
 	/**
 	  *	客户ID
 	  */
-	public void setCustId(java.lang.Integer custId) 
+	public void setCustId(Integer custId)
 	{
 		this.custId = custId;
 	}
@@ -256,7 +271,7 @@ public class Order extends Model{
 	/**
 	  *	供应商名称
 	  */
-	public java.lang.String getSupplyName() 
+	public String getSupplyName()
 	{
 		return supplyName;
 	}
@@ -264,7 +279,7 @@ public class Order extends Model{
 	/**
 	  *	供应商名称
 	  */
-	public void setSupplyName(java.lang.String supplyName) 
+	public void setSupplyName(String supplyName)
 	{
 		this.supplyName = supplyName;
 	}
@@ -272,7 +287,7 @@ public class Order extends Model{
 	/**
 	  *	供应商ID
 	  */
-	public java.lang.Integer getSupplyId() 
+	public Integer getSupplyId()
 	{
 		return supplyId;
 	}
@@ -280,7 +295,7 @@ public class Order extends Model{
 	/**
 	  *	供应商ID
 	  */
-	public void setSupplyId(java.lang.Integer supplyId) 
+	public void setSupplyId(Integer supplyId)
 	{
 		this.supplyId = supplyId;
 	}
@@ -288,7 +303,7 @@ public class Order extends Model{
 	/**
 	  *	取消原因
 	  */
-	public java.lang.String getCancelResult() 
+	public String getCancelResult()
 	{
 		return cancelResult;
 	}
@@ -296,7 +311,7 @@ public class Order extends Model{
 	/**
 	  *	取消原因
 	  */
-	public void setCancelResult(java.lang.String cancelResult) 
+	public void setCancelResult(String cancelResult)
 	{
 		this.cancelResult = cancelResult;
 	}
@@ -368,7 +383,7 @@ public class Order extends Model{
 	/**
 	  *	商品总数量
 	  */
-	public java.lang.Integer getTotalCount() 
+	public Integer getTotalCount()
 	{
 		return totalCount;
 	}
@@ -376,7 +391,7 @@ public class Order extends Model{
 	/**
 	  *	商品总数量
 	  */
-	public void setTotalCount(java.lang.Integer totalCount) 
+	public void setTotalCount(Integer totalCount)
 	{
 		this.totalCount = totalCount;
 	}
@@ -384,7 +399,7 @@ public class Order extends Model{
 	/**
 	  *	订单状态
 	  */
-	public java.lang.String getOrderStatus() 
+	public String getOrderStatus()
 	{
 		return orderStatus;
 	}
@@ -392,7 +407,7 @@ public class Order extends Model{
 	/**
 	  *	订单状态
 	  */
-	public void setOrderStatus(java.lang.String orderStatus) 
+	public void setOrderStatus(String orderStatus)
 	{
 		this.orderStatus = orderStatus;
 	}
@@ -400,7 +415,7 @@ public class Order extends Model{
 	/**
 	  *	备注信息
 	  */
-	public java.lang.String getRemark() 
+	public String getRemark()
 	{
 		return remark;
 	}
@@ -408,7 +423,7 @@ public class Order extends Model{
 	/**
 	  *	备注信息
 	  */
-	public void setRemark(java.lang.String remark) 
+	public void setRemark(String remark)
 	{
 		this.remark = remark;
 	}
@@ -416,7 +431,7 @@ public class Order extends Model{
 	/**
 	  *	买家留言
 	  */
-	public java.lang.String getLeaveMessage() 
+	public String getLeaveMessage()
 	{
 		return leaveMessage;
 	}
@@ -424,7 +439,7 @@ public class Order extends Model{
 	/**
 	  *	买家留言
 	  */
-	public void setLeaveMessage(java.lang.String leaveMessage) 
+	public void setLeaveMessage(String leaveMessage)
 	{
 		this.leaveMessage = leaveMessage;
 	}
@@ -432,7 +447,7 @@ public class Order extends Model{
 	/**
 	  *	订单合并付款ID
 	  */
-	public java.lang.Integer getOrderCombinedId() 
+	public Integer getOrderCombinedId()
 	{
 		return orderCombinedId;
 	}
@@ -440,7 +455,7 @@ public class Order extends Model{
 	/**
 	  *	订单合并付款ID
 	  */
-	public void setOrderCombinedId(java.lang.Integer orderCombinedId) 
+	public void setOrderCombinedId(Integer orderCombinedId)
 	{
 		this.orderCombinedId = orderCombinedId;
 	}
@@ -448,7 +463,7 @@ public class Order extends Model{
 	/**
 	  *	卖家是否确认结算
 	  */
-	public java.lang.String getConfirmSettlement() 
+	public String getConfirmSettlement()
 	{
 		return confirmSettlement;
 	}
@@ -456,7 +471,7 @@ public class Order extends Model{
 	/**
 	  *	卖家是否确认结算
 	  */
-	public void setConfirmSettlement(java.lang.String confirmSettlement) 
+	public void setConfirmSettlement(String confirmSettlement)
 	{
 		this.confirmSettlement = confirmSettlement;
 	}
@@ -496,7 +511,7 @@ public class Order extends Model{
 	/**
 	  *	优惠金额备注
 	  */
-	public java.lang.String getPreferentialRemark() 
+	public String getPreferentialRemark()
 	{
 		return preferentialRemark;
 	}
@@ -504,7 +519,7 @@ public class Order extends Model{
 	/**
 	  *	优惠金额备注
 	  */
-	public void setPreferentialRemark(java.lang.String preferentialRemark) 
+	public void setPreferentialRemark(String preferentialRemark)
 	{
 		this.preferentialRemark = preferentialRemark;
 	}
@@ -512,7 +527,7 @@ public class Order extends Model{
 	/**
 	  *	支付状态
 	  */
-	public java.lang.String getPayStatus() 
+	public String getPayStatus()
 	{
 		return payStatus;
 	}
@@ -520,7 +535,7 @@ public class Order extends Model{
 	/**
 	  *	支付状态
 	  */
-	public void setPayStatus(java.lang.String payStatus) 
+	public void setPayStatus(String payStatus)
 	{
 		this.payStatus = payStatus;
 	}
@@ -528,7 +543,7 @@ public class Order extends Model{
 	/**
 	  *	支付类型表ID
 	  */
-	public java.lang.Integer getPayTypeId() 
+	public Integer getPayTypeId()
 	{
 		return payTypeId;
 	}
@@ -536,7 +551,7 @@ public class Order extends Model{
 	/**
 	  *	支付类型表ID
 	  */
-	public void setPayTypeId(java.lang.Integer payTypeId) 
+	public void setPayTypeId(Integer payTypeId)
 	{
 		this.payTypeId = payTypeId;
 	}
@@ -544,7 +559,7 @@ public class Order extends Model{
 	/**
 	  *	订单生成时间
 	  */
-	public java.lang.String getCreateTime() 
+	public String getCreateTime()
 	{
 		return createTime;
 	}
@@ -552,7 +567,7 @@ public class Order extends Model{
 	/**
 	  *	订单生成时间
 	  */
-	public void setCreateTime(java.lang.String createTime) 
+	public void setCreateTime(String createTime)
 	{
 		this.createTime = createTime;
 	}
@@ -560,7 +575,7 @@ public class Order extends Model{
 	/**
 	  *	支付时间
 	  */
-	public java.lang.String getPayTime() 
+	public String getPayTime()
 	{
 		return payTime;
 	}
@@ -568,7 +583,7 @@ public class Order extends Model{
 	/**
 	  *	支付时间
 	  */
-	public void setPayTime(java.lang.String payTime) 
+	public void setPayTime(String payTime)
 	{
 		this.payTime = payTime;
 	}
@@ -576,7 +591,7 @@ public class Order extends Model{
 	/**
 	  *	取消时间
 	  */
-	public java.lang.String getCancelTime() 
+	public String getCancelTime()
 	{
 		return cancelTime;
 	}
@@ -584,7 +599,7 @@ public class Order extends Model{
 	/**
 	  *	取消时间
 	  */
-	public void setCancelTime(java.lang.String cancelTime) 
+	public void setCancelTime(String cancelTime)
 	{
 		this.cancelTime = cancelTime;
 	}
@@ -592,7 +607,7 @@ public class Order extends Model{
 	/**
 	  *	发货时间
 	  */
-	public java.lang.String getDeliverTime() 
+	public String getDeliverTime()
 	{
 		return deliverTime;
 	}
@@ -600,7 +615,7 @@ public class Order extends Model{
 	/**
 	  *	发货时间
 	  */
-	public void setDeliverTime(java.lang.String deliverTime) 
+	public void setDeliverTime(String deliverTime)
 	{
 		this.deliverTime = deliverTime;
 	}
@@ -608,7 +623,7 @@ public class Order extends Model{
 	/**
 	  *	收货时间
 	  */
-	public java.lang.String getReceiveTime() 
+	public String getReceiveTime()
 	{
 		return receiveTime;
 	}
@@ -616,7 +631,7 @@ public class Order extends Model{
 	/**
 	  *	收货时间
 	  */
-	public void setReceiveTime(java.lang.String receiveTime) 
+	public void setReceiveTime(String receiveTime)
 	{
 		this.receiveTime = receiveTime;
 	}
@@ -624,7 +639,7 @@ public class Order extends Model{
 	/**
 	  *	结算时间
 	  */
-	public java.lang.String getSettlementTime() 
+	public String getSettlementTime()
 	{
 		return settlementTime;
 	}
@@ -632,7 +647,7 @@ public class Order extends Model{
 	/**
 	  *	结算时间
 	  */
-	public void setSettlementTime(java.lang.String settlementTime) 
+	public void setSettlementTime(String settlementTime)
 	{
 		this.settlementTime = settlementTime;
 	}
@@ -640,7 +655,7 @@ public class Order extends Model{
 	/**
 	  *	
 	  */
-	public java.lang.String getCreateUser() 
+	public String getCreateUser()
 	{
 		return createUser;
 	}
@@ -648,7 +663,7 @@ public class Order extends Model{
 	/**
 	  *	
 	  */
-	public void setCreateUser(java.lang.String createUser) 
+	public void setCreateUser(String createUser)
 	{
 		this.createUser = createUser;
 	}
@@ -656,7 +671,7 @@ public class Order extends Model{
 	/**
 	  *	订单最后更新时间
 	  */
-	public java.lang.String getUpdateTime() 
+	public String getUpdateTime()
 	{
 		return updateTime;
 	}
@@ -664,7 +679,7 @@ public class Order extends Model{
 	/**
 	  *	订单最后更新时间
 	  */
-	public void setUpdateTime(java.lang.String updateTime) 
+	public void setUpdateTime(String updateTime)
 	{
 		this.updateTime = updateTime;
 	}
@@ -672,7 +687,7 @@ public class Order extends Model{
 	/**
 	  *	
 	  */
-	public java.lang.String getUpdateUser() 
+	public String getUpdateUser()
 	{
 		return updateUser;
 	}
@@ -680,7 +695,7 @@ public class Order extends Model{
 	/**
 	  *	
 	  */
-	public void setUpdateUser(java.lang.String updateUser) 
+	public void setUpdateUser(String updateUser)
 	{
 		this.updateUser = updateUser;
 	}
@@ -688,7 +703,7 @@ public class Order extends Model{
 	/**
 	  *	发票类型 1 增值税专用发票 2 增值税普通发票
 	  */
-	public java.lang.Integer getBillType() 
+	public Integer getBillType()
 	{
 		return billType;
 	}
@@ -696,7 +711,7 @@ public class Order extends Model{
 	/**
 	  *	发票类型 1 增值税专用发票 2 增值税普通发票
 	  */
-	public void setBillType(java.lang.Integer billType) 
+	public void setBillType(Integer billType)
 	{
 		this.billType = billType;
 	}
@@ -704,7 +719,7 @@ public class Order extends Model{
 	/**
 	  *	延期收货日志（时间 第n次延期）
 	  */
-	public java.lang.String getDelayLog() 
+	public String getDelayLog()
 	{
 		return delayLog;
 	}
@@ -712,7 +727,7 @@ public class Order extends Model{
 	/**
 	  *	延期收货日志（时间 第n次延期）
 	  */
-	public void setDelayLog(java.lang.String delayLog) 
+	public void setDelayLog(String delayLog)
 	{
 		this.delayLog = delayLog;
 	}
@@ -720,7 +735,7 @@ public class Order extends Model{
 	/**
 	  *	1,买家确认收货 2,系统自动确认收货
 	  */
-	public java.lang.Integer getReceiveType() 
+	public Integer getReceiveType()
 	{
 		return receiveType;
 	}
@@ -728,7 +743,7 @@ public class Order extends Model{
 	/**
 	  *	1,买家确认收货 2,系统自动确认收货
 	  */
-	public void setReceiveType(java.lang.Integer receiveType) 
+	public void setReceiveType(Integer receiveType)
 	{
 		this.receiveType = receiveType;
 	}
@@ -770,6 +785,7 @@ public class Order extends Model{
 					", billType=" + billType + 
 					", delayLog=" + delayLog + 
 					", receiveType=" + receiveType + 
+					", paymentTermStatus=" + paymentTermStatus + 
 				"]";
 	}
 }

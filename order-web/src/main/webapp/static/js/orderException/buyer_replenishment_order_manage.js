@@ -72,14 +72,18 @@ function setOrderCount(orderStatusCount) {
         else
             $($("a[name='statusCount']")[0]).html('待确认');
         if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('退款中('+orderStatusCount['2']+')');
+            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
         else
-            $($("a[name='statusCount']")[1]).html('退款中');
+            $($("a[name='statusCount']")[1]).html('待发货');
+        if (orderStatusCount['3'])
+            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
+        else
+            $($("a[name='statusCount']")[2]).html('待收货');
     }
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerRejectOrder";
+    var requestUrl = ctx+"/orderException/listPgBuyerReplenishmentOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -93,17 +97,17 @@ function doRefreshData(requestParam) {
             }
             console.info(data);
             //设置订单数量
-            setOrderCount(data.rejectOrderStatusCount);
+            setOrderCount(data.orderStatusCount);
             //填充表格数据
-            fillTableJson(data.rejectOrderList);
+            fillTableJson(data.orderList);
             //设置分页组件参数
             // fillPagerUtil(data,requestParam);
-            var totalpage = data.rejectOrderList.totalPage;
-            var nowpage = data.rejectOrderList.pageNo;
-            var totalCount = data.rejectOrderList.total;
-            dataList = data.rejectOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + fmoney(data.rejectOrderTotalMoney,2));
-            $("#orderCount").html(data.rejectOrderCount);
+            var totalpage = data.orderList.totalPage;
+            var nowpage = data.orderList.pageNo;
+            var totalCount = data.orderList.total;
+            dataList = data.orderList.resultList;
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
+            $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
             $("#J_pager").attr("url", requestUrl);
@@ -114,9 +118,9 @@ function doRefreshData(requestParam) {
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
                     console.info(data);
-                    var nowpage = data.buyerOrderList.page;
+                    var nowpage = data.orderList.page;
                     $("#nowpageedit").val(nowpage);
-                    fillTableJson(data.rejectOrderList);
+                    fillTableJson(data.orderList);
                 }
             });
         },
@@ -159,11 +163,12 @@ function fillTableJson(data) {
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-2/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>" + (order.orderStatus == "4" ? "":"<a href='#' class='btn btn-info btn-sm margin-r-10'>确认收货</a>") + "</td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -201,19 +206,6 @@ function format(date){
     return year+'-'+month+'-'+day;
 }
 
-function fmoney(s, n)
-{
-    n = n > 0 && n <= 20 ? n : 2;
-    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
-    var l = s.split(".")[0].split("").reverse(),
-        r = s.split(".")[1];
-    t = "";
-    for(i = 0; i < l.length; i ++ )
-    {
-        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
-    }
-    return t.split("").reverse().join("") + "." + r;
-}
 
 
 

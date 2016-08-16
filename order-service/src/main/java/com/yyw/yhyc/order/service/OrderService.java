@@ -572,6 +572,7 @@ public class OrderService {
 		order.setPreferentialMoney(orderDto.getPreferentialMoney());//优惠了的金额(如果使用了优惠)
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
+		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
 
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
@@ -711,6 +712,21 @@ public class OrderService {
 			}
 			productTotal=productTotal.add(detail.getProductPrice().multiply(proudcutCount));
 		}
+
+		if(orderDetailsdto.getPayType()==SystemPayTypeEnum.PayOffline.getPayType()){
+			OrderSettlement orderSettlement=new OrderSettlement();
+			orderSettlement.setOrderId(orderDetailsdto.getOrderId());
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setPayTypeId(orderDetailsdto.getPayTypeId());
+			List<OrderSettlement> settlements= orderSettlementMapper.listByProperty(orderSettlement);
+			if(settlements.size()>0){
+				orderDetailsdto.setSettlementRemark(settlements.get(0).getRemark());
+			}
+
+		}
+
+
+
 		orderDetailsdto.setProductTotal(productTotal);
 		orderDetailsdto.setReceiveTotal(total);
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
@@ -1292,5 +1308,26 @@ public class OrderService {
 		order.setUpdateTime(now);
 		order.setFinalPay(orderSettlement.getRefunSettlementMoney());
 		orderMapper.update(order);
+	}
+
+	/**
+	 * 提供给武汉使用,在订单状态已完成时
+	 * 可对订单进行已还款状态修改
+	 * @param order
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean updateOrderStatus(List<Order> order) {
+		// TODO Auto-generated method stub
+		Order on=new Order();
+		for(Order o:order){
+			Order no=orderMapper.getByPK(o.getOrderId());
+			if(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
+				on.setOrderId(o.getOrderId());
+				on.setPaymentTermStatus(1);
+				orderMapper.update(on);
+			}
+		}
+		return true;
 	}
 }

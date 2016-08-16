@@ -198,7 +198,7 @@
                     <li><a name="statusCount"  data-toggle="tab">换货</a></li>
                 </ul>
                 <form method="post" id="myModalSalesReturnForm" enctype="multipart/form-data">
-                    <table class="table table-box2">
+                    <table class="table table-box3">
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 10%;">
