@@ -6,8 +6,8 @@ package com.yyw.yhyc.order.enmu;
 public enum SellerReplenishmentOrderStatusEnum {
     WaitingConfirmation("1","待确认"),
     WaitingDelivered("2","待发货"),
-    Closed("3","已关闭"),
-    WaitingReceived("4","待收货"),
+    WaitingReceived("3","待收货"),
+    Closed("","已关闭"),
     Finished("5","已完成");
 
     private String type;
