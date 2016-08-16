@@ -214,6 +214,9 @@ function typeToOperate(order) {
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
+    if(order && order.orderStatus && (order.orderStatus == '8'||order.orderStatus == '11'||order.orderStatus == '14')){//补货中
+        result += '<a href="javascript:void(0);" class="btn btn-info btn-sm margin-r-10" onClick="showSalesReturn(\''+order.flowId+'\')">申请退货/换货</a>';
+    }
     return result;
 }
 
@@ -423,6 +426,7 @@ function confirmReceipt(){
 
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
+
     if($("#bodyDiv:visible").size() == 0){
         for(var i=0;i<productCount.length;i++){
             if($(recieveCount[i]).val()==null){
@@ -435,6 +439,20 @@ function confirmReceipt(){
             }
             list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
         }
+    }else{
+        var ownw = $("input[type=radio][name=ownw]:checked");
+        if(ownw.val()==null||ownw.val()==""){
+            alertModal("请选择处理类型");
+            return;
+        }
+        for(var i=0;i<productCount.length;i++){
+            if($(recieveCount[i]).val()==null){
+                alertModal("请填写收货数量");
+                return;
+            }
+            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+        }
+
     }
 
 
@@ -454,6 +472,8 @@ function confirmReceipt(){
             }else{
                 alertModal(data.msg);
                 $("#myModalConfirmReceipt").modal("hide");
+                pasretFormData();
+                doRefreshData(params);
             }
         }
     });
@@ -473,7 +493,4 @@ function fmoney(s, n)
     }
     return t.split("").reverse().join("") + "." + r;
 }
-
-
-
 
