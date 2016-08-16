@@ -726,6 +726,14 @@ public class OrderExceptionService {
 	}
 
 	/**
+	 * 修改状态
+	 * @param orderException
+	 * @return
+	 */
+	public int updateOrderStatus(OrderException orderException){
+		return  orderExceptionMapper.updateOrderStatus(orderException);
+	}
+	/**
 	 * 供应商补货订单管理-分页查询
 	 * @param pagination
 	 * @param orderExceptionDto

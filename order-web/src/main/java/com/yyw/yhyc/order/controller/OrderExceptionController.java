@@ -29,6 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -307,6 +308,31 @@ public class OrderExceptionController extends BaseJsonController{
 		}
 		orderDto.setSupplyId(userDto.getCustId());
 		return orderExceptionService.listPgSellerReplenishmentOrder(pagination, orderDto);
+	}
+
+	/**
+	 * 修改订单状态
+	 * @param orderStatus
+	 * @param id
+     * @return
+     */
+	@RequestMapping(value = {"/updateOrderStatus/{id}/{orderStatus}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> updateOrderStatus(@PathVariable("orderStatus") String orderStatus, @PathVariable("id") Integer id) throws Exception{
+		UserDto u = super.getLoginUser();
+		OrderException orderException = new OrderException();
+		orderException.setOrderStatus(orderStatus);
+		orderException.setExceptionId(id);
+		orderException.setCustId(u.getCustId());
+
+		int row = orderExceptionService.updateOrderStatus(orderException);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(row >0 )
+			map.put("result", "S");
+		else
+			map.put("result", "F");
+
+		return map;
 	}
 }
 

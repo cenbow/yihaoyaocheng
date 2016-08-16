@@ -233,6 +233,9 @@
 			, return_desc=#{returnDesc}
 		WHERE exception_id = #{exceptionId}  ]]>
 	</update>
+	<update id="updateOrderStatus" parameterType="OrderException">
+		<![CDATA[ UPDATE t_order_exception SET order_status=#{orderStatus} WHERE exception_id = #{exceptionId} AND  cust_id=#{custId} ]]>
+	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_order_exception WHERE exception_id = #{exceptionId}  ]]>
 	</delete>

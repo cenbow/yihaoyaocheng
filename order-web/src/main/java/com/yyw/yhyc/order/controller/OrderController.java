@@ -87,8 +87,8 @@ public class OrderController extends BaseJsonController {
      * @return
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public void add(Order order) throws Exception {
-        orderFacade.save(order);
+    public void add(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
+        orderFacade.save(null);
     }
 
     /**
@@ -96,7 +96,7 @@ public class OrderController extends BaseJsonController {
      * @return
      */
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public void delete(RequestListModel<Integer> requestListModel) throws Exception {
+    public void delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
         orderFacade.deleteByPKeys(requestListModel.getList());
     }
 
@@ -105,7 +105,7 @@ public class OrderController extends BaseJsonController {
      * @return
      */
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
-    public void update(Order order) throws Exception {
+    public void update(@RequestBody Order order) throws Exception {
         orderFacade.update(order);
     }
 

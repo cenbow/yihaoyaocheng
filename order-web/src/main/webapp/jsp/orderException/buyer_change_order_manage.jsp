@@ -70,14 +70,14 @@
                 <div class="col-xs-12">
                     <ul id="myTab" class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部订单</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount">待确认</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount">待买家发货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount">待卖家收货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('6');" name="statusCount">待卖家发货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('7');" name="statusCount">待买家收货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('8');" name="statusCount">已完成</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount">已关闭</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount">已取消</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount1">待确认</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount4">待买家发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount5">待卖家收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('6');" name="statusCount6">待卖家发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('7');" name="statusCount7">待买家收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('8');" name="statusCount8">已完成</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount3">已关闭</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount2">已取消</a></li>
                     </ul>
 
                     <div id="myTabContent" class="tab-content">
@@ -88,11 +88,11 @@
                             <table class="table table-box">
                                 <colgroup>
                                     <col style="width: 25%;"/>
-                                    <col style="width: 20%;"/>
+                                    <col style="width: 15%;"/>
                                     <col style="width: 25%;"/>
+                                    <col style="width: 10%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 15%;"/>
-                                    <%--<col style="width: 15%;"/>--%>
+                                    <col style="width: 10%;"/>
                                 </colgroup>
                                 <thead>
                                 <tr>
@@ -101,6 +101,7 @@
                                     <th>供应商</th>
                                     <th>订单状态</th>
                                     <th>订单金额</th>
+                                    <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
