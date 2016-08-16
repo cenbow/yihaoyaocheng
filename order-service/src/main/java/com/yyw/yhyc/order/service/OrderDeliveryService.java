@@ -231,7 +231,7 @@ public class OrderDeliveryService {
 		}
 
 		//根据orderId查询订单收发货信息是否存在,更新发货信息
-		OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getOrderId());
+		OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getFlowId());
 		orderDeliveryDto.setFlowId(orderDelivery.getFlowId());
 		if(UtilHelper.isEmpty(orderDelivery)){
 			map.put("code", "0");
@@ -356,7 +356,7 @@ public class OrderDeliveryService {
 				orderMapper.update(order);
 				//生成发货信息
 				UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
-				OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getOrderId());
+				OrderDelivery orderDelivery = orderDeliveryMapper.getByOrderId(orderDeliveryDto.getFlowId());
 				orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
 				orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
 				orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
