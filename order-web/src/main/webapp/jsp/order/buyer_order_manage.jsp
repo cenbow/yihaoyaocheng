@@ -162,7 +162,7 @@
                                 <label for="scope" class="col-xs-3 control-label">请选择对剩余商品的处理并确认，默认做为拒收处理：</label>
                                 <div class="col-xs-8">
                                     <input type='hidden' name='list.returnType' id="returnType" >
-                                    <input type="radio" checked="true"  name="ownw" value="4">拒收
+                                    <input type="radio" name="ownw" value="4">拒收
                                     <input type="radio" name="ownw" value="3">补货
                                 </div>
                             </div>

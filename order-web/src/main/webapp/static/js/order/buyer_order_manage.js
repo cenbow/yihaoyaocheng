@@ -426,6 +426,7 @@ function confirmReceipt(){
 
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
+
     if($("#bodyDiv:visible").size() == 0){
         for(var i=0;i<productCount.length;i++){
             if($(recieveCount[i]).val()==null){
@@ -438,6 +439,20 @@ function confirmReceipt(){
             }
             list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
         }
+    }else{
+        var ownw = $("input[type=radio][name=ownw]:checked");
+        if(ownw.val()==null||ownw.val()==""){
+            alertModal("请选择处理类型");
+            return;
+        }
+        for(var i=0;i<productCount.length;i++){
+            if($(recieveCount[i]).val()==null){
+                alertModal("请填写收货数量");
+                return;
+            }
+            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+        }
+
     }
 
 
@@ -457,6 +472,8 @@ function confirmReceipt(){
             }else{
                 alertModal(data.msg);
                 $("#myModalConfirmReceipt").modal("hide");
+                pasretFormData();
+                doRefreshData(params);
             }
         }
     });

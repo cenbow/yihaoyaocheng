@@ -701,16 +701,17 @@ public class OrderService {
 		orderDetailsdto.setOrderStatusName(SystemOrderStatusEnum.getName(orderDetailsdto.getOrderStatus()));
 		//计算确认收货金额
 		BigDecimal total=new BigDecimal(0);
+		BigDecimal productTotal=new BigDecimal(0);
 		for (OrderDetail detail:orderDetailsdto.getDetails())
 		{
+			BigDecimal proudcutCount=new BigDecimal(detail.getProductCount());
 			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
 				BigDecimal count=new BigDecimal(detail.getRecieveCount());
 				total=total.add(detail.getProductPrice().multiply(count));
-			}else {
-				BigDecimal count=new BigDecimal(detail.getProductCount());
-				total=total.add(detail.getProductPrice().multiply(count));
 			}
+			productTotal=productTotal.add(detail.getProductPrice().multiply(proudcutCount));
 		}
+		orderDetailsdto.setProductTotal(productTotal);
 		orderDetailsdto.setReceiveTotal(total);
 			//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
