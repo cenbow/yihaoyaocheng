@@ -252,7 +252,7 @@ public class OrderExceptionService {
 
 		if(UtilHelper.isEmpty(orderExceptionDto))
 			throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
@@ -269,10 +269,10 @@ public class OrderExceptionService {
 		int orderCount = 0;
 		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerExceptionOrderTotal(orderExceptionDto);
 
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRejectOrder(pagination, orderExceptionDto);
-		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+		log.info("orderExceptionDtoList:" + orderExceptionDtoList);
 
 
 		BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum;
@@ -305,12 +305,12 @@ public class OrderExceptionService {
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 
 		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
 		resultMap.put("rejectOrderList", pagination);
 		resultMap.put("rejectOrderCount", orderCount);
-		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
@@ -428,7 +428,7 @@ public class OrderExceptionService {
 
 
 	/**
-	 * 审核退货订单详情
+	 * 审核拒收、退货订单详情（异常订单详情）
 	 * @param orderExceptionDto
 	 * @return
 	 * @throws Exception
@@ -490,6 +490,62 @@ public class OrderExceptionService {
 		//插入日志表
 		OrderTrace orderTrace = new OrderTrace();
 		orderTrace.setOrderId(oe.getExceptionId());
+		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
+		orderTrace.setDealStaff(userDto.getUserName());
+		orderTrace.setRecordDate(now);
+		orderTrace.setRecordStaff(userDto.getUserName());
+		orderTrace.setOrderStatus(oe.getOrderStatus());
+		orderTrace.setCreateTime(now);
+		orderTrace.setCreateUser(userDto.getUserName());
+		orderTraceMapper.save(orderTrace);
+		//拒收订单卖家审核通过生成结算记录
+		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+		this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
+
+	}
+	/**
+	 * 卖家审核拒收订单
+	 * @param userDto
+	 * @param orderException
+	 */
+	public void sellerReviewReturnOrder(UserDto userDto,OrderException orderException){
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
+			throw new RuntimeException("参数异常");
+
+		// 验证审核状态
+		if(!(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())))
+			throw new RuntimeException("参数异常");
+
+		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
+		if(UtilHelper.isEmpty(oe))
+			throw new RuntimeException("未找到退货订单");
+		if(userDto.getCustId() != oe.getSupplyId()){
+			log.info("退货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("未找到退货订单");
+		}
+		//判断是否是拒收订单
+		if(!"1".equals(oe.getReturnType())){
+			log.info("退货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("该订单不是退货订单");
+		}
+		if(!SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(oe.getOrderStatus())){
+			log.info("退货订单状态不正确,OrderException:"+oe);
+			throw new RuntimeException("退货订单状态不正确");
+		}
+		String now = systemDateMapper.getSystemDate();
+		oe.setRemark(orderException.getRemark());
+		oe.setOrderStatus(orderException.getOrderStatus());
+		oe.setUpdateUser(userDto.getUserName());
+		oe.setUpdateTime(now);
+		int count = orderExceptionMapper.update(oe);
+		if(count == 0){
+			log.error("OrderException info :"+oe);
+			throw new RuntimeException("退货订单审核失败");
+		}
+
+		//插入日志表
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setOrderId(oe.getExceptionId());
 		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus())+oe.getRemark());
 		orderTrace.setDealStaff(userDto.getUserName());
 		orderTrace.setRecordDate(now);
@@ -498,10 +554,5 @@ public class OrderExceptionService {
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(userDto.getUserName());
 		orderTraceMapper.save(orderTrace);
-
-		//拒收订单卖家审核通过生成结算记录
-		this.saveRefuseOrderSettlement(userDto.getCustId(),oe);
-
 	}
-
 }
