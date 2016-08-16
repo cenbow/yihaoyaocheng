@@ -16,8 +16,10 @@
     if(!UtilHelper.isEmpty(request.getParameter("userName")))
         u.setUsername(request.getParameter("userName"));
 
-    if(!UtilHelper.isEmpty(request.getParameter("custType")))
+    if(!UtilHelper.isEmpty(request.getParameter("custType"))){
+        u.setValidate(true);
         CacheUtil.getSingleton().add("passport" + session.getId(), JSONObject.toJSONString(u), 60 * 60 * 4);
+    }
 %>
 
 <p>登录信息 --> <%=CacheUtil.getSingleton().get("passport" + session.getId())%></p>
