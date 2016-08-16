@@ -412,6 +412,7 @@
 				, #{orderTotal}
 				, #{finalPay}
 				, #{totalCount}
+				, #{paymentTermStatus}
 				, #{orderStatus}
 				, #{remark}
 				, #{leaveMessage}
@@ -434,7 +435,6 @@
 				, #{billType}
 				, #{delayLog}
 				, #{receiveType}
-				, #{payment_term_status}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">

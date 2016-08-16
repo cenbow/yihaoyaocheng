@@ -871,9 +871,16 @@
 		T_ORDER_EXCEPTION T1
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		LEFT JOIN t_passport_user u ON u.id = T1.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '3'<!--补货订单-->
-		AND	T1.CUST_ID = #{custId}
+		<if test="custId !=null and custId !=''">
+			AND T1.CUST_ID = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND T1.SUPPLY_ID = #{supplyId}
+		</if>
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -910,6 +917,15 @@
 					<![CDATA[ AND 1<>1]]>
 				</otherwise>
 			</choose>
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
 		</if>
 		ORDER BY T1.EXCEPTION_ID DESC
 	</select>
@@ -919,9 +935,16 @@
 		SUM(T1.ORDER_MONEY)
 		FROM
 		T_ORDER_EXCEPTION T1
+		LEFT JOIN t_passport_user u ON u.id = T1.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '3'<!--补货订单-->
-		AND	T1.CUST_ID = #{custId}
+		<if test="custId !=null and custId !=''">
+			AND T1.CUST_ID = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND T1.SUPPLY_ID = #{supplyId}
+		</if>
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -958,6 +981,15 @@
 					<![CDATA[ AND 1<>1]]>
 				</otherwise>
 			</choose>
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
 		</if>
 		AND T1.ORDER_MONEY IS NOT NULL
 	</select>
@@ -968,9 +1000,16 @@
 		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount
 		FROM
 		T_ORDER_EXCEPTION T1
+		LEFT JOIN t_passport_user u ON u.id = T1.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '3'<!--补货订单-->
-		AND	T1.CUST_ID = #{custId}
+		<if test="custId !=null and custId !=''">
+			AND T1.CUST_ID = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND T1.SUPPLY_ID = #{supplyId}
+		</if>
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -985,6 +1024,15 @@
 		</if>
 		<if test="endTime!= null and endTime!= ''">
 			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
 		</if>
 		GROUP BY T1.ORDER_STATUS
 	</select>
