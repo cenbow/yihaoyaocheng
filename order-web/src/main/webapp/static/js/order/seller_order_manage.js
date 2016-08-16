@@ -211,11 +211,11 @@ function typeToOperate(order) {
         result += '<a href="javascript:sendDelivery(' + order.orderId + ')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
     }
     if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
+        result += '<a href="'+ctx+'/orderException/getDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }
 
     if (order && order.orderStatus && order.orderStatus == '10') {//补货中
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+        result += '<a href="'+ctx+'/orderException/getDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     return result;
