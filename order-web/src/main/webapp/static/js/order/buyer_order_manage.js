@@ -214,6 +214,9 @@ function typeToOperate(order) {
         result += '<a href="#" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
+    if(order && order.orderStatus && (order.orderStatus == '8'||order.orderStatus == '11'||order.orderStatus == '14')){//补货中
+        result += '<a href="javascript:void(0);" class="btn btn-info btn-sm margin-r-10" onClick="showSalesReturn(\''+order.flowId+'\')">申请退货/换货</a>';
+    }
     return result;
 }
 
@@ -473,7 +476,4 @@ function fmoney(s, n)
     }
     return t.split("").reverse().join("") + "." + r;
 }
-
-
-
 
