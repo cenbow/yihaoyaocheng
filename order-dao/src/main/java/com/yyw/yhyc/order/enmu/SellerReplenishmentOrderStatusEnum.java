@@ -7,7 +7,7 @@ public enum SellerReplenishmentOrderStatusEnum {
     WaitingConfirmation("1","待确认"),
     WaitingDelivered("2","待发货"),
     WaitingReceived("3","待收货"),
-    Closed("","已关闭"),
+    Closed("4","已关闭"),
     Finished("5","已完成");
 
     private String type;
