@@ -74,7 +74,7 @@ public class OrderExceptionService {
 	 * @return
 	 * @throws Exception
 	 */
-	public OrderException getByPK(java.lang.Integer primaryKey) throws Exception
+	public OrderException getByPK(Integer primaryKey) throws Exception
 	{
 		return orderExceptionMapper.getByPK(primaryKey);
 	}
@@ -120,7 +120,7 @@ public class OrderExceptionService {
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteByPK(java.lang.Integer primaryKey) throws Exception
+	public int deleteByPK(Integer primaryKey) throws Exception
 	{
 		return orderExceptionMapper.deleteByPK(primaryKey);
 	}
@@ -130,7 +130,7 @@ public class OrderExceptionService {
 	 * @param primaryKeys
 	 * @throws Exception
 	 */
-	public void deleteByPKeys(List<java.lang.Integer> primaryKeys) throws Exception
+	public void deleteByPKeys(List<Integer> primaryKeys) throws Exception
 	{
 		orderExceptionMapper.deleteByPKeys(primaryKeys);
 	}
@@ -500,6 +500,117 @@ public class OrderExceptionService {
 		this.saveRefuseOrderSettlement(userDto.getCustId(),oe);
 
 	}
+
+	/**
+	 * 采购商换货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public Map<String, Object> listPgBuyerChangeGoodsOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+
+		if(UtilHelper.isEmpty(orderExceptionDto))
+			throw new RuntimeException("参数错误");
+		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderExceptionDto.setEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderExceptionDto.getEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+		}
+		int orderCount = 0;
+		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerChangeGoodsExceptionOrderTotal(orderExceptionDto);
+		log.info("orderTotalMoney:"+orderTotalMoney);
+
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPgBuyerChangeGoodsOrder(pagination, orderExceptionDto);
+		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+		BuyerChangeGoodsOrderStatusEnum buyerOrderExceptionStatusEnum;
+		if(!UtilHelper.isEmpty(orderExceptionDtoList)){
+			orderCount = pagination.getTotal();
+			for(OrderExceptionDto oed : orderExceptionDtoList){
+				buyerOrderExceptionStatusEnum = getBuyerChangeGoodsOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+				if(!UtilHelper.isEmpty(buyerOrderExceptionStatusEnum))
+					oed.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
+				else
+					oed.setOrderStatusName("未知状态");
+			}
+		}
+		pagination.setResultList(orderExceptionDtoList);
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findBuyerChangeGoodsOrderStatusCount(orderExceptionDto);;
+
+		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
+			for (OrderExceptionDto oed : orderExceptionDtos) {
+				//买家视角订单状态数量
+				buyerOrderExceptionStatusEnum = getBuyerChangeGoodsOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+				if(buyerOrderExceptionStatusEnum != null){
+					if(orderStatusCountMap.containsKey(buyerOrderExceptionStatusEnum.getType())){
+						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),orderStatusCountMap.get(buyerOrderExceptionStatusEnum.getType())+oed.getOrderCount());
+					}else{
+						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),oed.getOrderCount());
+					}
+				}
+			}
+		}
+		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
+		resultMap.put("rejectOrderList", pagination);
+		resultMap.put("rejectOrderCount", orderCount);
+		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		return resultMap;
+	}
+
+	/**
+	 * 获取采购商视角换货异常订单状态
+	 * @param systemExceptionOrderStatus
+	 * @param payType
+	 * @return
+	 */
+	BuyerChangeGoodsOrderStatusEnum getBuyerChangeGoodsOrderExceptionStatus(String systemExceptionOrderStatus,int payType){
+		BuyerChangeGoodsOrderStatusEnum buyerOrderExceptionStatusEnum = null;
+		if(SystemChangeGoodsOrderStatusEnum.WaitingConfirmation.getType().equals(systemExceptionOrderStatus)){//申请中
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.WaitingConfirmation;//待确认
+		}
+		if(SystemChangeGoodsOrderStatusEnum.Canceled.getType().equals(systemExceptionOrderStatus)){//已取消
+			buyerOrderExceptionStatusEnum=BuyerChangeGoodsOrderStatusEnum.Canceled;
+		}
+		if(SystemChangeGoodsOrderStatusEnum.Closed.getType().equals(systemExceptionOrderStatus)){//卖家已关闭
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.Closed;//已关闭
+		}
+		if(SystemChangeGoodsOrderStatusEnum.WaitingBuyerDelivered.getType().equals(systemExceptionOrderStatus)){//待买家发货
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.WaitingBuyerDelivered;//待买家发货
+		}
+		if(SystemChangeGoodsOrderStatusEnum.WaitingSellerReceived.getType().equals(systemExceptionOrderStatus)){//买家已发货
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.WaitingSellerReceived;//
+		}
+
+		if(SystemChangeGoodsOrderStatusEnum.WaitingSellerDelivered.getType().equals(systemExceptionOrderStatus)){//卖家已收货
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.WaitingSellerDelivered;//
+		}
+
+		if(SystemChangeGoodsOrderStatusEnum.WaitingBuyerReceived.getType().equals(systemExceptionOrderStatus)){//卖家已发货
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.WaitingBuyerReceived;//
+		}
+
+		if(SystemChangeGoodsOrderStatusEnum.Finished.getType().equals(systemExceptionOrderStatus)){//买家已收货
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.Finished;//
+		}
+
+		if(SystemChangeGoodsOrderStatusEnum.AutoFinished.getType().equals(systemExceptionOrderStatus)){//买家自动收货
+			buyerOrderExceptionStatusEnum = BuyerChangeGoodsOrderStatusEnum.Finished;//
+		}
+
+		return buyerOrderExceptionStatusEnum;
+	}
+
+
 
 
 
