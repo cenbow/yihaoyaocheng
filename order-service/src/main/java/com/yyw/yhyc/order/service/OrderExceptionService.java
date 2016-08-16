@@ -19,10 +19,7 @@ import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.BuyerOrderExceptionStatusEnum;
-import com.yyw.yhyc.order.enmu.SellerOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.utils.DateUtils;
@@ -502,6 +499,119 @@ public class OrderExceptionService {
 		//拒收订单卖家审核通过生成结算记录
 		this.saveRefuseOrderSettlement(userDto.getCustId(),oe);
 
+	}
+
+
+
+	/**
+	 * 采购商补货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public Map<String, Object> listPgBuyerReplenishmentOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+
+		if(UtilHelper.isEmpty(orderExceptionDto))
+			throw new RuntimeException("参数错误");
+		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderExceptionDto.setEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderExceptionDto.getEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+
+		}
+
+		int orderCount = 0;
+		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerReplenishmentOrderTotal(orderExceptionDto);
+
+		log.info("orderTotalMoney:"+orderTotalMoney);
+
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerReplenishmentOrder(pagination, orderExceptionDto);
+		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+
+		BuyerReplenishmentOrderStatusEnum buyerReplenishmentOrderStatusEnum;
+		if(!UtilHelper.isEmpty(orderExceptionDtoList)){
+			orderCount = pagination.getTotal();
+			for(OrderExceptionDto oed : orderExceptionDtoList){
+				buyerReplenishmentOrderStatusEnum = getBuyerReplenishmentOrderStatus(oed.getOrderStatus());
+				if(!UtilHelper.isEmpty(buyerReplenishmentOrderStatusEnum))
+					oed.setOrderStatusName(buyerReplenishmentOrderStatusEnum.getValue());
+				else
+					oed.setOrderStatusName("未知状态");
+			}
+		}
+
+		pagination.setResultList(orderExceptionDtoList);
+
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findBuyerReplenishmentStatusCount(orderExceptionDto);;
+
+		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
+			for (OrderExceptionDto oed : orderExceptionDtos) {
+				//卖家视角订单状态
+				buyerReplenishmentOrderStatusEnum = getBuyerReplenishmentOrderStatus(oed.getOrderStatus());
+				if(buyerReplenishmentOrderStatusEnum != null){
+					if(orderStatusCountMap.containsKey(buyerReplenishmentOrderStatusEnum.getType())){
+						orderStatusCountMap.put(buyerReplenishmentOrderStatusEnum.getType(),orderStatusCountMap.get(buyerReplenishmentOrderStatusEnum.getType())+oed.getOrderCount());
+					}else{
+						orderStatusCountMap.put(buyerReplenishmentOrderStatusEnum.getType(),oed.getOrderCount());
+					}
+				}
+			}
+		}
+		log.info("orderStatusCountMap:"+orderStatusCountMap);
+
+		resultMap.put("orderStatusCount", orderStatusCountMap);
+		resultMap.put("orderList", pagination);
+		resultMap.put("orderCount", orderCount);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		return resultMap;
+	}
+
+	/**
+	 * 获取买家视角补货订单状态
+	 * @param systemReplementOrderStatus
+	 * @return
+     */
+	BuyerReplenishmentOrderStatusEnum getBuyerReplenishmentOrderStatus(String systemReplementOrderStatus){
+		if(SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getType().equals(systemReplementOrderStatus))//买家已申请
+			return BuyerReplenishmentOrderStatusEnum.WaitingConfirmation;
+		if(SystemReplenishmentOrderStatusEnum.SellerConfirmed.getType().equals(systemReplementOrderStatus))//卖家已确认
+			return BuyerReplenishmentOrderStatusEnum.WaitingDelivered;
+		if(SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(systemReplementOrderStatus))//卖家已关闭
+			return BuyerReplenishmentOrderStatusEnum.Closed;
+		if(SystemReplenishmentOrderStatusEnum.SellerDelivered.getType().equals(systemReplementOrderStatus))//卖家已发货
+			return BuyerReplenishmentOrderStatusEnum.WaitingReceived;
+		if(SystemReplenishmentOrderStatusEnum.BuyerReceived.getType().equals(systemReplementOrderStatus) || SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(systemReplementOrderStatus))//买家已收货+系统自动确认收货
+			return BuyerReplenishmentOrderStatusEnum.Finished;
+		return null;
+	}
+
+	/**
+	 * 获取卖家视角补货订单状态
+	 * @param systemReplementOrderStatus
+	 * @return
+	 */
+	SellerReplenishmentOrderStatusEnum getSellerReplenishmentOrderStatus(String systemReplementOrderStatus){
+		if(SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getType().equals(systemReplementOrderStatus))//买家已申请
+			return SellerReplenishmentOrderStatusEnum.WaitingConfirmation;
+		if(SystemReplenishmentOrderStatusEnum.SellerConfirmed.getType().equals(systemReplementOrderStatus))//卖家已确认
+			return SellerReplenishmentOrderStatusEnum.WaitingDelivered;
+		if(SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(systemReplementOrderStatus))//卖家已关闭
+			return SellerReplenishmentOrderStatusEnum.Closed;
+		if(SystemReplenishmentOrderStatusEnum.SellerDelivered.getType().equals(systemReplementOrderStatus))//卖家已发货
+			return SellerReplenishmentOrderStatusEnum.WaitingReceived;
+		if(SystemReplenishmentOrderStatusEnum.BuyerReceived.getType().equals(systemReplementOrderStatus) || SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(systemReplementOrderStatus))//买家已收货+系统自动确认收货
+			return SellerReplenishmentOrderStatusEnum.Finished;
+		return null;
 	}
 
 }
