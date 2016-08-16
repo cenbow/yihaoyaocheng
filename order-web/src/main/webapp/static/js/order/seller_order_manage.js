@@ -330,11 +330,11 @@ function sendDeliverysubmit(){
         }
 
         $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
-        $("#deliveryExpressNo").val($("#deliveryContactPerson1").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
 
     }else{
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
-        $("#deliveryExpressNo").val($("#deliveryContactPerson2").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
     $("#sendform").ajaxSubmit({
         url :ctx+'/order/orderDelivery/sendOrderDelivery',
