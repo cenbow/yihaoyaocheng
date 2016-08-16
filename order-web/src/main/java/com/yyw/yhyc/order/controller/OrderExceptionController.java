@@ -278,11 +278,8 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
-		//UserDto userDto = super.getLoginUser();
-		if(orderDto==null){
-			orderDto=new OrderExceptionDto();
-		}
-		orderDto.setCustId(333);
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
 	}
 }
