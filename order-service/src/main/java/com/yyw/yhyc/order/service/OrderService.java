@@ -1308,4 +1308,25 @@ public class OrderService {
 		order.setFinalPay(orderSettlement.getRefunSettlementMoney());
 		orderMapper.update(order);
 	}
+
+	/**
+	 * 提供给武汉使用,在订单状态已完成时
+	 * 可对订单进行已还款状态修改
+	 * @param order
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean updateOrderStatus(List<Order> order) {
+		// TODO Auto-generated method stub
+		Order on=new Order();
+		for(Order o:order){
+			Order no=orderMapper.getByPK(o.getOrderId());
+			if(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
+				on.setOrderId(o.getOrderId());
+				on.setPaymentTermStatus(1);
+				orderMapper.update(on);
+			}
+		}
+		return true;
+	}
 }
