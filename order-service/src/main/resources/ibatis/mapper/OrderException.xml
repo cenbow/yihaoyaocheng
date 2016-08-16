@@ -282,7 +282,7 @@
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
 		<association property="order" column="order_id" select="com.yyw.yhyc.order.mapper.OrderMapper.getByPK"></association>
 		<association property="orderDelivery" column="flow_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
-		<association property="usermanageEnterprise" column="supply_id" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"></association>
+		<!--<association property="usermanageEnterprise" column="supply_id" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"></association>-->
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
@@ -293,7 +293,7 @@
 		t_order_exception T1
 		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
 		LEFT JOIN t_system_pay_type T3 ON T2.pay_type_id = T3.pay_type_id
-		WHERE T1.flow_id=#{flowId} AND return_type=4
+		WHERE T1.flow_id=#{flowId} AND return_type='4'
 		<if test="custId!= null and custId!= ''">
 			AND T1.cust_Id=#{custId}
 		</if>
