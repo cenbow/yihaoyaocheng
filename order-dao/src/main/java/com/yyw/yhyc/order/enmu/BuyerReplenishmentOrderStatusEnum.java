@@ -3,7 +3,7 @@ package com.yyw.yhyc.order.enmu;
 /**
  * Created by zhangqiang on 2016/8/16.
  */
-public enum  SellerCycleOrderStatusEnum {
+public enum BuyerReplenishmentOrderStatusEnum {
     WaitingConfirmation("1","待确认"),
     WaitingDelivered("2","待发货"),
     Closed("3","已关闭"),
@@ -13,13 +13,13 @@ public enum  SellerCycleOrderStatusEnum {
     private String type;
     private String value;
 
-    SellerCycleOrderStatusEnum(String type, String value) {
+    BuyerReplenishmentOrderStatusEnum(String type, String value) {
         this.type = type;
         this.value = value;
     }
 
     public static String getName(String type) {
-        for (SellerCycleOrderStatusEnum item : SellerCycleOrderStatusEnum.values()) {
+        for (BuyerReplenishmentOrderStatusEnum item : BuyerReplenishmentOrderStatusEnum.values()) {
             if (item.type.equals(type) )
                 return item.value;
         }

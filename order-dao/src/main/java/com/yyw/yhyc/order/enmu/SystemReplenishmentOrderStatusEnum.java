@@ -4,7 +4,7 @@ package com.yyw.yhyc.order.enmu;
  * 补货订单系统状态
  * Created by zhangqiang on 2016/8/16.
  */
-public enum SystemCycleOrderStatusEnum {
+public enum SystemReplenishmentOrderStatusEnum {
     BuyerRejectApplying("1","买家已申请"),
     SellerConfirmed("2","卖家已确认"),
     SellerClosed("3","卖家已关闭"),
@@ -15,13 +15,13 @@ public enum SystemCycleOrderStatusEnum {
     private String type;
     private String value;
 
-    SystemCycleOrderStatusEnum(String type, String value) {
+    SystemReplenishmentOrderStatusEnum(String type, String value) {
         this.type = type;
         this.value = value;
     }
 
     public static String getName(String type) {
-        for (SystemCycleOrderStatusEnum item : SystemCycleOrderStatusEnum.values()) {
+        for (SystemReplenishmentOrderStatusEnum item : SystemReplenishmentOrderStatusEnum.values()) {
             if (item.type.equals(type) )
                 return item.value;
         }
