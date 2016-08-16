@@ -28,6 +28,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -320,7 +321,7 @@ public class OrderExceptionController extends BaseJsonController{
 		orderException.setCustId(u.getCustId());
 
 		int row = orderExceptionService.updateOrderStatus(orderException);
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		if(row >0 )
 			map.put("result", "S");
 		else
