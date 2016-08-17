@@ -12,11 +12,11 @@
     <artifactId>order-web</artifactId>
 
     <dependencies>
-        <dependency>
+       <!-- <dependency>
             <groupId>com.yyw.yhyc</groupId>
             <artifactId>order-api</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.yyw.yhyc</groupId>
             <artifactId>order-service</artifactId>

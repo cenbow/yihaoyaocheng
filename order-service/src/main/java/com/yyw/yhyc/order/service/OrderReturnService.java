@@ -11,7 +11,9 @@
 package com.yyw.yhyc.order.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.order.bo.Order;
@@ -161,6 +163,7 @@ public class OrderReturnService {
 		if(returnList!=null && returnList.size()>0){
 			Order order = orderMapper.getOrderbyFlowId(returnList.get(0).getFlowId());
 			List<Integer> orderDeliveryIdList = new ArrayList<>();
+            Map<Integer,Integer> orderDeliveryCountMap = new HashMap<>();
 			for (OrderReturn or: returnList) {
 				or.setCustId(order.getCustId());
 				or.setOrderId(order.getOrderId());
@@ -168,11 +171,20 @@ public class OrderReturnService {
 				//or.setCreateUser(userDto.getUserName());
 				or.setReturnStatus("1");
 				orderDeliveryIdList.add(or.getOrderDeliveryDetailId());
+                orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
 				orderReturnMapper.save(or);
 			}
 			//TODO  扣减可用数量
-			List<OrderDeliveryDetail> OrderDeliveryDetailList = orderDeliveryDetailMapper.list();
+			List<OrderDeliveryDetail> OrderDeliveryDetailList = orderDeliveryDetailMapper.listByIds(orderDeliveryIdList);
 
+            for (OrderDeliveryDetail odd:OrderDeliveryDetailList) {
+                Integer canReturnCount = odd.getCanReturnCount()==null?odd.getRecieveCount():odd.getCanReturnCount();
+                Integer stractCount = orderDeliveryCountMap.get(odd.getOrderDeliveryDetailId());
+                if(stractCount!=null&&stractCount>0){
+                    odd.setCanReturnCount(canReturnCount-stractCount);
+                }
+                orderDeliveryDetailMapper.update(odd);
+            }
 
 			code = "1";
 		}

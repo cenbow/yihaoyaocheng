@@ -16,7 +16,6 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.facade.OrderExceptionFacade;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +39,6 @@ import java.util.Map;
 public class OrderExceptionController extends BaseJsonController{
 	private static final Logger logger = LoggerFactory.getLogger(OrderExceptionController.class);
 
-	@Reference
-	private OrderExceptionFacade orderExceptionFacade;
-
 	@Autowired
 	private OrderExceptionService orderExceptionService;
 
@@ -54,7 +50,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public OrderException getByPK(Integer key) throws Exception
 	{
-		return orderExceptionFacade.getByPK(key);
+		return orderExceptionService.getByPK(key);
 	}
 
 	/**
@@ -71,7 +67,7 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderExceptionFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderExceptionService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -81,7 +77,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(@RequestBody OrderException orderException) throws Exception
 	{
-		orderExceptionFacade.save(orderException);
+		orderExceptionService.save(orderException);
 	}
 
 	/**
@@ -91,7 +87,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderExceptionFacade.deleteByPKeys(requestListModel.getList());
+		orderExceptionService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -101,7 +97,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(@RequestBody OrderException orderException) throws Exception
 	{
-		orderExceptionFacade.update(orderException);
+		orderExceptionService.update(orderException);
 	}
 
 
@@ -123,7 +119,7 @@ public class OrderExceptionController extends BaseJsonController{
 		} else if(userType == 2) {
 			orderExceptionDto.setSupplyId(user.getCustId());
 		}
-		orderExceptionDto = orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
 		orderExceptionDto.setUserType(userType);
 
 		ModelAndView modelAndView = new ModelAndView();
@@ -166,7 +162,7 @@ public class OrderExceptionController extends BaseJsonController{
 			orderExceptionDto.setSupplyId(dto.getCustId());
 			orderExceptionDto.setSupplyId(dto.getCustId());
 		}
-		Map<String,Object> map = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		Map<String,Object> map = orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
 
 		return map;
 	}
