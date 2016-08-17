@@ -1180,6 +1180,174 @@
 		</if>
 	</select>
 
+	<select id="listPaginationBuyerRefundOrder" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap"  useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>, T3.PAY_TYPE,
+		T3.PAY_TYPE_NAME
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.RETURN_TYPE = '1'<!--退货-->
+		AND	T1.CUST_ID = #{custId}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "2"'><!--已取消-->
+					AND T1.ORDER_STATUS = '2' <!--买家已取消-->
+				</when>
+				<when test='orderStatus == "3"'><!--待买家发货-->
+					AND T1.ORDER_STATUS = '3' <!--卖家已确认-->
+				</when>
+				<when test='orderStatus == "4"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '4' <!--卖家已关闭-->
+				</when>
+				<when test='orderStatus == "5"'><!--待卖家收货-->
+					AND T1.ORDER_STATUS = '5' <!--买家已发货-->
+				</when>
+				<when test='orderStatus == "6"'><!--退款中-->
+					AND ((T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND (T3.PAY_TYPE = 1 OR T3.PAY_TYPE = 3))<!--(卖家已收货、系统自动确认收货)+(在线支付、线下转账)-->
+				</when>
+				<when test='orderStatus == "7"'><!--已完成-->
+					AND (
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
+					)
+				</when>
+				<otherwise>
+					<![CDATA[ AND 1<>1]]>
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
+
+	<select id="findBuyerRefundOrderTotal" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal"  useCache="false">
+		SELECT
+		SUM(T1.ORDER_MONEY)
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.RETURN_TYPE = '1'<!--退货-->
+		AND	T1.CUST_ID = #{custId}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "2"'><!--已取消-->
+					AND T1.ORDER_STATUS = '2' <!--买家已取消-->
+				</when>
+				<when test='orderStatus == "3"'><!--待买家发货-->
+					AND T1.ORDER_STATUS = '3' <!--卖家已确认-->
+				</when>
+				<when test='orderStatus == "4"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '4' <!--卖家已关闭-->
+				</when>
+				<when test='orderStatus == "5"'><!--待卖家收货-->
+					AND T1.ORDER_STATUS = '5' <!--买家已发货-->
+				</when>
+				<when test='orderStatus == "6"'><!--退款中-->
+					AND ((T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND (T3.PAY_TYPE = 1 OR T3.PAY_TYPE = 3))<!--(卖家已收货、系统自动确认收货)+(在线支付、线下转账)-->
+				</when>
+				<when test='orderStatus == "7"'><!--已完成-->
+					AND (
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
+					)
+				</when>
+				<otherwise>
+					<![CDATA[ AND 1<>1]]>
+				</otherwise>
+			</choose>
+		</if>
+	</select>
+
+	<select id="findBuyerRefundOrderStatusCount" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap"  useCache="false">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T3.PAY_TYPE AS payType
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.RETURN_TYPE = '1'<!--退货-->
+		AND	T1.CUST_ID = #{custId}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
+	</select>
+
+	<select id="getOrderExceptionDetailsForReview" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsResultMap">
+		SELECT
+		T1.*,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
+		FROM
+		t_order_exception T1
+		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
+		LEFT JOIN t_system_pay_type T3 ON T2.pay_type_id = T3.pay_type_id
+		WHERE T1.exception_id=#{exceptionId}
+		<if test="custId!= null and custId!= ''">
+			AND T1.cust_Id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND T1.supply_id=#{supplyId}
+		</if>
+	</select>
+
 	<select id="getByExceptionOrderId" parameterType="java.lang.String" resultMap="OrderExceptionResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>

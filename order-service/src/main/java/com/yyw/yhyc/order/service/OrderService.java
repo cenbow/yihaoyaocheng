@@ -1039,7 +1039,7 @@ public class OrderService {
 			}
 		}
 
-		BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
+		BigDecimal orderTotalMoney = orderMapper.findSellerOrderTotal(orderDto);
 		int orderCount = 0;
 		if(!UtilHelper.isEmpty(sellerOrderList)){
 			orderCount = pagination.getTotal();
