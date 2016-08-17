@@ -180,7 +180,7 @@ public class OrderExceptionService {
 	}
 
 	/**
-	 * 拒收订单详情
+	 * 退货订单详情
 	 * @param orderExceptionDto
 	 * @return
 	 * @throws Exception
@@ -727,7 +727,58 @@ public class OrderExceptionService {
 			return SellerReplenishmentOrderStatusEnum.Finished;
 		return null;
 	}
+	/**
+	 * 卖家审核拒收订单
+	 * @param userDto
+	 * @param orderException
+	 */
+	public void sellerReviewReturnOrder(UserDto userDto,OrderException orderException){
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
+			throw new RuntimeException("参数异常");
 
+		// 验证审核状态
+		if(!(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())))
+			throw new RuntimeException("参数异常");
+
+		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
+		if(UtilHelper.isEmpty(oe))
+			throw new RuntimeException("未找到退货订单");
+		if(userDto.getCustId() != oe.getSupplyId()){
+			log.info("退货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("未找到退货订单");
+		}
+		//判断是否是拒收订单
+		if(!"1".equals(oe.getReturnType())){
+			log.info("退货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("该订单不是退货订单");
+		}
+		if(!SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(oe.getOrderStatus())){
+			log.info("退货订单状态不正确,OrderException:"+oe);
+			throw new RuntimeException("退货订单状态不正确");
+		}
+		String now = systemDateMapper.getSystemDate();
+		oe.setRemark(orderException.getRemark());
+		oe.setOrderStatus(orderException.getOrderStatus());
+		oe.setUpdateUser(userDto.getUserName());
+		oe.setUpdateTime(now);
+		int count = orderExceptionMapper.update(oe);
+		if(count == 0){
+			log.error("OrderException info :"+oe);
+			throw new RuntimeException("退货订单审核失败");
+		}
+
+		//插入日志表
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setOrderId(oe.getExceptionId());
+		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus())+oe.getRemark());
+		orderTrace.setDealStaff(userDto.getUserName());
+		orderTrace.setRecordDate(now);
+		orderTrace.setRecordStaff(userDto.getUserName());
+		orderTrace.setOrderStatus(oe.getOrderStatus());
+		orderTrace.setCreateTime(now);
+		orderTrace.setCreateUser(userDto.getUserName());
+		orderTraceMapper.save(orderTrace);
+	}
 	/**
 	 * 修改状态
 	 * @param orderException
