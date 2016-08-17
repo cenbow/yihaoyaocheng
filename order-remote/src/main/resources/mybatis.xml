@@ -11,6 +11,6 @@
 		<setting name="lazyLoadingEnabled" value="false" />
 
 		<!--当对象使用延迟加载时 属性的加载取决于能被引用到的那些延迟属性,否则,按需加载(需要的是时候才去加载)-->
-		<setting name="aggressiveLazyLoading" value="false" />
+		<setting name="aggressiveLazyLoading" value="true" />
 	</settings>
 </configuration>
