@@ -168,7 +168,7 @@ function fillTableJson(data) {
         var order = list[i];
         var op = createOperation(order);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-2/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -186,10 +186,39 @@ function changeColor(){
     $(".table tr:not(:first):even").css({background:"#fff"});
 }
 
-function createOperation(data){
+function createOperation(order){
     var str = '';
-
+    if(order.orderStatus == '1')
+        str += '<a href="javascript:cancleOrder(' + order.exceptionId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+    if(order.orderStatus == '3')
+        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">发货</a>';
     return str;
+}
+
+/**
+ * 取消订单
+ * @param orderId
+ */
+function cancleOrder(exceptionId) {
+    if (window.confirm("确定取消退货订单？")) {
+        $.ajax({
+            url: ctx+"/orderException/buyerCancelRefundOrder/"+exceptionId,
+            type: 'GET',
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if(data.statusCode || data.message){
+                    alertModal(data.message);
+                    return;
+                }
+                pasretFormData();
+                doRefreshData(params);
+                alertModal("取消成功");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alertModal("取消失败");
+            }
+        });
+    }
 }
 
 

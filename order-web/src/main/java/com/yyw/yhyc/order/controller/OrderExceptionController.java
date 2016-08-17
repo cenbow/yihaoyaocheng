@@ -415,6 +415,17 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRefundOrder(pagination, orderDto);
 	}
+
+	/**
+	 * 采购商取消退货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/buyerCancelRefundOrder/{exceptionId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void buyerCancelRefundOrder(@PathVariable("exceptionId") Integer exceptionId){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.updateRefundOrderStatusForBuyer(userDto, exceptionId);
+	}
 }
 
 
