@@ -49,4 +49,24 @@ public class RandomUtil {
         return flowId.toString();
     }
 
+    public static String createRoundNum(Integer roundNum,Integer length){
+        return createRoundNum(roundNum.toString(),length);
+    }
+    public static String createRoundNum(String roundNum,Integer length){
+        if(roundNum==null||length==null){
+            return  null;
+        }
+
+        Integer strLength = roundNum.length();
+        StringBuffer sb = new StringBuffer();
+        for(int i =0;i<(length-strLength);i++){
+            sb.append("0");
+        }
+        roundNum= sb.toString()+roundNum;
+        return roundNum;
+    }
+
+    public static void main(String[] args) {
+        System.out.print(createRoundNum(26,10));
+    }
 }
