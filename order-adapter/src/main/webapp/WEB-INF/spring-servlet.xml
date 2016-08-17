@@ -6,7 +6,7 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<context:component-scan base-package="com.yyw.yhyc.order"/>
+	<context:component-scan base-package="com.yyw.yhyc"/>
 
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
@@ -27,6 +27,7 @@
 		<property name="maxUploadSize" value="20480000" />
 	</bean>
 
+	<import resource="spring-dataSource.xml"/>
 	<import resource="dubbo-consumer.xml"/>
 
 </beans>
