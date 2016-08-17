@@ -117,6 +117,16 @@ public class OrderException extends Model{
 	private java.lang.String returnDesc;
 
 	/**
+	 *	发货时间
+	 */
+	private java.lang.String deliverTime;
+
+	/**
+	 *	收货时间
+	 */
+	private java.lang.String receiveTime;
+
+	/**
 	 *
 	 */
 	public java.lang.Integer getExceptionId()
@@ -424,6 +434,22 @@ public class OrderException extends Model{
 		this.returnDesc = returnDesc;
 	}
 
+	public String getDeliverTime() {
+		return deliverTime;
+	}
+
+	public void setDeliverTime(String deliverTime) {
+		this.deliverTime = deliverTime;
+	}
+
+	public String getReceiveTime() {
+		return receiveTime;
+	}
+
+	public void setReceiveTime(String receiveTime) {
+		this.receiveTime = receiveTime;
+	}
+
 	public String toString()
 	{
 		return "OrderException [" +
@@ -446,6 +472,8 @@ public class OrderException extends Model{
 				", updateTime=" + updateTime +
 				", orderCreateTime=" + orderCreateTime +
 				", returnDesc=" + returnDesc +
+				", deliverTime=" + deliverTime +
+				", receiveTime=" + receiveTime +
 				"]";
 	}
 }
