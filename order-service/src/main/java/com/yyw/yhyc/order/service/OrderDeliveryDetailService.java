@@ -221,6 +221,8 @@ public class OrderDeliveryDetailService {
 			return returnMap;
 		}else{
 			flowId=list.get(0).getFlowId();
+			returnType=list.get(0).getReturnType();
+			returnDesc=list.get(0).getReturnDesc();
 		}
 
 		//统计退款总金额
@@ -263,10 +265,7 @@ public class OrderDeliveryDetailService {
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
 			orderDeliveryDetailMapper.update(orderDeliveryDetail);
-			if(!UtilHelper.isEmpty(dto.getReturnType())){
-				returnType=dto.getReturnType();
-				returnDesc=dto.getReturnDesc();
-				flowId=dto.getFlowId();
+			if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
 				//根据发货两比对如果不同则生成退换货信息
 				if(orderDeliveryDetail.getDeliveryProductCount()>orderDeliveryDetail.getRecieveCount()){
 					OrderDetail orderDetail = orderDetailMapper.getByPK(dto.getOrderDetailId());
@@ -327,7 +326,7 @@ public class OrderDeliveryDetailService {
 		orderMapper.update(order);
 
 		//生成异常订单
-		if (!UtilHelper.isEmpty(returnType)&&returnType.equals("")){
+		if (!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
 			OrderException orderException=new OrderException();
 			orderException.setOrderId(order.getOrderId());
 			orderException.setFlowId(flowId);
@@ -341,8 +340,8 @@ public class OrderDeliveryDetailService {
 			orderException.setSupplyId(order.getSupplyId());
 			orderException.setSupplyName(order.getSupplyName());
 			orderException.setOrderCreateTime(systemDateMapper.getSystemDate());
-			orderException.setOrderMoney(order.getFinalPay());
-			orderException.setOrderMoneyTotal(moneyTotal);
+			orderException.setOrderMoney(moneyTotal);
+			orderException.setOrderMoneyTotal(order.getOrderTotal());
 			orderException.setExceptionOrderId(exceptionOrderId);
 			orderException.setUpdateTime(systemDateMapper.getSystemDate());
 			orderException.setUpdateUser(user.getUserName());
