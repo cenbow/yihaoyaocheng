@@ -448,6 +448,26 @@ public class OrderExceptionService {
 	}
 
 	/**
+	 * 审核换货订单详情（异常订单详情）
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getChangeOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
+		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+			orderExceptionDto.setOrderStatusName(getSellerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
+		}
+		return orderExceptionDto;
+	}
+
+	/**
 	 * 卖家审核拒收订单
 	 * @param userDto
 	 * @param orderException
@@ -503,6 +523,60 @@ public class OrderExceptionService {
 		this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
 
 	}
+
+	/**
+	 * 卖家审核换货订单
+	 * @param userDto
+	 * @param orderException
+	 */
+	public void sellerReviewChangeOrder(UserDto userDto,OrderException orderException){
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
+			throw new RuntimeException("参数异常");
+
+		// 验证审核状态
+		if(!(SystemChangeGoodsOrderStatusEnum.WaitingBuyerDelivered.getType().equals(orderException.getOrderStatus())))
+			throw new RuntimeException("参数异常");
+
+		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
+		if(UtilHelper.isEmpty(oe))
+			throw new RuntimeException("未找到换货订单");
+		if(userDto.getCustId() != oe.getSupplyId()){
+			log.info("换货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("未找到换货订单");
+		}
+		//判断是否是拒收订单
+		if(!"2".equals(oe.getReturnType())){
+			log.info("换货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("该订单不是换货订单");
+		}
+		if(!SystemChangeGoodsOrderStatusEnum.WaitingConfirmation.getType().equals(oe.getOrderStatus())){
+			log.info("换货订单状态不正确,OrderException:"+oe);
+			throw new RuntimeException("换货订单状态不正确");
+		}
+		String now = systemDateMapper.getSystemDate();
+		oe.setRemark(orderException.getRemark());
+		oe.setOrderStatus(orderException.getOrderStatus());
+		oe.setUpdateUser(userDto.getUserName());
+		oe.setUpdateTime(now);
+		int count = orderExceptionMapper.update(oe);
+		if(count == 0){
+			log.error("OrderException info :"+oe);
+			throw new RuntimeException("换货订单审核失败");
+		}
+		//插入日志表
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setOrderId(oe.getExceptionId());
+		orderTrace.setNodeName(SystemChangeGoodsOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
+		orderTrace.setDealStaff(userDto.getUserName());
+		orderTrace.setRecordDate(now);
+		orderTrace.setRecordStaff(userDto.getUserName());
+		orderTrace.setOrderStatus(oe.getOrderStatus());
+		orderTrace.setCreateTime(now);
+		orderTrace.setCreateUser(userDto.getUserName());
+		orderTraceMapper.save(orderTrace);
+
+	}
+
 
 	/**
 	 * 采购商换货订单查询

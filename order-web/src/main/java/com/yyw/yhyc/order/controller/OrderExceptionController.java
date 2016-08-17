@@ -229,6 +229,25 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
+	 * 换货订单信息 审核
+	 * @param exceptionId 异常订单编码
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getChangeOrderExceptionDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView getChangeOrderExceptionDetails(@PathVariable("exceptionId")Integer exceptionId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getChangeOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_change_order");
+		return modelAndView;
+	}
+
+	/**
 	 * 供应商审核拒收订单
 	 * @return
 	 */
@@ -237,6 +256,17 @@ public class OrderExceptionController extends BaseJsonController{
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
+	}
+
+	/**
+	 * 供应商审核换货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewChangeOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewChangeOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewChangeOrder(userDto, orderException);
 	}
 
 	/**
