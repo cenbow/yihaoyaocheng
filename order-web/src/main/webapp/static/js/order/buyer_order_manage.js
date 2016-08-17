@@ -423,7 +423,7 @@ function confirmReceipt(){
     var orderDeliveryDetailId = $("[name='list.orderDeliveryDetailId']");
     var flowId = $("#crflowId").val();
     var list=[];
-
+    var flag=true;
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
 
@@ -440,24 +440,31 @@ function confirmReceipt(){
             list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
         }
     }else{
+        //当补货框出来再次验证收采购与收货量是否相同如果相同则清除处理类型和备注
         var ownw = $("input[type=radio][name=ownw]:checked");
-        if(ownw.val()==null||ownw.val()==""){
-            alertModal("请选择处理类型");
-            return;
-        }
         for(var i=0;i<recieveCount.length;i++){
             if($(recieveCount[i]).val()==""){
                 alertModal("请填写收货数量");
                 return;
             }
-            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+            if($(recieveCount[i]).val()!=$(productCount[i]).val()){
+                flag=false;
+            }
         }
-
+        if(!flag){
+            if(ownw.val()==null||ownw.val()==""){
+                alertModal("请选择处理类型");
+                return;
+            }
+            for(var i=0;i<recieveCount.length;i++){
+                list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+            }
+        }else{
+            for(var i=0;i<recieveCount.length;i++){
+                list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":"","returnDesc":"","recieveCount":$(recieveCount[i]).val()})
+            }
+        }
     }
-
-
-    console.info(list);
-
     $.ajax({
         url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
         data: JSON.stringify(list),

@@ -190,29 +190,46 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRejectOrder(pagination, orderDto);
 	}
-
-
 	/**
 	 * 退货订单信息
-	 * @param exceptionOrderId 异常订单编码
+	 * @param exceptionId 异常订单编码
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/getRejectOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
-	public ModelAndView getOrderExceptionDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+	@RequestMapping(value = "/getReturnOrderDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView getReturnOrderDetails(@PathVariable("exceptionId")Integer exceptionId) throws Exception {
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
-		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setExceptionId(exceptionId);
 		orderExceptionDto.setSupplyId(user.getCustId());
 		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
-		modelAndView.setViewName("orderException/seller_review_regect_order");
+		modelAndView.setViewName("orderException/seller_review_return_order");
 		return modelAndView;
 	}
 
 	/**
-	 * 采购商审核拒收订单
+	 * 拒收订单信息
+	 * @param exceptionId 异常订单编码
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getRejectOrderDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView getOrderExceptionDetails(@PathVariable("exceptionId")Integer exceptionId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_reject_order");
+		return modelAndView;
+	}
+
+	/**
+	 * 供应商审核拒收订单
 	 * @return
 	 */
 	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
@@ -220,6 +237,17 @@ public class OrderExceptionController extends BaseJsonController{
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
+	}
+
+	/**
+	 * 供应商审核退货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewReturnOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewReturnOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewReturnOrder(userDto, orderException);
 	}
 
 	/**
@@ -249,15 +277,18 @@ public class OrderExceptionController extends BaseJsonController{
 		return orderExceptionService.listPgBuyerReplenishmentOrder(pagination, orderDto);
 	}
 
-
-	@RequestMapping("/BuyerChangeGoodsOrderManage")
+	/**
+	 * 采购换货订单查询
+	 * @return
+	 */
+	@RequestMapping("/buyerChangeGoodsOrderManage")
 	public ModelAndView buyerChangeGoodsOrderManage(){
 		ModelAndView view = new ModelAndView("orderException/buyer_change_order_manage");
 		return view;
 	}
 
 	/**
-	 * 采购订单查询
+	 * 采购换货订单查询
 	 * @return
 	 */
 	@RequestMapping(value = {"/listPgBuyerChangeGoodsOrder"}, method = RequestMethod.POST)
@@ -271,6 +302,33 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
+	}
+
+	/**
+	 * 供应商换货订单查询
+	 * @return
+	 */
+	@RequestMapping("/sellerChangeGoodsOrderManage")
+	public ModelAndView sellerChangeGoodsOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/seller_change_order_manage");
+		return view;
+	}
+
+	/**
+	 * 供应商换货订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/listPgSellerChangeGoodsOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerChangeGoodsOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgSellerChangeGoodsOrder(pagination, orderDto);
 	}
 
 
@@ -329,6 +387,33 @@ public class OrderExceptionController extends BaseJsonController{
 			map.put("result", "F");
 
 		return map;
+	}
+
+	/**
+	 * 买家家退货订单管理-页面
+	 * @return
+	 */
+	@RequestMapping("/buyerRefundOrderManage")
+	public ModelAndView buyerRefundOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/buyer_refund_order_manage");
+		return view;
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgBuyerRefundOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgBuyerRefundOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgBuyerRefundOrder(pagination, orderDto);
 	}
 }
 

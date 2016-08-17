@@ -232,13 +232,12 @@ public class OrderDeliveryService {
 
 		//根据orderId查询订单收发货信息是否存在,更新发货信息
 		OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderDeliveryDto.getFlowId());
-		orderDeliveryDto.setFlowId(orderDelivery.getFlowId());
 		if(UtilHelper.isEmpty(orderDelivery)){
 			map.put("code", "0");
 			map.put("msg", "订单地址不存在");
 			return map;
 		}
-
+		orderDelivery.setOrderId(orderDelivery.getOrderId());
 
 		//验证批次号并生成订单发货数据
 		readExcelOrderDeliveryDetail(orderDeliveryDto.getPath()+orderDeliveryDto.getFileName(),map,orderDeliveryDto);
