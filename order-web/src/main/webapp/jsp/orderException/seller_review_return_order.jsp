@@ -54,8 +54,8 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-xs-2"></label>
-                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(2)">通过</button></div>
-                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(3)">不通过</button></div>
+                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(3)">通过</button></div>
+                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(4)">不通过</button></div>
                             </div>
                     </div>
                 </div>
@@ -212,7 +212,7 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript">
     function review(type){
-        if(type == 2 || type == 3){
+        if(type == 3 || type == 4){
             var exceptionId = $("#exceptionId").val();
             if(exceptionId == ''){
                 alertModal("订单编号错误");

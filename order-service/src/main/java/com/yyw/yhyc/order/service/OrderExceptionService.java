@@ -428,7 +428,7 @@ public class OrderExceptionService {
 
 
 	/**
-	 * 审核退货订单详情
+	 * 审核拒收、退货订单详情（异常订单详情）
 	 * @param orderExceptionDto
 	 * @return
 	 * @throws Exception
@@ -490,7 +490,7 @@ public class OrderExceptionService {
 		//插入日志表
 		OrderTrace orderTrace = new OrderTrace();
 		orderTrace.setOrderId(oe.getExceptionId());
-		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus())+oe.getRemark());
+		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
 		orderTrace.setDealStaff(userDto.getUserName());
 		orderTrace.setRecordDate(now);
 		orderTrace.setRecordStaff(userDto.getUserName());
@@ -498,9 +498,9 @@ public class OrderExceptionService {
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(userDto.getUserName());
 		orderTraceMapper.save(orderTrace);
-
 		//拒收订单卖家审核通过生成结算记录
-		this.saveRefuseOrderSettlement(userDto.getCustId(),oe);
+		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+		this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
 
 	}
 
@@ -737,7 +737,7 @@ public class OrderExceptionService {
 			throw new RuntimeException("参数异常");
 
 		// 验证审核状态
-		if(!(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())))
+		if(!(SystemRefundOrderStatusEnum.SellerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemRefundOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())))
 			throw new RuntimeException("参数异常");
 
 		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
@@ -747,12 +747,12 @@ public class OrderExceptionService {
 			log.info("退货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
 			throw new RuntimeException("未找到退货订单");
 		}
-		//判断是否是拒收订单
+		//判断是否是退货订单
 		if(!"1".equals(oe.getReturnType())){
 			log.info("退货订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
 			throw new RuntimeException("该订单不是退货订单");
 		}
-		if(!SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(oe.getOrderStatus())){
+		if(!SystemRefundOrderStatusEnum.BuyerApplying.getType().equals(oe.getOrderStatus())){
 			log.info("退货订单状态不正确,OrderException:"+oe);
 			throw new RuntimeException("退货订单状态不正确");
 		}
@@ -770,7 +770,7 @@ public class OrderExceptionService {
 		//插入日志表
 		OrderTrace orderTrace = new OrderTrace();
 		orderTrace.setOrderId(oe.getExceptionId());
-		orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus())+oe.getRemark());
+		orderTrace.setNodeName(SystemRefundOrderStatusEnum.getName(oe.getOrderStatus())+oe.getRemark());
 		orderTrace.setDealStaff(userDto.getUserName());
 		orderTrace.setRecordDate(now);
 		orderTrace.setRecordStaff(userDto.getUserName());
@@ -815,7 +815,7 @@ public class OrderExceptionService {
 
 		/* 查询供应商补货订单总金额 */
 		BigDecimal orderTotalMoney = orderExceptionMapper.findSellerReplenishmentOrderTotal(orderExceptionDto);
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		/* 供应商补货订单查询 */
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationSellerReplenishmentOrder(pagination, orderExceptionDto);
@@ -853,13 +853,13 @@ public class OrderExceptionService {
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 
 		/* 把需要响应到页面的数据塞入 map 中 */
 		resultMap.put("orderStatusCount", orderStatusCountMap);
 		resultMap.put("orderList", pagination);
 		resultMap.put("orderCount", orderCount);
-		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
