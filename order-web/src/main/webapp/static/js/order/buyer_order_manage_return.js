@@ -1,9 +1,66 @@
 
+function  bindTabChange() {
+    $(".nav-tabs:eq(1) li").on("click",function () {
+        if($(this).hasClass("active")){//包含class 就不替换内容
+            return ;
+        }
+        if($(this).index()==0){
+            $("#myModalSalesReturnForm .table-box2 th:last").html("退货数量");
+            $("#myModalSalesReturnForm .table-box2 th:last").prev().html("可退数量");
+            $("#bodyDiv2 label").html("退货说明:");
+        }else {
+            $("#myModalSalesReturnForm .table-box2 th:last").html("换货数量");
+            $("#myModalSalesReturnForm .table-box2 th:last").prev().html("可换数量");
+            $("#bodyDiv2 label").html("换货说明:");
+        }
+    })
+}
+
+function  changeReturnNum() {
+    $('#myModalSalesReturnForm .table-box2 tr td:last input').on("blur",function () {
+        var num = $(this).val();
+        var maxNum = $(this).attr("datareturn");
+        if(num && num!=""&&maxNum&&maxNum!=""){
+            if(parseInt(num)>parseInt(maxNum)){
+                $(this).val(maxNum);
+            }
+        }else{//数据不对，数量置为空
+            $(this).val(0);
+        }
+    })
+
+    $('#myModalSalesReturnForm .table-box2 tr td:last input').on("afterpaste",function(){
+        $(this).val(this.value.replace(/\D/g,''));
+        var num = $(this).val();
+        var maxNum = $(this).attr("datareturn");
+        if(num && num!=""&&maxNum&&maxNum!=""){
+            if(parseInt(num)>parseInt(maxNum)){
+                $(this).val(maxNum);
+            }
+        }else{//数据不对，数量置为空
+            $(this).val(0);
+        }
+    });
+    $('#myModalSalesReturnForm .table-box2 tr td:last input').on("keyup",function(){
+        $(this).val(this.value.replace(/\D/g,''));
+        var num = $(this).val();
+        var maxNum = $(this).attr("datareturn");
+        if(num && num!=""&&maxNum&&maxNum!=""){
+            if(parseInt(num)>parseInt(maxNum)){
+                $(this).val(maxNum);
+            }
+        }else{//数据不对，数量置为空
+            $(this).val(0);
+        }
+    })
+}
+
 function showSalesReturn(flowId){
     $("#myModalSalesReturn").modal("show");
+    bindTabChange();
     $("#curflowId").val(flowId);
     flowId = flowId.trim();
-    var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
+    var requestUrl = ctx+"/order/orderDeliveryDetail/listPgReturn";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:1}};
     $.ajax({
         url : requestUrl,
@@ -38,12 +95,13 @@ function showSalesReturn(flowId){
         }
     });
 
+}
+
     /**
      * 填充表格数据
      * @param data
      */
-    function fillSaleReturnTable(data) {
-        console.info(data)
+function fillSaleReturnTable(data) {
         var indexNum = 1;
         if (!data || !data.resultList)
             return;
@@ -60,67 +118,69 @@ function showSalesReturn(flowId){
             var tr = "<tr>";
 
             tr += "<td>" + orderDeliveryDetail.orderLineNo + "" +
-                "<input type='hidden' name='list.orderDeliveryDetailId' value='"+orderDeliveryDetail.orderDeliveryDetailId+"' >" +
-                "<input type='hidden' name='list.orderDetailId' value='"+orderDeliveryDetail.orderDetailId+"' >" +
-                "<input type='hidden' name='list.flowId' value='"+orderDeliveryDetail.flowId+"' >" +
+                "<input type='hidden' name='orderDeliveryDetailId' value='"+orderDeliveryDetail.orderDeliveryDetailId+"' >" +
+                "<input type='hidden' name='orderDetailId' value='"+orderDeliveryDetail.orderDetailId+"' >" +
+                "<input type='hidden' name='flowId' value='"+orderDeliveryDetail.flowId+"' >" +
+                "<input type='hidden' name='batchNumber' value='"+orderDeliveryDetail.batchNumber+"' >" +
                 "</td>";
             tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
             tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
-            tr += "<td>" + orderDeliveryDetail.brandName + "</td>";
+            tr += "<td>" + orderDeliveryDetail.productName + "</td>";
             tr += "<td>" + orderDeliveryDetail.productName + "</td>";
             tr += "<td>" + orderDeliveryDetail.specification + "</td>";
             tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
             tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
-            tr += "<td><span name='list.productCount'>" + canReturnCount + "</span></td>";
-            tr += "<td><input class='form-control' type='text' id='recieveCount' name='list.recieveCount'  /></td>";
+            tr += "<td><span name='canReturnCount'>" + canReturnCount + "</span></td>";
+            tr += "<td><input class='form-control' type='text' dataReturn='"+canReturnCount+"' name='returnProductCount'  /></td>";
             tr += "</tr>";
             trs += tr;
         }
         $("#myModalSalesReturn .table-box2 tbody").append(trs);
-    }
+        //绑定数量修改
+        changeReturnNum();
 }
 
 function confirmSaleReturn(){
     //确认发货
-    var productCount = $("[name='list.productCount']");
-    var recieveCount = $("[name='list.recieveCount']");
-    var orderDetailId = $("[name='list.orderDetailId']");
-    var orderDeliveryDetailId = $("[name='list.orderDeliveryDetailId']");
+    var returnProductCount = $("#myModalSalesReturn [name='returnProductCount']");
+    var orderDetailId = $("#myModalSalesReturn [name='orderDetailId']");
+    var orderDeliveryDetailId = $("#myModalSalesReturn [name='orderDeliveryDetailId']");
+    var batchNumber = $("#myModalSalesReturn [name='batchNumber']");
     var flowId = $("#curflowId").val();
-    var list=[];
+       var list=[];
 
     var returnDesc= $("#returnDesc2").val();
-    var ownw = $("input[type=radio][name=ownw]:checked");
-    if($("#bodyDiv:visible").size() == 0){
-        for(var i=0;i<productCount.length;i++){
-            if($(recieveCount[i]).val()==null){
-                alertModal("请填写收货数量");
-                return;
-            }
-            if($(recieveCount[i]).val()!=$(productCount[i]).html()){
-                $("#bodyDiv").show();//display="block";
-                return;
-            }
-            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
-        }
+    if(!returnDesc || returnDesc == ""){
+        alertModal("说明必须填写");
+        return ;
+    }
+    var returnType = $(".nav-tabs:eq(1) .active").index()+1;
+
+    for(var i=0;i<returnProductCount.length;i++){
+       list.push({
+            "orderDetailId":$(orderDetailId[i]).val(),
+            "orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),
+            "flowId":flowId,
+            "returnType":returnType,
+            "returnDesc":returnDesc,
+            "batchNumber":$(batchNumber[i]).val(),
+            "returnCount":$(returnProductCount[i]).val()
+        })
+
     }
 
-
-    console.info(list);
-
     $.ajax({
-        url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
+        url :ctx+'/order/orderReturn/confirmSaleReturn',
         data: JSON.stringify(list),
         type: 'POST',
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             console.info(data);
-            //var obj=eval("(" + data + ")");
             if(data.code==0){
-                alertModal(data.msg);
+                alertModal("操作失败，请稍后再试...");
             }else{
-                alertModal(data.msg);
+                alertModal("操作成功");
                 $("#myModalSalesReturn").modal("hide");
             }
         }

@@ -16,15 +16,17 @@ import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.facade.OrderReturnFacade;
+import com.yyw.yhyc.order.service.OrderReturnService;
 import com.yyw.yhyc.order.service.OrderReturnService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping(value = "/order/orderReturn")
@@ -91,4 +93,18 @@ public class OrderReturnController extends BaseJsonController {
 	{
 		orderReturnService.update(orderReturn);
 	}
+
+    /**
+     * 退货
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/confirmSaleReturn", method = RequestMethod.POST)
+    @ResponseBody
+    public String confirmSaleReturn2(@RequestBody List<OrderReturn> orderReturnList) throws Exception
+    {
+        UserDto userDto = super.getLoginUser();
+
+        return orderReturnService.saveProductReturn(orderReturnList,userDto);
+    }
 }

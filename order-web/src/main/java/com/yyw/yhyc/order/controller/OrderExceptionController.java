@@ -11,6 +11,8 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -295,8 +297,12 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
+
 		UserDto userDto = super.getLoginUser();
-		orderDto.setCustId(userDto.getCustId());
+		if(UtilHelper.isEmpty(userDto)){
+			return null;
+		}
+		orderDto.setSupplyId(userDto.getCustId());
 		return orderExceptionService.listPgSellerReplenishmentOrder(pagination, orderDto);
 	}
 

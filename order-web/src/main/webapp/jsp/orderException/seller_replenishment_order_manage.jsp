@@ -10,7 +10,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>拒收订单管理</title>
+    <title>补货订单管理</title>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -26,7 +26,7 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
                     <li class="active">补货订单管理</li>
                 </ol>
             </div>

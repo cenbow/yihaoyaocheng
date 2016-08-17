@@ -572,6 +572,7 @@ public class OrderService {
 		order.setPreferentialMoney(orderDto.getPreferentialMoney());//优惠了的金额(如果使用了优惠)
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
+		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
 
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);

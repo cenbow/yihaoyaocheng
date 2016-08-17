@@ -10,8 +10,15 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.yyw.yhyc.helper.DateHelper;
+import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +32,17 @@ public class OrderReturnService {
 	private OrderReturnMapper	orderReturnMapper;
 
 	@Autowired
+	private OrderMapper orderMapper;
+
+	@Autowired
+	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
+
+	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper)
 	{
 		this.orderReturnMapper = orderReturnMapper;
 	}
-	
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -139,5 +152,30 @@ public class OrderReturnService {
 	public int findByCount(OrderReturn orderReturn) throws Exception
 	{
 		return orderReturnMapper.findByCount(orderReturn);
+	}
+	/**
+	 *	退/换货
+     */
+	public String saveProductReturn(List<OrderReturn> returnList, UserDto userDto)throws Exception{
+		String code = "0";
+		if(returnList!=null && returnList.size()>0){
+			Order order = orderMapper.getOrderbyFlowId(returnList.get(0).getFlowId());
+			List<Integer> orderDeliveryIdList = new ArrayList<>();
+			for (OrderReturn or: returnList) {
+				or.setCustId(order.getCustId());
+				or.setOrderId(order.getOrderId());
+				or.setCreateTime(DateHelper.nowString());
+				//or.setCreateUser(userDto.getUserName());
+				or.setReturnStatus("1");
+				orderDeliveryIdList.add(or.getOrderDeliveryDetailId());
+				orderReturnMapper.save(or);
+			}
+			//TODO  扣减可用数量
+			List<OrderDeliveryDetail> OrderDeliveryDetailList = orderDeliveryDetailMapper.list();
+
+
+			code = "1";
+		}
+		return  "{\"code\":"+code+"}";
 	}
 }
