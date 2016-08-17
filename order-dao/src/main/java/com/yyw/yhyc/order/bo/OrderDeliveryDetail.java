@@ -93,7 +93,10 @@ public class OrderDeliveryDetail extends Model{
 	 * 确认收货数量
 	 */
 	private java.lang.Integer recieveCount;
-
+	/**
+	 * 可退还数量
+     */
+	private java.lang.Integer canReturnCount;
 	/**
 	  *	
 	  */
@@ -326,25 +329,34 @@ public class OrderDeliveryDetail extends Model{
 		this.recieveCount = recieveCount;
 	}
 
-	public String toString()
-	{
-		return "OrderDeliveryDetail [" + 
-					"orderDeliveryDetailId=" + orderDeliveryDetailId + 
-					", orderLineNo=" + orderLineNo + 
-					", orderId=" + orderId + 
-					", flowId=" + flowId + 
-					", orderDetailId=" + orderDetailId + 
-					", batchNumber=" + batchNumber + 
-					", deliveryProductCount=" + deliveryProductCount + 
-					", deliveryStatus=" + deliveryStatus + 
-					", importFileUrl=" + importFileUrl + 
-					", remark=" + remark + 
-					", createUser=" + createUser + 
-					", createTime=" + createTime + 
-					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime +
-				    ", recieveCount=" + recieveCount +
-				"]";
+	public Integer getCanReturnCount() {
+		return canReturnCount;
+	}
+
+	public void setCanReturnCount(Integer canReturnCount) {
+		this.canReturnCount = canReturnCount;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderDeliveryDetail{" +
+				"orderDeliveryDetailId=" + orderDeliveryDetailId +
+				", orderLineNo='" + orderLineNo + '\'' +
+				", orderId=" + orderId +
+				", flowId='" + flowId + '\'' +
+				", orderDetailId=" + orderDetailId +
+				", batchNumber='" + batchNumber + '\'' +
+				", deliveryProductCount=" + deliveryProductCount +
+				", deliveryStatus=" + deliveryStatus +
+				", importFileUrl='" + importFileUrl + '\'' +
+				", remark='" + remark + '\'' +
+				", createUser='" + createUser + '\'' +
+				", createTime='" + createTime + '\'' +
+				", updateUser='" + updateUser + '\'' +
+				", updateTime='" + updateTime + '\'' +
+				", recieveCount=" + recieveCount +
+				", canReturnCount=" + canReturnCount +
+				'}';
 	}
 }
 

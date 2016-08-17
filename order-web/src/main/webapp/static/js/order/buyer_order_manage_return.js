@@ -5,19 +5,19 @@ function  bindTabChange() {
             return ;
         }
         if($(this).index()==0){
-            $("#myModalSalesReturnForm .table-box2 th:last").html("退货数量");
-            $("#myModalSalesReturnForm .table-box2 th:last").prev().html("可退数量");
+            $("#myModalSalesReturnForm thead th:last").html("退货数量");
+            $("#myModalSalesReturnForm thead th:last").prev().html("可退数量");
             $("#bodyDiv2 label").html("退货说明:");
         }else {
-            $("#myModalSalesReturnForm .table-box2 th:last").html("换货数量");
-            $("#myModalSalesReturnForm .table-box2 th:last").prev().html("可换数量");
+            $("#myModalSalesReturnForm thead th:last").html("换货数量");
+            $("#myModalSalesReturnForm thead th:last").prev().html("可换数量");
             $("#bodyDiv2 label").html("换货说明:");
         }
     })
 }
 
 function  changeReturnNum() {
-    $('#myModalSalesReturnForm .table-box2 tr td:last input').on("blur",function () {
+    $('#myModalSalesReturnForm tr td:last input').on("blur",function () {
         var num = $(this).val();
         var maxNum = $(this).attr("datareturn");
         if(num && num!=""&&maxNum&&maxNum!=""){
@@ -29,7 +29,7 @@ function  changeReturnNum() {
         }
     })
 
-    $('#myModalSalesReturnForm .table-box2 tr td:last input').on("afterpaste",function(){
+    $('#myModalSalesReturnForm  tr td:last input').on("afterpaste",function(){
         $(this).val(this.value.replace(/\D/g,''));
         var num = $(this).val();
         var maxNum = $(this).attr("datareturn");
@@ -38,10 +38,10 @@ function  changeReturnNum() {
                 $(this).val(maxNum);
             }
         }else{//数据不对，数量置为空
-            $(this).val(0);
+            $(this).val("");
         }
     });
-    $('#myModalSalesReturnForm .table-box2 tr td:last input').on("keyup",function(){
+    $('#myModalSalesReturnForm  tr td:last input').on("keyup",function(){
         $(this).val(this.value.replace(/\D/g,''));
         var num = $(this).val();
         var maxNum = $(this).attr("datareturn");
@@ -50,7 +50,7 @@ function  changeReturnNum() {
                 $(this).val(maxNum);
             }
         }else{//数据不对，数量置为空
-            $(this).val(0);
+            $(this).val("");
         }
     })
 }
@@ -110,7 +110,7 @@ function fillSaleReturnTable(data) {
         var trs = "";
         for (var i = 0; i < list.length; i++) {
             var orderDeliveryDetail = list[i];
-            var canReturnCount = orderDeliveryDetail.deliveryProductCount;
+            var canReturnCount = orderDeliveryDetail.canReturnCount;
             if(canReturnCount && canReturnCount ==""){
                 canReturnCount = orderDeliveryDetail.deliveryProductCount;
             }
@@ -135,7 +135,7 @@ function fillSaleReturnTable(data) {
             tr += "</tr>";
             trs += tr;
         }
-        $("#myModalSalesReturn .table-box2 tbody").append(trs);
+        $("#myModalSalesReturn .table tbody").html("").append(trs);
         //绑定数量修改
         changeReturnNum();
 }
@@ -157,6 +157,10 @@ function confirmSaleReturn(){
     var returnType = $(".nav-tabs:eq(1) .active").index()+1;
 
     for(var i=0;i<returnProductCount.length;i++){
+        if(!$(returnProductCount[i]).val()||$(returnProductCount[i]).val()==""){
+            console.info("终端");
+            continue;
+        }
        list.push({
             "orderDetailId":$(orderDetailId[i]).val(),
             "orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),
@@ -169,6 +173,10 @@ function confirmSaleReturn(){
 
     }
 
+    if(list.length==0){
+        alert("没有符合的数据");
+        return ;
+    }
     $.ajax({
         url :ctx+'/order/orderReturn/confirmSaleReturn',
         data: JSON.stringify(list),
