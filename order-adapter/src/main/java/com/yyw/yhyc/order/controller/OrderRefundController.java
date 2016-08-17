@@ -11,15 +11,15 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderRefund;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.facade.OrderRefundFacade;
+import com.yyw.yhyc.order.service.OrderRefundService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class OrderRefundController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderRefundController.class);
 
-	@Reference
-	private OrderRefundFacade orderRefundFacade;
+	@Autowired
+	private OrderRefundService orderRefundService;
 
 	/**
 	* 通过主键查询实体对象
@@ -42,7 +42,7 @@ public class OrderRefundController extends BaseJsonController {
 	@ResponseBody
 	public OrderRefund getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderRefundFacade.getByPK(key);
+		return orderRefundService.getByPK(key);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class OrderRefundController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderRefundFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderRefundService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class OrderRefundController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderRefund orderRefund) throws Exception
 	{
-		orderRefundFacade.save(orderRefund);
+		orderRefundService.save(orderRefund);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class OrderRefundController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderRefundFacade.deleteByPKeys(requestListModel.getList());
+		orderRefundService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -89,6 +89,6 @@ public class OrderRefundController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderRefund orderRefund) throws Exception
 	{
-		orderRefundFacade.update(orderRefund);
+		orderRefundService.update(orderRefund);
 	}
 }
