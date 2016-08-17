@@ -140,7 +140,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
         }else {
             orderDeliveryDetailDto.setSupplyId(userDto.getCustId());
         }
-        return orderDeliveryDetailFacade.listPaginationByProperty(pagination, orderDeliveryDetailDto);
+        return orderDeliveryDetailService.listPaginationReturnByProperty(pagination, orderDeliveryDetailDto);
     }
 
 }

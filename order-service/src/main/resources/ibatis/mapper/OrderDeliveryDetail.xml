@@ -32,6 +32,7 @@
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
 		<result column="recieve_count" property="recieveCount"/>
+		<result column="can_return_count" property="canReturnCount"/>
 	</resultMap>
 
 	<resultMap type="OrderDeliveryDetailDto" id="OrderDeliveryDetailDtoResultMapper" extends="OrderDeliveryDetailResultMapper">
@@ -60,6 +61,7 @@
 		, update_user
 		, update_time
 		, recieve_count
+		, can_return_count
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -77,6 +79,7 @@
 				, update_user
 				, update_time
 				, recieve_count
+				, can_return_count
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -95,6 +98,7 @@
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, recieve_count
+		, can_return_count
 	</sql>
 	
 	<sql id="commonCondition">
@@ -143,6 +147,9 @@
 		<if test="recieveCount!= null and recieveCount!= ''">
 			AND recieve_count=#{recieveCount}
 		</if>
+		<if test="canReturnCount!= null and canReturnCount!= ''">
+			AND can_return_count=#{canReturnCount}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderDeliveryDetail">
@@ -164,6 +171,7 @@
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{recieveCount}
+				, #{canReturnCount}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDeliveryDetail">
@@ -183,6 +191,7 @@
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, recieve_count=#{recieveCount}
+			, can_return_count=#{canReturnCount}
 		WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -229,9 +238,34 @@
 		</if>
 	</select>
 
+	<select id="listPaginationReturnByProperty" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,ODD.can_return_count from t_order_delivery_detail ODD
+		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id AND ODD.order_id=OD.order_id
+		LEFT JOIN t_order O ON O.flow_id=ODD.flow_id
+		WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		<if test="custId!= null and custId!= ''">
+			AND O.cust_id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND O.supply_id=#{supplyId}
+		</if>
+	</select>
+
 
 	<select id="findByCount" parameterType="OrderDeliveryDetail" resultType="int">
 		SELECT count(1) AS totalcount FROM t_order_delivery_detail WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+
+	<select id="listByIds" resultMap="OrderDeliveryDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery_detail WHERE 1=1
+		AND order_delivery_detail_id IN
+		<foreach collection="list" item="id" index="index"
+				 open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
 </mapper>
