@@ -236,10 +236,9 @@ function cancleOrder(orderId) {
  * * @param orderId
  */
 
-function sendDelivery(orderId) {
-    $("#sendOrderId").val(orderId);
+function sendDelivery(flowId) {
+    $("#sendFlowId").val(flowId);
     $("#myModalSendDelivery").modal().hide();
-
     $("#excelFile").val("");
     $("#receiverAddressId").val("");
     $("#deliveryContactPerson").val("");
@@ -314,24 +313,19 @@ function sendDeliverysubmit(){
         return;
     }
 
-
-
     var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+    $("#receiverAddressId").val(delivery.val())
+    $("#deliveryMethod").val(ownw.val())
 
-
-        $("#receiverAddressId").val(delivery.val())
-        $("#deliveryMethod").val(ownw.val())
     if(ownw.val()==1){
-
         if($("#deliveryExpressNo1").val()!=null&&$("#deliveryExpressNo1").val()!=""){
             if (!reg.test($("#deliveryExpressNo1").val())) {
                 alertModal("请填写正确的手机号")
+                return;
             };
         }
-
         $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
-
     }else{
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())

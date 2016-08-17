@@ -92,8 +92,8 @@
 		<result column="pay_type_name" property="payTypeName"/>
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="pay_type" property="payType"/>
-		<association property="orderDelivery" column="order_id"
-					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
+		<association property="orderDelivery" column="flow_id"
+					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listOrderDetailInfoByOrderId"></association>
 	</resultMap>
@@ -1013,8 +1013,8 @@
 	<resultMap id="exportSellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
-            <association property="orderDelivery" column="ORDER_ID"
-                         select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
+            <association property="orderDelivery" column="FLOW_ID"
+                         select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
             <collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
 	</resultMap>
 
