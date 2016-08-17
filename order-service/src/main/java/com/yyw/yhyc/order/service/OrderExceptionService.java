@@ -434,7 +434,7 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	public OrderExceptionDto getRejectOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
-		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
 		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){

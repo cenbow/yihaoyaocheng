@@ -192,15 +192,15 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 	/**
 	 * 退货订单信息
-	 * @param exceptionOrderId 异常订单编码
+	 * @param exceptionId 异常订单编码
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/getReturnOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
-	public ModelAndView getReturnOrderDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+	@RequestMapping(value = "/getReturnOrderDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView getReturnOrderDetails(@PathVariable("exceptionId")Integer exceptionId) throws Exception {
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
-		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setExceptionId(exceptionId);
 		orderExceptionDto.setSupplyId(user.getCustId());
 		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
 		ModelAndView modelAndView = new ModelAndView();
@@ -211,20 +211,20 @@ public class OrderExceptionController extends BaseJsonController{
 
 	/**
 	 * 拒收订单信息
-	 * @param exceptionOrderId 异常订单编码
+	 * @param exceptionId 异常订单编码
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/getRejectOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
-	public ModelAndView getOrderExceptionDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+	@RequestMapping(value = "/getRejectOrderDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView getOrderExceptionDetails(@PathVariable("exceptionId")Integer exceptionId) throws Exception {
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
-		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setExceptionId(exceptionId);
 		orderExceptionDto.setSupplyId(user.getCustId());
 		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
-		modelAndView.setViewName("orderException/seller_review_regect_order");
+		modelAndView.setViewName("orderException/seller_review_reject_order");
 		return modelAndView;
 	}
 
