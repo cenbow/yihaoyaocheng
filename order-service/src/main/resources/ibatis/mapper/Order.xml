@@ -1048,7 +1048,7 @@
 					<when test='payType == 1'><!--在线支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
-					<when test='orderStatus == 3'><!--线下支付-->
+					<when test='payType == 3'><!--线下支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
