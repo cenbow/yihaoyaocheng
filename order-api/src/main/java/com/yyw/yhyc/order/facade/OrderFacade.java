@@ -191,4 +191,14 @@ public interface OrderFacade {
 	 * @throws Exception
 	 */
 	public void addForConfirmMoney(Integer custId,OrderSettlement orderSettlement) throws Exception;
+
+	/**
+	 * 提供给武汉使用,在订单状态已完成时
+	 * 可对订单进行已还款状态修改
+	 * @param order
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean updateOrderStatus(List<Order> order) ;
+
 }

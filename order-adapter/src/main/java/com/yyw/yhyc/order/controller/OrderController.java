@@ -11,16 +11,16 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.facade.OrderFacade;
+import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +32,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class OrderController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
-	@Reference
-	private OrderFacade orderFacade;
+	@Autowired
+	private OrderService orderService;
 
 	/**
 	* 通过主键查询实体对象
@@ -43,7 +43,7 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public Order getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderFacade.getByPK(key);
+		return orderService.getByPK(key);
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class OrderController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(Order order) throws Exception
 	{
-		orderFacade.save(order);
+		orderService.save(order);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderFacade.deleteByPKeys(requestListModel.getList());
+		orderService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(Order order) throws Exception
 	{
-		orderFacade.update(order);
+		orderService.update(order);
 	}
 
 

@@ -11,7 +11,6 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.JsonHelper;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
@@ -20,9 +19,10 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade;
+import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +34,8 @@ import java.util.Map;
 public class OrderDeliveryDetailController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryDetailController.class);
 
-	@Reference
-	private OrderDeliveryDetailFacade orderDeliveryDetailFacade;
+	@Autowired
+	private OrderDeliveryDetailService orderDeliveryDetailService;
 
 	/**
 	* 通过主键查询实体对象
@@ -45,7 +45,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@ResponseBody
 	public OrderDeliveryDetail getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderDeliveryDetailFacade.getByPK(key);
+		return orderDeliveryDetailService.getByPK(key);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		}else {
 			orderDeliveryDetailDto.setSupplyId(userDto.getCustId());
 		}
-		return orderDeliveryDetailFacade.listPaginationByProperty(pagination, orderDeliveryDetailDto);
+		return orderDeliveryDetailService.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 	}
 
 
@@ -79,7 +79,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderDeliveryDetail orderDeliveryDetail) throws Exception
 	{
-		orderDeliveryDetailFacade.save(orderDeliveryDetail);
+		orderDeliveryDetailService.save(orderDeliveryDetail);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderDeliveryDetailFacade.deleteByPKeys(requestListModel.getList());
+		orderDeliveryDetailService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderDeliveryDetail orderDeliveryDetail) throws Exception
 	{
-		orderDeliveryDetailFacade.update(orderDeliveryDetail);
+		orderDeliveryDetailService.update(orderDeliveryDetail);
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	{
 		List<OrderDeliveryDetailDto> list = new JsonHelper<OrderDeliveryDetailDto>().fromList(listStr, OrderDeliveryDetailDto.class);
 		UserDto user = super.getLoginUser();
-		return orderDeliveryDetailFacade.confirmReceipt(list, user);
+		return orderDeliveryDetailService.confirmReceipt(list, user);
 	}
 
     /**
@@ -140,7 +140,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
         }else {
             orderDeliveryDetailDto.setSupplyId(userDto.getCustId());
         }
-        return orderDeliveryDetailFacade.listPaginationByProperty(pagination, orderDeliveryDetailDto);
+        return orderDeliveryDetailService.listPaginationReturnByProperty(pagination, orderDeliveryDetailDto);
     }
 
 }

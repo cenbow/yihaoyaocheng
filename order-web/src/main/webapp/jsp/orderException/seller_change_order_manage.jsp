@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>补货订单管理</title>
+    <title>换货订单管理</title>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -19,8 +19,8 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>采购订单管理</a></li>
-                    <li class="active">补货订单管理</li>
+                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                    <li class="active">换货订单管理</li>
                 </ol>
             </div>
             <div class="row choseuser border-gray">
@@ -29,7 +29,7 @@
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
 
-                            <label for="exceptionOrderId" class="col-xs-2 control-label">补货订单号 </label>
+                            <label for="exceptionOrderId" class="col-xs-2 control-label">换货订单号 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="exceptionOrderId" name="exceptionOrderId" placeholder="">
                             </div>
@@ -47,7 +47,7 @@
                                 <input type="text" class="form-control" id="supplyName" name="supplyName"
                                        placeholder="">
                             </div>
-                            <label class="col-xs-2 control-label">拒收时间</label>
+                            <label class="col-xs-2 control-label">换货时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
                                     <input type="text" name="startTime"
@@ -69,12 +69,15 @@
             <div class="row margin-t-10">
                 <div class="col-xs-12">
                     <ul id="myTab" class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount">待确认</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount">待发货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount">待收货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount">已完成</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount">已关闭</a></li>
+                        <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部订单</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount1">待确认</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount4">待买家发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount5">待卖家收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('6');" name="statusCount6">待卖家发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('7');" name="statusCount7">待买家收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('8');" name="statusCount8">已完成</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount3">已关闭</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount2">已取消</a></li>
                     </ul>
 
                     <div id="myTabContent" class="tab-content">
@@ -84,16 +87,16 @@
                             </div>
                             <table class="table table-box">
                                 <colgroup>
-                                    <col style="width: 20%;"/>
+                                    <col style="width: 25%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 20%;"/>
+                                    <col style="width: 25%;"/>
+                                    <col style="width: 10%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 15%;"/>
-                                    <col style="width: 15%;"/>
+                                    <col style="width: 10%;"/>
                                 </colgroup>
                                 <thead>
                                 <tr>
-                                    <th>补货订单号</th>
+                                    <th>换货订单号</th>
                                     <th>下单时间</th>
                                     <th>供应商</th>
                                     <th>订单状态</th>
@@ -117,8 +120,8 @@
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/orderException/buyer_replenishment_order_manage.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/common.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/orderException/seller_change_order_manage.js"></script>
+
 </body>
 
 

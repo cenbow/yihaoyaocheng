@@ -124,6 +124,19 @@ public class OrderDeliveryDetailService {
 	}
 
 	/**
+	 * 根据查询条件查询分页记录
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderDeliveryDetailDto> listPaginationReturnByProperty(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception
+	{
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationReturnByProperty(pagination, orderDeliveryDetailDto);
+
+		pagination.setResultList(list);
+
+		return pagination;
+	}
+	/**
 	 * 根据主键删除记录
 	 * @param primaryKey
 	 * @return

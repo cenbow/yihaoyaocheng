@@ -16,7 +16,6 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.facade.OrderExceptionFacade;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +39,6 @@ import java.util.Map;
 public class OrderExceptionController extends BaseJsonController{
 	private static final Logger logger = LoggerFactory.getLogger(OrderExceptionController.class);
 
-	@Reference
-	private OrderExceptionFacade orderExceptionFacade;
-
 	@Autowired
 	private OrderExceptionService orderExceptionService;
 
@@ -54,7 +50,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public OrderException getByPK(Integer key) throws Exception
 	{
-		return orderExceptionFacade.getByPK(key);
+		return orderExceptionService.getByPK(key);
 	}
 
 	/**
@@ -71,7 +67,7 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderExceptionFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderExceptionService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -81,7 +77,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(@RequestBody OrderException orderException) throws Exception
 	{
-		orderExceptionFacade.save(orderException);
+		orderExceptionService.save(orderException);
 	}
 
 	/**
@@ -91,7 +87,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderExceptionFacade.deleteByPKeys(requestListModel.getList());
+		orderExceptionService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -101,7 +97,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(@RequestBody OrderException orderException) throws Exception
 	{
-		orderExceptionFacade.update(orderException);
+		orderExceptionService.update(orderException);
 	}
 
 
@@ -123,7 +119,7 @@ public class OrderExceptionController extends BaseJsonController{
 		} else if(userType == 2) {
 			orderExceptionDto.setSupplyId(user.getCustId());
 		}
-		orderExceptionDto = orderExceptionFacade.getOrderExceptionDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
 		orderExceptionDto.setUserType(userType);
 
 		ModelAndView modelAndView = new ModelAndView();
@@ -166,7 +162,7 @@ public class OrderExceptionController extends BaseJsonController{
 			orderExceptionDto.setSupplyId(dto.getCustId());
 			orderExceptionDto.setSupplyId(dto.getCustId());
 		}
-		Map<String,Object> map = orderExceptionFacade.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		Map<String,Object> map = orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
 
 		return map;
 	}
@@ -194,10 +190,27 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRejectOrder(pagination, orderDto);
 	}
-
-
 	/**
 	 * 退货订单信息
+	 * @param exceptionOrderId 异常订单编码
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getReturnOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
+	public ModelAndView getReturnOrderDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_return_order");
+		return modelAndView;
+	}
+
+	/**
+	 * 拒收订单信息
 	 * @param exceptionOrderId 异常订单编码
 	 * @return
 	 * @throws Exception
@@ -216,7 +229,7 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
-	 * 采购商审核拒收订单
+	 * 供应商审核拒收订单
 	 * @return
 	 */
 	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
@@ -224,6 +237,17 @@ public class OrderExceptionController extends BaseJsonController{
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
+	}
+
+	/**
+	 * 供应商审核退货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewReturnOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewReturnOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewReturnOrder(userDto, orderException);
 	}
 
 	/**
@@ -253,15 +277,18 @@ public class OrderExceptionController extends BaseJsonController{
 		return orderExceptionService.listPgBuyerReplenishmentOrder(pagination, orderDto);
 	}
 
-
-	@RequestMapping("/BuyerChangeGoodsOrderManage")
+	/**
+	 * 采购换货订单查询
+	 * @return
+	 */
+	@RequestMapping("/buyerChangeGoodsOrderManage")
 	public ModelAndView buyerChangeGoodsOrderManage(){
 		ModelAndView view = new ModelAndView("orderException/buyer_change_order_manage");
 		return view;
 	}
 
 	/**
-	 * 采购订单查询
+	 * 采购换货订单查询
 	 * @return
 	 */
 	@RequestMapping(value = {"/listPgBuyerChangeGoodsOrder"}, method = RequestMethod.POST)
@@ -275,6 +302,33 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
+	}
+
+	/**
+	 * 供应商换货订单查询
+	 * @return
+	 */
+	@RequestMapping("/sellerChangeGoodsOrderManage")
+	public ModelAndView sellerChangeGoodsOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/seller_change_order_manage");
+		return view;
+	}
+
+	/**
+	 * 供应商换货订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/listPgSellerChangeGoodsOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerChangeGoodsOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgSellerChangeGoodsOrder(pagination, orderDto);
 	}
 
 

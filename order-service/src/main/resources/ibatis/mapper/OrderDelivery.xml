@@ -297,7 +297,7 @@
 		SELECT count(1) AS totalcount FROM t_order_delivery WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="getByOrderId" parameterType="java.lang.String" resultMap="OrderDeliveryResultMapper">
+	<select id="getByFlowId" parameterType="java.lang.String" resultMap="OrderDeliveryResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_delivery WHERE flow_id = #{flowId}

@@ -28,6 +28,7 @@
         </root>
 
         <logger name="org.springframework" level="INFO"/>
+        <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="com.yyw.yhyc.order" level="INFO"/>
         <logger name="com.yyw.yhyc.cache" level="INFO"/>
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
