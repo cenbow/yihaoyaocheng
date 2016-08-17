@@ -11,15 +11,15 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.facade.OrderTraceFacade;
+import com.yyw.yhyc.order.service.OrderTraceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class OrderTraceController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderTraceController.class);
 
-	@Reference
-	private OrderTraceFacade orderTraceFacade;
+	@Autowired
+	private OrderTraceService orderTraceService;
 
 	/**
 	* 通过主键查询实体对象
@@ -42,7 +42,7 @@ public class OrderTraceController extends BaseJsonController {
 	@ResponseBody
 	public OrderTrace getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderTraceFacade.getByPK(key);
+		return orderTraceService.getByPK(key);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class OrderTraceController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderTraceFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderTraceService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class OrderTraceController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderTrace orderTrace) throws Exception
 	{
-		orderTraceFacade.save(orderTrace);
+		orderTraceService.save(orderTrace);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class OrderTraceController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderTraceFacade.deleteByPKeys(requestListModel.getList());
+		orderTraceService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -89,6 +89,6 @@ public class OrderTraceController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderTrace orderTrace) throws Exception
 	{
-		orderTraceFacade.update(orderTrace);
+		orderTraceService.update(orderTrace);
 	}
 }
