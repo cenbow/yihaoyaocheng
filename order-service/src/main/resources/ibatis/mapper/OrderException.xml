@@ -1180,4 +1180,10 @@
 		</if>
 	</select>
 
+	<select id="getByExceptionOrderId" parameterType="java.lang.String" resultMap="OrderExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE exception_order_id = #{exceptionOrderId}
+	</select>
+
 </mapper>

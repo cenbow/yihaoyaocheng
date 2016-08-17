@@ -288,6 +288,7 @@ public class OrderDeliveryDetailService {
 					orderReturn.setExceptionOrderId(exceptionOrderId);
 					orderReturn.setOrderDeliveryDetailId(orderDeliveryDetail.getOrderDeliveryDetailId());
 					orderReturn.setBatchNumber(orderDeliveryDetail.getBatchNumber());
+					orderReturn.setProductCode(orderDetail.getProductCode());
 					orderReturnMapper.save(orderReturn);
 				}
 			}

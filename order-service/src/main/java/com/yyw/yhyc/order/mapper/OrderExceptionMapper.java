@@ -165,4 +165,12 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
 	 */
 	public List<OrderExceptionDto> findSellerChangeGoodsOrderStatusCount(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 根据异常订单编码查询异常订单
+	 * @param exceptionOrderId
+	 * @return
+	 */
+	public OrderException getByExceptionOrderId(String exceptionOrderId);
+
 }
