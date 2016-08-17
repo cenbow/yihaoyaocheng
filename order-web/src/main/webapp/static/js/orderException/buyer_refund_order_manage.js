@@ -87,7 +87,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerReplenishmentOrder";
+    var requestUrl = ctx+"/orderException/listPgBuyerRefundOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
