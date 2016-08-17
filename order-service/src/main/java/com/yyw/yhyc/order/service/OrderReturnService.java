@@ -10,21 +10,22 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
+import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 
@@ -38,6 +39,12 @@ public class OrderReturnService {
 
 	@Autowired
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
+
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
+
+    @Autowired
+    private OrderExceptionService orderExceptionService;
 
 	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper)
@@ -161,33 +168,90 @@ public class OrderReturnService {
 	public String saveProductReturn(List<OrderReturn> returnList, UserDto userDto)throws Exception{
 		String code = "0";
 		if(returnList!=null && returnList.size()>0){
-			Order order = orderMapper.getOrderbyFlowId(returnList.get(0).getFlowId());
-			List<Integer> orderDeliveryIdList = new ArrayList<>();
-            Map<Integer,Integer> orderDeliveryCountMap = new HashMap<>();
-			for (OrderReturn or: returnList) {
-				or.setCustId(order.getCustId());
-				or.setOrderId(order.getOrderId());
-				or.setCreateTime(DateHelper.nowString());
-				//or.setCreateUser(userDto.getUserName());
-				or.setReturnStatus("1");
-				orderDeliveryIdList.add(or.getOrderDeliveryDetailId());
-                orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
-				orderReturnMapper.save(or);
-			}
-			//TODO  扣减可用数量
-			List<OrderDeliveryDetail> OrderDeliveryDetailList = orderDeliveryDetailMapper.listByIds(orderDeliveryIdList);
+			List<Integer> orderDeliveryDetailIdList = new ArrayList<>();
+			List<Integer> orderDetailIdList = new ArrayList<>();
+			List<OrderReturn> saveReturnList  = new ArrayList<>();
+			Map<Integer,Integer> orderDeliveryCountMap = new HashMap<>();
+			Map<Integer,OrderDetail> orderDetailMap = new HashMap<>();
+			OrderReturn orderReturn = returnList.get(0);
+			Order order = orderMapper.getOrderbyFlowId(orderReturn.getFlowId());
+			OrderException condition = new OrderException();
+			condition.setFlowId(order.getFlowId());
+			condition.setReturnType(orderReturn.getReturnType());
+			Integer roundNum = orderExceptionService.findByCount(condition);
 
+			for (OrderReturn or: returnList) {
+                orderDeliveryDetailIdList.add(or.getOrderDeliveryDetailId());
+                orderDetailIdList.add(or.getOrderDetailId());
+                orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
+            }
+            //订单详情列表 map
+            List<OrderDetail> orderDetailList = orderDetailMapper.listByIds(orderDetailIdList);
+            for (OrderDetail od:orderDetailList) {
+                orderDetailMap.put(od.getOrderDetailId(),od);
+            }
+
+			//退换货订单总金额
+			List<OrderDeliveryDetail> OrderDeliveryDetailList = orderDeliveryDetailMapper.listByIds(orderDeliveryDetailIdList);
+            BigDecimal orderExceptionMoney = new BigDecimal(0).setScale(2);
             for (OrderDeliveryDetail odd:OrderDeliveryDetailList) {
                 Integer canReturnCount = odd.getCanReturnCount()==null?odd.getRecieveCount():odd.getCanReturnCount();
                 Integer stractCount = orderDeliveryCountMap.get(odd.getOrderDeliveryDetailId());
                 if(stractCount!=null&&stractCount>0){
                     odd.setCanReturnCount(canReturnCount-stractCount);
+                    OrderDetail od = orderDetailMap.get(odd.getOrderDetailId());
+                    if(od.getProductPrice()!=null){
+						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
+                    }
                 }
+                //更新收货详情
                 orderDeliveryDetailMapper.update(odd);
+            }
+
+            //保存退货异常订单
+            OrderException oe = parseOrderException(order,userDto,orderReturn,orderExceptionMoney,roundNum);
+			orderExceptionService.save(oe);
+
+            //保存退换货详情
+            for (OrderReturn or: saveReturnList) {
+                or.setCustId(order.getCustId());
+                or.setOrderId(order.getOrderId());
+                or.setCreateTime(DateHelper.nowString());
+                //or.setCreateUser(userDto.getUserName());
+                or.setReturnStatus("1");
+                or.setExceptionOrderId(oe.getExceptionOrderId());
+                orderReturnMapper.save(or);
             }
 
 			code = "1";
 		}
 		return  "{\"code\":"+code+"}";
 	}
+
+	private OrderException parseOrderException(Order order,UserDto userDto,OrderReturn orderReturn,BigDecimal orderExceptionMoney,Integer roundNum){
+		OrderException oe = new OrderException();
+		oe.setOrderId(order.getOrderId());
+		oe.setCustId(order.getCustId());
+		oe.setSupplyId(order.getSupplyId());
+		oe.setSupplyName(order.getSupplyName());
+		oe.setFlowId(order.getFlowId());
+		oe.setCustName(order.getCustName());
+		oe.setOrderMoneyTotal(orderExceptionMoney);
+		oe.setOrderMoney(orderExceptionMoney);
+		//oe.setCreateUser(userDto.getUserName());
+		oe.setReturnType(orderReturn.getReturnType());
+		oe.setReturnDesc(orderReturn.getReturnDesc());
+		oe.setRemark(orderReturn.getReturnDesc());
+		oe.setCreateTime(DateHelper.nowString());
+		oe.setOrderCreateTime(DateHelper.nowString());
+		oe.setOrderStatus("1");
+
+		if(orderReturn.getReturnType().equals("1")){
+			oe.setExceptionOrderId("TH"+order.getFlowId()+ RandomUtil.createRoundNum(roundNum,2));
+		}else if(orderReturn.getReturnType().equals("2")){
+			oe.setExceptionOrderId("HH"+order.getFlowId()+RandomUtil.createRoundNum(roundNum,2));
+		}
+		return oe;
+	}
+
 }
