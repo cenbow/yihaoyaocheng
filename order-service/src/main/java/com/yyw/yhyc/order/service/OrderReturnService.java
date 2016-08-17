@@ -173,6 +173,7 @@ public class OrderReturnService {
 			List<OrderReturn> saveReturnList  = new ArrayList<>();
 			Map<Integer,Integer> orderDeliveryCountMap = new HashMap<>();
 			Map<Integer,OrderDetail> orderDetailMap = new HashMap<>();
+			Map<Integer,BigDecimal> returnPriceMap = new HashMap<>();
 			OrderReturn orderReturn = returnList.get(0);
 			Order order = orderMapper.getOrderbyFlowId(orderReturn.getFlowId());
 			OrderException condition = new OrderException();
@@ -184,6 +185,7 @@ public class OrderReturnService {
                 orderDeliveryDetailIdList.add(or.getOrderDeliveryDetailId());
                 orderDetailIdList.add(or.getOrderDetailId());
                 orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
+				saveReturnList.add(or);
             }
             //订单详情列表 map
             List<OrderDetail> orderDetailList = orderDetailMapper.listByIds(orderDetailIdList);
@@ -201,6 +203,7 @@ public class OrderReturnService {
                     odd.setCanReturnCount(canReturnCount-stractCount);
                     OrderDetail od = orderDetailMap.get(odd.getOrderDetailId());
                     if(od.getProductPrice()!=null){
+                    	returnPriceMap.put(odd.getOrderDeliveryDetailId(),od.getProductPrice().multiply(new BigDecimal(stractCount)));
 						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
                     }
                 }
@@ -220,6 +223,7 @@ public class OrderReturnService {
                 //or.setCreateUser(userDto.getUserName());
                 or.setReturnStatus("1");
                 or.setExceptionOrderId(oe.getExceptionOrderId());
+				or.setReturnPay(returnPriceMap.get(or.getOrderDeliveryDetailId()));
                 orderReturnMapper.save(or);
             }
 
