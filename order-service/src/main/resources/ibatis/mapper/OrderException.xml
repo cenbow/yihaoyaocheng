@@ -1071,7 +1071,7 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
 		T1.RETURN_TYPE = '2'
-		AND	T1.CUST_ID = #{custId}
+		AND	T1.supply_id = #{custId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -1102,7 +1102,7 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
 		T1.RETURN_TYPE = '2'
-		AND	T1.CUST_ID = #{custId}
+		AND	T1.supply_id = #{custId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -1133,7 +1133,7 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
 		T1.RETURN_TYPE = '2'
-		AND	T1.CUST_ID = #{custId}
+		AND	T1.supply_id = #{custId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
