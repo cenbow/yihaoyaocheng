@@ -11,28 +11,30 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderReturnFacade;
+import com.yyw.yhyc.order.service.OrderReturnService;
+import com.yyw.yhyc.order.service.OrderReturnService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping(value = "/order/orderReturn")
 public class OrderReturnController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderReturnController.class);
 
-	@Reference
-	private OrderReturnFacade orderReturnFacade;
+	@Autowired
+	private OrderReturnService orderReturnService;
 
 	/**
 	* 通过主键查询实体对象
@@ -42,7 +44,7 @@ public class OrderReturnController extends BaseJsonController {
 	@ResponseBody
 	public OrderReturn getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderReturnFacade.getByPK(key);
+		return orderReturnService.getByPK(key);
 	}
 
 	/**
@@ -59,7 +61,7 @@ public class OrderReturnController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderReturnFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderReturnService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -69,7 +71,7 @@ public class OrderReturnController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderReturn orderReturn) throws Exception
 	{
-		orderReturnFacade.save(orderReturn);
+		orderReturnService.save(orderReturn);
 	}
 
 	/**
@@ -79,7 +81,7 @@ public class OrderReturnController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderReturnFacade.deleteByPKeys(requestListModel.getList());
+		orderReturnService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -89,6 +91,20 @@ public class OrderReturnController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderReturn orderReturn) throws Exception
 	{
-		orderReturnFacade.update(orderReturn);
+		orderReturnService.update(orderReturn);
 	}
+
+    /**
+     * 退货
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/confirmSaleReturn", method = RequestMethod.POST)
+    @ResponseBody
+    public String confirmSaleReturn2(@RequestBody List<OrderReturn> orderReturnList) throws Exception
+    {
+        UserDto userDto = super.getLoginUser();
+
+        return orderReturnService.saveProductReturn(orderReturnList,userDto);
+    }
 }

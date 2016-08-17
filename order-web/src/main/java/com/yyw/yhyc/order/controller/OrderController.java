@@ -9,7 +9,6 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.annotation.Token;
@@ -24,7 +23,6 @@ import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yyw.yhyc.order.facade.OrderFacade;
 
 import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
@@ -49,8 +47,6 @@ import java.util.Map;
 public class OrderController extends BaseJsonController {
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
-    @Reference
-    private OrderFacade orderFacade;
 	@Autowired
 	private OrderService orderService;
 
@@ -63,7 +59,7 @@ public class OrderController extends BaseJsonController {
     @RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
     @ResponseBody
     public Order getByPK(@PathVariable("key") Integer key) throws Exception {
-        return orderFacade.getByPK(key);
+        return orderService.getByPK(key);
     }
 
     /**
@@ -79,7 +75,7 @@ public class OrderController extends BaseJsonController {
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
 
-        return orderFacade.listPaginationByProperty(pagination, requestModel.getParam());
+        return orderService.listPaginationByProperty(pagination, requestModel.getParam());
     }
 
     /**
@@ -87,8 +83,8 @@ public class OrderController extends BaseJsonController {
      * @return
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public void add(Order order) throws Exception {
-        orderFacade.save(order);
+    public void add(@RequestBody Order order) throws Exception {
+		orderService.save(order);
     }
 
     /**
@@ -96,8 +92,8 @@ public class OrderController extends BaseJsonController {
      * @return
      */
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public void delete(RequestListModel<Integer> requestListModel) throws Exception {
-        orderFacade.deleteByPKeys(requestListModel.getList());
+    public void delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
+		orderService.deleteByPKeys(requestListModel.getList());
     }
 
     /**
@@ -105,8 +101,8 @@ public class OrderController extends BaseJsonController {
      * @return
      */
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
-    public void update(Order order) throws Exception {
-        orderFacade.update(order);
+    public void update(@RequestBody Order order) throws Exception {
+		orderService.update(order);
     }
 
 
@@ -129,7 +125,7 @@ public class OrderController extends BaseJsonController {
 		Map<String,Object> map = new HashMap<String, Object>();
 		boolean validateResult = false;
 		try{
-			validateResult = orderFacade.validateProducts(currentLoginCustId,orderDto);
+			validateResult = orderService.validateProducts(currentLoginCustId,orderDto);
 		}catch (Exception e){
 			logger.error(e.getMessage());
 		}
@@ -199,7 +195,7 @@ public class OrderController extends BaseJsonController {
 		}
 		orderCreateDto.setUserDto(userDto);
 
-		List<Order> orderList = orderFacade.createOrder(orderCreateDto);
+		List<Order> orderList = orderService.createOrder(orderCreateDto);
 
 		String orderIdStr = "";
 		if(!UtilHelper.isEmpty(orderList)){
@@ -235,7 +231,7 @@ public class OrderController extends BaseJsonController {
 		for(String orderId : orderIdStr){
 			if(UtilHelper.isEmpty(orderId) || "null".equalsIgnoreCase(orderId)) continue;
 			orderDto = new OrderDto();
-			Order order = orderFacade.getByPK(Integer.valueOf(orderId));
+			Order order = orderService.getByPK(Integer.valueOf(orderId));
 			orderDto.setOrderId(order.getOrderId());
 			orderDto.setCustId(order.getCustId());
 			orderDto.setSupplyId(order.getSupplyId());
@@ -269,7 +265,7 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public ModelAndView checkOrderPage() throws Exception {
 		UserDto userDto = super.getLoginUser();
-		Map<String,Object> dataMap = orderFacade.checkOrderPage(userDto);
+		Map<String,Object> dataMap = orderService.checkOrderPage(userDto);
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
 		model.addObject("userDto",userDto);
@@ -388,7 +384,7 @@ public class OrderController extends BaseJsonController {
 		orderDto.setOrderStatus(orderStatus);
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
-		byte[] bytes=orderFacade.exportOrder(pagination, orderDto);
+		byte[] bytes=orderService.exportOrder(pagination, orderDto);
 		String  fileName= null;
 		try {
 			fileName = new String(("订单报表"+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
@@ -437,7 +433,7 @@ public class OrderController extends BaseJsonController {
 		// 登录卖家的id
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
-		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
 		//如果订单状态不为买家已下单或者订单支付类型不为现在支付则不能进行确认付款
 		if(UtilHelper.isEmpty(orderDetailsDto)
 				|| !SystemPayTypeEnum.PayOffline.getPayTypeName().equals(orderDetailsDto.getPayTypeName())
@@ -460,7 +456,7 @@ public class OrderController extends BaseJsonController {
 		// 登录买家的id
 		UserDto user = super.getLoginUser();
 		order.setCustId(user.getCustId());
-		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
 		if(UtilHelper.isEmpty(orderDetailsDto)){
 			return null;
 		}
@@ -481,7 +477,7 @@ public class OrderController extends BaseJsonController {
 		// 登录卖家的id
 		UserDto user = super.getLoginUser();
 		order.setSupplyId(user.getCustId());
-		OrderDetailsDto orderDetailsDto=orderFacade.getOrderDetails(order);
+		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
 		if(UtilHelper.isEmpty(orderDetailsDto)){
 			return null;
 		}

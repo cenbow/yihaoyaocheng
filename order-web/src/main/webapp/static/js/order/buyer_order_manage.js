@@ -404,8 +404,8 @@ function fillTable(data) {
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
-        tr += "<td><span name='list.productCount'>" + orderDeliveryDetail.deliveryProductCount + "</span></td>";
-        tr += "<td><input class='form-control' type='text' id='recieveCount' name='list.recieveCount'  /></td>";
+        tr += "<td><input type='hidden' name='list.productCount' value='"+orderDeliveryDetail.deliveryProductCount+"' >" + orderDeliveryDetail.deliveryProductCount + "</td>";
+        tr += "<td><input class='form-control' type='text' name='list.recieveCount'  /></td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -416,7 +416,7 @@ function fillTable(data) {
 
 
 function confirmReceipt(){
-    //确认发货
+    //确认收货
     var productCount = $("[name='list.productCount']");
     var recieveCount = $("[name='list.recieveCount']");
     var orderDetailId = $("[name='list.orderDetailId']");
@@ -429,11 +429,11 @@ function confirmReceipt(){
 
     if($("#bodyDiv:visible").size() == 0){
         for(var i=0;i<productCount.length;i++){
-            if($(recieveCount[i]).val()==null){
+            if($(recieveCount[i]).val()==""){
                 alertModal("请填写收货数量");
                 return;
             }
-            if($(recieveCount[i]).val()!=$(productCount[i]).html()){
+            if($(recieveCount[i]).val()!=$(productCount[i]).val()){
                 $("#bodyDiv").show();//display="block";
                 return;
             }
@@ -445,8 +445,8 @@ function confirmReceipt(){
             alertModal("请选择处理类型");
             return;
         }
-        for(var i=0;i<productCount.length;i++){
-            if($(recieveCount[i]).val()==null){
+        for(var i=0;i<recieveCount.length;i++){
+            if($(recieveCount[i]).val()==""){
                 alertModal("请填写收货数量");
                 return;
             }

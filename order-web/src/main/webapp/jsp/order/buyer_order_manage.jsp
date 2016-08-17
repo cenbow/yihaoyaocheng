@@ -198,7 +198,7 @@
                     <li><a name="statusCount"  data-toggle="tab">换货</a></li>
                 </ul>
                 <form method="post" id="myModalSalesReturnForm" enctype="multipart/form-data">
-                    <table class="table table-box2">
+                    <table class="table table-box3">
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 10%;">
@@ -231,7 +231,7 @@
                     <div class="modal-body" id="bodyDiv2" >
                         <div class="form-horizontal">
                             <div class="form-group">
-                                <label for="cancelResult" class="col-xs-3 control-label">退货/换货说明:</label>
+                                <label for="cancelResult" class="col-xs-3 control-label">退货说明:</label>
                                 <div class="col-xs-6 control-label text-left">
                                     <textarea type="text" class="form-control" id="returnDesc2" name="list.returnDesc"
                                               placeholder="" maxlength="200"></textarea>

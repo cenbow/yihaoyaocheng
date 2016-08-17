@@ -1,9 +1,16 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: lizhou
+  Date: 2016/8/16
+  Time: 15:35
+  To change this template use File | Settings | Editor | File and Code Templates.
+--%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>换货订单管理</title>
+    <title>补货订单管理</title>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -19,8 +26,8 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>采购订单管理</a></li>
-                    <li class="active">换货订单管理</li>
+                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
+                    <li class="active">补货订单管理</li>
                 </ol>
             </div>
             <div class="row choseuser border-gray">
@@ -28,26 +35,46 @@
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">采购商区域</label>
+                            <div class="col-xs-3">
+                                <select class="form-control width-80" name="province">
+                                    <option value="-1">省份</option>
+                                    <option value="2">1</option>
+                                    <option value="3">1</option>
+                                </select>
+                                <select class="form-control width-80" name="city">
+                                    <option value="-1">城市</option>
+                                    <option value="2">1</option>
+                                    <option value="3">1</option>
+                                </select>
+                                <select class="form-control width-80" name="area">
+                                    <option value="-1">区/县</option>
+                                    <option value="2">1</option>
+                                    <option value="3">1</option>
+                                </select>
+                            </div>
 
-                            <label for="exceptionOrderId" class="col-xs-2 control-label">换货订单号 </label>
+                            <label for="exceptionOrderId" class="col-xs-2 control-label">补货订单号 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="exceptionOrderId" name="exceptionOrderId" placeholder="">
                             </div>
 
-                            <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" id="flowId" name="flowId"
-                                       placeholder="">
-                            </div>
 
                         </div>
+
                         <div class="form-group">
+                            <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
+                            <div class="col-xs-3">
+                                <input type="text" class="form-control" id="flowId" name="flowId" placeholder="">
+                            </div>
                             <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" id="supplyName" name="supplyName"
-                                       placeholder="">
+                                <input type="text" class="form-control" id="supplyName" name="supplyName" placeholder="">
                             </div>
-                            <label class="col-xs-2 control-label">换货时间</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-2 control-label">补货申请时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
                                     <input type="text" name="startTime"
@@ -69,15 +96,12 @@
             <div class="row margin-t-10">
                 <div class="col-xs-12">
                     <ul id="myTab" class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部订单</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount1">待确认</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount4">待买家发货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount5">待卖家收货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('6');" name="statusCount6">待卖家发货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('7');" name="statusCount7">待买家收货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('8');" name="statusCount8">已完成</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount3">已关闭</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount2">已取消</a></li>
+                        <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount">待确认</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount">待发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount">待收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount">已完成</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount">已关闭</a></li>
                     </ul>
 
                     <div id="myTabContent" class="tab-content">
@@ -87,16 +111,16 @@
                             </div>
                             <table class="table table-box">
                                 <colgroup>
-                                    <col style="width: 25%;"/>
+                                    <col style="width: 20%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 25%;"/>
-                                    <col style="width: 10%;"/>
+                                    <col style="width: 20%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 10%;"/>
+                                    <col style="width: 15%;"/>
+                                    <col style="width: 15%;"/>
                                 </colgroup>
                                 <thead>
                                 <tr>
-                                    <th>换货订单号</th>
+                                    <th>补货订单号</th>
                                     <th>下单时间</th>
                                     <th>供应商</th>
                                     <th>订单状态</th>
@@ -120,8 +144,8 @@
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/orderException/buyer_change_order_manage.js"></script>
-
+<script type="text/javascript" src="${ctx }/static/js/orderException/seller_replenishment_order_manage.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/common.js"></script>
 </body>
 
 

@@ -67,19 +67,23 @@ function fillPagerUtil(data, requestParam) {
 
 function setOrderCount(orderStatusCount) {
     if (orderStatusCount) {
-        for (var o in orderStatusCount){
-            var  $a = $("a[name='statusCount" + o +"']");
-            var text = $a.text();
-            var index = text.indexOf("(");
-            if(index>0) text = text.substr(0, index);
-
-            $a.html(text + '<span style="color: red;">('+orderStatusCount[o]+')</span>');
-        }
+        if (orderStatusCount['1'])
+            $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
+        else
+            $($("a[name='statusCount']")[0]).html('待确认');
+        if (orderStatusCount['2'])
+            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
+        else
+            $($("a[name='statusCount']")[1]).html('待发货');
+        if (orderStatusCount['3'])
+            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
+        else
+            $($("a[name='statusCount']")[2]).html('待收货');
     }
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerChangeGoodsOrder";
+    var requestUrl = ctx+"/orderException/listPgSellerReplenishmentOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -93,17 +97,17 @@ function doRefreshData(requestParam) {
             }
             console.info(data);
             //设置订单数量
-            setOrderCount(data.rejectOrderStatusCount);
+            setOrderCount(data.orderStatusCount);
             //填充表格数据
-            fillTableJson(data.rejectOrderList);
+            fillTableJson(data.orderList);
             //设置分页组件参数
             // fillPagerUtil(data,requestParam);
-            var totalpage = data.rejectOrderList.totalPage;
-            var nowpage = data.rejectOrderList.pageNo;
-            var totalCount = data.rejectOrderList.total;
-            dataList = data.rejectOrderList.resultList;
-            $("#orderTotalMoney").html("&yen" + fmoney(data.rejectOrderTotalMoney,2));
-            $("#orderCount").html(data.rejectOrderCount);
+            var totalpage = data.orderList.totalPage;
+            var nowpage = data.orderList.pageNo;
+            var totalCount = data.orderList.total;
+            dataList = data.orderList.resultList;
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
+            $("#orderCount").html(data.orderCount);
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
             $("#J_pager").attr("url", requestUrl);
@@ -114,9 +118,9 @@ function doRefreshData(requestParam) {
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
                     console.info(data);
-                    var nowpage = data.buyerOrderList.page;
+                    var nowpage = data.orderList.page;
                     $("#nowpageedit").val(nowpage);
-                    fillTableJson(data.rejectOrderList);
+                    fillTableJson(data.orderList);
                 }
             });
         },
@@ -158,28 +162,14 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
+        var operate = getOperateHtml(order.orderStatus,order.exceptionId);
         var tr = "<tr>";
         tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
-
-        switch (order.orderStatus){
-            case "1" :
-                tr += "<td><a class='blue' href='javascript:void(0);' onclick='cancleOrder("+ order.exceptionId + ",2)'>取消</a></td>";
-                break;
-            case "4" :
-                tr += "<td><a class='blue' href='#'>发货</a></td>";
-                break;
-            case "7" :
-                tr += "<td><a class='blue' href='#'>确认收货</a></td>";
-                break;
-            default:
-                tr += "<td></td>";
-                break;
-        }
-
+        tr += "<td>" + operate + "</td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -187,6 +177,17 @@ function fillTableJson(data) {
     $(".table-box tbody").append(trs);
     changeColor();
 }
+
+function getOperateHtml(_orderStatus,_exceptionId){
+    var result = "";
+    if ( _orderStatus == "1") {
+        result = "<a href='#' class='btn btn-info btn-sm margin-r-10'>审核</a>";
+    } else if( _orderStatus == "2") {
+        result = "<a href='#' class='btn btn-info btn-sm margin-r-10'>发货</a>";
+    }
+    return result;
+}
+
 function changeColor(){
     $(".table tr:not(:first):odd").css({background:"#f7f7f7"});
     $(".table tr:not(:first):even").css({background:"#fff"});
@@ -217,49 +218,6 @@ function format(date){
     return year+'-'+month+'-'+day;
 }
 
-function fmoney(s, n)
-{
-    n = n > 0 && n <= 20 ? n : 2;
-    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
-    var l = s.split(".")[0].split("").reverse(),
-        r = s.split(".")[1];
-    t = "";
-    for(i = 0; i < l.length; i ++ )
-    {
-        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
-    }
-    return t.split("").reverse().join("") + "." + r;
-}
 
-/**
- * 取消订单
- * @param orderId
- */
-function cancleOrder(id, status) {
-    if (window.confirm("订单取消后将无法恢复，确定取消？")) {
-        $.ajax({
-            url: ctx+"/orderException/updateOrderStatus/"+id+"/"+status,
-            type: 'GET',
-            contentType: "application/json;charset=UTF-8",
-            success: function (data) {
-                if(data.statusCode || data.message){
-                    alertModal(data.message);
-                    return;
-                }
-
-                if(data.result == "F"){
-                    alertModal("取消失败");
-                }else {
-                    pasretFormData();
-                    doRefreshData(params);
-                    alertModal("取消成功");
-                }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alertModal("取消失败");
-            }
-        });
-    }
-}
 
 

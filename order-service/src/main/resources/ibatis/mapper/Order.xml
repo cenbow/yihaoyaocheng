@@ -148,6 +148,7 @@
 				, order_total
 				, final_pay
 				, total_count
+				, payment_term_status
 				, order_status
 				, remark
 				, leave_message
@@ -170,7 +171,6 @@
 				, bill_type
 				, Delay_log
 				, receive_Type
-				, payment_term_status
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -186,6 +186,7 @@
 		, order_total
 		, final_pay
 		, total_count
+		, payment_term_status
 		, order_status
 		, remark
 		, leave_message
@@ -208,7 +209,6 @@
 		, bill_type
 		, Delay_log
 		, receive_Type
-		, payment_term_status
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -412,6 +412,7 @@
 				, #{orderTotal}
 				, #{finalPay}
 				, #{totalCount}
+				, #{paymentTermStatus}
 				, #{orderStatus}
 				, #{remark}
 				, #{leaveMessage}
@@ -434,7 +435,6 @@
 				, #{billType}
 				, #{delayLog}
 				, #{receiveType}
-				, #{payment_term_status}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">

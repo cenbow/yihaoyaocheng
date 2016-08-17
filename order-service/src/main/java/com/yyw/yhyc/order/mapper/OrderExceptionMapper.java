@@ -114,4 +114,55 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 */
 	public List<OrderExceptionDto> findBuyerReplenishmentStatusCount(OrderExceptionDto orderExceptionDto);
 
+
+	/**
+	 * 供应商补货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> listPaginationSellerReplenishmentOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询供应商补货订单总金额
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.math.BigDecimal findSellerReplenishmentOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询供应商补货订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> findSellerReplenishmentStatusCount(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 修改状态
+	 * @param orderException
+	 * @return
+     */
+	int updateOrderStatus(OrderException orderException);
+
+	/**
+	 * 采购商换货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> listPgSellerChangeGoodsOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商换货订单总金额
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.math.BigDecimal findSellerChangeGoodsExceptionOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商换货订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> findSellerChangeGoodsOrderStatusCount(OrderExceptionDto orderExceptionDto);
 }

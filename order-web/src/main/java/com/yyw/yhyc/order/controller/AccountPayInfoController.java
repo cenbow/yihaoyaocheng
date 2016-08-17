@@ -11,16 +11,16 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.AccountPayInfo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.facade.AccountPayInfoFacade;
 
+import com.yyw.yhyc.order.service.AccountPayInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,8 +35,8 @@ import java.util.Map;
 public class AccountPayInfoController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(AccountPayInfoController.class);
 
-	@Reference
-	private AccountPayInfoFacade accountPayInfoFacade;
+	@Autowired
+	private AccountPayInfoService accountPayInfoService;
 	private Integer custId;
 	
 	public Integer getCustId() {
@@ -53,7 +53,7 @@ public class AccountPayInfoController extends BaseJsonController {
 	@ResponseBody
 	public AccountPayInfo getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return accountPayInfoFacade.getByPK(key);
+		return accountPayInfoService.getByPK(key);
 	}
 	/**
 	* 通过供应商custId查询
@@ -63,7 +63,7 @@ public class AccountPayInfoController extends BaseJsonController {
 	@ResponseBody
 	public ModelAndView getByCustId(@PathVariable("custId")Integer custId) throws Exception
 	{
-		AccountPayInfo accountPayInfo =accountPayInfoFacade.getByCustId(custId);
+		AccountPayInfo accountPayInfo =accountPayInfoService.getByCustId(custId);
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",accountPayInfo);
 		model.setViewName("order/checkAccountInfo");
@@ -83,7 +83,7 @@ public class AccountPayInfoController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return accountPayInfoFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return accountPayInfoService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class AccountPayInfoController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(AccountPayInfo accountPayInfo) throws Exception
 	{
-		accountPayInfoFacade.save(accountPayInfo);
+		accountPayInfoService.save(accountPayInfo);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class AccountPayInfoController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		accountPayInfoFacade.deleteByPKeys(requestListModel.getList());
+		accountPayInfoService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -113,6 +113,6 @@ public class AccountPayInfoController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(AccountPayInfo accountPayInfo) throws Exception
 	{
-		accountPayInfoFacade.update(accountPayInfo);
+		accountPayInfoService.update(accountPayInfo);
 	}
 }
