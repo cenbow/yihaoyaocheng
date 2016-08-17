@@ -50,11 +50,11 @@
 
 	<!-- mvc 拦截器 -->
 	<mvc:interceptors>
-		<!-- 登录拦截 -->
+		<!-- 登录拦截 --><!--
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
-		</mvc:interceptor>
+		</mvc:interceptor>-->
 
 		<!-- 获取用户信息 -->
 		<mvc:interceptor>

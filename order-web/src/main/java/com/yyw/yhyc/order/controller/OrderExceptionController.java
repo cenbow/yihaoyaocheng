@@ -418,6 +418,44 @@ public class OrderExceptionController extends BaseJsonController{
 
 		return map;
 	}
+
+	/**
+	 * 买家家退货订单管理-页面
+	 * @return
+	 */
+	@RequestMapping("/buyerRefundOrderManage")
+	public ModelAndView buyerRefundOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/buyer_refund_order_manage");
+		return view;
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgBuyerRefundOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgBuyerRefundOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgBuyerRefundOrder(pagination, orderDto);
+	}
+
+	/**
+	 * 采购商取消退货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/buyerCancelRefundOrder/{exceptionId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void buyerCancelRefundOrder(@PathVariable("exceptionId") Integer exceptionId){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.updateRefundOrderStatusForBuyer(userDto, exceptionId);
+	}
 }
 
 

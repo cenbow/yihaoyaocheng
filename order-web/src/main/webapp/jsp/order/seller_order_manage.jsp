@@ -198,7 +198,7 @@
                         <input type="hidden" id="deliveryExpressNo" name="deliveryExpressNo">
                         <input type="hidden" id="deliveryMethod" name="deliveryMethod">
                         <input type="hidden" id="sendFlowId" name="flowId">
-
+                        <input type="hidden" id="orderType" name="orderType" value="1">
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label"><em>*</em>发货仓库</label>
                             <div class="col-xs-10 send_goods" id="warehouse">

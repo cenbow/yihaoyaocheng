@@ -1228,8 +1228,11 @@
 				</when>
 				<when test='orderStatus == "7"'><!--已完成-->
 					AND (
-							(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND T3.PAY_TYPE = 2)<!--(卖家已收货、系统自动确认收货)+账期支付-->
-							OR T1.ORDER_STATUS = '8'  <!--已退款-->
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
 					)
 				</when>
 				<otherwise>
@@ -1287,8 +1290,11 @@
 				</when>
 				<when test='orderStatus == "7"'><!--已完成-->
 					AND (
-					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND T3.PAY_TYPE = 2)<!--(卖家已收货、系统自动确认收货)+账期支付-->
-					OR T1.ORDER_STATUS = '8'  <!--已退款-->
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
 					)
 				</when>
 				<otherwise>
@@ -1323,37 +1329,6 @@
 		<if test="endTime!= null and endTime!= ''">
 			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
 		</if>
-		<if test="orderStatus!= null and orderStatus!= ''">
-			<choose>
-				<when test='orderStatus == "1"'><!--待确认-->
-					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
-				</when>
-				<when test='orderStatus == "2"'><!--已取消-->
-					AND T1.ORDER_STATUS = '2' <!--买家已取消-->
-				</when>
-				<when test='orderStatus == "3"'><!--待买家发货-->
-					AND T1.ORDER_STATUS = '3' <!--卖家已确认-->
-				</when>
-				<when test='orderStatus == "4"'><!--已关闭-->
-					AND T1.ORDER_STATUS = '4' <!--卖家已关闭-->
-				</when>
-				<when test='orderStatus == "5"'><!--待卖家收货-->
-					AND T1.ORDER_STATUS = '5' <!--买家已发货-->
-				</when>
-				<when test='orderStatus == "6"'><!--退款中-->
-					AND ((T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND (T3.PAY_TYPE = 1 OR T3.PAY_TYPE = 3))<!--(卖家已收货、系统自动确认收货)+(在线支付、线下转账)-->
-				</when>
-				<when test='orderStatus == "7"'><!--已完成-->
-					AND (
-					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND T3.PAY_TYPE = 2)<!--(卖家已收货、系统自动确认收货)+账期支付-->
-					OR T1.ORDER_STATUS = '8'  <!--已退款-->
-					)
-				</when>
-				<otherwise>
-					<![CDATA[ AND 1<>1]]>
-				</otherwise>
-			</choose>
-		</if>
 		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
 	</select>
 
@@ -1371,6 +1346,12 @@
 		<if test="supplyId!= null and supplyId!= ''">
 			AND T1.supply_id=#{supplyId}
 		</if>
+	</select>
+
+	<select id="getByExceptionOrderId" parameterType="java.lang.String" resultMap="OrderExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE exception_order_id = #{exceptionOrderId}
 	</select>
 
 </mapper>

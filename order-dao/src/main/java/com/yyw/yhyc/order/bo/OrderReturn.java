@@ -123,6 +123,19 @@ public class OrderReturn extends Model{
 	 */
 	private String batchNumber;
 
+	/**
+	 *	商品编码
+	 */
+	private String productCode;
+
+	public String getProductCode() {
+		return productCode;
+	}
+
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+
 	public Integer getOrderDeliveryDetailId() {
 		return orderDeliveryDetailId;
 	}

@@ -1101,4 +1101,126 @@ public class OrderExceptionService {
 			return SellerRefundOrderStatusEnum.Finished;
 		return null;
 	}
+
+	/**
+	 * 采购商补货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public Map<String, Object> listPgBuyerRefundOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+
+		if(UtilHelper.isEmpty(orderExceptionDto))
+			throw new RuntimeException("参数错误");
+		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderExceptionDto.setEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderExceptionDto.getEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+
+		}
+
+		int orderCount = 0;
+		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerRefundOrderTotal(orderExceptionDto);
+
+		log.info("orderTotalMoney:"+orderTotalMoney);
+
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRefundOrder(pagination, orderExceptionDto);
+		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+
+		BuyerRefundOrderStatusEnum buyerRefundOrderStatusEnum;
+		if(!UtilHelper.isEmpty(orderExceptionDtoList)){
+			orderCount = pagination.getTotal();
+			for(OrderExceptionDto oed : orderExceptionDtoList){
+				buyerRefundOrderStatusEnum = getBuyerRefundOrderStatusEnum(oed.getOrderStatus(),oed.getPayType());
+				if(!UtilHelper.isEmpty(buyerRefundOrderStatusEnum))
+					oed.setOrderStatusName(buyerRefundOrderStatusEnum.getValue());
+				else
+					oed.setOrderStatusName("未知状态");
+			}
+		}
+
+		pagination.setResultList(orderExceptionDtoList);
+
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findBuyerRefundOrderStatusCount(orderExceptionDto);
+
+		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
+			for (OrderExceptionDto oed : orderExceptionDtos) {
+				//卖家视角订单状态
+				buyerRefundOrderStatusEnum = getBuyerRefundOrderStatusEnum(oed.getOrderStatus(),oed.getPayType());
+				if(buyerRefundOrderStatusEnum != null){
+					if(orderStatusCountMap.containsKey(buyerRefundOrderStatusEnum.getType())){
+						orderStatusCountMap.put(buyerRefundOrderStatusEnum.getType(),orderStatusCountMap.get(buyerRefundOrderStatusEnum.getType())+oed.getOrderCount());
+					}else{
+						orderStatusCountMap.put(buyerRefundOrderStatusEnum.getType(),oed.getOrderCount());
+					}
+				}
+			}
+		}
+		log.info("orderStatusCountMap:"+orderStatusCountMap);
+
+		resultMap.put("orderStatusCount", orderStatusCountMap);
+		resultMap.put("orderList", pagination);
+		resultMap.put("orderCount", orderCount);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		return resultMap;
+	}
+
+
+	/**
+	 * 买家取消退货订单
+	 * @param userDto
+	 * @param exceptionId
+     */
+	public void updateRefundOrderStatusForBuyer(UserDto userDto,Integer exceptionId){
+		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(exceptionId)){
+			throw new RuntimeException("参数错误");
+		}
+		OrderException orderException =  orderExceptionMapper.getByPK(exceptionId);
+		log.info(orderException);
+		if(UtilHelper.isEmpty(orderException)){
+			log.info("can not find order ,exceptionId:"+exceptionId);
+			throw new RuntimeException("未找到订单");
+		}
+		//判断订单是否属于该买家
+		if(userDto.getCustId() == orderException.getCustId()){
+			if(SystemRefundOrderStatusEnum.BuyerApplying.getType().equals(orderException.getOrderStatus())){//买家已申请
+				orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
+				String now = systemDateMapper.getSystemDate();
+				orderException.setUpdateUser(userDto.getUserName());
+				orderException.setUpdateTime(now);
+				int count = orderExceptionMapper.update(orderException);
+				if(count == 0){
+					log.info("orderException info :"+orderException);
+					throw new RuntimeException("订单取消失败");
+				}
+				//插入日志表
+				OrderTrace orderTrace = new OrderTrace();
+				orderTrace.setOrderId(orderException.getExceptionId());
+				orderTrace.setNodeName("买家取消退货订单");
+				orderTrace.setDealStaff(userDto.getUserName());
+				orderTrace.setRecordDate(now);
+				orderTrace.setRecordStaff(userDto.getUserName());
+				orderTrace.setOrderStatus(orderException.getOrderStatus());
+				orderTrace.setCreateTime(now);
+				orderTrace.setCreateUser(userDto.getUserName());
+				orderTraceMapper.save(orderTrace);
+			}else{
+				log.info("orderException status error ,orderStatus:"+orderException.getOrderStatus());
+				throw new RuntimeException("订单状态不正确");
+			}
+		}else{
+			log.info("db orderException not equals to request exceptionId ,exceptionId:"+exceptionId+",db exceptionId:"+orderException.getExceptionId());
+			throw new RuntimeException("未找到订单");
+		}
+	}
 }

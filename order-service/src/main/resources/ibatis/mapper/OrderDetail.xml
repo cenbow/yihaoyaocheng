@@ -276,4 +276,15 @@
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_detail WHERE order_Id= #{orderId}
 	</select>
+
+	<select id="listByIds"  resultMap="OrderDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_detail WHERE 1=1
+		AND order_detail_id IN
+		<foreach collection="list" item="id" index="index"
+				 open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
 </mapper>

@@ -114,12 +114,95 @@
         </div>
     </div>
 </div>
+</div>
+<div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">发货</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <form method="post" id="sendform" enctype="multipart/form-data">
+                        <input type="hidden" id="receiverAddressId" name="receiverAddressId">
+                        <input type="hidden" id="deliveryContactPerson" name="deliveryContactPerson">
+                        <input type="hidden" id="deliveryExpressNo" name="deliveryExpressNo">
+                        <input type="hidden" id="deliveryMethod" name="deliveryMethod">
+                        <input type="hidden" id="sendFlowId" name="flowId">
+
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label"><em>*</em>发货仓库</label>
+                            <div class="col-xs-10 send_goods" id="warehouse">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label"><em>*</em>配送方式</label>
+                            <div class="col-xs-9 border-gray no-padding">
+                                <div class="border-bottom padding-b-10">
+                                    <label class="radio-inline margin-l-10" href="#one1" onclick="totab(1)" data-toggle="tab">
+                                        <input type="radio" checked="true"  name="ownw" id="ownw1" value="1">自有物流
+                                    </label>
+                                    <label class="radio-inline no-margin"  href="#one2" onclick="totab(2)" data-toggle="tab">
+                                        <input type="radio" name="ownw"  value="2" id="ownw2">第三方运输公司
+                                    </label>
+                                </div>
+                                <div class="tab-content">
+                                    <div class="padding-t-20 tab-pane fade in active" id="one1">
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">预计到达时间</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" name="deliveryDate" id="deliveryDate" class="form-control Wdate" onclick="WdatePicker()" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">联系人</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryContactPerson1"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">联系人电话</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryExpressNo1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="padding-t-20 tab-pane fade" id="one2">
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">运输公司</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryContactPerson2" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">物流单号</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryExpressNo2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="sendDeliverysubmit()" >确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/orderException/buyer_refund_order_manage.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/common.js"></script>
 
 </body>
 
