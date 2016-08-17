@@ -253,15 +253,18 @@ public class OrderExceptionController extends BaseJsonController{
 		return orderExceptionService.listPgBuyerReplenishmentOrder(pagination, orderDto);
 	}
 
-
-	@RequestMapping("/BuyerChangeGoodsOrderManage")
+	/**
+	 * 采购换货订单查询
+	 * @return
+	 */
+	@RequestMapping("/buyerChangeGoodsOrderManage")
 	public ModelAndView buyerChangeGoodsOrderManage(){
 		ModelAndView view = new ModelAndView("orderException/buyer_change_order_manage");
 		return view;
 	}
 
 	/**
-	 * 采购订单查询
+	 * 采购换货订单查询
 	 * @return
 	 */
 	@RequestMapping(value = {"/listPgBuyerChangeGoodsOrder"}, method = RequestMethod.POST)
@@ -275,6 +278,33 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerChangeGoodsOrder(pagination, orderDto);
+	}
+
+	/**
+	 * 供应商换货订单查询
+	 * @return
+	 */
+	@RequestMapping("/sellerChangeGoodsOrderManage")
+	public ModelAndView sellerChangeGoodsOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/seller_change_order_manage");
+		return view;
+	}
+
+	/**
+	 * 供应商换货订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/listPgSellerChangeGoodsOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerChangeGoodsOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgSellerChangeGoodsOrder(pagination, orderDto);
 	}
 
 
