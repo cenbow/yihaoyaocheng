@@ -1228,8 +1228,11 @@
 				</when>
 				<when test='orderStatus == "7"'><!--已完成-->
 					AND (
-							(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND T3.PAY_TYPE = 2)<!--(卖家已收货、系统自动确认收货)+账期支付-->
-							OR T1.ORDER_STATUS = '8'  <!--已退款-->
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
 					)
 				</when>
 				<otherwise>
@@ -1287,8 +1290,11 @@
 				</when>
 				<when test='orderStatus == "7"'><!--已完成-->
 					AND (
-					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND T3.PAY_TYPE = 2)<!--(卖家已收货、系统自动确认收货)+账期支付-->
-					OR T1.ORDER_STATUS = '8'  <!--已退款-->
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
 					)
 				</when>
 				<otherwise>
@@ -1345,8 +1351,11 @@
 				</when>
 				<when test='orderStatus == "7"'><!--已完成-->
 					AND (
-					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7') AND T3.PAY_TYPE = 2)<!--(卖家已收货、系统自动确认收货)+账期支付-->
-					OR T1.ORDER_STATUS = '8'  <!--已退款-->
+					(
+					(T1.ORDER_STATUS = '6' OR T1.ORDER_STATUS = '7')
+					AND T3.PAY_TYPE = 2
+					)<!--(卖家已收货、系统自动确认收货)+账期支付-->
+					OR T1.ORDER_STATUS = '8'<!--已退款-->
 					)
 				</when>
 				<otherwise>
