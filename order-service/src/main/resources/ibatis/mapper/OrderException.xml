@@ -1189,7 +1189,7 @@
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
-		T1.RETURN_TYPE = '3'<!--补货订单-->
+		T1.RETURN_TYPE = '1'<!--退货-->
 		AND	T1.CUST_ID = #{custId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
@@ -1240,7 +1240,7 @@
 		ORDER BY T1.EXCEPTION_ID DESC
 	</select>
 
-	<select id="listPaginationBuyerRefundOrder" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal"  useCache="false">
+	<select id="findBuyerRefundOrderTotal" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal"  useCache="false">
 		SELECT
 		SUM(T1.ORDER_MONEY)
 		FROM
@@ -1248,7 +1248,7 @@
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
-		T1.RETURN_TYPE = '3'<!--补货订单-->
+		T1.RETURN_TYPE = '1'<!--退货-->
 		AND	T1.CUST_ID = #{custId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
@@ -1298,16 +1298,15 @@
 		</if>
 	</select>
 
-	<select id="listPaginationBuyerRefundOrder" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap"  useCache="false">
+	<select id="findBuyerRefundOrderStatusCount" parameterType="OrderExceptionDto" resultMap="buyerRejectOrderResultMap"  useCache="false">
 		SELECT
-		<include refid="T1commonProcessDateColumns"/>, T3.PAY_TYPE,
-		T3.PAY_TYPE_NAME
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T3.PAY_TYPE AS payType
 		FROM
 		T_ORDER_EXCEPTION T1
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
 		WHERE
-		T1.RETURN_TYPE = '3'<!--补货订单-->
+		T1.RETURN_TYPE = '1'<!--退货-->
 		AND	T1.CUST_ID = #{custId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
@@ -1355,7 +1354,7 @@
 				</otherwise>
 			</choose>
 		</if>
-		ORDER BY T1.EXCEPTION_ID DESC
+		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
 	</select>
 
 	<select id="getOrderExceptionDetailsForReview" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsResultMap">
