@@ -11,15 +11,15 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderCombined;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.facade.OrderCombinedFacade;
+import com.yyw.yhyc.order.service.OrderCombinedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class OrderCombinedController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderCombinedController.class);
 
-	@Reference
-	private OrderCombinedFacade orderCombinedFacade;
+	@Autowired
+	private OrderCombinedService orderCombinedService;
 
 	/**
 	* 通过主键查询实体对象
@@ -42,7 +42,7 @@ public class OrderCombinedController extends BaseJsonController {
 	@ResponseBody
 	public OrderCombined getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderCombinedFacade.getByPK(key);
+		return orderCombinedService.getByPK(key);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class OrderCombinedController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderCombinedFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderCombinedService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class OrderCombinedController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderCombined orderCombined) throws Exception
 	{
-		orderCombinedFacade.save(orderCombined);
+		orderCombinedService.save(orderCombined);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class OrderCombinedController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderCombinedFacade.deleteByPKeys(requestListModel.getList());
+		orderCombinedService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -89,6 +89,6 @@ public class OrderCombinedController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderCombined orderCombined) throws Exception
 	{
-		orderCombinedFacade.update(orderCombined);
+		orderCombinedService.update(orderCombined);
 	}
 }

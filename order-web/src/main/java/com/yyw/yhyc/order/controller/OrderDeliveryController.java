@@ -11,7 +11,6 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderDelivery;
@@ -20,11 +19,11 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.facade.OrderDeliveryFacade;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,8 +42,8 @@ import java.util.Map;
 public class OrderDeliveryController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryController.class);
 
-	@Reference
-	private OrderDeliveryFacade orderDeliveryFacade;
+	@Autowired
+	private OrderDeliveryService orderDeliveryService;
 
 	private String FILE_TEMPLATE_PATH="include/excel/";
 
@@ -56,7 +55,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	@ResponseBody
 	public OrderDelivery getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderDeliveryFacade.getByPK(key);
+		return orderDeliveryService.getByPK(key);
 	}
 
 	/**
@@ -73,7 +72,7 @@ public class OrderDeliveryController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderDeliveryFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderDeliveryService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -83,7 +82,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderDelivery orderDelivery) throws Exception
 	{
-		orderDeliveryFacade.save(orderDelivery);
+		orderDeliveryService.save(orderDelivery);
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderDeliveryFacade.deleteByPKeys(requestListModel.getList());
+		orderDeliveryService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -103,7 +102,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderDelivery orderDelivery) throws Exception
 	{
-		orderDeliveryFacade.update(orderDelivery);
+		orderDeliveryService.update(orderDelivery);
 	}
 
 
@@ -125,7 +124,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName(fileName);
 		}else
 			return null;
-		return orderDeliveryFacade.sendOrderDelivery(orderDeliveryDto);
+		return orderDeliveryService.sendOrderDelivery(orderDeliveryDto);
 	}
 
 	/**
@@ -136,7 +135,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	@ResponseBody
 	public List<UsermanageReceiverAddress> getReceiveAddressList(){
 		UserDto user = super.getLoginUser();
-		return orderDeliveryFacade.getReceiveAddressList(user);
+		return orderDeliveryService.getReceiveAddressList(user);
 	}
 
 

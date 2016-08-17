@@ -11,7 +11,6 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.bo.Pagination;
@@ -19,6 +18,7 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.facade.OrderReturnFacade;
+import com.yyw.yhyc.order.service.OrderReturnService;
 import com.yyw.yhyc.order.service.OrderReturnService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +33,9 @@ import java.util.List;
 public class OrderReturnController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderReturnController.class);
 
-	@Reference
-	private OrderReturnFacade orderReturnFacade;
-
 	@Autowired
 	private OrderReturnService orderReturnService;
+
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -46,7 +44,7 @@ public class OrderReturnController extends BaseJsonController {
 	@ResponseBody
 	public OrderReturn getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderReturnFacade.getByPK(key);
+		return orderReturnService.getByPK(key);
 	}
 
 	/**
@@ -63,7 +61,7 @@ public class OrderReturnController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderReturnFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderReturnService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -73,7 +71,7 @@ public class OrderReturnController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderReturn orderReturn) throws Exception
 	{
-		orderReturnFacade.save(orderReturn);
+		orderReturnService.save(orderReturn);
 	}
 
 	/**
@@ -83,7 +81,7 @@ public class OrderReturnController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderReturnFacade.deleteByPKeys(requestListModel.getList());
+		orderReturnService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -93,7 +91,7 @@ public class OrderReturnController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderReturn orderReturn) throws Exception
 	{
-		orderReturnFacade.update(orderReturn);
+		orderReturnService.update(orderReturn);
 	}
 
     /**

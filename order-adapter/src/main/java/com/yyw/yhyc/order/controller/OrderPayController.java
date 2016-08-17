@@ -11,15 +11,15 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.facade.OrderPayFacade;
+import com.yyw.yhyc.order.service.OrderPayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class OrderPayController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderPayController.class);
 
-	@Reference
-	private OrderPayFacade orderPayFacade;
+	@Autowired
+	private OrderPayService orderPayService;
 
 	/**
 	* 通过主键查询实体对象
@@ -42,7 +42,7 @@ public class OrderPayController extends BaseJsonController {
 	@ResponseBody
 	public OrderPay getByPK(@PathVariable("key") Integer key) throws Exception
 	{
-		return orderPayFacade.getByPK(key);
+		return orderPayService.getByPK(key);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class OrderPayController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 
-		return orderPayFacade.listPaginationByProperty(pagination, requestModel.getParam());
+		return orderPayService.listPaginationByProperty(pagination, requestModel.getParam());
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class OrderPayController extends BaseJsonController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderPay orderPay) throws Exception
 	{
-		orderPayFacade.save(orderPay);
+		orderPayService.save(orderPay);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class OrderPayController extends BaseJsonController {
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
-		orderPayFacade.deleteByPKeys(requestListModel.getList());
+		orderPayService.deleteByPKeys(requestListModel.getList());
 	}
 
 	/**
@@ -89,6 +89,6 @@ public class OrderPayController extends BaseJsonController {
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderPay orderPay) throws Exception
 	{
-		orderPayFacade.update(orderPay);
+		orderPayService.update(orderPay);
 	}
 }
