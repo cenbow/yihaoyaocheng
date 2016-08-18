@@ -401,7 +401,7 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
-	 * 买家家退货订单管理-页面
+	 * 买家退货订单管理-页面
 	 * @return
 	 */
 	@RequestMapping("/buyerRefundOrderManage")
@@ -411,7 +411,7 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
-	 * 采购订单查询
+	 * 采购商退货订单查询
 	 * @return
 	 */
 	@RequestMapping(value = {"", "/listPgBuyerRefundOrder"}, method = RequestMethod.POST)
@@ -479,6 +479,33 @@ public class OrderExceptionController extends BaseJsonController{
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
 		modelAndView.setViewName("orderException/replenishment_order_detail");
 		return modelAndView;
+	}
+
+	/**
+	 * 卖家退货订单管理-页面
+	 * @return
+	 */
+	@RequestMapping("/sellerRefundOrderManage")
+	public ModelAndView sellerRefundOrderManage(){
+		ModelAndView view = new ModelAndView("orderException/seller_refund_order_manage");
+		return view;
+	}
+
+	/**
+	 * 卖家退货订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listPgSellerRefundOrder"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> listPgSellerRefundOrder(@RequestBody RequestModel<OrderExceptionDto> requestModel){
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderExceptionDto orderDto = requestModel.getParam();
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 }
 
