@@ -26,6 +26,7 @@ $(function(){
                         htmls.push('<option value="' + o.infoCode + '">' + o.infoName + '</option>')
                     }
                     $city.html(htmls.join(""));
+                    $area.html('<option value="">--县/区--</option>');
                 });
             }
 
