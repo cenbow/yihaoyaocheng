@@ -497,7 +497,7 @@ public class OrderExceptionService {
 	 * @param userDto
 	 * @param orderException
      */
-	public void sellerReviewRejectOrder(UserDto userDto,OrderException orderException){
+	public void modifyReviewRejectOrderStatus(UserDto userDto,OrderException orderException){
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
 			throw new RuntimeException("参数异常");
 
@@ -827,11 +827,11 @@ public class OrderExceptionService {
 		return null;
 	}
 	/**
-	 * 卖家审核拒收订单
+	 * 卖家审核退货订单
 	 * @param userDto
 	 * @param orderException
 	 */
-	public void sellerReviewReturnOrder(UserDto userDto,OrderException orderException){
+	public void modifyReviewReturnOrder(UserDto userDto,OrderException orderException){
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
 			throw new RuntimeException("参数异常");
 

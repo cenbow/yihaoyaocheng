@@ -236,7 +236,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.sellerReviewRejectOrder(userDto, orderException);
+		orderExceptionService.modifyReviewRejectOrderStatus(userDto, orderException);
 	}
 
 	/**
@@ -258,7 +258,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewReturnOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.sellerReviewReturnOrder(userDto, orderException);
+		orderExceptionService.modifyReviewReturnOrder(userDto, orderException);
 	}
 
 	/**
@@ -533,7 +533,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void repConfirmReceipt(String exceptionOrderId){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.repConfirmReceipt(exceptionOrderId,userDto);
+		orderExceptionService.repConfirmReceipt(exceptionOrderId, userDto);
 	}
 }
 
