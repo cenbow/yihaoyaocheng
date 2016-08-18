@@ -1049,7 +1049,7 @@ public class OrderExceptionService {
 	}
 
 	/**
-	 * 买家视角补货订单状态
+	 * 买家视角退货订单状态
 	 * @param systemStatus
 	 * @param payType
      * @return
@@ -1077,7 +1077,7 @@ public class OrderExceptionService {
 	}
 
 	/**
-	 * 卖家视角补货订单状态
+	 * 卖家视角退货订单状态
 	 * @param systemStatus
 	 * @param payType
 	 * @return
@@ -1105,7 +1105,7 @@ public class OrderExceptionService {
 	}
 
 	/**
-	 * 采购商补货订单查询
+	 * 采购商退货订单查询
 	 * @param pagination
 	 * @param orderExceptionDto
 	 * @return
@@ -1272,7 +1272,7 @@ public class OrderExceptionService {
 
 
 	/**
-	 * 卖家补货订单查询
+	 * 卖家退货订单查询
 	 * @param pagination
 	 * @param orderExceptionDto
 	 * @return
