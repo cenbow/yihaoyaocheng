@@ -454,6 +454,32 @@ public class OrderExceptionController extends BaseJsonController{
 		model.setViewName("orderException/orderReturnDetails");
 		return model;
 	}
+
+	/**
+	 * 补货订单详情
+	 * @param userType userType==1 表示以采购商身份查看 ，userType==2 表示以供应商身份查看
+	 * @param flowId 原始订单编号
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getReplenishmentDetails-{userType}/{flowId}", method = RequestMethod.GET)
+	public ModelAndView getReplenishmentDetails(@PathVariable("userType") int userType,@PathVariable("flowId")String flowId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setFlowId(flowId);
+		orderExceptionDto.setUserType(userType);
+		if (userType == 1) {
+			orderExceptionDto.setCustId(user.getCustId());
+		} else if(userType == 2) {
+			orderExceptionDto.setSupplyId(user.getCustId());
+		}
+		orderExceptionDto = orderExceptionService.getReplenishmentDetails(orderExceptionDto);
+		orderExceptionDto.setUserType(userType);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/replenishment_order_detail");
+		return modelAndView;
+	}
 }
 
 
