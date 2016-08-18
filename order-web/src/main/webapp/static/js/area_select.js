@@ -11,7 +11,8 @@ $(function(){
 
         if($province.size()>0){
             var htmls = ['<option value="">--省份--</option>'];
-            for (var o in _areaMap){
+            for (var i in _areaMap[0]){
+                var o = _areaMap[0][i];
                 htmls.push('<option value="'+ o.infoCode +'">'+ o.infoName +'</option>')
             }
             $province.html(htmls.join(""));
@@ -20,7 +21,8 @@ $(function(){
                 $province.change(function () {
                     var value = $(this).val();
                     htmls = ['<option value="">--市/城--</option>'];
-                    for (var o in _areaMap[value]) {
+                    for (var i in _areaMap[value]) {
+                        var o = _areaMap[value][i];
                         htmls.push('<option value="' + o.infoCode + '">' + o.infoName + '</option>')
                     }
                     $city.html(htmls.join(""));
@@ -31,7 +33,8 @@ $(function(){
                 $city.change(function () {
                     var value = $(this).val();
                     htmls = ['<option value="">--县/区--</option>'];
-                    for (var o in _areaMap[value]) {
+                    for (var i in _areaMap[value]) {
+                        var o = _areaMap[value][i];
                         htmls.push('<option value="' + o.infoCode + '">' + o.infoName + '</option>')
                     }
                     $area.html(htmls.join(""));
