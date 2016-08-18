@@ -25,7 +25,7 @@
                 <ol class="breadcrumb">
                     <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
                     <li><a href="#"><i class="fa fa-map-marker fa-3"></i>退货订单管理</a></li>
-                    <li class="active">审核订单</li>
+                    <li class="active">订单详情</li>
                 </ol>
             </div>
             <div class="border-gray">
