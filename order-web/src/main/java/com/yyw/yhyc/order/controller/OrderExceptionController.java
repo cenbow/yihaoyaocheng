@@ -415,6 +415,23 @@ public class OrderExceptionController extends BaseJsonController{
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRefundOrder(pagination, orderDto);
 	}
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/BuyerReReturnOrderDetail/{exceptionId}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView findBuyerReReturnOrderDetail(@PathVariable("exceptionId")Integer exceptionId)throws  Exception{
+		ModelAndView model = new ModelAndView();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+//		UserDto user = super.getLoginUser();
+//		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		model.addObject("orderExceptionDto",orderExceptionDto);
+		model.setViewName("orderException/orderReturnDetails");
+		return model;
+	}
 }
 
 
