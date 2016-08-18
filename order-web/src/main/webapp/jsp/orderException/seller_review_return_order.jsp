@@ -101,18 +101,7 @@
                                 <label for="scope" class="col-xs-2 control-label">支付方式</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发票信息</label>
-                                <div class="col-xs-3 control-label text-left">
-                                    <c:set var="billTypeSpecial" value="<%=BillTypeSpecial.getBillType()%>"></c:set>
-                                    <c:set var="billTypeNormal" value="<%=BillTypeNormal.getBillType()%>"></c:set>
-                                    <c:choose>
-                                        <c:when test="${orderExceptionDto.order.billType == billTypeSpecial}">
-                                            <%=BillTypeSpecial.getBillTypeName()%>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <%=BillTypeNormal.getBillTypeName()%>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.billTypeName}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">下单时间</label>

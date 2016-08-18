@@ -192,6 +192,7 @@ public class OrderExceptionService {
 		if(UtilHelper.isEmpty(orderExceptionDto)) {
 			return orderExceptionDto;
 		}
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
 		/* 计算商品总额 */
 		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
