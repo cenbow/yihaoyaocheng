@@ -286,4 +286,37 @@
 		LEFT JOIN  t_order_detail  T2 ON T1.order_detail_id=T2.order_detail_id
 		WHERE  T1.exception_order_id=#{exceptionOrderId};
 	</select>
+
+	<insert id="saveBatch">
+		<![CDATA[ INSERT INTO t_order_return ( ]]>
+		<include refid="commonColumnsNotPK"/>
+		<![CDATA[ ) VALUES]]>
+			<foreach collection="list" item="item" index="index"
+					  separator=",">
+				(
+				#{item.exceptionOrderId}
+				, #{item.custId}
+				, #{item.orderId}
+				, #{item.orderDetailId}
+				, #{item.returnCount}
+				, #{item.returnPay}
+				, #{item.returnType}
+				, #{item.returnStatus}
+				, #{item.returnDesc}
+				, #{item.dealPerson}
+				, #{item.dealResult}
+				, str_to_date(#{item.returnTime},'%Y-%m-%d %H:%i:%s')
+				, #{item.remark}
+				, #{item.flowId}
+				, #{item.createUser}
+				, str_to_date(#{item.createTime},'%Y-%m-%d %H:%i:%s')
+				, #{item.updateUser}
+				, str_to_date(#{item.updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{item.orderDeliveryDetailId}
+				, #{item.batchNumber}
+				, #{item.productCode}
+				)
+			</foreach>
+
+	</insert>
 </mapper>
