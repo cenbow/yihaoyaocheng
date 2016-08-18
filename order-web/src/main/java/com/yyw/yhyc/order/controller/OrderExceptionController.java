@@ -240,6 +240,17 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
+	 * 供应商审核换货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewChangeOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewChangeOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewChangeOrder(userDto, orderException);
+	}
+
+	/**
 	 * 供应商审核退货订单
 	 * @return
 	 */
@@ -425,6 +436,49 @@ public class OrderExceptionController extends BaseJsonController{
 	public void buyerCancelRefundOrder(@PathVariable("exceptionId") Integer exceptionId){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.updateRefundOrderStatusForBuyer(userDto, exceptionId);
+	}
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/BuyerReReturnOrderDetail/{exceptionId}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView findBuyerReReturnOrderDetail(@PathVariable("exceptionId")Integer exceptionId)throws  Exception{
+		ModelAndView model = new ModelAndView();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+//		UserDto user = super.getLoginUser();
+//		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		model.addObject("orderExceptionDto",orderExceptionDto);
+		model.setViewName("orderException/orderReturnDetails");
+		return model;
+	}
+
+	/**
+	 * 补货订单详情
+	 * @param userType userType==1 表示以采购商身份查看 ，userType==2 表示以供应商身份查看
+	 * @param flowId 原始订单编号
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getReplenishmentDetails-{userType}/{flowId}", method = RequestMethod.GET)
+	public ModelAndView getReplenishmentDetails(@PathVariable("userType") int userType,@PathVariable("flowId")String flowId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setFlowId(flowId);
+		orderExceptionDto.setUserType(userType);
+		if (userType == 1) {
+			orderExceptionDto.setCustId(user.getCustId());
+		} else if(userType == 2) {
+			orderExceptionDto.setSupplyId(user.getCustId());
+		}
+		orderExceptionDto = orderExceptionService.getReplenishmentDetails(orderExceptionDto);
+		orderExceptionDto.setUserType(userType);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/replenishment_order_detail");
+		return modelAndView;
 	}
 }
 

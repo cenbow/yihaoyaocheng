@@ -36,6 +36,45 @@ function listPg(requestParam) {
     });
 }
 
+//补货订单确认收货商品清单
+function listReplenishment(requestParam) {
+    var requestUrl = ctx+"/order/orderDeliveryDetail/listReplenishment";
+    var flowId=$("#flowId").val().trim();
+    var userType=$("#userType").val().trim();
+    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId}};
+    $.ajax({
+        url : requestUrl,
+        data : JSON.stringify(requestParam),
+        type : 'POST',
+        dataType:'json',
+        contentType : "application/json;charset=UTF-8",
+        success : function(data) {
+            //填充表格数据
+            fillTableJson(data);
+            var totalpage = data.totalPage;
+            var nowpage = data.pageNo;
+            var totalCount = data.total;
+            $("#J_pager2").attr("current",nowpage);
+            $("#J_pager2").attr("total",totalpage);
+            $("#J_pager2").attr("url",requestUrl);
+            $("#J_pager2").pager({
+                data:requestParam,
+                requestType:"post",
+                asyn:1,
+                contentType:'application/json;charset=UTF-8',
+                callback:function(data,index){
+                    var nowpage = data.page;
+                    $("#nowpageedit").val(nowpage);
+                    fillTableJson(data);
+                }});
+        },
+        error : function(XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败",function(){
+            });
+        }
+    });
+}
+
 /**
  * 填充表格数据
  * @param data
