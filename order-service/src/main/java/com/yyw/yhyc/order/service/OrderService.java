@@ -1321,7 +1321,7 @@ public class OrderService {
 		// TODO Auto-generated method stub
 		Order on=new Order();
 		for(Order o:order){
-			Order no=orderMapper.getByPK(o.getOrderId());
+			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
 			if(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
 				on.setOrderId(o.getOrderId());
 				on.setPaymentTermStatus(1);

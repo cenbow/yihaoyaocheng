@@ -7,9 +7,10 @@
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
-    <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
+    <script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
+    <link rel="Shortcut Icon" href="${ctx}/static/images/enterprise_new/yjs.ico">
 
-    <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
+    <link href="${ctx}/static/css/common.css" rel="stylesheet" />
 
 </head>
 <body>
@@ -28,11 +29,37 @@
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
+                            <label  class="col-xs-2 control-label">采购商区域</label>
+                            <div class="col-xs-3">
+                                <select class="form-control width-80" id="province" name="province">
+                                    <option value="">省份</option>
+                                </select>
+                                <select class="form-control width-80" name="city">
+                                    <option value="">城市</option>
+                                </select>
+                                <select class="form-control width-80" name="area">
+                                    <option value="">区/县</option>
+                                </select>
+                                <script>
+                                    $(function(){
+                                        var htmls = [];
 
+                                        for (var p in _areaMap){
+                                            htmls.push("<option value=\"" + p.infoCode + "\">" + p.infoName + "</option>")
+                                        }
+                                            alert(111);
+                                        $("#province").html(htmls.join(""));
+                                    });
+                                </script>
+                            </div>
                             <label for="exceptionOrderId" class="col-xs-2 control-label">换货订单号 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="exceptionOrderId" name="exceptionOrderId" placeholder="">
                             </div>
+
+
+                        </div>
+                        <div class="form-group">
 
                             <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
                             <div class="col-xs-3">
@@ -40,13 +67,14 @@
                                        placeholder="">
                             </div>
 
-                        </div>
-                        <div class="form-group">
                             <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="supplyName" name="supplyName"
                                        placeholder="">
                             </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-xs-2 control-label">换货时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
@@ -63,6 +91,7 @@
                                 <input type="button" class="btn btn-info" value="搜索">
                             </div>
                         </div>
+
                     </div>
                 </form>
             </div>

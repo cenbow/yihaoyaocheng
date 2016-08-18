@@ -1068,6 +1068,8 @@
 		T_ORDER_EXCEPTION T1
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		LEFT JOIN t_passport_user u ON u.id = T1.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '2'
 		AND	T1.supply_id = #{custId}
@@ -1088,6 +1090,15 @@
 		</if>
 		<if test="orderStatus!= null and orderStatus!= ''">
 			AND T1.ORDER_STATUS = #{orderStatus}
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
 		</if>
 		ORDER BY T1.EXCEPTION_ID DESC
 	</select>
@@ -1099,6 +1110,8 @@
 		T_ORDER_EXCEPTION T1
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		LEFT JOIN t_passport_user u ON u.id = T1.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '2'
 		AND	T1.supply_id = #{custId}
@@ -1119,6 +1132,15 @@
 		</if>
 		<if test="orderStatus!= null and orderStatus!= ''">
 			AND T1.ORDER_STATUS = #{orderStatus}
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
 		</if>
 		AND T1.ORDER_MONEY IS NOT NULL
 	</select>
@@ -1130,6 +1152,8 @@
 		T_ORDER_EXCEPTION T1
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
 		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		LEFT JOIN t_passport_user u ON u.id = T1.cust_id
+		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '2'
 		AND	T1.supply_id = #{custId}
@@ -1150,6 +1174,15 @@
 		</if>
 		<if test="orderStatus!= null and orderStatus!= ''">
 			AND T1.ORDER_STATUS = #{orderStatus}
+		</if>
+		<if test="province !=null and province != '' and province != '-1' ">
+			AND ue.province = #{province}
+		</if>
+		<if test="city !=null and city != '' and city != '-1'">
+			AND ue.city = #{city}
+		</if>
+		<if test="area !=null and area != '' and area !='-1'">
+			AND ue.district = #{area}
 		</if>
 		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
 	</select>
