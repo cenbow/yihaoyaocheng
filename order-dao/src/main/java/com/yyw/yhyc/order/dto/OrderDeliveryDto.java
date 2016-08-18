@@ -24,10 +24,21 @@ public class OrderDeliveryDto extends OrderDelivery {
     /* 用户收发货地址id */
     private int receiverAddressId;
 
+    /* 订单类型  1：正常订单发货，2：补货订单发货*/
+    private int orderType;
+
     //上传路径
     private String path;
     //文件名
     private String fileName;
+
+    public int getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(int orderType) {
+        this.orderType = orderType;
+    }
 
     public String getFileName() {
         return fileName;

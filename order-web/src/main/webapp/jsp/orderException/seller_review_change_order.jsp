@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
+<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -21,14 +23,14 @@
                 <div class="row no-margin">
                     <ol class="breadcrumb">
                         <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
-                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>退货订单管理</a></li>
+                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>换货订单管理</a></li>
                         <li class="active">审核订单</li>
                     </ol>
                 </div>
                 <div class="border-gray">
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
-                            <label class="col-xs-2 control-label">退货订单号</label>
+                            <label class="col-xs-2 control-label">换货订单号</label>
                             <div class="col-xs-2 control-label text-left">${orderExceptionDto.exceptionOrderId}</div>
                             <label class="col-xs-2 control-label">订单状态</label>
                             <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
@@ -41,8 +43,8 @@
                     <div class="form-horizontal padding-t-26">
                             <input type="hidden" value="${orderExceptionDto.exceptionId}" id="exceptionId"/>
                             <div class="form-group">
-                                <label class="col-xs-2 control-label">买家退货说明:</label>
-                                <div class="col-xs-9 control-label text-left">货物已损坏，双方同意当场销毁</div>
+                                <label class="col-xs-2 control-label">买家换货说明:</label>
+                                <div class="col-xs-9 control-label text-left">货物已损坏，双方沟通同意补货</div>
                             </div>
                             <div class="form-group">
                                 <label  class="col-xs-2 control-label">审核说明：</label>
@@ -52,8 +54,8 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-xs-2"></label>
-                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(3)">通过</button></div>
-                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(4)">不通过</button></div>
+                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(4)">通过</button></div>
+                                <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(3)">不通过</button></div>
                             </div>
                     </div>
                 </div>
@@ -82,13 +84,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">供应商</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发货人</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.registeredAddress}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">联系方式</label>
-                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
+                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseCellphone}</div>
                             </div>
                         </div>
                         <div class="form-horizontal padding-t-26">
@@ -99,12 +101,23 @@
                                 <label for="scope" class="col-xs-2 control-label">支付方式</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发票信息</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.billTypeName}</div>
+                                <div class="col-xs-3 control-label text-left">
+                                    <c:set var="billTypeSpecial" value="<%=BillTypeSpecial.getBillType()%>"></c:set>
+                                    <c:set var="billTypeNormal" value="<%=BillTypeNormal.getBillType()%>"></c:set>
+                                    <c:choose>
+                                        <c:when test="${orderExceptionDto.order.billType == billTypeSpecial}">
+                                            <%=BillTypeSpecial.getBillTypeName()%>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <%=BillTypeNormal.getBillTypeName()%>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">下单时间</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.createTime}</div>
-                                <label for="scope" class="col-xs-2 control-label">退货说明</label>
+                                <label for="scope" class="col-xs-2 control-label">换货说明</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.returnDesc}</div>
                             </div>
 
@@ -120,7 +133,7 @@
                 </div>
 
                 <div class="row choseuser margin-t-20 border-gray">
-                    <h2 class="row">退货商品清单</h2>
+                    <h2 class="row">换货商品清单</h2>
                     <div class="modify padding-20">
                         <table class="table table-box">
                             <colgroup>
@@ -166,7 +179,7 @@
                                 <c:otherwise>
                                     <tr>
                                         <td colspan="6">
-                                            暂无退货商品信息
+                                            暂无换货商品信息
                                         </td>
                                     </tr>
                                 </c:otherwise>
@@ -199,7 +212,7 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript">
     function review(type){
-        if(type == 3 || type == 4){
+        if(type == 4 || type == 3){
             var exceptionId = $("#exceptionId").val();
             if(exceptionId == ''){
                 alertModal("订单编号错误");
@@ -209,7 +222,7 @@
             var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
 
             $.ajax({
-                url: ctx+"/orderException/sellerReviewReturnOrder",
+                url: ctx+"/orderException/sellerReviewChangeOrder",
                 data: JSON.stringify(data),
                 type: 'POST',
                 contentType: "application/json;charset=UTF-8",
@@ -220,7 +233,7 @@
                     }
                     alertModal("操作成功");
                     setTimeout(function(){
-                        window.location.href=ctx+"/orderException/buyerRejectOrderManage";//TODO 跳转到退货订单管理页面
+                        window.location.href=ctx+"/orderException/sellerChangeGoodsOrderManage";
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {

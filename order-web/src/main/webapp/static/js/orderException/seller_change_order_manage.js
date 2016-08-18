@@ -160,14 +160,14 @@ function fillTableJson(data) {
         var order = list[i];
         var tr = "<tr>";
         tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
-        tr += "<td>" + order.createTime + "</td>";
+        tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
 
         switch (order.orderStatus){
             case "1" :
-                tr += "<td><a class='blue' href='#'>审核</a></td>";
+                tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + ">审核</a></td>";
                 break;
             case "6" :
                 tr += "<td><a class='blue' href='#'>发货</a></td>";

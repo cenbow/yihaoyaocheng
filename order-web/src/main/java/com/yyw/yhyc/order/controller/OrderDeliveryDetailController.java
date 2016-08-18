@@ -143,4 +143,23 @@ public class OrderDeliveryDetailController extends BaseJsonController {
         return orderDeliveryDetailService.listPaginationReturnByProperty(pagination, orderDeliveryDetailDto);
     }
 
+
+	/**
+	 * 补货订单确认收货商品列表
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/listReplenishment"}, method = RequestMethod.POST)
+	@ResponseBody
+	public Pagination<OrderDeliveryDetailDto> listPgReplenishment(@RequestBody RequestModel<OrderDeliveryDetailDto> requestModel) throws Exception
+	{
+		//用户登录信息
+		UserDto userDto=super.getLoginUser();
+		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
+		pagination.setPaginationFlag(requestModel.isPaginationFlag());
+		pagination.setPageNo(requestModel.getPageNo());
+		pagination.setPageSize(requestModel.getPageSize());
+		OrderDeliveryDetailDto orderDeliveryDetailDto=requestModel.getParam();
+		orderDeliveryDetailDto.setCustId(userDto.getCustId());
+		return orderDeliveryDetailService.listPaginationReplenishment(pagination, orderDeliveryDetailDto);
+	}
 }

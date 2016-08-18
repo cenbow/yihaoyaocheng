@@ -71,19 +71,23 @@ function setOrderCount(orderStatusCount) {
             $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
         else
             $($("a[name='statusCount']")[0]).html('待确认');
-        if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
-        else
-            $($("a[name='statusCount']")[1]).html('待发货');
         if (orderStatusCount['3'])
-            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
+            $($("a[name='statusCount']")[1]).html('待买家发货('+orderStatusCount['3']+')');
         else
-            $($("a[name='statusCount']")[2]).html('待收货');
+            $($("a[name='statusCount']")[1]).html('待买家发货');
+        if (orderStatusCount['5'])
+            $($("a[name='statusCount']")[2]).html('待卖家收货('+orderStatusCount['5']+')');
+        else
+            $($("a[name='statusCount']")[2]).html('待卖家收货');
+        if (orderStatusCount['6'])
+            $($("a[name='statusCount']")[3]).html('退款中('+orderStatusCount['6']+')');
+        else
+            $($("a[name='statusCount']")[3]).html('退款中');
     }
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerReplenishmentOrder";
+    var requestUrl = ctx+"/orderException/listPgBuyerRefundOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -162,13 +166,14 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
+        var op = createOperation(order);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getReplenishmentDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/buyerReReturnOrderDetail/" + order.exceptionId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
-        tr += "<td>" + (order.orderStatus == "4" ? "":"<a href='#' class='btn btn-info btn-sm margin-r-10'>确认收货</a>") + "</td>";
+        tr += "<td>" + op + "</td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -179,6 +184,41 @@ function fillTableJson(data) {
 function changeColor(){
     $(".table tr:not(:first):odd").css({background:"#f7f7f7"});
     $(".table tr:not(:first):even").css({background:"#fff"});
+}
+
+function createOperation(order){
+    var str = '';
+    if(order.orderStatus == '1')
+        str += '<a href="javascript:cancleOrder(' + order.exceptionId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+    if(order.orderStatus == '3')
+        str += '<a href="javascript:sendDelivery(' + order.exceptionId + ')" class="btn btn-info btn-sm margin-r-10">发货</a>';
+    return str;
+}
+
+/**
+ * 取消订单
+ * @param orderId
+ */
+function cancleOrder(exceptionId) {
+    if (window.confirm("确定取消退货订单？")) {
+        $.ajax({
+            url: ctx+"/orderException/buyerCancelRefundOrder/"+exceptionId,
+            type: 'GET',
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if(data.statusCode || data.message){
+                    alertModal(data.message);
+                    return;
+                }
+                pasretFormData();
+                doRefreshData(params);
+                alertModal("取消成功");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alertModal("取消失败");
+            }
+        });
+    }
 }
 
 
@@ -205,7 +245,56 @@ function format(date){
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
 }
+/**
+ * 发货
+ * * @param orderId
+ */
 
+function sendDelivery(flowId) {
+    $("#sendFlowId").val(flowId);
+    $("#myModalSendDelivery").modal().hide();
+    $("#receiverAddressId").val("");
+    $("#deliveryContactPerson").val("");
+    $("#deliveryExpressNo").val("");
+    $("#deliveryExpressNo2").val("");
+    $("#deliveryContactPerson2").val("");
+    $("#deliveryExpressNo1").val("");
+    $("#deliveryContactPerson1").val("");
+    $("#deliveryDate").val("");
+
+    $.ajax({
+        url: ctx+"/order/orderDelivery/getReceiveAddressList",
+        type: 'GET',
+        success: function (data) {
+            console.info(data);
+            if (data!=null) {
+                $("#warehouse").html("");
+                var divs = "";
+                for (var i = 0; i < data.length; i++) {
+                    var delivery = data[i];
+                    var div = "<label class='radio-inline no-margin'>";
+                    if(delivery.defaultAddress==1){
+                        div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                    }else{
+                        div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                    }
+                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                    "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                    divs += div;
+                }
+                $("#warehouse").append(divs);
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("加载失败");
+        }
+    });
+}
+
+function totab(tab){
+    var ownw= $("*[name='ownw']");
+    $("#ownw"+tab).get(0).checked = "checked"
+}
 
 
 

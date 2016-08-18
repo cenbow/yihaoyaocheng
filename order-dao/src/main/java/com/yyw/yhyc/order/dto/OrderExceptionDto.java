@@ -21,6 +21,12 @@ public class OrderExceptionDto extends OrderException {
     private OrderDelivery orderDelivery;                    //订单收货信息
     private UsermanageEnterprise  usermanageEnterprise;    //订单发货信息
     private Integer  userType;                                  //1、采购商2、供应商
+    private Integer billType;                               //发票类型 1 增值税专用发票 2 增值税普通发票
+    private String billTypeName;                            //发票类型名称
+    private String importStatusName;                       //导入状态名称
+    private String importFileUrl;                          //导入文件url
+    private String fileName;                                //文件名称
+
 
     /* 商品总金额 */
     private BigDecimal productPriceCount;
@@ -215,6 +221,46 @@ public class OrderExceptionDto extends OrderException {
         this.refundingCount = refundingCount;
     }
 
+    public Integer getBillType() {
+        return billType;
+    }
+
+    public void setBillType(Integer billType) {
+        this.billType = billType;
+    }
+
+    public String getBillTypeName() {
+        return billTypeName;
+    }
+
+    public void setBillTypeName(String billTypeName) {
+        this.billTypeName = billTypeName;
+    }
+
+    public String getImportStatusName() {
+        return importStatusName;
+    }
+
+    public void setImportStatusName(String importStatusName) {
+        this.importStatusName = importStatusName;
+    }
+
+    public String getImportFileUrl() {
+        return importFileUrl;
+    }
+
+    public void setImportFileUrl(String importFileUrl) {
+        this.importFileUrl = importFileUrl;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     @Override
     public String toString() {
         return "OrderExceptionDto{" +
@@ -238,6 +284,11 @@ public class OrderExceptionDto extends OrderException {
                 ", orderCount=" + orderCount +
                 ", waitingConfirmCount=" + waitingConfirmCount +
                 ", refundingCount=" + refundingCount +
+                ", billType=" + billType +
+                ", billTypeName=" + billTypeName +
+                ", importStatusName=" + importStatusName +
+                ", importFileUrl=" + importFileUrl +
+                ", fileName=" + fileName +
                 '}';
     }
 }

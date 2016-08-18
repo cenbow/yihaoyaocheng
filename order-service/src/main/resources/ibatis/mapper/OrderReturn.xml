@@ -38,6 +38,7 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="order_delivery_detail_id" property="orderDeliveryDetailId"/>
 		<result column="batch_number" property="batchNumber"/>
+		<result column="product_code" property="productCode"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -62,6 +63,7 @@
 		, update_time
 		, order_delivery_detail_id
 		, batch_number
+		, product_code
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -85,6 +87,7 @@
 				, update_time
 				, order_delivery_detail_id
 				, batch_number
+				,product_code
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -109,6 +112,7 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, order_delivery_detail_id
 		, batch_number
+		,product_code
 	</sql>
 	
 	<sql id="commonCondition">
@@ -175,6 +179,11 @@
 		<if test="batchNumber!= null and batchNumber!= ''"> 
 			AND batch_number=#{batchNumber}
 		</if>
+
+		<if test="productCode!= null and productCode!= ''">
+			AND product_code=#{productCode}
+		</if>
+
 	</sql>
 	
 	<insert id="save" parameterType="OrderReturn">
@@ -202,6 +211,7 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{orderDeliveryDetailId}
 				, #{batchNumber}
+				, #{productCode}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderReturn">
@@ -226,7 +236,8 @@
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, order_delivery_detail_id=#{orderDeliveryDetailId} 
-			, batch_number=#{batchNumber} 
+			, batch_number=#{batchNumber}
+			, product_code=#{productCode}
 		WHERE return_id = #{returnId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">

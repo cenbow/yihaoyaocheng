@@ -24,4 +24,6 @@ public interface OrderDeliveryDetailMapper extends GenericIBatisMapper<OrderDeli
 	public List<OrderDeliveryDetail> listByIds(List<Integer> orderDeliveryDetailIds);
 
 	public List<OrderDeliveryDetailDto> listPaginationReturnByProperty(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto);
+
+	public List<OrderDeliveryDetailDto> listPaginationReplenishment(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto);
 }

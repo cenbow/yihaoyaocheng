@@ -165,4 +165,72 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
 	 */
 	public List<OrderExceptionDto> findSellerChangeGoodsOrderStatusCount(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 根据异常订单编码查询异常订单
+	 * @param exceptionOrderId
+	 * @return
+	 */
+	public OrderException getByExceptionOrderId(String exceptionOrderId);
+
+
+	/**
+	 * 退货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public OrderExceptionDto getOrderExceptionDetailsForReview(OrderExceptionDto orderExceptionDto);
+
+
+	/**
+	 * 采购商退货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> listPaginationBuyerRefundOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商退货订单总金额
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.math.BigDecimal findBuyerRefundOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商退货订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> findBuyerRefundOrderStatusCount(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 补货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public OrderExceptionDto getReplenishmentDetails(OrderExceptionDto orderExceptionDto);
+
+
+	/**
+	 * 供应商退货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> listPaginationSellerRefundOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询供应商退货订单总金额
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.math.BigDecimal findSellerRefundOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商退货订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> findSellerRefundOrderStatusCount(OrderExceptionDto orderExceptionDto);
 }

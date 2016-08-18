@@ -141,7 +141,7 @@ function fillTableJson(data) {
 			var operation = typeToOperate(oe.orderStatusName,oe.exceptionId);
 			var tr = "<tr>";
 			tr += "<td>" + oe.flowId +'<br><a href="'+ctx+'/order/getBuyOrderDetails?flowId='+oe.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">订单详情</a>' + "</td>";
-			tr += "<td>" + oe.createTime + "</td>";
+			tr += "<td>" + oe.orderCreateTime + "</td>";
 			tr += "<td>" + oe.custName + "</td>";
 			tr += "<td>" + oe.orderStatusName + "</td>";
 			tr += "<td>" + oe.orderMoneyTotal + "</td>";

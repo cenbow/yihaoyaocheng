@@ -585,7 +585,7 @@
 	</select>
 
 
-	<select id="findOrderStatusCount" parameterType="OrderDto" resultType="OrderDto">
+	<select id="findOrderStatusCount" parameterType="OrderDto" resultType="OrderDto" useCache="false">
 		SELECT
 		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T4.PAY_TYPE AS payType
 		FROM
@@ -620,7 +620,7 @@
 	-->
 	</resultMap>
 
-	<select id="listPaginationBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap">
+	<select id="listPaginationBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,SYSDATE() AS NOWTIME,T4.PAY_TYPE,T4.PAY_TYPE_NAME
 		FROM
@@ -695,7 +695,7 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
-	<select id="findBuyerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal">
+	<select id="findBuyerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal" useCache="false">
 		SELECT
 		SUM(T1.ORDER_TOTAL)
 		FROM
@@ -792,7 +792,7 @@
 		FROM t_order WHERE flow_id = #{flowId}
 	</select>
 
-	<select id="findSellerOrderStatusCount" parameterType="OrderDto" resultType="OrderDto">
+	<select id="findSellerOrderStatusCount" parameterType="OrderDto" resultType="OrderDto" useCache="false">
 		SELECT
 		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T4.PAY_TYPE AS payType
 		FROM
@@ -838,7 +838,7 @@
 	-->
 	</resultMap>
 
-	<select id="listPaginationSellerOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap">
+	<select id="listPaginationSellerOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,T4.PAY_TYPE,T4.PAY_TYPE_NAME
 		FROM
@@ -868,7 +868,7 @@
 					<when test='payType == 1'><!--在线支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
-					<when test='orderStatus == 3'><!--线下支付-->
+					<when test='payType == 3'><!--线下支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
@@ -924,7 +924,7 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
-	<select id="findSellerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal">
+	<select id="findSellerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal" useCache="false">
 		SELECT
 		SUM(T1.ORDER_TOTAL)
 		FROM
@@ -954,7 +954,7 @@
 					<when test='payType == 1'><!--在线支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
-					<when test='orderStatus == 3'><!--线下支付-->
+					<when test='payType == 3'><!--线下支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
@@ -1048,7 +1048,7 @@
 					<when test='payType == 1'><!--在线支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
-					<when test='orderStatus == 3'><!--线下支付-->
+					<when test='payType == 3'><!--线下支付-->
 						AND T1.ORDER_STATUS = '1'
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->

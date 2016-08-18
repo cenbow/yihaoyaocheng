@@ -71,19 +71,23 @@ function setOrderCount(orderStatusCount) {
             $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
         else
             $($("a[name='statusCount']")[0]).html('待确认');
-        if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
-        else
-            $($("a[name='statusCount']")[1]).html('待发货');
         if (orderStatusCount['3'])
-            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
+            $($("a[name='statusCount']")[1]).html('待买家发货('+orderStatusCount['3']+')');
         else
-            $($("a[name='statusCount']")[2]).html('待收货');
+            $($("a[name='statusCount']")[1]).html('待买家发货');
+        if (orderStatusCount['5'])
+            $($("a[name='statusCount']")[2]).html('待卖家收货('+orderStatusCount['5']+')');
+        else
+            $($("a[name='statusCount']")[2]).html('待卖家收货');
+        if (orderStatusCount['6'])
+            $($("a[name='statusCount']")[3]).html('退款中('+orderStatusCount['6']+')');
+        else
+            $($("a[name='statusCount']")[3]).html('退款中');
     }
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerReplenishmentOrder";
+    var requestUrl = ctx+"/orderException/listPgSellerRefundOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -162,13 +166,14 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
+        var op = createOperation(order);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getReplenishmentDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/buyerReReturnOrderDetail/" + order.exceptionId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
-        tr += "<td>" + order.supplyName + "</td>";
+        tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
-        tr += "<td>" + (order.orderStatus == "4" ? "":"<a href='#' class='btn btn-info btn-sm margin-r-10'>确认收货</a>") + "</td>";
+        tr += "<td>" + op + "</td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -179,6 +184,15 @@ function fillTableJson(data) {
 function changeColor(){
     $(".table tr:not(:first):odd").css({background:"#f7f7f7"});
     $(".table tr:not(:first):even").css({background:"#fff"});
+}
+
+function createOperation(order){
+    var str = '';
+    if(order.orderStatus == '1')
+        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">审核</a>';
+    if(order.orderStatus == '5')
+        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+    return str;
 }
 
 
