@@ -15,22 +15,28 @@ $(function(){
                 htmls.push('<option value="'+ o.infoCode +'">'+ o.infoName +'</option>')
             }
             $province.html(htmls.join(""));
-            $province.change(function(){
-                var value = $(this).val();
-                htmls = ['<option value="">--市/城--</option>'];
-                for (var o in _areaMap[value]){
-                    htmls.push('<option value="'+ o.infoCode +'">'+ o.infoName +'</option>')
-                }
-                $city.html(htmls.join(""));
-            });
-            $city.change(function(){
-                var value = $(this).val();
-                htmls = ['<option value="">--县/区--</option>'];
-                for (var o in _areaMap[value]){
-                    htmls.push('<option value="'+ o.infoCode +'">'+ o.infoName +'</option>')
-                }
-                $area.html(htmls.join(""));
-            });
+
+            if($city.size()>0) {
+                $province.change(function () {
+                    var value = $(this).val();
+                    htmls = ['<option value="">--市/城--</option>'];
+                    for (var o in _areaMap[value]) {
+                        htmls.push('<option value="' + o.infoCode + '">' + o.infoName + '</option>')
+                    }
+                    $city.html(htmls.join(""));
+                });
+            }
+
+            if($area.size()>0) {
+                $city.change(function () {
+                    var value = $(this).val();
+                    htmls = ['<option value="">--县/区--</option>'];
+                    for (var o in _areaMap[value]) {
+                        htmls.push('<option value="' + o.infoCode + '">' + o.infoName + '</option>')
+                    }
+                    $area.html(htmls.join(""));
+                });
+            }
         }
     };
 });
