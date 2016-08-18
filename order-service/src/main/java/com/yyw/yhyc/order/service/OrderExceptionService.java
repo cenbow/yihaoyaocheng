@@ -448,6 +448,29 @@ public class OrderExceptionService {
 		}
 		return orderExceptionDto;
 	}
+	/**
+	 * 退货订单详情（异常订单详情）
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getReturnOrderDetails(OrderExceptionDto orderExceptionDto,Integer type) throws Exception{
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReturn(orderExceptionDto);
+		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+			if(type == 1){ //买家视角
+				orderExceptionDto.setOrderStatusName(getBuyerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
+			}else if(type==2){//卖家视角
+				orderExceptionDto.setOrderStatusName(getSellerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
+			}
+		}
+		return orderExceptionDto;
+	}
 
 	/**
 	 * 审核换货订单详情（异常订单详情）

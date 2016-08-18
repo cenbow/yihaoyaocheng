@@ -520,7 +520,7 @@ public class OrderDeliveryService {
 	public void updateOrderDelivery(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,Map<String,String> map,String excelPath,String now,String filePath){
 
 		if(errorList.size()>0){
-			map.put("code","2");
+			map.put("code", "2");
 			map.put("msg","发货失败。");
 			map.put("fileName",filePath);
 		}else {
@@ -573,5 +573,55 @@ public class OrderDeliveryService {
 		List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
 		return receiverAddressList;
 	}
+	/**
+	 * 退货，买家确认发货
+	 * @param orderDeliveryDto
+	 * @return
+	 * @throws Exception
+	 */
 
+	public Map sendOrderDeliveryForRefund(OrderDeliveryDto orderDeliveryDto) throws Exception{
+		Map<String,String> map=new HashMap<String, String>();
+		if(UtilHelper.isEmpty(orderDeliveryDto)){
+			map.put("code", "0");
+			map.put("msg", "发货信息不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getFlowId())){
+			map.put("code", "0");
+			map.put("msg", "订单id不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getReceiverAddressId())){
+			map.put("code", "0");
+			map.put("msg", "发货地址不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getDeliveryMethod())){
+			map.put("code", "0");
+			map.put("msg", "配送方式不能为空");
+			return map;
+		}
+
+		OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		orderDeliveryDto.setOrderId(orderException.getExceptionId());
+		String now = systemDateMapper.getSystemDate();
+		//生成发货信息
+		UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
+		OrderDelivery  orderDelivery = new OrderDelivery();
+		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());//配送方式
+		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());//发货联系人或第三方物流公司名称
+		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());//第三该物流单号或发货联系人电话
+		orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());//预计送达时间
+		orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+		orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+		orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+		orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+		orderDelivery.setCreateTime(now);
+		orderDeliveryMapper.save(orderDelivery);
+
+		map.put("code","1");
+		map.put("msg", "发货成功。");
+		return map;
+	}
 }
