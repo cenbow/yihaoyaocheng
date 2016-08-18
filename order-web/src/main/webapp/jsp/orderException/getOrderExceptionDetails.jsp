@@ -1,5 +1,4 @@
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -15,58 +14,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>拒收订单详情-1号药城</title>
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <link href="http://static.yaoex.com/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-    <link href="http://static.yaoex.com/css/font-awesome.css" type="text/css" rel="stylesheet" />
-    <%@ include file="../config.jsp"%>
+    <title>审核订单</title>
+    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
+    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
+    <%@ include file="../config.jsp" %>
+    <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
     <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
 </head>
 <body>
-<div id="container" class="container">
-    <div id="header" class="header clearfix">
-        <a class="fl" href="#" title="1号药城"><img src="${STATIC_URL}/static/images/logo.jpg" /></a>
-        <ul class="fr">
-            <li class="red"><span>您好，上海九州通有限公司</span></li>
-            <li><i class="fa fa-home"></i><a href="#">1号药城首页</a></li>
-            <li><i class="fa fa-user"></i><a href="#">我的1号药城</a></li>
-            <li><i class="fa fa-power-off"></i><a href="#">退出</a></li>
-        </ul>
-    </div><div style="overflow:hidden;">
-    <div id="sidebar">
-
-    </div>
-    <script id="test" type="text/html">
-        <ul id="menuInit">
-            {{each testMenu as value i}}
-            <li>
-                <a href="{{value.url}}"><i class="{{value.icon}}"></i>{{value.name}}{{if value.submenu}}<span class="dcjq-icon"></span>{{else}}<span class="dcjq-icon" style="display: none;"></span>{{/if}}
-                </a>
-                {{if value.submenu}}
-                <ul class="sub" style="display: none;">
-                    {{each value.submenu as v j}}
-                    <li><a href="{{v.url}}">{{v.name}}</a></li>
-                    {{/each}}
-                </ul>
-                {{/if}}
-                {{/each}}
-            </li>
-        </ul>
-    </script>
-    <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
-    <script type="text/javascript" src="http://static.yaoex.com/js/arttemplate.min.js"></script>
-    <script type="text/javascript" src="${STATIC_URL}/static/js/menu_data.js"></script>
-    <script type="text/javascript" >
-        $(function(){
-            console.log(menu['testMenu']);
-            if(!window.renderFn){
-                var renderFn = template.compile($("#test").html());
-                window.renderFn = renderFn;
-            }
-            var html =renderFn(menu);
-            $("#sidebar").append(html);
-        })
-    </script>
     <!--框架右侧内容 start-->
     <div id="main-content" class="main-content">
         <div class="wrapper">
@@ -123,13 +78,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">供应商</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseName}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发货人</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.registeredAddress}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">联系方式</label>
-                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseCellphone}</div>
+                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                             </div>
                         </div>
                         <div class="form-horizontal padding-t-26">
@@ -140,18 +95,7 @@
                                 <label for="scope" class="col-xs-2 control-label">支付方式</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发票信息</label>
-                                <div class="col-xs-3 control-label text-left">
-                                    <c:set var="billTypeSpecial" value="<%=BillTypeSpecial.getBillType()%>"></c:set>
-                                    <c:set var="billTypeNormal" value="<%=BillTypeNormal.getBillType()%>"></c:set>
-                                    <c:choose>
-                                        <c:when test="${orderExceptionDto.order.billType == billTypeSpecial}">
-                                            <%=BillTypeSpecial.getBillTypeName()%>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <%=BillTypeNormal.getBillTypeName()%>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.billTypeName}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">下单时间</label>

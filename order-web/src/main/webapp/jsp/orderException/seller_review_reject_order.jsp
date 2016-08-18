@@ -1,6 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -84,13 +82,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">供应商</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseName}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发货人</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.registeredAddress}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">联系方式</label>
-                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseCellphone}</div>
+                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                             </div>
                         </div>
                         <div class="form-horizontal padding-t-26">
