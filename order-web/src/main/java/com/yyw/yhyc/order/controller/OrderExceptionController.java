@@ -454,6 +454,16 @@ public class OrderExceptionController extends BaseJsonController{
 		model.setViewName("orderException/orderReturnDetails");
 		return model;
 	}
+	/**
+	 * 确认收货
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/repConfirmReceipt"}, method = RequestMethod.POST)
+	@ResponseBody
+	public void repConfirmReceipt(String exceptionOrderId){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.repConfirmReceipt(exceptionOrderId,userDto);
+	}
 }
 
 
