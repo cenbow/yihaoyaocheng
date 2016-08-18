@@ -301,15 +301,14 @@
 	<resultMap id="OrderExceptionDetailsResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
 		<result column="PAY_TYPE" property="payType"/>
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
-		<association property="order" column="order_id" select="com.yyw.yhyc.order.mapper.OrderMapper.getByPK"></association>
+		<result column="bill_type" property="billType"/>
 		<association property="orderDelivery" column="flow_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
-		<!--<association property="usermanageEnterprise" column="supply_id" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"></association>-->
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
 	<select id="getOrderExceptionDetails" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsResultMap">
 		SELECT
-		T1.*,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
+		<include refid="T1commonProcessDateColumns"/>,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
 		FROM
 		t_order_exception T1
 		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
