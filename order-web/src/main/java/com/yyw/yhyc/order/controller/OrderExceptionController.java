@@ -240,6 +240,17 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
+	 * 供应商审核换货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewChangeOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewChangeOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewChangeOrder(userDto, orderException);
+	}
+
+	/**
 	 * 供应商审核退货订单
 	 * @return
 	 */
@@ -414,6 +425,17 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
 		return orderExceptionService.listPgBuyerRefundOrder(pagination, orderDto);
+	}
+
+	/**
+	 * 采购商取消退货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/buyerCancelRefundOrder/{exceptionId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void buyerCancelRefundOrder(@PathVariable("exceptionId") Integer exceptionId){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.updateRefundOrderStatusForBuyer(userDto, exceptionId);
 	}
 	/**
 	 * 采购订单查询

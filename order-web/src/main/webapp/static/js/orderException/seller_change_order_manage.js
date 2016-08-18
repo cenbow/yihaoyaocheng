@@ -167,7 +167,7 @@ function fillTableJson(data) {
 
         switch (order.orderStatus){
             case "1" :
-                tr += "<td><a class='blue' href='#'>审核</a></td>";
+                tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + ">审核</a></td>";
                 break;
             case "6" :
                 tr += "<td><a class='blue' href='#'>发货</a></td>";

@@ -168,7 +168,7 @@ function fillTableJson(data) {
         var order = list[i];
         var op = createOperation(order);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-2/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -186,10 +186,39 @@ function changeColor(){
     $(".table tr:not(:first):even").css({background:"#fff"});
 }
 
-function createOperation(data){
+function createOperation(order){
     var str = '';
-
+    if(order.orderStatus == '1')
+        str += '<a href="javascript:cancleOrder(' + order.exceptionId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+    if(order.orderStatus == '3')
+        str += '<a href="javascript:sendDelivery(' + order.exceptionId + ')" class="btn btn-info btn-sm margin-r-10">发货</a>';
     return str;
+}
+
+/**
+ * 取消订单
+ * @param orderId
+ */
+function cancleOrder(exceptionId) {
+    if (window.confirm("确定取消退货订单？")) {
+        $.ajax({
+            url: ctx+"/orderException/buyerCancelRefundOrder/"+exceptionId,
+            type: 'GET',
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if(data.statusCode || data.message){
+                    alertModal(data.message);
+                    return;
+                }
+                pasretFormData();
+                doRefreshData(params);
+                alertModal("取消成功");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alertModal("取消失败");
+            }
+        });
+    }
 }
 
 
@@ -216,7 +245,56 @@ function format(date){
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
 }
+/**
+ * 发货
+ * * @param orderId
+ */
 
+function sendDelivery(flowId) {
+    $("#sendFlowId").val(flowId);
+    $("#myModalSendDelivery").modal().hide();
+    $("#receiverAddressId").val("");
+    $("#deliveryContactPerson").val("");
+    $("#deliveryExpressNo").val("");
+    $("#deliveryExpressNo2").val("");
+    $("#deliveryContactPerson2").val("");
+    $("#deliveryExpressNo1").val("");
+    $("#deliveryContactPerson1").val("");
+    $("#deliveryDate").val("");
+
+    $.ajax({
+        url: ctx+"/order/orderDelivery/getReceiveAddressList",
+        type: 'GET',
+        success: function (data) {
+            console.info(data);
+            if (data!=null) {
+                $("#warehouse").html("");
+                var divs = "";
+                for (var i = 0; i < data.length; i++) {
+                    var delivery = data[i];
+                    var div = "<label class='radio-inline no-margin'>";
+                    if(delivery.defaultAddress==1){
+                        div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                    }else{
+                        div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                    }
+                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                    "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                    divs += div;
+                }
+                $("#warehouse").append(divs);
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("加载失败");
+        }
+    });
+}
+
+function totab(tab){
+    var ownw= $("*[name='ownw']");
+    $("#ownw"+tab).get(0).checked = "checked"
+}
 
 
 

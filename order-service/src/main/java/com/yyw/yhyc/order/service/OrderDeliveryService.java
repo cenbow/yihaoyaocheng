@@ -53,10 +53,24 @@ public class OrderDeliveryService {
 
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 
+	private OrderExceptionMapper orderExceptionMapper;
+
+	private OrderReturnMapper orderReturnMapper;
+
 	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	private Log log = LogFactory.getLog(OrderDeliveryService.class);
 
+	@Autowired
+	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper) {
+		this.orderReturnMapper = orderReturnMapper;
+	}
+
+
+	@Autowired
+	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
+		this.orderExceptionMapper = orderExceptionMapper;
+	}
 
 	@Autowired
 	public void setReceiverAddressMapper(UsermanageReceiverAddressMapper receiverAddressMapper) {
@@ -214,7 +228,7 @@ public class OrderDeliveryService {
 			map.put("msg", "发货信息不能为空");
 			return map;
 		}
-		if(UtilHelper.isEmpty(orderDeliveryDto.getOrderId())){
+		if(UtilHelper.isEmpty(orderDeliveryDto.getFlowId())){
 			map.put("code", "0");
 			map.put("msg", "订单id不能为空");
 			return map;
@@ -230,14 +244,20 @@ public class OrderDeliveryService {
 			return map;
 		}
 
-		//根据orderId查询订单收发货信息是否存在,更新发货信息
-		OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderDeliveryDto.getFlowId());
-		if(UtilHelper.isEmpty(orderDelivery)){
-			map.put("code", "0");
-			map.put("msg", "订单地址不存在");
-			return map;
+		//正常下单根据orderId查询订单收发货信息是否存在,更新发货信息
+		if(orderDeliveryDto.getOrderType()==1){
+				OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderDeliveryDto.getFlowId());
+				if(UtilHelper.isEmpty(orderDelivery)){
+					map.put("code", "0");
+					map.put("msg", "订单地址不存在");
+					return map;
+				}
+			orderDeliveryDto.setOrderId(orderDelivery.getOrderId());
+		}else {
+			//更具异常订单编码获补货订单id
+			OrderException orderException = orderExceptionMapper.getByExceptionOrderId(orderDeliveryDto.getFlowId());
+			orderDeliveryDto.setOrderId(orderException.getExceptionId());
 		}
-		orderDelivery.setOrderId(orderDelivery.getOrderId());
 
 		//验证批次号并生成订单发货数据
 		readExcelOrderDeliveryDetail(orderDeliveryDto.getPath()+orderDeliveryDto.getFileName(),map,orderDeliveryDto);
@@ -251,6 +271,7 @@ public class OrderDeliveryService {
 		Map<String,String> errorMap=null;
 		Map<String,String> codeMap=new HashMap<String, String>();
 		Map <String,Integer> detailMap=new HashMap<String, Integer>();
+		//原订单id
 		int orderId=0;
 		String filePath="";
 
@@ -290,14 +311,16 @@ public class OrderDeliveryService {
 				errorList.add(errorMap);
 				continue;
 			}else {
-				//验证订单号与商品编码是否存在，都存在则根据商品编码记录批次数量
-				Order order=orderMapper.getOrderbyFlowId(rowMap.get("1"));
-				if(UtilHelper.isEmpty(order)){
-					stringBuffer.append("订单编号不存在,");
-				}else {
+				//正常订单==1补货订单==2
+				if(orderDeliveryDto.getOrderType()==1){
+					//验证订单号与商品编码是否存在，都存在则根据商品编码记录批次数量
+					Order order=orderMapper.getOrderbyFlowId(rowMap.get("1"));
+					if(UtilHelper.isEmpty(order)){
+						stringBuffer.append("订单编号不存在,");
+					}else {
 						orderId=order.getOrderId();
 						OrderDetail orderDetail=new OrderDetail();
-						orderDetail.setOrderId(order.getOrderId());
+						orderDetail.setOrderId(orderId);
 						orderDetail.setProductCode(rowMap.get("2"));
 						orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
 						List detailList = orderDetailMapper.listByProperty(orderDetail);
@@ -317,29 +340,88 @@ public class OrderDeliveryService {
 							}
 						}
 					}
-			}
+				}else{
+					//验证订单号与商品编码是否存在，都存在则根据商品编码记录批次数量
+					OrderException  orderException=orderExceptionMapper.getByExceptionOrderId(rowMap.get("1"));
 
-		}
-		//验证商品数量是否相同
-			for (String code : codeMap.keySet()){
-				OrderDetail orderDetail=new OrderDetail();
-				orderDetail.setOrderId(orderId);
-				orderDetail.setProductCode(code);
-				orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
-				List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
-				if(detailList.size()>0){
-					orderDetail=detailList.get(0);
-					detailMap.put(code,orderDetail.getOrderDetailId());
-					if(orderDetail.getProductCount()!=Integer.parseInt(codeMap.get(code))){
-						errorMap=new HashMap<String, String>();
-						errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
-						errorList.add(errorMap);
+					if(UtilHelper.isEmpty(orderException)){
+						stringBuffer.append("订单编号不存在,");
+					}else {
+						orderId=orderException.getOrderId();
+						OrderDetail orderDetail=new OrderDetail();
+						orderDetail.setOrderId(orderId);
+						orderDetail.setProductCode(rowMap.get("2"));
+						orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
+						List detailList = orderDetailMapper.listByProperty(orderDetail);
+						if(detailList.size()<0){
+							stringBuffer.append("商品编码不存在,");
+						}
+						if(stringBuffer.length()>0){
+							errorMap=rowMap;
+							errorMap.put("5",stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length()-1)+"","。"));
+							errorList.add(errorMap);
+							continue;
+						}else {
+							if(UtilHelper.isEmpty(codeMap.get(rowMap.get("2")))){
+								codeMap.put(rowMap.get("2"),rowMap.get("4"));
+							}else {
+								codeMap.put(rowMap.get("2"),String.valueOf(Integer.parseInt(codeMap.get(rowMap.get("2"))) + Integer.parseInt(rowMap.get("4"))));
+							}
+						}
 					}
+
 				}
 
 			}
+		}
+
+		//验证商品数量是否相同
+			if(orderDeliveryDto.getOrderType()==1){
+				for (String code : codeMap.keySet()){
+					OrderDetail orderDetail=new OrderDetail();
+					orderDetail.setOrderId(orderId);
+					orderDetail.setProductCode(code);
+					orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
+					List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
+					if(detailList.size()>0){
+						orderDetail=detailList.get(0);
+						detailMap.put(code,orderDetail.getOrderDetailId());
+						if(orderDetail.getProductCount()!=Integer.parseInt(codeMap.get(code))){
+							errorMap=new HashMap<String, String>();
+							errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
+							errorList.add(errorMap);
+						}
+					}
+				}
+			}else {
+				for (String code : codeMap.keySet()){
+					Map<String,Integer> returnMap=new HashMap<String, Integer>();
+					OrderReturn orderReturn=new OrderReturn();
+					orderReturn.setProductCode(code);
+					orderReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
+					orderReturn.setReturnType("3");
+					List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
+					if(returnList.size()>0) {
+						detailMap.put(code, returnList.get(0).getOrderDetailId());
+						for (OrderReturn or : returnList) {
+
+							if (UtilHelper.isEmpty(returnMap.get(or.getProductCode()))) {
+								returnMap.put(or.getProductCode(), or.getReturnCount());
+							} else {
+								returnMap.put(or.getProductCode(), or.getReturnCount() + returnMap.get(or.getProductCode()));
+							}
+						}
+						if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
+							errorMap = new HashMap<String, String>();
+							errorMap.put("5", "商品编码为" + code + "的商品导入数量不等于缺货数量");
+							errorList.add(errorMap);
+						}
+					}
+				}
+			}
+
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderId,orderDeliveryDto,list,detailMap,excelPath);
+			filePath=createOrderdeliverDetail(errorList,orderDeliveryDto,list,detailMap,excelPath);
 
 			if(errorList.size()>0){
 				map.put("code","2");
@@ -392,7 +474,7 @@ public class OrderDeliveryService {
 	}
 
 	/*生产excel和订单发货信息 */
-	public String createOrderdeliverDetail(List<Map<String,String>> errorList,int orderId,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath) {
+	public String createOrderdeliverDetail(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath) {
 		String filePath = "";
 		//生成错误excel和发货记录
 		if (errorList.size() > 0) {
@@ -406,9 +488,8 @@ public class OrderDeliveryService {
 			filePath = orderDeliveryDto.getPath()+ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset,orderDeliveryDto.getPath());
 
 			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
-			orderDeliveryDetail.setOrderId(orderId);
 			orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
-
+			orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetail = orderDeliveryDetails.get(0);
@@ -429,7 +510,6 @@ public class OrderDeliveryService {
 			return filePath;
 		} else {
 			OrderDeliveryDetail orderdel = new OrderDeliveryDetail();
-			orderdel.setOrderId(orderId);
 			orderdel.setFlowId(orderDeliveryDto.getFlowId());
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderdel);
 			if (orderDeliveryDetails.size() > 0) {
@@ -439,7 +519,7 @@ public class OrderDeliveryService {
 				int i = 1;
 				OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
 				orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
-				orderDeliveryDetail.setOrderId(orderId);
+				orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
 				orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
 				orderDeliveryDetail.setDeliveryStatus(1);
 				orderDeliveryDetail.setBatchNumber(rowMap.get("3"));
