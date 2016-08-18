@@ -23,7 +23,7 @@
 		<result column="specification" property="specification"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="product_id" property="productId"/>
-		<result column="product_code" property="productCode"/>
+		<result column="spu_code" property="spuCode"/>
 		<result column="product_name" property="productName"/>
 		<result column="manufactures" property="manufactures"/>
 		<result column="product_price" property="productPrice"/>
@@ -54,7 +54,7 @@
 		, specification
 		, supply_id
 		, product_id
-		, product_code
+		, spu_code
 		, product_name
 		, manufactures
 		, product_price
@@ -73,7 +73,7 @@
 				, specification
 				, supply_id
 				, product_id
-				, product_code
+				, spu_code
 				, product_name
 				, manufactures
 				, product_price
@@ -93,7 +93,7 @@
 		, specification
 		, supply_id
 		, product_id
-		, product_code
+		, spu_code
 		, product_name
 		, manufactures
 		, product_price
@@ -125,8 +125,8 @@
 		<if test="productId!= null and productId!= ''"> 
 			AND product_id=#{productId}
 		</if>
-		<if test="productCode!= null and productCode!= ''"> 
-			AND product_code=#{productCode}
+		<if test="spuCode!= null and spuCode!= ''">
+			AND spu_code=#{spuCode}
 		</if>
 		<if test="productName!= null and productName!= ''"> 
 			AND product_name=#{productName}
@@ -170,7 +170,7 @@
 				, #{specification}
 				, #{supplyId}
 				, #{productId}
-				, #{productCode}
+				, #{spuCode}
 				, #{productName}
 				, #{manufactures}
 				, #{productPrice}
@@ -191,7 +191,7 @@
 			, specification=#{specification} 
 			, supply_id=#{supplyId} 
 			, product_id=#{productId} 
-			, product_code=#{productCode} 
+			, spu_code=#{spuCode}
 			, product_name=#{productName} 
 			, manufactures=#{manufactures} 
 			, product_price=#{productPrice} 

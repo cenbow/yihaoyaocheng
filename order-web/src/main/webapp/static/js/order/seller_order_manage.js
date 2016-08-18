@@ -10,6 +10,9 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
+
+    //绑定省市区
+    bindAreaData('province','city','district');
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -33,6 +36,54 @@ function bindSearchBtn() {
         pasretFormData();
         doRefreshData(params);
     })
+}
+
+/**
+ * 绑定省市区操作
+ * @param prov
+ * @param city
+ * @param area
+ */
+function bindAreaData(prov,city,area){
+    var provinceList = getProvince();
+    if(provinceList && provinceList.length > 0){
+        var provStr = '<option value="">省份</option>';
+        for(var i=0;i<provinceList.length;i++){
+            provStr += ' <option value="'+provinceList[i].infoCode+'">'+provinceList[i].infoName+'</option>';
+        }
+        $("#"+prov).html(provStr);
+    }
+    $("#"+prov).change(function () {
+        var cityStr = '<option value="">城市</option>';
+        var _prov = $(this).children('option:selected').val();
+        if(_prov == ''){
+            $("#"+city).html(cityStr);
+            $("#"+area).html('<option value="">区/县</option>');
+            return;
+        }
+        var cityList = getCity(_prov);
+        if(cityList && cityList.length > 0){
+            for(var i=0;i<cityList.length;i++){
+                cityStr += ' <option value="'+cityList[i].infoCode+'">'+cityList[i].infoName+'</option>';
+            }
+            $("#"+city).html(cityStr);
+        }
+    });
+    $("#"+city).change(function () {
+        var areaStr = '<option value="">区/县</option>';
+        var _city = $(this).children('option:selected').val();
+        if(_city == ''){
+            $("#"+area).html(areaStr);
+            return;
+        }
+        var areaList = getArea(_city);
+        if(areaList && areaList.length > 0){
+            for(var i=0;i<areaList.length;i++){
+                areaStr += ' <option value="'+areaList[i].infoCode+'">'+areaList[i].infoName+'</option>';
+            }
+            $("#"+area).html(areaStr);
+        }
+    });
 }
 
 /**
@@ -313,7 +364,7 @@ function sendDeliverysubmit(){
         return;
     }
 
-    var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+    var reg = /^0?1[3|4|5|8|7][0-9]\d{8}$/;
     $("#receiverAddressId").val(delivery.val())
     $("#deliveryMethod").val(ownw.val())
 
@@ -361,10 +412,7 @@ function sendDeliverysubmit(){
 
 function totab(tab){
     var ownw= $("*[name='ownw']");
-    for(var i=0;i<ownw.length;i++){
-        ownw.attr("checked","false")
-    }
-    $("#ownw"+tab).attr("checked","true")
+    $("#ownw"+tab).get(0).checked = "checked"
 }
 
 function doCancle() {

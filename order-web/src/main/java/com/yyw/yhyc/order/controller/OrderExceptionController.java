@@ -441,17 +441,35 @@ public class OrderExceptionController extends BaseJsonController{
 	 * 采购订单查询
 	 * @return
 	 */
-	@RequestMapping(value = {"/BuyerReReturnOrderDetail/{exceptionId}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/buyerReReturnOrderDetail/{exceptionId}"}, method = RequestMethod.GET)
 	@ResponseBody
 	public ModelAndView findBuyerReReturnOrderDetail(@PathVariable("exceptionId")Integer exceptionId)throws  Exception{
 		ModelAndView model = new ModelAndView();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionId(exceptionId);
 //		UserDto user = super.getLoginUser();
-//		orderExceptionDto.setSupplyId(user.getCustId());
-		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+//		orderExceptionDto.setCustId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getReturnOrderDetails(orderExceptionDto,1);
 		model.addObject("orderExceptionDto",orderExceptionDto);
-		model.setViewName("orderException/orderReturnDetails");
+		model.setViewName("orderException/buyer_order_return_detail");
+		return model;
+	}
+
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/sellerReReturnOrderDetail/{exceptionId}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView findSellerReReturnOrderDetail(@PathVariable("exceptionId")Integer exceptionId)throws  Exception{
+		ModelAndView model = new ModelAndView();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+//		UserDto user = super.getLoginUser();
+//		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getReturnOrderDetails(orderExceptionDto,2);
+		model.addObject("orderExceptionDto",orderExceptionDto);
+		model.setViewName("orderException/seller_order_return_detail");
 		return model;
 	}
 
@@ -506,6 +524,16 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
+	}
+	/**
+	 * 确认收货
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/repConfirmReceipt"}, method = RequestMethod.POST)
+	@ResponseBody
+	public void repConfirmReceipt(String exceptionOrderId){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.repConfirmReceipt(exceptionOrderId,userDto);
 	}
 }
 
