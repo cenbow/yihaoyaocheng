@@ -59,7 +59,14 @@ public class OrderDeliveryService {
 
 	private String FILE_TEMPLATE_PATH="include/excel/";
 
+	private OrderTraceMapper orderTraceMapper;
+
 	private Log log = LogFactory.getLog(OrderDeliveryService.class);
+
+	@Autowired
+	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
+		this.orderTraceMapper = orderTraceMapper;
+	}
 
 	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper) {
@@ -264,9 +271,10 @@ public class OrderDeliveryService {
 
 		return map;
 	}
+
 	//读取验证订单批次信息excel
 	public Map<String,String> readExcelOrderDeliveryDetail(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto){
-
+		String now = systemDateMapper.getSystemDate();
 		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
 		Map<String,String> errorMap=null;
 		Map<String,String> codeMap=new HashMap<String, String>();
@@ -421,39 +429,10 @@ public class OrderDeliveryService {
 			}
 
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderDeliveryDto,list,detailMap,excelPath);
+			filePath=createOrderdeliverDetail(errorList,orderDeliveryDto,list,detailMap,excelPath,now);
 
-			if(errorList.size()>0){
-				map.put("code","2");
-				map.put("msg","发货失败。");
-				map.put("fileName",filePath);
-			}else {
-				//发货成功更新订单状态
-				Order order = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
-				order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
-				order.setDeliverTime(systemDateMapper.getSystemDate());
-				order.setUpdateTime(systemDateMapper.getSystemDate());
-				order.setUpdateUser("登录用户");
-				orderMapper.update(order);
-				//生成发货信息
-				UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
-				OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderDeliveryDto.getFlowId());
-				orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
-				orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
-				orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
-				orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
-				orderDelivery.setUpdateDate(systemDateMapper.getSystemDate());
-				orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
-				orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
-				orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
-				orderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
-				orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
-				orderDelivery.setCreateTime(systemDateMapper.getSystemDate());
-				orderDeliveryMapper.update(orderDelivery);
-				map.put("code","1");
-				map.put("msg","发货成功。");
-				map.put("fileName",excelPath);
-			}
+			//更新发货信息 更新日志表
+			updateOrderDelivery(errorList,orderDeliveryDto,map,excelPath,now,filePath);
 
 		}catch (Exception e){
 			map.put("code", "0");
@@ -474,7 +453,7 @@ public class OrderDeliveryService {
 	}
 
 	/*生产excel和订单发货信息 */
-	public String createOrderdeliverDetail(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath) {
+	public String createOrderdeliverDetail(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,String now) {
 		String filePath = "";
 		//生成错误excel和发货记录
 		if (errorList.size() > 0) {
@@ -493,14 +472,14 @@ public class OrderDeliveryService {
 			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetail = orderDeliveryDetails.get(0);
-				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setUpdateTime(now);
 				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setDeliveryStatus(0);
 				orderDeliveryDetail.setImportFileUrl(filePath);
 				orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			} else {
-				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setCreateTime(now);
+				orderDeliveryDetail.setUpdateTime(now);
 				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setDeliveryStatus(0);
@@ -526,8 +505,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
 				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
 				orderDeliveryDetail.setImportFileUrl(excelPath);
-				orderDeliveryDetail.setCreateTime(systemDateMapper.getSystemDate());
-				orderDeliveryDetail.setUpdateTime(systemDateMapper.getSystemDate());
+				orderDeliveryDetail.setCreateTime(now);
+				orderDeliveryDetail.setUpdateTime(now);
 				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
@@ -535,6 +514,55 @@ public class OrderDeliveryService {
 			}
 		}
 		return filePath;
+	}
+
+	//更新发货信息 更新日志表
+	public void updateOrderDelivery(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,Map<String,String> map,String excelPath,String now,String filePath){
+
+		if(errorList.size()>0){
+			map.put("code","2");
+			map.put("msg","发货失败。");
+			map.put("fileName",filePath);
+		}else {
+			//发货成功更新订单状态
+			Order order = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
+			order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+			order.setDeliverTime(now);
+			order.setUpdateTime(now);
+			order.setUpdateUser("登录用户");
+			orderMapper.update(order);
+
+			//插入日志表
+			OrderTrace orderTrace = new OrderTrace();
+			orderTrace.setOrderId(order.getOrderId());
+			orderTrace.setNodeName("卖家已发货");
+			orderTrace.setDealStaff(orderDeliveryDto.getUserDto().getUserName());
+			orderTrace.setRecordDate(now);
+			orderTrace.setRecordStaff(orderDeliveryDto.getUserDto().getUserName());
+			orderTrace.setOrderStatus(order.getOrderStatus());
+			orderTrace.setCreateTime(now);
+			orderTrace.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+			orderTraceMapper.save(orderTrace);
+
+			//生成发货信息
+			UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
+			OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderDeliveryDto.getFlowId());
+			orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
+			orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
+			orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
+			orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
+			orderDelivery.setUpdateDate(now);
+			orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+			orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+			orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+			orderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+			orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+			orderDelivery.setCreateTime(now);
+			orderDeliveryMapper.update(orderDelivery);
+			map.put("code","1");
+			map.put("msg","发货成功。");
+			map.put("fileName",excelPath);
+		}
 	}
 
 

@@ -313,7 +313,7 @@ function sendDeliverysubmit(){
         return;
     }
 
-    var reg = /^0?1[3|4|5|8][0-9]\d{8}$/;
+    var reg = /^0?1[3|4|5|8|7][0-9]\d{8}$/;
     $("#receiverAddressId").val(delivery.val())
     $("#deliveryMethod").val(ownw.val())
 
@@ -361,10 +361,7 @@ function sendDeliverysubmit(){
 
 function totab(tab){
     var ownw= $("*[name='ownw']");
-    for(var i=0;i<ownw.length;i++){
-        ownw.attr("checked","false")
-    }
-    $("#ownw"+tab).attr("checked","true")
+    $("#ownw"+tab).get(0).checked = "checked"
 }
 
 function doCancle() {
