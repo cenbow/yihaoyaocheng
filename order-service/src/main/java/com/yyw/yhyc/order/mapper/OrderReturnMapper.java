@@ -22,4 +22,6 @@ public interface OrderReturnMapper extends GenericIBatisMapper<OrderReturn, Inte
 	public List<OrderReturn> listPaginationByProperty(Pagination<OrderReturn> pagination, OrderReturn orderReturn);
 
 	public List<OrderReturnDto> getByExceptionOrderId(String exceptionOrderId);
+
+	public void saveBatch(List<OrderReturn> returnList);
 }

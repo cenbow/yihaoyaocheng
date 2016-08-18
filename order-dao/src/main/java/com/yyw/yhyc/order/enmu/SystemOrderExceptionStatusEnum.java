@@ -2,6 +2,7 @@ package com.yyw.yhyc.order.enmu;
 
 /**
  * Created by zhangqiang on 2016/8/8.
+ * 拒收
  */
 public enum SystemOrderExceptionStatusEnum {
     BuyerConfirmed("2","卖家已确认"),

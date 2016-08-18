@@ -277,7 +277,7 @@
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/seller_order_manage.js"></script>
-
+<script type="text/javascript" src="${ctx }/static/js/area_data.js"></script>
 </body>
 
 

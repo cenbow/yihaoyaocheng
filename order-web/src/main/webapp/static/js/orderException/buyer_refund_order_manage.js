@@ -250,8 +250,8 @@ function format(date){
  * * @param orderId
  */
 
-function sendDelivery(flowId) {
-    $("#sendFlowId").val(flowId);
+function sendDelivery(exceptionId) {
+    $("#sendFlowId").val(exceptionId);
     $("#myModalSendDelivery").modal().hide();
     $("#receiverAddressId").val("");
     $("#deliveryContactPerson").val("");
@@ -294,6 +294,65 @@ function sendDelivery(flowId) {
 function totab(tab){
     var ownw= $("*[name='ownw']");
     $("#ownw"+tab).get(0).checked = "checked"
+}
+
+/**
+ * 发货提交
+ *
+ */
+function sendDeliverysubmit(){
+
+    var delivery = $("input[type=radio][name=delivery]:checked");
+    var ownw = $("input[type=radio][name=ownw]:checked");
+
+    if(delivery.val()==null||delivery.val()==""){
+        alertModal("发货仓库不能为空")
+        return;
+    }
+
+    var reg = /^0?1[3|4|5|7|8][0-9]\d{8}$/;
+    $("#receiverAddressId").val(delivery.val())
+    $("#deliveryMethod").val(ownw.val())
+
+    if(ownw.val()==1){
+        if($("#deliveryExpressNo1").val()!=null&&$("#deliveryExpressNo1").val()!=""){
+            if (!reg.test($("#deliveryExpressNo1").val())) {
+                alertModal("请填写正确的手机号")
+                return;
+            };
+        }
+        $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
+    }else{
+        $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
+    }
+    $("#sendform").ajaxSubmit({
+        url :ctx+'/order/orderDelivery/sendOrderDeliveryForRefund',
+        dataType: 'text',
+        type: 'POST',
+        success: function(data) {
+            console.info(data);
+            var obj=eval("(" + data + ")");
+            if(obj.code==0){
+                alertModal(obj.msg);
+            }else{
+                $("#myModalPrompt").modal().hide();
+                $("#msgDiv").html("");
+                var div = "";
+                if(obj.code==1){
+                    div += " <p class='font-size-20 red'><b>发货成功</b></p>"
+                    $("#myModalSendDelivery").modal("hide");
+                    pasretFormData();
+                    doRefreshData(params);
+                }else{
+                    div += "<p class='font-size-20 red'><b>发货失败</b></p>";
+                }
+                $("#msgDiv").append(div);
+            }
+        }
+    });
+
 }
 
 

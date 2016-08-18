@@ -7,9 +7,10 @@
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
-    <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
+    <script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
+    <link rel="Shortcut Icon" href="${ctx}/static/images/enterprise_new/yjs.ico">
 
-    <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
+    <link href="${ctx}/static/css/common.css" rel="stylesheet" />
 
 </head>
 <body>
@@ -28,11 +29,37 @@
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
+                            <label  class="col-xs-2 control-label">采购商区域</label>
+                            <div class="col-xs-3">
+                                <select class="form-control width-80" id="province" name="province">
+                                    <option value="">省份</option>
+                                </select>
+                                <select class="form-control width-80" name="city">
+                                    <option value="">城市</option>
+                                </select>
+                                <select class="form-control width-80" name="area">
+                                    <option value="">区/县</option>
+                                </select>
+                                <script>
+                                    $(function(){
+                                        var htmls = [];
 
+                                        for (var p in _areaMap){
+                                            htmls.push("<option value=\"" + p.infoCode + "\">" + p.infoName + "</option>")
+                                        }
+                                            alert(111);
+                                        $("#province").html(htmls.join(""));
+                                    });
+                                </script>
+                            </div>
                             <label for="exceptionOrderId" class="col-xs-2 control-label">换货订单号 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="exceptionOrderId" name="exceptionOrderId" placeholder="">
                             </div>
+
+
+                        </div>
+                        <div class="form-group">
 
                             <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
                             <div class="col-xs-3">
@@ -40,13 +67,14 @@
                                        placeholder="">
                             </div>
 
-                        </div>
-                        <div class="form-group">
                             <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="supplyName" name="supplyName"
                                        placeholder="">
                             </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-xs-2 control-label">换货时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
@@ -63,6 +91,7 @@
                                 <input type="button" class="btn btn-info" value="搜索">
                             </div>
                         </div>
+
                     </div>
                 </form>
             </div>
@@ -111,6 +140,111 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalPrompt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">温馨提示</h4>
+            </div>
+            <div class="modal-body">
+                <div id="msgDiv">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">发货</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <form method="post" id="sendform" enctype="multipart/form-data">
+                        <input type="hidden" id="receiverAddressId" name="receiverAddressId">
+                        <input type="hidden" id="deliveryContactPerson" name="deliveryContactPerson">
+                        <input type="hidden" id="deliveryExpressNo" name="deliveryExpressNo">
+                        <input type="hidden" id="deliveryMethod" name="deliveryMethod">
+                        <input type="hidden" id="sendFlowId" name="flowId">
+                        <input type="hidden" id="orderType" name="orderType" value="2">
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label"><em>*</em>发货仓库</label>
+                            <div class="col-xs-10 send_goods" id="warehouse">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-2 control-label"><em>*</em>批号导入</label>
+                            <div class="col-xs-7">
+                                <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
+                                <p class="padding-t-10"><a class="m-l-10 eyesee" href="#"><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label"><em>*</em>配送方式</label>
+                            <div class="col-xs-9 border-gray no-padding">
+                                <div class="border-bottom padding-b-10">
+                                    <label class="radio-inline margin-l-10" href="#one1" onclick="totab(1)" data-toggle="tab">
+                                        <input type="radio" checked="true"  name="ownw" id="ownw1" value="1">自有物流
+                                    </label>
+                                    <label class="radio-inline no-margin"  href="#one2" onclick="totab(2)" data-toggle="tab">
+                                        <input type="radio" name="ownw"  value="2" id="ownw2">第三方运输公司
+                                    </label>
+                                </div>
+                                <div class="tab-content">
+                                    <div class="padding-t-20 tab-pane fade in active" id="one1">
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">预计到达时间</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" name="deliveryDate" id="deliveryDate" class="form-control Wdate" onclick="WdatePicker()" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">联系人</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryContactPerson1"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">联系人电话</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryExpressNo1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="padding-t-20 tab-pane fade" id="one2">
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">运输公司</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryContactPerson2" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="scope" class="col-xs-3 control-label">物流单号</label>
+                                            <div class="col-xs-8">
+                                                <input type="text" class="form-control" id="deliveryExpressNo2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="sendDeliverysubmit()" >确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
             </div>
         </div>
     </div>

@@ -220,13 +220,12 @@ public class OrderReturnService {
                 or.setCustId(order.getCustId());
                 or.setOrderId(order.getOrderId());
                 or.setCreateTime(DateHelper.nowString());
-                //or.setCreateUser(userDto.getUserName());
+                or.setCreateUser(userDto.getUserName());
                 or.setReturnStatus("1");
                 or.setExceptionOrderId(oe.getExceptionOrderId());
 				or.setReturnPay(returnPriceMap.get(or.getOrderDeliveryDetailId()));
-                orderReturnMapper.save(or);
             }
-
+			orderReturnMapper.saveBatch(returnList);
 			code = "1";
 		}
 		return  "{\"code\":"+code+"}";
