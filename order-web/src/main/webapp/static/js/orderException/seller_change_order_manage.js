@@ -396,4 +396,7 @@ function totab(tab){
     $("#ownw"+tab).attr("checked","checked");
 }
 
+$(function(){
+    $.fn.loadArea($("#province"), $("#city"), $("#area"))
+});
 

@@ -7,7 +7,6 @@
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
-    <script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
     <link rel="Shortcut Icon" href="${ctx}/static/images/enterprise_new/yjs.ico">
 
     <link href="${ctx}/static/css/common.css" rel="stylesheet" />
@@ -34,23 +33,12 @@
                                 <select class="form-control width-80" id="province" name="province">
                                     <option value="">省份</option>
                                 </select>
-                                <select class="form-control width-80" name="city">
+                                <select class="form-control width-80" id="city" name="city">
                                     <option value="">城市</option>
                                 </select>
-                                <select class="form-control width-80" name="area">
+                                <select class="form-control width-80" id="area" name="area">
                                     <option value="">区/县</option>
                                 </select>
-                                <script>
-                                    $(function(){
-                                        var htmls = [];
-
-                                        for (var p in _areaMap){
-                                            htmls.push("<option value=\"" + p.infoCode + "\">" + p.infoName + "</option>")
-                                        }
-                                            alert(111);
-                                        $("#province").html(htmls.join(""));
-                                    });
-                                </script>
                             </div>
                             <label for="exceptionOrderId" class="col-xs-2 control-label">换货订单号 </label>
                             <div class="col-xs-3">
@@ -254,8 +242,9 @@
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
+<script type="text/javascript" src="${ctx}/static/js/area_select.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/orderException/seller_change_order_manage.js"></script>
-
 </body>
 
 
