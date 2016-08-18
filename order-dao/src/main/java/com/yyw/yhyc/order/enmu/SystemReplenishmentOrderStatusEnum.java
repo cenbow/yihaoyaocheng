@@ -5,8 +5,8 @@ package com.yyw.yhyc.order.enmu;
  * Created by zhangqiang on 2016/8/16.
  */
 public enum SystemReplenishmentOrderStatusEnum {
-    BuyerRejectApplying("1","买家已申请"),
     SellerConfirmed("2","卖家已确认"),
+    BuyerRejectApplying("1","补货申请中"),
     SellerClosed("3","卖家已关闭"),
     SellerDelivered("4","卖家已发货"),
     BuyerReceived("5","买家已收货"),

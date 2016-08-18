@@ -22,43 +22,36 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        /*User u = (User) request.getAttribute("loginUser");
-        if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getAttribute(UserDto.REQUEST_KEY))){
-            UserDto userDto = new UserDto();
-            userDto.setUserName("压索");
-            userDto.setCustId(123);
-            userDto.setCustName("哈塞");
+            User u = (User) request.getAttribute("loginUser");
+            if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getAttribute(UserDto.REQUEST_KEY))){
+                UserDto userDto = new UserDto();
+                userDto.setUserName(u.getUsername());
+                userDto.setCustId(u.getEnterprise_id());
+                userDto.setCustName(u.getEnterprise_id().toString());
 
-            CustTypeEnum custTypeEnum = null;
-            switch (u.getRole_id()){
-                case 101:
-                    custTypeEnum = CustTypeEnum.buyer;
-                    break;
-                case 201:
-                    custTypeEnum = CustTypeEnum.seller;
-                    break;
-                case 301:
-                    custTypeEnum = CustTypeEnum.buyerAndSeller;
-                    break;
-                default:
-                    custTypeEnum = CustTypeEnum.other;
-                    break;
+                CustTypeEnum custTypeEnum = null;
+                switch (u.getRole_id()){
+                    case 101:
+                        custTypeEnum = CustTypeEnum.buyer;
+                        break;
+                    case 201:
+                        custTypeEnum = CustTypeEnum.seller;
+                        break;
+                    case 301:
+                        custTypeEnum = CustTypeEnum.buyerAndSeller;
+                        break;
+                    default:
+                        custTypeEnum = CustTypeEnum.other;
+                        break;
+                }
+                userDto.setCustType(custTypeEnum);
+
+                request.setAttribute(UserDto.REQUEST_KEY, userDto);
+
+                log.info("userDto-->" + userDto.toString());
             }
-            userDto.setCustType(custTypeEnum);
 
-            request.setAttribute(UserDto.REQUEST_KEY, userDto);
-
-            log.info("userDto-->" + userDto.toString());
-        }*/
-
-        UserDto userDto = new UserDto();
-        userDto.setUserName("压索");
-        userDto.setCustId(123);
-        userDto.setCustName("哈塞");
-        request.setAttribute(UserDto.REQUEST_KEY, userDto);
-
-        log.info("userDto-->" + userDto.toString());
-        return true;
+            return true;
     }
 
 }

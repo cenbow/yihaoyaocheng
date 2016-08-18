@@ -22,6 +22,8 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
@@ -45,6 +47,13 @@ public class OrderDeliveryDetailService {
 	private OrderMapper orderMapper;
 
 	private OrderExceptionMapper orderExceptionMapper;
+
+	private OrderTraceMapper orderTraceMapper;
+
+	@Autowired
+	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
+		this.orderTraceMapper = orderTraceMapper;
+	}
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
@@ -215,6 +224,7 @@ public class OrderDeliveryDetailService {
 		String returnDesc = "";
 		String flowId = "";
 		String exceptionOrderId="";//异常订单号
+		 String now=systemDateMapper.getSystemDate();//系统当前时间
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
 			returnMap.put("msg","参数不能为空");
@@ -281,8 +291,8 @@ public class OrderDeliveryDetailService {
 					orderReturn.setReturnDesc(returnDesc);
 					orderReturn.setFlowId(flowId);
 					orderReturn.setReturnStatus("1");//未处理
-					orderReturn.setCreateTime(systemDateMapper.getSystemDate());
-					orderReturn.setUpdateTime(systemDateMapper.getSystemDate());
+					orderReturn.setCreateTime(now);
+					orderReturn.setUpdateTime(now);
 					orderReturn.setCreateUser(user.getUserName());
 					orderReturn.setUpdateUser(user.getUserName());
 					orderReturn.setExceptionOrderId(exceptionOrderId);
@@ -326,30 +336,77 @@ public class OrderDeliveryDetailService {
 		order.setUpdateUser(user.getUserName());
 		orderMapper.update(order);
 
+		//插入日志表
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setOrderId(order.getOrderId());
+		orderTrace.setNodeName("买家确认收货");
+		orderTrace.setDealStaff(user.getUserName());
+		orderTrace.setRecordDate(now);
+		orderTrace.setRecordStaff(user.getUserName());
+		orderTrace.setOrderStatus(order.getOrderStatus());
+		orderTrace.setCreateTime(now);
+		orderTrace.setCreateUser(user.getUserName());
+		orderTraceMapper.save(orderTrace);
+
 		//生成异常订单
 		if (!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
 			OrderException orderException=new OrderException();
 			orderException.setOrderId(order.getOrderId());
 			orderException.setFlowId(flowId);
-			orderException.setCreateTime(systemDateMapper.getSystemDate());
+			orderException.setCreateTime(now);
 			orderException.setCreateUser(user.getUserName());
 			orderException.setReturnType(returnType);
 			orderException.setReturnDesc(returnDesc);
-			orderException.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());//待确认
+			if(returnType.equals("3")){
+				orderException.setOrderStatus(SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getType());//待确认
+			}else if(returnType.equals("4")){
+				orderException.setOrderStatus(SystemOrderExceptionStatusEnum.RejectApplying.getType());//待确认
+			}
 			orderException.setCustId(order.getCustId());
 			orderException.setCustName(order.getCustName());
 			orderException.setSupplyId(order.getSupplyId());
 			orderException.setSupplyName(order.getSupplyName());
-			orderException.setOrderCreateTime(systemDateMapper.getSystemDate());
+			orderException.setOrderCreateTime(now);
 			orderException.setOrderMoney(moneyTotal);
 			orderException.setOrderMoneyTotal(order.getOrderTotal());
 			orderException.setExceptionOrderId(exceptionOrderId);
-			orderException.setUpdateTime(systemDateMapper.getSystemDate());
+			orderException.setUpdateTime(now);
 			orderException.setUpdateUser(user.getUserName());
 			orderExceptionMapper.save(orderException);
+
+			//插入异常订单日志
+			OrderTrace orderTrace1 = new OrderTrace();
+			orderTrace1.setOrderId(orderException.getExceptionId());
+			if(returnType.equals("3")){
+				orderTrace1.setNodeName("确认收货：" + SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getValue());
+			}else if(returnType.equals("4")){
+				orderTrace1.setNodeName("确认收货：" + SystemOrderExceptionStatusEnum.RejectApplying.getValue());
+			}
+			orderTrace1.setDealStaff(user.getUserName());
+			orderTrace1.setRecordDate(now);
+			orderTrace1.setRecordStaff(user.getUserName());
+			orderTrace1.setOrderStatus(orderException.getOrderStatus());
+			orderTrace1.setCreateTime(now);
+			orderTrace1.setCreateUser(user.getUserName());
+			orderTraceMapper.save(orderTrace1);
+
 		}
 			returnMap.put("code","1");
 			returnMap.put("msg","操作成功");
 			return returnMap;
+	}
+
+	/**
+	 * 补货订单确认收货商品列表
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderDeliveryDetailDto> listPaginationReplenishment(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception
+	{
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationReplenishment(pagination, orderDeliveryDetailDto);
+
+		pagination.setResultList(list);
+
+		return pagination;
 	}
 }

@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>补货订单管理</title>
+    <title>退货订单管理</title>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -19,8 +19,8 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>采购订单管理</a></li>
-                    <li class="active">补货订单管理</li>
+                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                    <li class="active">退货订单管理</li>
                 </ol>
             </div>
             <div class="row choseuser border-gray">
@@ -28,26 +28,40 @@
                     <input type="hidden" name="orderStatus" value=""/>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
+                            <label  class="col-xs-2 control-label">采购商区域</label>
+                            <div class="col-xs-3">
+                                <select class="form-control width-80" name="province">
+                                    <option value="">省份</option>
+                                </select>
+                                <select class="form-control width-80" name="city">
+                                    <option value="">城市</option>
+                                </select>
+                                <select class="form-control width-80" name="area">
+                                    <option value="">区/县</option>
+                                </select>
+                            </div>
 
-                            <label for="exceptionOrderId" class="col-xs-2 control-label">补货订单号 </label>
+                            <label for="exceptionOrderId" class="col-xs-2 control-label">退货订单号 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="exceptionOrderId" name="exceptionOrderId" placeholder="">
                             </div>
 
-                            <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" id="flowId" name="flowId"
-                                       placeholder="">
-                            </div>
 
                         </div>
+
                         <div class="form-group">
-                            <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
+                            <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" id="supplyName" name="supplyName"
-                                       placeholder="">
+                                <input type="text" class="form-control" id="flowId" name="flowId" placeholder="">
                             </div>
-                            <label class="col-xs-2 control-label">拒收时间</label>
+                            <label for="custName" class="col-xs-2 control-label">采购商 </label>
+                            <div class="col-xs-3">
+                                <input type="text" class="form-control" id="custName" name="custName" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-2 control-label">退货时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
                                     <input type="text" name="startTime"
@@ -71,10 +85,12 @@
                     <ul id="myTab" class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" onclick="changeStatus('');" >全部</a></li>
                         <li><a data-toggle="tab" onclick="changeStatus('1');" name="statusCount">待确认</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount">待发货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount">待收货</a></li>
-                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount">已完成</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('3');" name="statusCount">待买家发货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('5');" name="statusCount">待卖家收货</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('6');" name="statusCount">退款中</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('7');" name="statusCount">已完成</a></li>
                         <li><a data-toggle="tab" onclick="changeStatus('4');" name="statusCount">已关闭</a></li>
+                        <li><a data-toggle="tab" onclick="changeStatus('2');" name="statusCount">已取消</a></li>
                     </ul>
 
                     <div id="myTabContent" class="tab-content">
@@ -93,9 +109,9 @@
                                 </colgroup>
                                 <thead>
                                 <tr>
-                                    <th>补货订单号</th>
+                                    <th>退货订单号</th>
                                     <th>下单时间</th>
-                                    <th>供应商</th>
+                                    <th>采购商</th>
                                     <th>订单状态</th>
                                     <th>订单金额</th>
                                     <th>操作</th>
@@ -112,64 +128,14 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="myModalConfirmReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width: 1000px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel1">确认收货</h4>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="confirmReceiptForm" enctype="multipart/form-data">
-                    <input type='hidden' name='flowId' id="crExceptionOrderId" >
-                    <table class="table table-box2">
-                        <colgroup>
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                        </colgroup>
-                        <thead>
-                        <tr>
-                            <th>订单行号</th>
-                            <th>商品编码</th>
-                            <th>批号</th>
-                            <th>商品名</th>
-                            <th>通用名</th>
-                            <th>规格</th>
-                            <th>剂型</th>
-                            <th>生产企业</th>
-                            <th>采购数量</th>
-                            <th>收货数量</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" onclick="repConfirmReceipt()">确定</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/orderException/buyer_replenishment_order_manage.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/orderException/seller_refund_order_manage.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/common.js"></script>
+
 </body>
 
 

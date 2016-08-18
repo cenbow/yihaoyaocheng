@@ -1,6 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -35,7 +33,7 @@
                             <label class="col-xs-2 control-label">订单状态</label>
                             <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
                             <label class="col-xs-2 control-label">原订单号</label>
-                            <div class="col-xs-2 control-label text-left"><a href="#">${orderExceptionDto.flowId}</a></div>
+                            <div class="col-xs-2 control-label text-left"><a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a></div>
                         </div>
                     </div>
                 </div>
@@ -84,13 +82,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">供应商</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseName}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发货人</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.registeredAddress}</div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">联系方式</label>
-                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseCellphone}</div>
+                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                             </div>
                         </div>
                         <div class="form-horizontal padding-t-26">
@@ -101,18 +99,7 @@
                                 <label for="scope" class="col-xs-2 control-label">支付方式</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
                                 <label for="scope" class="col-xs-2 control-label">发票信息</label>
-                                <div class="col-xs-3 control-label text-left">
-                                    <c:set var="billTypeSpecial" value="<%=BillTypeSpecial.getBillType()%>"></c:set>
-                                    <c:set var="billTypeNormal" value="<%=BillTypeNormal.getBillType()%>"></c:set>
-                                    <c:choose>
-                                        <c:when test="${orderExceptionDto.order.billType == billTypeSpecial}">
-                                            <%=BillTypeSpecial.getBillTypeName()%>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <%=BillTypeNormal.getBillTypeName()%>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.billTypeName}</div>
                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">下单时间</label>
