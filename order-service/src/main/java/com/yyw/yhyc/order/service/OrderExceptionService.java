@@ -1239,7 +1239,7 @@ public class OrderExceptionService {
 		}
 		if(userType==2){  //供应商的时候取发货信息
 			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
-			orderDeliveryDetail.setFlowId(orderExceptionDto.getFlowId());
+			orderDeliveryDetail.setFlowId(orderExceptionDto.getExceptionOrderId());
 			List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
 			if(list.size()>0){
 				orderDeliveryDetail=(OrderDeliveryDetail)list.get(0);
