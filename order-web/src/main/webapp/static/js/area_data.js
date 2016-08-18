@@ -389,3 +389,26 @@ var _areaMap =  {
         ,230900:[{infoCode:'230901',infoName:'市辖区'},{infoCode:'230902',infoName:'新兴区'},{infoCode:'230903',infoName:'桃山区'},{infoCode:'230904',infoName:'茄子河区'},{infoCode:'230921',infoName:'勃利县'}]
 };
 
+/**
+ * 获取省份列表
+ */
+function getProvince(){
+        return _areaMap['0'];
+}
+
+/**
+ * 根据省份获取城市列表
+ * @param provinec
+ */
+function getCity(province){
+        return _areaMap[province];
+}
+
+
+/**
+ * 根据城市获取区县列表
+ * @param provinec
+ */
+function getArea(city){
+        return _areaMap[city];
+}
