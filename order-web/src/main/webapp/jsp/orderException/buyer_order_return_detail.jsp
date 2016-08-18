@@ -9,7 +9,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>审核订单</title>
+    <title>退货订单详情</title>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -252,39 +252,6 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript">
-    function review(type){
-        if(type == 3 || type == 4){
-            var exceptionId = $("#exceptionId").val();
-            if(exceptionId == ''){
-                alertModal("订单编号错误");
-                return;
-            }
-            var remark = $("#remark").val().trim();
-            var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
-
-            $.ajax({
-                url: ctx+"/orderException/sellerReviewReturnOrder",
-                data: JSON.stringify(data),
-                type: 'POST',
-                contentType: "application/json;charset=UTF-8",
-                success: function (data) {
-                    if (data.statusCode || data.message) {
-                        alertModal(data.message);
-                        return;
-                    }
-                    alertModal("操作成功");
-                    setTimeout(function(){
-                        window.location.href=ctx+"/orderException/buyerRejectOrderManage";//TODO 跳转到退货订单管理页面
-                    },1000)
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alertModal("审核失败");
-                }
-            });
-        }
-    }
-</script>
 </html>
 
 
