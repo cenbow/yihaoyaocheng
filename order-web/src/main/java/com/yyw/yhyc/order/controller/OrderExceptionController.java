@@ -240,6 +240,17 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
+	 * 供应商审核换货订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewChangeOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewChangeOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.sellerReviewChangeOrder(userDto, orderException);
+	}
+
+	/**
 	 * 供应商审核退货订单
 	 * @return
 	 */
@@ -425,6 +436,23 @@ public class OrderExceptionController extends BaseJsonController{
 	public void buyerCancelRefundOrder(@PathVariable("exceptionId") Integer exceptionId){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.updateRefundOrderStatusForBuyer(userDto, exceptionId);
+	}
+	/**
+	 * 采购订单查询
+	 * @return
+	 */
+	@RequestMapping(value = {"/BuyerReReturnOrderDetail/{exceptionId}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView findBuyerReReturnOrderDetail(@PathVariable("exceptionId")Integer exceptionId)throws  Exception{
+		ModelAndView model = new ModelAndView();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+//		UserDto user = super.getLoginUser();
+//		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		model.addObject("orderExceptionDto",orderExceptionDto);
+		model.setViewName("orderException/orderReturnDetails");
+		return model;
 	}
 }
 
