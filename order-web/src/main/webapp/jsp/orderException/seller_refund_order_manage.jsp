@@ -31,23 +31,17 @@
                             <label  class="col-xs-2 control-label">采购商区域</label>
                             <div class="col-xs-3">
                                 <select class="form-control width-80" name="province">
-                                    <option value="-1">省份</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
+                                    <option value="">省份</option>
                                 </select>
                                 <select class="form-control width-80" name="city">
-                                    <option value="-1">城市</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
+                                    <option value="">城市</option>
                                 </select>
                                 <select class="form-control width-80" name="area">
-                                    <option value="-1">区/县</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
+                                    <option value="">区/县</option>
                                 </select>
                             </div>
 
-                            <label for="exceptionOrderId" class="col-xs-2 control-label">补货订单号 </label>
+                            <label for="exceptionOrderId" class="col-xs-2 control-label">退货订单号 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="exceptionOrderId" name="exceptionOrderId" placeholder="">
                             </div>
@@ -60,14 +54,14 @@
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="flowId" name="flowId" placeholder="">
                             </div>
-                            <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
+                            <label for="custName" class="col-xs-2 control-label">采购商 </label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" id="supplyName" name="supplyName" placeholder="">
+                                <input type="text" class="form-control" id="custName" name="custName" placeholder="">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-xs-2 control-label">补货申请时间</label>
+                            <label class="col-xs-2 control-label">退货时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
                                     <input type="text" name="startTime"

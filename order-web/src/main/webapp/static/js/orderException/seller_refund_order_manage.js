@@ -87,7 +87,7 @@ function setOrderCount(orderStatusCount) {
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerRefundOrder";
+    var requestUrl = ctx+"/orderException/listPgSellerRefundOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -170,7 +170,7 @@ function fillTableJson(data) {
         var tr = "<tr>";
         tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
-        tr += "<td>" + order.supplyName + "</td>";
+        tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + op + "</td>";

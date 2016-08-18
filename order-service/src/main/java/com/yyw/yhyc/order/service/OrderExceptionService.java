@@ -1296,11 +1296,11 @@ public class OrderExceptionService {
 		}
 
 		int orderCount = 0;
-		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerRefundOrderTotal(orderExceptionDto);
+		BigDecimal orderTotalMoney = orderExceptionMapper.findSellerRefundOrderTotal(orderExceptionDto);
 
 		log.info("orderTotalMoney:"+orderTotalMoney);
 
-		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRefundOrder(pagination, orderExceptionDto);
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationSellerRefundOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
 
 
@@ -1319,7 +1319,7 @@ public class OrderExceptionService {
 		pagination.setResultList(orderExceptionDtoList);
 
 		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
-		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findBuyerRefundOrderStatusCount(orderExceptionDto);
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findSellerRefundOrderStatusCount(orderExceptionDto);
 
 		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
 			for (OrderExceptionDto oed : orderExceptionDtos) {

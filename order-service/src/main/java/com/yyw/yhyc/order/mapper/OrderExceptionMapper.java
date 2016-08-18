@@ -183,7 +183,7 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 
 
 	/**
-	 * 供应商补货订单查询
+	 * 采购商退货订单查询
 	 * @param pagination
 	 * @param orderExceptionDto
 	 * @return
@@ -191,14 +191,14 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	public List<OrderExceptionDto> listPaginationBuyerRefundOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
 
 	/**
-	 * 查询供应商补货订单总金额
+	 * 查询采购商退货订单总金额
 	 * @param orderExceptionDto
 	 * @return
 	 */
 	public java.math.BigDecimal findBuyerRefundOrderTotal(OrderExceptionDto orderExceptionDto);
 
 	/**
-	 * 查询供应商补货订单状态列表
+	 * 查询采购商退货订单状态列表
 	 * @param orderExceptionDto
 	 * @return
 	 */
@@ -212,4 +212,25 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	public OrderExceptionDto getReplenishmentDetails(OrderExceptionDto orderExceptionDto);
 
 
+	/**
+	 * 供应商退货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> listPaginationSellerRefundOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询供应商退货订单总金额
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public java.math.BigDecimal findSellerRefundOrderTotal(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 查询采购商退货订单状态列表
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> findSellerRefundOrderStatusCount(OrderExceptionDto orderExceptionDto);
 }
