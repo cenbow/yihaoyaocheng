@@ -181,6 +181,13 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 */
 	public OrderExceptionDto getOrderExceptionDetailsForReview(OrderExceptionDto orderExceptionDto);
 
+	/**
+	 * 退货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public OrderExceptionDto getOrderExceptionDetailsForReturn(OrderExceptionDto orderExceptionDto);
+
 
 	/**
 	 * 供应商补货订单查询
