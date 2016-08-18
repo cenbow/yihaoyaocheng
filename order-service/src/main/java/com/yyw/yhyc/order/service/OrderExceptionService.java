@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
-import com.yyw.yhyc.order.bo.OrderTrace;
+import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
@@ -28,9 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.OrderException;
-import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.UtilHelper;
 
@@ -44,6 +41,7 @@ public class OrderExceptionService {
 	private SystemDateMapper systemDateMapper;
 	private OrderMapper	orderMapper;
 	private OrderTraceMapper orderTraceMapper;
+	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
@@ -67,6 +65,11 @@ public class OrderExceptionService {
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
 		this.orderTraceMapper = orderTraceMapper;
+	}
+
+	@Autowired
+	public void setOrderDeliveryDetailMapper(OrderDeliveryDetailMapper orderDeliveryDetailMapper) {
+		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
 	}
 	/**
 	 * 通过主键查询实体对象
@@ -95,8 +98,7 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	public List<OrderException> listByProperty(OrderException orderException)
-			throws Exception
-	{
+			throws Exception {
 		return orderExceptionMapper.listByProperty(orderException);
 	}
 
@@ -174,8 +176,7 @@ public class OrderExceptionService {
 	 * @return
 	 * @throws Exception
 	 */
-	public int findByCount(OrderException orderException) throws Exception
-	{
+	public int findByCount(OrderException orderException) throws Exception {
 		return orderExceptionMapper.findByCount(orderException);
 	}
 
@@ -191,6 +192,7 @@ public class OrderExceptionService {
 		if(UtilHelper.isEmpty(orderExceptionDto)) {
 			return orderExceptionDto;
 		}
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
 		/* 计算商品总额 */
 		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
@@ -300,12 +302,12 @@ public class OrderExceptionService {
 					if(orderStatusCountMap.containsKey(buyerOrderExceptionStatusEnum.getType())){
 						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),orderStatusCountMap.get(buyerOrderExceptionStatusEnum.getType())+oed.getOrderCount());
 					}else{
-						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),oed.getOrderCount());
+						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(), oed.getOrderCount());
 					}
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 
 		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
 		resultMap.put("rejectOrderList", pagination);
@@ -374,7 +376,7 @@ public class OrderExceptionService {
 
 	public Map<String,Object> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		List<OrderExceptionDto> list = orderExceptionMapper.listPaginationSellerByProperty(pagination, orderExceptionDto);
 		Integer sourceType = orderExceptionDto.getType() ;
 		//查询总价
 		BigDecimal totalMoney = orderExceptionMapper.findSellerExceptionOrderTotal(orderExceptionDto);
@@ -421,8 +423,8 @@ public class OrderExceptionService {
 		pagination.setResultList(list);
 
 		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("pagination",pagination);
-		map.put("orderExceptionDto",orderExceptionDto);
+		map.put("pagination", pagination);
+		map.put("orderExceptionDto", orderExceptionDto);
 		return map;
 	}
 
@@ -631,12 +633,12 @@ public class OrderExceptionService {
 					if(orderStatusCountMap.containsKey(buyerOrderExceptionStatusEnum.getType())){
 						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),orderStatusCountMap.get(buyerOrderExceptionStatusEnum.getType())+oed.getOrderCount());
 					}else{
-						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(),oed.getOrderCount());
+						orderStatusCountMap.put(buyerOrderExceptionStatusEnum.getType(), oed.getOrderCount());
 					}
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
 		resultMap.put("rejectOrderList", pagination);
 		resultMap.put("rejectOrderCount", orderCount);
@@ -1222,6 +1224,124 @@ public class OrderExceptionService {
 			log.info("db orderException not equals to request exceptionId ,exceptionId:"+exceptionId+",db exceptionId:"+orderException.getExceptionId());
 			throw new RuntimeException("未找到订单");
 		}
+	}
+
+	/**
+	 * 补货订单订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getReplenishmentDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		Integer userType = orderExceptionDto.getUserType();
+		orderExceptionDto = orderExceptionMapper.getReplenishmentDetails(orderExceptionDto);
+		if(UtilHelper.isEmpty(orderExceptionDto)) {
+			return orderExceptionDto;
+		}
+		if(userType==2){  //供应商的时候取发货信息
+			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+			orderDeliveryDetail.setFlowId(orderExceptionDto.getExceptionOrderId());
+			List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+			if(list.size()>0){
+				orderDeliveryDetail=(OrderDeliveryDetail)list.get(0);
+				if(orderDeliveryDetail.getDeliveryStatus()==0){
+					orderExceptionDto.setImportStatusName("导入失败");
+					orderExceptionDto.setFileName("下载失败原因");
+				}else{
+					orderExceptionDto.setImportStatusName("导入成功");
+					orderExceptionDto.setFileName("下载批号列表");
+				}
+				orderExceptionDto.setImportFileUrl(orderDeliveryDetail.getImportFileUrl());
+			}
+		}
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+		/* 计算商品总额 */
+		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+					continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		return orderExceptionDto;
+	}
+
+
+
+	/**
+	 * 卖家补货订单查询
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public Map<String, Object> listPgSellerRefundOrder(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+
+		if(UtilHelper.isEmpty(orderExceptionDto))
+			throw new RuntimeException("参数错误");
+		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderExceptionDto.setEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderExceptionDto.getEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+
+		}
+
+		int orderCount = 0;
+		BigDecimal orderTotalMoney = orderExceptionMapper.findSellerRefundOrderTotal(orderExceptionDto);
+
+		log.info("orderTotalMoney:"+orderTotalMoney);
+
+		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationSellerRefundOrder(pagination, orderExceptionDto);
+		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+
+
+		BuyerRefundOrderStatusEnum buyerRefundOrderStatusEnum;
+		if(!UtilHelper.isEmpty(orderExceptionDtoList)){
+			orderCount = pagination.getTotal();
+			for(OrderExceptionDto oed : orderExceptionDtoList){
+				buyerRefundOrderStatusEnum = getBuyerRefundOrderStatusEnum(oed.getOrderStatus(),oed.getPayType());
+				if(!UtilHelper.isEmpty(buyerRefundOrderStatusEnum))
+					oed.setOrderStatusName(buyerRefundOrderStatusEnum.getValue());
+				else
+					oed.setOrderStatusName("未知状态");
+			}
+		}
+
+		pagination.setResultList(orderExceptionDtoList);
+
+		Map<String, Integer> orderStatusCountMap = new HashMap<String, Integer>();//订单状态统计
+		List<OrderExceptionDto> orderExceptionDtos = orderExceptionMapper.findSellerRefundOrderStatusCount(orderExceptionDto);
+
+		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
+			for (OrderExceptionDto oed : orderExceptionDtos) {
+				//卖家视角订单状态
+				buyerRefundOrderStatusEnum = getBuyerRefundOrderStatusEnum(oed.getOrderStatus(),oed.getPayType());
+				if(buyerRefundOrderStatusEnum != null){
+					if(orderStatusCountMap.containsKey(buyerRefundOrderStatusEnum.getType())){
+						orderStatusCountMap.put(buyerRefundOrderStatusEnum.getType(),orderStatusCountMap.get(buyerRefundOrderStatusEnum.getType())+oed.getOrderCount());
+					}else{
+						orderStatusCountMap.put(buyerRefundOrderStatusEnum.getType(),oed.getOrderCount());
+					}
+				}
+			}
+		}
+		log.info("orderStatusCountMap:"+orderStatusCountMap);
+
+		resultMap.put("orderStatusCount", orderStatusCountMap);
+		resultMap.put("orderList", pagination);
+		resultMap.put("orderCount", orderCount);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		return resultMap;
 	}
 
 	public void repConfirmReceipt(String exceptionOrderId,UserDto userDto) {

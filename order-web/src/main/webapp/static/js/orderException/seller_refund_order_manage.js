@@ -71,19 +71,23 @@ function setOrderCount(orderStatusCount) {
             $($("a[name='statusCount']")[0]).html('待确认('+orderStatusCount['1']+')');
         else
             $($("a[name='statusCount']")[0]).html('待确认');
-        if (orderStatusCount['2'])
-            $($("a[name='statusCount']")[1]).html('待发货('+orderStatusCount['2']+')');
-        else
-            $($("a[name='statusCount']")[1]).html('待发货');
         if (orderStatusCount['3'])
-            $($("a[name='statusCount']")[2]).html('待收货('+orderStatusCount['3']+')');
+            $($("a[name='statusCount']")[1]).html('待买家发货('+orderStatusCount['3']+')');
         else
-            $($("a[name='statusCount']")[2]).html('待收货');
+            $($("a[name='statusCount']")[1]).html('待买家发货');
+        if (orderStatusCount['5'])
+            $($("a[name='statusCount']")[2]).html('待卖家收货('+orderStatusCount['5']+')');
+        else
+            $($("a[name='statusCount']")[2]).html('待卖家收货');
+        if (orderStatusCount['6'])
+            $($("a[name='statusCount']")[3]).html('退款中('+orderStatusCount['6']+')');
+        else
+            $($("a[name='statusCount']")[3]).html('退款中');
     }
 }
 
 function doRefreshData(requestParam) {
-    var requestUrl = ctx+"/orderException/listPgBuyerReplenishmentOrder";
+    var requestUrl = ctx+"/orderException/listPgSellerRefundOrder";
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -162,13 +166,14 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
+        var op = createOperation(order);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getReplenishmentDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/buyerReReturnOrderDetail/" + order.exceptionId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
-        tr += "<td>" + order.supplyName + "</td>";
+        tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
-        tr += "<td>" + (order.orderStatus == "4" ? "":"<a href='javascript:repListPg('"+order.exceptionOrderId+"')' class='btn btn-info btn-sm margin-r-10' >确认收货</a>") + "</td>";
+        tr += "<td>" + op + "</td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -179,6 +184,15 @@ function fillTableJson(data) {
 function changeColor(){
     $(".table tr:not(:first):odd").css({background:"#f7f7f7"});
     $(".table tr:not(:first):even").css({background:"#fff"});
+}
+
+function createOperation(order){
+    var str = '';
+    if(order.orderStatus == '1')
+        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">审核</a>';
+    if(order.orderStatus == '5')
+        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+    return str;
 }
 
 
@@ -204,95 +218,6 @@ function format(date){
     var month  = date.getMonth()+1;
     var day  = date.getDate();
     return year+'-'+month+'-'+day;
-}
-
-
-function repListPg(ExceptionOrderId) {
-    $("#crExceptionOrderId").val(ExceptionOrderId);
-    var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
-    var requestParam = {pageNo:1,pageSize:15,param:{flowId:ExceptionOrderId,userType:1}};
-    $.ajax({
-        url : requestUrl,
-        data : JSON.stringify(requestParam),
-        type : 'POST',
-        dataType:'json',
-        contentType : "application/json;charset=UTF-8",
-        success : function(data) {
-
-            //填充表格数据
-            fillTable(data);
-            var totalpage = data.totalPage;
-            var nowpage = data.pageNo;
-            var totalCount = data.total;
-            $("#J_pager2").attr("current",nowpage);
-            $("#J_pager2").attr("total",totalpage);
-            $("#J_pager2").attr("url",requestUrl);
-            $("#J_pager2").pager({
-                data:requestParam,
-                requestType:"post",
-                asyn:1,
-                contentType:'application/json;charset=UTF-8',
-                callback:function(data,index){
-                    var nowpage = data.page;
-                    $("#nowpageedit").val(nowpage);
-                    fillTable(data);
-                }});
-        },
-        error : function(XMLHttpRequest, textStatus, errorThrown) {
-            alertModal("数据获取失败",function(){
-            });
-        }
-    });
-}
-
-
-/**
- * 填充表格数据
- * @param data
- */
-function fillTable(data) {
-    console.info(data)
-    var indexNum = 1;
-    if (!data || !data.resultList)
-        return;
-    var list = data.resultList;
-    $(".table-box2 tbody").html("");
-    var trs = "";
-    for (var i = 0; i < list.length; i++) {
-        var orderDeliveryDetail = list[i];
-        var tr = "<tr>";
-
-        tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
-        tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
-        tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
-        tr += "<td>" + orderDeliveryDetail.brandName + "</td>";
-        tr += "<td>" + orderDeliveryDetail.productName + "</td>";
-        tr += "<td>" + orderDeliveryDetail.specification + "</td>";
-        tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
-        tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
-        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
-        tr += "<td>" + orderDeliveryDetail.recieveCount+"</td>";
-        tr += "</tr>";
-        trs += tr;
-    }
-    $(".table-box2 tbody").append(trs);
-    $("#myModalConfirmReceipt").modal().hide();
-}
-
-function repConfirmReceipt(exceptionOrderId){
-    $.ajax({
-        url :ctx+'/orderException/repConfirmReceipt',
-        data: JSON.stringify(exceptionOrderId),
-        type: 'POST',
-        dataType: 'json',
-        contentType: "application/json;charset=UTF-8",
-        success: function () {
-            alertModal("收货处理成功。");
-        },
-        error: function () {
-            alertModal("处理失败");
-        }
-    });
 }
 
 

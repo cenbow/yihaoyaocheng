@@ -165,7 +165,7 @@ function fillTableJson(data) {
         var operate = getOperateHtml(order.orderStatus,order.exceptionId);
         var tr = "<tr>";
         tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
-        tr += "<td>" + order.createTime + "</td>";
+        tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";

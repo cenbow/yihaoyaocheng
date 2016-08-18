@@ -395,4 +395,18 @@ public class OrderDeliveryDetailService {
 			returnMap.put("msg","操作成功");
 			return returnMap;
 	}
+
+	/**
+	 * 补货订单确认收货商品列表
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderDeliveryDetailDto> listPaginationReplenishment(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception
+	{
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationReplenishment(pagination, orderDeliveryDetailDto);
+
+		pagination.setResultList(list);
+
+		return pagination;
+	}
 }
