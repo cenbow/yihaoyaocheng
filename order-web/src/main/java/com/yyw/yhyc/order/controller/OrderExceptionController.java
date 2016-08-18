@@ -247,7 +247,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewChangeOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.sellerReviewChangeOrder(userDto, orderException);
+		orderExceptionService.updateSellerReviewChangeOrder(userDto, orderException);
 	}
 
 	/**

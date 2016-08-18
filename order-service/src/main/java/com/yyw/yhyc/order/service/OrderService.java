@@ -1322,9 +1322,12 @@ public class OrderService {
 		Order on=new Order();
 		for(Order o:order){
 			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
-			if(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
+			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
 				on.setOrderId(o.getOrderId());
 				on.setPaymentTermStatus(1);
+				if(o.getFinalPay()!=null){
+					on.setFinalPay(o.getFinalPay());
+				}
 				orderMapper.update(on);
 			}
 		}

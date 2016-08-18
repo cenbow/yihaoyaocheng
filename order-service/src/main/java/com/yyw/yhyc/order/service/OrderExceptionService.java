@@ -554,7 +554,7 @@ public class OrderExceptionService {
 	 * @param userDto
 	 * @param orderException
 	 */
-	public void sellerReviewChangeOrder(UserDto userDto,OrderException orderException){
+	public void updateSellerReviewChangeOrder(UserDto userDto,OrderException orderException){
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
 			throw new RuntimeException("参数异常");
 
