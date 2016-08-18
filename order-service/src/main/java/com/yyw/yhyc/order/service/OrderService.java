@@ -1321,10 +1321,13 @@ public class OrderService {
 		// TODO Auto-generated method stub
 		Order on=new Order();
 		for(Order o:order){
-			Order no=orderMapper.getByPK(o.getOrderId());
-			if(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
+			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
+			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
 				on.setOrderId(o.getOrderId());
 				on.setPaymentTermStatus(1);
+				if(o.getFinalPay()!=null){
+					on.setFinalPay(o.getFinalPay());
+				}
 				orderMapper.update(on);
 			}
 		}

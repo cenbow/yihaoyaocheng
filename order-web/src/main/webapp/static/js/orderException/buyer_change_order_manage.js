@@ -170,7 +170,7 @@ function fillTableJson(data) {
                 tr += "<td><a class='blue' href='javascript:void(0);' onclick='cancleOrder("+ order.exceptionId + ",2)'>取消</a></td>";
                 break;
             case "4" :
-                tr += "<td><a class='blue' href='#'>发货</a></td>";
+                tr += "<td><a class='blue' href='javascript:void(0);' onclick='sendDelivery("+ order.exceptionId + ")'>发货</a></td>";
                 break;
             case "7" :
                 tr += "<td><a class='blue' href='#'>确认收货</a></td>";
@@ -262,4 +262,49 @@ function cancleOrder(id, status) {
     }
 }
 
+/**
+ * 发货
+ * * @param orderId
+ */
+
+function sendDelivery(flowId) {
+    $("#sendFlowId").val(flowId);
+    $("#myModalSendDelivery").modal().hide();
+    $("#receiverAddressId").val("");
+    $("#deliveryContactPerson").val("");
+    $("#deliveryExpressNo").val("");
+    $("#deliveryExpressNo2").val("");
+    $("#deliveryContactPerson2").val("");
+    $("#deliveryExpressNo1").val("");
+    $("#deliveryContactPerson1").val("");
+    $("#deliveryDate").val("");
+
+    $.ajax({
+        url: ctx+"/order/orderDelivery/getReceiveAddressList",
+        type: 'GET',
+        success: function (data) {
+            console.info(data);
+            if (data!=null) {
+                $("#warehouse").html("");
+                var divs = "";
+                for (var i = 0; i < data.length; i++) {
+                    var delivery = data[i];
+                    var div = "<label class='radio-inline no-margin'>";
+                    if(delivery.defaultAddress==1){
+                        div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                    }else{
+                        div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                    }
+                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                        "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                    divs += div;
+                }
+                $("#warehouse").append(divs);
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("加载失败");
+        }
+    });
+}
 

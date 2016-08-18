@@ -170,7 +170,7 @@ function fillTableJson(data) {
                 tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + ">审核</a></td>";
                 break;
             case "6" :
-                tr += "<td><a class='blue' href='#'>发货</a></td>";
+                tr += "<td><a href='javascript:sendDelivery("+order.exceptionId+")' class='btn btn-info btn-sm margin-r-10')'>发货</a></td>";
                 break;
             case "5" :
                 tr += "<td><a class='blue' href='#'>确认收货</a></td>";
@@ -262,4 +262,141 @@ function cancleOrder(id, status) {
     }
 }
 
+
+/**
+ * 发货
+ * * @param orderId
+ */
+
+function sendDelivery(flowId) {
+    $("#sendFlowId").val(flowId);
+    $("#myModalSendDelivery").modal().hide();
+    $("#excelFile").val("");
+    $("#receiverAddressId").val("");
+    $("#deliveryContactPerson").val("");
+    $("#deliveryExpressNo").val("");
+    $("#deliveryExpressNo2").val("");
+    $("#deliveryContactPerson2").val("");
+    $("#deliveryExpressNo1").val("");
+    $("#deliveryContactPerson1").val("");
+    $("#deliveryDate").val("");
+
+    $.ajax({
+        url: ctx+"/order/orderDelivery/getReceiveAddressList",
+        type: 'GET',
+        success: function (data) {
+            console.info(data);
+            if (data!=null) {
+                $("#warehouse").html("");
+                var divs = "";
+                for (var i = 0; i < data.length; i++) {
+                    var delivery = data[i];
+                    var div = "<label class='radio-inline no-margin'>";
+                    if(delivery.defaultAddress==1){
+                        div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                    }else{
+                        div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                    }
+                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                        "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                    divs += div;
+                }
+                $("#warehouse").append(divs);
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("加载失败");
+        }
+    });
+}
+
+
+//选择文件
+function closeFileInput(target) {
+    var flag=checkImgType(target);
+    if(!flag) return ;
+}
+
+function checkImgType(this_) {
+    var filepath = $(this_).val();
+    var extStart = filepath.lastIndexOf(".");
+    var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+    if (ext != ".XLS") {
+        alert("请上传正确格式的文件");
+        $(this_).val("");
+        return false;
+    }
+    return true;
+
+}
+
+function sendDeliverysubmit(){
+
+    var delivery = $("input[type=radio][name=delivery]:checked");
+    var ownw = $("input[type=radio][name=ownw]:checked");
+
+    if($("#excelFile").val()==null||$("#excelFile").val()==""){
+        alertModal("请上传文件")
+        return;
+    }
+
+    if(delivery.val()==null||delivery.val()==""){
+        alertModal("发货仓库不能为空")
+        return;
+    }
+
+    var reg = /^0?1[3|4|5|8|7][0-9]\d{8}$/;
+    $("#receiverAddressId").val(delivery.val())
+    $("#deliveryMethod").val(ownw.val())
+
+    if(ownw.val()==1){
+        if($("#deliveryExpressNo1").val()!=null&&$("#deliveryExpressNo1").val()!=""){
+            if (!reg.test($("#deliveryExpressNo1").val())) {
+                alertModal("请填写正确的手机号")
+                return;
+            };
+        }
+        $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
+    }else{
+        $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
+    }
+    $("#sendform").ajaxSubmit({
+        url :ctx+'/order/orderDelivery/sendOrderDelivery',
+        dataType: 'text',
+        type: 'POST',
+        success: function(data) {
+            console.info(data);
+            var obj=eval("(" + data + ")");
+            if(obj.code==0){
+                alertModal(obj.msg);
+            }else{
+                $("#myModalPrompt").modal().hide();
+                $("#msgDiv").html("");
+                var div = "";
+                if(obj.code==1){
+                    div += " <p class='font-size-20 red'><b>发货成功</b></p><p>可在订单详情中查看批号的导入详情!</p> "
+                    $("#myModalSendDelivery").modal("hide");
+                    pasretFormData();
+                    doRefreshData(params);
+                }else{
+                    div += "<p class='font-size-20 red'><b>发货失败</b></p><p>批号信息导入有误，可以直接下载导入失败原因，也可以进入订单详情下载导入失败原因！</p>";
+                    div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息.xls'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
+                }
+                $("#msgDiv").append(div);
+            }
+        }
+    });
+
+}
+
+function totab(tab){
+    var ownw= $("*[name='ownw']");
+    $("#ownw"+tab).attr("checked","checked");
+}
+
+$(function(){
+    $.fn.loadArea($("#province"), $("#city"), $("#area"))
+});
 
