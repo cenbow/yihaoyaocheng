@@ -522,7 +522,7 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		orderDto.setSupplyId(userDto.getCustId());
+		orderDto.setSupplyId(322);
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 	/**
@@ -570,11 +570,14 @@ public class OrderExceptionController extends BaseJsonController{
 	 * 退货订单确认收货
 	 * @return
 	 */
-	@RequestMapping(value = {"", "/editConfirmReceiptReturn"}, method = RequestMethod.POST)
+	@RequestMapping(value = { "/editConfirmReceiptReturn"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void editConfirmReceiptReturn(String exceptionOrderId){
+	public String editConfirmReceiptReturn(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.editConfirmReceiptReturn(exceptionOrderId, userDto);
+		userDto = new UserDto();
+		userDto.setCustId(2222);
+		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
+		return "{\"msg\":"+msg+"}" ;
 	}
 
 	/**

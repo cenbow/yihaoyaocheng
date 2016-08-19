@@ -259,6 +259,6 @@ public class OrderReturnService {
 	}
 
 	public List<OrderReturnDto> listOrderReturn(String orderExceptionId){
-		return orderReturnMapper.getByExceptionOrderId(orderExceptionId);
+		return orderReturnMapper.getReturnByExceptionOrderId(orderExceptionId);
 	}
 }
