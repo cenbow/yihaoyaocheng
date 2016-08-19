@@ -1319,18 +1319,26 @@ public class OrderService {
 	 */
 	public boolean updateOrderStatus(List<Order> order) {
 		// TODO Auto-generated method stub
+		boolean re=true;
+		try{
 		Order on=new Order();
 		for(Order o:order){
 			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
-			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
-				on.setOrderId(o.getOrderId());
+			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
+				on.setOrderId(no.getOrderId());
 				on.setPaymentTermStatus(1);
 				if(o.getFinalPay()!=null){
 					on.setFinalPay(o.getFinalPay());
 				}
 				orderMapper.update(on);
+			}else{
+				re= false;
 			}
+		 }
+		}catch (Exception e){
+			e.printStackTrace();
+			return false;
 		}
-		return true;
+		return re;
 	}
 }
