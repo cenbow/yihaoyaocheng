@@ -211,8 +211,6 @@
                     </thead>
                     <tbody>
                     <%--遍历该供应商的商品信息  开始--%>
-                    <input type="hidden" id="flowId" name="flowId" value="${orderExceptionDto.exceptionOrderId}"/>
-                    <input type="hidden" id="userType" name="userType" value="1"/>
                     <c:choose>
                         <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
                             <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
@@ -247,7 +245,7 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <c:if test="${orderExceptionDto.userType==1}"><div><a class="undeline" onclick="listReplenishment()">查看收货商品清单</a></div></c:if>
+                <div><a class="undeline lookgoodlist">已换货商品清单</a></div>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p class="red">订单金额：￥${orderExceptionDto.orderMoney}元<p>
@@ -258,7 +256,52 @@
     </div>
 </div>
 
-
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">收货商品清单</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-box">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>订单行号</th>
+                            <th>商品编码</th>
+                            <th>批号</th>
+                            <th>商品名</th>
+                            <th>通用名</th>
+                            <th>规格</th>
+                            <th>剂型</th>
+                            <th>生产企业</th>
+                            <th>采购数量</th>
+                            <th>收货数量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="pager" id="J_pager"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 <div class="footer">
@@ -272,6 +315,16 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<script>
+    $(".lookgoodlist").click(function(){
+        $("#myModal").modal();
+    });
+    $("#delete").click(function(){
+        alertModal("确定要删除吗？");
+    });
+</script>
 </html>
 
 
