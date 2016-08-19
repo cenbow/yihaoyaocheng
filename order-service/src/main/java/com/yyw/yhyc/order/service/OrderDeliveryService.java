@@ -630,7 +630,7 @@ public class OrderDeliveryService {
 		UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
 		OrderDelivery  orderDelivery = new OrderDelivery();
 		orderDelivery.setOrderId(orderException.getExceptionId());
-		orderDelivery.setFlowId(orderException.getFlowId());
+		orderDelivery.setFlowId(orderException.getExceptionOrderId());
 		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());//配送方式
 		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());//发货联系人或第三方物流公司名称
 		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());//第三该物流单号或发货联系人电话
