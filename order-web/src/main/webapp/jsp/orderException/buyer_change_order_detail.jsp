@@ -211,6 +211,8 @@
                     </thead>
                     <tbody>
                     <%--遍历该供应商的商品信息  开始--%>
+                    <input type="hidden" id="flowId" name="flowId" value="${orderExceptionDto.exceptionOrderId}"/>
+                    <input type="hidden" id="userType" name="userType" value="1"/>
                     <c:choose>
                         <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
                             <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
@@ -245,7 +247,7 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <div><a class="undeline lookgoodlist">已换货商品清单</a></div>
+                <div><a class="undeline" onclick="listReplenishment()">已换货商品清单</a></div>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p class="red">订单金额：￥${orderExceptionDto.orderMoney}元<p>
@@ -256,7 +258,7 @@
     </div>
 </div>
 
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog" style="width: 1000px;">
             <div class="modal-content">
                 <div class="modal-header">
@@ -264,7 +266,7 @@
                     <h4 class="modal-title" id="myModalLabel">收货商品清单</h4>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-box">
+                    <table class="table table-box2">
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 10%;">
@@ -317,6 +319,7 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
 <script>
     $(".lookgoodlist").click(function(){
         $("#myModal").modal();
