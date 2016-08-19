@@ -23,6 +23,7 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
@@ -604,11 +605,31 @@ public class OrderDeliveryService {
 		}
 
 		OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		if(UtilHelper.isEmpty(orderException)){
+			map.put("code", "0");
+			map.put("msg", "参数有误");
+			return map;
+		}
+		Order order =  orderMapper.getByPK(orderException.getOrderId());
+		if(UtilHelper.isEmpty(order)){
+			map.put("code", "0");
+			map.put("msg", "订单不存在");
+			return map;
+		}
+		OrderDelivery od = orderDeliveryMapper.getByFlowId(order.getFlowId());
+		if(UtilHelper.isEmpty(order)){
+			map.put("code", "0");
+			map.put("msg", "订单发货信息不存在");
+			return map;
+		}
+
 		orderDeliveryDto.setOrderId(orderException.getExceptionId());
 		String now = systemDateMapper.getSystemDate();
 		//生成发货信息
 		UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
 		OrderDelivery  orderDelivery = new OrderDelivery();
+		orderDelivery.setOrderId(orderException.getExceptionId());
+		orderDelivery.setFlowId(orderException.getFlowId());
 		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());//配送方式
 		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());//发货联系人或第三方物流公司名称
 		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());//第三该物流单号或发货联系人电话
@@ -618,8 +639,14 @@ public class OrderDeliveryService {
 		orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
 		orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
 		orderDelivery.setCreateTime(now);
+		orderDelivery.setReceivePerson(od.getDeliveryPerson());
+		orderDelivery.setReceiveAddress(od.getDeliveryAddress());
+		orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
 		orderDeliveryMapper.save(orderDelivery);
-
+		orderException.setUpdateTime(now);
+		orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+		orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerDelivered.getType());
+		orderExceptionMapper.update(orderException);
 		map.put("code","1");
 		map.put("msg", "发货成功。");
 		return map;

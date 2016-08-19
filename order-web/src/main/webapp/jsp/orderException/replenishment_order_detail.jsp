@@ -1,6 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
-<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -93,7 +91,7 @@
 
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">卖家确认/关闭时间</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.updateTime}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.reviewTime}</div>
                             <label for="scope" class="col-xs-2 control-label">确认/关闭说明</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
                         </div>

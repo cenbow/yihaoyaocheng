@@ -467,7 +467,7 @@ public class OrderExceptionController extends BaseJsonController{
 		orderExceptionDto.setExceptionId(exceptionId);
 //		UserDto user = super.getLoginUser();
 //		orderExceptionDto.setSupplyId(user.getCustId());
-		orderExceptionDto = orderExceptionService.getReturnOrderDetails(orderExceptionDto,2);
+		orderExceptionDto = orderExceptionService.getReturnOrderDetails(orderExceptionDto, 2);
 		model.addObject("orderExceptionDto",orderExceptionDto);
 		model.setViewName("orderException/seller_order_return_detail");
 		return model;
@@ -534,6 +534,37 @@ public class OrderExceptionController extends BaseJsonController{
 	public void repConfirmReceipt(String exceptionOrderId){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.repConfirmReceipt(exceptionOrderId, userDto);
+	}
+
+	/**
+	 * 供应商审核补货订单页
+	 * @param flowId 原始订单编号
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getReviewReplenishmentDetails/{flowId}", method = RequestMethod.GET)
+	public ModelAndView getReviewReplenishmentDetails(@PathVariable("flowId")String flowId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setUserType(3);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto.setFlowId(flowId);
+		orderExceptionDto = orderExceptionService.getReplenishmentDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_replenishment_order");
+		return modelAndView;
+	}
+
+	/**
+	 * 供应商审核拒收订单
+	 * @return
+	 */
+	@RequestMapping(value = "/sellerReviewReplenishmentOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public void sellerReviewReplenishmentOrder(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.updateReviewReplenishmentOrderStatusForSeller(userDto, orderException);
 	}
 }
 

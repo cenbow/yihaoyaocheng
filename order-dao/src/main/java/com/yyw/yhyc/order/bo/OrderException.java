@@ -127,6 +127,22 @@ public class OrderException extends Model{
 	private java.lang.String receiveTime;
 
 	/**
+	 * 买家发货时间（换货）
+	 */
+	private java.lang.String buyerDeliverTime;
+
+	/**
+	 * 卖家收货时间（换货）
+	 */
+	private java.lang.String sellerReceiveTime;
+
+	/**
+	 * 审核时间
+	 */
+	private java.lang.String reviewTime;
+
+
+	/**
 	 *
 	 */
 	public java.lang.Integer getExceptionId()
@@ -450,6 +466,30 @@ public class OrderException extends Model{
 		this.receiveTime = receiveTime;
 	}
 
+	public String getBuyerDeliverTime() {
+		return buyerDeliverTime;
+	}
+
+	public void setBuyerDeliverTime(String buyerDeliverTime) {
+		this.buyerDeliverTime = buyerDeliverTime;
+	}
+
+	public String getSellerReceiveTime() {
+		return sellerReceiveTime;
+	}
+
+	public void setSellerReceiveTime(String sellerReceiveTime) {
+		this.sellerReceiveTime = sellerReceiveTime;
+	}
+
+	public String getReviewTime() {
+		return reviewTime;
+	}
+
+	public void setReviewTime(String reviewTime) {
+		this.reviewTime = reviewTime;
+	}
+
 	public String toString()
 	{
 		return "OrderException [" +
@@ -474,6 +514,9 @@ public class OrderException extends Model{
 				", returnDesc=" + returnDesc +
 				", deliverTime=" + deliverTime +
 				", receiveTime=" + receiveTime +
+				", buyerDeliverTime=" + buyerDeliverTime +
+				", sellerReceiveTime=" + sellerReceiveTime +
+				", reviewTime=" + reviewTime +
 				"]";
 	}
 }
