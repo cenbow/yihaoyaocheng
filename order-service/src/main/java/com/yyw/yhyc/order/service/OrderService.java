@@ -1343,12 +1343,12 @@ public class OrderService {
 	}
 
 	/**
-	 * 拒收订单卖家审核通过生成结算记录
+	 * 当账期订单生成时生成结算数据
 	 * @param userDto
 	 * @param orderId
 	 * @throws Exception
 	 */
-	private void saveRefuseOrderSettlement(UserDto userDto,Integer orderId){
+	private void savePaymentDateSettlement(UserDto userDto,Integer orderId){
 		Order order = orderMapper.getByPK(orderId);
 		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(userDto)){
 			throw new RuntimeException("未找到订单");
