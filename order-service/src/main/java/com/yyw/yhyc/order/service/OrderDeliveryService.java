@@ -655,7 +655,7 @@ public class OrderDeliveryService {
 
 
 	/**
-	 * 退货，买家确认发货
+	 * 换货，买家确认发货
 	 * @param orderDeliveryDto
 	 * @return
 	 * @throws Exception
