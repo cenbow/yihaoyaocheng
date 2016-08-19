@@ -581,7 +581,7 @@ public class OrderDeliveryService {
 	 * @throws Exception
 	 */
 
-	public Map sendOrderDeliveryForRefund(OrderDeliveryDto orderDeliveryDto) throws Exception{
+	public Map updateOrderDeliveryForRefund(OrderDeliveryDto orderDeliveryDto) throws Exception{
 		Map<String,String> map=new HashMap<String, String>();
 		if(UtilHelper.isEmpty(orderDeliveryDto)){
 			map.put("code", "0");

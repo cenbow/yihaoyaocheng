@@ -254,7 +254,7 @@ public class OrderExceptionService {
 
 		if(UtilHelper.isEmpty(orderExceptionDto))
 			throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
@@ -271,10 +271,10 @@ public class OrderExceptionService {
 		int orderCount = 0;
 		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerExceptionOrderTotal(orderExceptionDto);
 
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerRejectOrder(pagination, orderExceptionDto);
-		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
+		log.info("orderExceptionDtoList:" + orderExceptionDtoList);
 
 
 		BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum;
@@ -312,7 +312,7 @@ public class OrderExceptionService {
 		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
 		resultMap.put("rejectOrderList", pagination);
 		resultMap.put("rejectOrderCount", orderCount);
-		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
@@ -487,7 +487,7 @@ public class OrderExceptionService {
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
-			orderExceptionDto.setOrderStatusName(getSellerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
+			orderExceptionDto.setOrderStatusName(getSellerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
 		}
 		return orderExceptionDto;
 	}
@@ -614,7 +614,7 @@ public class OrderExceptionService {
 
 		if(UtilHelper.isEmpty(orderExceptionDto))
 			throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
@@ -628,7 +628,7 @@ public class OrderExceptionService {
 		}
 		int orderCount = 0;
 		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerChangeGoodsExceptionOrderTotal(orderExceptionDto);
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPgBuyerChangeGoodsOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
@@ -665,7 +665,7 @@ public class OrderExceptionService {
 		resultMap.put("rejectOrderStatusCount", orderStatusCountMap);
 		resultMap.put("rejectOrderList", pagination);
 		resultMap.put("rejectOrderCount", orderCount);
-		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("rejectOrderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
@@ -996,7 +996,7 @@ public class OrderExceptionService {
 		if(!UtilHelper.isEmpty(orderExceptionDtoList)){
 			orderCount = pagination.getTotal();
 			for(OrderExceptionDto oed : orderExceptionDtoList){
-				sellerOrderExceptionStatusEnum = getSellerChangeGoodsOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+				sellerOrderExceptionStatusEnum = getSellerChangeGoodsOrderExceptionStatus(oed.getOrderStatus(), oed.getPayType());
 				if(!UtilHelper.isEmpty(sellerOrderExceptionStatusEnum))
 					oed.setOrderStatusName(sellerOrderExceptionStatusEnum.getValue());
 				else
@@ -1010,7 +1010,7 @@ public class OrderExceptionService {
 		if (!UtilHelper.isEmpty(orderExceptionDtos)) {
 			for (OrderExceptionDto oed : orderExceptionDtos) {
 				//卖家视角订单状态数量
-				sellerOrderExceptionStatusEnum = getSellerChangeGoodsOrderExceptionStatus(oed.getOrderStatus(),oed.getPayType());
+				sellerOrderExceptionStatusEnum = getSellerChangeGoodsOrderExceptionStatus(oed.getOrderStatus(), oed.getPayType());
 				if(sellerOrderExceptionStatusEnum != null){
 					if(orderStatusCountMap.containsKey(sellerOrderExceptionStatusEnum.getType())){
 						orderStatusCountMap.put(sellerOrderExceptionStatusEnum.getType(),orderStatusCountMap.get(sellerOrderExceptionStatusEnum.getType())+oed.getOrderCount());
@@ -1407,4 +1407,41 @@ public class OrderExceptionService {
 		}
 	}
 
+	/**
+	 * 退货订单确认收货
+	 * @param exceptionOrderId
+	 * @param userDto
+	 */
+	public void editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto){
+		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
+		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getCustId()) {
+			log.info("订单不存在，编号为：" + exceptionOrderId);
+			throw new RuntimeException("未找到订单");
+		}
+		if(SystemRefundOrderStatusEnum.BuyerDelivered.getType().equals(orderException.getOrderStatus())){//买家已发货
+			orderException.setOrderStatus(SystemRefundOrderStatusEnum.SellerReceived.getType());
+			String now = systemDateMapper.getSystemDate();
+			orderException.setUpdateUser(userDto.getUserName());
+			orderException.setUpdateTime(now);
+			int count = orderExceptionMapper.update(orderException);
+			if (count == 0) {
+				log.info("orderException info :" + orderException);
+				throw new RuntimeException("订单收货失败");
+			}
+			//插入日志表
+			OrderTrace orderTrace = new OrderTrace();
+			orderTrace.setOrderId(orderException.getExceptionId());
+			orderTrace.setNodeName("退货订单收货");
+			orderTrace.setDealStaff(userDto.getUserName());
+			orderTrace.setRecordDate(now);
+			orderTrace.setRecordStaff(userDto.getUserName());
+			orderTrace.setOrderStatus(orderException.getOrderStatus());
+			orderTrace.setCreateTime(now);
+			orderTrace.setCreateUser(userDto.getUserName());
+			orderTraceMapper.save(orderTrace);
+		}else{
+			log.info("订单不存在，编号为：" + exceptionOrderId);
+			throw new RuntimeException("当前订单状态不能进行收货!");
+		}
+	}
 }
