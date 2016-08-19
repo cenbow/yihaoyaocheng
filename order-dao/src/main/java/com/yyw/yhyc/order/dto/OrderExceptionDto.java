@@ -27,6 +27,7 @@ public class OrderExceptionDto extends OrderException {
     private String importFileUrl;                          //导入文件url
     private String fileName;                                //文件名称
 
+    private List<OrderDelivery> orderDeliveryList;        //异常订单的发货信息
 
     /* 商品总金额 */
     private BigDecimal productPriceCount;
@@ -261,6 +262,14 @@ public class OrderExceptionDto extends OrderException {
         this.fileName = fileName;
     }
 
+    public List<OrderDelivery> getOrderDeliveryList() {
+        return orderDeliveryList;
+    }
+
+    public void setOrderDeliveryList(List<OrderDelivery> orderDeliveryList) {
+        this.orderDeliveryList = orderDeliveryList;
+    }
+
     @Override
     public String toString() {
         return "OrderExceptionDto{" +
@@ -289,6 +298,7 @@ public class OrderExceptionDto extends OrderException {
                 ", importStatusName=" + importStatusName +
                 ", importFileUrl=" + importFileUrl +
                 ", fileName=" + fileName +
+                ", orderDeliveryList=" + orderDeliveryList +
                 '}';
     }
 }

@@ -1625,4 +1625,30 @@
 		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
 	</select>
 
+	<!--换货订单详情-->
+	<resultMap id="changeGoodsOrderDetailsResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+		<result column="bill_type" property="billType"/>
+		<association property="orderDelivery" column="flow_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+		<collection property="orderDeliveryList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getOrderDeliveryByFlowId"/>
+		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
+	</resultMap>
+
+	<select id="getChangeGoodsOrderDetails" parameterType="OrderExceptionDto"  resultMap="changeGoodsOrderDetailsResultMap">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
+		FROM
+		t_order_exception T1
+		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
+		LEFT JOIN t_system_pay_type T3 ON T2.pay_type_id = T3.pay_type_id
+		WHERE T1.exception_order_id=#{exceptionOrderId}
+		<if test="custId!= null and custId!= ''">
+			AND T1.cust_Id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND T1.supply_id=#{supplyId}
+		</if>
+	</select>
+
 </mapper>

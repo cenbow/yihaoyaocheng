@@ -1549,4 +1549,37 @@ public class OrderExceptionService {
 			throw new RuntimeException("当前订单状态不能进行收货!");
 		}
 	}
+
+	/**
+	 * 采购商换货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getBuyerChangeGoodsOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		orderExceptionDto = orderExceptionMapper.getChangeGoodsOrderDetails(orderExceptionDto);
+		if(UtilHelper.isEmpty(orderExceptionDto)) {
+			return orderExceptionDto;
+		}
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+		BuyerChangeGoodsOrderStatusEnum buyerChangeGoodsOrderStatusEnum;
+		buyerChangeGoodsOrderStatusEnum = getBuyerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+		if(!UtilHelper.isEmpty(buyerChangeGoodsOrderStatusEnum))
+			orderExceptionDto.setOrderStatusName(buyerChangeGoodsOrderStatusEnum.getValue());
+		else
+			orderExceptionDto.setOrderStatusName("未知状态");
+
+		/* 计算商品总额 */
+		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+					continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		return orderExceptionDto;
+	}
 }

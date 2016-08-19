@@ -576,6 +576,24 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.editConfirmReceiptReturn(exceptionOrderId, userDto);
 	}
+
+	/**
+	 * 采购商换货订单详情
+	 * @param exceptionId 异常订单编号
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/buyerChangeGoodsOrderDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView buyerChangeGoodsOrderDetails(@PathVariable("exceptionId")String exceptionId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionId);
+		orderExceptionDto = orderExceptionService.getBuyerChangeGoodsOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/buyer_change_order_detail");
+		return modelAndView;
+	}
 }
 
 
