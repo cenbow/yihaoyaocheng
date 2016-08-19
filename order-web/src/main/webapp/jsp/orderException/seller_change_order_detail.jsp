@@ -203,8 +203,6 @@
                     </thead>
                     <tbody>
                     <%--遍历该供应商的商品信息  开始--%>
-                    <input type="hidden" id="flowId" name="flowId" value="${orderExceptionDto.exceptionOrderId}"/>
-                    <input type="hidden" id="userType" name="userType" value="1"/>
                     <c:choose>
                         <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
                             <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
