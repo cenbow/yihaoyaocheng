@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
@@ -629,7 +630,7 @@ public class OrderDeliveryService {
 		UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
 		OrderDelivery  orderDelivery = new OrderDelivery();
 		orderDelivery.setOrderId(orderException.getExceptionId());
-		orderDelivery.setFlowId(orderException.getFlowId());
+		orderDelivery.setFlowId(orderException.getExceptionOrderId());
 		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());//配送方式
 		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());//发货联系人或第三方物流公司名称
 		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());//第三该物流单号或发货联系人电话
@@ -651,4 +652,86 @@ public class OrderDeliveryService {
 		map.put("msg", "发货成功。");
 		return map;
 	}
+
+
+	/**
+	 * 退货，买家确认发货
+	 * @param orderDeliveryDto
+	 * @return
+	 * @throws Exception
+	 */
+
+	public Map updateOrderDeliveryForChange(OrderDeliveryDto orderDeliveryDto) throws Exception{
+		Map<String,String> map=new HashMap<String, String>();
+		if(UtilHelper.isEmpty(orderDeliveryDto)){
+			map.put("code", "0");
+			map.put("msg", "发货信息不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getFlowId())){
+			map.put("code", "0");
+			map.put("msg", "订单id不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getReceiverAddressId())){
+			map.put("code", "0");
+			map.put("msg", "发货地址不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getDeliveryMethod())){
+			map.put("code", "0");
+			map.put("msg", "配送方式不能为空");
+			return map;
+		}
+
+		OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		if(UtilHelper.isEmpty(orderException)){
+			map.put("code", "0");
+			map.put("msg", "参数有误");
+			return map;
+		}
+		Order order =  orderMapper.getByPK(orderException.getOrderId());
+		if(UtilHelper.isEmpty(order)){
+			map.put("code", "0");
+			map.put("msg", "订单不存在");
+			return map;
+		}
+		OrderDelivery od = orderDeliveryMapper.getByFlowId(order.getFlowId());
+		if(UtilHelper.isEmpty(order)){
+			map.put("code", "0");
+			map.put("msg", "订单发货信息不存在");
+			return map;
+		}
+
+		orderDeliveryDto.setOrderId(orderException.getExceptionId());
+		String now = systemDateMapper.getSystemDate();
+		//生成发货信息
+		UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
+		OrderDelivery  orderDelivery = new OrderDelivery();
+		orderDelivery.setOrderId(orderException.getExceptionId());
+		orderDelivery.setFlowId(orderException.getExceptionOrderId());
+		orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());//配送方式
+		orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());//发货联系人或第三方物流公司名称
+		orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());//第三该物流单号或发货联系人电话
+		orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());//预计送达时间
+		orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+		orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+		orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+		orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+		orderDelivery.setCreateTime(now);
+		orderDelivery.setReceivePerson(od.getDeliveryPerson());
+		orderDelivery.setReceiveAddress(od.getDeliveryAddress());
+		orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
+		orderDeliveryMapper.save(orderDelivery);
+		orderException.setUpdateTime(now);
+		orderException.setBuyerDeliverTime(now);
+		orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+		orderException.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingSellerReceived.getType());
+		orderExceptionMapper.update(orderException);
+		map.put("code","1");
+		map.put("msg", "发货成功。");
+		return map;
+	}
+
+
 }

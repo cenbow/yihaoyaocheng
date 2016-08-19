@@ -28,6 +28,7 @@ public class OrderExceptionDto extends OrderException {
     private String fileName;                                //文件名称
     private List<OrderDelivery> orderDeliverys;            //订单发货信息list
 
+    private List<OrderDelivery> orderDeliveryList;        //异常订单的发货信息
 
     /* 商品总金额 */
     private BigDecimal productPriceCount;
@@ -262,6 +263,14 @@ public class OrderExceptionDto extends OrderException {
         this.fileName = fileName;
     }
 
+    public List<OrderDelivery> getOrderDeliveryList() {
+        return orderDeliveryList;
+    }
+
+    public void setOrderDeliveryList(List<OrderDelivery> orderDeliveryList) {
+        this.orderDeliveryList = orderDeliveryList;
+    }
+
     public List<OrderDelivery> getOrderDeliverys() {
         return orderDeliverys;
     }
@@ -299,6 +308,12 @@ public class OrderExceptionDto extends OrderException {
                 ", orderCount=" + orderCount +
                 ", waitingConfirmCount=" + waitingConfirmCount +
                 ", refundingCount=" + refundingCount +
+                ", billType=" + billType +
+                ", billTypeName=" + billTypeName +
+                ", importStatusName=" + importStatusName +
+                ", importFileUrl=" + importFileUrl +
+                ", fileName=" + fileName +
+                ", orderDeliveryList=" + orderDeliveryList +
                 '}';
     }
 }

@@ -304,4 +304,10 @@
 		FROM t_order_delivery WHERE flow_id = #{flowId}
 	</select>
 
+	<select id="getOrderDeliveryByFlowId" parameterType="java.lang.String" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE flow_id = #{flowId} ORDER BY delivery_id ASC
+	</select>
+
 </mapper>
