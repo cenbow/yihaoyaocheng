@@ -15,12 +15,12 @@ import java.text.ParseException;
 import java.util.*;
 
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
-import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
@@ -42,6 +42,8 @@ public class OrderExceptionService {
 	private OrderMapper	orderMapper;
 	private OrderTraceMapper orderTraceMapper;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
+	@Autowired
+	private OrderDeliveryMapper orderDeliveryMapper;
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
@@ -1545,5 +1547,40 @@ public class OrderExceptionService {
 			log.info("订单不存在，编号为：" + exceptionOrderId);
 			throw new RuntimeException("当前订单状态不能进行收货!");
 		}
+	}
+
+	/**
+	 * 补货订单订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getSellerChangeGoodsOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		orderExceptionDto.setReturnType("2");
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+		if(UtilHelper.isEmpty(orderExceptionDto)) {
+			return orderExceptionDto;
+		}
+		orderExceptionDto.setOrderStatusName(SellerChangeGoodsOrderStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+		/* 计算商品总额 */
+		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+					continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		if(!UtilHelper.isEmpty(orderExceptionDto.getExceptionOrderId())) {
+			OrderDelivery orderDelivery = new OrderDelivery();
+			orderDelivery.setFlowId(orderExceptionDto.getExceptionOrderId());
+			List<OrderDelivery> orderDeliveries = orderDeliveryMapper.listByProperty(orderDelivery);
+			orderExceptionDto.setOrderDeliverys(orderDeliveries);
+		}
+
+		return orderExceptionDto;
 	}
 }
