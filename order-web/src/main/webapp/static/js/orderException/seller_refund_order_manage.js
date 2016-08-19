@@ -228,7 +228,6 @@ function fillTableJson(data) {
         tr += "</tr>";
         trs += tr;
     }
-    console.info(trs);
     $(".table-box tbody").append(trs);
     changeColor();
 }
@@ -242,10 +241,65 @@ function createOperation(order){
     if(order.orderStatus == '1')
         str += '<a href="#" class="btn btn-info btn-sm margin-r-10">审核</a>';
     if(order.orderStatus == '5')
-        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+        str += '<a href="javascript:showReturnList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
     return str;
 }
 
+function showReturnList (exceptionOrderId){
+    $("#myConfirmReturn").modal("show");
+    //TODO  请求数据
+    var requestUrl = ctx+"/orderException/listPgSellerRefundOrderReturn";
+    var param = {"exceptionOrderId":exceptionOrderId};
+    console.info(param);
+    return ;
+    $.ajax({
+        url: requestUrl,
+        data: JSON.stringify(requestParam),
+        type: 'POST',
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if(data.statusCode || data.message){
+                alertModal(data.message);
+                return;
+            }
+            //设置订单数量
+            setOrderCount(data.orderStatusCount);
+            //填充表格数据
+            fillTableJson(data.orderList);
+            //设置分页组件参数
+            // fillPagerUtil(data,requestParam);
+            var totalpage = data.orderList.totalPage;
+            var nowpage = data.orderList.pageNo;
+            var totalCount = data.orderList.total;
+            dataList = data.orderList.resultList;
+            $("#orderTotalMoney").html("&yen" + fmoney(data.orderTotalMoney,2));
+            $("#orderCount").html(data.orderCount);
+            $("#J_pager").attr("current", nowpage);
+            $("#J_pager").attr("total", totalpage);
+            $("#J_pager").attr("url", requestUrl);
+            $("#J_pager").pager({
+                data: requestParam,
+                requestType: "post",
+                asyn: 1,
+                contentType: 'application/json;charset=UTF-8',
+                callback: function (data, index) {
+                    console.info(data);
+                    var nowpage = data.orderList.page;
+                    $("#nowpageedit").val(nowpage);
+                    fillTableJson(data.orderList);
+                }
+            });
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    });
+}
+
+function fillReturnTable(){
+
+}
 
 /**
  * 获取最近n天日期
