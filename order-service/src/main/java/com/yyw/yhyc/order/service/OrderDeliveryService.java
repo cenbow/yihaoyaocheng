@@ -23,6 +23,7 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
@@ -642,7 +643,10 @@ public class OrderDeliveryService {
 		orderDelivery.setReceiveAddress(od.getDeliveryAddress());
 		orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
 		orderDeliveryMapper.save(orderDelivery);
-
+		orderException.setUpdateTime(now);
+		orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+		orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerDelivered.getType());
+		orderExceptionMapper.update(orderException);
 		map.put("code","1");
 		map.put("msg", "发货成功。");
 		return map;
