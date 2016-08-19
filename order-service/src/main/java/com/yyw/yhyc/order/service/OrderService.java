@@ -418,6 +418,8 @@ public class OrderService {
 
 				Order orderNew = createOrderInfo(orderDto,orderDelivery,userDto,payFlowId);
 				if(!UtilHelper.isEmpty(orderNew)){
+					/* 账期订单生成结算数据 */
+					savePaymentDateSettlement(userDto,orderNew.getOrderId());
 					orderNewList.add(orderNew);
 				}
 			}
