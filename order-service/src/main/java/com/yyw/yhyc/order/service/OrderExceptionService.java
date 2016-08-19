@@ -229,6 +229,7 @@ public class OrderExceptionService {
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
 		orderSettlement.setBusinessType(2);
+		orderSettlement.setOrderId(orderException.getExceptionId());
 		orderSettlement.setFlowId(orderException.getExceptionOrderId());
 		orderSettlement.setCustId(orderException.getCustId());
 		orderSettlement.setCustName(orderException.getCustName());
@@ -731,7 +732,7 @@ public class OrderExceptionService {
 
 		if(UtilHelper.isEmpty(orderExceptionDto))
 			throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
@@ -748,7 +749,7 @@ public class OrderExceptionService {
 		int orderCount = 0;
 		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerReplenishmentOrderTotal(orderExceptionDto);
 
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerReplenishmentOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
@@ -784,12 +785,12 @@ public class OrderExceptionService {
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 
 		resultMap.put("orderStatusCount", orderStatusCountMap);
 		resultMap.put("orderList", pagination);
 		resultMap.put("orderCount", orderCount);
-		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
@@ -902,7 +903,7 @@ public class OrderExceptionService {
 
 		/* 非法参数过滤 */
 		if(UtilHelper.isEmpty(pagination) || UtilHelper.isEmpty(orderExceptionDto)) throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 
 		/* 转换日期查询条件 */
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){

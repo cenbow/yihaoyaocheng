@@ -1341,4 +1341,35 @@ public class OrderService {
 		}
 		return re;
 	}
+
+	/**
+	 * 拒收订单卖家审核通过生成结算记录
+	 * @param userDto
+	 * @param orderId
+	 * @throws Exception
+	 */
+	private void saveRefuseOrderSettlement(UserDto userDto,Integer orderId){
+		Order order = orderMapper.getByPK(orderId);
+		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(userDto)){
+			throw new RuntimeException("未找到订单");
+		}
+		String now = systemDateMapper.getSystemDate();
+		OrderSettlement orderSettlement = new OrderSettlement();
+		orderSettlement.setBusinessType(1);
+		orderSettlement.setOrderId(orderId);
+		orderSettlement.setFlowId(order.getFlowId());
+		orderSettlement.setCustId(order.getCustId());
+		orderSettlement.setCustName(order.getCustName());
+		orderSettlement.setSupplyId(order.getSupplyId());
+		orderSettlement.setSupplyName(order.getSupplyName());
+		orderSettlement.setConfirmSettlement("0");
+		orderSettlement.setPayTypeId(order.getPayTypeId());
+		orderSettlement.setSettlementTime(now);
+		orderSettlement.setCreateUser(userDto.getCustName());
+		orderSettlement.setCreateTime(now);
+		orderSettlement.setOrderTime(order.getCreateTime());
+		orderSettlement.setSettlementMoney(order.getOrgTotal());
+		orderSettlement.setRefunSettlementMoney(order.getOrgTotal());
+		orderSettlementMapper.save(orderSettlement);
+	}
 }
