@@ -172,7 +172,6 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
-                    console.info(data);
                     var nowpage = data.orderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.orderList);
@@ -291,11 +290,8 @@ function fillReturnTable(list){
 
 function  confirmSaleReturn() {
 
-    alert(1111);
     var requestUrl = ctx+"/orderException/editConfirmReceiptReturn";
-    console.info(requestUrl);
     var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
-    console.info(data);
    $.ajax({
         url: requestUrl,
         type: 'POST',
