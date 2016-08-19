@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
  * Created by zhangqiang on 2016/8/5.
  * 获取用户信息拦截
  */
-@Component
 public class GetUserInteceptor extends HandlerInterceptorAdapter {
     Logger log = LoggerFactory.getLogger(GetUserInteceptor.class);
 
