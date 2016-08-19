@@ -25,9 +25,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = "/order/shoppingCart")
+@RequestMapping(value = "/shoppingCart")
 public class ShoppingCartController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
@@ -90,5 +91,12 @@ public class ShoppingCartController extends BaseJsonController {
 	public void update(ShoppingCart shoppingCart) throws Exception
 	{
 		shoppingCartService.update(shoppingCart);
+	}
+
+	@RequestMapping(value = "/index", method = RequestMethod.GET)
+	public ModelAndView index() throws Exception {
+		ModelAndView model = new ModelAndView();
+		model.setViewName("shoppingCart/index");
+		return model;
 	}
 }
