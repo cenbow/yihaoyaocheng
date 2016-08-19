@@ -6,18 +6,13 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<context:component-scan base-package="com.yyw.yhyc"/>
-
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<!-- 密钥存放位置，由运维告知 测试 生产环境开启-->
-				<value>classpath*:jdbc.properties</value>
-			</list>
-		</property>
-	</bean>
+	<!-- 启用spring mvc 注解 -->
+	<context:annotation-config />
+	<!-- 设置使用注解的类所在的jar包 -->
+	<context:component-scan base-package="com.yyw.yhyc.order.controller"/>
 
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	<!-- 完成请求和注解POJO的映射 -->
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:prefix="/jsp/" p:suffix=".jsp" />
 	<mvc:annotation-driven>
@@ -46,30 +41,5 @@
 
 	<!-- 静态资源映射 -->
 	<mvc:resources mapping="/static/**" location="/static/"/>
-
-
-	<!-- mvc 拦截器 -->
-	<mvc:interceptors>
-		<!-- 登录拦截 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
-		</mvc:interceptor>
-
-		<!-- 获取用户信息 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<ref bean="getUserInteceptor"/>
-		</mvc:interceptor>
-
-		<!-- 配置Token拦截器，防止用户重复提交数据 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/**"/>
-			<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>
-		</mvc:interceptor>
-	</mvc:interceptors>
-
-	<import resource="spring-dataSource.xml"/>
-	<import resource="dubbo-consumer.xml"/>
 
 </beans>

@@ -6,16 +6,10 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<context:component-scan base-package="com.yyw.yhyc"/>
-
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<!-- 密钥存放位置，由运维告知 测试 生产环境开启-->
-				<value>classpath*:jdbc.properties</value>
-			</list>
-		</property>
-	</bean>
+	<!-- 启用spring mvc 注解 -->
+	<context:annotation-config />
+	<!-- 设置使用注解的类所在的jar包 -->
+	<context:component-scan base-package="com.yyw.yhyc.order.controller"/>
 
 	<mvc:annotation-driven>
 		<mvc:message-converters register-defaults="true">
@@ -35,8 +29,5 @@
 		<!-- 指定所上传文件的总大小不能超过200000KB。注意maxUploadSize属性的限制不是针对单个文件，而是一次上传所有文件的容量之和 -->
 		<property name="maxUploadSize" value="20480000" />
 	</bean>
-
-	<import resource="spring-dataSource.xml"/>
-	<import resource="dubbo-consumer.xml"/>
 
 </beans>
