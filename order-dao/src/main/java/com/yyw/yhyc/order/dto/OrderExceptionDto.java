@@ -26,7 +26,9 @@ public class OrderExceptionDto extends OrderException {
     private String importStatusName;                       //导入状态名称
     private String importFileUrl;                          //导入文件url
     private String fileName;                                //文件名称
+    private List<OrderDelivery> orderDeliverys;            //订单发货信息list
 
+    private List<OrderDelivery> orderDeliveryList;        //异常订单的发货信息
 
     /* 商品总金额 */
     private BigDecimal productPriceCount;
@@ -261,6 +263,22 @@ public class OrderExceptionDto extends OrderException {
         this.fileName = fileName;
     }
 
+    public List<OrderDelivery> getOrderDeliveryList() {
+        return orderDeliveryList;
+    }
+
+    public void setOrderDeliveryList(List<OrderDelivery> orderDeliveryList) {
+        this.orderDeliveryList = orderDeliveryList;
+    }
+
+    public List<OrderDelivery> getOrderDeliverys() {
+        return orderDeliverys;
+    }
+
+    public void setOrderDeliverys(List<OrderDelivery> orderDeliverys) {
+        this.orderDeliverys = orderDeliverys;
+    }
+
     @Override
     public String toString() {
         return "OrderExceptionDto{" +
@@ -270,6 +288,12 @@ public class OrderExceptionDto extends OrderException {
                 ", orderDelivery=" + orderDelivery +
                 ", usermanageEnterprise=" + usermanageEnterprise +
                 ", userType=" + userType +
+                ", billType=" + billType +
+                ", billTypeName='" + billTypeName + '\'' +
+                ", importStatusName='" + importStatusName + '\'' +
+                ", importFileUrl='" + importFileUrl + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", orderDeliverys=" + orderDeliverys +
                 ", productPriceCount=" + productPriceCount +
                 ", orderPriceCount=" + orderPriceCount +
                 ", orderStatusName='" + orderStatusName + '\'' +
@@ -289,6 +313,7 @@ public class OrderExceptionDto extends OrderException {
                 ", importStatusName=" + importStatusName +
                 ", importFileUrl=" + importFileUrl +
                 ", fileName=" + fileName +
+                ", orderDeliveryList=" + orderDeliveryList +
                 '}';
     }
 }

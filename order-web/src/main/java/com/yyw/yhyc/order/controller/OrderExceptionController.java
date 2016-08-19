@@ -338,7 +338,7 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		orderDto.setCustId(userDto.getCustId());
+		orderDto.setSupplyId(userDto.getCustId());
 		return orderExceptionService.listPgSellerChangeGoodsOrder(pagination, orderDto);
 	}
 
@@ -578,6 +578,43 @@ public class OrderExceptionController extends BaseJsonController{
 		userDto.setCustId(2222);
 		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;
+	}
+
+	/**
+	 * 供应商换货订单详情
+	 * @param exceptionOrderId 原始订单编号
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/sellerChangeGoodsOrderDetails/{exceptionOrderId}", method = RequestMethod.GET)
+	public ModelAndView sellerChangeGoodsOrderDetails(@PathVariable("exceptionOrderId")String exceptionOrderId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionOrderId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getSellerChangeGoodsOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto", orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_change_order_detail");
+		return modelAndView;
+	}
+
+	/**
+	 * 采购商换货订单详情
+	 * @param exceptionId 异常订单编号
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/buyerChangeGoodsOrderDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView buyerChangeGoodsOrderDetails(@PathVariable("exceptionId")String exceptionId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionOrderId(exceptionId);
+		orderExceptionDto = orderExceptionService.getBuyerChangeGoodsOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/buyer_change_order_detail");
+		return modelAndView;
 	}
 }
 

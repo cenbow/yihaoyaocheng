@@ -159,7 +159,7 @@ function fillTableJson(data) {
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/sellerChangeGoodsOrderDetails/" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";

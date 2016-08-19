@@ -15,12 +15,12 @@ import java.text.ParseException;
 import java.util.*;
 
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
-import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
@@ -42,6 +42,8 @@ public class OrderExceptionService {
 	private OrderMapper	orderMapper;
 	private OrderTraceMapper orderTraceMapper;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
+	@Autowired
+	private OrderDeliveryMapper orderDeliveryMapper;
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
@@ -227,6 +229,7 @@ public class OrderExceptionService {
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
 		orderSettlement.setBusinessType(2);
+		orderSettlement.setOrderId(orderException.getExceptionId());
 		orderSettlement.setFlowId(orderException.getExceptionOrderId());
 		orderSettlement.setCustId(orderException.getCustId());
 		orderSettlement.setCustName(orderException.getCustName());
@@ -526,6 +529,7 @@ public class OrderExceptionService {
 		oe.setOrderStatus(orderException.getOrderStatus());
 		oe.setUpdateUser(userDto.getUserName());
 		oe.setUpdateTime(now);
+		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
 			log.error("OrderException info :"+oe);
@@ -583,6 +587,7 @@ public class OrderExceptionService {
 		oe.setOrderStatus(orderException.getOrderStatus());
 		oe.setUpdateUser(userDto.getUserName());
 		oe.setUpdateTime(now);
+		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
 			log.error("OrderException info :"+oe);
@@ -727,7 +732,7 @@ public class OrderExceptionService {
 
 		if(UtilHelper.isEmpty(orderExceptionDto))
 			throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
@@ -744,7 +749,7 @@ public class OrderExceptionService {
 		int orderCount = 0;
 		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerReplenishmentOrderTotal(orderExceptionDto);
 
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerReplenishmentOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
@@ -780,12 +785,12 @@ public class OrderExceptionService {
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 
 		resultMap.put("orderStatusCount", orderStatusCountMap);
 		resultMap.put("orderList", pagination);
 		resultMap.put("orderCount", orderCount);
-		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
@@ -860,6 +865,7 @@ public class OrderExceptionService {
 		oe.setOrderStatus(orderException.getOrderStatus());
 		oe.setUpdateUser(userDto.getUserName());
 		oe.setUpdateTime(now);
+		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
 			log.error("OrderException info :"+oe);
@@ -897,7 +903,7 @@ public class OrderExceptionService {
 
 		/* 非法参数过滤 */
 		if(UtilHelper.isEmpty(pagination) || UtilHelper.isEmpty(orderExceptionDto)) throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 
 		/* 转换日期查询条件 */
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
@@ -1548,5 +1554,73 @@ public class OrderExceptionService {
 			throw new RuntimeException("当前订单状态不能进行收货!");
 		}
 		return  msg;
+	}
+
+	/**
+	 * 采购商换货订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getBuyerChangeGoodsOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		orderExceptionDto = orderExceptionMapper.getChangeGoodsOrderDetails(orderExceptionDto);
+		if(UtilHelper.isEmpty(orderExceptionDto)) {
+			return orderExceptionDto;
+		}
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+		BuyerChangeGoodsOrderStatusEnum buyerChangeGoodsOrderStatusEnum;
+		buyerChangeGoodsOrderStatusEnum = getBuyerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+		if(!UtilHelper.isEmpty(buyerChangeGoodsOrderStatusEnum))
+			orderExceptionDto.setOrderStatusName(buyerChangeGoodsOrderStatusEnum.getValue());
+		else
+			orderExceptionDto.setOrderStatusName("未知状态");
+
+		/* 计算商品总额 */
+		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+					continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		return orderExceptionDto;
+	}
+
+	/**
+	 * 补货订单订单详情
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getSellerChangeGoodsOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		orderExceptionDto.setReturnType("2");
+		orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+		if(UtilHelper.isEmpty(orderExceptionDto)) {
+			return orderExceptionDto;
+		}
+		orderExceptionDto.setOrderStatusName(SellerChangeGoodsOrderStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+		orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+		/* 计算商品总额 */
+		if( !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
+				if(UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+					continue;
+				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+			}
+			orderExceptionDto.setProductPriceCount(productPriceCount);
+		}
+
+		if(!UtilHelper.isEmpty(orderExceptionDto.getExceptionOrderId())) {
+			OrderDelivery orderDelivery = new OrderDelivery();
+			orderDelivery.setFlowId(orderExceptionDto.getExceptionOrderId());
+			List<OrderDelivery> orderDeliveries = orderDeliveryMapper.listByProperty(orderDelivery);
+			orderExceptionDto.setOrderDeliverys(orderDeliveries);
+		}
+
+		return orderExceptionDto;
 	}
 }
