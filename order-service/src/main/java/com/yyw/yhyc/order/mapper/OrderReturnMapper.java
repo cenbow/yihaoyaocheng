@@ -24,4 +24,6 @@ public interface OrderReturnMapper extends GenericIBatisMapper<OrderReturn, Inte
 	public List<OrderReturnDto> getByExceptionOrderId(String exceptionOrderId);
 
 	public void saveBatch(List<OrderReturn> returnList);
+
+	public List<OrderReturnDto> getReturnByExceptionOrderId(String exceptionOrderId);
 }

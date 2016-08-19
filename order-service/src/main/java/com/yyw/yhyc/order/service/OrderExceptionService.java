@@ -1514,9 +1514,10 @@ public class OrderExceptionService {
 	 * @param exceptionOrderId
 	 * @param userDto
 	 */
-	public void editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto){
+	public String editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto){
+		String msg ="false";
 		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
-		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getCustId()) {
+		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
 			log.info("订单不存在，编号为：" + exceptionOrderId);
 			throw new RuntimeException("未找到订单");
 		}
@@ -1541,9 +1542,11 @@ public class OrderExceptionService {
 			orderTrace.setCreateTime(now);
 			orderTrace.setCreateUser(userDto.getUserName());
 			orderTraceMapper.save(orderTrace);
+			msg = "true";
 		}else{
 			log.info("订单不存在，编号为：" + exceptionOrderId);
 			throw new RuntimeException("当前订单状态不能进行收货!");
 		}
+		return  msg;
 	}
 }
