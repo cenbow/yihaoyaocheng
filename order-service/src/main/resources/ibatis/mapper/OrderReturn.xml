@@ -292,7 +292,7 @@
 		<include refid="commonColumnsNotPK"/>
 		<![CDATA[ ) VALUES]]>
 			<foreach collection="list" item="item" index="index"
-					  separator=",">
+														 separator=",">
 				(
 				#{item.exceptionOrderId}
 				, #{item.custId}
