@@ -575,8 +575,20 @@ public class OrderExceptionController extends BaseJsonController{
 	public String editConfirmReceiptReturn(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
 		userDto = new UserDto();
-		userDto.setCustId(2222);
 		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
+		return "{\"msg\":"+msg+"}" ;
+	}
+
+	/**
+	 * 换货订单确认收货-卖家
+	 * @return
+	 */
+	@RequestMapping(value = { "/editConfirmReceiptChange"}, method = RequestMethod.POST)
+	@ResponseBody
+	public String editConfirmReceiptChange(@RequestBody OrderException orderException){
+		UserDto userDto = super.getLoginUser();
+		userDto = new UserDto();
+		String msg = orderExceptionService.editConfirmReceiptChange(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;
 	}
 

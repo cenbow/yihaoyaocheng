@@ -173,7 +173,7 @@ function fillTableJson(data) {
                 tr += "<td><a href='javascript:sendDelivery("+order.exceptionId+")' class='btn btn-info btn-sm margin-r-10')'>发货</a></td>";
                 break;
             case "5" :
-                tr += "<td><a class='blue' href='#'>确认收货</a></td>";
+                tr += '<a href="javascript:showChangeList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
                 break;
             default:
                 tr += "<td></td>";
@@ -400,3 +400,52 @@ $(function(){
     $.fn.loadArea($("#province"), $("#city"), $("#area"))
 });
 
+
+
+function  confirmSaleReturn() {
+    var requestUrl = ctx+"/orderException/editConfirmReceiptReturn";
+    var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
+    $.ajax({
+        url: requestUrl,
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if(data&&data.msg== true){
+                alertModal("操作成功");
+                $("#myConfirmReturn").modal("hide");
+            }else{
+                alertModal("操作失败");
+            }
+
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    })
+}
+
+
+function showChangeList (exceptionOrderId){
+    $("#myConfirmReturn").modal("show");
+    //TODO  请求数据
+    var requestUrl = ctx+"/order/orderReturn/listOrderReturn/"+exceptionOrderId;
+    $("#curExceptionOrderId").val(exceptionOrderId);
+    $.ajax({
+        url: requestUrl,
+        type: 'POST',
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if(data&&data.length>0){
+                $("#curExceptionOrderId").val(exceptionOrderId);
+                fillReturnTable(data)
+            }
+
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    });
+}

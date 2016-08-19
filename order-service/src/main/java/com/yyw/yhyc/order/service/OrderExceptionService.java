@@ -1532,6 +1532,7 @@ public class OrderExceptionService {
 			String now = systemDateMapper.getSystemDate();
 			orderException.setUpdateUser(userDto.getUserName());
 			orderException.setUpdateTime(now);
+			orderException.setReceiveTime(now);
 			int count = orderExceptionMapper.update(orderException);
 			if (count == 0) {
 				log.info("orderException info :" + orderException);
@@ -1555,6 +1556,49 @@ public class OrderExceptionService {
 		}
 		return  msg;
 	}
+
+	/**
+	 * 换货订单确认收货-卖家确认收货
+	 * @param exceptionOrderId
+	 * @param userDto
+	 */
+	public String editConfirmReceiptChange(String exceptionOrderId,UserDto userDto){
+		String msg ="false";
+		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
+		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
+			log.info("订单不存在，编号为：" + exceptionOrderId);
+			throw new RuntimeException("未找到订单");
+		}
+		if(SystemChangeGoodsOrderStatusEnum.WaitingSellerReceived.getType().equals(orderException.getOrderStatus())){//买家已发货
+			orderException.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingSellerDelivered.getType());
+			String now = systemDateMapper.getSystemDate();
+			orderException.setUpdateUser(userDto.getUserName());
+			orderException.setUpdateTime(now);
+			orderException.setReceiveTime(now);
+			int count = orderExceptionMapper.update(orderException);
+			if (count == 0) {
+				log.info("orderException info :" + orderException);
+				throw new RuntimeException("订单收货失败");
+			}
+			//插入日志表
+			OrderTrace orderTrace = new OrderTrace();
+			orderTrace.setOrderId(orderException.getExceptionId());
+			orderTrace.setNodeName("换货订单收货");
+			orderTrace.setDealStaff(userDto.getUserName());
+			orderTrace.setRecordDate(now);
+			orderTrace.setRecordStaff(userDto.getUserName());
+			orderTrace.setOrderStatus(orderException.getOrderStatus());
+			orderTrace.setCreateTime(now);
+			orderTrace.setCreateUser(userDto.getUserName());
+			orderTraceMapper.save(orderTrace);
+			msg = "true";
+		}else{
+			log.info("订单不存在，编号为：" + exceptionOrderId);
+			throw new RuntimeException("当前订单状态不能进行收货!");
+		}
+		return  msg;
+	}
+
 
 	/**
 	 * 采购商换货订单详情
