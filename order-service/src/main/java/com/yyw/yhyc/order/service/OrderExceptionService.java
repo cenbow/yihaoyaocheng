@@ -526,6 +526,7 @@ public class OrderExceptionService {
 		oe.setOrderStatus(orderException.getOrderStatus());
 		oe.setUpdateUser(userDto.getUserName());
 		oe.setUpdateTime(now);
+		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
 			log.error("OrderException info :"+oe);
@@ -583,6 +584,7 @@ public class OrderExceptionService {
 		oe.setOrderStatus(orderException.getOrderStatus());
 		oe.setUpdateUser(userDto.getUserName());
 		oe.setUpdateTime(now);
+		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
 			log.error("OrderException info :"+oe);
@@ -860,6 +862,7 @@ public class OrderExceptionService {
 		oe.setOrderStatus(orderException.getOrderStatus());
 		oe.setUpdateUser(userDto.getUserName());
 		oe.setUpdateTime(now);
+		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
 			log.error("OrderException info :"+oe);
