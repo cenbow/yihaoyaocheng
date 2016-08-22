@@ -242,7 +242,7 @@ public class OrderReturnService {
 		oe.setCustName(order.getCustName());
 		oe.setOrderMoneyTotal(orderExceptionMoney);
 		oe.setOrderMoney(orderExceptionMoney);
-		//oe.setCreateUser(userDto.getUserName());
+		oe.setCreateUser(userDto.getUserName());
 		oe.setReturnType(orderReturn.getReturnType());
 		oe.setReturnDesc(orderReturn.getReturnDesc());
 		oe.setRemark(orderReturn.getReturnDesc());

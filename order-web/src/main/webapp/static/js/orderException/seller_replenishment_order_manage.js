@@ -162,7 +162,7 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
-        var operate = getOperateHtml(order.orderStatus,order.exceptionId);
+        var operate = getOperateHtml(order.orderStatus,order.exceptionId,order.exceptionOrderId);
         var tr = "<tr>";
         tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
@@ -178,12 +178,12 @@ function fillTableJson(data) {
     changeColor();
 }
 
-function getOperateHtml(_orderStatus,_exceptionId){
+function getOperateHtml(_orderStatus,_exceptionId,_exceptionOrderId){
     var result = "";
     if ( _orderStatus == "1") {
         result = "<a href='#' class='btn btn-info btn-sm margin-r-10'>审核</a>";
     } else if( _orderStatus == "2") {
-        result = "<a href='javascript:repListPg('"+_exceptionId+"')' class='btn btn-info btn-sm margin-r-10')'>发货</a>";
+        result = "<a href='javascript:sendDelivery(\""+_exceptionOrderId+"\");' class='btn btn-info btn-sm margin-r-10')'>发货</a>";
     }
     return result;
 }
@@ -224,8 +224,8 @@ function format(date){
  * * @param orderId
  */
 
-function sendDelivery(flowId) {
-    $("#sendFlowId").val(flowId);
+function sendDelivery(exceptionOrderId) {
+    $("#sendFlowId").val(exceptionOrderId);
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");
@@ -338,7 +338,7 @@ function sendDeliverysubmit(){
                     doRefreshData(params);
                 }else{
                     div += "<p class='font-size-20 red'><b>发货失败</b></p><p>批号信息导入有误，可以直接下载导入失败原因，也可以进入订单详情下载导入失败原因！</p>";
-                    div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息.xls'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
+                    div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
                 }
                 $("#msgDiv").append(div);
             }

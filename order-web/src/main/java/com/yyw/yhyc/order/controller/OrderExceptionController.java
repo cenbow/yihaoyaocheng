@@ -229,6 +229,25 @@ public class OrderExceptionController extends BaseJsonController{
 	}
 
 	/**
+	 * 换货订单信息 审核
+	 * @param exceptionId 异常订单编码
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getChangeOrderExceptionDetails/{exceptionId}", method = RequestMethod.GET)
+	public ModelAndView getChangeOrderExceptionDetails(@PathVariable("exceptionId")Integer exceptionId) throws Exception {
+		UserDto user = super.getLoginUser();
+		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		orderExceptionDto.setExceptionId(exceptionId);
+		orderExceptionDto.setSupplyId(user.getCustId());
+		orderExceptionDto = orderExceptionService.getChangeOrderDetails(orderExceptionDto);
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
+		modelAndView.setViewName("orderException/seller_review_change_order");
+		return modelAndView;
+	}
+
+	/**
 	 * 供应商审核拒收订单
 	 * @return
 	 */
@@ -465,8 +484,8 @@ public class OrderExceptionController extends BaseJsonController{
 		ModelAndView model = new ModelAndView();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionId(exceptionId);
-//		UserDto user = super.getLoginUser();
-//		orderExceptionDto.setSupplyId(user.getCustId());
+		UserDto user = super.getLoginUser();
+		orderExceptionDto.setSupplyId(user.getCustId());
 		orderExceptionDto = orderExceptionService.getReturnOrderDetails(orderExceptionDto, 2);
 		model.addObject("orderExceptionDto",orderExceptionDto);
 		model.setViewName("orderException/seller_order_return_detail");
@@ -522,7 +541,6 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		orderDto.setSupplyId(322);
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 	/**
@@ -533,7 +551,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void repConfirmReceipt(String exceptionOrderId){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.repConfirmReceipt(exceptionOrderId, userDto);
+		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId,userDto);
 	}
 
 	/**
@@ -574,7 +592,6 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public String editConfirmReceiptReturn(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		userDto = new UserDto();
 		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;
 	}
@@ -587,7 +604,6 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public String editConfirmReceiptChange(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		userDto = new UserDto();
 		String msg = orderExceptionService.editConfirmReceiptChange(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;
 	}
