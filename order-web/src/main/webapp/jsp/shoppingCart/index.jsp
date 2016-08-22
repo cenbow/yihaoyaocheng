@@ -5,7 +5,11 @@
   Time: 7:01
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
 <!doctype html>
 <html>
 <head>
@@ -13,7 +17,8 @@
     <title>进货单页-1号药城</title>
     <meta name="Keywords" content="">
     <meta name="description" content="">
-    <link rel="stylesheet" href="${STATIC_URL}/static/css/cart.css">
+    <%@ include file="../config.jsp"%>
+    <link rel="stylesheet" href="${STATIC_URL}/static/css/cart.css"></head>
 <body>
 <div class="top">
     <div class="wapper">
@@ -77,271 +82,81 @@
             <div class="th th-op">操作</div>
         </div>
     </div>
-    <div class="order-holder">
-        <div class="holder-top">
-            <div class="cart-checkbox select-all">
-                <span class="inside-icon">全选所有商品</span>
-            </div>
-            <div class="mark-supplier">供应商：扬州中润医药有限公司</div>
-            <a class="lts-shop-icon f12" href="javascript:;">进入店铺</a>
-            <p>
-                此供应商订单起售价为
-                <span class="from-price">100</span>
-                元，您目前已购买
-                <span class="buy-price">80</span>
-                元，还差
-                <span class="need-price">20</span>
-                元 !
-            </p>
-        </div>
-        <div class="holder-list">
-            <ul>
-                <li class="fl td-chk">
-                    <div class="cart-checkbox select-all">
-                        <span class="inside-icon">全选所有商品</span>
+
+<%--遍历每个供应商的信息  开始--%>
+    <c:choose>
+        <c:when test="${allShoppingCart != null && fn:length(allShoppingCart) gt 0 }">
+            <c:forEach var="shoppingCartListDto"  items="${allShoppingCart}" varStatus="shoppingCartListDtoVarStatus">
+                <div class="order-holder">
+                    <div class="holder-top">
+                        <div class="cart-checkbox select-all"><span class="inside-icon">全选所有商品</span></div>
+                        <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
+                        <a class="lts-shop-icon f12" href="javascript:;">进入店铺</a>
+                        <%--<p>--%>
+                            <%--此供应商订单起售价为<span class="from-price">100</span>元，您目前已购买<span class="buy-price">80</span>元，还差<span class="need-price">20</span>元 !--%>
+                        <%--</p>--%>
                     </div>
-                </li>
-                <li class="fl td-pic">
-                    <img src="images/pro_img.jpg" alt="汤臣倍健鱼油软胶囊 100g"></li>
-                <li class="fl td-item">
-                    <p class="item-title">汤臣倍健鱼油软胶囊 100g</p>
-                    <p>汤臣倍健医药保健有限公司</p>
-                </li>
-                <li class="fl td-price">
-                    ¥
-                    <span>2.50</span>
-                </li>
-                <li class="fl td-amount">
-                    <div class="it-sort-col5 clearfix pr">
-                        <div class="clearfix">
-                            <div class="its-choose-amount fl">
-                                <div class="its-input">
-                                    <a href="javascript:;" class="its-btn-reduce">-</a>
-                                    <a href="javascript:;" class="its-btn-add">+</a>
-                                    <input value="10" class="its-buy-num"></div>
-                            </div>
-                            <div class="pt13 pl20 fl">瓶</div>
-                        </div>
-                        <p class="color-gray9">2盒起售 限购5盒</p>
-                        <div class="pr-list-tips-frame tc">
-                            <i class="common-icon pl-frame-icon"></i>
-                            <p>最小拆零包装：4瓶</p>
-                        </div>
-                    </div>
-                </li>
-                <li class="fl td-sum">
-                    ¥
-                    <span>25.00</span>
-                </li>
-                <li class="fl td-op"><a href="javascript:;" class="btn-delete">删除</a></li>
-            </ul>
-        </div>
-        <div class="holder-list">
-            <ul>
-                <li class="fl td-chk">
-                    <div class="cart-checkbox select-all">
-                        <span class="inside-icon">全选所有商品</span>
-                    </div>
-                </li>
-                <li class="fl td-pic">
-                    <img src="images/pro_img.jpg" alt="汤臣倍健鱼油软胶囊 100g"></li>
-                <li class="fl td-item">
-                    <p class="item-title">汤臣倍健鱼油软胶囊 100g</p>
-                    <p>汤臣倍健医药保健有限公司</p>
-                </li>
-                <li class="fl td-price">
-                    ¥
-                    <span>2.50</span>
-                </li>
-                <li class="fl td-amount">
-                    <div class="it-sort-col5 clearfix pr">
-                        <div class="clearfix">
-                            <div class="its-choose-amount fl">
-                                <div class="its-input">
-                                    <a href="javascript:;" class="its-btn-reduce">-</a>
-                                    <a href="javascript:;" class="its-btn-add">+</a>
-                                    <input value="10" class="its-buy-num"></div>
-                            </div>
-                            <div class="pt13 pl20 fl">瓶</div>
-                        </div>
-                        <p class="color-gray9">2盒起售 限购5盒</p>
-                        <div class="pr-list-tips-frame tc">
-                            <i class="common-icon pl-frame-icon"></i>
-                            <p>库存不足，这次少买点吧！</p>
-                        </div>
-                    </div>
-                </li>
-                <li class="fl td-sum">
-                    ¥
-                    <span>25.00</span>
-                </li>
-                <li class="fl td-op"><a href="javascript:;" class="btn-delete">删除</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="order-holder">
-        <div class="holder-top">
-            <div class="cart-checkbox">
-                <span class="inside-icon">全选所有商品</span>
-            </div>
-            <div class="mark-supplier">供应商：扬州中润医药有限公司</div>
-            <a class="lts-shop-icon f12" href="javascript:;">进入店铺</a>
-        </div>
-        <div class="holder-list">
-            <ul>
-                <li class="fl td-chk">
-                    <div class="cart-checkbox">
-                        <span class="inside-icon">全选所有商品</span>
-                    </div>
-                </li>
-                <li class="fl td-pic">
-                    <img src="images/pro_img.jpg" alt="汤臣倍健鱼油软胶囊 100g"></li>
-                <li class="fl td-item">
-                    <p class="item-title">汤臣倍健鱼油软胶囊 100g</p>
-                    <p>汤臣倍健医药保健有限公司</p>
-                </li>
-                <li class="fl td-price">
-                    ¥
-                    <span>2.50</span>
-                </li>
-                <li class="fl td-amount">
-                    <div class="it-sort-col5  clearfix pr">
-                        <div class="clearfix">
-                            <div class="its-choose-amount fl">
-                                <div class="its-input">
-                                    <a href="javascript:;" class="its-btn-reduce">-</a>
-                                    <a href="javascript:;" class="its-btn-add">+</a>
-                                    <input value="10" class="its-buy-num"></div>
-                            </div>
-                            <div class="pt13 pl20 fl">瓶</div>
-                        </div>
-                        <p class="color-gray9">2盒起售 限购5盒</p>
-                    </div>
-                </li>
-                <li class="fl td-sum">
-                    ¥
-                    <span>25.00</span>
-                </li>
-                <li class="fl td-op"><a href="javascript:;" class="btn-delete">删除</a></li>
-            </ul>
-        </div>
-        <div class="holder-list">
-            <ul>
-                <li class="fl td-chk">
-                    <div class="cart-checkbox">
-                        <span class="inside-icon">全选所有商品</span>
-                    </div>
-                </li>
-                <li class="fl td-pic">
-                    <img src="images/pro_img.jpg" alt="汤臣倍健鱼油软胶囊 100g"></li>
-                <li class="fl td-item">
-                    <p class="item-title">汤臣倍健鱼油软胶囊 100g</p>
-                    <p>汤臣倍健医药保健有限公司</p>
-                </li>
-                <li class="fl td-price">
-                    ¥
-                    <span>2.50</span>
-                </li>
-                <li class="fl td-amount">
-                    <div class="it-sort-col5 clearfix pr">
-                        <div class="clearfix">
-                            <div class="its-choose-amount fl">
-                                <div class="its-input">
-                                    <a href="javascript:;" class="its-btn-reduce">-</a>
-                                    <a href="javascript:;" class="its-btn-add">+</a>
-                                    <input value="10" class="its-buy-num"></div>
-                            </div>
-                            <div class="pt13 pl20 fl">瓶</div>
-                        </div>
-                        <p class="color-gray9">2盒起售 限购5盒</p>
-                    </div>
-                </li>
-                <li class="fl td-sum">
-                    ¥
-                    <span>25.00</span>
-                </li>
-                <li class="fl td-op"><a href="javascript:;" class="btn-delete">删除</a></li>
-            </ul>
-        </div>
-        <div class="holder-list no-stock">
-            <ul>
-                <li class="fl td-chk">
-                    <div class="cart-checkbox checkbox-disable">
-                        <span class="inside-icon">全选所有商品</span>
-                    </div>
-                </li>
-                <li class="fl td-pic">
-                    <span class="inside-icon">缺货</span>
-                    <img src="images/pro_img.jpg" alt="汤臣倍健鱼油软胶囊 100g"></li>
-                <li class="fl td-item">
-                    <p class="item-title">汤臣倍健鱼油软胶囊 100g</p>
-                    <p>汤臣倍健医药保健有限公司</p>
-                </li>
-                <li class="fl td-price">
-                    ¥
-                    <span>2.50</span>
-                </li>
-                <li class="fl td-amount">
-                    <div class="it-sort-col5 clearfix pr">
-                        <div class="clearfix">
-                            <div class="its-choose-amount fl">
-                                <div class="its-input">
-                                    <a href="javascript:;" class="its-btn-reduce">-</a>
-                                    <a href="javascript:;" class="its-btn-add">+</a>
-                                    <input value="10" class="its-buy-num"></div>
-                            </div>
-                            <div class="pt13 pl20 fl">瓶</div>
-                        </div>
-                        <p class="color-gray9">2盒起售 限购5盒</p>
-                    </div>
-                </li>
-                <li class="fl td-sum">
-                    ¥
-                    <span>25.00</span>
-                </li>
-                <li class="fl td-op"><a href="javascript:;" class="btn-delete">删除</a></li>
-            </ul>
-        </div>
-        <div class="holder-list no-stock">
-            <ul>
-                <li class="fl td-chk">
-                    <div class="cart-checkbox checkbox-disable">
-                        <span class="inside-icon">全选所有商品</span>
-                    </div>
-                </li>
-                <li class="fl td-pic">
-                    <span class="inside-icon">下架</span>
-                    <img src="images/pro_img.jpg" alt="汤臣倍健鱼油软胶囊 100g"></li>
-                <li class="fl td-item">
-                    <p class="item-title">汤臣倍健鱼油软胶囊 100g</p>
-                    <p>汤臣倍健医药保健有限公司</p>
-                </li>
-                <li class="fl td-price">
-                    ¥
-                    <span>2.50</span>
-                </li>
-                <li class="fl td-amount">
-                    <div class="it-sort-col5 clearfix pr">
-                        <div class="clearfix">
-                            <div class="its-choose-amount fl">
-                                <div class="its-input">
-                                    <a href="javascript:;" class="its-btn-reduce">-</a>
-                                    <a href="javascript:;" class="its-btn-add">+</a>
-                                    <input value="10" class="its-buy-num"></div>
-                            </div>
-                            <div class="pt13 pl20 fl">瓶</div>
-                        </div>
-                        <p class="color-gray9">2盒起售 限购5盒</p>
-                    </div>
-                </li>
-                <li class="fl td-sum">
-                    ¥
-                    <span>25.00</span>
-                </li>
-                <li class="fl td-op"><a href="javascript:;" class="btn-delete btn-notice">删除</a></li>
-            </ul>
-        </div>
-    </div>
+
+                    <%--遍历该供应商下的商品信息  开始--%>
+                    <c:choose>
+                        <c:when test="${shoppingCartListDto != null && fn:length(shoppingCartListDto.shoppingCartDtoList) gt 0}">
+                            <c:forEach var="shoppingCartDto" items="${shoppingCartListDto.shoppingCartDtoList}"  varStatus="shoppingCartDtoVarStatus">
+                                <div class="holder-list">
+                                    <ul>
+                                        <li class="fl td-chk">
+                                            <div class="cart-checkbox select-all"><span class="inside-icon">全选所有商品</span></div>
+                                        </li>
+                                        <li class="fl td-pic">
+                                            <img src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                        </li>
+                                        <li class="fl td-item">
+                                            <p class="item-title">${shoppingCartDto.productName} ${shoppingCartDto.specification}</p>
+                                            <p>${shoppingCartDto.manufactures}</p>
+                                        </li>
+                                        <li class="fl td-price">
+                                            ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></span>
+                                        </li>
+                                        <li class="fl td-amount">
+                                            <div class="it-sort-col5 clearfix pr">
+                                                <div class="clearfix">
+                                                    <div class="its-choose-amount fl">
+                                                        <div class="its-input">
+                                                            <a href="javascript:;" class="its-btn-reduce">-</a>
+                                                            <a href="javascript:;" class="its-btn-add">+</a>
+                                                            <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}">
+                                                        </div>
+                                                    </div>
+                                                    <%--<div class="pt13 pl20 fl">瓶</div>--%>
+                                                </div>
+                                                <%--<p class="color-gray9">2盒起售 限购5盒</p>--%>
+                                                <%--<c:if test="${shoppingCartDto.unit > 0 }">--%>
+                                                    <%--<div class="pr-list-tips-frame tc">--%>
+                                                        <%--<i class="common-icon pl-frame-icon"></i><p>最小拆零包装：${shoppingCartDto.unit}</p>--%>
+                                                    <%--</div>--%>
+                                                <%--</c:if>--%>
+                                            </div>
+                                        </li>
+                                        <li class="fl td-sum">
+                                            ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice * shoppingCartDto.productCount}" minFractionDigits="2"/></span>
+                                        </li>
+                                        <li class="fl td-op"><a href="javascript:deleteShoppingCart(${shoppingCartDto.shoppingCartId});" class="btn-delete">删除</a></li>
+                                    </ul>
+                                </div>
+                            </c:forEach>
+                        </c:when>
+                    </c:choose>
+                    <%--遍历该供应商下的商品信息  结束--%>
+
+                </div>
+            </c:forEach>
+        </c:when>
+        <c:otherwise>
+            您的购物车是空的!
+        </c:otherwise>
+    </c:choose>
+<%--遍历每个供应商的信息  结束--%>
+
+
     <div class="order-bottom">
         <div class="operation">
             <div class="th-chk">
@@ -370,81 +185,14 @@
     </div>
 
 </div>
-<div class="footer main-footer">
-    <div class="wapper">
-        <div class="pb30 clearfix">
-            <div class="slogan fl">
-                <ul>
-                    <li>
-                        <i class="common-icon fi01"></i>
-                        <div class="pl70">
-                            <h3>入驻指南</h3>
-                            <p>如何注册</p>
-                            <p>如何完善资料</p>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="common-icon fi02"></i>
-                        <div class="pl70">
-                            <h3>购买指南</h3>
-                            <p>如何加入渠道</p>
-                            <p>购物流程</p>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="common-icon fi03"></i>
-                        <div class="pl70">
-                            <h3>支付流程</h3>
-                            <p>在线支付</p>
-                            <p>账期支付</p>
-                            <p>线下转账</p>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="common-icon fi04"></i>
-                        <div class="pl70">
-                            <h3>订单流程</h3>
-                            <p>补货流程</p>
-                            <p>如何拒收</p>
-                            <p>退换货流程</p>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="fr">
-                <!-- <i class="common-icon fi-phone"></i> -->
-                <span class="red f18">客服热线：4009215767</span>
-                <p class="pt10">服务时间：9:00-18:00</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="copyright">
-    <div class="wapper tc">
-        <div class="footer-nav">
-            <p>
-                <a href="javascript:;" class="bl0">关于我们</a>
-                <a href="javascript:;">联系我们</a>
-                <a href="javascript:;">客服中心</a>
-                <a href="javascript:;">意见反馈</a>
-                <a href="javascript:;">广告服务</a>
-                <a href="javascript:;">免责声明</a>
-                <a href="javascript:;">诚聘英才</a>
-                <a href="javascript:;">网站地图</a>
-            </p>
-            <p>
-                <a href="javascript:;" class="bl0">增值电信信息服务业务经营许可证</a>
-                <a href="javascript:;">互联网药品信息服务资格证</a>
-                <a href="javascript:;">互联网药品交易服务资格证书</a>
-            </p>
-        </div>
-        <p>监管机构：国家食品药品监督管理局　湖北省食品药品监督管理局　武汉市食品药品监督管理局</p>
-        <p>Copyright(C) 2015-2016　华中药品交易有限公司版权所有　网站备案号:鄂ICP备15017367号-1</p>
-    </div>
-</div>
-<script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
+
+
+<%@ include file="../footer.jsp"%>
+
 <script src="${STATIC_URL}/static/js/shoppingCart/common.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/inside.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/shoppingCart/dialog.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/shoppingCart/shoppingCart.js"></script>
 </body>
 </html>
+
+
