@@ -1715,4 +1715,13 @@ public class OrderExceptionService {
 		}
 	}
 
+	/**
+	 * 根据订单编码，获取退货和拒收订单金额历史总额
+	 * @param flowId
+	 * @return
+	 */
+	public BigDecimal getConfirmHistoryExceptionMoney(String flowId){
+		BigDecimal  historyMoneys = orderExceptionMapper.getConfirmHistoryExceptionMoney(flowId);
+		return historyMoneys;
+	}
 }
