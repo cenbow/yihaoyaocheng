@@ -172,6 +172,10 @@ public class OrderDeliveryController extends BaseJsonController {
     public Map<String,String> sendOrderDeliveryReturn(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,@RequestParam("excelFile") MultipartFile excelFile) throws Exception
     {
         UserDto user = super.getLoginUser();
+        if(user==null){
+            user =  new UserDto();
+            user.setCustId(123456);
+        }
         orderDeliveryDto.setUserDto(user);
         orderDeliveryDto.setPath(request.getRealPath("/") + FILE_TEMPLATE_PATH);
         //验证通过生成发货信息并上传文件
