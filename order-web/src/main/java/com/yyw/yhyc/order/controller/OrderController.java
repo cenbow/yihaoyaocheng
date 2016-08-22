@@ -275,13 +275,14 @@ public class OrderController extends BaseJsonController {
 		UserDto userDto = super.getLoginUser();
 		Map<String,Object> dataMap = orderService.checkOrderPage(userDto);
 
-		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
-			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			/* 由于账期订单 这种神奇订单的存在，需要拆分出账期订单数据，并展示在页面*/
-			List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart);
-			allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList);
-			dataMap.put("allShoppingCart",allShoppingCart);
-		}
+		//TODO 武汉那边的接口 待联调
+//		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
+//			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
+//			/* 由于账期订单 这种神奇订单的存在，需要拆分出账期订单数据，并展示在页面*/
+//			List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart);
+//			allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList);
+//			dataMap.put("allShoppingCart",allShoppingCart);
+//		}
 
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
