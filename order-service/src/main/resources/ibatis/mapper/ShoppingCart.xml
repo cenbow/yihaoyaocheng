@@ -178,9 +178,9 @@
 				, #{productCount}
 				, #{remark}
 				, #{createUser}
-				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-				, #{updateUser}
-				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, NOW()
+				, NULL
+				, NULL
   ) ]]>
 	</insert>
 	<update id="update" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
@@ -203,6 +203,38 @@
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		WHERE shopping_cart_id = #{shoppingCartId}  ]]>
+	</update>
+
+	<update id="updateProductCount" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
+		<![CDATA[ UPDATE t_shopping_cart SET product_id=#{productId} ]]>
+		<if test="specification!= null and specification!= ''">
+			, specification=#{specification}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''">
+			, spu_code=#{spuCode}
+		</if>
+		<if test="productName!= null and productName!= ''">
+			, product_name=#{productName}
+		</if>
+		<if test="manufactures!= null and manufactures!= ''">
+			, manufactures=#{manufactures}
+		</if>
+		<if test="productPrice!= null and productPrice!= ''">
+			, product_price=#{productPrice}
+		</if>
+		<if test="productSettlementPrice!= null and productSettlementPrice!= ''">
+			, product_settlement_price=#{productSettlementPrice}
+		</if>
+		<if test="productCount!= null and productCount!= ''">
+			, product_count= product_count + #{productCount}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			AND update_user=#{updateUser}
+		</if>
+		<![CDATA[ , update_time=NOW() WHERE cust_id=#{custId} AND  product_id=#{productId} ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_shopping_cart WHERE shopping_cart_id = #{shoppingCartId}  ]]>
@@ -254,5 +286,9 @@
 		<include refid="commonProcessDateColumns"/>
 		FROM t_shopping_cart WHERE 1=1
 		<include refid="commonCondition"/>
+	</select>
+	
+	<select id="queryShoppingCartStatistics" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+		SELECT SUM(1) productCount, SUM(product_count * product_settlement_price) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
 	</select>
 </mapper>
