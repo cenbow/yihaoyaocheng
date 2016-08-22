@@ -534,7 +534,6 @@ public class OrderExceptionController extends BaseJsonController{
 	public void repConfirmReceipt(String exceptionOrderId){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId,userDto);
-		orderExceptionService.repConfirmReceipt(exceptionOrderId, userDto);
 	}
 
 	/**
