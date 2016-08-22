@@ -126,7 +126,12 @@ function updateNumInShoppingCart(_shoppingCartId,_value){
     })
 }
 
+
+
+
+
 $(function() {
+    getSelectedShoppingCart();
 
     //小计
     $('.its-btn-reduce').click(function(){
@@ -162,6 +167,8 @@ $(function() {
     });
     //单选
     $('.holder-list .cart-checkbox').click(function(){
+        // var shoppingCartId = $(this).attr("shoppingCartId");
+        // console.info("shoppingCartId=" + shoppingCartId );
         //判断 缺货 下架
         if($(this).hasClass('select-all')){
             $(this).removeClass('select-all');
@@ -169,28 +176,34 @@ $(function() {
             $(this).parents('.order-holder').find('.holder-top .cart-checkbox').removeClass('select-all');
             totalItem();
             totalSum();
+            removeSelectedShoppingCart();
         }else{
             $(this).addClass('select-all');
             totalItem();
             totalSum();
+            getSelectedShoppingCart();
         }
     });
     //全选
     $(".th-chk").click(function(){
         if($(".cart-checkbox",this).hasClass('select-all')){
             $('.cart-checkbox').removeClass('select-all');
+            removeSelectedShoppingCart();
         }else{
             $('.shopping-cart .cart-checkbox').each(function(){
                 $(this).addClass('select-all');
             });
+            getSelectedShoppingCart();
         }
         totalItem();
         totalSum();
+
     });
     //企业全选
     $(".holder-top .cart-checkbox").click(function(){
         if($(this).hasClass('select-all')){
             $(this).parent().parent().find('.cart-checkbox').removeClass('select-all');
+            removeSelectedShoppingCart();
         }else{
             //排除无库存 全选
             var holderTop = $(this).parents('.order-holder').find('.holder-list');
@@ -198,6 +211,7 @@ $(function() {
                 $(this).find('.cart-checkbox').addClass('select-all');
                 $(this).parents('.order-holder').find('.holder-top .cart-checkbox').addClass('select-all');
             });
+            getSelectedShoppingCart();
         }
         totalItem();
         totalSum();
@@ -280,3 +294,69 @@ $(function() {
     });
 
 });
+
+function removeSelectedShoppingCart(){
+    var array = new Array();
+    $('.cart-checkbox').each(function(){
+        if(!$(this).hasClass('select-all')){
+            var shoppingCartId = $(this).attr("shoppingCartId");
+            console.info("shoppingCartId=" + shoppingCartId );
+            if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
+                array.push(shoppingCartId);
+            }
+        }
+    });
+    if(array == null || array.length == 0){
+        return;
+    }
+
+    var selectedShoppingCartId = null;
+    for(var i = 0 ;i < array.length ; i++){
+        selectedShoppingCartId = "#selectedShoppingCart_" + array[i];
+        $(selectedShoppingCartId).remove();
+    }
+}
+
+
+function getSelectedShoppingCart(){
+    var array = new Array();
+    $('.cart-checkbox').each(function(){
+        if($(this).hasClass('select-all')){
+            var shoppingCartId = $(this).attr("shoppingCartId");
+            // console.info("shoppingCartId=" + shoppingCartId );
+            if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
+                array.push(shoppingCartId);
+            }
+        }
+    });
+    if(array != null && array.length > 0){
+        var paramsHtml = "";
+        for(var i = 0 ;i < array.length ; i++){
+            paramsHtml += "<input type='hidden' id='selectedShoppingCart_"+array[i]+"' name='shoppingCartDtoList["+i+"].shoppingCartId' value='"+array[i]+"'>";
+        }
+        if(paramsHtml == ""){
+            alert("请选择要提交的商品");
+            return;
+        }
+        $("#submitCheckOrderPage").html("");
+        $("#submitCheckOrderPage").html(paramsHtml);
+    }else{
+        alert("请选择要提交的商品");
+        return;
+    }
+}
+
+/**
+ * 跳到检查订单页面
+ */
+function submitCheckOrderPage(){
+
+    getSelectedShoppingCart();
+
+    
+    //TODO AJAX 检验商品上架、下架状态
+    
+    
+    $("#submitCheckOrderPage").attr({"action": ctx + "/order/checkOrderPage"});
+    $("#submitCheckOrderPage").submit();
+}

@@ -104,7 +104,7 @@
                                 <div class="holder-list">
                                     <ul>
                                         <li class="fl td-chk">
-                                            <div class="cart-checkbox select-all"><span class="inside-icon">全选所有商品</span></div>
+                                            <div class="cart-checkbox select-all" shoppingCartId="${shoppingCartDto.shoppingCartId}"><span class="inside-icon" >全选所有商品</span></div>
                                         </li>
                                         <li class="fl td-pic">
                                             <img src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
@@ -156,6 +156,11 @@
     </c:choose>
 <%--遍历每个供应商的信息  结束--%>
 
+    <div>
+        <form id="submitCheckOrderPage" method="post">
+        </form>
+    </div>
+
 
     <div class="order-bottom">
         <div class="operation">
@@ -171,15 +176,15 @@
         <div class="oper-info">
             <div class="total-price">
                 商品总额： <em>¥</em>
-                <span>59.00</span>
+                <span>0.00</span>
             </div>
             <div class="total-item">
                 品种总计：
-                <span>6</span>
+                <span>0</span>
             </div>
         </div>
         <div class="btn">
-            <a class="os-btn-pay tc" href="javascript:;">立即结算</a>
+            <a class="os-btn-pay tc" href="javascript:submitCheckOrderPage();">立即结算</a>
             <a class="os-btn-order tc" href="index.html">继续采购</a>
         </div>
     </div>
