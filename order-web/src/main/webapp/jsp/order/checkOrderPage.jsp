@@ -107,6 +107,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].periodProduct" value="${shoppingCartDto.periodProduct}"/>
                                                     <tr>
                                                         <td class="tl">
                                                             <img src="${STATIC_URL}/static/images/pro_img.jpg" class="fl pr20">
@@ -130,12 +131,17 @@
                                 <div class="fl radio-select">
                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" id="${shoppingCart.seller.enterpriseId}_payTypeId"/>
                                     选择支付方式：
+                                    <%--<label onclick="changePayType('${shoppingCart.seller.enterpriseId}','<%=SystemPayTypeEnum.PayOnline.getPayType()%>')">--%>
                                     <label>
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOnline.getPayType()%>"></i>在线支付
                                     </label>
+
+                                    <%--<label onclick="changePayType('${shoppingCart.seller.enterpriseId}','<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>')">--%>
                                     <label>
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>"></i>账期支付
                                     </label>
+
+                                     <%--<label onclick="changePayType('${shoppingCart.seller.enterpriseId}','<%=SystemPayTypeEnum.PayOffline.getPayType()%>')">--%>
                                     <label>
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOffline.getPayType()%>" ></i>
                                           <span class="pr"> 线下转账

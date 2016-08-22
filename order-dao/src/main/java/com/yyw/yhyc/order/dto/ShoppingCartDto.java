@@ -12,6 +12,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 商品图片url地址 */
     private String productImageUrl;
 
+    /* 是否是账期商品 */
+    private boolean periodProduct;
+
     public String getProductImageUrl() {
         return productImageUrl;
     }
@@ -20,10 +23,19 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.productImageUrl = productImageUrl;
     }
 
+    public boolean isPeriodProduct() {
+        return periodProduct;
+    }
+
+    public void setPeriodProduct(boolean periodProduct) {
+        this.periodProduct = periodProduct;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
                 "productImageUrl='" + productImageUrl + '\'' +
+                ", periodProduct=" + periodProduct +
                 '}';
     }
 }

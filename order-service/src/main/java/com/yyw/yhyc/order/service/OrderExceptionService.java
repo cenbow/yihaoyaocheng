@@ -229,6 +229,7 @@ public class OrderExceptionService {
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
 		orderSettlement.setBusinessType(2);
+		orderSettlement.setOrderId(orderException.getExceptionId());
 		orderSettlement.setFlowId(orderException.getExceptionOrderId());
 		orderSettlement.setCustId(orderException.getCustId());
 		orderSettlement.setCustName(orderException.getCustName());
@@ -731,7 +732,7 @@ public class OrderExceptionService {
 
 		if(UtilHelper.isEmpty(orderExceptionDto))
 			throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderExceptionDto.getEndTime(),"yyyy-MM-dd");
@@ -748,7 +749,7 @@ public class OrderExceptionService {
 		int orderCount = 0;
 		BigDecimal orderTotalMoney = orderExceptionMapper.findBuyerReplenishmentOrderTotal(orderExceptionDto);
 
-		log.info("orderTotalMoney:"+orderTotalMoney);
+		log.info("orderTotalMoney:" + orderTotalMoney);
 
 		List<OrderExceptionDto> orderExceptionDtoList = orderExceptionMapper.listPaginationBuyerReplenishmentOrder(pagination, orderExceptionDto);
 		log.info("orderExceptionDtoList:"+orderExceptionDtoList);
@@ -784,12 +785,12 @@ public class OrderExceptionService {
 				}
 			}
 		}
-		log.info("orderStatusCountMap:"+orderStatusCountMap);
+		log.info("orderStatusCountMap:" + orderStatusCountMap);
 
 		resultMap.put("orderStatusCount", orderStatusCountMap);
 		resultMap.put("orderList", pagination);
 		resultMap.put("orderCount", orderCount);
-		resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
+		resultMap.put("orderTotalMoney", orderTotalMoney == null ? 0 : orderTotalMoney);
 		return resultMap;
 	}
 
@@ -902,7 +903,7 @@ public class OrderExceptionService {
 
 		/* 非法参数过滤 */
 		if(UtilHelper.isEmpty(pagination) || UtilHelper.isEmpty(orderExceptionDto)) throw new RuntimeException("参数错误");
-		log.info("request orderExceptionDto :"+orderExceptionDto.toString());
+		log.info("request orderExceptionDto :" + orderExceptionDto.toString());
 
 		/* 转换日期查询条件 */
 		if(!UtilHelper.isEmpty(orderExceptionDto.getEndTime())){
@@ -1233,17 +1234,8 @@ public class OrderExceptionService {
 					log.info("orderException info :"+orderException);
 					throw new RuntimeException("订单取消失败");
 				}
-				//插入日志表
-				OrderTrace orderTrace = new OrderTrace();
-				orderTrace.setOrderId(orderException.getExceptionId());
-				orderTrace.setNodeName("买家取消退货订单");
-				orderTrace.setDealStaff(userDto.getUserName());
-				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff(userDto.getUserName());
-				orderTrace.setOrderStatus(orderException.getOrderStatus());
-				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser(userDto.getUserName());
-				orderTraceMapper.save(orderTrace);
+
+
 			}else{
 				log.info("orderException status error ,orderStatus:"+orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1388,7 +1380,8 @@ public class OrderExceptionService {
 		return resultMap;
 	}
 
-	public void repConfirmReceipt(String exceptionOrderId,UserDto userDto) {
+	//补货确认收货
+	public void updateRepConfirmReceipt(String exceptionOrderId,UserDto userDto) {
 
 		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
 		if (UtilHelper.isEmpty(orderException)) {
@@ -1399,6 +1392,7 @@ public class OrderExceptionService {
 			if (SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getType().equals(orderException.getOrderStatus())) {//买家已申请
 				orderException.setOrderStatus(SystemReplenishmentOrderStatusEnum.BuyerReceived.getType());//买家已收货
 				String now = systemDateMapper.getSystemDate();
+				orderException.setReceiveTime(now);
 				orderException.setUpdateUser(userDto.getUserName());
 				orderException.setUpdateTime(now);
 				int count = orderExceptionMapper.update(orderException);
@@ -1406,17 +1400,15 @@ public class OrderExceptionService {
 					log.info("orderException info :" + orderException);
 					throw new RuntimeException("订单收货失败");
 				}
-				//插入日志表
-				OrderTrace orderTrace = new OrderTrace();
-				orderTrace.setOrderId(orderException.getExceptionId());
-				orderTrace.setNodeName("拒收订单收货");
-				orderTrace.setDealStaff(userDto.getUserName());
-				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff(userDto.getUserName());
-				orderTrace.setOrderStatus(orderException.getOrderStatus());
-				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser(userDto.getUserName());
-				orderTraceMapper.save(orderTrace);
+				//生成日志
+				createOrderTrace(orderException,userDto,now,1,"买家已收货");
+				//更新原订单状态
+				Order order=new Order();
+				order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
+				order.setUpdateTime(now);
+				order.setUpdateUser(userDto.getUserName());
+				orderMapper.update(order);
+				createOrderTrace(order, userDto, now, 1, "买家部分收货");
 			} else {
 				log.info("订单状态不正确:" + orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1426,6 +1418,29 @@ public class OrderExceptionService {
 			log.info("订单不存在");
 			throw new RuntimeException("未找到订单");
 		}
+	}
+
+	public void createOrderTrace(Object order,UserDto userDto,String now,int type,String nodeName){
+		//插入日志表
+		OrderTrace orderTrace = new OrderTrace();
+		orderTrace.setDealStaff(userDto.getUserName());
+		orderTrace.setRecordDate(now);
+		orderTrace.setRecordStaff(userDto.getUserName());
+
+		orderTrace.setCreateTime(now);
+		orderTrace.setCreateUser(userDto.getUserName());
+		if(type==1){
+			OrderException orderException=(OrderException)order;
+			orderTrace.setOrderId(orderException.getExceptionId());
+			orderTrace.setOrderStatus(orderException.getOrderStatus());
+			orderTrace.setNodeName(nodeName);
+		}else{
+			Order newOrder=(Order)order;
+			orderTrace.setOrderId(newOrder.getOrderId());
+			orderTrace.setOrderStatus(newOrder.getOrderStatus());
+			orderTrace.setNodeName(nodeName);
+		}
+		orderTraceMapper.save(orderTrace);
 	}
 
 	/**
@@ -1519,9 +1534,10 @@ public class OrderExceptionService {
 	 * @param exceptionOrderId
 	 * @param userDto
 	 */
-	public void editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto){
+	public String editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto){
+		String msg ="false";
 		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
-		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getCustId()) {
+		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
 			log.info("订单不存在，编号为：" + exceptionOrderId);
 			throw new RuntimeException("未找到订单");
 		}
@@ -1530,6 +1546,7 @@ public class OrderExceptionService {
 			String now = systemDateMapper.getSystemDate();
 			orderException.setUpdateUser(userDto.getUserName());
 			orderException.setUpdateTime(now);
+			orderException.setReceiveTime(now);
 			int count = orderExceptionMapper.update(orderException);
 			if (count == 0) {
 				log.info("orderException info :" + orderException);
@@ -1546,11 +1563,56 @@ public class OrderExceptionService {
 			orderTrace.setCreateTime(now);
 			orderTrace.setCreateUser(userDto.getUserName());
 			orderTraceMapper.save(orderTrace);
+			msg = "true";
 		}else{
 			log.info("订单不存在，编号为：" + exceptionOrderId);
 			throw new RuntimeException("当前订单状态不能进行收货!");
 		}
+		return  msg;
 	}
+
+	/**
+	 * 换货订单确认收货-卖家确认收货
+	 * @param exceptionOrderId
+	 * @param userDto
+	 */
+	public String editConfirmReceiptChange(String exceptionOrderId,UserDto userDto){
+		String msg ="false";
+		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
+		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
+			log.info("订单不存在，编号为：" + exceptionOrderId);
+			throw new RuntimeException("未找到订单");
+		}
+		if(SystemChangeGoodsOrderStatusEnum.WaitingSellerReceived.getType().equals(orderException.getOrderStatus())){//买家已发货
+			orderException.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingSellerDelivered.getType());
+			String now = systemDateMapper.getSystemDate();
+			orderException.setUpdateUser(userDto.getUserName());
+			orderException.setUpdateTime(now);
+			orderException.setReceiveTime(now);
+			int count = orderExceptionMapper.update(orderException);
+			if (count == 0) {
+				log.info("orderException info :" + orderException);
+				throw new RuntimeException("订单收货失败");
+			}
+			//插入日志表
+			OrderTrace orderTrace = new OrderTrace();
+			orderTrace.setOrderId(orderException.getExceptionId());
+			orderTrace.setNodeName("换货订单收货");
+			orderTrace.setDealStaff(userDto.getUserName());
+			orderTrace.setRecordDate(now);
+			orderTrace.setRecordStaff(userDto.getUserName());
+			orderTrace.setOrderStatus(orderException.getOrderStatus());
+			orderTrace.setCreateTime(now);
+			orderTrace.setCreateUser(userDto.getUserName());
+			orderTraceMapper.save(orderTrace);
+			msg = "true";
+		}else{
+			log.info("订单不存在，编号为：" + exceptionOrderId);
+			throw new RuntimeException("当前订单状态不能进行收货!");
+		}
+		return  msg;
+	}
+
 
 	/**
 	 * 采购商换货订单详情

@@ -319,4 +319,25 @@
 			</foreach>
 
 	</insert>
+
+	<select id="getReturnByExceptionOrderId"   resultType="com.yyw.yhyc.order.dto.OrderReturnDto">
+	SELECT
+		T1.return_count AS returnCount,
+		T1.return_pay AS returnPay,
+		T1.batch_number AS batchNumber,
+		T2.product_id AS productId,
+		T2.product_name AS productName,
+		T2.specification,
+		T2.manufactures,
+	    T2.form_of_drug AS formOfDrug,
+		T2.product_price AS productPrice,
+		T2.product_code AS productCode,
+		T3.order_line_no AS orderLineNo
+	FROM
+		t_order_return T1
+	LEFT JOIN t_order_detail T2 ON T1.order_detail_id = T2.order_detail_id
+	LEFT JOIN t_order_delivery_detail T3 ON T1.order_delivery_detail_id = T3.order_delivery_detail_id
+
+		WHERE  T1.exception_order_id=#{exceptionOrderId};
+	</select>
 </mapper>

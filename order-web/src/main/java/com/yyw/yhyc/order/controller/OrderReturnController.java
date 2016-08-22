@@ -114,10 +114,9 @@ public class OrderReturnController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/listOrderReturn/{orderExceptionId}", method = RequestMethod.POST)
 	@ResponseBody
-	public List<OrderReturnDto> listOrderReturn(String orderExceptionId) throws Exception
+	public List<OrderReturnDto> listOrderReturn(@PathVariable  String orderExceptionId) throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-
 		return orderReturnService.listOrderReturn(orderExceptionId);
 	}
 }

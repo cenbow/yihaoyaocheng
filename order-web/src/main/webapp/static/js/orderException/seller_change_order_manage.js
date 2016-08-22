@@ -167,13 +167,13 @@ function fillTableJson(data) {
 
         switch (order.orderStatus){
             case "1" :
-                tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + ">审核</a></td>";
+                tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + " >审核</a></td>";
                 break;
             case "6" :
                 tr += "<td><a href='javascript:sendDelivery("+order.exceptionId+")' class='btn btn-info btn-sm margin-r-10')'>发货</a></td>";
                 break;
             case "5" :
-                tr += "<td><a class='blue' href='#'>确认收货</a></td>";
+                tr +='<td><a href="javascript:showChangeList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a></td>';
                 break;
             default:
                 tr += "<td></td>";
@@ -183,8 +183,7 @@ function fillTableJson(data) {
         tr += "</tr>";
         trs += tr;
     }
-    console.info(trs);
-    $(".table-box tbody").append(trs);
+    $("#myTabContent table:first tbody").append(trs);
     changeColor();
 }
 function changeColor(){
@@ -400,3 +399,75 @@ $(function(){
     $.fn.loadArea($("#province"), $("#city"), $("#area"))
 });
 
+
+
+function  confirmSaleChange() {
+    var requestUrl = ctx+"/orderException/editConfirmReceiptChange";
+    var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
+    $.ajax({
+        url: requestUrl,
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if(data&&data.msg== true){
+                alertModal("操作成功");
+                $("#myConfirmReturn").modal("hide");
+            }else{
+                alertModal("操作失败");
+            }
+
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    })
+}
+
+
+function showChangeList (exceptionOrderId){
+    $("#myConfirmReturn").modal("show");
+    //TODO  请求数据
+    var requestUrl = ctx+"/order/orderReturn/listOrderReturn/"+exceptionOrderId;
+    $("#curExceptionOrderId").val(exceptionOrderId);
+    $.ajax({
+        url: requestUrl,
+        type: 'POST',
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if(data&&data.length>0){
+                $("#curExceptionOrderId").val(exceptionOrderId);
+                fillChangeTable(data)
+            }
+
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    });
+}
+
+
+function fillChangeTable(list){
+
+    $("#myConfirmReturn tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderReturn = list[i];
+        var tr = "<tr>";
+        tr += "<td>" + orderReturn.orderLineNo + "</td>";
+        tr += "<td>" + orderReturn.productCode + "</td>";
+        tr += "<td>" + orderReturn.batchNumber + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.specification + "</td>";
+        tr += "<td>" + orderReturn.formOfDrug + "</td>";
+        tr += "<td>" + orderReturn.manufactures + "</td>";
+        tr += "<td>" + orderReturn.returnCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $("#myConfirmReturn tbody").append(trs);
+}

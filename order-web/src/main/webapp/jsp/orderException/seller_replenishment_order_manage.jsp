@@ -183,7 +183,7 @@
                             <label class="col-xs-2 control-label"><em>*</em>批号导入</label>
                             <div class="col-xs-7">
                                 <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
-                                <p class="padding-t-10"><a class="m-l-10 eyesee" href="#"><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
+                                <p class="padding-t-10"><a class="m-l-10 eyesee" href='${ctx}/static/include/excel/excelTemplate.xls'><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
                             </div>
                         </div>
                         <div class="form-group">

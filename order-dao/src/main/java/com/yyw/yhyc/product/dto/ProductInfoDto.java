@@ -24,6 +24,9 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /* 商品图片地址 */
     private String imageUrl;
 
+    /* 是否是账期商品 */
+    private boolean periodProduct;
+
 
     public BigDecimal getProductPrice() {
         return productPrice;
@@ -57,6 +60,14 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.imageUrl = imageUrl;
     }
 
+    public boolean isPeriodProduct() {
+        return periodProduct;
+    }
+
+    public void setPeriodProduct(boolean periodProduct) {
+        this.periodProduct = periodProduct;
+    }
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
@@ -64,6 +75,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", productCount=" + productCount +
                 ", totalPrice=" + totalPrice +
                 ", imageUrl='" + imageUrl + '\'' +
+                ", periodProduct=" + periodProduct +
                 '}';
     }
 }

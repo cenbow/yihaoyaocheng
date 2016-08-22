@@ -216,7 +216,7 @@ public class OrderDeliveryDetailService {
 	 * @return
 	 * @throws Exception
 	 */
-	public  Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception{
+	public  Map<String,String> updateConfirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception{
 
 		Map<String, String> returnMap = new HashMap<String, String>();
 		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -330,9 +330,9 @@ public class OrderDeliveryDetailService {
 		}else {
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
 		}
-		order.setReceiveTime(systemDateMapper.getSystemDate());
+		order.setReceiveTime(now);
 		order.setReceiveType(1);//买家确认收货
-		order.setUpdateTime(systemDateMapper.getSystemDate());
+		order.setUpdateTime(now);
 		order.setUpdateUser(user.getUserName());
 		orderMapper.update(order);
 
