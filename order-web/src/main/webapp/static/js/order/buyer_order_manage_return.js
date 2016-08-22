@@ -111,7 +111,7 @@ function fillSaleReturnTable(data) {
         for (var i = 0; i < list.length; i++) {
             var orderDeliveryDetail = list[i];
             var canReturnCount = orderDeliveryDetail.canReturnCount;
-            if(canReturnCount && canReturnCount ==""){
+            if(!canReturnCount || canReturnCount ==""){
                 canReturnCount = orderDeliveryDetail.deliveryProductCount;
             }
 

@@ -270,7 +270,7 @@
                             <th>规格</th>
                             <th>剂型</th>
                             <th>生产企业</th>
-                            <th>退货数量</th>
+                            <th>换货数量</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -279,7 +279,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" onclick="confirmSaleReturn();">确定</button>
+                <button type="button" class="btn btn-default" onclick="confirmSaleChange();">确定</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </div>

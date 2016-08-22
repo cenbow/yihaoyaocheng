@@ -167,13 +167,13 @@ function fillTableJson(data) {
 
         switch (order.orderStatus){
             case "1" :
-                tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + ">审核</a></td>";
+                tr += "<td><a class='blue' href="+ctx+"/orderException/getChangeOrderExceptionDetails/" + order.exceptionId + " >审核</a></td>";
                 break;
             case "6" :
                 tr += "<td><a href='javascript:sendDelivery("+order.exceptionId+")' class='btn btn-info btn-sm margin-r-10')'>发货</a></td>";
                 break;
             case "5" :
-                tr += '<a href="javascript:showChangeList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+                tr +='<td><a href="javascript:showChangeList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a></td>';
                 break;
             default:
                 tr += "<td></td>";
@@ -183,8 +183,7 @@ function fillTableJson(data) {
         tr += "</tr>";
         trs += tr;
     }
-    console.info(trs);
-    $(".table-box tbody").append(trs);
+    $("#myTabContent table:first tbody").append(trs);
     changeColor();
 }
 function changeColor(){
@@ -402,8 +401,8 @@ $(function(){
 
 
 
-function  confirmSaleReturn() {
-    var requestUrl = ctx+"/orderException/editConfirmReceiptReturn";
+function  confirmSaleChange() {
+    var requestUrl = ctx+"/orderException/editConfirmReceiptChange";
     var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
     $.ajax({
         url: requestUrl,
@@ -440,7 +439,7 @@ function showChangeList (exceptionOrderId){
         success: function (data) {
             if(data&&data.length>0){
                 $("#curExceptionOrderId").val(exceptionOrderId);
-                fillReturnTable(data)
+                fillChangeTable(data)
             }
 
         },
@@ -448,4 +447,27 @@ function showChangeList (exceptionOrderId){
             alertModal("数据获取失败");
         }
     });
+}
+
+
+function fillChangeTable(list){
+
+    $("#myConfirmReturn tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderReturn = list[i];
+        var tr = "<tr>";
+        tr += "<td>" + orderReturn.orderLineNo + "</td>";
+        tr += "<td>" + orderReturn.productCode + "</td>";
+        tr += "<td>" + orderReturn.batchNumber + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.specification + "</td>";
+        tr += "<td>" + orderReturn.formOfDrug + "</td>";
+        tr += "<td>" + orderReturn.manufactures + "</td>";
+        tr += "<td>" + orderReturn.returnCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $("#myConfirmReturn tbody").append(trs);
 }
