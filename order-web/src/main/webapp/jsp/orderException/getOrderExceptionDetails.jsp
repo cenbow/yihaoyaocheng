@@ -14,7 +14,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>审核订单</title>
+    <title>订单详情</title>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
     <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
@@ -28,18 +28,15 @@
             <div class="qy_basenews">
                 <div class="row no-margin">
                     <ol class="breadcrumb">
-                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>
-                            <c:choose>
-                                <c:when test="${orderExceptionDto.userType == 1}">
-                                    采购订单管理
-                                </c:when>
-                                <c:when test="${orderExceptionDto.userType == 2}">
-                                    供应订单管理
-                                </c:when>
-                            </c:choose>
-                        </a></li>
-                        <li class="active">拒收订单管理>订单详情</li>
-
+                        <c:if test="${orderExceptionDto.userType==1}">
+                            <li><a href="${ctx}/order/buyerOrderManage"><i class="fa fa-map-marker fa-3"></i>采购订单管理</a></li>
+                            <li><a href="#"><i class="fa fa-map-marker fa-3"></i>拒收订单管理</a></li>
+                        </c:if>
+                        <c:if test="${orderExceptionDto.userType==2}">
+                            <li><a href="${ctx}/order/sellerOrderManage"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                            <li><a href="#"><i class="fa fa-map-marker fa-3"></i>拒收订单管理</a></li>
+                        </c:if>
+                        <li class="active">订单详情</li>
                     </ol>
                 </div>
                 <div class="border-gray">
@@ -50,7 +47,14 @@
                             <label for="scope" class="col-xs-2 control-label">订单状态</label>
                             <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
                             <label for="scope" class="col-xs-2 control-label">关联订单号</label>
-                            <div class="col-xs-2 control-label text-left">${orderExceptionDto.flowId}</div>
+                            <div class="col-xs-2 control-label text-left">
+                                <c:if test="${orderExceptionDto.userType==1}">
+                                    <a href="${ctx}/order/getBuyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a>
+                                </c:if>
+                                <c:if test="${orderExceptionDto.userType==2}">
+                                    <a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a>
+                                </c:if>
+                            </div>
                         </div>
                     </div>
                 </div>
