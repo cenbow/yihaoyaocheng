@@ -1391,7 +1391,7 @@ public class OrderService {
 			 || no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerPartReceived.getType())
 			 || no.getOrderStatus().equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())
 			   )){
-				// end 修改账单还款 更新结算状态
+				// start 修改账单还款 更新结算状态
 				on.setOrderId(no.getOrderId());
 				on.setPaymentTermStatus(1);
 				if(o.getFinalPay()!=null){
