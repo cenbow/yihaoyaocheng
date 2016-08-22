@@ -54,11 +54,10 @@ function createOrder(){
 
     $("#createOrderForm").attr({"action": ctx + "/order/createOrder"});
     $("#createOrderForm").ajaxSubmit(function(_resultJsonObj) {
-        console.info("_resultJsonObj=" + _resultJsonObj +",_resultJsonObj.url=" + _resultJsonObj.url);
-
-        if(_resultJsonObj.message != null && _resultJsonObj.message != "" && typeof _resultJsonObj.url != "undefined"){
+        if(_resultJsonObj.message != null && _resultJsonObj.message != ""){
             console.info(_resultJsonObj.message );
-            alert("服务器异常!");
+            alert(_resultJsonObj.message);
+            return;
         }
 
         try{
