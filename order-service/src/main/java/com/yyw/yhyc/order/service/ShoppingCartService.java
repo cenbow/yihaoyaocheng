@@ -11,11 +11,13 @@
 package com.yyw.yhyc.order.service;
 
 import java.util.HashMap;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -147,6 +149,27 @@ public class ShoppingCartService {
 
 	public List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart) {
 		return shoppingCartMapper.listAllShoppingCart(shoppingCart);
+	}
+
+	/**
+	 *
+	 * @param shoppingCart
+	 * @param userDto
+     */
+	public int updateNum(ShoppingCart shoppingCart, UserDto userDto) {
+		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId())){
+			return 0 ;
+		}
+		ShoppingCart oldShoppingCart =  shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+		if(UtilHelper.isEmpty(oldShoppingCart)){
+			return 0;
+		}
+		ShoppingCart newShoppingCart = new ShoppingCart();
+		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
+		newShoppingCart.setProductCount(shoppingCart.getProductCount());
+		newShoppingCart.setProductSettlementPrice( oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+		newShoppingCart.setUpdateUser(userDto.getUserName());
+		return shoppingCartMapper.update(newShoppingCart);
 	}
 
 	/**

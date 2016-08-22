@@ -237,7 +237,7 @@ function changeColor(){
 function createOperation(order){
     var str = '';
     if(order.orderStatus == '1')
-        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">审核</a>';
+        str += '<a href="'+ctx+'/orderException/getReturnOrderDetails/'+order.exceptionId+'" class="btn btn-info btn-sm margin-r-10">审核</a>';
     if(order.orderStatus == '5')
         str += '<a href="javascript:showReturnList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
     return str;

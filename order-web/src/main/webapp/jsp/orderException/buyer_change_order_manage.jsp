@@ -213,6 +213,57 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="myModalConfirmReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel1">确认收货</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="changeConfirmReceiptForm" enctype="multipart/form-data">
+                    <input type='hidden' id="changeExceptionOrderId" >
+                    <table class="table table-box2">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                            <col style="width: 10%;">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>订单行号</th>
+                            <th>商品编码</th>
+                            <th>批号</th>
+                            <th>商品名</th>
+                            <th>通用名</th>
+                            <th>规格</th>
+                            <th>剂型</th>
+                            <th>生产企业</th>
+                            <th>采购数量</th>
+                            <th>收货数量</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="changeConfirmReceipt()">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
