@@ -439,7 +439,7 @@ function showChangeList (exceptionOrderId){
         success: function (data) {
             if(data&&data.length>0){
                 $("#curExceptionOrderId").val(exceptionOrderId);
-                fillReturnTable(data)
+                fillChangeTable(data)
             }
 
         },
@@ -447,4 +447,27 @@ function showChangeList (exceptionOrderId){
             alertModal("数据获取失败");
         }
     });
+}
+
+
+function fillChangeTable(list){
+
+    $("#myConfirmReturn tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderReturn = list[i];
+        var tr = "<tr>";
+        tr += "<td>" + orderReturn.orderLineNo + "</td>";
+        tr += "<td>" + orderReturn.productCode + "</td>";
+        tr += "<td>" + orderReturn.batchNumber + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.specification + "</td>";
+        tr += "<td>" + orderReturn.formOfDrug + "</td>";
+        tr += "<td>" + orderReturn.manufactures + "</td>";
+        tr += "<td>" + orderReturn.returnCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $("#myConfirmReturn tbody").append(trs);
 }

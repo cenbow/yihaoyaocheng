@@ -593,7 +593,6 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public String editConfirmReceiptReturn(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		userDto = new UserDto();
 		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;
 	}
@@ -606,7 +605,6 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public String editConfirmReceiptChange(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
-		userDto = new UserDto();
 		String msg = orderExceptionService.editConfirmReceiptChange(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;
 	}

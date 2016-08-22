@@ -270,7 +270,7 @@
                             <th>规格</th>
                             <th>剂型</th>
                             <th>生产企业</th>
-                            <th>退货数量</th>
+                            <th>换货数量</th>
                         </tr>
                         </thead>
                         <tbody>
