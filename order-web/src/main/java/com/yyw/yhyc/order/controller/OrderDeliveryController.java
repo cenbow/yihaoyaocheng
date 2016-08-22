@@ -124,7 +124,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName(fileName);
 		}else
 			return null;
-		return orderDeliveryService.sendOrderDelivery(orderDeliveryDto);
+		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 
 	/**

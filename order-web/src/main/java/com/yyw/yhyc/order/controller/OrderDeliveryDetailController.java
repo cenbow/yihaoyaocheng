@@ -113,7 +113,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	{
 		List<OrderDeliveryDetailDto> list = new JsonHelper<OrderDeliveryDetailDto>().fromList(listStr, OrderDeliveryDetailDto.class);
 		UserDto user = super.getLoginUser();
-		return orderDeliveryDetailService.confirmReceipt(list, user);
+		return orderDeliveryDetailService.updateConfirmReceipt(list, user);
 	}
 
     /**
