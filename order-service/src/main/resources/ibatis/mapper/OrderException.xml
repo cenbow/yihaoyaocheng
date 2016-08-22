@@ -1663,4 +1663,6 @@
 		</if>
 	</select>
 
+	<select id="getConfirmHistoryExceptionMoney" parameterType="java.lang.String" resultType="java.math.BigDecimal"  useCache="false">
+	</select>
 </mapper>

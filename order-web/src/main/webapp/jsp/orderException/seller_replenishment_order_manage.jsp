@@ -37,20 +37,14 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">采购商区域</label>
                             <div class="col-xs-3">
-                                <select class="form-control width-80" name="province">
+                                <select class="form-control width-80" name="province" id="province">
                                     <option value="-1">省份</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
                                 </select>
-                                <select class="form-control width-80" name="city">
+                                <select class="form-control width-80" name="city" id="city">
                                     <option value="-1">城市</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
                                 </select>
-                                <select class="form-control width-80" name="area">
+                                <select class="form-control width-80" name="area" id="area">
                                     <option value="-1">区/县</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
                                 </select>
                             </div>
 
@@ -253,6 +247,7 @@
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/orderException/seller_replenishment_order_manage.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/common.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/area_data.js"></script>
 </body>
 
 

@@ -10,9 +10,14 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.util.HashMap;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -144,5 +149,58 @@ public class ShoppingCartService {
 
 	public List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart) {
 		return shoppingCartMapper.listAllShoppingCart(shoppingCart);
+	}
+
+	/**
+	 *
+	 * @param shoppingCart
+	 * @param userDto
+     */
+	public int updateNum(ShoppingCart shoppingCart, UserDto userDto) {
+		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId())){
+			return 0 ;
+		}
+		ShoppingCart oldShoppingCart =  shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+		if(UtilHelper.isEmpty(oldShoppingCart)){
+			return 0;
+		}
+		ShoppingCart newShoppingCart = new ShoppingCart();
+		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
+		newShoppingCart.setProductCount(shoppingCart.getProductCount());
+		newShoppingCart.setProductSettlementPrice( oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+		newShoppingCart.setUpdateUser(userDto.getUserName());
+		return shoppingCartMapper.update(newShoppingCart);
+	}
+
+	/**
+	 * 加入进货单
+	 * @param shoppingCart 进货单对象
+	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
+	 * @throws Exception
+	 */
+	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws Exception{
+		//加入进货单信息
+		ShoppingCart condition = new ShoppingCart();
+		condition.setCustId(shoppingCart.getCustId());
+		condition.setProductId(shoppingCart.getProductId());
+		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
+
+		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
+			shoppingCartMapper.save(shoppingCart);
+		}else {//已经存在商品
+			shoppingCartMapper.updateProductCount(shoppingCart);
+		}
+
+
+		//查询商品数量和进化单金额
+		Map<String, Integer>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(shoppingCart.getCustId());
+
+		//封装返回信息
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("state", "S");
+		map.put("productCount", statisticsMap.get("productCount"));
+		map.put("sumPrice", statisticsMap.get("sumPrice"));
+
+		return map;
 	}
 }

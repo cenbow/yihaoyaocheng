@@ -10,6 +10,7 @@
  **/
 package com.yyw.yhyc.order.mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.yyw.yhyc.order.bo.OrderException;
@@ -247,4 +248,10 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
 	 */
 	public OrderExceptionDto getChangeGoodsOrderDetails(OrderExceptionDto orderExceptionDto);
+	/**
+	 * 根据订单编码，获取退货和拒收订单金额历史总额
+	 * @param flowId
+	 * @return
+	 */
+	public BigDecimal getConfirmHistoryExceptionMoney(String flowId);
 }

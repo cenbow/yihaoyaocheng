@@ -11,12 +11,14 @@
 package com.yyw.yhyc.order.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import org.apache.ibatis.annotations.Param;
 
 public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, Integer> {
 
@@ -25,4 +27,17 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 	List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart);
 	List<ShoppingCartDto> listShoppingCartDtoByProperty(ShoppingCart shoppingCart);
 
+	/**
+	 * 查询商品数量和进化单金额
+	 * @param custId
+	 * @return
+     */
+	Map<String, Integer> queryShoppingCartStatistics(@Param("custId") Integer custId);
+
+	/**
+	 * 更新商品数量 （product_count= product_count + #{productCount}）
+	 * @param shoppingCart
+	 * @return
+     */
+	int updateProductCount(ShoppingCart shoppingCart);
 }

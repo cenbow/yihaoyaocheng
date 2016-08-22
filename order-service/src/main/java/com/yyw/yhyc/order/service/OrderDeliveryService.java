@@ -514,6 +514,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setUpdateTime(now);
 				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				if(orderDeliveryDto.getOrderType()==2)
+					orderDeliveryDetail.setRecieveCount(orderDeliveryDetail.getDeliveryProductCount());
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
 				i++;
 			}
@@ -615,7 +617,58 @@ public class OrderDeliveryService {
 		}
 	}
 
+    //更新发货信息 更新日志表
+    public void updateOrderDeliveryReturn(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,Map<String,String> map,String excelPath,String now,String filePath){
 
+        if(errorList.size()>0){
+            map.put("code", "2");
+            map.put("msg","发货失败。");
+            map.put("fileName",filePath);
+        }else {
+            //更新异常订单
+            OrderException  orderException=orderExceptionMapper.getByExceptionOrderId(orderDeliveryDto.getFlowId());
+            orderException.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingBuyerReceived.getType());
+            orderException.setDeliverTime(now);
+            orderException.setUpdateTime(now);
+            orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+            orderExceptionMapper.update(orderException);
+            //插入日志表
+            OrderTrace orderTrace = new OrderTrace();
+            orderTrace.setOrderId(orderException.getOrderId());
+            orderTrace.setNodeName("补货卖家已发货");
+            orderTrace.setDealStaff(orderDeliveryDto.getUserDto().getUserName());
+            orderTrace.setRecordDate(now);
+            orderTrace.setRecordStaff(orderDeliveryDto.getUserDto().getUserName());
+            orderTrace.setOrderStatus(orderException.getOrderStatus());
+            orderTrace.setCreateTime(now);
+            orderTrace.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+            orderTraceMapper.save(orderTrace);
+            //生成发货信息
+            UsermanageReceiverAddress receiverAddress=receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
+            //更具原订单发货信息生成新的异常订单发货信息
+            OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderException.getFlowId());
+            orderDelivery.setOrderId(orderException.getExceptionId());
+            orderDelivery.setFlowId(orderException.getExceptionOrderId());
+            orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
+            orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
+            orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
+            orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
+            orderDelivery.setUpdateDate(now);
+            orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+            orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+            orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+            orderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+            orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+            orderDelivery.setCreateTime(now);
+            orderDelivery.setDeliveryId(null);
+            orderDelivery.setUpdateTime(now);
+            orderDeliveryMapper.save(orderDelivery);
+
+            map.put("code","1");
+            map.put("msg","发货成功。");
+            map.put("fileName",excelPath);
+        }
+    }
 
 	public List<UsermanageReceiverAddress> getReceiveAddressList(UserDto user){
 		UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
@@ -781,5 +834,167 @@ public class OrderDeliveryService {
 		return map;
 	}
 
+	public Map updateSendOrderDeliveryReturn(OrderDeliveryDto orderDeliveryDto) throws Exception{
+		Map<String,String> map=new HashMap<String, String>();
+		if(UtilHelper.isEmpty(orderDeliveryDto)){
+			map.put("code", "0");
+			map.put("msg", "发货信息不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getFlowId())){
+			map.put("code", "0");
+			map.put("msg", "订单id不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getReceiverAddressId())){
+			map.put("code", "0");
+			map.put("msg", "发货地址不能为空");
+			return map;
+		}
+		if(UtilHelper.isEmpty(orderDeliveryDto.getDeliveryMethod())){
+			map.put("code", "0");
+			map.put("msg", "配送方式不能为空");
+			return map;
+		}
 
+		//正常下单根据orderId查询订单收发货信息是否存在,更新发货信息
+
+		OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		if(UtilHelper.isEmpty(orderException)){
+			map.put("code", "0");
+			map.put("msg", "订单不存在");
+			return map;
+		}
+		//orderDeliveryDto.setOrderId(orderDelivery.getOrderId());
+        orderDeliveryDto.setFlowId(orderException.getExceptionOrderId());
+
+		//验证批次号并生成订单发货数据
+		readExcelOrderDeliveryDetailReturn(orderDeliveryDto.getPath()+orderDeliveryDto.getFileName(),map,orderDeliveryDto);
+
+		return map;
+	}
+
+	//读取验证订单批次信息excel
+	public Map<String,String> readExcelOrderDeliveryDetailReturn(String excelPath,Map<String,String> map,OrderDeliveryDto orderDeliveryDto){
+		String now = systemDateMapper.getSystemDate();
+		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
+		Map<String,String> errorMap=null;
+		Map<String,String> codeMap=new HashMap<String, String>();
+		Map <String,Integer> detailMap=new HashMap<String, Integer>();
+		//原订单id
+		int orderId=0;
+		String filePath="";
+
+		try{
+			List<Map<String, String>> 	list = ExcelUtil.readExcel(excelPath);
+			if(list.size()>0){
+				list.remove(0);
+			}else {
+				map.put("code","0");
+				map.put("msg","读取文件错误");
+			}
+			for (Map<String,String> rowMap:list) {
+				StringBuffer stringBuffer=new StringBuffer();
+				if(UtilHelper.isEmpty(rowMap.get("1"))){
+					stringBuffer.append("订单编码不能为空,");
+				}
+				if(UtilHelper.isEmpty(rowMap.get("2"))){
+					stringBuffer.append("商品编码不能为空,");
+				}
+
+				if(UtilHelper.isEmpty(rowMap.get("3"))){
+					stringBuffer.append("批号为不能空,");
+				}
+
+				if(UtilHelper.isEmpty(rowMap.get("4"))){
+					stringBuffer.append("数量为空,");
+				}
+
+				if(!rowMap.get("1").equals(orderDeliveryDto.getFlowId())){
+					stringBuffer.append("订单编码与发货订单编码不相同,");
+				}
+
+				//如果有必填为空则记录错误返回下一次循环
+				if(stringBuffer.length()>0){
+					errorMap=rowMap;
+					errorMap.put("5",stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length() - 1) + "", "。"));
+					errorList.add(errorMap);
+					continue;
+				}else {
+					//正常订单==1补货订单==2
+					if(orderDeliveryDto.getOrderType()==2){
+						//验证订单号与商品编码是否存在，都存在则根据商品编码记录批次数量
+						OrderException  orderException=orderExceptionMapper.getByExceptionOrderId(rowMap.get("1"));
+
+						if(UtilHelper.isEmpty(orderException)){
+							stringBuffer.append("订单编号不存在,");
+						}else {
+							orderId=orderException.getOrderId();
+							OrderDetail orderDetail=new OrderDetail();
+							orderDetail.setOrderId(orderId);
+							orderDetail.setProductCode(rowMap.get("2"));
+							orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
+							List detailList = orderDetailMapper.listByProperty(orderDetail);
+							if(detailList.size()<0){
+								stringBuffer.append("商品编码不存在,");
+							}
+							if(stringBuffer.length()>0){
+								errorMap=rowMap;
+								errorMap.put("5",stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length()-1)+"","。"));
+								errorList.add(errorMap);
+								continue;
+							}else {
+								if(UtilHelper.isEmpty(codeMap.get(rowMap.get("2")))){
+									codeMap.put(rowMap.get("2"),rowMap.get("4"));
+								}else {
+									codeMap.put(rowMap.get("2"),String.valueOf(Integer.parseInt(codeMap.get(rowMap.get("2"))) + Integer.parseInt(rowMap.get("4"))));
+								}
+							}
+						}
+
+					}
+
+				}
+			}
+
+			//验证商品数量是否相同
+
+			for (String code : codeMap.keySet()){
+				Map<String,Integer> returnMap=new HashMap<String, Integer>();
+				OrderReturn orderReturn=new OrderReturn();
+				orderReturn.setProductCode(code);
+				orderReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
+				orderReturn.setReturnType("2");
+				List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
+				if(returnList.size()>0) {
+					detailMap.put(code, returnList.get(0).getOrderDetailId());
+					for (OrderReturn or : returnList) {
+
+						if (UtilHelper.isEmpty(returnMap.get(or.getProductCode()))) {
+							returnMap.put(or.getProductCode(), or.getReturnCount());
+						} else {
+							returnMap.put(or.getProductCode(), or.getReturnCount() + returnMap.get(or.getProductCode()));
+						}
+					}
+					if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
+						errorMap = new HashMap<String, String>();
+						errorMap.put("5", "商品编码为" + code + "的商品导入数量不等于缺货数量");
+						errorList.add(errorMap);
+					}
+				}
+			}
+
+			//生成excel和订单发货信息
+			filePath=createOrderdeliverDetail(errorList,orderDeliveryDto,list,detailMap,excelPath,now);
+
+			//更新发货信息 更新日志表
+            updateOrderDeliveryReturn(errorList,orderDeliveryDto,map,excelPath,now,filePath);
+
+		}catch (Exception e){
+			map.put("code", "0");
+			map.put("msg", "Excel读取出错");
+			log.info(e.getMessage());
+		}
+		return map;
+	}
 }

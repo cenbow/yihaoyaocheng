@@ -15,6 +15,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 是否是账期商品 */
     private boolean periodProduct;
 
+    /* 最小包装单位 */
+    private String unit;
+
     public String getProductImageUrl() {
         return productImageUrl;
     }
@@ -31,11 +34,20 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.periodProduct = periodProduct;
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
                 "productImageUrl='" + productImageUrl + '\'' +
                 ", periodProduct=" + periodProduct +
+                ", unit='" + unit + '\'' +
                 '}';
     }
 }

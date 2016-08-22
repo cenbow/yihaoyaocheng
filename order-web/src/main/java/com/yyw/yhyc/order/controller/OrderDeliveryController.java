@@ -163,6 +163,30 @@ public class OrderDeliveryController extends BaseJsonController {
 		return orderDeliveryService.getReceiveAddressList(user);
 	}
 
+    /**
+     * 确认发货
+     * @return
+     */
+    @RequestMapping(value = "/sendOrderDeliveryReturn", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,String> sendOrderDeliveryReturn(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,@RequestParam("excelFile") MultipartFile excelFile) throws Exception
+    {
+        UserDto user = super.getLoginUser();
+        if(user==null){
+            user =  new UserDto();
+            user.setCustId(123456);
+        }
+        orderDeliveryDto.setUserDto(user);
+        orderDeliveryDto.setPath(request.getRealPath("/") + FILE_TEMPLATE_PATH);
+        //验证通过生成发货信息并上传文件
+        if(!UtilHelper.isEmpty(excelFile)){
+            String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
+            SaveFileFromInputStream(excelFile.getInputStream(), orderDeliveryDto.getPath(), fileName);
+            orderDeliveryDto.setFileName(fileName);
+        }else
+            return null;
+        return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
+    }
 
 
 	public void SaveFileFromInputStream(InputStream stream,String path,String filename) throws IOException
