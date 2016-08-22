@@ -23,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -72,7 +69,7 @@ public class ShoppingCartController extends BaseJsonController {
 	* @return
 	*/
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public void add(ShoppingCart shoppingCart) throws Exception
+	public void add(@RequestBody ShoppingCart shoppingCart) throws Exception
 	{
 		shoppingCartService.save(shoppingCart);
 	}
@@ -81,8 +78,8 @@ public class ShoppingCartController extends BaseJsonController {
 	* 根据多条主键值删除记录
 	* @return
 	*/
-	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-	public void delete(RequestListModel<Integer> requestListModel) throws Exception
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
+	public void delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception
 	{
 		shoppingCartService.deleteByPKeys(requestListModel.getList());
 	}
@@ -91,8 +88,8 @@ public class ShoppingCartController extends BaseJsonController {
 	* 修改记录
 	* @return
 	*/
-	@RequestMapping(value = "/update", method = RequestMethod.PUT)
-	public void update(ShoppingCart shoppingCart) throws Exception
+	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	public void update(@RequestBody ShoppingCart shoppingCart) throws Exception
 	{
 		shoppingCartService.update(shoppingCart);
 	}
@@ -111,4 +108,16 @@ public class ShoppingCartController extends BaseJsonController {
 		model.setViewName("shoppingCart/index");
 		return model;
 	}
+
+	/**
+	 * 更新购物车中数量
+	 * @param shoppingCart
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/updateNum", method = RequestMethod.POST)
+	public void updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		int resultCount = shoppingCartService.updateNum(shoppingCart,userDto);
+	}
+
 }

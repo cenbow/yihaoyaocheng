@@ -168,7 +168,7 @@ function fillTableJson(data) {
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
         tr += "<td>&yen" + fmoney(order.orderMoney,2) + "<br/>" + order.payTypeName + "</td>";
-        tr += "<td>" + (order.orderStatus == "4" ? "":"<a href='javascript:repListPg('"+order.exceptionOrderId+"')' class='btn btn-info btn-sm margin-r-10' >确认收货</a>") + "</td>";
+        tr += "<td>" + (order.orderStatus != "4" ? "":"<a href='javascript:repListPg(\""+order.exceptionOrderId+"\")' class='btn btn-info btn-sm margin-r-10' >确认收货</a>") + "</td>";
         tr += "</tr>";
         trs += tr;
     }
@@ -209,7 +209,7 @@ function format(date){
 
 function repListPg(ExceptionOrderId) {
     $("#crExceptionOrderId").val(ExceptionOrderId);
-    var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
+    var requestUrl = ctx+"/order/orderDeliveryDetail/listReplenishment";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:ExceptionOrderId,userType:1}};
     $.ajax({
         url : requestUrl,
@@ -279,20 +279,29 @@ function fillTable(data) {
     $("#myModalConfirmReceipt").modal().hide();
 }
 
-function repConfirmReceipt(exceptionOrderId){
-    $.ajax({
-        url :ctx+'/orderException/repConfirmReceipt',
-        data: JSON.stringify(exceptionOrderId),
-        type: 'POST',
-        dataType: 'json',
-        contentType: "application/json;charset=UTF-8",
-        success: function () {
-            alertModal("收货处理成功。");
-        },
-        error: function () {
-            alertModal("处理失败");
-        }
-    });
+function repConfirmReceipt(){
+    var exceptionOrderId= $("#crExceptionOrderId").val();
+    if (window.confirm("是否确认收货？")) {
+        $.ajax({
+            url: ctx + "/orderException/repConfirmReceipt/"+exceptionOrderId,
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if(data.statusCode || data.message){
+                    alertModal(data.message);
+                    return;
+                }else{
+                    pasretFormData();
+                    doRefreshData(params);
+                    alertModal("收货处理成功。");
+                    $("#myModalConfirmReceipt").modal("hide");
+                }
+            },
+            error: function () {
+                alertModal("处理失败");
+            }
+        });
+    }
 }
 
 

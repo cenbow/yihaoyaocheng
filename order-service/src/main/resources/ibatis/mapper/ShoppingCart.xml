@@ -37,6 +37,7 @@
 	</resultMap>
 	<resultMap id="ShoppingCartDtoResultMapper" extends="ShoppingCartResultMapper" type="com.yyw.yhyc.order.dto.ShoppingCartDto">
 		<result column="product_image_url" property="productImageUrl"/>
+		<result column="unit" property="unit"/>
 	</resultMap>
 
 	<resultMap type="ShoppingCartListDto" id="ShoppingCartListDtoResultMapper">
@@ -178,31 +179,93 @@
 				, #{productCount}
 				, #{remark}
 				, #{createUser}
-				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-				, #{updateUser}
-				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, NOW()
+				, NULL
+				, NULL
   ) ]]>
 	</insert>
 	<update id="update" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
-		<![CDATA[ UPDATE t_shopping_cart SET 
-			 shopping_cart_id=#{shoppingCartId} 
-			, cust_id=#{custId} 
-			, sku_id=#{skuId} 
-			, specification=#{specification} 
-			, supply_id=#{supplyId} 
-			, product_id=#{productId} 
+		<![CDATA[ UPDATE t_shopping_cart SET shopping_cart_id=#{shoppingCartId} ]]>
+
+		<if test="custId!= null and custId!= ''">
+			, cust_id=#{custId}
+		</if>
+		<if test="skuId!= null and skuId!= ''">
+			, sku_id=#{skuId}
+		</if>
+		<if test="specification!= null and specification!= ''">
+			, specification=#{specification}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			, supply_id=#{supplyId}
+		</if>
+		<if test="productId!= null and productId!= ''">
+			, product_id=#{productId}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''">
 			, spu_code=#{spuCode}
-			, product_name=#{productName} 
-			, manufactures=#{manufactures} 
-			, product_price=#{productPrice} 
-			, product_settlement_price=#{productSettlementPrice} 
-			, product_count=#{productCount} 
-			, remark=#{remark} 
-			, create_user=#{createUser} 
+		</if>
+		<if test="productName!= null and productName!= ''">
+			, product_name=#{productName}
+		</if>
+		<if test="manufactures!= null and manufactures!= ''">
+			, manufactures=#{manufactures}
+		</if>
+		<if test="productPrice!= null and productPrice!= ''">
+			, product_price=#{productPrice}
+		</if>
+		<if test="productSettlementPrice!= null and productSettlementPrice!= ''">
+			, product_settlement_price=#{productSettlementPrice}
+		</if>
+		<if test="productCount!= null and productCount!= ''">
+			, product_count=#{productCount}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			, create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-			, update_user=#{updateUser} 
-			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
-		WHERE shopping_cart_id = #{shoppingCartId}  ]]>
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			, update_user=#{updateUser}
+		</if>
+			, update_time= sysdate()
+		<![CDATA[ WHERE shopping_cart_id = #{shoppingCartId}  ]]>
+	</update>
+
+	<update id="updateProductCount" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
+		<![CDATA[ UPDATE t_shopping_cart SET product_id=#{productId} ]]>
+		<if test="specification!= null and specification!= ''">
+			, specification=#{specification}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''">
+			, spu_code=#{spuCode}
+		</if>
+		<if test="productName!= null and productName!= ''">
+			, product_name=#{productName}
+		</if>
+		<if test="manufactures!= null and manufactures!= ''">
+			, manufactures=#{manufactures}
+		</if>
+		<if test="productPrice!= null and productPrice!= ''">
+			, product_price=#{productPrice}
+		</if>
+		<if test="productSettlementPrice!= null and productSettlementPrice!= ''">
+			, product_settlement_price=#{productSettlementPrice}
+		</if>
+		<if test="productCount!= null and productCount!= ''">
+			, product_count= product_count + #{productCount}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			AND update_user=#{updateUser}
+		</if>
+		<![CDATA[ , update_time=NOW() WHERE cust_id=#{custId} AND  product_id=#{productId} ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_shopping_cart WHERE shopping_cart_id = #{shoppingCartId}  ]]>
@@ -251,8 +314,25 @@
 
 	<select id="listShoppingCartDtoByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartDtoResultMapper">
 		<![CDATA[ SELECT ]]>
-		<include refid="commonProcessDateColumns"/>
-		FROM t_shopping_cart WHERE 1=1
+		sc.shopping_cart_id
+		, sc.cust_id
+		, sc.sku_id
+		, sc.specification
+		, sc.supply_id
+		, sc.product_id
+		, sc.spu_code
+		, sc.product_name
+		, sc.manufactures
+		, sc.product_price
+		, sc.product_settlement_price
+		, sc.product_count
+		 ,p.unit
+		FROM t_shopping_cart sc  left join  t_product_info p on sc.product_id = p.id
+		WHERE 1=1
 		<include refid="commonCondition"/>
+	</select>
+	
+	<select id="queryShoppingCartStatistics" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+		SELECT SUM(1) productCount, SUM(product_count * product_settlement_price) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
 	</select>
 </mapper>

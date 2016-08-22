@@ -32,8 +32,8 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
                 boolean needRemoveSession = annotation.remove();
                 if (needRemoveSession) {
                     if (isRepeatSubmit(request)) {
-                        logger.error("请勿重复提交表单数据!");
-                        return false;
+//                        logger.error("请勿重复提交表单数据!");
+                        throw new Exception("请勿重复提交表单数据!");
                     }
                     request.getSession(false).removeAttribute("token");
                 }

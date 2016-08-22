@@ -514,6 +514,8 @@ public class OrderDeliveryService {
 				orderDeliveryDetail.setUpdateTime(now);
 				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				if(orderDeliveryDto.getOrderType()==2)
+					orderDeliveryDetail.setRecieveCount(orderDeliveryDetail.getDeliveryProductCount());
 				orderDeliveryDetailMapper.save(orderDeliveryDetail);
 				i++;
 			}

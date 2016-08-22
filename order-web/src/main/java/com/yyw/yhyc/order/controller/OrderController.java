@@ -275,14 +275,13 @@ public class OrderController extends BaseJsonController {
 		UserDto userDto = super.getLoginUser();
 		Map<String,Object> dataMap = orderService.checkOrderPage(userDto);
 
-		//TODO 武汉那边的接口 待联调
-//		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
-//			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-//			/* 由于账期订单 这种神奇订单的存在，需要拆分出账期订单数据，并展示在页面*/
-//			List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart);
-//			allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList);
-//			dataMap.put("allShoppingCart",allShoppingCart);
-//		}
+		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
+			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
+			/* 由于账期订单 这种神奇订单的存在，需要拆分出账期订单数据，并展示在页面*/
+			List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart);
+			allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList);
+			dataMap.put("allShoppingCart",allShoppingCart);
+		}
 
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
@@ -318,6 +317,11 @@ public class OrderController extends BaseJsonController {
 			}
 			/* 如果账期商品的总额为0，则不再进行拆单。进行下一个供应商数据的处理 */
 			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
+				continue;
+			}
+
+			logger.info("检查订单页-查询是否可用资信结算接口，creditDubboService=" + creditDubboService);
+			if(UtilHelper.isEmpty(creditDubboService)){
 				continue;
 			}
 
@@ -360,7 +364,7 @@ public class OrderController extends BaseJsonController {
 
 
 	private  List<ShoppingCartListDto>  calculatePeriodProductPriceCount (List<ShoppingCartListDto> allShoppingCart,List<PeriodParams> periodParamsList) {
-		if(UtilHelper.isEmpty(allShoppingCart)){
+		if(UtilHelper.isEmpty(allShoppingCart) || UtilHelper.isEmpty(periodParamsList)){
 			return allShoppingCart;
 		}
 		for(ShoppingCartListDto s: allShoppingCart){
@@ -396,6 +400,12 @@ public class OrderController extends BaseJsonController {
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return paramsList;
 		}
+
+		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:creditDubboService=" + creditDubboService);
+		if(UtilHelper.isEmpty(creditDubboService)){
+			return paramsList;
+		}
+
 		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
 			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
 				continue;
