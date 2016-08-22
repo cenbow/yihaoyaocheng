@@ -362,7 +362,7 @@ function sendDeliverysubmit(){
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
     $("#sendform").ajaxSubmit({
-        url :ctx+'/order/orderDelivery/sendOrderDelivery',
+        url :ctx+'/order/orderDelivery/sendOrderDeliveryReturn',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
