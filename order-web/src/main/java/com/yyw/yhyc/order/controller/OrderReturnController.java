@@ -16,6 +16,7 @@ import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderReturnService;
 import org.slf4j.Logger;
@@ -105,4 +106,17 @@ public class OrderReturnController extends BaseJsonController {
 
         return orderReturnService.saveProductReturn(orderReturnList,userDto);
     }
+
+	/**
+	 * 退货
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/listOrderReturn/{orderExceptionId}", method = RequestMethod.POST)
+	@ResponseBody
+	public List<OrderReturnDto> listOrderReturn(@PathVariable  String orderExceptionId) throws Exception
+	{
+		UserDto userDto = super.getLoginUser();
+		return orderReturnService.listOrderReturn(orderExceptionId);
+	}
 }

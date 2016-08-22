@@ -15,6 +15,8 @@ public class OrderReturnDto extends OrderReturn {
     private String specification;          //商品规格
     private String manufactures;           //生产厂家
     private String imageUrl;                //商品图片
+    private String orderLineNo;             //订单行号
+    private String formOfDrug;              //剂型
 
     public String getProductName() {
         return productName;
@@ -64,4 +66,19 @@ public class OrderReturnDto extends OrderReturn {
         this.imageUrl = imageUrl;
     }
 
+    public String getOrderLineNo() {
+        return orderLineNo;
+    }
+
+    public void setOrderLineNo(String orderLineNo) {
+        this.orderLineNo = orderLineNo;
+    }
+
+    public String getFormOfDrug() {
+        return formOfDrug;
+    }
+
+    public void setFormOfDrug(String formOfDrug) {
+        this.formOfDrug = formOfDrug;
+    }
 }

@@ -170,7 +170,7 @@ function fillTableJson(data) {
                 tr += "<td><a class='blue' href='javascript:void(0);' onclick='cancleOrder("+ order.exceptionId + ",2)'>取消</a></td>";
                 break;
             case "4" :
-                tr += "<td><a class='blue' href='#'>发货</a></td>";
+                tr += "<td><a class='blue' href='javascript:void(0);' onclick='sendDelivery("+ order.exceptionId + ")'>发货</a></td>";
                 break;
             case "7" :
                 tr += "<td><a class='blue' href='#'>确认收货</a></td>";
@@ -262,4 +262,109 @@ function cancleOrder(id, status) {
     }
 }
 
+/**
+ * 发货
+ * * @param orderId
+ */
+
+function sendDelivery(flowId) {
+    $("#sendFlowId").val(flowId);
+    $("#myModalSendDelivery").modal().hide();
+    $("#receiverAddressId").val("");
+    $("#deliveryContactPerson").val("");
+    $("#deliveryExpressNo").val("");
+    $("#deliveryExpressNo2").val("");
+    $("#deliveryContactPerson2").val("");
+    $("#deliveryExpressNo1").val("");
+    $("#deliveryContactPerson1").val("");
+    $("#deliveryDate").val("");
+
+    $.ajax({
+        url: ctx+"/order/orderDelivery/getReceiveAddressList",
+        type: 'GET',
+        success: function (data) {
+            console.info(data);
+            if (data!=null) {
+                $("#warehouse").html("");
+                var divs = "";
+                for (var i = 0; i < data.length; i++) {
+                    var delivery = data[i];
+                    var div = "<label class='radio-inline no-margin'>";
+                    if(delivery.defaultAddress==1){
+                        div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                    }else{
+                        div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                    }
+                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                        "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                    divs += div;
+                }
+                $("#warehouse").append(divs);
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("加载失败");
+        }
+    });
+}
+
+
+/**
+ * 发货提交
+ *
+ */
+function sendDeliverysubmit(){
+
+    var delivery = $("input[type=radio][name=delivery]:checked");
+    var ownw = $("input[type=radio][name=ownw]:checked");
+
+    if(delivery.val()==null||delivery.val()==""){
+        alertModal("发货仓库不能为空")
+        return;
+    }
+
+    var reg = /^0?1[3|4|5|7|8][0-9]\d{8}$/;
+    $("#receiverAddressId").val(delivery.val())
+    $("#deliveryMethod").val(ownw.val())
+
+    if(ownw.val()==1){
+        if($("#deliveryExpressNo1").val()!=null&&$("#deliveryExpressNo1").val()!=""){
+            if (!reg.test($("#deliveryExpressNo1").val())) {
+                alertModal("请填写正确的手机号")
+                return;
+            };
+        }
+        $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
+    }else{
+        $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
+        $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
+    }
+    $("#sendform").ajaxSubmit({
+        url :ctx+'/order/orderDelivery/sendOrderDeliveryForChange',
+        dataType: 'text',
+        type: 'POST',
+        success: function(data) {
+            console.info(data);
+            var obj=eval("(" + data + ")");
+            if(obj.code==0){
+                alertModal(obj.msg);
+            }else{
+                $("#myModalPrompt").modal().hide();
+                $("#msgDiv").html("");
+                var div = "";
+                if(obj.code==1){
+                    div += " <p class='font-size-20 red'><b>发货成功</b></p>"
+                    $("#myModalSendDelivery").modal("hide");
+                    pasretFormData();
+                    doRefreshData(params);
+                }else{
+                    div += "<p class='font-size-20 red'><b>发货失败</b></p>";
+                }
+                $("#msgDiv").append(div);
+            }
+        }
+    });
+
+}
 

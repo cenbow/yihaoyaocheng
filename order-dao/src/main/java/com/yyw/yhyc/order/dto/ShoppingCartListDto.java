@@ -25,6 +25,9 @@ public class ShoppingCartListDto implements Serializable{
     /* 购买当前供应商下所有商品的总金额*/
     private BigDecimal productPriceCount;
 
+    /* 购买当前供应商下含有账期商品的总金额*/
+    private BigDecimal periodProductPriceCount;
+
     public UsermanageEnterprise getBuyer() {
         return buyer;
     }
@@ -57,6 +60,14 @@ public class ShoppingCartListDto implements Serializable{
         this.productPriceCount = productPriceCount;
     }
 
+    public BigDecimal getPeriodProductPriceCount() {
+        return periodProductPriceCount;
+    }
+
+    public void setPeriodProductPriceCount(BigDecimal periodProductPriceCount) {
+        this.periodProductPriceCount = periodProductPriceCount;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartListDto{" +
@@ -64,6 +75,7 @@ public class ShoppingCartListDto implements Serializable{
                 ", seller=" + seller +
                 ", shoppingCartDtoList=" + shoppingCartDtoList +
                 ", productPriceCount=" + productPriceCount +
+                ", periodProductPriceCount=" + periodProductPriceCount +
                 '}';
     }
 }

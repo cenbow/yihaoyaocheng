@@ -16,6 +16,8 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +27,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 @Controller
-@RequestMapping(value = "/order/shoppingCart")
+@RequestMapping(value = "/shoppingCart")
 public class ShoppingCartController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
@@ -90,5 +95,20 @@ public class ShoppingCartController extends BaseJsonController {
 	public void update(ShoppingCart shoppingCart) throws Exception
 	{
 		shoppingCartService.update(shoppingCart);
+	}
+
+	@RequestMapping(value = "/index", method = RequestMethod.GET)
+	public ModelAndView index() throws Exception {
+		ModelAndView model = new ModelAndView();
+		UserDto userDto = super.getLoginUser();
+
+		/* 获取购物车中的商品信息 */
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCart(shoppingCart);
+
+		model.addObject("allShoppingCart",allShoppingCart);
+		model.setViewName("shoppingCart/index");
+		return model;
 	}
 }

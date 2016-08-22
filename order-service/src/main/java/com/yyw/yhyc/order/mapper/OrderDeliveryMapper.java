@@ -21,4 +21,6 @@ public interface OrderDeliveryMapper extends GenericIBatisMapper<OrderDelivery, 
 	public List<OrderDelivery> listPaginationByProperty(Pagination<OrderDelivery> pagination, OrderDelivery orderDelivery);
 
 	public OrderDelivery getByFlowId(String flowId);
+
+	public List<OrderDelivery> getOrderDeliveryByFlowId(String flowId);
 }

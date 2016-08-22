@@ -10,6 +10,9 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
+
+    //绑定省市区
+    bindAreaData('province','city','area');
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -61,6 +64,54 @@ function fillPagerUtil(data, requestParam) {
             var nowpage = data.page;
             $("#nowpageedit").val(nowpage);
             fillTableJson(data);
+        }
+    });
+}
+
+/**
+ * 绑定省市区操作
+ * @param prov
+ * @param city
+ * @param area
+ */
+function bindAreaData(prov,city,area){
+    var provinceList = getProvince();
+    if(provinceList && provinceList.length > 0){
+        var provStr = '<option value="">省份</option>';
+        for(var i=0;i<provinceList.length;i++){
+            provStr += ' <option value="'+provinceList[i].infoCode+'">'+provinceList[i].infoName+'</option>';
+        }
+        $("#"+prov).html(provStr);
+    }
+    $("#"+prov).change(function () {
+        var cityStr = '<option value="">城市</option>';
+        var _prov = $(this).children('option:selected').val();
+        if(_prov == ''){
+            $("#"+city).html(cityStr);
+            $("#"+area).html('<option value="">区/县</option>');
+            return;
+        }
+        var cityList = getCity(_prov);
+        if(cityList && cityList.length > 0){
+            for(var i=0;i<cityList.length;i++){
+                cityStr += ' <option value="'+cityList[i].infoCode+'">'+cityList[i].infoName+'</option>';
+            }
+            $("#"+city).html(cityStr);
+        }
+    });
+    $("#"+city).change(function () {
+        var areaStr = '<option value="">区/县</option>';
+        var _city = $(this).children('option:selected').val();
+        if(_city == ''){
+            $("#"+area).html(areaStr);
+            return;
+        }
+        var areaList = getArea(_city);
+        if(areaList && areaList.length > 0){
+            for(var i=0;i<areaList.length;i++){
+                areaStr += ' <option value="'+areaList[i].infoCode+'">'+areaList[i].infoName+'</option>';
+            }
+            $("#"+area).html(areaStr);
         }
     });
 }
@@ -121,7 +172,6 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
-                    console.info(data);
                     var nowpage = data.orderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.orderList);
@@ -157,7 +207,6 @@ $.fn.serializeObject = function () {
  * @param data
  */
 function fillTableJson(data) {
-    console.info(data)
     var indexNum = 1;
     if(!data || !data.resultList)
         return;
@@ -168,7 +217,7 @@ function fillTableJson(data) {
         var order = list[i];
         var op = createOperation(order);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/buyerReReturnOrderDetail/" + order.exceptionId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/sellerReReturnOrderDetail/" + order.exceptionId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -177,7 +226,6 @@ function fillTableJson(data) {
         tr += "</tr>";
         trs += tr;
     }
-    console.info(trs);
     $(".table-box tbody").append(trs);
     changeColor();
 }
@@ -191,11 +239,79 @@ function createOperation(order){
     if(order.orderStatus == '1')
         str += '<a href="#" class="btn btn-info btn-sm margin-r-10">审核</a>';
     if(order.orderStatus == '5')
-        str += '<a href="#" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
+        str += '<a href="javascript:showReturnList(\''+order.exceptionOrderId+'\');" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
     return str;
 }
 
+function showReturnList (exceptionOrderId){
+    $("#myConfirmReturn").modal("show");
+    //TODO  请求数据
+    var requestUrl = ctx+"/order/orderReturn/listOrderReturn/"+exceptionOrderId;
+    $("#curExceptionOrderId").val(exceptionOrderId);
+    $.ajax({
+        url: requestUrl,
+        type: 'POST',
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            if(data&&data.length>0){
+                $("#curExceptionOrderId").val(exceptionOrderId);
+                fillReturnTable(data)
+            }
 
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    });
+}
+
+function fillReturnTable(list){
+
+    $("#myConfirmReturn tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderReturn = list[i];
+        var tr = "<tr>";
+        tr += "<td>" + orderReturn.orderLineNo + "</td>";
+        tr += "<td>" + orderReturn.productCode + "</td>";
+        tr += "<td>" + orderReturn.batchNumber + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.specification + "</td>";
+        tr += "<td>" + orderReturn.formOfDrug + "</td>";
+        tr += "<td>" + orderReturn.manufactures + "</td>";
+        tr += "<td>" + orderReturn.returnCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $("#myConfirmReturn tbody").append(trs);
+}
+
+function  confirmSaleReturn() {
+
+    var requestUrl = ctx+"/orderException/editConfirmReceiptReturn";
+    var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
+   $.ajax({
+        url: requestUrl,
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+           if(data&&data.msg== true){
+               alertModal("操作成功");
+               $("#myConfirmReturn").modal("hide");
+           }else{
+               alertModal("操作失败");
+           }
+
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败");
+        }
+    })
+}
 /**
  * 获取最近n天日期
  * @param day

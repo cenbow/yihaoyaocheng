@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -139,5 +140,9 @@ public class ShoppingCartService {
 	public int findByCount(ShoppingCart shoppingCart) throws Exception
 	{
 		return shoppingCartMapper.findByCount(shoppingCart);
+	}
+
+	public List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart) {
+		return shoppingCartMapper.listAllShoppingCart(shoppingCart);
 	}
 }

@@ -244,6 +244,10 @@ public class OrderService {
 
 	/**
 	 * 创建订单(PC端、APP端统一入口)
+	 * 拆单逻辑：
+	 * 		  按供应商为单位，拆成一个单 （一期需求）
+	 * 		  按供应商为单位，且对该供应商下的每个商品进行检查。如果是合法的账期商品，则该商品就生成一个订单，其余商品和非法账期商品则合成一个订单 （二期需求）
+	 *
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
@@ -259,19 +263,22 @@ public class OrderService {
 		Integer currentLoginEnterpriseId = orderCreateDto.getUserDto().getCustId();
 		if(UtilHelper.isEmpty(currentLoginEnterpriseId)) throw new Exception("非法参数");
 		UsermanageEnterprise enterprise = enterpriseMapper.getByEnterpriseId(currentLoginEnterpriseId + "");
-		if(UtilHelper.isEmpty(enterprise)) throw new Exception("用户不存在");
-
 		log.info("创建订单接口-当前登陆用户信息enterprise：" + enterprise);
+		if(UtilHelper.isEmpty(enterprise)){
+			throw new Exception("用户不存在");
+		}
 
         /* 订单配送信息 */
 		OrderDelivery orderDelivery = handlerOrderDelivery(enterprise,orderCreateDto);
 		log.info("创建订单接口-订单配送信息orderDelivery ：" + orderDelivery);
 
-        /* 订单信息 */
-		List<OrderDto> orderDtoList = orderCreateDto.getOrderDtoList();
+		/* 创建支付流水号 */
+		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginEnterpriseId);
+		log.info("创建订单接口-创建支付流水号,payFlowId = " + payFlowId);
 
 		List<Order> orderNewList =  new ArrayList<Order>();
-		for (OrderDto orderDto : orderDtoList){
+		/* 遍历订单数据中的各个供应商,即按供应商为单位拆单(一期需求) */
+		for (OrderDto orderDto : orderCreateDto.getOrderDtoList()){
 			if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 				continue;
 			}
@@ -283,23 +290,144 @@ public class OrderService {
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
 				orderDto.setBillType(orderCreateDto.getBillType());
 			}
-			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),payFlowId);
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
+		log.info("创建订单接口-生成的订单数据(以供应商为单位拆单),orderNewList = " + orderNewList);
 
-		/* 创建支付流水号 */
-		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginEnterpriseId);
-		log.info("创建订单接口-创建支付流水号,payFlowId = " + payFlowId);
+		/* 从原始订单信息中筛选出合法的账期商品信息 */
+		List<OrderDto> periodTermOrderDtoList = getPeriodTermOrderDtoList(orderCreateDto.getOrderDtoList());
+		/* 创建账期订单 */
+		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto());
+		log.info("创建订单接口-生成的订单数据(以账期商品为单位拆单),periodTermOrderList = " + periodTermOrderList);
 
-		/* 插入数据到订单支付表 */
-		insertOrderPay(orderNewList, orderCreateDto.getUserDto(), payFlowId);
-
-		/* 插入订单合并表(只有选择在线支付的订单才合成一个单),回写order_combined_id到order表 */
-		insertOrderCombined(orderNewList,orderCreateDto.getUserDto(),payFlowId);
+		/* 合并生成的订单数据 */
+		if (!UtilHelper.isEmpty(periodTermOrderList)){
+			orderNewList.addAll(periodTermOrderList);
+		}
 		log.info("创建订单接口-完成，返回数据,orderNewList = " + orderNewList);
         return orderNewList;
     }
+
+	/**
+	 * 筛选出选择账期支付方式的商品信息
+	 * @param orderDtoList 确认订单页面中 组装的订单商品数据（页面原始数据）
+	 * @return 符合账期支付订单规则的数据(新的数据)
+     */
+	private List<OrderDto> getPeriodTermOrderDtoList(List<OrderDto> orderDtoList) {
+		if(UtilHelper.isEmpty(orderDtoList)) return null;
+
+		List<OrderDto> periodTermOrderDtoList = new ArrayList<OrderDto>();
+		for (OrderDto orderDto : orderDtoList) {
+			if(UtilHelper.isEmpty(orderDto)) continue;
+
+			List<ProductInfoDto> productInfoDtoList = new ArrayList<ProductInfoDto>();
+			/* 遍历该供商下的所有商品 */
+			for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+				if(UtilHelper.isEmpty(productInfoDto)) continue;
+
+				/* 校验该商品是否符合账期订单的规则 */
+				if (validateRulesOfPeriodTermOrder(orderDto.getPayTypeId(),productInfoDto)) {
+					productInfoDtoList.add(productInfoDto);
+				}
+			}
+			orderDto.setProductInfoDtoList(productInfoDtoList);
+			periodTermOrderDtoList.add(orderDto);
+		}
+		return periodTermOrderDtoList;
+	}
+
+	/**
+	 * 移除原始订单数据中的(合法)账期商品，
+	 * 目的：为了让生成账期订单的流程不影响正常的下单流程
+	 * @param orderDto
+	 * @return
+     */
+	private OrderDto removePeriodTermOrderDto(OrderDto orderDto) {
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+			return null;
+		}
+
+		List<ProductInfoDto> productInfoDtoList = new ArrayList<ProductInfoDto>();
+		/* 遍历该供商下的所有商品 */
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+			if(UtilHelper.isEmpty(productInfoDto)) continue;
+
+			/* 校验该商品是否符合账期订单的规则 */
+			if (validateRulesOfPeriodTermOrder(orderDto.getPayTypeId(),productInfoDto)) {
+				continue;
+			}else{
+				productInfoDtoList.add(productInfoDto);
+			}
+		}
+		orderDto.setProductInfoDtoList(productInfoDtoList);
+		return orderDto;
+	}
+
+	/**
+	 * 校验该商品是否符合账期订单的规则
+	 * @param payTypeId 支付方式
+	 * @param productInfoDto 单个商品信息
+     * @return
+     */
+	private boolean validateRulesOfPeriodTermOrder(Integer payTypeId,ProductInfoDto productInfoDto) {
+		if(UtilHelper.isEmpty(payTypeId) ){
+			return false;
+		}
+		if(UtilHelper.isEmpty(productInfoDto)){
+			return false;
+		}
+		/* 选择了账期支付方式 且商品的有账期 */
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(payTypeId) && productInfoDto.isPeriodProduct()){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 *  创建账期订单(一个商品就生成一个订单)
+	 * @param periodTermOrderDtoList 筛选后的（选择账期支付方式的)商品信息
+	 * @param orderDelivery 订单发货信息
+	 * @param userDto			买家用户信息
+     * @return
+     */
+	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto) throws Exception {
+		if( UtilHelper.isEmpty(periodTermOrderDtoList) || UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(userDto)){
+			return null;
+		}
+		List<Order> orderNewList =  new ArrayList<Order>();
+		for (OrderDto orderDto : periodTermOrderDtoList){
+			if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+				continue;
+			}
+
+			ProductInfoDto productInfoDto = null;
+			List<ProductInfoDto> productInfoDtoList = new ArrayList<>();
+			for(int i = 0 ;i < orderDto.getProductInfoDtoList().size() ; i++){
+				productInfoDto = orderDto.getProductInfoDtoList().get(i);
+				if(UtilHelper.isEmpty(productInfoDto )) continue;
+
+				productInfoDtoList.clear();
+				productInfoDtoList.add(productInfoDto);
+				orderDto.setProductInfoDtoList(productInfoDtoList);
+
+				/* 创建支付流水号 */
+				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
+				payFlowId += "-" + i;
+
+				Order orderNew = createOrderInfo(orderDto,orderDelivery,userDto,payFlowId);
+				if(!UtilHelper.isEmpty(orderNew)){
+					/* 账期订单生成结算数据 */
+					savePaymentDateSettlement(userDto,orderNew.getOrderId());
+					orderNewList.add(orderNew);
+				}
+			}
+		}
+		return orderNewList;
+	}
+
+
 
 	private OrderDelivery handlerOrderDelivery(UsermanageEnterprise enterprise, OrderCreateDto orderCreateDto) throws Exception {
 		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())
@@ -327,12 +455,22 @@ public class OrderService {
 	 * 创建订单相关的所有信息
 	 * @param orderDto 订单、商品相关信息
 	 * @param orderDelivery 订单发货、配送相关信息
+	 * @param userDto		买家用户信息
+	 * @param payFlowId	支付流水号
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery,UserDto userDto) throws Exception{
-		if( null == orderDto || null == orderDelivery){
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto, String payFlowId) throws Exception{
+		if( UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())
+				|| UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(payFlowId)){
 			return null;
 		}
+
+		/* 如果含有合法的账期商品，则跳过该商品，继续生成订单 */
+		orderDto = removePeriodTermOrderDto(orderDto);
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+			return null;
+		}
+
 
 		/* TODO  计算订单相关的价格 */
 		log.info("创建订单接口 ：计算订单相关的价格,计算前orderDto = " + orderDto);
@@ -349,11 +487,15 @@ public class OrderService {
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
+		/* 插入数据到订单支付表 */
+		insertOrderPay(order, userDto, payFlowId);
+
 		/* TODO 删除购物车 */
 //		deleteShoppingCart(orderDto);
 
-		//TODO 短信、邮件等通知买家
-		//TODO 自动取消订单相关的定时任务
+		/* TODO 短信、邮件等通知买家 */
+
+		/* TODO 自动取消订单相关的定时任务 */
 
 		return order;
 	}
@@ -394,107 +536,28 @@ public class OrderService {
 	}
 
 
-	/**
-	 * 插入合并订单表
-	 * 只有选择在线支付的订单才合成一个单
-	 * @param orderNewList 新生成订单的集合
-	 * @param userDto  当前登陆人的信息
-	 * @param payFlowId 支付流水号
-	 */
-	private void insertOrderCombined(List<Order> orderNewList, UserDto userDto, String payFlowId) {
-		if(UtilHelper.isEmpty(orderNewList)) return;
-		if(UtilHelper.isEmpty(userDto)) return;
-		if(UtilHelper.isEmpty(payFlowId)) return;
 
-		/* 在线支付订单的集合 */
-		List<Order> payOnlineOrderList = new ArrayList<Order>();
-
-		OrderCombined orderCombined = null;
-		for(Order order : orderNewList){
-			if(UtilHelper.isEmpty(order)) continue;
-			if(!UtilHelper.isEmpty(order.getPayTypeId()) && SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
-				payOnlineOrderList.add(order);
-				continue;
-			}
-			orderCombined = new OrderCombined();
-			orderCombined.setCustId(order.getCustId());
-			orderCombined.setCreateUser(userDto.getUserName());
-			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
-			orderCombined.setCombinedNumber(1);//合并订单数
-			//todo 价格相关
-			orderCombined.setCopeTotal(order.getOrderTotal());//	应付总价
-			orderCombined.setPocketTotal(order.getFinalPay());//实付总价
-			orderCombined.setFreightPrice(order.getFreight());//运费
-			orderCombined.setPayFlowId(payFlowId);
-			orderCombinedMapper.save(orderCombined);
-			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
-			if(!UtilHelper.isEmpty(orderCombinedList)){
-				orderCombined = orderCombinedList.get(0);
-			}
-			if(!UtilHelper.isEmpty(orderCombined) && !UtilHelper.isEmpty(orderCombined.getOrderCombinedId())){
-				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
-				orderMapper.update(order);
-			}
-		}
-
-		/* 合并在线支付方式的订单 */
-		if(!UtilHelper.isEmpty(payOnlineOrderList)){
-			BigDecimal allCopeTotal = new BigDecimal(0);   //应付总价
-			BigDecimal allPocketTotal = new BigDecimal(0); //实付总价
-			BigDecimal allFreightPrice = new BigDecimal(0); //总运费
-			for(Order order : payOnlineOrderList){
-				//todo 价格相关
-				allCopeTotal = allCopeTotal.add(order.getOrderTotal());
-				allFreightPrice = allFreightPrice.add(order.getFreight());
-			}
-			orderCombined = new OrderCombined();
-			orderCombined.setCustId(userDto.getCustId());
-			orderCombined.setCreateUser(userDto.getUserName());
-			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
-			orderCombined.setCombinedNumber(payOnlineOrderList.size());//合并订单数
-			orderCombined.setCopeTotal(allCopeTotal);//	应付总价
-			orderCombined.setPocketTotal(allPocketTotal);//实付总价
-			orderCombined.setFreightPrice(allFreightPrice);//运费
-			orderCombined.setPayFlowId(payFlowId);
-			orderCombinedMapper.save(orderCombined);
-			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
-			if(!UtilHelper.isEmpty(orderCombinedList)){
-				orderCombined = orderCombinedList.get(0);
-			}
-			/* 将order_combined_id回写到order表 */
-			for(Order order : payOnlineOrderList){
-				if(!UtilHelper.isEmpty(orderCombined) && !UtilHelper.isEmpty(orderCombined.getOrderCombinedId())){
-					order.setOrderCombinedId(orderCombined.getOrderCombinedId());
-					orderMapper.update(order);
-				}
-			}
-		}
-
-	}
 
 	/**
 	 * 插入订单支付表
-	 * @param orderNewList 新生成订单的集合
+	 * @param order 新生成的订单
 	 * @param userDto 当前登陆人的信息
 	 * @param payFlowId 支付流水号
 	 * @throws Exception
      */
-	private void insertOrderPay(List<Order> orderNewList, UserDto userDto, String payFlowId) throws Exception {
-		if(UtilHelper.isEmpty(orderNewList)) return;
+	private void insertOrderPay(Order order, UserDto userDto, String payFlowId) throws Exception {
+		if(UtilHelper.isEmpty(order)) return;
 		if(UtilHelper.isEmpty(userDto)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
-		OrderPay orderPay = null ;
-		for(Order order : orderNewList){
-			orderPay = new OrderPay();
-			orderPay.setOrderId(order.getOrderId());
-			orderPay.setFlowId(order.getFlowId());
-			orderPay.setPayFlowId(payFlowId);
-			orderPay.setPayTypeId(order.getPayTypeId());
-			orderPay.setCreateTime(systemDateMapper.getSystemDate());
-			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
-			orderPay.setCreateUser(userDto.getUserName());
-			orderPayMapper.save(orderPay);
-		}
+		OrderPay orderPay = new OrderPay();
+		orderPay.setOrderId(order.getOrderId());
+		orderPay.setFlowId(order.getFlowId());
+		orderPay.setPayFlowId(payFlowId);
+		orderPay.setPayTypeId(order.getPayTypeId());
+		orderPay.setCreateTime(systemDateMapper.getSystemDate());
+		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
+		orderPay.setCreateUser(userDto.getUserName());
+		orderPayMapper.save(orderPay);
 	}
 
 	/**
@@ -678,8 +741,8 @@ public class OrderService {
 
 		//TODO 特殊校验(选择账期支付方式的订单，校验买家账期、商品账期)
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
-			//TODO 校验商家的账期(是否存在、是否有效)
-			//TODO 校验商品的账期(是否存在、是否有效)
+			//TODO 校验该供应的账期(是否存在、是否有效)
+			//TODO 校验每个商品的账期(是否存在、是否有效)
 
 		}
 		log.info("统一校验订单商品接口 ：校验成功" );
@@ -1319,15 +1382,57 @@ public class OrderService {
 	 */
 	public boolean updateOrderStatus(List<Order> order) {
 		// TODO Auto-generated method stub
+		boolean re=true;
+		try{
 		Order on=new Order();
 		for(Order o:order){
-			Order no=orderMapper.getByPK(o.getOrderId());
-			if(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getValue())){
-				on.setOrderId(o.getOrderId());
+			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
+			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
+				on.setOrderId(no.getOrderId());
 				on.setPaymentTermStatus(1);
+				if(o.getFinalPay()!=null){
+					on.setFinalPay(o.getFinalPay());
+				}
 				orderMapper.update(on);
+			}else{
+				re= false;
 			}
+		 }
+		}catch (Exception e){
+			e.printStackTrace();
+			return false;
 		}
-		return true;
+		return re;
+	}
+
+	/**
+	 * 当账期订单生成时生成结算数据
+	 * @param userDto
+	 * @param orderId
+	 * @throws Exception
+	 */
+	private void savePaymentDateSettlement(UserDto userDto,Integer orderId){
+		Order order = orderMapper.getByPK(orderId);
+		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(userDto)){
+			throw new RuntimeException("未找到订单");
+		}
+		String now = systemDateMapper.getSystemDate();
+		OrderSettlement orderSettlement = new OrderSettlement();
+		orderSettlement.setBusinessType(1);
+		orderSettlement.setOrderId(orderId);
+		orderSettlement.setFlowId(order.getFlowId());
+		orderSettlement.setCustId(order.getCustId());
+		orderSettlement.setCustName(order.getCustName());
+		orderSettlement.setSupplyId(order.getSupplyId());
+		orderSettlement.setSupplyName(order.getSupplyName());
+		orderSettlement.setConfirmSettlement("0");
+		orderSettlement.setPayTypeId(order.getPayTypeId());
+		orderSettlement.setSettlementTime(now);
+		orderSettlement.setCreateUser(userDto.getCustName());
+		orderSettlement.setCreateTime(now);
+		orderSettlement.setOrderTime(order.getCreateTime());
+		orderSettlement.setSettlementMoney(order.getOrgTotal());
+		orderSettlement.setRefunSettlementMoney(order.getOrgTotal());
+		orderSettlementMapper.save(orderSettlement);
 	}
 }

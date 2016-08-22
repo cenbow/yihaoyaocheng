@@ -9,6 +9,12 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yao.trade.interfaces.credit.model.CreditDubboResult;
+import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
+import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.annotation.Token;
@@ -17,14 +23,12 @@ import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.dto.OrderCreateDto;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
 import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.service.ShoppingCartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +37,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -50,6 +53,11 @@ public class OrderController extends BaseJsonController {
 	@Autowired
 	private OrderService orderService;
 
+	@Autowired
+	private ShoppingCartService shoppingCartService;
+
+	@Reference(timeout = 50000)
+	private CreditDubboServiceInterface creditDubboService;
 
 
     /**
@@ -266,12 +274,195 @@ public class OrderController extends BaseJsonController {
 	public ModelAndView checkOrderPage() throws Exception {
 		UserDto userDto = super.getLoginUser();
 		Map<String,Object> dataMap = orderService.checkOrderPage(userDto);
+
+		//TODO 武汉那边的接口 待联调
+//		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
+//			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
+//			/* 由于账期订单 这种神奇订单的存在，需要拆分出账期订单数据，并展示在页面*/
+//			List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart);
+//			allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList);
+//			dataMap.put("allShoppingCart",allShoppingCart);
+//		}
+
 		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
 		model.addObject("userDto",userDto);
 		model.setViewName("order/checkOrderPage");
 		return model;
 	}
+
+	/**
+	 *
+	 * @param allShoppingCart
+	 * @param periodParamsList
+	 * @return
+	 */
+	private List<ShoppingCartListDto> convertAllShoppingCart(List<ShoppingCartListDto> allShoppingCart,List<PeriodParams> periodParamsList) {
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return allShoppingCart;
+		}
+		/* 计算各个供应商下是否有账期商品，如果有，则计算这些账期商品的总价 */
+		allShoppingCart = calculatePeriodProductPriceCount(allShoppingCart,periodParamsList);
+		logger.info("检查订单页-计算各个供应商下账期商品的总价，计算后的allShoppingCart=" + allShoppingCart);
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return allShoppingCart;
+		}
+
+		List<ShoppingCartListDto> periodTermShoppingCartList = new ArrayList<ShoppingCartListDto>();
+
+		List<ShoppingCartDto> shoppingCartDtoList = null;
+		ShoppingCartListDto shoppingCartListDto = null;
+		for(ShoppingCartListDto s: allShoppingCart){
+			if(UtilHelper.isEmpty(s) || UtilHelper.isEmpty(s.getBuyer())  || UtilHelper.isEmpty(s.getSeller())|| UtilHelper.isEmpty(s.getShoppingCartDtoList()) ){
+				continue;
+			}
+			/* 如果账期商品的总额为0，则不再进行拆单。进行下一个供应商数据的处理 */
+			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
+				continue;
+			}
+
+			CreditParams creditParams = new CreditParams();
+			creditParams.setBuyerCode(s.getBuyer().getEnterpriseId() + "");
+			creditParams.setSellerCode(s.getSeller().getEnterpriseId()+ "");
+			creditParams.setOrderTotal(s.getPeriodProductPriceCount());
+			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + creditParams);
+			CreditDubboResult creditDubboResult = creditDubboService.queryCreditAvailability(creditParams);
+			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
+
+			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+				logger.error("检查订单页-查询是否可用资信结算接口，调用失败:" + creditDubboResult.getMessage());
+				continue;
+			}
+
+			/* 把合法账期商品的拿出来 */
+			shoppingCartDtoList = new ArrayList<>();
+			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				if(shoppingCartDto.isPeriodProduct()){
+					shoppingCartDtoList.add(shoppingCartDto);
+				}
+			}
+
+			/* 如果有合法账期商品，组装新的数据  */
+			if(!UtilHelper.isEmpty(shoppingCartDtoList)){
+				shoppingCartListDto = s;
+				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
+				periodTermShoppingCartList.add(shoppingCartListDto);
+			}
+		}
+
+		/* 如果有合法账期商品的集合，与原来的购物车数据合并 */
+		if(!UtilHelper.isEmpty(periodTermShoppingCartList)){
+			allShoppingCart.addAll(periodTermShoppingCartList);
+		}
+		return allShoppingCart;
+	}
+
+
+	private  List<ShoppingCartListDto>  calculatePeriodProductPriceCount (List<ShoppingCartListDto> allShoppingCart,List<PeriodParams> periodParamsList) {
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return allShoppingCart;
+		}
+		for(ShoppingCartListDto s: allShoppingCart){
+			if(UtilHelper.isEmpty(s) || UtilHelper.isEmpty(s.getShoppingCartDtoList())){
+				continue;
+			}
+
+			/* 当前供应商下含有账期商品的总金额 */
+			BigDecimal periodProductPriceCount = new BigDecimal(0);
+			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				Map<String,Object>  periodMap = getPeriodByCondition(periodParamsList,shoppingCartDto.getSpuCode(),shoppingCartDto.getCustId(),shoppingCartDto.getSupplyId());
+				if(UtilHelper.isEmpty(periodMap)) continue;
+//				Integer paymentTermCus = (Integer) periodMap.get("paymentTermCus");
+				Integer paymentTermPro = (Integer) periodMap.get("paymentTermPro");
+				if(paymentTermPro != null && paymentTermPro > 0){
+					shoppingCartDto.setPeriodProduct(true);
+					periodProductPriceCount = periodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+				}
+			}
+			s.setPeriodProductPriceCount(periodProductPriceCount);
+		}
+		return allShoppingCart;
+	}
+
+	/**
+	 * 组装购物车中的数据，调用查询账期接口
+	 * @param allShoppingCart
+	 * @return
+     */
+	private List<PeriodParams> queryAllPeriodList(List<ShoppingCartListDto> allShoppingCart) {
+		List<PeriodParams> paramsList  = new ArrayList<>();
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return paramsList;
+		}
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
+				continue;
+			}
+			PeriodParams periodParams = null;
+			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList() ){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				if(UtilHelper.isEmpty(shoppingCartDto.getCustId()) || UtilHelper.isEmpty(shoppingCartDto.getSupplyId())
+						|| UtilHelper.isEmpty(shoppingCartDto.getSpuCode())){
+					continue;
+				}
+				periodParams = new PeriodParams();
+				periodParams.setBuyerCode(shoppingCartDto.getCustId().toString());
+				periodParams.setSellerCode(shoppingCartDto.getSupplyId().toString());
+				periodParams.setProductCode(shoppingCartDto.getSpuCode());
+				paramsList.add(periodParams);
+			}
+		}
+
+		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:请求参数paramsList=" + paramsList);
+		PeriodDubboResult periodDubboResult = creditDubboService.queryPeriod(paramsList);
+
+		if(UtilHelper.isEmpty(periodDubboResult) || "0".equals(periodDubboResult.getIsSuccessful())
+				|| UtilHelper.isEmpty(periodDubboResult.getData())){
+			if(!UtilHelper.isEmpty(periodDubboResult)){
+				logger.error("检查订单页-调用武汉的dubbo接口查询商品账期信息:" + periodDubboResult.getMessage());
+			}
+			return  paramsList;
+		}
+		return  periodDubboResult.getData();
+	}
+
+	/**
+	 * 根据购物车中商品的信息查询账期信息
+	 * @param periodParamsList
+	 * @param spuCode
+	 * @param buyerEnterpriseId
+	 * @param sellerEnterpriseId
+     * @return
+     */
+	private Map<String,Object> getPeriodByCondition(List<PeriodParams> periodParamsList ,String spuCode,Integer buyerEnterpriseId,Integer sellerEnterpriseId){
+		if(UtilHelper.isEmpty(periodParamsList) || UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(buyerEnterpriseId)
+				|| UtilHelper.isEmpty(sellerEnterpriseId)) {
+			return null;
+		}
+		Map<String,Object> map = null;
+		for(PeriodParams periodParams : periodParamsList){
+			if(UtilHelper.isEmpty(periodParams)) continue;
+			if(spuCode.equals(periodParams.getProductCode()) && buyerEnterpriseId.toString().equals(periodParams.getBuyerCode())
+					&& sellerEnterpriseId.toString().equals(periodParams.getSellerCode())){
+				map = new HashMap<>();
+				map.put("paymentTermCus",periodParams.getPaymentTermCus());
+				map.put("paymentTermPro",periodParams.getPaymentTermPro());
+				break;
+			}
+		}
+		return map;
+	}
+
+
+
+
+
+
+
+
+
 	/**
 	 * 订单成功页面-查看收款账号信息页
 	 * @return

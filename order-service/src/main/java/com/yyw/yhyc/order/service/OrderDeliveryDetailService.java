@@ -409,4 +409,18 @@ public class OrderDeliveryDetailService {
 
 		return pagination;
 	}
+
+	/**
+	 * 订单收货商品列表
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderDeliveryDetailDto> listPaginationOrderDeliveryDetailDto(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception
+	{
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationOrderDeliveryDetailDto(pagination, orderDeliveryDetailDto);
+
+		pagination.setResultList(list);
+
+		return pagination;
+	}
 }

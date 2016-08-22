@@ -126,6 +126,31 @@ public class OrderDeliveryController extends BaseJsonController {
 			return null;
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
+	/**
+	 * 退货，买家确认发货
+	 * @return
+	 */
+	@RequestMapping(value = "/sendOrderDeliveryForRefund", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,String> sendOrderDeliveryForRefund(OrderDeliveryDto orderDeliveryDto) throws Exception
+	{
+		UserDto user = super.getLoginUser();
+		orderDeliveryDto.setUserDto(user);
+		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
+	}
+
+	/**
+	 * 换货，买家发货
+	 * @return
+	 */
+	@RequestMapping(value = "/sendOrderDeliveryForChange", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,String> sendOrderDeliveryForChange(OrderDeliveryDto orderDeliveryDto) throws Exception
+	{
+		UserDto user = super.getLoginUser();
+		orderDeliveryDto.setUserDto(user);
+		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
+	}
 
 	/**
 	 * 获取发货列表
