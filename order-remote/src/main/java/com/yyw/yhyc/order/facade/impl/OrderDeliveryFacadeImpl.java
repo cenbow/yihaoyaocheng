@@ -151,7 +151,7 @@ public class OrderDeliveryFacadeImpl implements OrderDeliveryFacade {
 	 * @throws Exception
 	 */
 	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto) throws Exception{
-		return orderDeliveryService.sendOrderDelivery(orderDeliveryDto);
+		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 
 	/**

@@ -552,7 +552,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void repConfirmReceipt(String exceptionOrderId){
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.repConfirmReceipt(exceptionOrderId, userDto);
+		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId,userDto);
 	}
 
 	/**
