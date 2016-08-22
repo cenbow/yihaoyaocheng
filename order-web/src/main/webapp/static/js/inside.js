@@ -44,24 +44,6 @@ function changeBillType(id,_node){
     })
 }
 
-/* 支付方式单选按钮 */
-function changePayType(_supplyId,_payTypeId){
-
-    var labelParent = $(this).parent();
-    var brother = labelParent.children();
-    
-    brother.each(function(index){
-        $(this).find('i:first').removeClass('radio-skin-selected');
-    });
-    $(this).find('i:first').addClass('radio-skin-selected');
-
-    // var  _supplyId = $(this).find('i:first').attr("supplyId");
-    // var _payTypeId = $(this).find('i:first').attr("payTypeId");
-    var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
-    $(_supplyPayTypeId).val(_payTypeId);
-}
-
-
 //检查订单页
 (function($){
 
@@ -73,27 +55,13 @@ function changePayType(_supplyId,_payTypeId){
 
     /* 支付方式单选按钮 */
     $('.radio-select label').click(function(){
-        $('.radio-skin').removeClass('radio-skin-selected');
+        $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
         $(this).find('i:first').addClass('radio-skin-selected');
         var  _supplyId = $(this).find('i:first').attr("supplyId");
         var _payTypeId = $(this).find('i:first').attr("payTypeId");
         var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
         $(_supplyPayTypeId).val(_payTypeId);
-    })
-    /* 支付方式单选按钮 */
-    // $('.radio-select label').click(function(){
-    //     var labelParent = $(this).parent();
-    //     var brother = labelParent.children();
-    //     brother.removeClass('radio-skin-selected');
-    //     $(this).find('i:first').addClass('radio-skin-selected');
-    //    
-    //     var  _supplyId = $(this).find('i:first').attr("supplyId");
-    //     var _payTypeId = $(this).find('i:first').attr("payTypeId");
-    //     var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
-    //     $(_supplyPayTypeId).val(_payTypeId);
-    // });
-
-
+    });
 
 
     //查看更多
