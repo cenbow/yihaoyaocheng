@@ -185,9 +185,11 @@ public class ShoppingCartService {
 		condition.setProductId(shoppingCart.getProductId());
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
 
+		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice());
 		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
 			shoppingCartMapper.save(shoppingCart);
 		}else {//已经存在商品
+			shoppingCart.setUpdateUser(shoppingCart.getCreateUser());
 			shoppingCartMapper.updateProductCount(shoppingCart);
 		}
 
