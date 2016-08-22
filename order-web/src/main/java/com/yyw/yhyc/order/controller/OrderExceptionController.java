@@ -484,8 +484,8 @@ public class OrderExceptionController extends BaseJsonController{
 		ModelAndView model = new ModelAndView();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionId(exceptionId);
-//		UserDto user = super.getLoginUser();
-//		orderExceptionDto.setSupplyId(user.getCustId());
+		UserDto user = super.getLoginUser();
+		orderExceptionDto.setSupplyId(user.getCustId());
 		orderExceptionDto = orderExceptionService.getReturnOrderDetails(orderExceptionDto, 2);
 		model.addObject("orderExceptionDto",orderExceptionDto);
 		model.setViewName("orderException/seller_order_return_detail");
@@ -541,7 +541,6 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		orderDto.setSupplyId(322);
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 	/**
