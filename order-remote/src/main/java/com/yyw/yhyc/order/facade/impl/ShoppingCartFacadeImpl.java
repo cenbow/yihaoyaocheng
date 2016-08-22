@@ -10,8 +10,13 @@
  **/
 package com.yyw.yhyc.order.facade.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.yyw.yhyc.helper.UtilHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +27,7 @@ import com.yyw.yhyc.order.service.ShoppingCartService;
 
 @Service("shoppingCartFacade")
 public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
+	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartFacadeImpl.class);
 
 	private ShoppingCartService shoppingCartService;
 	
@@ -137,5 +143,45 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	public int findByCount(ShoppingCart shoppingCart) throws Exception
 	{
 		return shoppingCartService.findByCount(shoppingCart);
+	}
+
+	/**
+	 * 查询进货单商品数量
+	 * @param custId 企业ID
+	 * @return 进货单商品数量
+	 * @throws Exception
+	 */
+	public int findShoppingCartByCount(Integer custId){
+		if(UtilHelper.isEmpty(custId)) return 0;
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+
+		try {
+			return shoppingCartService.findByCount(shoppingCart);
+		}catch (Exception e){
+			logger.error(e.getMessage(), e);
+
+			return 0;
+		}
+	}
+
+	/**
+	 * 加入进货单
+	 * @param shoppingCart 进货单对象
+	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
+	 * @throws Exception
+	 */
+	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart){
+
+		try {
+			return shoppingCartService.addShoppingCart(shoppingCart);
+		}catch (Exception e){
+			logger.error(e.getMessage(), e);
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("state", "F");
+
+			return map;
+		}
 	}
 }

@@ -1234,7 +1234,17 @@ public class OrderExceptionService {
 					log.info("orderException info :"+orderException);
 					throw new RuntimeException("订单取消失败");
 				}
-
+				//插入日志表
+				OrderTrace orderTrace = new OrderTrace();
+				orderTrace.setOrderId(orderException.getExceptionId());
+				orderTrace.setNodeName("买家取消退货订单");
+				orderTrace.setDealStaff(userDto.getUserName());
+				orderTrace.setRecordDate(now);
+				orderTrace.setRecordStaff(userDto.getUserName());
+				orderTrace.setOrderStatus(orderException.getOrderStatus());
+				orderTrace.setCreateTime(now);
+				orderTrace.setCreateUser(userDto.getUserName());
+				orderTraceMapper.save(orderTrace);
 
 			}else{
 				log.info("orderException status error ,orderStatus:"+orderException.getOrderStatus());

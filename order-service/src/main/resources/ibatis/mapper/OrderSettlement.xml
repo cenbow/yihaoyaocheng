@@ -262,8 +262,11 @@
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
 			LEFT JOIN t_passport_user u ON u.id = s.cust_id
 			LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
+			LEFT JOIN t_order o ON s.order_id = o.order_id
 		]]>
-		<![CDATA[ WHERE 1 = 1 ]]>
+		<![CDATA[
+			WHERE o.ORDER_STATUS NOT IN ORDER_STATUS IN ('2','3','4','7')
+		]]>
 		<if test="custId !=null and custId !=''">
 			AND s.cust_id = #{custId}
 		</if>
