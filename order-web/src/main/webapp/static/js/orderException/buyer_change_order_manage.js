@@ -173,7 +173,7 @@ function fillTableJson(data) {
                 tr += "<td><a class='blue' href='javascript:void(0);' onclick='sendDelivery("+ order.exceptionId + ")'>发货</a></td>";
                 break;
             case "7" :
-                tr += "<td><a class='blue' href='#'>确认收货</a></td>";
+                tr += "<td><a class='blue' href='showChangeList(\''+order.exceptionOrderId+'\');' class='btn btn-info btn-sm margin-r-10' >确认收货</a></td>";
                 break;
             default:
                 tr += "<td></td>";
@@ -366,5 +366,103 @@ function sendDeliverysubmit(){
         }
     });
 
+}
+
+
+function showChangeList(ExceptionOrderId) {
+    $("#changeExceptionOrderId").val(ExceptionOrderId);
+    var requestUrl = ctx+"/order/orderDeliveryDetail/listReplenishment";
+    var requestParam = {pageNo:1,pageSize:15,param:{flowId:ExceptionOrderId,userType:1}};
+    $.ajax({
+        url : requestUrl,
+        data : JSON.stringify(requestParam),
+        type : 'POST',
+        dataType:'json',
+        contentType : "application/json;charset=UTF-8",
+        success : function(data) {
+
+            //填充表格数据
+            fillTable(data);
+            var totalpage = data.totalPage;
+            var nowpage = data.pageNo;
+            var totalCount = data.total;
+            $("#J_pager2").attr("current",nowpage);
+            $("#J_pager2").attr("total",totalpage);
+            $("#J_pager2").attr("url",requestUrl);
+            $("#J_pager2").pager({
+                data:requestParam,
+                requestType:"post",
+                asyn:1,
+                contentType:'application/json;charset=UTF-8',
+                callback:function(data,index){
+                    var nowpage = data.page;
+                    $("#nowpageedit").val(nowpage);
+                    fillTable(data);
+                }});
+        },
+        error : function(XMLHttpRequest, textStatus, errorThrown) {
+            alertModal("数据获取失败",function(){
+            });
+        }
+    });
+}
+
+
+/**
+ * 填充表格数据
+ * @param data
+ */
+function fillTable(data) {
+    console.info(data)
+    var indexNum = 1;
+    if (!data || !data.resultList)
+        return;
+    var list = data.resultList;
+    $(".table-box2 tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderDeliveryDetail = list[i];
+        var tr = "<tr>";
+
+        tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
+        tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+        tr += "<td>" + orderDeliveryDetail.brandName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.specification + "</td>";
+        tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
+        tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
+        tr += "<td>" + orderDeliveryDetail.recieveCount+"</td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $(".table-box2 tbody").append(trs);
+    $("#myModalConfirmReceipt").modal().hide();
+}
+
+function changeConfirmReceipt(){
+    var exceptionOrderId= $("#changeExceptionOrderId").val();
+    if (window.confirm("是否确认收货？")) {
+        $.ajax({
+            url: ctx + "/orderException/changeGoodsBuyerConfirmReceipt/"+exceptionOrderId,
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if(data.statusCode || data.message){
+                    alertModal(data.message);
+                    return;
+                }else{
+                    pasretFormData();
+                    doRefreshData(params);
+                    alertModal("收货处理成功。");
+                    $("#myModalConfirmReceipt").modal("hide");
+                }
+            },
+            error: function () {
+                alertModal("处理失败");
+            }
+        });
+    }
 }
 

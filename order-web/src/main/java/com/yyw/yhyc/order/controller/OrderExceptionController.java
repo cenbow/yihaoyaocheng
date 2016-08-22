@@ -544,14 +544,14 @@ public class OrderExceptionController extends BaseJsonController{
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 	/**
-	 * 确认收货
+	 * 补货确认收货
 	 * @return
 	 */
-	@RequestMapping(value = {"", "/repConfirmReceipt"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/repConfirmReceipt/{exceptionOrderId}"}, method = RequestMethod.GET)
 	@ResponseBody
-	public void repConfirmReceipt(String exceptionOrderId){
-		UserDto userDto = super.getLoginUser();
-		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId,userDto);
+	public void repConfirmReceipt(@PathVariable("exceptionOrderId") String exceptionOrderId) throws Exception{
+			UserDto userDto = super.getLoginUser();
+			orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, userDto);
 	}
 
 	/**
@@ -644,6 +644,19 @@ public class OrderExceptionController extends BaseJsonController{
 		modelAndView.setViewName("orderException/buyer_change_order_detail");
 		return modelAndView;
 	}
+
+
+	/**
+	 * 换货买家确认收货
+	 * @return
+	 */
+	@RequestMapping(value = {"/changeGoodsBuyerConfirmReceipt/{exceptionOrderId}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public void updateChangeGoodsBuyerConfirmReceipt(@PathVariable("exceptionOrderId") String exceptionOrderId) throws Exception{
+		UserDto userDto = super.getLoginUser();
+		orderExceptionService.updateChangeGoodsBuyerConfirmReceipt(exceptionOrderId, userDto);
+	}
+
 }
 
 
