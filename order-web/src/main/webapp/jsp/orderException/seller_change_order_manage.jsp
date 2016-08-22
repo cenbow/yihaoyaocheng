@@ -279,7 +279,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" onclick="confirmSaleReturn();">确定</button>
+                <button type="button" class="btn btn-default" onclick="confirmSaleChange();">确定</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </div>
