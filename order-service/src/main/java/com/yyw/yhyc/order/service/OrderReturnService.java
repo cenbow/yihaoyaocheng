@@ -18,6 +18,7 @@ import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
@@ -257,4 +258,7 @@ public class OrderReturnService {
 		return oe;
 	}
 
+	public List<OrderReturnDto> listOrderReturn(String orderExceptionId){
+		return orderReturnMapper.getReturnByExceptionOrderId(orderExceptionId);
+	}
 }

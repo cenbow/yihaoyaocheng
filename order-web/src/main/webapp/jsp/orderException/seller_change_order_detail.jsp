@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeSpecial" %>
+<%@ page import="static com.yyw.yhyc.order.enmu.BillTypeEnum.BillTypeNormal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -20,9 +22,8 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <c:if test="${orderExceptionDto.userType==1}"><li><a href="#"><i class="fa fa-map-marker fa-3"></i>采购订单管理</a></li></c:if>
-                    <c:if test="${orderExceptionDto.userType==2}"><li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li></c:if>
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
+                    <li><a href="${ctx}/order/sellerOrderManage"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                    <li><a href="${ctx}/orderException/sellerChangeGoodsOrderManage"><i class="fa fa-map-marker fa-3"></i>换货订单管理</a></li>
                     <li class="active">订单详情</li>
                 </ol>
             </div>
@@ -85,7 +86,7 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">下单时间</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderCreateTime}</div>
-                            <label for="scope" class="col-xs-2 control-label">买家补货说明</label>
+                            <label for="scope" class="col-xs-2 control-label">买家换货说明</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.returnDesc}</div>
                         </div>
 
@@ -97,9 +98,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">发货时间</label>
+                            <label for="scope" class="col-xs-2 control-label">买家发货时间</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.buyerDeliverTime}</div>
+                            <label for="scope" class="col-xs-2 control-label">卖家确认收货时间</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.sellerReceiveTime}</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">卖家发货时间</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.deliverTime}</div>
-                            <label for="scope" class="col-xs-2 control-label">确认收货时间</label>
+                            <label for="scope" class="col-xs-2 control-label">买家确认收货时间</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.receiveTime}</div>
                         </div>
 
@@ -107,41 +115,47 @@
                 </div>
             </div>
 
+            <c:if test="${orderExceptionDto.orderDeliverys != null && fn:length(orderExceptionDto.orderDeliverys) gt 0 }">
+                <c:forEach items="${orderExceptionDto.orderDeliverys}" var="item" varStatus="status">
+                    <div class="row choseuser margin-t-20 border-gray">
+                        <h2 class="row">
+                            <c:if test="${status.index == 0}">买家发货配送信息</c:if>
+                            <c:if test="${status.index == 1}">卖家发货配送信息</c:if>
+                        </h2>
+                        <div class="form-horizontal padding-t-26">
+                            <c:if test="${item.deliveryMethod==1}">
+                                <div class="form-group">
+                                    <label for="scope" class="col-xs-2 control-label">配送方式</label>
+                                    <div class="col-xs-3 control-label text-left">自有物流</div>
+                                    <label for="scope" class="col-xs-2 control-label">预计送达时间</label>
+                                    <div class="col-xs-3 control-label text-left">${item.deliveryDate}</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="scope" class="col-xs-2 control-label">联系人</label>
+                                    <div class="col-xs-3 control-label text-left">${item.deliveryContactPerson}</div>
+                                    <label for="scope" class="col-xs-2 control-label">联系人电话</label>
+                                    <div class="col-xs-3 control-label text-left">${item.deliveryExpressNo}</div>
+                                </div>
+                            </c:if>
 
-            <div class="row choseuser margin-t-20 border-gray">
-                <h2 class="row">配送信息</h2>
-                    <div class="form-horizontal padding-t-26">
-                       <c:if test="${orderExceptionDto.orderDelivery.deliveryMethod==1}">
-                           <div class="form-group">
-                               <label for="scope" class="col-xs-2 control-label">配送方式</label>
-                               <div class="col-xs-3 control-label text-left">自有物流</div>
-                               <label for="scope" class="col-xs-2 control-label">预计送达时间</label>
-                               <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryDate}</div>
-                           </div>
-                           <div class="form-group">
-                               <label for="scope" class="col-xs-2 control-label">联系人</label>
-                               <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPerson}</div>
-                               <label for="scope" class="col-xs-2 control-label">联系人电话</label>
-                               <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryExpressNo}</div>
-                           </div>
-                       </c:if>
+                            <c:if test="${item.deliveryMethod==2}">
+                                <div class="form-group">
+                                    <label for="scope" class="col-xs-2 control-label">配送方式</label>
+                                    <div class="col-xs-3 control-label text-left">第三方物流</div>
+                                    <label for="scope" class="col-xs-2 control-label">物流公司</label>
+                                    <div class="col-xs-3 control-label text-left">${item.deliveryContactPerson}</div>
+                                </div>
 
-                       <c:if test="${orderExceptionDto.orderDelivery.deliveryMethod==2}">
-                           <div class="form-group">
-                               <label for="scope" class="col-xs-2 control-label">配送方式</label>
-                               <div class="col-xs-3 control-label text-left">第三方物流</div>
-                               <label for="scope" class="col-xs-2 control-label">物流公司</label>
-                               <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPerson}</div>
-                           </div>
-
-                           <div class="form-group">
-                               <label for="scope" class="col-xs-2 control-label">物流单号</label>
-                               <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryExpressNo}</div>
-                           </div>
-                       </c:if>
+                                <div class="form-group">
+                                    <label for="scope" class="col-xs-2 control-label">物流单号</label>
+                                    <div class="col-xs-3 control-label text-left">${item.deliveryExpressNo}</div>
+                                </div>
+                            </c:if>
+                        </div>
                     </div>
                 </div>
-            </div>
+                </c:forEach>
+            </c:if>
 
             <c:if test="${orderExceptionDto.userType==2}">
                 <div class="row choseuser margin-t-20 border-gray">
@@ -189,8 +203,6 @@
                     </thead>
                     <tbody>
                     <%--遍历该供应商的商品信息  开始--%>
-                    <input type="hidden" id="flowId" name="flowId" value="${orderExceptionDto.exceptionOrderId}"/>
-                    <input type="hidden" id="userType" name="userType" value="1"/>
                     <c:choose>
                         <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
                             <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
@@ -225,7 +237,7 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <c:if test="${orderExceptionDto.userType==1}"><div><a class="undeline" onclick="listReplenishment()">查看收货商品清单</a></div></c:if>
+                <div><a class="undeline" onclick="changeOrderDeliveryDetail('${orderExceptionDto.exceptionOrderId}')">已换货商品清单</a></div>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p class="red">订单金额：￥${orderExceptionDto.orderMoney}元<p>
@@ -242,7 +254,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
+                <h4 class="modal-title" id="myModalLabel1">已换货商品清单</h4>
             </div>
             <div class="modal-body">
                 <table class="table table-box2">
@@ -275,7 +287,9 @@
                     <tbody>
                     </tbody>
                 </table>
-                <div class="pager" id="J_pager2"></div>
+                <div class="pager" id="J_pager2">
+
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -299,7 +313,7 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/orderException/seller_change_order_detail.js"></script>
 </html>
 
 

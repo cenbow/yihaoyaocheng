@@ -286,6 +286,7 @@
 			<include refid="commonProcessDateColumns"/>
 		FROM t_order_delivery WHERE 1=1 
 		<include refid="commonCondition"/>
+		ORDER BY delivery_id ASC
 	</select>
 	<select id="listPaginationByProperty" parameterType="OrderDelivery" resultMap="OrderDeliveryResultMapper">
 		SELECT 
@@ -301,6 +302,12 @@
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_delivery WHERE flow_id = #{flowId}
+	</select>
+
+	<select id="getOrderDeliveryByFlowId" parameterType="java.lang.String" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE flow_id = #{flowId} ORDER BY delivery_id ASC
 	</select>
 
 </mapper>

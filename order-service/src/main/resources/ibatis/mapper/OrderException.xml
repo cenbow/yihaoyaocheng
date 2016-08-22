@@ -38,6 +38,9 @@
 		<result column="return_desc" property="returnDesc"/>
 		<result column="deliver_time" property="deliverTime"/>
 		<result column="receive_time" property="receiveTime"/>
+		<result column="buyer_deliver_time" property="buyerDeliverTime"/>
+		<result column="seller_receive_time" property="sellerReceiveTime"/>
+		<result column="review_time" property="reviewTime"/>
 
 	</resultMap>
 
@@ -63,6 +66,9 @@
 		, return_desc
 		, deliver_time
 		, receive_time
+		, buyer_deliver_time
+		, seller_receive_time
+		, review_time
 	</sql>
 
 	<sql id="commonColumnsNotPK">
@@ -86,6 +92,9 @@
 		, return_desc
 		, deliver_time
 		, receive_time
+		, buyer_deliver_time
+		, seller_receive_time
+		, review_time
 	</sql>
 
 	<sql id="commonProcessDateColumns">
@@ -110,6 +119,9 @@
 		, return_desc
 		, date_format(deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
 		, date_format(receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(buyer_deliver_time, '%Y-%m-%d %H:%i:%s') buyer_deliver_time
+		, date_format(seller_receive_time, '%Y-%m-%d %H:%i:%s') seller_receive_time
+		, date_format(review_time, '%Y-%m-%d %H:%i:%s') review_time
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -134,6 +146,9 @@
 		, T1.return_desc
 		, date_format(T1.deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
 		, date_format(T1.receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(T1.buyer_deliver_time, '%Y-%m-%d %H:%i:%s') buyer_deliver_time
+		, date_format(T1.seller_receive_time, '%Y-%m-%d %H:%i:%s') seller_receive_time
+		, date_format(T1.review_time, '%Y-%m-%d %H:%i:%s') review_time
 	</sql>
 
 	<sql id="commonCondition">
@@ -200,6 +215,15 @@
 		<if test="receiveTime!= null and receiveTime!= ''">
 			AND receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="buyerDeliverTime!= null and buyerDeliverTime!= ''">
+			AND buyer_deliver_time=str_to_date(#{buyerDeliverTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="sellerReceiveTime!= null and sellerReceiveTime!= ''">
+			AND seller_receive_time=str_to_date(#{sellerReceiveTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="reviewTime!= null and reviewTime!= ''">
+			AND review_time=str_to_date(#{reviewTime},'%Y-%m-%d %H:%i:%s')
+		</if>
 	</sql>
 
 	<insert id="save" parameterType="OrderException">
@@ -227,6 +251,9 @@
 				, #{returnDesc}
 				, str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
 				, str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{buyerDeliverTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{sellerReceiveTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{reviewTime},'%Y-%m-%d %H:%i:%s')
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderException">
@@ -252,6 +279,9 @@
 			, return_desc=#{returnDesc}
 			, deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
 			, receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+			, buyer_deliver_time=str_to_date(#{buyerDeliverTime},'%Y-%m-%d %H:%i:%s')
+			, seller_receive_time=str_to_date(#{sellerReceiveTime},'%Y-%m-%d %H:%i:%s')
+			, review_time=str_to_date(#{reviewTime},'%Y-%m-%d %H:%i:%s')
 		WHERE exception_id = #{exceptionId}  ]]>
 	</update>
 	<update id="updateOrderStatus" parameterType="OrderException">
@@ -313,7 +343,19 @@
 		t_order_exception T1
 		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
 		LEFT JOIN t_system_pay_type T3 ON T2.pay_type_id = T3.pay_type_id
-		WHERE T1.flow_id=#{flowId} AND return_type='4'
+		WHERE 1=1
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.flow_id=#{flowId}
+		</if>
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.exception_order_id=#{exceptionOrderId}
+		</if>
+		<if test="returnType!= null and returnType!= ''">
+			AND T1.return_type=#{returnType}
+		</if>
+		<if test="!(returnType!= null and returnType!= '')">
+			AND T1.return_type='4'
+		</if>
 		<if test="custId!= null and custId!= ''">
 			AND T1.cust_Id=#{custId}
 		</if>
@@ -1072,7 +1114,7 @@
 		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '2'
-		AND	T1.supply_id = #{custId}
+		AND	T1.supply_id = #{supplyId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -1593,6 +1635,32 @@
 			AND T4.DISTRICT = #{area}
 		</if>
 		GROUP BY T1.ORDER_STATUS,T3.PAY_TYPE
+	</select>
+
+	<!--换货订单详情-->
+	<resultMap id="changeGoodsOrderDetailsResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+		<result column="bill_type" property="billType"/>
+		<association property="orderDelivery" column="flow_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+		<collection property="orderDeliveryList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getOrderDeliveryByFlowId"/>
+		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
+	</resultMap>
+
+	<select id="getChangeGoodsOrderDetails" parameterType="OrderExceptionDto"  resultMap="changeGoodsOrderDetailsResultMap">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
+		FROM
+		t_order_exception T1
+		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id
+		LEFT JOIN t_system_pay_type T3 ON T2.pay_type_id = T3.pay_type_id
+		WHERE T1.exception_order_id=#{exceptionOrderId}
+		<if test="custId!= null and custId!= ''">
+			AND T1.cust_Id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND T1.supply_id=#{supplyId}
+		</if>
 	</select>
 
 </mapper>
