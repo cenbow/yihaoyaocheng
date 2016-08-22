@@ -254,10 +254,10 @@ function bindOperateBtn() {
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
-				$("#myModalDetail .form-group:eq(0) div" ).html(data.settlementMoney+"元")
-				$("#myModalDetail .form-group:eq(1) div" ).html(data.refunSettlementMoney+"元")
-				$("#myModalDetail .form-group:eq(2) div" ).html(data.differentMoney+"元")
-				$("#myModalDetail .form-group:eq(3) div" ).html(data.remark)
+				$("#myModalDetail .form-group:eq(0) div" ).html(data.settlementMoney+"元");
+				$("#myModalDetail .form-group:eq(1) div" ).html(data.refunSettlementMoney+"元");
+				$("#myModalDetail .form-group:eq(2) div" ).html(data.differentMoney+"元");
+				$("#myModalDetail .form-group:eq(3) div" ).html(data.remark);
 				$("#myModalDetail").modal();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
