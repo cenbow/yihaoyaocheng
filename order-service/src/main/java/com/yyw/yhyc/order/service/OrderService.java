@@ -1387,13 +1387,36 @@ public class OrderService {
 		Order on=new Order();
 		for(Order o:order){
 			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
-			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
+			if(no!=null&&o!=null&&(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())
+			 || no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerPartReceived.getType())
+			 || no.getOrderStatus().equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())
+			   )){
+				// end 修改账单还款 更新结算状态
 				on.setOrderId(no.getOrderId());
 				on.setPaymentTermStatus(1);
 				if(o.getFinalPay()!=null){
 					on.setFinalPay(o.getFinalPay());
+					on.setSettlementMoney(o.getFinalPay());
 				}
+				on.setConfirmSettlement("1");
 				orderMapper.update(on);
+				// end 修改账单还款 更新结算状态
+				// start 修改结算记录信息
+				OrderSettlement orderSettlement=new OrderSettlement();
+				orderSettlement.setFlowId(o.getFlowId());
+				List<OrderSettlement> ls=orderSettlementMapper.listByProperty(orderSettlement);
+				if(ls.size()>0){
+					String now = systemDateMapper.getSystemDate();
+					orderSettlement=ls.get(0);
+					if(o.getFinalPay()!=null){
+						orderSettlement.setRefunSettlementMoney(o.getFinalPay());
+					}
+					orderSettlement.setConfirmSettlement("1");
+					orderSettlement.setSettlementTime(now);
+					orderSettlement.setUpdateTime(now);
+					orderSettlementMapper.update(orderSettlement);
+				}
+				// end  修改结算记录信息
 			}else{
 				re= false;
 			}
