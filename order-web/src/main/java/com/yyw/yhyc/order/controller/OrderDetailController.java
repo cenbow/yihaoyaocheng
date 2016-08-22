@@ -116,8 +116,9 @@ public class OrderDetailController extends BaseJsonController {
 
 	public static void downLoad(String filePath,String fileName , HttpServletResponse response, boolean isOnLine)
 			throws Exception {
-		//下载已有的文件
-		String name = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls";
+		String excelName = new String((fileName+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
+
+
 		File f = new File(filePath);
 		if (!f.exists()) {
 			response.sendError(404, "File not found!");
@@ -134,7 +135,7 @@ public class OrderDetailController extends BaseJsonController {
 			//文件名应该编码成UTF-8
 		} else { //纯下载方式
 			response.setContentType("application/x-msdownload;charset=UTF-8");
-			response.setHeader("Content-Disposition", "attachment;filename="+name);
+			response.setHeader("Content-Disposition", "attachment;filename="+excelName);
 		}
 		OutputStream out = response.getOutputStream();
 		while ((len = br.read(buf)) > 0)
