@@ -15,6 +15,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 是否是账期商品 */
     private boolean periodProduct;
 
+    /* 商品的账期 */
+    private int paymentTerm;
+
     /* 最小包装单位 */
     private String unit;
 
@@ -42,11 +45,20 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.unit = unit;
     }
 
+    public int getPaymentTerm() {
+        return paymentTerm;
+    }
+
+    public void setPaymentTerm(int paymentTerm) {
+        this.paymentTerm = paymentTerm;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
                 "productImageUrl='" + productImageUrl + '\'' +
                 ", periodProduct=" + periodProduct +
+                ", paymentTerm=" + paymentTerm +
                 ", unit='" + unit + '\'' +
                 '}';
     }

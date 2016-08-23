@@ -11,11 +11,15 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.ShoppingCartService;
@@ -26,7 +30,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/shoppingCart")
@@ -35,6 +41,9 @@ public class ShoppingCartController extends BaseJsonController {
 
 	@Autowired
 	private ShoppingCartService shoppingCartService;
+
+	@Reference
+	private IProductDubboManageService iProductDubboManageService;
 
 	/**
 	* 通过主键查询实体对象
@@ -103,6 +112,27 @@ public class ShoppingCartController extends BaseJsonController {
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCart(shoppingCart);
+
+		/* 获取商品图片 */
+		logger.info("购物车页面-获取商品图片：iProductDubboManageService = " + iProductDubboManageService);
+		if(!UtilHelper.isEmpty(allShoppingCart) && !UtilHelper.isEmpty(iProductDubboManageService)){
+			for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+				if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
+					continue;
+				}
+				for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+					if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+
+					Map map = new HashMap();
+					map.put("spu_code", shoppingCartDto.getSpuCode());
+					map.put("type_id", "1");
+					List list = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+					//TODO
+
+				}
+			}
+		}
+
 
 		model.addObject("allShoppingCart",allShoppingCart);
 		model.setViewName("shoppingCart/index");
