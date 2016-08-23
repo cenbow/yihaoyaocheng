@@ -263,7 +263,7 @@ public class OrderService {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public List<Order> createOrder(OrderCreateDto orderCreateDto) throws Exception{
+	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
@@ -307,19 +307,24 @@ public class OrderService {
 			orderNewList.add(orderNew);
 		}
 		log.info("创建订单接口-生成的订单数据(以供应商为单位拆单),orderNewList = " + orderNewList);
+		Map<String,Object> resultMap = new HashMap<>();
+
+
 
 		/* 从原始订单信息中筛选出合法的账期商品信息 */
 		List<OrderDto> periodTermOrderDtoList = getPeriodTermOrderDtoList(orderCreateDto.getOrderDtoList());
 		/* 创建账期订单 */
 		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto());
 		log.info("创建订单接口-生成的订单数据(以账期商品为单位拆单),periodTermOrderList = " + periodTermOrderList);
+		resultMap.put("periodTermOrderList",periodTermOrderList);
 
 		/* 合并生成的订单数据 */
 		if (!UtilHelper.isEmpty(periodTermOrderList)){
 			orderNewList.addAll(periodTermOrderList);
 		}
 		log.info("创建订单接口-完成，返回数据,orderNewList = " + orderNewList);
-        return orderNewList;
+		resultMap.put("orderNewList",orderNewList);
+        return resultMap;
     }
 
 	/**
@@ -390,8 +395,8 @@ public class OrderService {
 		if(UtilHelper.isEmpty(productInfoDto)){
 			return false;
 		}
-		/* 选择了账期支付方式 且商品的有账期 */
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(payTypeId) && productInfoDto.isPeriodProduct()){
+		/* 选择了账期支付方式 且商品有账期 */
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(payTypeId) && productInfoDto.getPaymentTerm() > 0){
 			return true;
 		}
 		return false;
@@ -422,6 +427,8 @@ public class OrderService {
 
 				productInfoDtoList.clear();
 				productInfoDtoList.add(productInfoDto);
+
+				orderDto.setPaymentTerm(productInfoDto.getPaymentTerm());//设置了账期的商品，插入到订单表的账期字段时，使用商品的账期
 				orderDto.setProductInfoDtoList(productInfoDtoList);
 
 				/* 创建支付流水号 */
@@ -628,12 +635,15 @@ public class OrderService {
 		/* 线下支付 */
 		if(SystemPayTypeEnum.PayOffline.getPayType().equals(  systemPayType.getPayType() )){
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
+			order.setPaymentTerm(0);
 		/* 在线支付 */
 		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(  systemPayType.getPayType() )){
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
+			order.setPaymentTerm(0);
 		/* 账期支付 */
 		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(  systemPayType.getPayType() )){
 			orderFlowIdPrefix = CommonType.ORDER_PERIOD_TERM_PAY_PREFIX;
+			order.setPaymentTerm(orderDto.getPaymentTerm());
 		}
 
 		order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());

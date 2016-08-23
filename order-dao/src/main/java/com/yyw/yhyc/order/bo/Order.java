@@ -193,6 +193,9 @@ public class Order extends Model{
 	  *	账期还款状态 0 未还款  1 已还款
 	  */
 	private Integer paymentTermStatus;
+
+	/* 订单账期（单位：天） */
+	private Integer paymentTerm;
 	
 	
 
@@ -747,46 +750,56 @@ public class Order extends Model{
 	{
 		this.receiveType = receiveType;
 	}
-	
-	public String toString()
-	{
-		return "Order [" + 
-					"orderId=" + orderId + 
-					", flowId=" + flowId + 
-					", custName=" + custName + 
-					", custId=" + custId + 
-					", supplyName=" + supplyName + 
-					", supplyId=" + supplyId + 
-					", cancelResult=" + cancelResult + 
-					", orgTotal=" + orgTotal + 
-					", freight=" + freight + 
-					", orderTotal=" + orderTotal + 
-					", finalPay=" + finalPay + 
-					", totalCount=" + totalCount + 
-					", orderStatus=" + orderStatus + 
-					", remark=" + remark + 
-					", leaveMessage=" + leaveMessage + 
-					", orderCombinedId=" + orderCombinedId + 
-					", confirmSettlement=" + confirmSettlement + 
-					", settlementMoney=" + settlementMoney + 
-					", preferentialMoney=" + preferentialMoney + 
-					", preferentialRemark=" + preferentialRemark + 
-					", payStatus=" + payStatus + 
-					", payTypeId=" + payTypeId + 
-					", createTime=" + createTime + 
-					", payTime=" + payTime + 
-					", cancelTime=" + cancelTime + 
-					", deliverTime=" + deliverTime + 
-					", receiveTime=" + receiveTime + 
-					", settlementTime=" + settlementTime + 
-					", createUser=" + createUser + 
-					", updateTime=" + updateTime + 
-					", updateUser=" + updateUser + 
-					", billType=" + billType + 
-					", delayLog=" + delayLog + 
-					", receiveType=" + receiveType + 
-					", paymentTermStatus=" + paymentTermStatus + 
-				"]";
+
+
+	public Integer getPaymentTerm() {
+		return paymentTerm;
+	}
+
+	public void setPaymentTerm(Integer paymentTerm) {
+		this.paymentTerm = paymentTerm;
+	}
+
+	@Override
+	public String toString() {
+		return "Order{" +
+				"orderId=" + orderId +
+				", flowId='" + flowId + '\'' +
+				", custName='" + custName + '\'' +
+				", custId=" + custId +
+				", supplyName='" + supplyName + '\'' +
+				", supplyId=" + supplyId +
+				", cancelResult='" + cancelResult + '\'' +
+				", orgTotal=" + orgTotal +
+				", freight=" + freight +
+				", orderTotal=" + orderTotal +
+				", finalPay=" + finalPay +
+				", totalCount=" + totalCount +
+				", orderStatus='" + orderStatus + '\'' +
+				", remark='" + remark + '\'' +
+				", leaveMessage='" + leaveMessage + '\'' +
+				", orderCombinedId=" + orderCombinedId +
+				", confirmSettlement='" + confirmSettlement + '\'' +
+				", settlementMoney=" + settlementMoney +
+				", preferentialMoney=" + preferentialMoney +
+				", preferentialRemark='" + preferentialRemark + '\'' +
+				", payStatus='" + payStatus + '\'' +
+				", payTypeId=" + payTypeId +
+				", createTime='" + createTime + '\'' +
+				", payTime='" + payTime + '\'' +
+				", cancelTime='" + cancelTime + '\'' +
+				", deliverTime='" + deliverTime + '\'' +
+				", receiveTime='" + receiveTime + '\'' +
+				", settlementTime='" + settlementTime + '\'' +
+				", createUser='" + createUser + '\'' +
+				", updateTime='" + updateTime + '\'' +
+				", updateUser='" + updateUser + '\'' +
+				", billType=" + billType +
+				", delayLog='" + delayLog + '\'' +
+				", receiveType=" + receiveType +
+				", paymentTermStatus=" + paymentTermStatus +
+				", paymentTerm=" + paymentTerm +
+				'}';
 	}
 }
 

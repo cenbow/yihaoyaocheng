@@ -177,7 +177,13 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		if(UtilHelper.isEmpty(shoppingCart)) return map;
 		if(UtilHelper.isEmpty(shoppingCart.getCustId())) {
-			map.put("message", "企业ID不能为空！");
+			map.put("message", "采购商企业ID不能为空！");
+			return map;
+		}else if (UtilHelper.isEmpty(shoppingCart.getSupplyId())){
+			map.put("message", "供应商企业ID不能为空！");
+			return map;
+		}else if (UtilHelper.isEmpty(shoppingCart.getSpuCode())){
+			map.put("message", "SPU编码不能为空！");
 			return map;
 		}else if (UtilHelper.isEmpty(shoppingCart.getProductId())){
 			map.put("message", "商品ID不能为空！");
@@ -192,6 +198,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		}catch (Exception e){
 			logger.error(e.getMessage(), e);
 
+			map.put("message", e.getMessage());
 			return map;
 		}
 	}
