@@ -183,7 +183,7 @@ public interface OrderFacade {
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void doneOrderForDelivery() throws Exception;
+	public void doneOrderForDelivery()  throws Exception;
 	/**
 	 * 收款确认
 	 * @param orderSettlement
