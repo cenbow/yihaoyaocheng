@@ -235,7 +235,8 @@ public class OrderExceptionService {
 		orderSettlement.setCustName(orderException.getCustName());
 		orderSettlement.setSupplyId(orderException.getSupplyId());
 		orderSettlement.setSupplyName(orderException.getSupplyName());
-		orderSettlement.setConfirmSettlement("1");
+		//orderSettlement.setConfirmSettlement("1");
+		orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
 		orderSettlement.setPayTypeId(order.getPayTypeId());
 		orderSettlement.setSettlementTime(now);
 		orderSettlement.setCreateUser(orderException.getCustName());
