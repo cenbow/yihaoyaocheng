@@ -1048,7 +1048,7 @@ public class OrderDeliveryService {
 					}
 					if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
 						errorMap = new HashMap<String, String>();
-						errorMap.put("5", "商品编码为" + code + "的商品导入数量不等于缺货数量");
+						errorMap.put("5", "商品编码为" + code + "的商品导入数量不等于换货数量");
 						errorList.add(errorMap);
 					}
 				}
