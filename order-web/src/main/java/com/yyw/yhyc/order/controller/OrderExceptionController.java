@@ -273,8 +273,8 @@ public class OrderExceptionController extends BaseJsonController{
 		SystemPayType systemPayType;
 
 		try{
-			order = orderService.getByPK(orderException.getOrderId());
 			oe = orderExceptionService.getByPK(orderException.getExceptionId());
+			order = orderService.getByPK(oe.getOrderId());
 			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		}catch (Exception e){
 			throw new RuntimeException("未找到拒收订单");
@@ -618,6 +618,7 @@ public class OrderExceptionController extends BaseJsonController{
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderExceptionDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
+		orderDto.setSupplyId(userDto.getCustId());
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 	/**

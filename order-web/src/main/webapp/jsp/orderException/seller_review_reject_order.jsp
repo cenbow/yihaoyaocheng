@@ -220,7 +220,7 @@
                     }
                     alertModal("操作成功");
                     setTimeout(function(){
-                        window.location.href=ctx+"/orderException/buyerRejectOrderManage";
+                        window.location.href=ctx+"/orderException/sellerRejcetOrderManage";
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
