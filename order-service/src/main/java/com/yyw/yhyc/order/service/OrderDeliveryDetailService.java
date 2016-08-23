@@ -408,7 +408,7 @@ public class OrderDeliveryDetailService {
 	 * @param order
 	 * @throws Exception
 	 */
-	private void saveOrderSettlement(Order order) throws Exception{
+	public void saveOrderSettlement(Order order) throws Exception{
 		if(UtilHelper.isEmpty(order)){
 			throw new RuntimeException("未找到订单");
 		}
