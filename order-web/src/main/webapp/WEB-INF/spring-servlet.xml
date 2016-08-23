@@ -65,4 +65,6 @@
 			<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>
 		</mvc:interceptor>
 	</mvc:interceptors>
+
+	<import resource="dubbo-consumer.xml"/>
 </beans>

@@ -318,7 +318,7 @@ public class OrderDeliveryDetailService {
 			OrderDetail orderDetail = orderDetailMapper.getByPK(orderdetailId);
 			orderDetail.setRecieveCount(map.get(orderdetailId));
 			orderDetailMapper.update(orderDetail);
-			if(!orderDetail.getProductCount().equals(orderDetail.getRecieveCount())){
+			if(orderDetail.getProductCount().intValue()!=orderDetail.getRecieveCount().intValue()){
 				if(UtilHelper.isEmpty(returnType)||returnType.equals(""))
 					 throw new Exception("采购商与收获数不同,拒收类型为空");
 			}
