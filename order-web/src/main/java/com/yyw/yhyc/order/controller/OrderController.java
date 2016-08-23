@@ -371,15 +371,24 @@ public class OrderController extends BaseJsonController {
 
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
 				logger.error("检查订单页-查询是否可用资信结算接口，调用失败:" + creditDubboResult.getMessage());
+
+				shoppingCartListDto = new ShoppingCartListDto();
+				shoppingCartListDto.setBuyer(s.getBuyer());
+				shoppingCartListDto.setSeller(s.getSeller());
+				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
+				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				resultShoppingCartList.add(shoppingCartListDto);
+
 				continue;
 			}
 
 			/* 把合法账期商品的拿出来 */
-			shoppingCartDtoListPeriodTerm = new ArrayList<>()
-			;
+			shoppingCartDtoListPeriodTerm = new ArrayList<>();
 			BigDecimal productPriceCountPeriodTerm = new BigDecimal(0);
 			BigDecimal productPriceCount = new BigDecimal(0);
 			shoppingCartDtoList = new ArrayList<>();
+
 			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 				if(shoppingCartDto.isPeriodProduct()){
