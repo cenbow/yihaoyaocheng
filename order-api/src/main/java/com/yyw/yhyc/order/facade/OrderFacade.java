@@ -103,7 +103,7 @@ public interface OrderFacade {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public List<Order> createOrder(OrderCreateDto orderCreateDto)throws Exception;
+	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto)throws Exception;
 
 	/**
 	 * 校验要购买的商品(通用方法)
@@ -183,7 +183,7 @@ public interface OrderFacade {
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void doneOrderForDelivery();
+	public void doneOrderForDelivery() throws Exception;
 	/**
 	 * 收款确认
 	 * @param orderSettlement
