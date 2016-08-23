@@ -18,7 +18,7 @@
     <meta name="Keywords" content="">
     <meta name="description" content="">
     <%@ include file="../config.jsp"%>
-    <link rel="stylesheet" href="${STATIC_URL}/static/css/cart.css"></head>
+    <link rel="stylesheet" href="${STATIC_URL}/static/css/inside.css"></head>
 <body>
 <div class="top">
     <div class="wapper">
@@ -195,7 +195,7 @@
 <%@ include file="../footer.jsp"%>
 
 <script src="${STATIC_URL}/static/js/shoppingCart/common.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/shoppingCart/dialog.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/dialog.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/shoppingCart/shoppingCart.js"></script>
 </body>
 </html>
