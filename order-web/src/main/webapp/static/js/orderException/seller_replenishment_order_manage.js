@@ -211,9 +211,9 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
-        var operate = getOperateHtml(order.orderStatus,order.exceptionId,order.exceptionOrderId);
+        var operate = getOperateHtml(order.flowId,order.orderStatus,order.exceptionId,order.exceptionOrderId);
         var tr = "<tr>";
-        tr += "<td>" + order.exceptionOrderId + "<br/><a href='" + order.exceptionOrderId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+        tr += "<td>" + order.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getReplenishmentDetails-1/" + order.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -227,10 +227,10 @@ function fillTableJson(data) {
     changeColor();
 }
 
-function getOperateHtml(_orderStatus,_exceptionId,_exceptionOrderId){
+function getOperateHtml(_flowId,_orderStatus,_exceptionId,_exceptionOrderId){
     var result = "";
     if ( _orderStatus == "1") {
-        result = "<a href='#' class='btn btn-info btn-sm margin-r-10'>审核</a>";
+        result = "<a href='"+ctx+"/orderException/getReviewReplenishmentDetails/"+_flowId+"' class='btn btn-info btn-sm margin-r-10'>审核</a>";
     } else if( _orderStatus == "2") {
         result = "<a href='javascript:sendDelivery(\""+_exceptionOrderId+"\");' class='btn btn-info btn-sm margin-r-10')'>发货</a>";
     }
