@@ -226,6 +226,7 @@ function  bindSettlementOperate() {
                     //Maskremove();
 					$("#myModalOperate").modal("hide");
 					alert("保存成功");
+					doRefreshData(params);
 				};
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
