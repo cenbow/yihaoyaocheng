@@ -1664,5 +1664,13 @@
 	</select>
 
 	<select id="getConfirmHistoryExceptionMoney" parameterType="java.lang.String" resultType="java.math.BigDecimal"  useCache="false">
+		SELECT
+	  IFNULL(SUM(T1.ORDER_MONEY),0)
+		FROM
+		T_ORDER_EXCEPTION T1
+		WHERE
+		((T1.RETURN_TYPE = '1' AND T1.ORDER_STATUS = '8')
+		OR (T1.RETURN_TYPE = '4' AND T1.ORDER_STATUS = '4'))
+		AND T1.FLOW_ID=#{flowId}
 	</select>
 </mapper>
