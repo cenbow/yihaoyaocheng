@@ -433,7 +433,6 @@ function fillTable(data) {
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
         tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
-        tr += "<td>" + orderDeliveryDetail.recieveCount+"</td>";
         tr += "</tr>";
         trs += tr;
     }
