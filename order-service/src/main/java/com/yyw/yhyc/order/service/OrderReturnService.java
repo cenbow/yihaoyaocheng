@@ -245,7 +245,6 @@ public class OrderReturnService {
 		oe.setCreateUser(userDto.getUserName());
 		oe.setReturnType(orderReturn.getReturnType());
 		oe.setReturnDesc(orderReturn.getReturnDesc());
-		oe.setRemark(orderReturn.getReturnDesc());
 		oe.setCreateTime(DateHelper.nowString());
 		oe.setOrderCreateTime(DateHelper.nowString());
 		oe.setOrderStatus("1");

@@ -147,7 +147,7 @@
                             <th>剂型</th>
                             <th>生产企业</th>
                             <th>采购数量</th>
-                            <th>收货数量</th>
+                            <th>确认收货数量</th>
                         </tr>
                         </thead>
                         <tbody>
