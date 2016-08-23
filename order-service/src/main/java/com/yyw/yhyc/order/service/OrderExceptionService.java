@@ -44,7 +44,8 @@ public class OrderExceptionService {
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 	@Autowired
 	private OrderDeliveryMapper orderDeliveryMapper;
-
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
 	{
@@ -221,14 +222,15 @@ public class OrderExceptionService {
 	 * @param orderException
 	 * @throws Exception
 	 */
-	private void saveRefuseOrderSettlement(Integer custId,OrderException orderException){
+	private void saveRefuseOrderSettlement(Integer custId,OrderException orderException) throws Exception{
 		Order order = orderMapper.getByPK(orderException.getOrderId());
 		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
 			throw new RuntimeException("未找到订单");
 		}
+		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		String now = systemDateMapper.getSystemDate();
 		OrderSettlement orderSettlement = new OrderSettlement();
-		orderSettlement.setBusinessType(2);
+		orderSettlement.setBusinessType(3);
 		orderSettlement.setOrderId(orderException.getExceptionId());
 		orderSettlement.setFlowId(orderException.getExceptionOrderId());
 		orderSettlement.setCustId(orderException.getCustId());
@@ -244,6 +246,11 @@ public class OrderExceptionService {
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
 		orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
+		//当为账期支付时
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			//结算订单金额=原始订单金额-拒收订单金额
+			orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(orderException.getOrderMoney()));
+		}
 		orderSettlementMapper.save(orderSettlement);
 	}
 
@@ -504,7 +511,7 @@ public class OrderExceptionService {
 	 * @param userDto
 	 * @param orderException
      */
-	public void modifyReviewRejectOrderStatus(UserDto userDto,OrderException orderException){
+	public void modifyReviewRejectOrderStatus(UserDto userDto,OrderException orderException) throws Exception{
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
 			throw new RuntimeException("参数异常");
 

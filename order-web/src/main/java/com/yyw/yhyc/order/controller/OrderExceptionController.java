@@ -266,7 +266,7 @@ public class OrderExceptionController extends BaseJsonController{
 	 */
 	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
+	public void sellerReviewRejectOrder(@RequestBody OrderException orderException)  throws Exception {
 		UserDto userDto = super.getLoginUser();
 		OrderException oe;
 		Order order;
