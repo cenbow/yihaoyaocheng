@@ -91,9 +91,9 @@
                         <div class="goi-product-list">
                             <div class="goi-table mt35">
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.enterpriseId}" value="${shoppingCart.seller.enterpriseId}"/>
-                                <input type="hidden" name="supplyId" value="${shoppingCart.seller.enterpriseId}" supplyName="${shoppingCart.seller.enterpriseName}"/>
-                                <input type="hidden" name="paymentTerm" value="${shoppingCart.paymentTermCus}"/>
+                                <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].paymentTerm" value="${shoppingCart.paymentTermCus}"/>
 
+                                <input type="hidden" name="supplyId" value="${shoppingCart.seller.enterpriseId}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                 <table class="common-table f14">
                                     <tr>
                                         <th class="tl pl20">供应商：${shoppingCart.seller.enterpriseName}</th>
@@ -132,7 +132,7 @@
 
                             <div class="pt40 clearfix">
                                 <div class="fl radio-select">
-                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" id="${shoppingCart.seller.enterpriseId}_payTypeId"/>
+                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].payTypeId" class="payTypeId" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                     选择支付方式：
                                     <label>
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOnline.getPayType()%>"></i>在线支付

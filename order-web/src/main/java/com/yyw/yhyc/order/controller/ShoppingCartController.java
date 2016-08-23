@@ -42,8 +42,8 @@ public class ShoppingCartController extends BaseJsonController {
 	@Autowired
 	private ShoppingCartService shoppingCartService;
 
-	@Reference
-	private IProductDubboManageService iProductDubboManageService;
+//	@Reference
+//	private IProductDubboManageService iProductDubboManageService;
 
 	/**
 	* 通过主键查询实体对象
@@ -114,24 +114,24 @@ public class ShoppingCartController extends BaseJsonController {
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCart(shoppingCart);
 
 		/* 获取商品图片 */
-		logger.info("购物车页面-获取商品图片：iProductDubboManageService = " + iProductDubboManageService);
-		if(!UtilHelper.isEmpty(allShoppingCart) && !UtilHelper.isEmpty(iProductDubboManageService)){
-			for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
-				if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
-					continue;
-				}
-				for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
-					if(UtilHelper.isEmpty(shoppingCartDto)) continue;
-
-					Map map = new HashMap();
-					map.put("spu_code", shoppingCartDto.getSpuCode());
-					map.put("type_id", "1");
-					List list = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
-					//TODO
-
-				}
-			}
-		}
+//		logger.info("购物车页面-获取商品图片：iProductDubboManageService = " + iProductDubboManageService);
+//		if(!UtilHelper.isEmpty(allShoppingCart) && !UtilHelper.isEmpty(iProductDubboManageService)){
+//			for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+//				if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
+//					continue;
+//				}
+//				for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+//					if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+//
+//					Map map = new HashMap();
+//					map.put("spu_code", shoppingCartDto.getSpuCode());
+//					map.put("type_id", "1");
+//					List list = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+//					//TODO
+//
+//				}
+//			}
+//		}
 
 
 		model.addObject("allShoppingCart",allShoppingCart);

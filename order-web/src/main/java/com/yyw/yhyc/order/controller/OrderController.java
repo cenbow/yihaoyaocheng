@@ -58,7 +58,7 @@ public class OrderController extends BaseJsonController {
 	@Autowired
 	private ShoppingCartService shoppingCartService;
 
-	@Reference(timeout = 50000)
+	@Reference
 	private CreditDubboServiceInterface creditDubboService;
 
 	@Autowired
@@ -335,10 +335,18 @@ public class OrderController extends BaseJsonController {
 			return allShoppingCart;
 		}
 
-		List<ShoppingCartListDto> periodTermShoppingCartList = new ArrayList<ShoppingCartListDto>();
+		List<ShoppingCartListDto> resultShoppingCartList = new ArrayList<ShoppingCartListDto>();
 
+		/* 账期商品-组装信息 */
+//		List<ShoppingCartListDto> periodTermShoppingCartList = new ArrayList<ShoppingCartListDto>();
+		List<ShoppingCartDto> shoppingCartDtoListPeriodTerm = null;
+		ShoppingCartListDto shoppingCartListDtoPeriodTerm = null;
+
+		/* 非账期商品-组装信息 */
+//		List<ShoppingCartListDto> normalShoppingCartList = new ArrayList<ShoppingCartListDto>();
 		List<ShoppingCartDto> shoppingCartDtoList = null;
 		ShoppingCartListDto shoppingCartListDto = null;
+
 		for(ShoppingCartListDto s: allShoppingCart){
 			if(UtilHelper.isEmpty(s) || UtilHelper.isEmpty(s.getBuyer())  || UtilHelper.isEmpty(s.getSeller())|| UtilHelper.isEmpty(s.getShoppingCartDtoList()) ){
 				continue;
@@ -367,27 +375,45 @@ public class OrderController extends BaseJsonController {
 			}
 
 			/* 把合法账期商品的拿出来 */
+			shoppingCartDtoListPeriodTerm = new ArrayList<>()
+			;
+			BigDecimal productPriceCountPeriodTerm = new BigDecimal(0);
+			BigDecimal productPriceCount = new BigDecimal(0);
 			shoppingCartDtoList = new ArrayList<>();
 			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 				if(shoppingCartDto.isPeriodProduct()){
+					shoppingCartDtoListPeriodTerm.add(shoppingCartDto);
+					productPriceCountPeriodTerm = productPriceCountPeriodTerm.add(shoppingCartDto.getProductSettlementPrice());
+				}else{
 					shoppingCartDtoList.add(shoppingCartDto);
+					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 				}
 			}
 
 			/* 如果有合法账期商品，组装新的数据  */
+			if(!UtilHelper.isEmpty(shoppingCartDtoListPeriodTerm)){
+				shoppingCartListDtoPeriodTerm = new ShoppingCartListDto();
+				shoppingCartListDtoPeriodTerm.setBuyer(s.getBuyer());
+				shoppingCartListDtoPeriodTerm.setSeller(s.getSeller());
+				shoppingCartListDtoPeriodTerm.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDtoPeriodTerm.setShoppingCartDtoList(shoppingCartDtoListPeriodTerm);
+				shoppingCartListDtoPeriodTerm.setProductPriceCount(productPriceCountPeriodTerm);
+				resultShoppingCartList.add(shoppingCartListDtoPeriodTerm);
+			}
+
+			/* 如果不是账期商品，组装新的数据  */
 			if(!UtilHelper.isEmpty(shoppingCartDtoList)){
-				shoppingCartListDto = s;
+				shoppingCartListDto = new ShoppingCartListDto();
+				shoppingCartListDto.setBuyer(s.getBuyer());
+				shoppingCartListDto.setSeller(s.getSeller());
+				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setProductPriceCount(productPriceCount);
 				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
-				periodTermShoppingCartList.add(shoppingCartListDto);
+				resultShoppingCartList.add(shoppingCartListDto);
 			}
 		}
-
-		/* 如果有合法账期商品的集合，与原来的购物车数据合并 */
-		if(!UtilHelper.isEmpty(periodTermShoppingCartList)){
-			allShoppingCart.addAll(periodTermShoppingCartList);
-		}
-		return allShoppingCart;
+		return resultShoppingCartList;
 	}
 
 
