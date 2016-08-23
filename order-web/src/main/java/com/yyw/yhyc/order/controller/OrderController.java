@@ -269,11 +269,11 @@ public class OrderController extends BaseJsonController {
 	 * @throws Exception
      */
 	@Token(save=true)
-	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.GET)
+	@RequestMapping(value = "/checkOrderPage", method = RequestMethod.POST)
 	@ResponseBody
-	public ModelAndView checkOrderPage() throws Exception {
+	public ModelAndView checkOrderPage(ShoppingCartListDto shoppingCartListDto) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		Map<String,Object> dataMap = orderService.checkOrderPage(userDto);
+		Map<String,Object> dataMap = orderService.checkOrderPage(userDto,shoppingCartListDto);
 
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");

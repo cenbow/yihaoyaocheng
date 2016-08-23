@@ -167,8 +167,8 @@ function fillTableJson(data) {
 
         switch (order.orderStatus){
             case "1" :
-                tr += "<td><a class='blue' href='javascript:void(0);' onclick='cancleOrder("+ order.exceptionId + ",2)'>取消</a></td>";
-                break;
+            tr += "<td><a class='blue' href='javascript:void(0);' onclick='cancleOrder("+ order.exceptionId + ",2)'>取消</a></td>";
+            break;
             case "4" :
                 tr += "<td><a class='blue' href='javascript:void(0);' onclick='sendDelivery("+ order.exceptionId + ")'>发货</a></td>";
                 break;

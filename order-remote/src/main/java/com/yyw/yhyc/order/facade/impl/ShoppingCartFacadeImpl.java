@@ -172,14 +172,25 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	 * @throws Exception
 	 */
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart){
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("state", "F");
+
+		if(UtilHelper.isEmpty(shoppingCart)) return map;
+		if(UtilHelper.isEmpty(shoppingCart.getCustId())) {
+			map.put("message", "企业ID不能为空！");
+			return map;
+		}else if (UtilHelper.isEmpty(shoppingCart.getProductId())){
+			map.put("message", "商品ID不能为空！");
+			return map;
+		}else if (UtilHelper.isEmpty(shoppingCart.getProductCount())){
+			map.put("message", "商品数量不能为空！");
+			return map;
+		}
 
 		try {
 			return shoppingCartService.addShoppingCart(shoppingCart);
 		}catch (Exception e){
 			logger.error(e.getMessage(), e);
-
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("state", "F");
 
 			return map;
 		}
