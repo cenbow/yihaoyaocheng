@@ -52,6 +52,10 @@ function fillTableJson(data) {
     var trs = "";
     for (var i = 0; i < list.length; i++) {
         var orderDeliveryDetail = list[i];
+        var recieveCount=orderDeliveryDetail.recieveCount;
+        if(recieveCount == null ){
+            recieveCount='';
+        }
         var tr = "<tr>";
         tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
         tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
@@ -62,7 +66,7 @@ function fillTableJson(data) {
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
         tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
-        tr += "<td>" + orderDeliveryDetail.recieveCount + "</td>";
+        tr += "<td>" + recieveCount + "</td>";
         tr += "</tr>";
         trs += tr;
     }

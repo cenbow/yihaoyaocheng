@@ -12,8 +12,10 @@ package com.yyw.yhyc.order.service;
 import java.util.List;
 
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 
+import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class OrderSettlementService {
     private OrderSettlementMapper orderSettlementMapper;
 
     private SystemDateMapper systemDateMapper;
+
+    @Autowired
+    private OrderExceptionMapper orderExceptionMapper;
 
     @Autowired
     public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
@@ -187,8 +192,8 @@ public class OrderSettlementService {
         if (os.getSupplyId().intValue() != orderSettlement.getSupplyId().intValue())
             throw new RuntimeException("未找到结算订单");
 
-        if(os.getBusinessType() != 2)
-            throw new RuntimeException("结算订单类型正确");
+        if(os.getBusinessType() == 1)
+            throw new RuntimeException("结算订单类型不正确");
 
         if(!"0".equals(os.getConfirmSettlement()))
             throw new RuntimeException("订单已结算");
@@ -202,8 +207,22 @@ public class OrderSettlementService {
         os.setRemark(orderSettlement.getRemark());
         os.setConfirmSettlement("1");
 
-        int result = orderSettlementMapper.update(os);
+        //修改异常订单里的结算状态
+        OrderException orderException=new OrderException();
+        orderException.setExceptionOrderId(orderSettlement.getFlowId());
+        List<OrderException> lo=orderExceptionMapper.listByProperty(orderException);
+        if(!UtilHelper.isEmpty(lo)){
+            orderException= lo.get(0);
+            if(orderException.getReturnType().equals("1")){
+                orderException.setOrderStatus("8");
+            }else if(orderException.getReturnType().equals("4")){
+                orderException.setOrderStatus("4");
+            }
+            orderExceptionMapper.update(orderException);
+        }
 
+
+        int result = orderSettlementMapper.update(os);
         if (result == 0)
             throw new RuntimeException("结算失败");
 
