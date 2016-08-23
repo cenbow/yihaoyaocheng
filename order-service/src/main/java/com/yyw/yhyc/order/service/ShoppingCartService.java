@@ -182,7 +182,8 @@ public class ShoppingCartService {
 		//加入进货单信息
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
-		condition.setProductId(shoppingCart.getProductId());
+		condition.setSpuCode(shoppingCart.getSpuCode());
+		condition.setSupplyId(shoppingCart.getSupplyId());
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
 
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice());
