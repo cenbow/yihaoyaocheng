@@ -265,9 +265,9 @@
 			LEFT JOIN t_order o ON s.order_id = o.order_id
 		]]>
 		<![CDATA[
-			WHERE (
+			WHERE
 			(
-				t.pay_type ='2' o.ORDER_STATUS NOT IN ('2','3','4','7')
+				(t.pay_type ='2' AND o.ORDER_STATUS NOT IN ('2','3','4','7'))
 					OR
 				(t.pay_type ='1' OR t.pay_type='3')
 			)
