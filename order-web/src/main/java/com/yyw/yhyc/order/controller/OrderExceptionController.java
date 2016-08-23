@@ -285,7 +285,7 @@ public class OrderExceptionController extends BaseJsonController{
 		if(UtilHelper.isEmpty(oe)){
 			throw new RuntimeException("未找到拒收订单");
 		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && UtilHelper.isEmpty(creditDubboService)){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
@@ -339,7 +339,7 @@ public class OrderExceptionController extends BaseJsonController{
 		if(UtilHelper.isEmpty(oe)){
 			throw new RuntimeException("未找到拒收订单");
 		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && UtilHelper.isEmpty(creditDubboService)){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");

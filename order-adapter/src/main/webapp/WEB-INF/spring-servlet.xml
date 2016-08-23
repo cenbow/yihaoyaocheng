@@ -44,4 +44,6 @@
 			<bean class="com.yyw.yhyc.order.inteceptor.GetUserInteceptor"/>
 		</mvc:interceptor>
 	</mvc:interceptors>
+
+	<import resource="dubbo-consumer.xml"/>
 </beans>
