@@ -524,7 +524,7 @@ public class OrderDeliveryService {
 	}
 
 	/*生产excel和订单发货信息 */
-	public String createOrderdeliverDetailReturn(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,String now) {
+	public String createOrderdeliverDetailReturn(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,OrderReturn> detailMap,String excelPath,String now) {
 		String filePath = "";
 		//生成错误excel和发货记录
 		if (errorList.size() > 0) {
@@ -569,12 +569,13 @@ public class OrderDeliveryService {
 			for (Map<String, String> rowMap : list) {
 				int i = 1;
 				OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+				OrderReturn orderReturn = detailMap.get(rowMap.get("2"));
 				orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
-				orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
+				orderDeliveryDetail.setOrderId(orderReturn.getOrderId());
 				orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
 				orderDeliveryDetail.setDeliveryStatus(1);
 				orderDeliveryDetail.setBatchNumber(rowMap.get("3"));
-				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
+				orderDeliveryDetail.setOrderDetailId(orderReturn.getOrderDetailId());
 				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
 				orderDeliveryDetail.setImportFileUrl(excelPath);
 				orderDeliveryDetail.setCreateTime(now);
@@ -949,7 +950,7 @@ public class OrderDeliveryService {
 		List<Map<String,String>> errorList=new ArrayList<Map<String, String>>();
 		Map<String,String> errorMap=null;
 		Map<String,String> codeMap=new HashMap<String, String>();
-		Map <String,Integer> detailMap=new HashMap<String, Integer>();
+		Map <String,OrderReturn> detailMap=new HashMap<String, OrderReturn>();
 		//原订单id
 		int orderId=0;
 		String filePath="";
@@ -1036,7 +1037,7 @@ public class OrderDeliveryService {
 				orderReturn.setReturnType("2");
 				List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
 				if(returnList.size()>0) {
-					detailMap.put(code, returnList.get(0).getOrderDetailId());
+					detailMap.put(code, returnList.get(0));
 					for (OrderReturn or : returnList) {
 
 						if (UtilHelper.isEmpty(returnMap.get(or.getProductCode()))) {
