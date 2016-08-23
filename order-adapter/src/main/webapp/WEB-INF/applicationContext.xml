@@ -17,5 +17,4 @@
     </bean>
 
     <import resource="spring-dataSource.xml"/>
-    <import resource="dubbo-consumer.xml"/>
 </beans>
