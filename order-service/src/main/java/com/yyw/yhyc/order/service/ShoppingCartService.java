@@ -195,12 +195,12 @@ public class ShoppingCartService {
 
 
 		//查询商品数量和进化单金额
-		Map<String, Integer>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(shoppingCart.getCustId());
+		Map<String, java.math.BigDecimal>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(shoppingCart.getCustId());
 
 		//封装返回信息
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("state", "S");
-		map.put("productCount", statisticsMap.get("productCount"));
+		map.put("productCount", statisticsMap.get("productCount") != null ? statisticsMap.get("productCount").intValue() : 0);
 		map.put("sumPrice", statisticsMap.get("sumPrice"));
 
 		return map;
