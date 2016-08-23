@@ -59,6 +59,12 @@ public class OrderService {
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
 
+    @Autowired
+    private OrderDeliveryDetailService orderDeliveryDetailService;
+
+    @Autowired
+    private OrderExceptionService OrderExceptionService;
+
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
 	{
@@ -425,7 +431,7 @@ public class OrderService {
 				Order orderNew = createOrderInfo(orderDto,orderDelivery,userDto,payFlowId);
 				if(!UtilHelper.isEmpty(orderNew)){
 					/* 账期订单生成结算数据 */
-					savePaymentDateSettlement(userDto,orderNew.getOrderId());
+					//savePaymentDateSettlement(userDto,orderNew.getOrderId()); 需求变量 在确认收货时生成结算数据
 					orderNewList.add(orderNew);
 				}
 			}
@@ -1346,7 +1352,7 @@ public class OrderService {
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void updateDoneOrderForDelivery(){
+	public void updateDoneOrderForDelivery() throws Exception{
 		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
@@ -1354,12 +1360,24 @@ public class OrderService {
 			if(true){//分账成功
 				cal.add(od.getOrderId());
 			}
+            //如为账期订单则生成结算信息
+            orderDeliveryDetailService.saveOrderSettlement(od);
 		}
-
+        //退货异常订单生成结算信息
+        OrderException orderException=new OrderException();
+        orderException.setReturnType("1");
+        orderException.setOrderStatus("5");
+        List<OrderException> le=orderExceptionMapper.listNodelivery(orderException);
+        for(OrderException o:le){
+            //异常订单收货
+            o.setOrderStatus("7");
+            o.setSellerReceiveTime(systemDateMapper.getSystemDate());
+            orderExceptionMapper.update(o);
+            OrderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
+        }
 		if(UtilHelper.isEmpty(cal)) return;
-
 		//确认收货
-		orderMapper. cancelOrderForNoDelivery(cal);
+		orderMapper.doneOrderForDelivery(cal);
 	}
 	
 	/**
@@ -1475,7 +1493,7 @@ public class OrderService {
 
 
 	/**
-	 * 当账期订单生成时生成结算数据
+	 * 当账期订单时生成结算数据
 	 * @param userDto
 	 * @param orderId
 	 * @throws Exception
