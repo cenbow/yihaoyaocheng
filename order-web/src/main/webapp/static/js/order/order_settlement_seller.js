@@ -1,6 +1,8 @@
 var params = undefined;
 
 $(function(){
+	//初始化区域信息
+	initArea();
 	//初始化分页插件
 	fnInitPageUtil();
 	//初始化时间 按钮选择
@@ -12,6 +14,11 @@ $(function(){
 	//绑定 搜索的click事件
 	bindSearchBtn();
 })
+
+
+function  initArea() {
+	$.fn.loadArea($("#province"), $("#city"), $("#area"))
+}
 
 function initDateSel(){
 	$(".padding-t-10 a").on("click",function () {
@@ -190,12 +197,23 @@ function  bindSettlementOperate() {
 			var differentMoney = (parseFloat(money)-parseFloat(orderMoney));
 			$("#myModalOperate .form-group:eq(2) div:first").html(differentMoney+"元")
 		}else{
-			alert("请输入数字")
+			if(money&&money!=""){
+				alertModal("请输入数字")
+			}
 		}
 	});
 	$("#myModalOperate .btn-danger").click(function () {
+		var refunSettlementMoney = $("[name='refunSettlementMoney']").val();
+		var remark = $("[name='remark']").val();
+		if(!refunSettlementMoney || refunSettlementMoney ==""){
+			alertModal("请输入结算金额");
+			return;
+		}
+		if(!remark || remark ==""){
+			alertModal("请填写备注信息");
+			return;
+		}
 		var param = $("#upForm").serializeObject();
-		console.info(param);
 		var requestUrl = ctx+"/order/orderSettlement/refundSettlement";
 		$.ajax({
 			url : requestUrl,
@@ -220,9 +238,24 @@ function  bindSettlementOperate() {
 
 }
 
+/**
+ * 初始化弹窗内容
+ */
+function initSettlementOperateModal(formId) {
+	$("#"+formId+" .form-group:eq(1) input").val("");
+	$("#"+formId+" .form-group:eq(2) div").html("");
+	$("#"+formId+" .form-group:eq(3) textarea").val("");
+
+}
+
+function initSettlementDetailModal(id) {
+	$("#"+id+" .form-group div").html("");
+}
+
 function bindOperateBtn() {
 	$(".back-opreate").on("click",function () {
 		//$("#myModalOperate").modal();
+		initSettlementOperateModal("upForm");
 		var settlementId = $(this).attr("data-stmid");
 
 		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
@@ -245,6 +278,8 @@ function bindOperateBtn() {
 		});
 	});
 	$(".back-detail").on("click",function () {
+
+		initSettlementDetailModal("myModalDetail");
 		var settlementId = $(this).attr("data-stmid");
 
 		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;

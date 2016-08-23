@@ -27,20 +27,15 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">采购商区域</label>
                             <div class="col-xs-3">
-                                <select class="form-control width-80" name="province">
+                                <select class="form-control width-80" name="province" id="province">
                                     <option value="-1">省份</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
+
                                 </select>
-                                <select class="form-control width-80" name="city">
+                                <select class="form-control width-80" name="city" id="city">
                                     <option value="-1">城市</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
                                 </select>
-                                <select class="form-control width-80" name="area">
+                                <select class="form-control width-80" name="area" id="area">
                                     <option value="-1">区/县</option>
-                                    <option value="2">1</option>
-                                    <option value="3">1</option>
                                 </select>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">采购商 </label>
@@ -70,7 +65,8 @@
                                 <select class="form-control" name="payType">
                                     <option value="-1">请选择</option>
                                     <option value="1">线上支付</option>
-                                    <option value="2">待定</option>
+                                    <option value="2">账期支付</option>
+                                    <option value="3">线下转账</option>
                                 </select>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">结算状态</label>
@@ -130,28 +126,6 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td>ZXD20160714</td>
-                                        <td>线下转账</td>
-                                        <td>销售应付</td>
-                                        <td>上海国邦医药邦医药...</td>
-                                        <td>2016-10-10 02:12:12</td>
-                                        <td>2016-10-10 02:12:12</td>
-                                        <td>500.00</td>
-                                        <td>已结算</td>
-                                        <td><button type="button" class="btn btn-info btn-sm editbtn">付款</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>ZXD20160714</td>
-                                        <td>线下转账</td>
-                                        <td>销售应付</td>
-                                        <td>上海国邦医药邦医药...</td>
-                                        <td>2016-10-10 02:12:12</td>
-                                        <td>2016-10-10 02:12:12</td>
-                                        <td>500.00</td>
-                                        <td>已结算</td>
-                                        <td><button type="button" class="btn btn-info btn-sm editbtn">付款</button></td>
-                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -231,7 +205,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger">确定</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">确定</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             </div>
         </div>
@@ -250,8 +224,9 @@ alertModal("确定要删除吗？");
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
+<script type="text/javascript" src="${ctx}/static/js/area_select.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_settlement_seller.js"></script>
-
 </body>
 
 
