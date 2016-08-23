@@ -192,8 +192,8 @@ public class OrderSettlementService {
         if (os.getSupplyId().intValue() != orderSettlement.getSupplyId().intValue())
             throw new RuntimeException("未找到结算订单");
 
-        if(os.getBusinessType() != 2)
-            throw new RuntimeException("结算订单类型正确");
+        if(os.getBusinessType() == 1)
+            throw new RuntimeException("结算订单类型不正确");
 
         if(!"0".equals(os.getConfirmSettlement()))
             throw new RuntimeException("订单已结算");
@@ -211,7 +211,7 @@ public class OrderSettlementService {
         OrderException orderException=new OrderException();
         orderException.setExceptionOrderId(orderSettlement.getFlowId());
         List<OrderException> lo=orderExceptionMapper.listByProperty(orderException);
-        if(UtilHelper.isEmpty(lo)&&lo.size()>0){
+        if(!UtilHelper.isEmpty(lo)){
             orderException= lo.get(0);
             if(orderException.getReturnType().equals("1")){
                 orderException.setOrderStatus("8");
