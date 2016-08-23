@@ -265,7 +265,12 @@
 			LEFT JOIN t_order o ON s.order_id = o.order_id
 		]]>
 		<![CDATA[
-			WHERE o.ORDER_STATUS NOT IN ORDER_STATUS IN ('2','3','4','7')
+			WHERE (
+			(
+				t.pay_type ='2' o.ORDER_STATUS NOT IN ('2','3','4','7')
+					OR
+				(t.pay_type ='1' OR t.pay_type='3')
+			)
 		]]>
 		<if test="custId !=null and custId !=''">
 			AND s.cust_id = #{custId}
