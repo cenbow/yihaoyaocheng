@@ -302,6 +302,7 @@ function  confirmSaleReturn() {
            if(data&&data.msg== true){
                alertModal("操作成功");
                $("#myConfirmReturn").modal("hide");
+               doRefreshData(params);
            }else{
                alertModal("操作失败");
            }
