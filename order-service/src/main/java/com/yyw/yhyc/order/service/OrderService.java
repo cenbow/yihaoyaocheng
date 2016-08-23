@@ -57,7 +57,13 @@ public class OrderService {
 	private OrderSettlementMapper orderSettlementMapper;
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
+	private OrderExceptionMapper  orderExceptionMapper;
 
+	@Autowired
+	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
+	{
+		this.orderExceptionMapper = orderExceptionMapper;
+	}
 
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper)
@@ -1406,7 +1412,7 @@ public class OrderService {
 
 	/**
 	 * 提供给武汉使用,在订单状态已完成时
-	 * 可对订单进行已还款状态修改
+	 * 还款后 可对订单进行已还款状态修改
 	 * @param order
 	 * @return
 	 * @throws Exception
@@ -1425,26 +1431,32 @@ public class OrderService {
 				// start 修改账单还款 更新结算状态
 				on.setOrderId(no.getOrderId());
 				on.setPaymentTermStatus(1);
-				if(o.getFinalPay()!=null){
-					on.setFinalPay(o.getFinalPay());
-					on.setSettlementMoney(o.getFinalPay());
-				}
 				on.setConfirmSettlement("1");
 				orderMapper.update(on);
 				// end 修改账单还款 更新结算状态
 				// start 修改结算记录信息
+				List<OrderSettlement> ld =new ArrayList<OrderSettlement>();
 				OrderSettlement orderSettlement=new OrderSettlement();
 				orderSettlement.setFlowId(o.getFlowId());
 				List<OrderSettlement> ls=orderSettlementMapper.listByProperty(orderSettlement);
 				if(ls.size()>0){
-					String now = systemDateMapper.getSystemDate();
-					orderSettlement=ls.get(0);
-					if(o.getFinalPay()!=null){
-						orderSettlement.setRefunSettlementMoney(o.getFinalPay());
+					ld.add(ls.get(0));
+				}
+				OrderException orderException=new OrderException();
+				orderException.setFlowId(o.getFlowId());
+				List<OrderException> le=orderExceptionMapper.listByProperty(orderException);
+				for(OrderException oe:le){
+					orderSettlement.setFlowId(oe.getExceptionOrderId());
+					List<OrderSettlement> l=orderSettlementMapper.listByProperty(orderSettlement);
+					if(l.size()>0){
+						ld.add(l.get(0));
 					}
-					orderSettlement.setConfirmSettlement("1");
-					orderSettlement.setSettlementTime(now);
-					orderSettlement.setUpdateTime(now);
+				}
+                for(OrderSettlement os:ld){
+					String now = systemDateMapper.getSystemDate();
+					os.setConfirmSettlement("1");
+					os.setSettlementTime(now);
+					os.setUpdateTime(now);
 					orderSettlementMapper.update(orderSettlement);
 				}
 				// end  修改结算记录信息
@@ -1458,6 +1470,9 @@ public class OrderService {
 		}
 		return re;
 	}
+
+
+
 
 	/**
 	 * 当账期订单生成时生成结算数据

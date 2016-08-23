@@ -327,8 +327,8 @@ public class OrderExceptionController extends BaseJsonController{
 		SystemPayType systemPayType;
 
 		try{
-			order = orderService.getByPK(orderException.getOrderId());
 			oe = orderExceptionService.getByPK(orderException.getExceptionId());
+			order = orderService.getByPK(oe.getOrderId());
 			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		}catch (Exception e){
 			throw new RuntimeException("未找到拒收订单");

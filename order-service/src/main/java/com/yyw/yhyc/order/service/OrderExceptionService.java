@@ -235,7 +235,8 @@ public class OrderExceptionService {
 		orderSettlement.setCustName(orderException.getCustName());
 		orderSettlement.setSupplyId(orderException.getSupplyId());
 		orderSettlement.setSupplyName(orderException.getSupplyName());
-		orderSettlement.setConfirmSettlement("1");
+		//orderSettlement.setConfirmSettlement("1");
+		orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
 		orderSettlement.setPayTypeId(order.getPayTypeId());
 		orderSettlement.setSettlementTime(now);
 		orderSettlement.setCreateUser(orderException.getCustName());
@@ -447,7 +448,10 @@ public class OrderExceptionService {
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
-			orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
+			if(!"1".equals(orderExceptionDto.getReturnType()))
+			orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
+			else
+			orderExceptionDto.setOrderStatusName(getSellerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType()).getValue());
 		}
 		return orderExceptionDto;
 	}
