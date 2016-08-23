@@ -23,12 +23,14 @@ import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,8 @@ public class OrderController extends BaseJsonController {
 	@Reference(timeout = 50000)
 	private CreditDubboServiceInterface creditDubboService;
 
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
 
     /**
      * 通过主键查询实体对象
@@ -558,6 +562,34 @@ public class OrderController extends BaseJsonController {
 		 */
 		UserDto userDto = super.getLoginUser();
 		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
+
+		// TODO: 2016/8/23  待联调 
+		try {
+			if(UtilHelper.isEmpty(creditDubboService)){
+				logger.error("CreditDubboServiceInterface creditDubboService is null");
+			}else{
+				Order od =  orderService.getByPK(order.getOrderId());
+				SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+				if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+					CreditParams creditParams = new CreditParams();
+					creditParams.setSourceFlowId(od.getFlowId());//订单编码
+					creditParams.setBuyerCode(od.getCustId() + "");
+					creditParams.setSellerCode(od.getSupplyId() + "");
+					creditParams.setBuyerName(od.getCustName());
+					creditParams.setSellerName(od.getSupplyName());
+					creditParams.setOrderTotal(new BigDecimal(0));//订单金额  扣减后的
+					creditParams.setFlowId(od.getFlowId());//订单编码
+					creditParams.setStatus("5");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
+					CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+					if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+						throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("orderService.getByPK error, pk: "+order.getOrderId()+",errorMsg:"+e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	/**
