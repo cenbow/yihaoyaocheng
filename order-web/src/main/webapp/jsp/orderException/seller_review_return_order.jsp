@@ -220,7 +220,7 @@
                     }
                     alertModal("操作成功");
                     setTimeout(function(){
-                        window.location.href=ctx+"/orderException/buyerRejectOrderManage";//TODO 跳转到退货订单管理页面
+                        window.location.href=ctx+"/orderException/sellerRefundOrderManage";
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
