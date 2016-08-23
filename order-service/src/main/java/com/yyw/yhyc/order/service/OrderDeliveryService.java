@@ -523,6 +523,75 @@ public class OrderDeliveryService {
 		return filePath;
 	}
 
+	/*生产excel和订单发货信息 */
+	public String createOrderdeliverDetailReturn(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,List<Map<String,String>> list,Map<String,Integer> detailMap,String excelPath,String now) {
+		String filePath = "";
+		//生成错误excel和发货记录
+		if (errorList.size() > 0) {
+			String[] headers = {"序号", "订单编码", "商品编码", "批号", "数量", "失败原因"};
+			List<Object[]> dataset = new ArrayList<Object[]>();
+			for (Map<String, String> dataMap : errorList) {
+				dataset.add(new Object[]{
+						dataMap.get("0"), dataMap.get("1"), dataMap.get("2"), dataMap.get("3"), dataMap.get("4"), dataMap.get("5")
+				});
+			}
+			filePath = orderDeliveryDto.getPath()+ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset,orderDeliveryDto.getPath());
+
+			OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+			orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
+			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+			if (orderDeliveryDetails.size() > 0) {
+				orderDeliveryDetail = orderDeliveryDetails.get(0);
+				orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
+				orderDeliveryDetail.setUpdateTime(now);
+				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDeliveryDetail.setDeliveryStatus(0);
+				orderDeliveryDetail.setImportFileUrl(filePath);
+				orderDeliveryDetailMapper.update(orderDeliveryDetail);
+			} else {
+				orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
+				orderDeliveryDetail.setCreateTime(now);
+				orderDeliveryDetail.setUpdateTime(now);
+				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDeliveryDetail.setDeliveryStatus(0);
+				orderDeliveryDetail.setImportFileUrl(filePath);
+				orderDeliveryDetailMapper.save(orderDeliveryDetail);
+			}
+			return filePath;
+		} else {
+			OrderDeliveryDetail orderdel = new OrderDeliveryDetail();
+			orderdel.setFlowId(orderDeliveryDto.getFlowId());
+			List<OrderDeliveryDetail> orderDeliveryDetails = orderDeliveryDetailMapper.listByProperty(orderdel);
+			if (orderDeliveryDetails.size() > 0) {
+				orderDeliveryDetailMapper.deleteByPK(orderDeliveryDetails.get(0).getOrderDeliveryDetailId());
+			}
+			for (Map<String, String> rowMap : list) {
+				int i = 1;
+				OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+				orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
+				orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
+				orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
+				orderDeliveryDetail.setDeliveryStatus(1);
+				orderDeliveryDetail.setBatchNumber(rowMap.get("3"));
+				orderDeliveryDetail.setOrderDetailId(detailMap.get(rowMap.get("2")));
+				orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
+				orderDeliveryDetail.setImportFileUrl(excelPath);
+				orderDeliveryDetail.setCreateTime(now);
+				orderDeliveryDetail.setUpdateTime(now);
+				orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				if(orderDeliveryDto.getOrderType()==2){
+					orderDeliveryDetail.setRecieveCount(orderDeliveryDetail.getDeliveryProductCount());
+					orderDeliveryDetail.setCanReturnCount(orderDeliveryDetail.getDeliveryProductCount());
+				}
+				orderDeliveryDetailMapper.save(orderDeliveryDetail);
+				i++;
+			}
+		}
+		return filePath;
+	}
+
 	//更新发货信息 更新日志表
 	public void updateOrderDelivery(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,Map<String,String> map,String excelPath,String now,String filePath){
 
@@ -985,7 +1054,7 @@ public class OrderDeliveryService {
 			}
 
 			//生成excel和订单发货信息
-			filePath=createOrderdeliverDetail(errorList,orderDeliveryDto,list,detailMap,excelPath,now);
+			filePath=createOrderdeliverDetailReturn(errorList,orderDeliveryDto,list,detailMap,excelPath,now);
 
 			//更新发货信息 更新日志表
             updateOrderDeliveryReturn(errorList,orderDeliveryDto,map,excelPath,now,filePath);
