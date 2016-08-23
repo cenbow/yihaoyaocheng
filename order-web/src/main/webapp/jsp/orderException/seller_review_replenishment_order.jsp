@@ -20,8 +20,8 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
+                    <li><a href="${ctx}/order/sellerOrderManage"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                    <li><a href="${ctx}/orderException/sellerReplenishmentOrderManage"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
                     <li class="active">审核订单</li>
                 </ol>
             </div>
@@ -33,7 +33,7 @@
                         <label class="col-xs-2 control-label">订单状态</label>
                         <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
                         <label class="col-xs-2 control-label">原订单号</label>
-                        <div class="col-xs-2 control-label text-left"><a href="#">${orderExceptionDto.flowId}</a></div>
+                        <div class="col-xs-2 control-label text-left"><a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a></div>
                     </div>
                 </div>
             </div>
@@ -211,7 +211,7 @@
                     }
                     alertModal("操作成功");
                     setTimeout(function(){
-                        window.location.href=ctx+"/orderException/buyerRejectOrderManage";
+                        window.location.href=ctx+"/orderException/sellerReplenishmentOrderManage";
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
