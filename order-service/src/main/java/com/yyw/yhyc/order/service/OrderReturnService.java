@@ -175,6 +175,7 @@ public class OrderReturnService {
 			Map<Integer,Integer> orderDeliveryCountMap = new HashMap<>();
 			Map<Integer,OrderDetail> orderDetailMap = new HashMap<>();
 			Map<Integer,BigDecimal> returnPriceMap = new HashMap<>();
+			Map<Integer,String> productCodeMap = new HashMap<>();
 			OrderReturn orderReturn = returnList.get(0);
 			Order order = orderMapper.getOrderbyFlowId(orderReturn.getFlowId());
 			OrderException condition = new OrderException();
@@ -183,10 +184,12 @@ public class OrderReturnService {
 			Integer roundNum = orderExceptionService.findByCount(condition);
 
 			for (OrderReturn or: returnList) {
-                orderDeliveryDetailIdList.add(or.getOrderDeliveryDetailId());
-                orderDetailIdList.add(or.getOrderDetailId());
-                orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
-				saveReturnList.add(or);
+				if(or.getReturnCount()!=null && !or.getReturnCount().equals("")){//数量不为空才放入保存列表
+					orderDeliveryDetailIdList.add(or.getOrderDeliveryDetailId());
+					orderDetailIdList.add(or.getOrderDetailId());
+					orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
+					saveReturnList.add(or);
+				}
             }
             //订单详情列表 map
             List<OrderDetail> orderDetailList = orderDetailMapper.listByIds(orderDetailIdList);
@@ -203,6 +206,7 @@ public class OrderReturnService {
                 if(stractCount!=null&&stractCount>0){
                     odd.setCanReturnCount(canReturnCount-stractCount);
                     OrderDetail od = orderDetailMap.get(odd.getOrderDetailId());
+					productCodeMap.put(odd.getOrderDeliveryDetailId(),od.getProductCode());
                     if(od.getProductPrice()!=null){
                     	returnPriceMap.put(odd.getOrderDeliveryDetailId(),od.getProductPrice().multiply(new BigDecimal(stractCount)));
 						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
@@ -225,6 +229,7 @@ public class OrderReturnService {
                 or.setReturnStatus("1");
                 or.setExceptionOrderId(oe.getExceptionOrderId());
 				or.setReturnPay(returnPriceMap.get(or.getOrderDeliveryDetailId()));
+				or.setProductCode(productCodeMap.get(or.getOrderDeliveryDetailId()));
             }
 			orderReturnMapper.saveBatch(returnList);
 			code = "1";

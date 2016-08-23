@@ -427,12 +427,21 @@ function confirmReceipt(){
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
 
+    var type = /^[0-9]*[1-9][0-9]*$/;
+    var re = new RegExp(type);
+
     if($("#bodyDiv:visible").size() == 0){
         for(var i=0;i<productCount.length;i++){
             if($(recieveCount[i]).val()==""){
                 alertModal("请填写收货数量");
                 return;
             }
+
+            if ($(recieveCount[i]).val().match(re) == null) {
+                alertModal("请输入大于零的整数!");
+                return;
+            }
+
             if($(recieveCount[i]).val()!=$(productCount[i]).val()){
                 $("#bodyDiv").show();//display="block";
                 return;
@@ -447,6 +456,12 @@ function confirmReceipt(){
                 alertModal("请填写收货数量");
                 return;
             }
+
+            if ($(recieveCount[i]).val().match(re) == null) {
+                alertModal("请输入大于零的整数!");
+                return;
+            }
+
             if($(recieveCount[i]).val()!=$(productCount[i]).val()){
                 flag=false;
             }
