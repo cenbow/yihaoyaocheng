@@ -1189,8 +1189,9 @@ public class OrderService {
 	 * 检查订单页的数据
 	 * @return
 	 * @param userDto
-     */
-	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
+	 * @param oldShoppingCartListDto
+	 */
+	public Map<String,Object> checkOrderPage(UserDto userDto, ShoppingCartListDto oldShoppingCartListDto) throws Exception {
 		log.info("检查订单页的数据,userDto = " + userDto);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			return null;
@@ -1210,6 +1211,18 @@ public class OrderService {
 		resultMap.put("receiveAddressList",receiverAddressList );
 
 
+
+		/* 用户从购物车页面选中的商品 */
+		List<Integer> shoppingCartIdList = new ArrayList<Integer>();
+		if(!UtilHelper.isEmpty(oldShoppingCartListDto) && !UtilHelper.isEmpty(oldShoppingCartListDto.getShoppingCartDtoList())){
+			for(ShoppingCartDto shoppingCartDto: oldShoppingCartListDto.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto) || UtilHelper.isEmpty(shoppingCartDto.getShoppingCartId()) || shoppingCartDto.getShoppingCartId()<= 0){
+					continue;
+				}
+				shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
+			}
+		}
+
 		/* 获取购物车中的商品信息 */
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(currentLoginEnterpriseId);
@@ -1220,17 +1233,35 @@ public class OrderService {
 		/*遍历购物车所有供应商信息*/
 		BigDecimal productPriceCount = null;
 		BigDecimal orderPriceCount = new BigDecimal(0);
+		List deleteSupplyList = new ArrayList();
 		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
 			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())) continue;
 			productPriceCount = new BigDecimal(0);
+
 			/*遍历购物车所有供应商下的商品信息*/
+			List deleteProductList = new ArrayList();
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				if(!UtilHelper.isEmpty(shoppingCartIdList) && !shoppingCartIdList.contains(shoppingCartDto.getShoppingCartId())){
+					deleteProductList.add(shoppingCartDto);
+					continue;
+				}
 				productPriceCount = productPriceCount.add(shoppingCartDto.getProductPrice().multiply(new BigDecimal(shoppingCartDto.getProductCount())));
+			}
+			if(!UtilHelper.isEmpty(deleteProductList)){
+				shoppingCartListDto.getShoppingCartDtoList().removeAll(deleteProductList);
+			}
+			if(UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
+				deleteSupplyList.add(shoppingCartListDto);
+				continue;
 			}
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
 			orderPriceCount = orderPriceCount.add(productPriceCount);
 		}
+		if(!UtilHelper.isEmpty(deleteSupplyList)){
+			allShoppingCart.removeAll(deleteSupplyList);
+		}
+
 		resultMap.put("allShoppingCart",allShoppingCart);
 		resultMap.put("orderPriceCount",orderPriceCount);
 		return resultMap;
@@ -1387,13 +1418,36 @@ public class OrderService {
 		Order on=new Order();
 		for(Order o:order){
 			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
-			if(no!=null&&o!=null&&no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
+			if(no!=null&&o!=null&&(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())
+			 || no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerPartReceived.getType())
+			 || no.getOrderStatus().equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())
+			   )){
+				// start 修改账单还款 更新结算状态
 				on.setOrderId(no.getOrderId());
 				on.setPaymentTermStatus(1);
 				if(o.getFinalPay()!=null){
 					on.setFinalPay(o.getFinalPay());
+					on.setSettlementMoney(o.getFinalPay());
 				}
+				on.setConfirmSettlement("1");
 				orderMapper.update(on);
+				// end 修改账单还款 更新结算状态
+				// start 修改结算记录信息
+				OrderSettlement orderSettlement=new OrderSettlement();
+				orderSettlement.setFlowId(o.getFlowId());
+				List<OrderSettlement> ls=orderSettlementMapper.listByProperty(orderSettlement);
+				if(ls.size()>0){
+					String now = systemDateMapper.getSystemDate();
+					orderSettlement=ls.get(0);
+					if(o.getFinalPay()!=null){
+						orderSettlement.setRefunSettlementMoney(o.getFinalPay());
+					}
+					orderSettlement.setConfirmSettlement("1");
+					orderSettlement.setSettlementTime(now);
+					orderSettlement.setUpdateTime(now);
+					orderSettlementMapper.update(orderSettlement);
+				}
+				// end  修改结算记录信息
 			}else{
 				re= false;
 			}

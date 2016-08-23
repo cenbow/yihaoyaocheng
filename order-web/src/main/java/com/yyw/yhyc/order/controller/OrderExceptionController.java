@@ -12,11 +12,19 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yao.trade.interfaces.credit.model.CreditDubboResult;
+import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderExceptionService;
+import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.yyw.yhyc.controller.BaseJsonController;
@@ -41,7 +49,12 @@ public class OrderExceptionController extends BaseJsonController{
 
 	@Autowired
 	private OrderExceptionService orderExceptionService;
-
+	@Reference(timeout = 50000)
+	private CreditDubboServiceInterface creditDubboService;
+	@Autowired
+	private OrderService orderService;
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -255,6 +268,38 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
+		OrderException oe;
+		Order order;
+		SystemPayType systemPayType;
+
+		try{
+			order = orderService.getByPK(orderException.getOrderId());
+			oe = orderExceptionService.getByPK(orderException.getExceptionId());
+			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		}catch (Exception e){
+			throw new RuntimeException("未找到拒收订单");
+		}
+		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(systemPayType)){
+			throw new RuntimeException("未找到订单");
+		}
+		if(UtilHelper.isEmpty(oe)){
+			throw new RuntimeException("未找到拒收订单");
+		}
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && UtilHelper.isEmpty(creditDubboService)){
+			CreditParams creditParams = new CreditParams();
+			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
+			creditParams.setBuyerCode(oe.getCustId() + "");
+			creditParams.setSellerCode(oe.getSupplyId() + "");
+			creditParams.setBuyerName(oe.getCustName());
+			creditParams.setSellerName(oe.getSupplyName());
+			creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
+			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+			creditParams.setStatus("2");
+			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+			}
+		}
 		orderExceptionService.modifyReviewRejectOrderStatus(userDto, orderException);
 	}
 
@@ -277,6 +322,38 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewReturnOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
+		OrderException oe;
+		Order order;
+		SystemPayType systemPayType;
+
+		try{
+			order = orderService.getByPK(orderException.getOrderId());
+			oe = orderExceptionService.getByPK(orderException.getExceptionId());
+			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		}catch (Exception e){
+			throw new RuntimeException("未找到拒收订单");
+		}
+		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(systemPayType)){
+			throw new RuntimeException("未找到订单");
+		}
+		if(UtilHelper.isEmpty(oe)){
+			throw new RuntimeException("未找到拒收订单");
+		}
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && UtilHelper.isEmpty(creditDubboService)){
+			CreditParams creditParams = new CreditParams();
+			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
+			creditParams.setBuyerCode(oe.getCustId() + "");
+			creditParams.setSellerCode(oe.getSupplyId() + "");
+			creditParams.setBuyerName(oe.getCustName());
+			creditParams.setSellerName(oe.getSupplyName());
+			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
+			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+			creditParams.setStatus("6");
+			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+			}
+		}
 		orderExceptionService.modifyReviewReturnOrder(userDto, orderException);
 	}
 

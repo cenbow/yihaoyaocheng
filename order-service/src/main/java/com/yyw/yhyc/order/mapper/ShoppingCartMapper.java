@@ -32,7 +32,7 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 	 * @param custId
 	 * @return
      */
-	Map<String, Integer> queryShoppingCartStatistics(@Param("custId") Integer custId);
+	Map<String, java.math.BigDecimal> queryShoppingCartStatistics(@Param("custId") Integer custId);
 
 	/**
 	 * 更新商品数量 （product_count= product_count + #{productCount}）

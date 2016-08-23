@@ -1156,7 +1156,7 @@
 		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '2'
-		AND	T1.supply_id = #{custId}
+		AND	T1.supply_id = #{supplyId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -1198,7 +1198,7 @@
 		LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		WHERE
 		T1.RETURN_TYPE = '2'
-		AND	T1.supply_id = #{custId}
+		AND	T1.supply_id = #{supplyId}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
 			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
 		</if>
@@ -1663,4 +1663,6 @@
 		</if>
 	</select>
 
+	<select id="getConfirmHistoryExceptionMoney" parameterType="java.lang.String" resultType="java.math.BigDecimal"  useCache="false">
+	</select>
 </mapper>
