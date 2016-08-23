@@ -223,12 +223,27 @@ public class OrderExceptionService {
 	 * @throws Exception
 	 */
 	private void saveRefuseOrderSettlement(Integer custId,OrderException orderException) throws Exception{
-		Order order = orderMapper.getByPK(orderException.getOrderId());
+		Order order = orderMapper.getOrderbyFlowId(orderException.getFlowId());
 		if(UtilHelper.isEmpty(order)||!custId.equals(order.getSupplyId())){
 			throw new RuntimeException("未找到订单");
 		}
-		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		String now = systemDateMapper.getSystemDate();
+		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		//当为账期支付时
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			//结算订单金额=原始订单金额-拒收订单金额
+			OrderSettlement byFlowid=new OrderSettlement();
+			byFlowid.setFlowId(order.getFlowId());
+			List<OrderSettlement> ls=orderSettlementMapper.listByProperty(byFlowid);
+			if(ls.size()>0){
+				OrderSettlement settlement=ls.get(0);
+				settlement.setSettlementMoney(settlement.getSettlementMoney().subtract(orderException.getOrderMoney()));
+				settlement.setUpdateTime(now);
+				orderSettlementMapper.update(settlement);
+			}
+			return;
+		}
+
 		OrderSettlement orderSettlement = new OrderSettlement();
 		orderSettlement.setBusinessType(3);
 		orderSettlement.setOrderId(orderException.getExceptionId());
@@ -237,7 +252,6 @@ public class OrderExceptionService {
 		orderSettlement.setCustName(orderException.getCustName());
 		orderSettlement.setSupplyId(orderException.getSupplyId());
 		orderSettlement.setSupplyName(orderException.getSupplyName());
-		//orderSettlement.setConfirmSettlement("1");
 		orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
 		orderSettlement.setPayTypeId(order.getPayTypeId());
 		orderSettlement.setSettlementTime(now);
@@ -246,11 +260,7 @@ public class OrderExceptionService {
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
 		orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
-		//当为账期支付时
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
-			//结算订单金额=原始订单金额-拒收订单金额
-			orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(orderException.getOrderMoney()));
-		}
+
 		orderSettlementMapper.save(orderSettlement);
 	}
 
@@ -1555,7 +1565,7 @@ public class OrderExceptionService {
 	 * @param exceptionOrderId
 	 * @param userDto
 	 */
-	public String editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto){
+	public String editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto) throws Exception{
 		String msg ="false";
 		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
 		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
@@ -1585,12 +1595,44 @@ public class OrderExceptionService {
 			orderTrace.setCreateUser(userDto.getUserName());
 			orderTraceMapper.save(orderTrace);
 			msg = "true";
+			saveReturnOrderSettlement(orderException);
 		}else{
 			log.info("订单不存在，编号为：" + exceptionOrderId);
 			throw new RuntimeException("当前订单状态不能进行收货!");
 		}
 		return  msg;
 	}
+
+	/**
+	 * 退货订单卖家收货生成结算记录
+	 * @param orderException
+	 * @throws Exception
+	 */
+	public void saveReturnOrderSettlement(OrderException orderException) throws Exception{
+		Order order = orderMapper.getByPK(orderException.getOrderId());
+		if(UtilHelper.isEmpty(order)){
+			throw new RuntimeException("未找到订单");
+		}
+		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		String now = systemDateMapper.getSystemDate();
+		OrderSettlement orderSettlement = new OrderSettlement();
+		orderSettlement.setBusinessType(2);
+		orderSettlement.setOrderId(orderException.getExceptionId());
+		orderSettlement.setFlowId(orderException.getExceptionOrderId());
+		orderSettlement.setCustId(orderException.getCustId());
+		orderSettlement.setCustName(orderException.getCustName());
+		orderSettlement.setSupplyId(orderException.getSupplyId());
+		orderSettlement.setSupplyName(orderException.getSupplyName());
+		orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
+		orderSettlement.setPayTypeId(order.getPayTypeId());
+		orderSettlement.setSettlementTime(now);
+		orderSettlement.setCreateUser(orderException.getCustName());
+		orderSettlement.setCreateTime(now);
+		orderSettlement.setOrderTime(order.getCreateTime());
+		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
+		orderSettlementMapper.save(orderSettlement);
+	}
+
 
 	/**
 	 * 换货订单确认收货-卖家确认收货

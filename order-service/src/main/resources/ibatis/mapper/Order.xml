@@ -52,6 +52,8 @@
 		<result column="Delay_log" property="delayLog"/>
 		<result column="receive_Type" property="receiveType"/>
 		<result column="payment_term_status" property="paymentTermStatus"/>
+		<result column="payment_term" property="paymentTerm"/>
+
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -134,6 +136,7 @@
 		, Delay_log
 		, receive_Type
 		, payment_term_status
+		, payment_term
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -171,6 +174,7 @@
 				, bill_type
 				, Delay_log
 				, receive_Type
+				, payment_term
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -209,6 +213,7 @@
 		, bill_type
 		, Delay_log
 		, receive_Type
+		, payment_term
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -247,6 +252,7 @@
 		, T1.Delay_log
 		, T1.receive_Type
 		, T1.payment_term_status
+		, T1.payment_term
 	</sql>
 
 
@@ -286,6 +292,7 @@
 		, o.Delay_log
 		, o.receive_Type
 		, o.payment_term_status
+		, o.payment_term
 	</sql>
 	
 	<sql id="commonCondition">
@@ -394,6 +401,9 @@
 		<if test="paymentTermStatus!= null and paymentTermStatus!= ''"> 
 			AND payment_term_status=#{paymentTermStatus}
 		</if>
+		<if test="paymentTerm!= null">
+			AND payment_term=#{paymentTerm}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="Order">
@@ -435,6 +445,7 @@
 				, #{billType}
 				, #{delayLog}
 				, #{receiveType}
+				, #{paymentTerm}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -538,8 +549,11 @@
 		<if test="receiveType!= null and receiveType!= ''">
 			, receive_Type=#{receiveType}
 		</if>
-		<if test="paymentTermStatus!= null and paymentTermStatus!= ''">
+		<if test="paymentTermStatus!= null">
 			, payment_term_status=#{paymentTermStatus}
+		</if>
+		<if test="paymentTerm!= null">
+			, payment_term=#{paymentTerm}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>

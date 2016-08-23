@@ -23,12 +23,14 @@ import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,8 @@ public class OrderController extends BaseJsonController {
 	@Reference(timeout = 50000)
 	private CreditDubboServiceInterface creditDubboService;
 
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
 
     /**
      * 通过主键查询实体对象
@@ -203,7 +207,8 @@ public class OrderController extends BaseJsonController {
 		}
 		orderCreateDto.setUserDto(userDto);
 
-		List<Order> orderList = orderService.createOrder(orderCreateDto);
+		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
+		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
 		String orderIdStr = "";
 		if(!UtilHelper.isEmpty(orderList)){
@@ -218,6 +223,29 @@ public class OrderController extends BaseJsonController {
 		}
 		Map<String,Object> map = new HashMap<String,Object>();
 		map.put("url","/order/createOrderSuccess?orderIds="+orderIdStr);
+
+		/* 生成账期订单后，调用接口更新资信可用额度 */
+		List<Order> periodTermOrderList = (List<Order>) newOrderMap.get("periodTermOrderList");
+		logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,creditDubboService = " + creditDubboService);
+		if (!UtilHelper.isEmpty(periodTermOrderList) && !UtilHelper.isEmpty(creditDubboService)) {
+
+			CreditParams creditParams = null;
+			for(Order order : periodTermOrderList){
+				if(UtilHelper.isEmpty(order)) continue;
+				creditParams = new CreditParams();
+				creditParams.setStatus("1");  //创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
+				creditParams.setFlowId(order.getFlowId());//订单编号
+				creditParams.setOrderTotal(order.getOrderTotal());//订单总金额
+				creditParams.setBuyerCode(order.getCustId() + "");
+				creditParams.setBuyerName(order.getCustName());
+				creditParams.setSellerCode(order.getSupplyId() + "");
+				creditParams.setSellerName(order.getSupplyName());
+				creditParams.setPaymentDays(order.getPaymentTerm());//账期
+				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
+				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 响应参数creditDubboResult= " + creditDubboResult);
+			}
+		}
 		return map;
 	}
 
@@ -372,20 +400,32 @@ public class OrderController extends BaseJsonController {
 				continue;
 			}
 
-			/* 当前供应商下含有账期商品的总金额 */
+			/* 当前供应商下(设置了账期的)商品的总金额 */
 			BigDecimal periodProductPriceCount = new BigDecimal(0);
+
+			/* 当前供应商下(没有设置账期的)商品的总金额 */
+			BigDecimal nonPeriodProductPriceCount = new BigDecimal(0);
+
+			Integer paymentTermCus = 0;
 			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 				Map<String,Object>  periodMap = getPeriodByCondition(periodParamsList,shoppingCartDto.getSpuCode(),shoppingCartDto.getCustId(),shoppingCartDto.getSupplyId());
 				if(UtilHelper.isEmpty(periodMap)) continue;
-//				Integer paymentTermCus = (Integer) periodMap.get("paymentTermCus");
-				Integer paymentTermPro = (Integer) periodMap.get("paymentTermPro");
+				paymentTermCus = (Integer) periodMap.get("paymentTermCus");//客户账期  TODO 查询客户账期的 武汉那边应该另提供一个接口
+				Integer paymentTermPro = (Integer) periodMap.get("paymentTermPro");//商品账期
 				if(paymentTermPro != null && paymentTermPro > 0){
 					shoppingCartDto.setPeriodProduct(true);
+					shoppingCartDto.setPaymentTerm(paymentTermPro);
 					periodProductPriceCount = periodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+				}else{
+					shoppingCartDto.setPeriodProduct(false);
+					shoppingCartDto.setPaymentTerm(0);
+					nonPeriodProductPriceCount = nonPeriodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 				}
 			}
 			s.setPeriodProductPriceCount(periodProductPriceCount);
+			s.setNonPeriodProductPriceCount(nonPeriodProductPriceCount);
+			s.setPaymentTermCus(paymentTermCus);
 		}
 		return allShoppingCart;
 	}
@@ -558,6 +598,34 @@ public class OrderController extends BaseJsonController {
 		 */
 		UserDto userDto = super.getLoginUser();
 		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
+
+		// TODO: 2016/8/23  待联调 
+		try {
+			if(UtilHelper.isEmpty(creditDubboService)){
+				logger.error("CreditDubboServiceInterface creditDubboService is null");
+			}else{
+				Order od =  orderService.getByPK(order.getOrderId());
+				SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+				if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+					CreditParams creditParams = new CreditParams();
+					creditParams.setSourceFlowId(od.getFlowId());//订单编码
+					creditParams.setBuyerCode(od.getCustId() + "");
+					creditParams.setSellerCode(od.getSupplyId() + "");
+					creditParams.setBuyerName(od.getCustName());
+					creditParams.setSellerName(od.getSupplyName());
+					creditParams.setOrderTotal(new BigDecimal(0));//订单金额  扣减后的
+					creditParams.setFlowId(od.getFlowId());//订单编码
+					creditParams.setStatus("5");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
+					CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+					if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+						throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("orderService.getByPK error, pk: "+order.getOrderId()+",errorMsg:"+e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	/**
