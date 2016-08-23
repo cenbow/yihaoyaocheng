@@ -254,4 +254,12 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
 	 */
 	public BigDecimal getConfirmHistoryExceptionMoney(String flowId);
+
+	/**
+	 * 采购商换货订单查询
+	 * @param orderException
+	 * @return
+	 */
+	public List<OrderException> listNodelivery(OrderException orderException);
+
 }

@@ -1664,5 +1664,26 @@
 	</select>
 
 	<select id="getConfirmHistoryExceptionMoney" parameterType="java.lang.String" resultType="java.math.BigDecimal"  useCache="false">
+		SELECT
+	  IFNULL(SUM(T1.ORDER_MONEY),0)
+		FROM
+		T_ORDER_EXCEPTION T1
+		WHERE
+		((T1.RETURN_TYPE = '1' AND T1.ORDER_STATUS = '8')
+		OR (T1.RETURN_TYPE = '4' AND T1.ORDER_STATUS = '4'))
+		AND T1.FLOW_ID=#{flowId}
+	</select>
+
+	<select id="listNodelivery" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE
+		seller_receive_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
+		<if test="returnType!= null and returnType!= ''">
+			AND return_type=#{returnType}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND order_status=#{orderStatus}
+		</if>
 	</select>
 </mapper>

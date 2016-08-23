@@ -20,10 +20,7 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
@@ -49,6 +46,13 @@ public class OrderDeliveryDetailService {
 	private OrderExceptionMapper orderExceptionMapper;
 
 	private OrderTraceMapper orderTraceMapper;
+
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
+
+	@Autowired
+	private OrderSettlementMapper orderSettlementMapper;
+
 
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
@@ -336,6 +340,9 @@ public class OrderDeliveryDetailService {
 		order.setUpdateUser(user.getUserName());
 		orderMapper.update(order);
 
+		//生成结算信息当是账期支付时
+		saveOrderSettlement(order);
+
 		//插入日志表
 		OrderTrace orderTrace = new OrderTrace();
 		orderTrace.setOrderId(order.getOrderId());
@@ -394,6 +401,38 @@ public class OrderDeliveryDetailService {
 			returnMap.put("code","1");
 			returnMap.put("msg","操作成功");
 			return returnMap;
+	}
+
+	/**
+	 * 账期订单卖家收货生成结算记录
+	 * @param order
+	 * @throws Exception
+	 */
+	public void saveOrderSettlement(Order order) throws Exception{
+		if(UtilHelper.isEmpty(order)){
+			throw new RuntimeException("未找到订单");
+		}
+		//当为账期支付时
+		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			String now = systemDateMapper.getSystemDate();
+		    OrderSettlement orderSettlement = new OrderSettlement();
+		    orderSettlement.setBusinessType(1);
+		    orderSettlement.setOrderId(order.getOrderId());
+		    orderSettlement.setFlowId(order.getFlowId());
+		    orderSettlement.setCustId(order.getCustId());
+		    orderSettlement.setCustName(order.getCustName());
+		    orderSettlement.setSupplyId(order.getSupplyId());
+		    orderSettlement.setSupplyName(order.getSupplyName());
+		    orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
+		    orderSettlement.setPayTypeId(order.getPayTypeId());
+		    orderSettlement.setSettlementTime(now);
+		    orderSettlement.setCreateUser(order.getCustName());
+		    orderSettlement.setCreateTime(now);
+		    orderSettlement.setOrderTime(order.getCreateTime());
+		    orderSettlement.setSettlementMoney(order.getOrgTotal());
+		    orderSettlementMapper.save(orderSettlement);
+		}
 	}
 
 	/**

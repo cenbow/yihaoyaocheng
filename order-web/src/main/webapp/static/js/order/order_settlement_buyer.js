@@ -13,6 +13,7 @@ $(function(){
 	bindSearchBtn();
 })
 
+
 function initDateSel(){
 	$(".padding-t-10 a").on("click",function () {
 		var num = -3;
@@ -170,11 +171,16 @@ function changeColor(){
 	$(".table tr:not(:first):even").css({background:"#fff"});
 }
 
+function initSettlementDetailModal(id) {
+	$("#"+id+" .form-group div").html("");
+}
+
 function bindOperateBtn() {
 	$(".back-opreate").on("click",function () {
 		//$("#myModalOperate").modal();
 	});
 	$(".back-detail").on("click",function () {
+		initSettlementDetailModal("myModalDetail");
 		var settlementId = $(this).attr("data-stmid");
 
 		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;

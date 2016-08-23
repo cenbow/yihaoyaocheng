@@ -266,7 +266,7 @@ public class OrderExceptionController extends BaseJsonController{
 	 */
 	@RequestMapping(value = "/sellerReviewRejectOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public void sellerReviewRejectOrder(@RequestBody OrderException orderException){
+	public void sellerReviewRejectOrder(@RequestBody OrderException orderException)  throws Exception {
 		UserDto userDto = super.getLoginUser();
 		OrderException oe;
 		Order order;
@@ -327,8 +327,8 @@ public class OrderExceptionController extends BaseJsonController{
 		SystemPayType systemPayType;
 
 		try{
-			order = orderService.getByPK(orderException.getOrderId());
 			oe = orderExceptionService.getByPK(orderException.getExceptionId());
+			order = orderService.getByPK(oe.getOrderId());
 			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		}catch (Exception e){
 			throw new RuntimeException("未找到拒收订单");
@@ -667,7 +667,7 @@ public class OrderExceptionController extends BaseJsonController{
 	 */
 	@RequestMapping(value = { "/editConfirmReceiptReturn"}, method = RequestMethod.POST)
 	@ResponseBody
-	public String editConfirmReceiptReturn(@RequestBody OrderException orderException){
+	public String editConfirmReceiptReturn(@RequestBody OrderException orderException) throws Exception{
 		UserDto userDto = super.getLoginUser();
 		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
 		return "{\"msg\":"+msg+"}" ;

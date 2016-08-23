@@ -29,6 +29,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.yaoex.druggmp</groupId>
+            <artifactId>druggmp-interfaces</artifactId>
+            <version>1.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- spring start -->
         <dependency>
             <groupId>org.springframework</groupId>
