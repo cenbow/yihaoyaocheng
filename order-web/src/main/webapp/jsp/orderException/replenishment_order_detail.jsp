@@ -22,11 +22,11 @@
                 <ol class="breadcrumb">
                     <c:if test="${orderExceptionDto.userType==1}">
                         <li><a href="${ctx}/order/buyerOrderManage"><i class="fa fa-map-marker fa-3"></i>采购订单管理</a></li>
-                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
+                        <li><a href="${ctx}/orderException/buyerReplenishmentOrderManage"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
                     </c:if>
                     <c:if test="${orderExceptionDto.userType==2}">
                         <li><a href="${ctx}/order/sellerOrderManage"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
-                        <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
+                        <li><a href="${ctx}/orderException/sellerReplenishmentOrderManage"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
                     </c:if>
                     <li class="active">订单详情</li>
                 </ol>
