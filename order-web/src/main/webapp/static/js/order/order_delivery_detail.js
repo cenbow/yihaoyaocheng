@@ -90,7 +90,7 @@ function fillTableJson(data) {
     for (var i = 0; i < list.length; i++) {
         var orderDeliveryDetail = list[i];
         var recieveCount=orderDeliveryDetail.recieveCount;
-        if(recieveCount == null || recieveCount == "" ){
+        if(recieveCount == null){
             recieveCount='';
         }
         var tr = "<tr>";
