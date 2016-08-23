@@ -11,6 +11,8 @@ $(function(){
 	bindSearchBtn();
 	//绑定切换tabs的事件
 	bindChangeTabs();
+	//绑定省市区
+	bindAreaData('province','city','area');
 })
 
 function  bindChangeTabs() {
@@ -46,6 +48,54 @@ function bindSearchBtn(){
 		var requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list"+index;
 		doRefreshData(params,requestUrl);
 	})
+}
+
+/**
+ * 绑定省市区操作
+ * @param prov
+ * @param city
+ * @param area
+ */
+function bindAreaData(prov,city,area) {
+	var provinceList = getProvince();
+	if (provinceList && provinceList.length > 0) {
+		var provStr = '<option value="">省份</option>';
+		for (var i = 0; i < provinceList.length; i++) {
+			provStr += ' <option value="' + provinceList[i].infoCode + '">' + provinceList[i].infoName + '</option>';
+		}
+		$("#" + prov).html(provStr);
+	}
+	$("#" + prov).change(function () {
+		var cityStr = '<option value="">城市</option>';
+		var _prov = $(this).children('option:selected').val();
+		if (_prov == '') {
+			$("#" + city).html(cityStr);
+			$("#" + area).html('<option value="">区/县</option>');
+			return;
+		}
+		var cityList = getCity(_prov);
+		if (cityList && cityList.length > 0) {
+			for (var i = 0; i < cityList.length; i++) {
+				cityStr += ' <option value="' + cityList[i].infoCode + '">' + cityList[i].infoName + '</option>';
+			}
+			$("#" + city).html(cityStr);
+		}
+	});
+	$("#" + city).change(function () {
+		var areaStr = '<option value="">区/县</option>';
+		var _city = $(this).children('option:selected').val();
+		if (_city == '') {
+			$("#" + area).html(areaStr);
+			return;
+		}
+		var areaList = getArea(_city);
+		if (areaList && areaList.length > 0) {
+			for (var i = 0; i < areaList.length; i++) {
+				areaStr += ' <option value="' + areaList[i].infoCode + '">' + areaList[i].infoName + '</option>';
+			}
+			$("#" + area).html(areaStr);
+		}
+	});
 }
 
 function fillPagerUtil(data,requestParam) {
@@ -140,11 +190,11 @@ function fillTableJson(data) {
 			var oe = list[i];
 			var operation = typeToOperate(oe.orderStatusName,oe.exceptionId);
 			var tr = "<tr>";
-			tr += "<td>" + oe.flowId +'<br><a href="'+ctx+'/order/getBuyOrderDetails?flowId='+oe.flowId+'" class="btn btn-info btn-sm margin-r-10" target="_blank">订单详情</a>' + "</td>";
+			tr += "<td>" + oe.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-2/" + oe.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
 			tr += "<td>" + oe.orderCreateTime + "</td>";
 			tr += "<td>" + oe.custName + "</td>";
 			tr += "<td>" + oe.orderStatusName + "</td>";
-			tr += "<td>" + oe.orderMoneyTotal + "</td>";
+			tr += "<td>&yen" + fmoney(oe.orderMoney,2) + "<br/>" + oe.payTypeName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
 			trs += tr;
