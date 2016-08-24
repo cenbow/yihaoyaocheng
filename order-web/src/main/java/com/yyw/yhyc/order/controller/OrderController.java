@@ -367,6 +367,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -386,13 +387,15 @@ public class OrderController extends BaseJsonController {
 			}
 			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
 
-			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+			if(UtilHelper.isEmpty(creditDubboResult) || !"1".equals(creditDubboResult.getIsSuccessful())){
+				/* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
 				logger.error("检查订单页-查询是否可用资信结算接口:资信为空或查询资信失败");
 
 				shoppingCartListDto = new ShoppingCartListDto();
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -423,6 +426,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDtoPeriodTerm.setBuyer(s.getBuyer());
 				shoppingCartListDtoPeriodTerm.setSeller(s.getSeller());
 				shoppingCartListDtoPeriodTerm.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDtoPeriodTerm.setAccountAmount(1);
 				shoppingCartListDtoPeriodTerm.setShoppingCartDtoList(shoppingCartDtoListPeriodTerm);
 				shoppingCartListDtoPeriodTerm.setProductPriceCount(productPriceCountPeriodTerm);
 				resultShoppingCartList.add(shoppingCartListDtoPeriodTerm);
@@ -434,6 +438,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(1);
 				shoppingCartListDto.setProductPriceCount(productPriceCount);
 				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
 				resultShoppingCartList.add(shoppingCartListDto);
