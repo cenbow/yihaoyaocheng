@@ -523,11 +523,11 @@ public class OrderExceptionService {
      */
 	public void modifyReviewRejectOrderStatus(UserDto userDto,OrderException orderException) throws Exception{
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
-			throw new RuntimeException("订单参数异常");
+			throw new RuntimeException("参数异常");
 
 		// 验证审核状态
 		if(!(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())))
-			throw new RuntimeException("状态参数异常");
+			throw new RuntimeException("参数异常");
 
 		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
 		if(UtilHelper.isEmpty(oe))
@@ -602,12 +602,15 @@ public class OrderExceptionService {
 	 */
 	public void updateSellerReviewChangeOrder(UserDto userDto,OrderException orderException){
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
-			throw new RuntimeException("参数异常");
+			throw new RuntimeException("订单是参数异常");
 
 		// 验证审核状态
-		if(!(SystemChangeGoodsOrderStatusEnum.WaitingBuyerDelivered.getType().equals(orderException.getOrderStatus()))||
-				!(SystemChangeGoodsOrderStatusEnum.Closed.getType().equals(orderException.getOrderStatus())))
+		if(!(SystemChangeGoodsOrderStatusEnum.WaitingBuyerDelivered.getType().equals(orderException.getOrderStatus()))&&
+				!(SystemChangeGoodsOrderStatusEnum.Closed.getType().equals(orderException.getOrderStatus()))){
+			log.info("状态异常参数:"+orderException.getOrderStatus());
 			throw new RuntimeException("参数异常");
+		}
+
 
 		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
 		if(UtilHelper.isEmpty(oe))
