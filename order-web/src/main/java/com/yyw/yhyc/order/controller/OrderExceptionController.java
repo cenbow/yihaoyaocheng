@@ -288,15 +288,17 @@ public class OrderExceptionController extends BaseJsonController{
 		if(UtilHelper.isEmpty(oe)){
 			throw new RuntimeException("未找到拒收订单");
 		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
 			CreditParams creditParams = new CreditParams();
 			//creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
 			creditParams.setSellerCode(oe.getSupplyId() + "");
 			creditParams.setBuyerName(oe.getCustName());
 			creditParams.setSellerName(oe.getSupplyName());
-			creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
+			if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+				creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
+			else
+				creditParams.setOrderTotal(order.getOrderTotal());//订单金额
 			creditParams.setFlowId(oe.getFlowId());//订单编码
 			creditParams.setStatus("2");
 			creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
