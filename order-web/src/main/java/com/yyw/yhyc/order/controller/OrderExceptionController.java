@@ -15,6 +15,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
@@ -288,16 +289,17 @@ public class OrderExceptionController extends BaseJsonController{
 			throw new RuntimeException("未找到拒收订单");
 		}
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemOrderExceptionStatusEnum.BuyerConfirmed.equals(orderException.getOrderStatus())){
+				&& SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())){
 			CreditParams creditParams = new CreditParams();
-			creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
+			//creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
 			creditParams.setSellerCode(oe.getSupplyId() + "");
 			creditParams.setBuyerName(oe.getCustName());
 			creditParams.setSellerName(oe.getSupplyName());
 			creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
-			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+			creditParams.setFlowId(oe.getFlowId());//订单编码
 			creditParams.setStatus("2");
+			creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
@@ -343,14 +345,15 @@ public class OrderExceptionController extends BaseJsonController{
 			throw new RuntimeException("未找到退货订单");
 		}
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemRefundOrderStatusEnum.SellerConfirmed.equals(orderException.getOrderStatus())){
+				&& SystemRefundOrderStatusEnum.SellerConfirmed.getType().equals(orderException.getOrderStatus())){
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
 			creditParams.setSellerCode(oe.getSupplyId() + "");
 			creditParams.setBuyerName(oe.getCustName());
 			creditParams.setSellerName(oe.getSupplyName());
-			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
+//			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
+			creditParams.setOrderTotal(oe.getOrderMoney());//订单金额
 			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
 			creditParams.setStatus("6");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
