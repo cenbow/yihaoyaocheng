@@ -1787,4 +1787,14 @@ public class OrderExceptionService {
 		BigDecimal  historyMoneys = orderExceptionMapper.getConfirmHistoryExceptionMoney(flowId);
 		return historyMoneys;
 	}
+
+	/**
+	 * 根据异常订单编码查询异常订单
+	 * @param exceptionOrderId
+	 * @return
+	 */
+	public OrderException getByExceptionOrderId(String exceptionOrderId){
+		return orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
+	};
+
 }

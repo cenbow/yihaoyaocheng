@@ -630,6 +630,35 @@ public class OrderExceptionController extends BaseJsonController{
 	public void repConfirmReceipt(@PathVariable("exceptionOrderId") String exceptionOrderId) throws Exception{
 			UserDto userDto = super.getLoginUser();
 			orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, userDto);
+			//补货确认收货调用账期接口
+			try{
+				if (UtilHelper.isEmpty(creditDubboService))
+					logger.error("CreditDubboServiceInterface creditDubboService is null");
+				else {
+					OrderException oe = orderExceptionService.getByExceptionOrderId(exceptionOrderId);
+					Order order = orderService.getByPK(oe.getOrderId());
+					SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+						CreditParams creditParams = new CreditParams();
+						creditParams.setSourceFlowId(oe.getFlowId());//源订单单号
+						creditParams.setBuyerCode(oe.getCustId() + "");
+						creditParams.setSellerCode(oe.getSupplyId() + "");
+						creditParams.setBuyerName(oe.getCustName());
+						creditParams.setSellerName(oe.getSupplyName());
+						creditParams.setOrderTotal(order.getOrgTotal());//订单金额
+						creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+						creditParams.setStatus("2");
+						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+						if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
+							throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
+						}
+					}
+				}
+			}catch (Exception e){
+				throw new RuntimeException("未找到拒收订单");
+			}
+
+
 	}
 
 	/**
