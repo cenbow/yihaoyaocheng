@@ -650,9 +650,14 @@ public class OrderController extends BaseJsonController {
 					creditParams.setOrderTotal(od.getOrgTotal());//订单原始金额
 					creditParams.setFlowId(od.getFlowId());//订单编码
 					creditParams.setStatus("5");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
-					CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-					if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-						throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+					// TODO: 2016/8/24 暂时忽略资信接口调用错误 
+					try{
+						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+						if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+							throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+						}
+					}catch (Exception e){
+						logger.error("invoke creditDubboService.updateCreditRecord(..) error,msg:"+e.getMessage());
 					}
 				}
 			}
