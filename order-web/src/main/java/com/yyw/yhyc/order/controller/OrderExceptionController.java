@@ -664,6 +664,7 @@ public class OrderExceptionController extends BaseJsonController{
 					}
 				}
 			}catch (Exception e){
+				logger.debug(e.getMessage());
 				throw new RuntimeException("未找到拒收订单");
 			}
 
