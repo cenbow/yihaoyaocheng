@@ -326,7 +326,7 @@ public class OrderController extends BaseJsonController {
 	 * @return
 	 */
 	private List<ShoppingCartListDto> convertAllShoppingCart(List<ShoppingCartListDto> allShoppingCart,List<PeriodParams> periodParamsList) {
-		if(UtilHelper.isEmpty(allShoppingCart)){
+		if(UtilHelper.isEmpty(allShoppingCart)||UtilHelper.isEmpty(periodParamsList)){
 			return allShoppingCart;
 		}
 		/* 计算各个供应商下是否有账期商品，如果有，则计算这些账期商品的总价 */
