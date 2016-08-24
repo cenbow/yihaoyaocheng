@@ -1573,4 +1573,9 @@ public class OrderService {
 		orderSettlement.setRefunSettlementMoney(order.getOrgTotal());
 		orderSettlementMapper.save(orderSettlement);
 	}
+
+	//更具订单编号查找订单
+	public Order getOrderbyFlowId(String flowId){
+		return orderMapper.getOrderbyFlowId(flowId);
+	}
 }

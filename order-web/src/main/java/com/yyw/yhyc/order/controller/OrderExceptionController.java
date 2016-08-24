@@ -15,6 +15,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
@@ -287,17 +288,20 @@ public class OrderExceptionController extends BaseJsonController{
 		if(UtilHelper.isEmpty(oe)){
 			throw new RuntimeException("未找到拒收订单");
 		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemOrderExceptionStatusEnum.BuyerConfirmed.equals(orderException.getOrderStatus())){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
 			CreditParams creditParams = new CreditParams();
-			creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
+			//creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
 			creditParams.setSellerCode(oe.getSupplyId() + "");
 			creditParams.setBuyerName(oe.getCustName());
 			creditParams.setSellerName(oe.getSupplyName());
-			creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
-			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+			if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+				creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
+			else
+				creditParams.setOrderTotal(order.getOrderTotal());//订单金额
+			creditParams.setFlowId(oe.getFlowId());//订单编码
 			creditParams.setStatus("2");
+			creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
@@ -343,14 +347,15 @@ public class OrderExceptionController extends BaseJsonController{
 			throw new RuntimeException("未找到退货订单");
 		}
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemRefundOrderStatusEnum.SellerConfirmed.equals(orderException.getOrderStatus())){
+				&& SystemRefundOrderStatusEnum.SellerConfirmed.getType().equals(orderException.getOrderStatus())){
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
 			creditParams.setSellerCode(oe.getSupplyId() + "");
 			creditParams.setBuyerName(oe.getCustName());
 			creditParams.setSellerName(oe.getSupplyName());
-			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
+//			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
+			creditParams.setOrderTotal(oe.getOrderMoney());//订单金额
 			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
 			creditParams.setStatus("6");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
@@ -634,6 +639,35 @@ public class OrderExceptionController extends BaseJsonController{
 	public void repConfirmReceipt(@PathVariable("exceptionOrderId") String exceptionOrderId) throws Exception{
 			UserDto userDto = super.getLoginUser();
 			orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, userDto);
+			//补货确认收货调用账期接口
+			try{
+				if (UtilHelper.isEmpty(creditDubboService))
+					logger.error("CreditDubboServiceInterface creditDubboService is null");
+				else {
+					OrderException oe = orderExceptionService.getByExceptionOrderId(exceptionOrderId);
+					Order order = orderService.getByPK(oe.getOrderId());
+					SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+						CreditParams creditParams = new CreditParams();
+						creditParams.setSourceFlowId(oe.getFlowId());//源订单单号
+						creditParams.setBuyerCode(oe.getCustId() + "");
+						creditParams.setSellerCode(oe.getSupplyId() + "");
+						creditParams.setBuyerName(oe.getCustName());
+						creditParams.setSellerName(oe.getSupplyName());
+						creditParams.setOrderTotal(order.getOrgTotal());//订单金额
+						creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+						creditParams.setStatus("2");
+						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+						if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
+							throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
+						}
+					}
+				}
+			}catch (Exception e){
+				throw new RuntimeException("未找到拒收订单");
+			}
+
+
 	}
 
 	/**
