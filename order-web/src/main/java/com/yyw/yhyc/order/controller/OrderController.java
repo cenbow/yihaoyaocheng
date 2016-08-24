@@ -634,13 +634,12 @@ public class OrderController extends BaseJsonController {
 		UserDto userDto = super.getLoginUser();
 		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
 
-		// TODO: 2016/8/23  待联调 
 		try {
 			if(UtilHelper.isEmpty(creditDubboService)){
 				logger.error("CreditDubboServiceInterface creditDubboService is null");
 			}else{
 				Order od =  orderService.getByPK(order.getOrderId());
-				SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+				SystemPayType systemPayType= systemPayTypeService.getByPK(od.getPayTypeId());
 				if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 					CreditParams creditParams = new CreditParams();
 					creditParams.setSourceFlowId(od.getFlowId());//订单编码
@@ -648,7 +647,7 @@ public class OrderController extends BaseJsonController {
 					creditParams.setSellerCode(od.getSupplyId() + "");
 					creditParams.setBuyerName(od.getCustName());
 					creditParams.setSellerName(od.getSupplyName());
-					creditParams.setOrderTotal(new BigDecimal(0));//订单金额  扣减后的
+					creditParams.setOrderTotal(od.getOrgTotal());//订单原始金额
 					creditParams.setFlowId(od.getFlowId());//订单编码
 					creditParams.setStatus("5");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
 					CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
