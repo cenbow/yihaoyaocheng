@@ -271,6 +271,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException)  throws Exception {
 		UserDto userDto = super.getLoginUser();
+		orderExceptionService.modifyReviewRejectOrderStatus(userDto, orderException);
 		OrderException oe;
 		Order order;
 		SystemPayType systemPayType;
@@ -307,7 +308,7 @@ public class OrderExceptionController extends BaseJsonController{
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
 		}
-		orderExceptionService.modifyReviewRejectOrderStatus(userDto, orderException);
+
 	}
 
 	/**
@@ -329,6 +330,7 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewReturnOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
+		orderExceptionService.modifyReviewReturnOrder(userDto, orderException);
 		OrderException oe;
 		Order order;
 		SystemPayType systemPayType;
@@ -363,7 +365,6 @@ public class OrderExceptionController extends BaseJsonController{
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
 		}
-		orderExceptionService.modifyReviewReturnOrder(userDto, orderException);
 	}
 
 	/**
