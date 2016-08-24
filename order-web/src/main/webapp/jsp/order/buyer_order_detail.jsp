@@ -46,7 +46,7 @@
             </div>
             <div class="container-fluid progress">
 
-            <c:if test="${orderDetailsDto.payType!=3&&orderDetailsDto.orderStatus==1}">
+            <c:if test="${orderDetailsDto.payType!=2&&orderDetailsDto.orderStatus==1}">
                 <div class="row progress_bar">
                     <div class="col-xs-3 cur"><span>1</span></div>
                     <div class="col-xs-3"><span>2</span></div>
@@ -75,7 +75,7 @@
                     </div>
                 </c:if>
 
-                <c:if test="${orderDetailsDto.orderStatus==6}">
+                <c:if test="${orderDetailsDto.orderStatus==6||orderDetailsDto.orderStatus==12}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>
@@ -89,8 +89,9 @@
                         <div class="col-xs-3">已完成</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.orderStatus==8}">
+                <c:if test="${orderDetailsDto.orderStatus==8||orderDetailsDto.orderStatus==13||orderDetailsDto.orderStatus==11||orderDetailsDto.orderStatus==14}">
                     <div class="row progress_bar">
+                        if
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>
                         <div class="col-xs-3 cur"><span>3</span></div>
@@ -103,7 +104,7 @@
                         <div class="col-xs-3">已完成</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType!=3&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4||orderDetailsDto.orderStatus==7)}">
+                <c:if test="${orderDetailsDto.payType!=2&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4||orderDetailsDto.orderStatus==7)}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3"><span>2</span></div>
@@ -119,7 +120,7 @@
                         <div class="col-xs-3">已取消</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType!=3&&orderDetailsDto.orderStatus==9}">
+                <c:if test="${orderDetailsDto.payType!=2&&orderDetailsDto.orderStatus==9}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>
@@ -135,7 +136,7 @@
                         <div class="col-xs-3">已完成</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType!=3&&orderDetailsDto.orderStatus==10}">
+                <c:if test="${orderDetailsDto.payType!=2&&orderDetailsDto.orderStatus==10}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>
@@ -151,7 +152,7 @@
                         <div class="col-xs-3">已完成</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType==3&&orderDetailsDto.orderStatus==1}">
+                <c:if test="${orderDetailsDto.payType==2&&orderDetailsDto.orderStatus==1}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3"><span>2</span></div>
@@ -163,7 +164,7 @@
                         <div class="col-xs-3">已完成</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType!=1&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4)}">
+                <c:if test="${orderDetailsDto.payType==2&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4||orderDetailsDto.orderStatus==7)}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3"><span>2</span></div>
@@ -177,7 +178,7 @@
                         <div class="col-xs-3">已取消</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType!=1&&orderDetailsDto.orderStatus==9}">
+                <c:if test="${orderDetailsDto.payType==2&&orderDetailsDto.orderStatus==9}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>
@@ -191,7 +192,7 @@
                         <div class="col-xs-3">已完成</div>
                     </div>
                 </c:if>
-                <c:if test="${orderDetailsDto.payType!=1&&orderDetailsDto.orderStatus==10}">
+                <c:if test="${orderDetailsDto.payType==2&&orderDetailsDto.orderStatus==10}">
                     <div class="row progress_bar">
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>

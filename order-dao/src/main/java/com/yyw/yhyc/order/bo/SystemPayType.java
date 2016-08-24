@@ -25,7 +25,7 @@ public class SystemPayType extends Model{
 	private java.lang.Integer payTypeId;
 
 	/**
-	  *	支付类型 1-在线支付; 2-线下支付 3 账期支付
+	  *	支付类型 支付类型 1-在线支付; 2-账期支付 3-线下支付
 	  */
 	private java.lang.Integer payType;
 

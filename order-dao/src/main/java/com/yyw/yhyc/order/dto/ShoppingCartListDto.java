@@ -32,7 +32,10 @@ public class ShoppingCartListDto implements Serializable{
     private BigDecimal nonPeriodProductPriceCount;
 
     /* 供应商对采供商设置的账期，即客户账期 */
-    private Integer paymentTermCus;
+    private int paymentTermCus;
+
+    /* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
+    private int accountAmount;
 
     public UsermanageEnterprise getBuyer() {
         return buyer;
@@ -82,12 +85,20 @@ public class ShoppingCartListDto implements Serializable{
         this.nonPeriodProductPriceCount = nonPeriodProductPriceCount;
     }
 
-    public Integer getPaymentTermCus() {
+    public int getPaymentTermCus() {
         return paymentTermCus;
     }
 
-    public void setPaymentTermCus(Integer paymentTermCus) {
+    public void setPaymentTermCus(int paymentTermCus) {
         this.paymentTermCus = paymentTermCus;
+    }
+
+    public int getAccountAmount() {
+        return accountAmount;
+    }
+
+    public void setAccountAmount(int accountAmount) {
+        this.accountAmount = accountAmount;
     }
 
     @Override
@@ -100,6 +111,7 @@ public class ShoppingCartListDto implements Serializable{
                 ", periodProductPriceCount=" + periodProductPriceCount +
                 ", nonPeriodProductPriceCount=" + nonPeriodProductPriceCount +
                 ", paymentTermCus=" + paymentTermCus +
+                ", accountAmount=" + accountAmount +
                 '}';
     }
 }
