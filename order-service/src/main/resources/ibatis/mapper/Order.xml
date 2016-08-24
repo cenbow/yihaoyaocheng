@@ -711,7 +711,7 @@
 
 	<select id="findBuyerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal" useCache="false">
 		SELECT
-		SUM(T1.ORDER_TOTAL)
+		SUM(T1.ORG_TOTAL)
 		FROM
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
@@ -781,7 +781,7 @@
 				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
 			</if>
 		</if>
-		AND T1.ORDER_TOTAL IS NOT NULL
+		AND T1.ORG_TOTAL IS NOT NULL
 	</select>
 
 
@@ -940,7 +940,7 @@
 
 	<select id="findSellerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal" useCache="false">
 		SELECT
-		SUM(T1.ORDER_TOTAL)
+		SUM(T1.ORG_TOTAL)
 		FROM
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
@@ -1021,7 +1021,7 @@
 		<if test="district!= null and district!= ''">
 			AND T2.DISTRICT = #{district}
 		</if>
-		AND T1.ORDER_TOTAL IS NOT NULL
+		AND T1.ORG_TOTAL IS NOT NULL
 	</select>
 
 	<resultMap id="exportSellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">

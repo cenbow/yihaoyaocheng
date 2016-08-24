@@ -25,11 +25,9 @@ function createOrder(){
     $(".payTypeId").each(function(_index,element){
         // console.info("_index=" + _index + ",element=" + element);
         var _payTypeId = $(this).val();
-        var _supplyName = $(this).attr("supplyName");
-
-        console.info("_payTypeId=" + _payTypeId + ",_supplyName=" + _supplyName);
 
         if( !$(_payTypeId) || _payTypeId == null || _payTypeId == "" || typeof _payTypeId == "undefined"){
+            console.info("_payTypeId=" + _payTypeId + ",_supplyName=" + _supplyName);
             _supplyName = $(this).attr("supplyName");
             allPayTypeSelected = false;
         }

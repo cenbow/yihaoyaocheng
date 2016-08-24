@@ -55,15 +55,17 @@ function changeBillType(id,_node){
 
     /* 支付方式单选按钮 */
     $('.radio-select label').click(function(){
-        $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
-        $(this).find('i:first').addClass('radio-skin-selected');
-        var  _supplyId = $(this).find('i:first').attr("supplyId");
-        var _payTypeId = $(this).find('i:first').attr("payTypeId");
-
-        $(this).parent('div').find('.payTypeId').val(_payTypeId);
         
-        // var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
-        // $(_supplyPayTypeId).val(_payTypeId);
+        /* 如果按钮被禁用掉，不能选中支付方式 */
+        if(!$(this).hasClass('label-disabled')) {
+            
+            $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
+            $(this).find('i:first').addClass('radio-skin-selected');
+            var _supplyId = $(this).find('i:first').attr("supplyId");
+            var _payTypeId = $(this).find('i:first').attr("payTypeId");
+
+            $(this).parent('div').find('.payTypeId').val(_payTypeId);
+        }
     });
 
 

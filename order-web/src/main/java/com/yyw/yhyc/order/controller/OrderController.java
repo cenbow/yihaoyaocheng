@@ -242,7 +242,12 @@ public class OrderController extends BaseJsonController {
 				creditParams.setSellerName(order.getSupplyName());
 				creditParams.setPaymentDays(order.getPaymentTerm());//账期
 				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
-				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				CreditDubboResult creditDubboResult = null;
+				try{
+					creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				}catch (Exception e){
+					logger.error(e.getMessage());
+				}
 				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 响应参数creditDubboResult= " + creditDubboResult);
 			}
 		}
@@ -352,12 +357,20 @@ public class OrderController extends BaseJsonController {
 				continue;
 			}
 			/* 如果账期商品的总额为0，则不再进行拆单。进行下一个供应商数据的处理 */
-			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
-				continue;
-			}
+//			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
+//				continue;
+//			}
 
 			logger.info("检查订单页-查询是否可用资信结算接口，creditDubboService=" + creditDubboService);
 			if(UtilHelper.isEmpty(creditDubboService)){
+				shoppingCartListDto = new ShoppingCartListDto();
+				shoppingCartListDto.setBuyer(s.getBuyer());
+				shoppingCartListDto.setSeller(s.getSeller());
+				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(0);
+				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
+				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				resultShoppingCartList.add(shoppingCartListDto);
 				continue;
 			}
 
@@ -366,16 +379,23 @@ public class OrderController extends BaseJsonController {
 			creditParams.setSellerCode(s.getSeller().getEnterpriseId()+ "");
 			creditParams.setOrderTotal(s.getPeriodProductPriceCount());
 			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + creditParams);
-			CreditDubboResult creditDubboResult = creditDubboService.queryCreditAvailability(creditParams);
+			CreditDubboResult creditDubboResult = null;
+			try{
+				creditDubboResult = creditDubboService.queryCreditAvailability(creditParams);
+			}catch (Exception e){
+				logger.error(e.getMessage());
+			}
 			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
 
-			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-				logger.error("检查订单页-查询是否可用资信结算接口，调用失败:" + creditDubboResult.getMessage());
+			if(UtilHelper.isEmpty(creditDubboResult) || !"1".equals(creditDubboResult.getIsSuccessful())){
+				/* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
+				logger.error("检查订单页-查询是否可用资信结算接口:资信为空或查询资信失败");
 
 				shoppingCartListDto = new ShoppingCartListDto();
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -406,6 +426,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDtoPeriodTerm.setBuyer(s.getBuyer());
 				shoppingCartListDtoPeriodTerm.setSeller(s.getSeller());
 				shoppingCartListDtoPeriodTerm.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDtoPeriodTerm.setAccountAmount(1);
 				shoppingCartListDtoPeriodTerm.setShoppingCartDtoList(shoppingCartDtoListPeriodTerm);
 				shoppingCartListDtoPeriodTerm.setProductPriceCount(productPriceCountPeriodTerm);
 				resultShoppingCartList.add(shoppingCartListDtoPeriodTerm);
@@ -417,6 +438,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(1);
 				shoppingCartListDto.setProductPriceCount(productPriceCount);
 				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -501,7 +523,14 @@ public class OrderController extends BaseJsonController {
 		}
 
 		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:请求参数paramsList=" + paramsList);
-		PeriodDubboResult periodDubboResult = creditDubboService.queryPeriod(paramsList);
+		PeriodDubboResult periodDubboResult=null;
+		try{
+			 periodDubboResult = creditDubboService.queryPeriod(paramsList);
+		}catch(Exception e){
+			  logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息异常:");
+              e.printStackTrace();
+			  return  paramsList;
+		}
 
 		if(UtilHelper.isEmpty(periodDubboResult) || "0".equals(periodDubboResult.getIsSuccessful())
 				|| UtilHelper.isEmpty(periodDubboResult.getData())){
@@ -634,13 +663,12 @@ public class OrderController extends BaseJsonController {
 		UserDto userDto = super.getLoginUser();
 		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
 
-		// TODO: 2016/8/23  待联调 
 		try {
 			if(UtilHelper.isEmpty(creditDubboService)){
 				logger.error("CreditDubboServiceInterface creditDubboService is null");
 			}else{
 				Order od =  orderService.getByPK(order.getOrderId());
-				SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+				SystemPayType systemPayType= systemPayTypeService.getByPK(od.getPayTypeId());
 				if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 					CreditParams creditParams = new CreditParams();
 					creditParams.setSourceFlowId(od.getFlowId());//订单编码
@@ -648,12 +676,17 @@ public class OrderController extends BaseJsonController {
 					creditParams.setSellerCode(od.getSupplyId() + "");
 					creditParams.setBuyerName(od.getCustName());
 					creditParams.setSellerName(od.getSupplyName());
-					creditParams.setOrderTotal(new BigDecimal(0));//订单金额  扣减后的
+					creditParams.setOrderTotal(od.getOrgTotal());//订单原始金额
 					creditParams.setFlowId(od.getFlowId());//订单编码
 					creditParams.setStatus("5");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
-					CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-					if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-						throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+					// TODO: 2016/8/24 暂时忽略资信接口调用错误 
+					try{
+						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+						if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+							throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+						}
+					}catch (Exception e){
+						logger.error("invoke creditDubboService.updateCreditRecord(..) error,msg:"+e.getMessage());
 					}
 				}
 			}

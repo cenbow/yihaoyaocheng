@@ -176,7 +176,7 @@ function fillTableJson(data) {
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>&yen" + fmoney(order.orderTotal,2) + "<br/>" + order.payTypeName + "</td>";
+        tr += "<td>&yen" + fmoney(order.orgTotal,2) + "<br/>" + order.payTypeName + "</td>";
         tr += "<td>" + operation + "</td>";
         tr += "</tr>";
         trs += tr;
@@ -427,7 +427,7 @@ function confirmReceipt(){
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
 
-    var type = /^[0-9]*[1-9][0-9]*$/;
+    var type = /^[0-9]*[0-9][0-9]*$/;
     var re = new RegExp(type);
 
     if($("#bodyDiv:visible").size() == 0){
@@ -438,7 +438,7 @@ function confirmReceipt(){
             }
 
             if ($(recieveCount[i]).val().match(re) == null) {
-                alertModal("请输入大于零的整数!");
+                alertModal("请输入大于等于零的整数!");
                 return;
             }
 
