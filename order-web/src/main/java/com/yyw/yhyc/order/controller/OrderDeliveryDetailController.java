@@ -111,7 +111,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,String> confirmReceipt(@RequestBody  String listStr) throws Exception
 	{
-		List<OrderDeliveryDetailDto> list = new JsonHelper<OrderDeliveryDetailDto>().fromList(listStr, OrderDeliveryDetailDto.class);
+		List<OrderDeliveryDetailDto> list = JsonHelper.fromList(listStr, OrderDeliveryDetailDto.class);
 		UserDto user = super.getLoginUser();
 		return orderDeliveryDetailService.updateConfirmReceipt(list, user);
 	}
@@ -127,10 +127,6 @@ public class OrderDeliveryDetailController extends BaseJsonController {
         //获取用户信息
         UserDto userDto=super.getLoginUser();
         Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
-        if(userDto==null){
-            userDto = new UserDto();
-            userDto.setCustId(123);
-        }
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
