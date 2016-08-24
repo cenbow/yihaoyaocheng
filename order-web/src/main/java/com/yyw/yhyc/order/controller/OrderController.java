@@ -387,7 +387,7 @@ public class OrderController extends BaseJsonController {
 			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
 
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-				logger.error("检查订单页-查询是否可用资信结算接口，调用失败:" + creditDubboResult.getMessage());
+				logger.error("检查订单页-查询是否可用资信结算接口:资信为空或查询资信失败");
 
 				shoppingCartListDto = new ShoppingCartListDto();
 				shoppingCartListDto.setBuyer(s.getBuyer());
