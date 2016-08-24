@@ -10,7 +10,6 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.dubbo.remoting.RemotingException;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
@@ -243,7 +242,12 @@ public class OrderController extends BaseJsonController {
 				creditParams.setSellerName(order.getSupplyName());
 				creditParams.setPaymentDays(order.getPaymentTerm());//账期
 				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
-				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				CreditDubboResult creditDubboResult = null;
+				try{
+					creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				}catch (Exception e){
+					logger.error(e.getMessage());
+				}
 				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 响应参数creditDubboResult= " + creditDubboResult);
 			}
 		}
@@ -374,7 +378,12 @@ public class OrderController extends BaseJsonController {
 			creditParams.setSellerCode(s.getSeller().getEnterpriseId()+ "");
 			creditParams.setOrderTotal(s.getPeriodProductPriceCount());
 			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + creditParams);
-			CreditDubboResult creditDubboResult = creditDubboService.queryCreditAvailability(creditParams);
+			CreditDubboResult creditDubboResult = null;
+			try{
+				creditDubboResult = creditDubboService.queryCreditAvailability(creditParams);
+			}catch (Exception e){
+				logger.error(e.getMessage());
+			}
 			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
 
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
