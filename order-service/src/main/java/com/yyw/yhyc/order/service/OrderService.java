@@ -356,7 +356,7 @@ public class OrderService {
 				if(UtilHelper.isEmpty(productInfoDto)) continue;
 
 				/* 校验该商品是否符合账期订单的规则 */
-				if (validateRulesOfPeriodTermOrder(orderDto.getPayTypeId(),productInfoDto)) {
+				if (validateRulesOfPeriodTermOrder(orderDto,productInfoDto)) {
 					productInfoDtoList.add(productInfoDto);
 				}
 			}
@@ -396,7 +396,7 @@ public class OrderService {
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
 
 			/* 校验该商品是否符合账期订单的规则 */
-			if (validateRulesOfPeriodTermOrder(orderDto.getPayTypeId(),productInfoDto)) {
+			if (validateRulesOfPeriodTermOrder(orderDto,productInfoDto)) {
 				continue;
 			}else{
 				productInfoDtoList.add(productInfoDto);
@@ -419,19 +419,26 @@ public class OrderService {
 
 	/**
 	 * 校验该商品是否符合账期订单的规则
-	 * @param payTypeId 支付方式
+	 * @param orderDto 组装的订单信息
 	 * @param productInfoDto 单个商品信息
      * @return
      */
-	private boolean validateRulesOfPeriodTermOrder(Integer payTypeId,ProductInfoDto productInfoDto) {
-		if(UtilHelper.isEmpty(payTypeId) ){
+	private boolean validateRulesOfPeriodTermOrder(OrderDto orderDto,ProductInfoDto productInfoDto) {
+		if(UtilHelper.isEmpty(orderDto) ){
+			return false;
+		}
+		if(UtilHelper.isEmpty(orderDto.getPayTypeId()) ){
 			return false;
 		}
 		if(UtilHelper.isEmpty(productInfoDto)){
 			return false;
 		}
-		/* 选择了账期支付方式 且商品有账期 */
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(payTypeId)){
+		/* 选择了账期支付方式 */
+		if(!SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
+			return false;
+		}
+		/* 资信额度足够 则可以生成账期订单 */
+		if(orderDto.getAccountAmount()  == 1 ){
 			return true;
 		}
 		return false;
@@ -1023,7 +1030,7 @@ public class OrderService {
             return BuyerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
-            return BuyerOrderStatusEnum.PaidException;//打款异常
+            return BuyerOrderStatusEnum.Finished;//已完成
         }
         return null;
     }
@@ -1063,7 +1070,7 @@ public class OrderService {
             return SellerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
-            return SellerOrderStatusEnum.PaidException;//打款异常
+            return SellerOrderStatusEnum.Finished;//已完成
         }
         return null;
     }

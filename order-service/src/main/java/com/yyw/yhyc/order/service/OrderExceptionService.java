@@ -1524,6 +1524,17 @@ public class OrderExceptionService {
 			log.info("补货订单状态不正确,OrderException:"+oe);
 			throw new RuntimeException("补货订单状态不正确");
 		}
+		Order order = orderMapper.getOrderbyFlowId(oe.getFlowId());
+		if(UtilHelper.isEmpty(order))
+			throw new RuntimeException("未找到原订单");
+		if(userDto.getCustId() != order.getSupplyId()){
+			log.info("原订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("未找到原订单");
+		}
+		if(!SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())){
+			log.info("原订单不是补货中的订单");
+			throw new RuntimeException("原订单不是补货中的订单");
+		}
 		String now = systemDateMapper.getSystemDate();
 		oe.setRemark(orderException.getRemark());
 		oe.setOrderStatus(orderException.getOrderStatus());
@@ -1549,17 +1560,6 @@ public class OrderExceptionService {
 		orderTraceMapper.save(orderTrace);
 		//补货订单卖家审核不通过时、原订单状态改为买家全部收货
 		if(SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())){
-			Order order = orderMapper.getOrderbyFlowId(oe.getFlowId());
-			if(UtilHelper.isEmpty(order))
-				throw new RuntimeException("未找到原订单");
-			if(userDto.getCustId() != order.getSupplyId()){
-				log.info("原订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
-				throw new RuntimeException("未找到原订单");
-			}
-			if(!SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())){
-				log.info("原订单不是补货中的订单");
-				throw new RuntimeException("原订单不是补货中的订单");
-			}
 			order.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			order.setReceiveTime(systemDateMapper.getSystemDate());
 			order.setReceiveType(2);//系统自动确认收货

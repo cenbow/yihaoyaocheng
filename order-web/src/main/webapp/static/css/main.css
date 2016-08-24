@@ -320,6 +320,7 @@ a.red,
   height: 40px;
   line-height: 40px;
   border: 0;
+  cursor: pointer;
 }
 .search .search-hots {
   display: inline-block;
@@ -418,6 +419,7 @@ a.red,
   background: #e60012;
   color: white;
   font-size: 16px;
+  z-index: 9;
 }
 .categorys .c-class-icon {
   width: 24px;
@@ -892,6 +894,10 @@ a.red,
   border-left: 1px solid #cfcfcf;
   margin-left: 10px;
   padding-left: 10px;
+  cursor: default;
+}
+.copyright .footer-nav a:hover {
+  color: #666;
 }
 .copyright .footer-nav a.bl0 {
   border-left: 0;
@@ -973,9 +979,8 @@ a.red,
   background-position: -1px -20px;
   width: 16px;
   height: 16px;
-  position: absolute;
-  top: -2px;
-  right: -20px;
+  position: relative;
+  top: 2px;
   display: inline-block;
 }
 .tips-frame {
@@ -1472,10 +1477,18 @@ textarea {
 a {
   color: #666;
   text-decoration: none;
+  outline: 0;
 }
 a:hover {
   color: #e60012;
   text-decoration: none;
+  outline: 0;
+}
+a:hover:active {
+  outline: 0;
+}
+a:active {
+  outline: 0;
 }
 .vam img {
   vertical-align: middle;
@@ -1931,4 +1944,4 @@ i {
 .main-footer {
   margin-top: 0;
 }
-/*# sourceMappingURL=app/styles/main.css.map */
+/*# sourceMappingURL=main.css.map */
