@@ -22,13 +22,14 @@ function createOrder(){
     /* 校验所有供应商下的支付类型是否选中 */
     var allPayTypeSelected = true;
     var _supplyName = ""; 
-    $("input[name='supplyId']").each(function(_index,element){
+    $(".payTypeId").each(function(_index,element){
         // console.info("_index=" + _index + ",element=" + element);
-        var _supplyId = $(this).val();
-        var _payTypeId = "#"+_supplyId +"_payTypeId";
-        var payType = $(_payTypeId).val();
+        var _payTypeId = $(this).val();
+        var _supplyName = $(this).attr("supplyName");
 
-        if( !$(_payTypeId) || payType == null || payType == "" || typeof payType == "undefined"){
+        console.info("_payTypeId=" + _payTypeId + ",_supplyName=" + _supplyName);
+
+        if( !$(_payTypeId) || _payTypeId == null || _payTypeId == "" || typeof _payTypeId == "undefined"){
             _supplyName = $(this).attr("supplyName");
             allPayTypeSelected = false;
         }

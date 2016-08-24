@@ -553,7 +553,7 @@ public class OrderExceptionService {
 		oe.setReviewTime(now);
 		int count = orderExceptionMapper.update(oe);
 		if(count == 0){
-			log.error("OrderException info :"+oe);
+			log.error("拒收订单审核失败,OrderException info :"+oe);
 			throw new RuntimeException("拒收订单审核失败");
 		}
 
@@ -568,9 +568,30 @@ public class OrderExceptionService {
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(userDto.getUserName());
 		orderTraceMapper.save(orderTrace);
-		//拒收订单卖家审核通过生成结算记录
+
+        //卖家审核通过 则原订单部分确认收货 不能过则全部确认收货
+		Order order;
+		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(oe.getOrderStatus())){
+			order=orderMapper.getOrderbyFlowId(oe.getFlowId());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
+			order.setUpdateTime(now);
+			order.setUpdateUser(userDto.getUserName());
+			count = orderMapper.update(order);
+		}else{
+			order=orderMapper.getOrderbyFlowId(oe.getFlowId());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
+			order.setUpdateTime(now);
+			order.setUpdateUser(userDto.getUserName());
+			count = orderMapper.update(order);
+		}
+
+		if(count == 0){
+			log.error("原始订单更新失败,order info :"+order);
+			throw new RuntimeException("原始订单更新失败");
+		}
+        //拒收订单卖家审核通过生成结算记录
 		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
-		this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
+			this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
 
 	}
 

@@ -302,6 +302,14 @@ public class OrderService {
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
 				orderDto.setBillType(orderCreateDto.getBillType());
 			}
+
+			/* 如果含有合法的账期商品，则跳过该商品，继续生成订单 */
+			if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
+				orderDto = removePeriodTermOrderDto(orderDto);
+				if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+					continue;
+				}
+			}
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),payFlowId);
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
@@ -336,6 +344,9 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderDtoList)) return null;
 
 		List<OrderDto> periodTermOrderDtoList = new ArrayList<OrderDto>();
+		OrderDto  periodTermOrderDto = null;
+
+
 		for (OrderDto orderDto : orderDtoList) {
 			if(UtilHelper.isEmpty(orderDto)) continue;
 
@@ -349,8 +360,19 @@ public class OrderService {
 					productInfoDtoList.add(productInfoDto);
 				}
 			}
-			orderDto.setProductInfoDtoList(productInfoDtoList);
-			periodTermOrderDtoList.add(orderDto);
+			if(!UtilHelper.isEmpty(productInfoDtoList)){
+				periodTermOrderDto = new OrderDto();
+				periodTermOrderDto.setCustId(orderDto.getCustId());
+				periodTermOrderDto.setCustName(orderDto.getCustName());
+				periodTermOrderDto.setSupplyId(orderDto.getSupplyId());
+				periodTermOrderDto.setSupplyName(orderDto.getSupplyName());
+				periodTermOrderDto.setProductInfoDtoList(productInfoDtoList);
+				periodTermOrderDto.setPaymentTerm(orderDto.getPaymentTerm());
+				periodTermOrderDto.setPayTypeId(orderDto.getPayTypeId());
+				periodTermOrderDto.setBillType(orderDto.getBillType());
+				periodTermOrderDto.setLeaveMessage(orderDto.getLeaveMessage());
+				periodTermOrderDtoList.add(periodTermOrderDto);
+			}
 		}
 		return periodTermOrderDtoList;
 	}
@@ -366,6 +388,8 @@ public class OrderService {
 			return null;
 		}
 
+		OrderDto orderDtoNew = null;
+
 		List<ProductInfoDto> productInfoDtoList = new ArrayList<ProductInfoDto>();
 		/* 遍历该供商下的所有商品 */
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
@@ -378,8 +402,19 @@ public class OrderService {
 				productInfoDtoList.add(productInfoDto);
 			}
 		}
-		orderDto.setProductInfoDtoList(productInfoDtoList);
-		return orderDto;
+		if(!UtilHelper.isEmpty(productInfoDtoList)){
+			orderDtoNew = new OrderDto();
+			orderDtoNew.setCustId(orderDto.getCustId());
+			orderDtoNew.setCustName(orderDto.getCustName());
+			orderDtoNew.setSupplyId(orderDto.getSupplyId());
+			orderDtoNew.setSupplyName(orderDto.getSupplyName());
+			orderDtoNew.setProductInfoDtoList(productInfoDtoList);
+			orderDtoNew.setPayTypeId(orderDto.getPayTypeId());
+			orderDtoNew.setBillType(orderDto.getBillType());
+			orderDtoNew.setLeaveMessage(orderDto.getLeaveMessage());
+			orderDtoNew.setPaymentTerm(orderDto.getPaymentTerm());
+		}
+		return orderDtoNew;
 	}
 
 	/**
@@ -396,7 +431,7 @@ public class OrderService {
 			return false;
 		}
 		/* 选择了账期支付方式 且商品有账期 */
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(payTypeId) && productInfoDto.getPaymentTerm() > 0){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(payTypeId)){
 			return true;
 		}
 		return false;
@@ -414,6 +449,7 @@ public class OrderService {
 			return null;
 		}
 		List<Order> orderNewList =  new ArrayList<Order>();
+		OrderDto orderDtoNew = null;
 		for (OrderDto orderDto : periodTermOrderDtoList){
 			if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 				continue;
@@ -428,14 +464,26 @@ public class OrderService {
 				productInfoDtoList.clear();
 				productInfoDtoList.add(productInfoDto);
 
-				orderDto.setPaymentTerm(productInfoDto.getPaymentTerm());//设置了账期的商品，插入到订单表的账期字段时，使用商品的账期
-				orderDto.setProductInfoDtoList(productInfoDtoList);
+				orderDtoNew = new OrderDto();
+				orderDtoNew.setCustId(orderDto.getCustId());
+				orderDtoNew.setCustName(orderDto.getCustName());
+				orderDtoNew.setSupplyId(orderDto.getSupplyId());
+				orderDtoNew.setSupplyName(orderDto.getSupplyName());
+				orderDtoNew.setBillType(orderDto.getBillType());
+				orderDtoNew.setPayTypeId(orderDto.getPayTypeId());
+				orderDtoNew.setLeaveMessage(orderDto.getLeaveMessage());
+				/* 设置了账期的商品，插入到订单表的账期字段时，使用商品的账期。否则使用客户的账期 */
+				int paymentTerm = !UtilHelper.isEmpty(productInfoDto.getPaymentTerm()) && productInfoDto.getPaymentTerm() > 0
+						? productInfoDto.getPaymentTerm()
+						: !UtilHelper.isEmpty(orderDto.getPaymentTerm()) && orderDto.getPaymentTerm() > 0 ? orderDto.getPaymentTerm() : 0 ;
+				orderDtoNew.setPaymentTerm(paymentTerm);
+				orderDtoNew.setProductInfoDtoList(productInfoDtoList);
 
 				/* 创建支付流水号 */
 				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
 				payFlowId += "-" + i;
 
-				Order orderNew = createOrderInfo(orderDto,orderDelivery,userDto,payFlowId);
+				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto,payFlowId);
 				if(!UtilHelper.isEmpty(orderNew)){
 					/* 账期订单生成结算数据 */
 					//savePaymentDateSettlement(userDto,orderNew.getOrderId()); 需求变量 在确认收货时生成结算数据
@@ -483,13 +531,6 @@ public class OrderService {
 				|| UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(payFlowId)){
 			return null;
 		}
-
-		/* 如果含有合法的账期商品，则跳过该商品，继续生成订单 */
-		orderDto = removePeriodTermOrderDto(orderDto);
-		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
-			return null;
-		}
-
 
 		/* TODO  计算订单相关的价格 */
 		log.info("创建订单接口 ：计算订单相关的价格,计算前orderDto = " + orderDto);

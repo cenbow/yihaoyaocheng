@@ -59,8 +59,11 @@ function changeBillType(id,_node){
         $(this).find('i:first').addClass('radio-skin-selected');
         var  _supplyId = $(this).find('i:first').attr("supplyId");
         var _payTypeId = $(this).find('i:first').attr("payTypeId");
-        var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
-        $(_supplyPayTypeId).val(_payTypeId);
+
+        $(this).parent('div').find('.payTypeId').val(_payTypeId);
+        
+        // var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
+        // $(_supplyPayTypeId).val(_payTypeId);
     });
 
 
