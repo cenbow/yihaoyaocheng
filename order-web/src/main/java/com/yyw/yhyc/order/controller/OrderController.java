@@ -10,6 +10,7 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.dubbo.remoting.RemotingException;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
@@ -501,7 +502,14 @@ public class OrderController extends BaseJsonController {
 		}
 
 		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:请求参数paramsList=" + paramsList);
-		PeriodDubboResult periodDubboResult = creditDubboService.queryPeriod(paramsList);
+		PeriodDubboResult periodDubboResult=null;
+		try{
+			 periodDubboResult = creditDubboService.queryPeriod(paramsList);
+		}catch(Exception e){
+			  logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息异常:");
+              e.printStackTrace();
+			  return  paramsList;
+		}
 
 		if(UtilHelper.isEmpty(periodDubboResult) || "0".equals(periodDubboResult.getIsSuccessful())
 				|| UtilHelper.isEmpty(periodDubboResult.getData())){
