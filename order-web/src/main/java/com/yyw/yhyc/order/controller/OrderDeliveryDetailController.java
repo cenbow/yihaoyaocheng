@@ -134,16 +134,15 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	public Map<String,String> confirmReceipt(@RequestBody  String listStr) throws Exception
 	{
 
-		Map<String,String> map=new HashMap<String,String>();
 		String flowId="";
 		String returnType="";
-		List<OrderDeliveryDetailDto> list = new JsonHelper<OrderDeliveryDetailDto>().fromList(listStr, OrderDeliveryDetailDto.class);
+		List<OrderDeliveryDetailDto> list = JsonHelper.fromList(listStr, OrderDeliveryDetailDto.class);
 		if(list.size()>0){
 			flowId=list.get(0).getFlowId();
 			returnType=list.get(0).getReturnType();
 		}
 		UserDto user = super.getLoginUser();
-		map=orderDeliveryDetailService.updateConfirmReceipt(list, user);
+		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 
 		// TODO: 2016/8/23  待联调
 		//当没有异常流程订单结束的时候调用账期结算接口
