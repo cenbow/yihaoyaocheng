@@ -31,6 +31,9 @@ public class OrderDto extends Order {
 
     private OrderDelivery orderDelivery;//订单发货信息
 
+    /* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
+    private int accountAmount ;
+
 
     public int getOrderCount() {
         return orderCount;
@@ -152,6 +155,14 @@ public class OrderDto extends Order {
         this.receivedTime = receivedTime;
     }
 
+    public int getAccountAmount() {
+        return accountAmount;
+    }
+
+    public void setAccountAmount(int accountAmount) {
+        this.accountAmount = accountAmount;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
@@ -171,6 +182,7 @@ public class OrderDto extends Order {
                 ", district='" + district + '\'' +
                 ", productInfoDtoList=" + productInfoDtoList +
                 ", orderDelivery=" + orderDelivery +
+                ", accountAmount=" + accountAmount +
                 '}';
     }
 }

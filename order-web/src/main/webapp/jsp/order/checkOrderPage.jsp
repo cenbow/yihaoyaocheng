@@ -92,6 +92,7 @@
                             <div class="goi-table mt35">
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.enterpriseId}" value="${shoppingCart.seller.enterpriseId}"/>
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].paymentTerm" value="${shoppingCart.paymentTermCus}"/>
+                                <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].accountAmount" value="${shoppingCart.accountAmount}"/>
 
                                 <input type="hidden" name="supplyId" value="${shoppingCart.seller.enterpriseId}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                 <table class="common-table f14">
@@ -137,9 +138,30 @@
                                     <label>
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOnline.getPayType()%>"></i>在线支付
                                     </label>
-                                    <label>
-                                        <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>"></i>账期支付
-                                    </label>
+
+                                    <%--能否点击 账期支付按钮--%>
+                                    <c:choose>
+                                        <c:when test="${shoppingCart.accountAmount == 1}">
+                                            <label>
+                                                <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>"></i>账期支付
+                                            </label>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <label class="label-disabled">
+                                                <i class="inside-icon radio-skin"></i>
+                                                <span class="pr">账期支付
+                                                  <i class="common-icon query-icon">
+                                                    <div class="tips-frame tc">
+                                                      <i class="common-icon frame-icon"></i>
+                                                      <p>该订单无额度可用！</p>
+                                                    </div>
+                                                  </i>
+                                                </span>
+                                            </label>
+                                        </c:otherwise>
+                                    </c:choose>
+
+
                                     <label>
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOffline.getPayType()%>" ></i>
                                           <span class="pr"> 线下转账

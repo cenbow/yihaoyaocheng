@@ -979,9 +979,8 @@ a.red,
   background-position: -1px -20px;
   width: 16px;
   height: 16px;
-  position: absolute;
-  top: -2px;
-  right: -20px;
+  position: relative;
+  top: 2px;
   display: inline-block;
 }
 .tips-frame {
@@ -1860,6 +1859,13 @@ i {
   line-height: 37px;
   border-radius: 3px;
 }
+.label-disabled {
+  cursor: not-allowed;
+  color: #999;
+}
+.label-disabled .radio-skin {
+  background-position: -96px -18px;
+}
 .radio-skin {
   background-position: -96px 0;
   width: 18px;
@@ -1867,10 +1873,6 @@ i {
   position: relative;
   top: 4px;
   margin: 0 15px;
-}
-.radio-skin-disabled {
-  background-position: -96px 0;
-  cursor: not-allowed;
 }
 .radio-skin-selected {
   background-position: -76px 0;
