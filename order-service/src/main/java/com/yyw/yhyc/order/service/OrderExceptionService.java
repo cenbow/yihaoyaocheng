@@ -1447,7 +1447,7 @@ public class OrderExceptionService {
 				//生成日志
 				createOrderTrace(orderException,userDto,now,1,"买家已收货");
 				//更新原订单状态
-				Order order=new Order();
+				Order order=orderMapper.getOrderbyFlowId(orderException.getFlowId());
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
 				order.setUpdateTime(now);
 				order.setUpdateUser(userDto.getUserName());
