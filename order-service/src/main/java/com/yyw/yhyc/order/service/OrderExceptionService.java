@@ -568,7 +568,20 @@ public class OrderExceptionService {
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(userDto.getUserName());
 		orderTraceMapper.save(orderTrace);
-		//拒收订单卖家审核通过生成结算记录
+
+        //卖家审核通过 则原订单部分确认收货 不能过则全部确认收货
+		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())){
+			Order order=orderMapper.getOrderbyFlowId(orderException.getFlowId());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
+			order.setUpdateTime(now);
+			orderMapper.update(order);
+		}else{
+			Order order=orderMapper.getOrderbyFlowId(orderException.getFlowId());
+			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
+			order.setUpdateTime(now);
+			orderMapper.update(order);
+		}
+        //拒收订单卖家审核通过生成结算记录
 		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
 		this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
 

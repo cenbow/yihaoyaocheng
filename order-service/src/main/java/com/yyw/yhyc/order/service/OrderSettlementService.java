@@ -12,10 +12,14 @@ package com.yyw.yhyc.order.service;
 import java.util.List;
 
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,9 @@ public class OrderSettlementService {
 
     @Autowired
     private OrderExceptionMapper orderExceptionMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     @Autowired
     public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
@@ -213,15 +220,20 @@ public class OrderSettlementService {
         List<OrderException> lo=orderExceptionMapper.listByProperty(orderException);
         if(!UtilHelper.isEmpty(lo)){
             orderException= lo.get(0);
-            if(orderException.getReturnType().equals("1")){
+            if("1".equals(orderException.getReturnType())){
                 orderException.setOrderStatus("8");
-            }else if(orderException.getReturnType().equals("4")){
+            }else if("4".equals(orderException.getReturnType())){
                 orderException.setOrderStatus("4");
             }
             orderExceptionMapper.update(orderException);
+            //拒收 异常订单结算 原订单状态变成部分收货
+            if("4".equals(orderException.getReturnType())){
+                Order order=orderMapper.getOrderbyFlowId(orderException.getFlowId());
+                order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
+                order.setUpdateTime(nowTime);
+                orderMapper.update(order);
+            }
         }
-
-
         int result = orderSettlementMapper.update(os);
         if (result == 0)
             throw new RuntimeException("结算失败");
