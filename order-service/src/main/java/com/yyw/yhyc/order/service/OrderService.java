@@ -438,7 +438,7 @@ public class OrderService {
 			return false;
 		}
 		/* 资信额度足够 则可以生成账期订单 */
-		if(orderDto.getAccountAmount()  == 1 ){
+		if(orderDto.getAccountAmount()  == 1  && productInfoDto.getPaymentTerm() > 0){
 			return true;
 		}
 		return false;
