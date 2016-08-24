@@ -21,7 +21,9 @@ import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
@@ -285,9 +287,10 @@ public class OrderExceptionController extends BaseJsonController{
 		if(UtilHelper.isEmpty(oe)){
 			throw new RuntimeException("未找到拒收订单");
 		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
+				&& SystemOrderExceptionStatusEnum.BuyerConfirmed.equals(orderException.getOrderStatus())){
 			CreditParams creditParams = new CreditParams();
-			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
+			creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
 			creditParams.setSellerCode(oe.getSupplyId() + "");
 			creditParams.setBuyerName(oe.getCustName());
@@ -331,15 +334,16 @@ public class OrderExceptionController extends BaseJsonController{
 			order = orderService.getByPK(oe.getOrderId());
 			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		}catch (Exception e){
-			throw new RuntimeException("未找到拒收订单");
+			throw new RuntimeException("未找到退货订单");
 		}
 		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(systemPayType)){
 			throw new RuntimeException("未找到订单");
 		}
 		if(UtilHelper.isEmpty(oe)){
-			throw new RuntimeException("未找到拒收订单");
+			throw new RuntimeException("未找到退货订单");
 		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
+				&& SystemRefundOrderStatusEnum.SellerConfirmed.equals(orderException.getOrderStatus())){
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(oe.getCustId() + "");
