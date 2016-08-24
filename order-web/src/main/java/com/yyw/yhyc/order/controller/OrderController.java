@@ -326,7 +326,7 @@ public class OrderController extends BaseJsonController {
 	 * @return
 	 */
 	private List<ShoppingCartListDto> convertAllShoppingCart(List<ShoppingCartListDto> allShoppingCart,List<PeriodParams> periodParamsList) {
-		if(UtilHelper.isEmpty(allShoppingCart)||UtilHelper.isEmpty(periodParamsList)){
+		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
 		}
 		/* 计算各个供应商下是否有账期商品，如果有，则计算这些账期商品的总价 */
@@ -353,12 +353,19 @@ public class OrderController extends BaseJsonController {
 				continue;
 			}
 			/* 如果账期商品的总额为0，则不再进行拆单。进行下一个供应商数据的处理 */
-			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
-				continue;
-			}
+//			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
+//				continue;
+//			}
 
 			logger.info("检查订单页-查询是否可用资信结算接口，creditDubboService=" + creditDubboService);
 			if(UtilHelper.isEmpty(creditDubboService)){
+				shoppingCartListDto = new ShoppingCartListDto();
+				shoppingCartListDto.setBuyer(s.getBuyer());
+				shoppingCartListDto.setSeller(s.getSeller());
+				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
+				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				resultShoppingCartList.add(shoppingCartListDto);
 				continue;
 			}
 
