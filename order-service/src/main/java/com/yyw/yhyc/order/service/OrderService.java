@@ -1023,7 +1023,7 @@ public class OrderService {
             return BuyerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
-            return BuyerOrderStatusEnum.PaidException;//打款异常
+            return BuyerOrderStatusEnum.Finished;//已完成
         }
         return null;
     }
@@ -1063,7 +1063,7 @@ public class OrderService {
             return SellerOrderStatusEnum.Finished;//已完成
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
-            return SellerOrderStatusEnum.PaidException;//打款异常
+            return SellerOrderStatusEnum.Finished;//已完成
         }
         return null;
     }
