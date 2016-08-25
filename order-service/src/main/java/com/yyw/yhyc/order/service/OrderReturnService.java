@@ -183,13 +183,16 @@ public class OrderReturnService {
 			Integer roundNum = orderExceptionService.findByCount(condition);
 
 			for (OrderReturn or: returnList) {
-				if(or.getReturnCount()!=null && !or.getReturnCount().equals("")){//数量不为空才放入保存列表
+				if(or.getReturnCount()!=null && !or.getReturnCount().equals("")&&!or.getReturnCount().equals(0)){//数量不为空和0才放入保存列表
 					orderDeliveryDetailIdList.add(or.getOrderDeliveryDetailId());
 					orderDetailIdList.add(or.getOrderDetailId());
 					orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
 					saveReturnList.add(or);
 				}
             }
+            if(saveReturnList.isEmpty()){//可以操作的为空
+				return  "{\"code\":"+code+"}";
+			}
             //订单详情列表 map
             List<OrderDetail> orderDetailList = orderDetailMapper.listByIds(orderDetailIdList);
             for (OrderDetail od:orderDetailList) {

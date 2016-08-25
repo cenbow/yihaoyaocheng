@@ -144,7 +144,7 @@ function fillTableJson(data) {
 			tr += "<td>" + orderSettlemnt.supplyName + "</td>";
 			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
 			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
-			tr += "<td>" + orderSettlemnt.settlementMoney + "</td>";
+			tr += "<td>-" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
 			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
@@ -164,6 +164,12 @@ function typeToOperate(businessType,confirm,settlementId) {
 		}
 	}
 	return result;
+}
+function typeToshowMoney(businessType,money) {
+	if(businessType==2||businessType==3){
+		return "-"+money;
+	}
+	return money;
 }
 
 function changeColor(){

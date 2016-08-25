@@ -504,7 +504,30 @@
 
 	<select id="listPaginationSellerByProperty" parameterType="OrderExceptionDto"  resultMap="OrderExceptionlistResultMap">
 
-		SELECT e.*,t.pay_type,t.pay_type_name FROM t_order_exception  e
+		SELECT e.exception_id
+		,  e.return_type
+		,  e.exception_order_id
+		,  e.order_id
+		,  e.flow_id
+		,  e.order_status
+		,  e.cust_name
+		, e.cust_id
+		, e.supply_name
+		, e.supply_id
+		, e.remark
+		, e.order_money_total
+		, e.order_money
+		, e.create_user
+		, DATE_FORMAT(e.create_time, '%Y-%m-%d %H:%i:%s') AS create_time
+		, e.update_user
+		, e.update_time
+		, DATE_FORMAT(e.order_create_time, '%Y-%m-%d %H:%i:%s') AS  order_create_time
+		, e.return_desc
+		, e.deliver_time
+		, e.receive_time
+		, e.buyer_deliver_time
+		, e.seller_receive_time
+		, e.review_time,t.pay_type,t.pay_type_name FROM t_order_exception  e
 
 		INNER JOIN t_order o ON e.order_id = o.order_id
 
@@ -524,7 +547,9 @@
 		<if test="flowId !=null and flowId !=''">
 			AND e.flow_id = #{flowId}
 		</if>
-
+		<if test="exceptionOrderId !=null and exceptionOrderId !=''">
+			AND e.exception_order_id = #{exceptionOrderId}
+		</if>
 		<if test="custName !=null and custName !=''">
 			AND e.cust_name LIKE CONCAT('%',#{custName},'%')
 		</if>
@@ -533,7 +558,7 @@
 			AND e.create_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > e.create_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.create_time
 		</if>
 		<if test="type!= null and type!= ''">
 			<choose>
@@ -592,7 +617,9 @@
 		<if test="flowId !=null and flowId !=''">
 			AND e.flow_id = #{flowId}
 		</if>
-
+		<if test="exceptionOrderId !=null and exceptionOrderId !=''">
+			AND e.exception_order_id = #{exceptionOrderId}
+		</if>
 		<if test="custName !=null and custName !=''">
 			AND e.cust_name LIKE CONCAT('%',#{custName},'%')
 		</if>
@@ -601,7 +628,7 @@
 			AND e.create_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > e.create_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.create_time
 		</if>
 		<if test="type!= null and type!= ''">
 			<choose>
@@ -671,7 +698,7 @@
 			AND e.create_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > e.create_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.create_time
 		</if>
 		<if test="type!= null and type!= ''">
 			<choose>
