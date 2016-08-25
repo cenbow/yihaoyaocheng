@@ -194,7 +194,7 @@ function  bindSettlementOperate() {
 		var orderMoney = $("#myModalOperate .form-group:eq(0) div:first").html().replace("元","").trim();
 		var regStr = /\d+(\.\d+){0,1}/g;
 		if(regStr.test(money)){
-			var differentMoney = (parseFloat(money)-parseFloat(orderMoney));
+			var differentMoney = ((parseFloat(money)-parseFloat(orderMoney))).toFixed(2);
 			$("#myModalOperate .form-group:eq(2) div:first").html(differentMoney+"元")
 		}else{
 			if(money&&money!=""){
