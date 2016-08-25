@@ -121,7 +121,9 @@
                                 取消退货时间：
 
                                </label>
-                            <div class="col-xs-3 control-label text-left"> ${(orderExceptionDto.orderStatus == "2" or orderExceptionDto.orderStatus="4")?orderExceptionDto.updateTime:""}</div>
+                            <div class="col-xs-3 control-label text-left">
+                                ${(orderExceptionDto.orderStatus == "2" || orderExceptionDto.orderStatus=="4")?orderExceptionDto.updateTime:""}
+                            </div>
                         </div>
 
                     </div>
