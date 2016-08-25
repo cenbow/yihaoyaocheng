@@ -37,11 +37,12 @@
                         <div class="col-xs-6 control-label text-left"><span
                                 class="red margin-r-10">${orderDetailsDto.orderStatusName}</span>
                             <c:if test="${orderDetailsDto.orderStatus==9}">
-                            <a class="undeline">查看拒收订单</a></div>
-                        </c:if>
-                        <c:if test="${orderDetailsDto.orderStatus==10}">
-                        <a class="undeline">查看补货订单</a></div>
-                    </c:if>
+                                <a class="undeline" href="${ctx}/orderException/getDetails-2/${orderDetailsDto.flowId}" >查看拒收订单</a>
+                            </c:if>
+                            <c:if test="${orderDetailsDto.orderStatus==10}">
+                                <a href="${ctx}/orderException/getReplenishmentDetails-2/${orderDetailsDto.flowId}" class="undeline">查看补货订单</a>
+                            </c:if>
+                        </div>
                 </div>
             </div>
             <div class="container-fluid progress">
@@ -437,7 +438,9 @@
                                    <tr>
                                         <td>
                                             <div class="clearfix">
-                                                <div class="fl"><img src="images/img_03.jpg"/></div>
+                                                <div class="fl">
+                                                    <img src="" alt="${details.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                </div>
                                                 <div class="fl fontbox">
                                                     <p class="title">${details.productName}</p>
 

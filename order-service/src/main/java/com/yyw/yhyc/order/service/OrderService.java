@@ -832,7 +832,12 @@ public class OrderService {
 			return null;
 		}
 		//订单类型翻译
-		orderDetailsdto.setOrderStatusName(SystemOrderStatusEnum.getName(orderDetailsdto.getOrderStatus()));
+
+		if(UtilHelper.isEmpty(order.getCustId())){
+			orderDetailsdto.setOrderStatusName(getSellerOrderStatus(orderDetailsdto.getOrderStatus(), orderDetailsdto.getPayType()).getValue());
+		}else {
+			orderDetailsdto.setOrderStatusName(getBuyerOrderStatus(orderDetailsdto.getOrderStatus(),orderDetailsdto.getPayType()).getValue());
+		}
 		//计算确认收货金额
 		BigDecimal total=new BigDecimal(0);
 		BigDecimal productTotal=new BigDecimal(0);
@@ -903,7 +908,7 @@ public class OrderService {
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();
 		//获取订单列表
-        List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrder(pagination, orderDto);
+		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrder(pagination, orderDto);
         pagination.setResultList(buyerOrderList);
 
 		//获取各订单状态下的订单数量
@@ -990,7 +995,7 @@ public class OrderService {
 
         resultMap.put("orderStatusCount", orderStatusCountMap);
         resultMap.put("buyerOrderList", pagination);
-        resultMap.put("orderCount", orderCount);
+		resultMap.put("orderCount", orderCount);
         resultMap.put("orderTotalMoney", orderTotalMoney == null? 0:orderTotalMoney);
         return resultMap;
     }
