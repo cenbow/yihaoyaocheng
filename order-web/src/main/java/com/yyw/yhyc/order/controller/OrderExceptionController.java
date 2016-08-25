@@ -705,12 +705,12 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewReplenishmentOrder(@RequestBody OrderException orderException) throws Exception{
 		UserDto userDto = super.getLoginUser();
-		try {
 			orderExceptionService.updateReviewReplenishmentOrderStatusForSeller(userDto, orderException);
 			if(SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())) {
 				try{
 					if (UtilHelper.isEmpty(creditDubboService)) {
 						logger.error("CreditDubboServiceInterface creditDubboService is null");
+						throw new RuntimeException("CreditDubboServiceInterface creditDubboService is null");
 					}
 					else {
 						OrderException oe = orderExceptionService.getByPK(orderException.getExceptionId());
@@ -736,10 +736,6 @@ public class OrderExceptionController extends BaseJsonController{
 					throw new RuntimeException("未找到订单");
 				}
 			}
-		}
-		catch (Exception e1){
-			throw new RuntimeException("审核补货订单失败");
-		}
 	}
 	/**
 	 * 退货订单确认收货
