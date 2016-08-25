@@ -463,18 +463,18 @@ public class OrderController extends BaseJsonController {
 			/* 当前供应商下(没有设置账期的)商品的总金额 */
 			BigDecimal nonPeriodProductPriceCount = new BigDecimal(0);
 
-			Integer paymentTermCus = 0;
+			int paymentTermCus = 0;
 			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 				Map<String,Object>  periodMap = getPeriodByCondition(periodParamsList,shoppingCartDto.getSpuCode(),shoppingCartDto.getCustId(),shoppingCartDto.getSupplyId());
 				if(UtilHelper.isEmpty(periodMap)) continue;
-				paymentTermCus = (Integer) periodMap.get("paymentTermCus");//客户账期  TODO 查询客户账期的 武汉那边应该另提供一个接口
-				Integer paymentTermPro = (Integer) periodMap.get("paymentTermPro");//商品账期
-				if(paymentTermPro != null && paymentTermPro > 0){
+				paymentTermCus = periodMap.get("paymentTermCus") == null ? 0 :(Integer) periodMap.get("paymentTermCus");//客户账期  TODO 查询客户账期的 武汉那边应该另提供一个接口
+				int paymentTermPro = periodMap.get("paymentTermPro") == null ? 0 : (Integer) periodMap.get("paymentTermPro");//商品账期
+				if ( paymentTermPro > 0) {
 					shoppingCartDto.setPeriodProduct(true);
 					shoppingCartDto.setPaymentTerm(paymentTermPro);
 					periodProductPriceCount = periodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());
-				}else{
+				} else {
 					shoppingCartDto.setPeriodProduct(false);
 					shoppingCartDto.setPaymentTerm(0);
 					nonPeriodProductPriceCount = nonPeriodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());

@@ -27,13 +27,20 @@ function createOrder(){
         var _payTypeId = $(this).val();
 
         if( !$(_payTypeId) || _payTypeId == null || _payTypeId == "" || typeof _payTypeId == "undefined"){
-            console.info("_payTypeId=" + _payTypeId + ",_supplyName=" + _supplyName);
+            // console.info("_payTypeId=" + _payTypeId + ",_supplyName=" + _supplyName);
             _supplyName = $(this).attr("supplyName");
             allPayTypeSelected = false;
         }
     });
     if(!allPayTypeSelected){
-        alert("供应商("+_supplyName+")下的商品未选择支付方式");
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">供应商('+_supplyName+')下的商品未选择支付方式！</p>',
+            ok:'确定',
+            afterOk:function(){
+                console.log('111');
+            }
+        });
         return;
     }
 
