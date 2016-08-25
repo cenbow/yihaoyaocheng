@@ -504,7 +504,30 @@
 
 	<select id="listPaginationSellerByProperty" parameterType="OrderExceptionDto"  resultMap="OrderExceptionlistResultMap">
 
-		SELECT e.*,t.pay_type,t.pay_type_name FROM t_order_exception  e
+		SELECT e.exception_id
+		,  e.return_type
+		,  e.exception_order_id
+		,  e.order_id
+		,  e.flow_id
+		,  e.order_status
+		,  e.cust_name
+		, e.cust_id
+		, e.supply_name
+		, e.supply_id
+		, e.remark
+		, e.order_money_total
+		, e.order_money
+		, e.create_user
+		, DATE_FORMAT(e.create_time, '%Y-%m-%d %H:%i:%s') AS create_time
+		, e.update_user
+		, e.update_time
+		, DATE_FORMAT(e.order_create_time, '%Y-%m-%d %H:%i:%s') AS  order_create_time
+		, e.return_desc
+		, e.deliver_time
+		, e.receive_time
+		, e.buyer_deliver_time
+		, e.seller_receive_time
+		, e.review_time,t.pay_type,t.pay_type_name FROM t_order_exception  e
 
 		INNER JOIN t_order o ON e.order_id = o.order_id
 
@@ -524,7 +547,9 @@
 		<if test="flowId !=null and flowId !=''">
 			AND e.flow_id = #{flowId}
 		</if>
-
+		<if test="exceptionOrderId !=null and exceptionOrderId !=''">
+			AND e.exception_order_id = #{exceptionOrderId}
+		</if>
 		<if test="custName !=null and custName !=''">
 			AND e.cust_name LIKE CONCAT('%',#{custName},'%')
 		</if>
@@ -533,7 +558,7 @@
 			AND e.create_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > e.create_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.create_time
 		</if>
 		<if test="type!= null and type!= ''">
 			<choose>
@@ -541,11 +566,11 @@
 					AND e.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='type == "3"'><!--退款中--><!--卖家已确认+线下支付/线下转账-->
-					AND e.ORDER_STATUS = '2'  AND (t.PAY_TYPE = 1 or t.PAY_TYPE = 3)
+					AND e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 3
 				</when>
 				<when test='type == "4"'><!--已完成  退款+在线/线下 or 卖家确认+账期-->
-					AND (( e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 2 )
-					OR  (e.ORDER_STATUS = '4'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 3))
+					AND (( e.ORDER_STATUS = '4'  AND  t.PAY_TYPE = 3 )
+					OR  (e.ORDER_STATUS = '2'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 2))
 					)
 				</when>
 				<when test='type == "5"'><!--已关闭-->
@@ -592,7 +617,9 @@
 		<if test="flowId !=null and flowId !=''">
 			AND e.flow_id = #{flowId}
 		</if>
-
+		<if test="exceptionOrderId !=null and exceptionOrderId !=''">
+			AND e.exception_order_id = #{exceptionOrderId}
+		</if>
 		<if test="custName !=null and custName !=''">
 			AND e.cust_name LIKE CONCAT('%',#{custName},'%')
 		</if>
@@ -601,7 +628,7 @@
 			AND e.create_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > e.create_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.create_time
 		</if>
 		<if test="type!= null and type!= ''">
 			<choose>
@@ -609,11 +636,11 @@
 					AND e.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='type == "3"'><!--退款中--><!--卖家已确认+线下支付/线下转账-->
-					AND e.ORDER_STATUS = '2'  AND (t.PAY_TYPE = 1 or t.PAY_TYPE = 3)
+					AND e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 3
 				</when>
 				<when test='type == "4"'><!--已完成  退款+在线/线下 or 卖家确认+账期-->
-					AND (( e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 2 )
-					OR  (e.ORDER_STATUS = '4'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 3))
+					AND (( e.ORDER_STATUS = '4'  AND  t.PAY_TYPE = 3 )
+					OR  (e.ORDER_STATUS = '2'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 2))
 					)
 				</when>
 				<when test='type == "5"'><!--已关闭-->
@@ -671,7 +698,7 @@
 			AND e.create_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > e.create_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.create_time
 		</if>
 		<if test="type!= null and type!= ''">
 			<choose>
@@ -679,11 +706,11 @@
 					AND e.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='type == "3"'><!--退款中--><!--卖家已确认+线下支付/线下转账-->
-					AND e.ORDER_STATUS = '2'  AND (t.PAY_TYPE = 1 or t.PAY_TYPE = 3)
+					AND e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 3
 				</when>
 				<when test='type == "4"'><!--已完成  退款+在线/线下 or 卖家确认+账期-->
-					AND (( e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 2 )
-					OR  (e.ORDER_STATUS = '4'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 3))
+					AND (( e.ORDER_STATUS = '4'  AND  t.PAY_TYPE = 3 )
+					OR  (e.ORDER_STATUS = '2'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 2))
 					)
 				</when>
 				<when test='type == "5"'><!--已关闭-->
@@ -1427,13 +1454,38 @@
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
 		<association property="order" column="order_id" select="com.yyw.yhyc.order.mapper.OrderMapper.getByPK"></association>
 		<association property="orderDelivery" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+		<association property="orderSettlement" column="{businessType=business_type,flowId=exception_order_id}" select="com.yyw.yhyc.order.mapper.OrderSettlementMapper.getByProperty"></association>
 		<association property="usermanageEnterprise" column="supply_id" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"></association>
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
 	<select id="getOrderExceptionDetailsForReturn" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsReturnResultMap">
 		SELECT
-		T1.*,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
+		T1.exception_id
+		, T1.return_type
+		, T1.exception_order_id
+		, T1.order_id
+		, T1.flow_id
+		, T1.order_status
+		, T1.cust_name
+		, T1.cust_id
+		, T1.supply_name
+		, T1.supply_id
+		, T1.remark
+		, T1.order_money_total
+		, T1.order_money
+		, T1.create_user
+		, date_format(T1.create_time, '%Y-%m-%d %H:%i:%s') AS create_time
+		, T1.update_user
+		, date_format(T1.update_time, '%Y-%m-%d %H:%i:%s') AS  update_time
+		, date_format(T1.order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
+		, T1.return_desc
+		, date_format(T1.deliver_time, '%Y-%m-%d %H:%i:%s') AS deliver_time
+		, date_format(T1.receive_time, '%Y-%m-%d %H:%i:%s')AS receive_time
+		, date_format(T1.buyer_deliver_time, '%Y-%m-%d %H:%i:%s')AS buyer_deliver_time
+		, date_format(T1.seller_receive_time, '%Y-%m-%d %H:%i:%s')AS seller_receive_time
+		, date_format(T1.review_time, '%Y-%m-%d %H:%i:%s')AS review_time
+		,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME,'2' AS  business_type
 		FROM
 		t_order_exception T1
 		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id

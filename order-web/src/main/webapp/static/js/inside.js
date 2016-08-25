@@ -1,17 +1,28 @@
 //订单提交成功页-显示隐藏效果
 (function($){
     var timer = null;
-    $('.query-icon').hover(
-        function(){
-            clearTimeout(timer);
-            $(this).children('.tips-frame').show();
-        },function(){
-            var that = $(this);
-            timer = setTimeout(function(){
-                $(that).children('.tips-frame').hide();
-            },200)
+    $('.query-icon').hover(function(){
+        clearTimeout(timer);
+        $('.tips-frame').hide();
+        $(this).children('.tips-frame').show();
+    },function(){
+        var that = $(this);
+        timer = setTimeout(function(){
+            $(that).children('.tips-frame').hide();
+        },100)
+    });
+    $('.order-sucess .os-btn-pay,.order-to-pay .os-btn-pay').click(function(){
+        if($('.radio-skin-selected').length<1){
+            new Dialog({
+                title:'提示',
+                content:'<p class="mt60 f14">请选择支付方式！</p>',
+                ok:'确定',
+                afterOk:function(){
+                    console.log('111');
+                }
+            });
         }
-    );
+    });
 })($);
 
 /* 选择收货地址 */
@@ -55,15 +66,17 @@ function changeBillType(id,_node){
 
     /* 支付方式单选按钮 */
     $('.radio-select label').click(function(){
-        $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
-        $(this).find('i:first').addClass('radio-skin-selected');
-        var  _supplyId = $(this).find('i:first').attr("supplyId");
-        var _payTypeId = $(this).find('i:first').attr("payTypeId");
-
-        $(this).parent('div').find('.payTypeId').val(_payTypeId);
         
-        // var _supplyPayTypeId = "#" + _supplyId + "_payTypeId";
-        // $(_supplyPayTypeId).val(_payTypeId);
+        /* 如果按钮被禁用掉，不能选中支付方式 */
+        if(!$(this).hasClass('label-disabled')) {
+            
+            $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
+            $(this).find('i:first').addClass('radio-skin-selected');
+            var _supplyId = $(this).find('i:first').attr("supplyId");
+            var _payTypeId = $(this).find('i:first').attr("payTypeId");
+
+            $(this).parent('div').find('.payTypeId').val(_payTypeId);
+        }
     });
 
 

@@ -62,6 +62,7 @@ public class RandomUtil {
         for(int i =0;i<(length-strLength);i++){
             sb.append("0");
         }
+        roundNum = roundNum+1;
         roundNum= sb.toString()+roundNum;
         return roundNum;
     }

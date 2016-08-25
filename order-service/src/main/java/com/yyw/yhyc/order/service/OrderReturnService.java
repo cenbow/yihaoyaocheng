@@ -20,15 +20,12 @@ import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 
 @Service("orderReturnService")
 public class OrderReturnService {
@@ -53,6 +50,8 @@ public class OrderReturnService {
 		this.orderReturnMapper = orderReturnMapper;
 	}
 
+	@Autowired
+	private SystemDateMapper systemDateMapper;
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -184,13 +183,16 @@ public class OrderReturnService {
 			Integer roundNum = orderExceptionService.findByCount(condition);
 
 			for (OrderReturn or: returnList) {
-				if(or.getReturnCount()!=null && !or.getReturnCount().equals("")){//数量不为空才放入保存列表
+				if(or.getReturnCount()!=null && !or.getReturnCount().equals("")&&!or.getReturnCount().equals(0)){//数量不为空和0才放入保存列表
 					orderDeliveryDetailIdList.add(or.getOrderDeliveryDetailId());
 					orderDetailIdList.add(or.getOrderDetailId());
 					orderDeliveryCountMap.put(or.getOrderDeliveryDetailId(),or.getReturnCount());
 					saveReturnList.add(or);
 				}
             }
+            if(saveReturnList.isEmpty()){//可以操作的为空
+				return  "{\"code\":"+code+"}";
+			}
             //订单详情列表 map
             List<OrderDetail> orderDetailList = orderDetailMapper.listByIds(orderDetailIdList);
             for (OrderDetail od:orderDetailList) {
@@ -250,8 +252,8 @@ public class OrderReturnService {
 		oe.setCreateUser(userDto.getUserName());
 		oe.setReturnType(orderReturn.getReturnType());
 		oe.setReturnDesc(orderReturn.getReturnDesc());
-		oe.setCreateTime(DateHelper.nowString());
-		oe.setOrderCreateTime(DateHelper.nowString());
+		oe.setCreateTime(systemDateMapper.getSystemDate());
+		oe.setOrderCreateTime(systemDateMapper.getSystemDate());
 		oe.setOrderStatus("1");
 
 		if(orderReturn.getReturnType().equals("1")){

@@ -147,10 +147,10 @@ function fillTableJson(data) {
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
 			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
-			tr += "<td>" + orderSettlemnt.supplyName + "</td>";
+			tr += "<td>" + orderSettlemnt.custName + "</td>";
 			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
 			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
-			tr += "<td>" + orderSettlemnt.settlementMoney + "</td>";
+			tr += "<td>" +typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
 			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
@@ -174,6 +174,13 @@ function typeToOperate(businessType,confirm,settlementId) {
 	return result;
 }
 
+function typeToshowMoney(businessType,money) {
+	if(businessType==2||businessType==3){
+		return "-"+money;
+	}
+	return money;
+}
+
 function changeColor(){
 	$(".table tr:not(:first):odd").css({background:"#f7f7f7"});
 	$(".table tr:not(:first):even").css({background:"#fff"});
@@ -194,7 +201,7 @@ function  bindSettlementOperate() {
 		var orderMoney = $("#myModalOperate .form-group:eq(0) div:first").html().replace("元","").trim();
 		var regStr = /\d+(\.\d+){0,1}/g;
 		if(regStr.test(money)){
-			var differentMoney = (parseFloat(money)-parseFloat(orderMoney));
+			var differentMoney = ((parseFloat(money)-parseFloat(orderMoney))).toFixed(2);
 			$("#myModalOperate .form-group:eq(2) div:first").html(differentMoney+"元")
 		}else{
 			if(money&&money!=""){

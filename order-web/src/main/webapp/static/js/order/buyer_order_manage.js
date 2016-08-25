@@ -172,7 +172,7 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td>" + order.flowId + "<br/><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='btn btn-info btn-sm margin-r-10' >订单详情</a></td>";
+        tr += "<td><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -427,7 +427,7 @@ function confirmReceipt(){
     var returnDesc= $("#returnDesc").val();
     var ownw = $("input[type=radio][name=ownw]:checked");
 
-    var type = /^[0-9]*[1-9][0-9]*$/;
+    var type = /^[0-9]*[0-9][0-9]*$/;
     var re = new RegExp(type);
 
     if($("#bodyDiv:visible").size() == 0){
@@ -438,7 +438,7 @@ function confirmReceipt(){
             }
 
             if ($(recieveCount[i]).val().match(re) == null) {
-                alertModal("请输入大于零的整数!");
+                alertModal("请输入大于等于零的整数!");
                 return;
             }
 

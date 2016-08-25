@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.dto;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 
 import java.math.BigDecimal;
@@ -29,6 +30,8 @@ public class OrderExceptionDto extends OrderException {
     private List<OrderDelivery> orderDeliverys;            //订单发货信息list
 
     private List<OrderDelivery> orderDeliveryList;        //异常订单的发货信息
+
+    private OrderSettlement orderSettlement; //结算信息
 
     /* 商品总金额 */
     private BigDecimal productPriceCount;
@@ -279,6 +282,14 @@ public class OrderExceptionDto extends OrderException {
         this.orderDeliverys = orderDeliverys;
     }
 
+    public OrderSettlement getOrderSettlement() {
+        return orderSettlement;
+    }
+
+    public void setOrderSettlement(OrderSettlement orderSettlement) {
+        this.orderSettlement = orderSettlement;
+    }
+
     @Override
     public String toString() {
         return "OrderExceptionDto{" +
@@ -294,6 +305,8 @@ public class OrderExceptionDto extends OrderException {
                 ", importFileUrl='" + importFileUrl + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", orderDeliverys=" + orderDeliverys +
+                ", orderDeliveryList=" + orderDeliveryList +
+                ", orderSettlement=" + orderSettlement +
                 ", productPriceCount=" + productPriceCount +
                 ", orderPriceCount=" + orderPriceCount +
                 ", orderStatusName='" + orderStatusName + '\'' +
@@ -308,12 +321,6 @@ public class OrderExceptionDto extends OrderException {
                 ", orderCount=" + orderCount +
                 ", waitingConfirmCount=" + waitingConfirmCount +
                 ", refundingCount=" + refundingCount +
-                ", billType=" + billType +
-                ", billTypeName=" + billTypeName +
-                ", importStatusName=" + importStatusName +
-                ", importFileUrl=" + importFileUrl +
-                ", fileName=" + fileName +
-                ", orderDeliveryList=" + orderDeliveryList +
                 '}';
     }
 }

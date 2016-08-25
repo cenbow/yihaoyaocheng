@@ -25,6 +25,7 @@ import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hpsf.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -483,7 +484,7 @@ public class OrderExceptionService {
 		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
-				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				if(UtilHelper.isEmpty(orderReturnDto)||UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
@@ -602,11 +603,15 @@ public class OrderExceptionService {
 	 */
 	public void updateSellerReviewChangeOrder(UserDto userDto,OrderException orderException){
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
-			throw new RuntimeException("参数异常");
+			throw new RuntimeException("订单是参数异常");
 
 		// 验证审核状态
-		if(!(SystemChangeGoodsOrderStatusEnum.WaitingBuyerDelivered.getType().equals(orderException.getOrderStatus())))
+		if(!(SystemChangeGoodsOrderStatusEnum.WaitingBuyerDelivered.getType().equals(orderException.getOrderStatus()))&&
+				!(SystemChangeGoodsOrderStatusEnum.Closed.getType().equals(orderException.getOrderStatus()))){
+			log.info("状态异常参数:"+orderException.getOrderStatus());
 			throw new RuntimeException("参数异常");
+		}
+
 
 		OrderException oe = orderExceptionMapper.getByPK(orderException.getExceptionId());
 		if(UtilHelper.isEmpty(oe))
@@ -1261,7 +1266,7 @@ public class OrderExceptionService {
 		OrderException orderException =  orderExceptionMapper.getByPK(exceptionId);
 		log.info(orderException);
 		if(UtilHelper.isEmpty(orderException)){
-			log.info("can not find order ,exceptionId:"+exceptionId);
+			log.error("can not find order ,exceptionId:"+exceptionId);
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该买家
@@ -1273,7 +1278,7 @@ public class OrderExceptionService {
 				orderException.setUpdateTime(now);
 				int count = orderExceptionMapper.update(orderException);
 				if(count == 0){
-					log.info("orderException info :"+orderException);
+					log.error("orderException info :"+orderException);
 					throw new RuntimeException("订单取消失败");
 				}
 				//插入日志表
@@ -1289,11 +1294,11 @@ public class OrderExceptionService {
 				orderTraceMapper.save(orderTrace);
 
 			}else{
-				log.info("orderException status error ,orderStatus:"+orderException.getOrderStatus());
+				log.error("orderException status error ,orderStatus:"+orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
 			}
 		}else{
-			log.info("db orderException not equals to request exceptionId ,exceptionId:" + exceptionId + ",db exceptionId:" + orderException.getExceptionId());
+			log.error("db orderException not equals to request exceptionId ,exceptionId:" + exceptionId + ",db exceptionId:" + orderException.getExceptionId());
 			throw new RuntimeException("未找到订单");
 		}
 	}
@@ -1524,6 +1529,17 @@ public class OrderExceptionService {
 			log.info("补货订单状态不正确,OrderException:"+oe);
 			throw new RuntimeException("补货订单状态不正确");
 		}
+		Order order = orderMapper.getOrderbyFlowId(oe.getFlowId());
+		if(UtilHelper.isEmpty(order))
+			throw new RuntimeException("未找到原订单");
+		if(userDto.getCustId() != order.getSupplyId()){
+			log.info("原订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
+			throw new RuntimeException("未找到原订单");
+		}
+		if(!SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())){
+			log.info("原订单不是补货中的订单");
+			throw new RuntimeException("原订单不是补货中的订单");
+		}
 		String now = systemDateMapper.getSystemDate();
 		oe.setRemark(orderException.getRemark());
 		oe.setOrderStatus(orderException.getOrderStatus());
@@ -1549,17 +1565,6 @@ public class OrderExceptionService {
 		orderTraceMapper.save(orderTrace);
 		//补货订单卖家审核不通过时、原订单状态改为买家全部收货
 		if(SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())){
-			Order order = orderMapper.getOrderbyFlowId(oe.getFlowId());
-			if(UtilHelper.isEmpty(order))
-				throw new RuntimeException("未找到原订单");
-			if(userDto.getCustId() != order.getSupplyId()){
-				log.info("原订单不属于该卖家,OrderException:"+oe+",UserDto:"+userDto);
-				throw new RuntimeException("未找到原订单");
-			}
-			if(!SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())){
-				log.info("原订单不是补货中的订单");
-				throw new RuntimeException("原订单不是补货中的订单");
-			}
 			order.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			order.setReceiveTime(systemDateMapper.getSystemDate());
 			order.setReceiveType(2);//系统自动确认收货

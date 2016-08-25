@@ -237,7 +237,9 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <div><a class="undeline" onclick="changeOrderDeliveryDetail('${orderExceptionDto.exceptionOrderId}')">已换货商品清单</a></div>
+                <c:if test="${orderExceptionDto.orderStatus==8 || orderExceptionDto.orderStatus==9}">
+                    <div><a class="undeline" onclick="changeOrderDeliveryDetail('${orderExceptionDto.exceptionOrderId}')">已换货商品清单</a></div>
+                </c:if>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p class="red">订单金额：￥${orderExceptionDto.orderMoney}元<p>

@@ -225,13 +225,16 @@ public class OrderController extends BaseJsonController {
 		map.put("url","/order/createOrderSuccess?orderIds="+orderIdStr);
 
 		/* 生成账期订单后，调用接口更新资信可用额度 */
-		List<Order> periodTermOrderList = (List<Order>) newOrderMap.get("periodTermOrderList");
+		List<Order> orderNewList = (List<Order>) newOrderMap.get("orderNewList");
 		logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,creditDubboService = " + creditDubboService);
-		if (!UtilHelper.isEmpty(periodTermOrderList) && !UtilHelper.isEmpty(creditDubboService)) {
+		if (!UtilHelper.isEmpty(orderNewList) && !UtilHelper.isEmpty(creditDubboService)) {
 
 			CreditParams creditParams = null;
-			for(Order order : periodTermOrderList){
+			for(Order order : orderNewList){
 				if(UtilHelper.isEmpty(order)) continue;
+				if (!SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(order.getPayTypeId())) {
+					continue;
+				}
 				creditParams = new CreditParams();
 				creditParams.setStatus("1");  //创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
 				creditParams.setFlowId(order.getFlowId());//订单编号
@@ -367,6 +370,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -376,7 +380,7 @@ public class OrderController extends BaseJsonController {
 			CreditParams creditParams = new CreditParams();
 			creditParams.setBuyerCode(s.getBuyer().getEnterpriseId() + "");
 			creditParams.setSellerCode(s.getSeller().getEnterpriseId()+ "");
-			creditParams.setOrderTotal(s.getPeriodProductPriceCount());
+			creditParams.setOrderTotal(s.getProductPriceCount());
 			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + creditParams);
 			CreditDubboResult creditDubboResult = null;
 			try{
@@ -386,13 +390,15 @@ public class OrderController extends BaseJsonController {
 			}
 			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
 
-			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+			if(UtilHelper.isEmpty(creditDubboResult) || !"1".equals(creditDubboResult.getIsSuccessful())){
+				/* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
 				logger.error("检查订单页-查询是否可用资信结算接口:资信为空或查询资信失败");
 
 				shoppingCartListDto = new ShoppingCartListDto();
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -423,6 +429,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDtoPeriodTerm.setBuyer(s.getBuyer());
 				shoppingCartListDtoPeriodTerm.setSeller(s.getSeller());
 				shoppingCartListDtoPeriodTerm.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDtoPeriodTerm.setAccountAmount(1);
 				shoppingCartListDtoPeriodTerm.setShoppingCartDtoList(shoppingCartDtoListPeriodTerm);
 				shoppingCartListDtoPeriodTerm.setProductPriceCount(productPriceCountPeriodTerm);
 				resultShoppingCartList.add(shoppingCartListDtoPeriodTerm);
@@ -434,6 +441,7 @@ public class OrderController extends BaseJsonController {
 				shoppingCartListDto.setBuyer(s.getBuyer());
 				shoppingCartListDto.setSeller(s.getSeller());
 				shoppingCartListDto.setPaymentTermCus(s.getPaymentTermCus());
+				shoppingCartListDto.setAccountAmount(1);
 				shoppingCartListDto.setProductPriceCount(productPriceCount);
 				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
 				resultShoppingCartList.add(shoppingCartListDto);
@@ -458,18 +466,18 @@ public class OrderController extends BaseJsonController {
 			/* 当前供应商下(没有设置账期的)商品的总金额 */
 			BigDecimal nonPeriodProductPriceCount = new BigDecimal(0);
 
-			Integer paymentTermCus = 0;
+			int paymentTermCus = 0;
 			for(ShoppingCartDto shoppingCartDto : s.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 				Map<String,Object>  periodMap = getPeriodByCondition(periodParamsList,shoppingCartDto.getSpuCode(),shoppingCartDto.getCustId(),shoppingCartDto.getSupplyId());
 				if(UtilHelper.isEmpty(periodMap)) continue;
-				paymentTermCus = (Integer) periodMap.get("paymentTermCus");//客户账期  TODO 查询客户账期的 武汉那边应该另提供一个接口
-				Integer paymentTermPro = (Integer) periodMap.get("paymentTermPro");//商品账期
-				if(paymentTermPro != null && paymentTermPro > 0){
+				paymentTermCus = periodMap.get("paymentTermCus") == null ? 0 :(Integer) periodMap.get("paymentTermCus");//客户账期  TODO 查询客户账期的 武汉那边应该另提供一个接口
+				int paymentTermPro = periodMap.get("paymentTermPro") == null ? 0 : (Integer) periodMap.get("paymentTermPro");//商品账期
+				if ( paymentTermPro > 0) {
 					shoppingCartDto.setPeriodProduct(true);
 					shoppingCartDto.setPaymentTerm(paymentTermPro);
 					periodProductPriceCount = periodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());
-				}else{
+				} else {
 					shoppingCartDto.setPeriodProduct(false);
 					shoppingCartDto.setPaymentTerm(0);
 					nonPeriodProductPriceCount = nonPeriodProductPriceCount.add(shoppingCartDto.getProductSettlementPrice());
