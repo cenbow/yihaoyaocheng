@@ -252,10 +252,11 @@
         <result column="pay_name" property="payTypeName"/>
         <result column="order_time" property="orderTime"/>
 		<result column="settlement_time" property="settlementTime"></result>
+		<result column="pay_type" property="payType"></result>
 	</resultMap>
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
-			SELECT s.order_settlement_id AS order_settlement_id, s.flow_id AS flow_id ,t.pay_name AS  pay_name,
+			SELECT s.order_settlement_id AS order_settlement_id, s.flow_id AS flow_id ,t.pay_name AS  pay_name,t.pay_type AS  pay_type,
 			s.business_type AS business_type,s.cust_name AS cust_name,s.supply_name AS supply_name,
 			DATE_FORMAT(s.order_time, '%Y-%m-%d %H:%i:%s') AS order_time,
 			DATE_FORMAT(s.settlement_time, '%Y-%m-%d %H:%i:%s') AS settlement_time,

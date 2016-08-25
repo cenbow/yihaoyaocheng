@@ -142,7 +142,7 @@ function fillTableJson(data) {
 
 		for (var i = 0; i < list.length; i++) {
 			var orderSettlemnt = list[i];
-			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId);
+			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId,orderSettlemnt.payType);
 			var tr = "<tr>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
 			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
@@ -162,9 +162,9 @@ function fillTableJson(data) {
 	bindOperateBtn();
 }
 //类型 转换成操作
-function typeToOperate(businessType,confirm,settlementId) {
+function typeToOperate(businessType,confirm,settlementId,payType) {
 	var result = '';
-	if(businessType==2||businessType==3){//只有退款有操作
+	if((businessType==2||businessType==3)&& payType!=2){//只有退款有操作 并且不是账期支付
 		if(confirm ==0){
 			result = '<button type="button" class="btn btn-info btn-sm editbtn back-opreate" data-stmid = "'+settlementId+'">退款结算</button>';
 		}else  if(confirm ==1){
