@@ -238,7 +238,7 @@ function fmoney(s, n)
 function cancleOrder(id, status) {
     if (window.confirm("订单取消后将无法恢复，确定取消？")) {
         $.ajax({
-            url: ctx+"/orderException/updateOrderStatus/"+id+"/"+status,
+            url: ctx+"/orderException/cancleOrder/"+id+"/"+status,
             type: 'GET',
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
@@ -248,7 +248,7 @@ function cancleOrder(id, status) {
                 }
 
                 if(data.result == "F"){
-                    alertModal("取消失败");
+                    alertModal(data.message);
                 }else {
                     pasretFormData();
                     doRefreshData(params);
