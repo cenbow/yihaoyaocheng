@@ -225,13 +225,16 @@ public class OrderController extends BaseJsonController {
 		map.put("url","/order/createOrderSuccess?orderIds="+orderIdStr);
 
 		/* 生成账期订单后，调用接口更新资信可用额度 */
-		List<Order> periodTermOrderList = (List<Order>) newOrderMap.get("periodTermOrderList");
+		List<Order> orderNewList = (List<Order>) newOrderMap.get("orderNewList");
 		logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,creditDubboService = " + creditDubboService);
-		if (!UtilHelper.isEmpty(periodTermOrderList) && !UtilHelper.isEmpty(creditDubboService)) {
+		if (!UtilHelper.isEmpty(orderNewList) && !UtilHelper.isEmpty(creditDubboService)) {
 
 			CreditParams creditParams = null;
-			for(Order order : periodTermOrderList){
+			for(Order order : orderNewList){
 				if(UtilHelper.isEmpty(order)) continue;
+				if (!SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(order.getPayTypeId())) {
+					continue;
+				}
 				creditParams = new CreditParams();
 				creditParams.setStatus("1");  //创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
 				creditParams.setFlowId(order.getFlowId());//订单编号
