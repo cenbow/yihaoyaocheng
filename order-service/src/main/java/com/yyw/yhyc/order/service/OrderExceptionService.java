@@ -1265,7 +1265,7 @@ public class OrderExceptionService {
 		OrderException orderException =  orderExceptionMapper.getByPK(exceptionId);
 		log.info(orderException);
 		if(UtilHelper.isEmpty(orderException)){
-			log.info("can not find order ,exceptionId:"+exceptionId);
+			log.error("can not find order ,exceptionId:"+exceptionId);
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该买家
@@ -1277,7 +1277,7 @@ public class OrderExceptionService {
 				orderException.setUpdateTime(now);
 				int count = orderExceptionMapper.update(orderException);
 				if(count == 0){
-					log.info("orderException info :"+orderException);
+					log.error("orderException info :"+orderException);
 					throw new RuntimeException("订单取消失败");
 				}
 				//插入日志表
@@ -1293,11 +1293,11 @@ public class OrderExceptionService {
 				orderTraceMapper.save(orderTrace);
 
 			}else{
-				log.info("orderException status error ,orderStatus:"+orderException.getOrderStatus());
+				log.error("orderException status error ,orderStatus:"+orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
 			}
 		}else{
-			log.info("db orderException not equals to request exceptionId ,exceptionId:" + exceptionId + ",db exceptionId:" + orderException.getExceptionId());
+			log.error("db orderException not equals to request exceptionId ,exceptionId:" + exceptionId + ",db exceptionId:" + orderException.getExceptionId());
 			throw new RuntimeException("未找到订单");
 		}
 	}
