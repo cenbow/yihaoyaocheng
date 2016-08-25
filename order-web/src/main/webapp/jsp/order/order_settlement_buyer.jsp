@@ -44,7 +44,7 @@
                             <div class="col-xs-3">
                                 <select class="form-control" name="businessType">
                                         <option value="-1">请选择</option>
-                                        <option value="1">销售货款</option>
+                                        <option value="1">采购货款</option>
                                         <option value="2">退货货款</option>
                                         <option value="3">拒收</option>
                                 </select>

@@ -216,7 +216,7 @@ public class OrderSettlementService {
 
         //修改异常订单里的结算状态
         OrderException orderException=new OrderException();
-        orderException.setExceptionOrderId(orderSettlement.getFlowId());
+        orderException.setExceptionOrderId(os.getFlowId());
         List<OrderException> lo=orderExceptionMapper.listByProperty(orderException);
         if(!UtilHelper.isEmpty(lo)){
             orderException= lo.get(0);
