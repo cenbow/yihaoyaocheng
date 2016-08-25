@@ -541,11 +541,11 @@
 					AND e.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='type == "3"'><!--退款中--><!--卖家已确认+线下支付/线下转账-->
-					AND e.ORDER_STATUS = '2'  AND (t.PAY_TYPE = 1 or t.PAY_TYPE = 3)
+					AND e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 3
 				</when>
 				<when test='type == "4"'><!--已完成  退款+在线/线下 or 卖家确认+账期-->
-					AND (( e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 2 )
-					OR  (e.ORDER_STATUS = '4'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 3))
+					AND (( e.ORDER_STATUS = '4'  AND  t.PAY_TYPE = 3 )
+					OR  (e.ORDER_STATUS = '2'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 2))
 					)
 				</when>
 				<when test='type == "5"'><!--已关闭-->
@@ -609,11 +609,11 @@
 					AND e.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='type == "3"'><!--退款中--><!--卖家已确认+线下支付/线下转账-->
-					AND e.ORDER_STATUS = '2'  AND (t.PAY_TYPE = 1 or t.PAY_TYPE = 3)
+					AND e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 3
 				</when>
 				<when test='type == "4"'><!--已完成  退款+在线/线下 or 卖家确认+账期-->
-					AND (( e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 2 )
-					OR  (e.ORDER_STATUS = '4'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 3))
+					AND (( e.ORDER_STATUS = '4'  AND  t.PAY_TYPE = 3 )
+					OR  (e.ORDER_STATUS = '2'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 2))
 					)
 				</when>
 				<when test='type == "5"'><!--已关闭-->
@@ -679,11 +679,11 @@
 					AND e.ORDER_STATUS = '1' <!--拒收申请中-->
 				</when>
 				<when test='type == "3"'><!--退款中--><!--卖家已确认+线下支付/线下转账-->
-					AND e.ORDER_STATUS = '2'  AND (t.PAY_TYPE = 1 or t.PAY_TYPE = 3)
+					AND e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 3
 				</when>
 				<when test='type == "4"'><!--已完成  退款+在线/线下 or 卖家确认+账期-->
-					AND (( e.ORDER_STATUS = '2'  AND  t.PAY_TYPE = 2 )
-					OR  (e.ORDER_STATUS = '4'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 3))
+					AND (( e.ORDER_STATUS = '4'  AND  t.PAY_TYPE = 3 )
+					OR  (e.ORDER_STATUS = '2'  AND  (t.PAY_TYPE = 1 OR t.pay_type = 2))
 					)
 				</when>
 				<when test='type == "5"'><!--已关闭-->
