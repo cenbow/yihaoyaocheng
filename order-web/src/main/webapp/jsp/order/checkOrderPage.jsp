@@ -197,7 +197,7 @@
 </div>
 
 <%@ include file="../footer.jsp"%>
-
+<script type="text/javascript" src="${STATIC_URL}/static/js/dialog.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/order/createOrder.js"></script>
 </body>
 </html>
