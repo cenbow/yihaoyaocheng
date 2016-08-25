@@ -253,7 +253,7 @@ $(function() {
         if($('.select-all').length<1){
             new Dialog({
                 title:'提示',
-                content:'<p class="mt60 f14 ">请选择相应商品！</p>',
+                content:'<p class="mt60 f14 ">请选择相应的商品！</p>',
                 ok:'确定',
                 afterOk:function(){
                     console.log('111');
@@ -335,14 +335,13 @@ function getSelectedShoppingCart(){
             paramsHtml += "<input type='hidden' id='selectedShoppingCart_"+array[i]+"' name='shoppingCartDtoList["+i+"].shoppingCartId' value='"+array[i]+"'>";
         }
         if(paramsHtml == ""){
-            alert("请选择要提交的商品");
-            return;
+            return false;
         }
         $("#submitCheckOrderPage").html("");
         $("#submitCheckOrderPage").html(paramsHtml);
+        return true;
     }else{
-        alert("请选择要提交的商品");
-        return;
+        return false;
     }
 }
 
@@ -351,8 +350,10 @@ function getSelectedShoppingCart(){
  */
 function submitCheckOrderPage(){
 
-    getSelectedShoppingCart();
-
+    if(!getSelectedShoppingCart()){
+        /* 如果没有选中任何商品 则不跳转到检查订单页面 */
+        return ;
+    }
     
     //TODO AJAX 检验商品上架、下架状态
     

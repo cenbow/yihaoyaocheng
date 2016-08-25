@@ -10,12 +10,26 @@ function createOrder(){
 
     var receiveAddressId = $("#receiveAddressId").val();
     if(receiveAddressId == null || receiveAddressId == '' || typeof  receiveAddressId == 'undefined'){
-        alert("请选择收货地址！");
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">请选择收货地址！</p>',
+            ok:'确定',
+            afterOk:function(){
+                console.log('111');
+            }
+        });
         return;
     }
     var billType = $("#billType").val();
     if(billType == null || billType == '' || typeof  billType == 'undefined'){
-        alert("请选择发票类型！");
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">请选择发票类型！</p>',
+            ok:'确定',
+            afterOk:function(){
+                console.log('111');
+            }
+        });
         return;
     }
     
@@ -54,6 +68,14 @@ function createOrder(){
     });
     if(productIdArray.length == 0 ){
         alert("购物车中没有商品!");
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">购物车中没有商品！</p>',
+            ok:'确定',
+            afterOk:function(){
+                console.log('111');
+            }
+        });
         return;
     }
 
@@ -68,8 +90,14 @@ function createOrder(){
 
         try{
             if(_resultJsonObj.url == null || "" == _resultJsonObj.url || typeof _resultJsonObj.url == "undefined"){
-                console.info();
-                alert("服务器异常!");
+                new Dialog({
+                    title:'提示',
+                    content:'<p class="mt60 f14">服务器异常！</p>',
+                    ok:'确定',
+                    afterOk:function(){
+                        console.log('111');
+                    }
+                });
             }
 
             /* 由于Java 后端代码使用登录拦截器，若登录拦截器异常，则返回的 _resultJsonObj 变量 是 登录页面的html代码 。所以此处校验返回的url是否为创建订单页的url */
@@ -80,7 +108,15 @@ function createOrder(){
             }
         }catch (e){
             console.info(e.name + ": " + e.message);
-            alert("服务器异常!");
+            new Dialog({
+                title:'提示',
+                content:'<p class="mt60 f14">服务器异常！</p>',
+                ok:'确定',
+                afterOk:function(){
+                    console.log('111');
+                }
+            });
+            
         }
         
     });
