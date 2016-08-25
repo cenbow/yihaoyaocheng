@@ -256,8 +256,10 @@
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
 			SELECT s.order_settlement_id AS order_settlement_id, s.flow_id AS flow_id ,t.pay_name AS  pay_name,
-			s.business_type AS business_type,s.cust_name AS cust_name,s.supply_name AS supply_name,s.order_time AS order_time,
-			s.settlement_time AS settlement_time,s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
+			s.business_type AS business_type,s.cust_name AS cust_name,s.supply_name AS supply_name,
+			DATE_FORMAT(s.order_time, '%Y-%m-%d %H:%i:%s') AS order_time,
+			DATE_FORMAT(s.settlement_time, '%Y-%m-%d %H:%i:%s') AS settlement_time,
+			s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
 			FROM t_order_settlement s
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
 			LEFT JOIN t_passport_user u ON u.id = s.cust_id
@@ -277,10 +279,10 @@
 			AND s.business_type = #{businessType}
 		</if>
 		<if test="custName !=null and custName !=''">
-			AND s.cust_name = CONCAT('%',#{custName},'%')
+			AND s.cust_name LIKE CONCAT('%',#{custName},'%')
 		</if>
 		<if test="supplyName !=null and supplyName !=''">
-			AND s.supply_name = CONCAT('%',#{supplyName},'%')
+			AND s.supply_name LIKE CONCAT('%',#{supplyName},'%')
 		</if>
 		<if test="confirmSettlement !=null and confirmSettlement !='' and confirmSettlement !='-1'">
 			AND s.confirm_settlement = #{confirmSettlement}
@@ -293,7 +295,7 @@
 			AND s.order_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND #{endTime} > s.order_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > s.order_time
 		</if>
 		<if test="province !=null and province != '' and province != '-1' ">
 			AND ue.province = #{province}
