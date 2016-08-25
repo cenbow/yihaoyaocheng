@@ -710,7 +710,7 @@ public class OrderExceptionController extends BaseJsonController{
 				try{
 					if (UtilHelper.isEmpty(creditDubboService)) {
 						logger.error("CreditDubboServiceInterface creditDubboService is null");
-						throw new RuntimeException("CreditDubboServiceInterface creditDubboService is null");
+//						throw new RuntimeException("CreditDubboServiceInterface creditDubboService is null"); TODO: 2016/8/25 暂时注释 不抛出异常
 					}
 					else {
 						OrderException oe = orderExceptionService.getByPK(orderException.getExceptionId());
@@ -728,12 +728,14 @@ public class OrderExceptionController extends BaseJsonController{
 							creditParams.setStatus("2");
 							CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 							if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
-								throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
+								logger.error("接口调用失败！");
+//								throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");   TODO: 2016/8/25 暂时注释 不抛出异常
 							}
 						}
 					}
 				}catch (Exception e){
-					throw new RuntimeException("未找到订单");
+					logger.error("接口调用失败！");
+//					throw new RuntimeException("未找到订单");    TODO: 2016/8/25 暂时注释 不抛出异常
 				}
 			}
 	}
