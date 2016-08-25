@@ -25,6 +25,7 @@ import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hpsf.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -483,7 +484,7 @@ public class OrderExceptionService {
 		if(!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())){
 			BigDecimal productPriceCount = new BigDecimal(0);
 			for(OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()){
-				if(UtilHelper.isEmpty(orderReturnDto)) continue;
+				if(UtilHelper.isEmpty(orderReturnDto)||UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
 				productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
 			}
 			orderExceptionDto.setProductPriceCount(productPriceCount);
