@@ -380,7 +380,7 @@ public class OrderController extends BaseJsonController {
 			CreditParams creditParams = new CreditParams();
 			creditParams.setBuyerCode(s.getBuyer().getEnterpriseId() + "");
 			creditParams.setSellerCode(s.getSeller().getEnterpriseId()+ "");
-			creditParams.setOrderTotal(s.getPeriodProductPriceCount());
+			creditParams.setOrderTotal(s.getProductPriceCount());
 			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + creditParams);
 			CreditDubboResult creditDubboResult = null;
 			try{
