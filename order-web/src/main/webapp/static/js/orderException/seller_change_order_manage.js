@@ -66,6 +66,8 @@ function fillPagerUtil(data, requestParam) {
 }
 
 function setOrderCount(orderStatusCount) {
+    $("a[name^='statusCount']").find("span").remove();
+
     if (orderStatusCount) {
         for (var o in orderStatusCount){
             if(o == 2 || o == 3 || o == 8) continue;
