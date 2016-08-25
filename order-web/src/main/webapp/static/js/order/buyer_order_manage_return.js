@@ -17,7 +17,7 @@ function  bindTabChange() {
 }
 
 function  changeReturnNum() {
-    $('#myModalSalesReturnForm tr td:last input').on("blur",function () {
+    $('#myModalSalesReturnForm  tr td input[name="returnProductCount"]').on("blur",function () {
         var num = $(this).val();
         var maxNum = $(this).attr("datareturn");
         if(num && num!=""&&maxNum&&maxNum!=""){
@@ -29,7 +29,7 @@ function  changeReturnNum() {
         }
     })
 
-    $('#myModalSalesReturnForm  tr td:last input').on("afterpaste",function(){
+    $('#myModalSalesReturnForm  tr td input[name="returnProductCount"]').on("afterpaste",function(){
         $(this).val(this.value.replace(/\D/g,''));
         var num = $(this).val();
         var maxNum = $(this).attr("datareturn");
@@ -41,7 +41,7 @@ function  changeReturnNum() {
             $(this).val("");
         }
     });
-    $('#myModalSalesReturnForm  tr td:last input').on("keyup",function(){
+    $('#myModalSalesReturnForm  tr td input[name="returnProductCount"]').on("keyup",function(){
         $(this).val(this.value.replace(/\D/g,''));
         var num = $(this).val();
         var maxNum = $(this).attr("datareturn");
