@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.BuyerChangeGoodsOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
@@ -492,21 +493,28 @@ public class OrderExceptionController extends BaseJsonController{
 	 * @param id
      * @return
      */
-	@RequestMapping(value = {"/updateOrderStatus/{id}/{orderStatus}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/cancleOrder/{id}/{orderStatus}"}, method = RequestMethod.GET)
 	@ResponseBody
-	public Map<String, Object> updateOrderStatus(@PathVariable("orderStatus") String orderStatus, @PathVariable("id") Integer id) throws Exception{
+	public Map<String, Object> cancleOrder(@PathVariable("orderStatus") String orderStatus, @PathVariable("id") Integer id) throws Exception{
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("result", "F");
+
+		//确定该信息是否可取消
+		OrderException orderException = orderExceptionService.getByPK(id);
+		if(UtilHelper.isEmpty(orderException) || !BuyerChangeGoodsOrderStatusEnum.WaitingConfirmation.getValue().equals(orderException.getOrderStatus())) {
+			map.put("message", "当前状态下不可取消，请刷新页面后重试。");
+		}
+
 		UserDto u = super.getLoginUser();
-		OrderException orderException = new OrderException();
-		orderException.setOrderStatus(orderStatus);
+		orderException = new OrderException();
 		orderException.setExceptionId(id);
 		orderException.setCustId(u.getCustId());
-
+		orderException.setOrderStatus(orderStatus);
 		int row = orderExceptionService.updateOrderStatus(orderException);
-		Map<String, Object> map = new HashMap<String, Object>();
 		if(row >0 )
 			map.put("result", "S");
 		else
-			map.put("result", "F");
+			map.put("message", "你没有操作该记录的权限，请刷新页面后重试。");
 
 		return map;
 	}

@@ -36,7 +36,7 @@
                         <label class="col-xs-2 control-label">订单状态：</label>
                         <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
                         <label class="col-xs-2 control-label">原订单号：</label>
-                        <div class="col-xs-2 control-label text-left"><a href="#">${orderExceptionDto.flowId}</a></div>
+                        <div class="col-xs-2 control-label text-left"><a class="undeline" target="_blank" href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a></div>
                     </div>
                 </div>
             </div>
@@ -67,11 +67,11 @@
                             <label for="scope" class="col-xs-2 control-label">供应商：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseName}</div>
                             <label for="scope" class="col-xs-2 control-label">发货人：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.usermanageEnterprise.registeredAddress}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">联系方式：</label>
-                            <div class="col-xs-10 control-label text-left">${orderExceptionDto.usermanageEnterprise.enterpriseCellphone}</div>
+                            <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                         </div>
                     </div>
                     <div class="form-horizontal padding-t-26">
@@ -97,28 +97,33 @@
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">退货时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.createTime}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.createTime}
+                            </div>
                             <label for="scope" class="col-xs-2 control-label">退货说明：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.returnDesc}</div>
                         </div>
 
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">卖家确认/关闭时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.updateTime}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.reviewTime}</div>
                             <label for="scope" class="col-xs-2 control-label">确认/关闭说明：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">买家发货时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.createTime}</div>
                             <label for="scope" class="col-xs-2 control-label">买家发货说明：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.remark}</div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">退款时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
-                            <label for="scope" class="col-xs-2 control-label">取消退货时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderSettlement.settlementTime}</div>
+                            <label for="scope" class="col-xs-2 control-label">取消退货时间：
+
+                            </label>
+                            <div class="col-xs-3 control-label text-left">
+                                ${(orderExceptionDto.orderStatus == "2" || orderExceptionDto.orderStatus=="4")?orderExceptionDto.updateTime:""}
+                            </div>
                         </div>
 
                     </div>

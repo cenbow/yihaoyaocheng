@@ -1454,13 +1454,38 @@
 		<result column="PAY_TYPE_NAME" property="payTypeName"/>
 		<association property="order" column="order_id" select="com.yyw.yhyc.order.mapper.OrderMapper.getByPK"></association>
 		<association property="orderDelivery" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+		<association property="orderSettlement" column="{businessType=business_type,flowId=exception_order_id}" select="com.yyw.yhyc.order.mapper.OrderSettlementMapper.getByProperty"></association>
 		<association property="usermanageEnterprise" column="supply_id" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"></association>
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
 	<select id="getOrderExceptionDetailsForReturn" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsReturnResultMap">
 		SELECT
-		T1.*,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
+		T1.exception_id
+		, T1.return_type
+		, T1.exception_order_id
+		, T1.order_id
+		, T1.flow_id
+		, T1.order_status
+		, T1.cust_name
+		, T1.cust_id
+		, T1.supply_name
+		, T1.supply_id
+		, T1.remark
+		, T1.order_money_total
+		, T1.order_money
+		, T1.create_user
+		, date_format(T1.create_time, '%Y-%m-%d %H:%i:%s') AS create_time
+		, T1.update_user
+		, date_format(T1.update_time, '%Y-%m-%d %H:%i:%s') AS  update_time
+		, date_format(T1.order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
+		, T1.return_desc
+		, date_format(T1.deliver_time, '%Y-%m-%d %H:%i:%s') AS deliver_time
+		, date_format(T1.receive_time, '%Y-%m-%d %H:%i:%s')AS receive_time
+		, date_format(T1.buyer_deliver_time, '%Y-%m-%d %H:%i:%s')AS buyer_deliver_time
+		, date_format(T1.seller_receive_time, '%Y-%m-%d %H:%i:%s')AS seller_receive_time
+		, date_format(T1.review_time, '%Y-%m-%d %H:%i:%s')AS review_time
+		,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME,'2' AS  business_type
 		FROM
 		t_order_exception T1
 		LEFT JOIN t_order T2 ON T1.order_id=T2.order_id

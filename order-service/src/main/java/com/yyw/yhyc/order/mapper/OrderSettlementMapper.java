@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
@@ -20,4 +21,6 @@ import com.yyw.yhyc.bo.Pagination;
 public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettlement, Integer> {
 
 	public List<OrderSettlementDto> listPaginationDtoByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto);
+
+	public OrderSettlement getByProperty(Map<String,Object> map);
 }
