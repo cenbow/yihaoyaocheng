@@ -48,7 +48,7 @@
                             <label for="scope" class="col-xs-2 control-label">业务类型</label>
                             <div class="col-xs-3">
                                 <select class="form-control" name="businessType">
-                                        <option value="-1">请选择</option>
+                                        <option value="-1">全部</option>
                                         <option value="1">销售货款</option>
                                         <option value="2">退货货款</option>
                                         <option value="3">拒收</option>
@@ -63,7 +63,7 @@
                             <label for="scope" class="col-xs-2 control-label">支付方式</label>
                             <div class="col-xs-3">
                                 <select class="form-control" name="payType">
-                                    <option value="-1">请选择</option>
+                                    <option value="-1">全部</option>
                                     <option value="1">线上支付</option>
                                     <option value="2">账期支付</option>
                                     <option value="3">线下转账</option>
@@ -72,7 +72,7 @@
                             <label for="scope" class="col-xs-2 control-label">结算状态</label>
                             <div class="col-xs-3">
                                 <select class="form-control" name="confirmSettlement">
-                                    <option value="-1">请选择</option>
+                                    <option value="-1">全部</option>
                                     <option value="0">未结算</option>
                                     <option value="1">已结算</option>
                                 </select>

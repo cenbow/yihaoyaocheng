@@ -305,6 +305,10 @@ public class OrderService {
 
 			/* 如果含有合法的账期商品，则跳过该商品，继续生成订单 */
 			if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
+				if(orderDto.getPaymentTerm() == null || orderDto.getPaymentTerm() <= 0 ||  orderDto.getAccountAmount() <= 0){
+					/* 选择账期支付的前提条件：既要资信有额度 又要设置客户账期 */
+					throw new Exception("非法订单!");
+				}
 				orderDto = removePeriodTermOrderDto(orderDto);
 				if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 					continue;

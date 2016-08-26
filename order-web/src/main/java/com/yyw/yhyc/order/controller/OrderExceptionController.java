@@ -735,6 +735,7 @@ public class OrderExceptionController extends BaseJsonController{
 							creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
 							creditParams.setStatus("2");
 							creditParams.setReceiveTime(DateHelper.parseDate(oe.getReceiveTime()));
+							creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
 							CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 							if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 								logger.error("接口调用失败！");

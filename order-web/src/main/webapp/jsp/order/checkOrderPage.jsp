@@ -139,9 +139,9 @@
                                         <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayOnline.getPayType()%>"></i>在线支付
                                     </label>
 
-                                    <%--能否点击 账期支付按钮--%>
+                                    <%--账期支付按钮能勾选的前提条件：既要 资信有额度 又要设置客户账期  --%>
                                     <c:choose>
-                                        <c:when test="${shoppingCart.accountAmount == 1}">
+                                        <c:when test="${shoppingCart.accountAmount == 1 && shoppingCart.paymentTermCus > 0}">
                                             <label>
                                                 <i class="inside-icon radio-skin" supplyId="${shoppingCart.seller.enterpriseId}" payTypeId="<%=SystemPayTypeEnum.PayPeriodTerm.getPayType()%>"></i>账期支付
                                             </label>

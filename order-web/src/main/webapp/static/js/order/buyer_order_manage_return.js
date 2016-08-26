@@ -107,13 +107,18 @@ function fillSaleReturnTable(data) {
             return;
         var list = data.resultList;
         $("#myModalSalesReturn .table-box2 tbody").html("");
+        $("#myModalSalesReturn textarea").val("");
         var trs = "";
         for (var i = 0; i < list.length; i++) {
             var orderDeliveryDetail = list[i];
             var canReturnCount = orderDeliveryDetail.canReturnCount;
-            if(!canReturnCount || canReturnCount ==""){
+            if(canReturnCount == undefined || canReturnCount == null  || (canReturnCount+"") == ""){
                 console.info(orderDeliveryDetail.recieveCount);
                 canReturnCount = orderDeliveryDetail.recieveCount;
+            }else{
+                if(parseInt(canReturnCount) <=0){
+                    canReturnCount = 0 ;
+                }
             }
 
             var tr = "<tr>";
@@ -127,7 +132,7 @@ function fillSaleReturnTable(data) {
             tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
             tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
             tr += "<td>" + orderDeliveryDetail.productName + "</td>";
-            tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+            tr += "<td>" + (orderDeliveryDetail.shortName==null?"":orderDeliveryDetail.shortName) + "</td>";
             tr += "<td>" + orderDeliveryDetail.specification + "</td>";
             tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
             tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
@@ -158,8 +163,7 @@ function confirmSaleReturn(){
     var returnType = $(".nav-tabs:eq(1) .active").index()+1;
 
     for(var i=0;i<returnProductCount.length;i++){
-        if(!$(returnProductCount[i]).val()||$(returnProductCount[i]).val()==""){
-            console.info("终端");
+        if(!$(returnProductCount[i]).val()||$(returnProductCount[i]).val()==""||$(returnProductCount[i]).val() =="0"){
             continue;
         }
        list.push({
@@ -175,7 +179,7 @@ function confirmSaleReturn(){
     }
 
     if(list.length==0){
-        alert("没有符合的数据");
+        alert("没有符合退货的记录，请核实退货数量");
         return ;
     }
     $.ajax({

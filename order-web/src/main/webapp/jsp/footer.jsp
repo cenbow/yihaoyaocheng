@@ -82,3 +82,4 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/inside.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/common.js"></script>

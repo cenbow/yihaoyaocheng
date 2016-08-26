@@ -47,13 +47,13 @@ function totalSum(){
     $(".shopping-cart .holder-list").each(function(){
         if(!$(this).hasClass('no-stock')){
             if($(".cart-checkbox",this).hasClass('select-all')){
-                $(".td-sum",this).each(function(){
-                    tdsum += Number($('span',this).html());
+                $("input[name='productSettlementPrice']",this).each(function(){
+                    tdsum += Number($(this).val());
                 });
             }
         }
     });
-    $('.total-price span').html(tdsum.toFixed(2));
+    $('.total-price span').html(fmoney(tdsum,2));
 }
 //品种总计
 function totalItem(){
