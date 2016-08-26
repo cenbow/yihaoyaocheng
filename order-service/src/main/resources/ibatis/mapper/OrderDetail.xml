@@ -38,6 +38,7 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="short_name" property="shortName"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -62,6 +63,7 @@
 		, create_time
 		, update_user
 		, update_time
+		, short_name
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -85,6 +87,7 @@
 				, create_time
 				, update_user
 				, update_time
+				, short_name
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -109,6 +112,7 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, short_name
 	</sql>
 	
 	<sql id="commonCondition">
@@ -175,6 +179,10 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+
+		<if test="shortName!= null and shortName!= ''">
+			AND short_name= #{shortName}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderDetail">
@@ -202,6 +210,7 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{shortName}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">
@@ -227,6 +236,7 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, short_name= #{shortName}
 		WHERE order_detail_id = #{orderDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
