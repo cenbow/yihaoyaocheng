@@ -66,12 +66,14 @@ function fillPagerUtil(data, requestParam) {
 }
 
 function setOrderCount(orderStatusCount) {
+    $("a[name^='statusCount']").find("span").remove();
+
     if (orderStatusCount) {
         for (var o in orderStatusCount){
+            if(o == 2 || o == 3 || o == 8) continue;
+
             var  $a = $("a[name='statusCount" + o +"']");
             var text = $a.text();
-            var index = text.indexOf("(");
-            if(index>0) text = text.substr(0, index);
 
             $a.html(text + '<span style="color: red;">('+orderStatusCount[o]+')</span>');
         }
@@ -237,7 +239,7 @@ function fmoney(s, n)
 function cancleOrder(id, status) {
     if (window.confirm("订单取消后将无法恢复，确定取消？")) {
         $.ajax({
-            url: ctx+"/orderException/updateOrderStatus/"+id+"/"+status,
+            url: ctx+"/orderException/cancleOrder/"+id+"/"+status,
             type: 'GET',
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
