@@ -208,6 +208,7 @@
                 </c:if>
             </div>
         </div>
+        </div>
         <div class="row choseuser margin-t-20 border-gray">
             <h2 class="row">订单信息</h2>
 
@@ -468,19 +469,11 @@
 
                         <p>
 
-                        <p>确认收货商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.receiveTotal}" minFractionDigits="2"/>元
-
-                        <p>
-
                         <p>优惠券：- 00.00元
 
                         <p>
 
                         <p class="red">订单金额：￥<fmt:formatNumber value="${orderDetailsDto.orgTotal}" minFractionDigits="2"/>元
-
-                        <p>
-
-                        <p class="red">结算订单金额：￥<fmt:formatNumber value="${orderDetailsDto.receiveTotal}" minFractionDigits="2"/>元
 
                         <p>
                     </div>
