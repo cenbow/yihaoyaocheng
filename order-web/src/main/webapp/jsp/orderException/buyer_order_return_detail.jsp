@@ -111,8 +111,8 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">买家发货时间：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.createTime}</div>
-                            <label for="scope" class="col-xs-2 control-label">买家发货说明：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.remark}</div>
+                            <label for="scope" class="col-xs-2 control-label">卖家确认守候时间</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.receiveTime}</div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">退款时间：</label>
