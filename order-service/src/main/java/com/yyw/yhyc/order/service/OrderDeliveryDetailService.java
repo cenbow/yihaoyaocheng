@@ -276,6 +276,12 @@ public class OrderDeliveryDetailService {
 				return returnMap;
 			}
 
+			if (dto.getRecieveCount().intValue()>dto.getProductCount().intValue()){
+				returnMap.put("code","0");
+				returnMap.put("msg","收货数量不能大于采购数量");
+				return returnMap;
+			}
+
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
 			orderDeliveryDetailMapper.update(orderDeliveryDetail);

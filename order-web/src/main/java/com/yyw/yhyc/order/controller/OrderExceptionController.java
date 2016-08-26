@@ -671,6 +671,7 @@ public class OrderExceptionController extends BaseJsonController{
 						creditParams.setOrderTotal(order.getOrgTotal());//订单金额
 						creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
 						creditParams.setStatus("2");
+						creditParams.setReceiveTime(DateHelper.parseDate(oe.getReceiveTime()));
 						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 						if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 							throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
@@ -734,7 +735,7 @@ public class OrderExceptionController extends BaseJsonController{
 							creditParams.setOrderTotal(order.getOrgTotal());//订单金额
 							creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
 							creditParams.setStatus("2");
-							creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
+							creditParams.setReceiveTime(DateHelper.parseDate(oe.getReceiveTime()));
 							CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 							if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 								logger.error("接口调用失败！");

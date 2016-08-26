@@ -106,62 +106,74 @@
 
                 <c:if test="${orderDetailsDto.payType!=2&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4||orderDetailsDto.orderStatus==7)}">
                     <div class="row progress_bar">
-                        <div class="col-xs-3 cur"><span>1</span></div>
-                        <div class="col-xs-3"><span>2</span></div>
-                        <div class="col-xs-3"><span>3</span></div>
-                        <div class="col-xs-3"><span>4</span></div>
-                        <div class="col-xs-3 cur"><span>5</span></div>
+                        <div class="col-xs-1 cur"></div>
+                        <div class="col-xs-2 cur"><span>1</span></div>
+                        <div class="col-xs-2"><span>2</span></div>
+                        <div class="col-xs-2"><span>3</span></div>
+                        <div class="col-xs-2"><span>4</span></div>
+                        <div class="col-xs-2 cur"><span>5</span></div>
+                        <div class="col-xs-1 cur"></div>
                     </div>
                     <div class="row progress_num">
-                        <div class="col-xs-3">待付款</div>
-                        <div class="col-xs-3">待发货</div>
-                        <div class="col-xs-3">待收货</div>
-                        <div class="col-xs-3">已完成</div>
-                        <div class="col-xs-3">已取消</div>
+                        <div class="col-xs-1"></div>
+                        <div class="col-xs-2">待付款</div>
+                        <div class="col-xs-2">待发货</div>
+                        <div class="col-xs-2">待收货</div>
+                        <div class="col-xs-2">已完成</div>
+                        <div class="col-xs-2">已取消</div>
+                        <div class="col-xs-1"></div>
                     </div>
                 </c:if>
                 <c:if test="${orderDetailsDto.payType!=2&&orderDetailsDto.orderStatus==9}">
                     <div class="row progress_bar">
-                        <div class="col-xs-3 cur"><span>1</span></div>
-                        <div class="col-xs-3 cur"><span>2</span></div>
-                        <div class="col-xs-3 cur"><span>3</span></div>
-                        <div class="col-xs-3 cur"><span>4</span></div>
-                        <div class="col-xs-3 "><span>5</span></div>
+                        <div class="col-xs-1 cur"></div>
+                        <div class="col-xs-2 cur"><span>1</span></div>
+                        <div class="col-xs-2 cur"><span>2</span></div>
+                        <div class="col-xs-2 cur"><span>3</span></div>
+                        <div class="col-xs-2 cur"><span>4</span></div>
+                        <div class="col-xs-2 "><span>5</span></div>
+                        <div class="col-xs-1 "></div>
                     </div>
                     <div class="row progress_num">
-                        <div class="col-xs-3">待付款</div>
-                        <div class="col-xs-3">待发货</div>
-                        <div class="col-xs-3">待收货</div>
-                        <div class="col-xs-3">拒收中</div>
-                        <div class="col-xs-3">已完成</div>
+                        <div class="col-xs-1"></div>
+                        <div class="col-xs-2">待付款</div>
+                        <div class="col-xs-2">待发货</div>
+                        <div class="col-xs-2">待收货</div>
+                        <div class="col-xs-2">拒收中</div>
+                        <div class="col-xs-2">已完成</div>
+                        <div class="col-xs-1"></div>
                     </div>
                 </c:if>
                 <c:if test="${orderDetailsDto.payType!=2&&orderDetailsDto.orderStatus==10}">
                     <div class="row progress_bar">
-                        <div class="col-xs-3 cur"><span>1</span></div>
-                        <div class="col-xs-3 cur"><span>2</span></div>
-                        <div class="col-xs-3 cur"><span>3</span></div>
-                        <div class="col-xs-3 cur"><span>4</span></div>
-                        <div class="col-xs-3 "><span>5</span></div>
+                        <div class="col-xs-1 cur"></div>
+                        <div class="col-xs-2 cur"><span>1</span></div>
+                        <div class="col-xs-2 cur"><span>2</span></div>
+                        <div class="col-xs-2 cur"><span>3</span></div>
+                        <div class="col-xs-2 cur"><span>4</span></div>
+                        <div class="col-xs-2 "><span>5</span></div>
+                        <div class="col-xs-1"></div>
                     </div>
                     <div class="row progress_num">
-                        <div class="col-xs-3">待付款</div>
-                        <div class="col-xs-3">待发货</div>
-                        <div class="col-xs-3">待收货</div>
-                        <div class="col-xs-3">补货中</div>
-                        <div class="col-xs-3">已完成</div>
+                        <div class="col-xs-1"></div>
+                        <div class="col-xs-2">待付款</div>
+                        <div class="col-xs-2">待发货</div>
+                        <div class="col-xs-2">待收货</div>
+                        <div class="col-xs-2">补货中</div>
+                        <div class="col-xs-2">已完成</div>
+                        <div class="col-xs-1"></div>
                     </div>
                 </c:if>
                 <c:if test="${orderDetailsDto.payType==2&&orderDetailsDto.orderStatus==1}">
                     <div class="row progress_bar">
-                        <div class="col-xs-3 cur"><span>1</span></div>
-                        <div class="col-xs-3"><span>2</span></div>
-                        <div class="col-xs-3"><span>3</span></div>
+                        <div class="col-xs-4 cur"><span>1</span></div>
+                        <div class="col-xs-4"><span>2</span></div>
+                        <div class="col-xs-4"><span>3</span></div>
                     </div>
                     <div class="row progress_num">
-                        <div class="col-xs-3">待发货</div>
-                        <div class="col-xs-3">待收货</div>
-                        <div class="col-xs-3">已完成</div>
+                        <div class="col-xs-4">待发货</div>
+                        <div class="col-xs-4">待收货</div>
+                        <div class="col-xs-4">已完成</div>
                     </div>
                 </c:if>
                 <c:if test="${orderDetailsDto.payType==2&&(orderDetailsDto.orderStatus==2||orderDetailsDto.orderStatus==3||orderDetailsDto.orderStatus==4||orderDetailsDto.orderStatus==7)}">

@@ -465,6 +465,12 @@ function confirmReceipt(){
             if($(recieveCount[i]).val()!=$(productCount[i]).val()){
                 flag=false;
             }
+
+            if($(recieveCount[i]).val()>$(productCount[i]).val()){
+                alertModal("收货数量不能大于采购数量!");
+                return;
+            }
+
         }
         if(!flag){
             if(ownw.val()==null||ownw.val()==""){
