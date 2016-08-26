@@ -47,7 +47,7 @@
                                 <input type="text" class="form-control" id="supplyName" name="supplyName"
                                        placeholder="">
                             </div>
-                            <label class="col-xs-2 control-label">拒收时间</label>
+                            <label class="col-xs-2 control-label">补货时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
                                     <input type="text" name="startTime"

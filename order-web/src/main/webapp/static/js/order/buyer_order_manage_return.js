@@ -112,7 +112,8 @@ function fillSaleReturnTable(data) {
             var orderDeliveryDetail = list[i];
             var canReturnCount = orderDeliveryDetail.canReturnCount;
             if(!canReturnCount || canReturnCount ==""){
-                canReturnCount = orderDeliveryDetail.deliveryProductCount;
+                console.info(orderDeliveryDetail.recieveCount);
+                canReturnCount = orderDeliveryDetail.recieveCount;
             }
 
             var tr = "<tr>";

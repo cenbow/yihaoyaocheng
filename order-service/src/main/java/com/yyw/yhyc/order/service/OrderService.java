@@ -746,9 +746,10 @@ public class OrderService {
 			orderDetail.setProductName(productInfo.getProductName());//商品名称
 			orderDetail.setProductCode(productInfo.getProductCode());//商品编码
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
-			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
+//			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
 			orderDetail.setManufactures(productInfo.getFactoryName());//生产厂家
+			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
 			orderDetailService.save(orderDetail);
 		}

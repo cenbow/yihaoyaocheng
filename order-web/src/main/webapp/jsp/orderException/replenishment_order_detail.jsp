@@ -166,7 +166,8 @@
                                 <div class="col-xs-3 control-label text-left">
                                     <p>
                                        <c:if test="${orderExceptionDto.importFileUrl!=null && orderExceptionDto.importFileUrl!=''}">
-                                           <a class='m-l-10 eyesee' href='${ctx}/order/orderDetail/downLoad?filePath=${orderExceptionDto.importFileUrl}&fileName=发货批号导入信息.xls'><i class='fa fa-download'></i>${orderExceptionDto.fileName}</a>
+                                           <a class='m-l-10 eyesee' onclick="downloadExcel()"><i class='fa fa-download'></i>${orderExceptionDto.fileName}</a>
+                                           <input id="filePath" name="filePath" value="${orderExceptionDto.importFileUrl}" type="hidden">
                                        </c:if>
                                         <c:if test="${orderExceptionDto.importFileUrl==null && orderExceptionDto.importFileUrl==''}">
                                             <a class='m-l-10 eyesee' href=''><i class='fa fa-download'></i></a>
@@ -237,7 +238,11 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <c:if test="${orderExceptionDto.userType==1}"><div><a class="undeline" onclick="listReplenishment()">查看收货商品清单</a></div></c:if>
+                <c:if test="${orderExceptionDto.userType==1}">
+                    <c:if test="${orderExceptionDto.orderStatus==5 || orderExceptionDto.orderStatus==6}">
+                        <div><a class="undeline" onclick="listReplenishment()">查看收货商品清单</a></div>
+                    </c:if>
+                </c:if>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p class="red">订单金额：￥${orderExceptionDto.orderMoney}元<p>
@@ -312,6 +317,12 @@
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
+<script type="text/javascript">
+function downloadExcel(){
+    var filePath= $("#filePath").val().trim();
+    window.location.href = ctx+"/order/orderDetail/downLoad?filePath="+filePath+"&fileName=发货批号导入信息";
+}
+</script>
 </html>
 
 

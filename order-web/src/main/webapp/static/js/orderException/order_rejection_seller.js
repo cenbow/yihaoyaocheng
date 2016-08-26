@@ -68,9 +68,9 @@ function bindAreaData(prov,city,area) {
 	$("#" + prov).change(function () {
 		var cityStr = '<option value="">城市</option>';
 		var _prov = $(this).children('option:selected').val();
+		$("#" + area).html('<option value="">区/县</option>');
 		if (_prov == '') {
 			$("#" + city).html(cityStr);
-			$("#" + area).html('<option value="">区/县</option>');
 			return;
 		}
 		var cityList = getCity(_prov);
@@ -190,7 +190,7 @@ function fillTableJson(data) {
 			var oe = list[i];
 			var operation = typeToOperate(oe.orderStatusName,oe.exceptionId);
 			var tr = "<tr>";
-			tr += "<td>" + oe.exceptionOrderId + "<br/><a href='"+ctx+"/orderException/getDetails-2/" + oe.flowId + "' class='btn btn-info btn-sm margin-r-10'>订单详情</a></td>";
+			tr += "<td><a href='"+ctx+"/orderException/getDetails-2/" + oe.flowId + "' class='undeline'>"+oe.exceptionOrderId+"</a></td>";
 			tr += "<td>" + oe.orderCreateTime + "</td>";
 			tr += "<td>" + oe.custName + "</td>";
 			tr += "<td>" + oe.orderStatusName + "</td>";
