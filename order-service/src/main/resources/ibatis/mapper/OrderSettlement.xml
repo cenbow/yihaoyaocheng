@@ -307,6 +307,7 @@
 		<if test="area !=null and area != '' and area !='-1'">
 			AND ue.district = #{area}
 		</if>
+		ORDER BY s.order_settlement_id DESC
 	</select>
 	<select id="listPaginationByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper">
 		SELECT

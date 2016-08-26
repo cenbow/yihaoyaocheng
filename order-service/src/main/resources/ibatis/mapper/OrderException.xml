@@ -591,6 +591,7 @@
 		<if test="area !=null and area != '' and area !='-1'">
 			AND ue.district = #{area}
 		</if>
+		ORDER  BY  e.exception_id DESC
 	</select>
 
 	<select id="findSellerExceptionOrderTotal" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal">

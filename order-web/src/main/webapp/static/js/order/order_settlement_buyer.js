@@ -144,7 +144,7 @@ function fillTableJson(data) {
 			tr += "<td>" + orderSettlemnt.supplyName + "</td>";
 			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
 			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
-			tr += "<td>-" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
+			tr += "<td>" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
 			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
