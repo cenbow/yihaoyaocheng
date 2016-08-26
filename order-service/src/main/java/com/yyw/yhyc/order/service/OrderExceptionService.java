@@ -575,12 +575,14 @@ public class OrderExceptionService {
 			order=orderMapper.getOrderbyFlowId(oe.getFlowId());
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
 			order.setUpdateTime(now);
+			order.setReceiveTime(now);
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
 		}else{
 			order=orderMapper.getOrderbyFlowId(oe.getFlowId());
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
 			order.setUpdateTime(now);
+			order.setReceiveTime(now);
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
 		}
