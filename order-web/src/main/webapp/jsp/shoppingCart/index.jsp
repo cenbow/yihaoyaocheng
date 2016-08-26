@@ -137,7 +137,8 @@
                                             </div>
                                         </li>
                                         <li class="fl td-sum">
-                                            ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice * shoppingCartDto.productCount}" minFractionDigits="2"/></span>
+                                            <input type="hidden" name="productSettlementPrice" value="${shoppingCartDto.productSettlementPrice}">
+                                            ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="2"/></span>
                                         </li>
                                         <li class="fl td-op"><a href="javascript:deleteShoppingCart(${shoppingCartDto.shoppingCartId});" class="btn-delete">删除</a></li>
                                     </ul>
@@ -177,6 +178,7 @@
             <div class="total-price">
                 商品总额： <em>¥</em>
                 <span>0.00</span>
+                <%--<input type="hidden" id="productAllPrice">--%>
             </div>
             <div class="total-item">
                 品种总计：
