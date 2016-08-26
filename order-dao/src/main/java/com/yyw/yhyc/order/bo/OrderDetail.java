@@ -124,6 +124,12 @@ public class OrderDetail extends Model{
 	  */
 	private java.lang.String updateTime;
 
+
+	/* 通用名 (二期)*/
+	private java.lang.String shortName;
+
+
+
 	/**
 	  *	
 	  */
@@ -459,7 +465,15 @@ public class OrderDetail extends Model{
 	{
 		this.updateTime = updateTime;
 	}
-	
+
+	public String getShortName() {
+		return shortName;
+	}
+
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
+
 	public String toString()
 	{
 		return "OrderDetail [" + 
@@ -483,7 +497,8 @@ public class OrderDetail extends Model{
 					", createUser=" + createUser + 
 					", createTime=" + createTime + 
 					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime + 
+					", updateTime=" + updateTime +
+					", shortName=" + shortName +
 				"]";
 	}
 }

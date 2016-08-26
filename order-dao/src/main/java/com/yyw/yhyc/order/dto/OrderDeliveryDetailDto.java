@@ -8,7 +8,7 @@ import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
 
     private String productCode;    //商品编码
-    private String productName;    //商品名称
+    private String productName;    //商品名
     private String brandName;      //品名
     private String formOfDrug;     //剂型
     private String specification; //商品规格
@@ -19,6 +19,7 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private  String returnType;      //退换货类型  1:退货\r\n            2:换货\r\n            3:补货 4 拒收‘,
     private String returnDesc;   //退换货说明
     private String userType;     //1、采购商2、供应商
+    private String shortName;   //通用名
 
     public String getReturnType() {
         return returnType;
@@ -114,5 +115,13 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }
