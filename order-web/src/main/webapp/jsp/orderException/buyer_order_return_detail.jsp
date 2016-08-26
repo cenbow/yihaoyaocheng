@@ -116,7 +116,9 @@
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">退款时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderSettlement.settlementTime}</div>
+                            <div class="col-xs-3 control-label text-left">
+                                ${(orderExceptionDto.orderSettlement.refunSettlementMoney != null&&orderExceptionDto.orderSettlement.refunSettlementMoney!="")?orderExceptionDto.orderSettlement.settlementTime:"" }
+                            </div>
                             <label for="scope" class="col-xs-2 control-label">
                                 取消退货时间：
 
