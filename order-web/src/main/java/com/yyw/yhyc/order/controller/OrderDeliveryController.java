@@ -158,8 +158,12 @@ public class OrderDeliveryController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/getReceiveAddressList", method = RequestMethod.GET)
 	@ResponseBody
-	public List<UsermanageReceiverAddress> getReceiveAddressList(){
+	public List<UsermanageReceiverAddress> getReceiveAddressList() throws Exception{
 		UserDto user = super.getLoginUser();
+		if(UtilHelper.isEmpty(user)){
+			String url = "/passport-web/jsp/login/sso_login.jsp";
+			response.sendRedirect(url);
+		}
 		return orderDeliveryService.getReceiveAddressList(user);
 	}
 
