@@ -86,9 +86,9 @@ function bindAreaData(prov,city,area){
     $("#"+prov).change(function () {
         var cityStr = '<option value="">城市</option>';
         var _prov = $(this).children('option:selected').val();
+        $("#"+area).html('<option value="">区/县</option>');
         if(_prov == ''){
             $("#"+city).html(cityStr);
-            $("#"+area).html('<option value="">区/县</option>');
             return;
         }
         var cityList = getCity(_prov);
