@@ -132,7 +132,7 @@ function fillSaleReturnTable(data) {
             tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
             tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
             tr += "<td>" + orderDeliveryDetail.productName + "</td>";
-            tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+            tr += "<td>" + (orderDeliveryDetail.shortName==null?"":orderDeliveryDetail.shortName) + "</td>";
             tr += "<td>" + orderDeliveryDetail.specification + "</td>";
             tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
             tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
