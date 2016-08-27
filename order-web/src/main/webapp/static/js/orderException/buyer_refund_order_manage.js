@@ -292,8 +292,13 @@ function sendDelivery(exceptionId) {
 }
 
 function totab(tab){
-    var ownw= $("*[name='ownw']");
-    $("#ownw"+tab).get(0).checked = "checked"
+    $("#ownw"+tab).prop("checked","checked");
+    $("#one"+tab).addClass(" in active")
+    if(tab==1){
+        $("#one"+2).removeClass(" in active")
+    }else{
+        $("#one"+1).removeClass(" in active")
+    }
 }
 
 /**
