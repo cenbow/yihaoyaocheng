@@ -1727,11 +1727,35 @@
 		AND T1.FLOW_ID=#{flowId}
 	</select>
 
-	<select id="listNodelivery" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
+	<select id="listNodeliveryForReturn" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_exception WHERE
-		seller_receive_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
+		buyer_deliver_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
+		<if test="returnType!= null and returnType!= ''">
+			AND return_type=#{returnType}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND order_status=#{orderStatus}
+		</if>
+	</select>
+	<select id="listNodeliveryForReplenishment" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE
+		deliver_time <![CDATA[<]]> date_add(sysdate(), interval -21 day)
+		<if test="returnType!= null and returnType!= ''">
+			AND return_type=#{returnType}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND order_status=#{orderStatus}
+		</if>
+	</select>
+	<select id="listNodeliveryForChange" parameterType="OrderException" resultMap="OrderExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE
+		deliver_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
 		<if test="returnType!= null and returnType!= ''">
 			AND return_type=#{returnType}
 		</if>

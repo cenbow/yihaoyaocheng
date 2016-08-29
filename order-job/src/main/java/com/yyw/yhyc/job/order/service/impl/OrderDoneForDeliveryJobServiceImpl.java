@@ -1,5 +1,6 @@
 package com.yyw.yhyc.job.order.service.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.gangling.scheduler.AbstractJob;
 import com.gangling.scheduler.ExecResult;
 import com.gangling.scheduler.JobExecContext;
@@ -19,7 +20,8 @@ public class OrderDoneForDeliveryJobServiceImpl extends AbstractJob implements O
 
     @Autowired
     private OrderService orderService;
-
+    @Reference(timeout = 50000)
+    private CreditDubboServiceInterface creditDubboService;
     /**
      * 系统自动确认收货
      * 订单发货后7个自然日后系统自动确认收货
@@ -27,7 +29,7 @@ public class OrderDoneForDeliveryJobServiceImpl extends AbstractJob implements O
     @Override
     protected ExecResult doTask(JobExecContext jobExecContext) {
         try {
-            orderService.updateDoneOrderForDelivery();
+            orderService.updateDoneOrderForDelivery(creditDubboService);
             return new ExecResult(0, "succeed!");
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);
