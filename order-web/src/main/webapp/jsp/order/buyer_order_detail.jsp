@@ -91,7 +91,6 @@
                 </c:if>
                 <c:if test="${orderDetailsDto.orderStatus==8||orderDetailsDto.orderStatus==13||orderDetailsDto.orderStatus==11||orderDetailsDto.orderStatus==14}">
                     <div class="row progress_bar">
-                        if
                         <div class="col-xs-3 cur"><span>1</span></div>
                         <div class="col-xs-3 cur"><span>2</span></div>
                         <div class="col-xs-3 cur"><span>3</span></div>
