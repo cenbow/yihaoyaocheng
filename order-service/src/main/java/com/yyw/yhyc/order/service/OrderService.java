@@ -1448,7 +1448,7 @@ public class OrderService {
             orderExceptionMapper.update(o);
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
 			//调用资信接口
-			allSendCredit(creditDubboService,systemPayType,orderException);
+			SendReundCredit(creditDubboService,systemPayType,orderException);
         }
 
 		//补货异常订单自动确认
@@ -1481,9 +1481,9 @@ public class OrderService {
 	}
 
 	/*
-	* 通知资信接口
+	* 退货通知资信接口
 	 */
-	public boolean allSendCredit(CreditDubboServiceInterface creditDubboService,
+	public boolean SendReundCredit(CreditDubboServiceInterface creditDubboService,
 								 SystemPayType systemPayType,OrderException orderException) {
 
 		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
