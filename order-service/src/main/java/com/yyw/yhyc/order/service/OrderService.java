@@ -63,7 +63,7 @@ public class OrderService {
     private OrderDeliveryDetailService orderDeliveryDetailService;
 
     @Autowired
-    private OrderExceptionService OrderExceptionService;
+    private OrderExceptionService orderExceptionService;
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
@@ -1420,29 +1420,55 @@ public class OrderService {
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
 	 */
-	public void updateDoneOrderForDelivery() throws Exception{
+	public void updateDoneOrderForDelivery(CreditDubboServiceInterface creditDubboService) throws Exception{
 		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
-			//根据订单来源进行自动分账 二期对接
+			//根据订单来源进行自动分账 三期 对接
 			if(true){//分账成功
 				cal.add(od.getOrderId());
 			}
             //如为账期订单则生成结算信息
             orderDeliveryDetailService.saveOrderSettlement(od);
 		}
-        //退货异常订单生成结算信息
+        //退货异常订单自动确认
         OrderException orderException=new OrderException();
         orderException.setReturnType("1");
         orderException.setOrderStatus("5");
-        List<OrderException> le=orderExceptionMapper.listNodelivery(orderException);
+        List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
         for(OrderException o:le){
             //异常订单收货
             o.setOrderStatus("7");
             o.setSellerReceiveTime(systemDateMapper.getSystemDate());
             orderExceptionMapper.update(o);
-            OrderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
+			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
+			//调用资信接口
         }
+
+		//补货异常订单自动确认
+		OrderException orderException1=new OrderException();
+		orderException1.setReturnType("3");
+		orderException1.setOrderStatus("4");
+		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
+		for(OrderException o:le1){
+			//异常订单收货
+			o.setOrderStatus("6");
+			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
+			orderExceptionMapper.update(o);
+		}
+
+		//换货异常订单自动确认
+		OrderException orderException2=new OrderException();
+		orderException2.setReturnType("2");
+		orderException2.setOrderStatus("7");
+		List<OrderException> le2=orderExceptionMapper.listNodeliveryForChange(orderException2);
+		for(OrderException o:le2){
+			//异常订单收货
+			o.setOrderStatus("8");
+			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
+			orderExceptionMapper.update(o);
+		}
+
 		if(UtilHelper.isEmpty(cal)) return;
 		//确认收货
 		orderMapper.doneOrderForDelivery(cal);
