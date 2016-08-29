@@ -25,6 +25,7 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.*;
+import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
@@ -278,6 +279,7 @@ public class OrderController extends BaseJsonController {
 			if(UtilHelper.isEmpty(orderId) || "null".equalsIgnoreCase(orderId)) continue;
 			orderDto = new OrderDto();
 			Order order = orderService.getByPK(Integer.valueOf(orderId));
+			if(UtilHelper.isEmpty(order)) continue;
 			orderDto.setOrderId(order.getOrderId());
 			orderDto.setCustId(order.getCustId());
 			orderDto.setSupplyId(order.getSupplyId());
@@ -289,7 +291,7 @@ public class OrderController extends BaseJsonController {
 			orderDto.setPayTypeId(order.getPayTypeId());
 			orderDto.setPayTypeName(SystemPayTypeEnum.getPayTypeName(order.getPayTypeId()));
 			orderDtoList.add(orderDto);
-			if(SystemPayTypeEnum.PayOnline.getPayType().equals(order.getPayTypeId())){
+			if(OnlinePayTypeEnum.getPayName(order.getPayTypeId())  != null ){
 				onLinePayOrderPriceCount = onLinePayOrderPriceCount.add(order.getSettlementMoney());
 			}
 		}

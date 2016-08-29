@@ -62,12 +62,13 @@ public class RandomUtil {
         for(int i =0;i<(length-strLength);i++){
             sb.append("0");
         }
-        roundNum = roundNum+1;
+        roundNum = (Integer.parseInt(roundNum)+1)+"";
         roundNum= sb.toString()+roundNum;
         return roundNum;
     }
 
     public static void main(String[] args) {
-        System.out.print(createRoundNum(26,10));
+        System.out.println(createRoundNum(26,2));
+        System.out.println(createRoundNum(27,2));
     }
 }
