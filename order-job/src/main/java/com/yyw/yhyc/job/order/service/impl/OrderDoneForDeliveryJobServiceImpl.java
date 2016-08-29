@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.gangling.scheduler.AbstractJob;
 import com.gangling.scheduler.ExecResult;
 import com.gangling.scheduler.JobExecContext;
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService;
 import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
