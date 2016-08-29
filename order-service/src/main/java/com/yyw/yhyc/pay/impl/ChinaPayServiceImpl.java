@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.util.*;
 
 
-@Service("chinaPayService")
+@Service("chinalPayB2cService")
 public class ChinaPayServiceImpl implements PayService {
 
     @Override
-    public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, String Action) {
+    public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, int Action) {
         return null;
     }
 }

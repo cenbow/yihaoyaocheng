@@ -10,6 +10,6 @@ public interface PayService {
     /**
      * Action 1 确认收货 2 取消订单
      */
-    public Map<String,Object> postToBankForDoneOrder(Map<String,Object> orderInfo,String Action);
+    public Map<String,Object> postToBankForDoneOrder(Map<String,Object> orderInfo,int Action);
 
 }
