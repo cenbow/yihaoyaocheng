@@ -4,6 +4,7 @@ import com.yyw.yhyc.pay.chinapay.utils.ChinaPayUtil;
 import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
 import com.yyw.yhyc.pay.chinapay.utils.SignUtil;
 import com.yyw.yhyc.pay.chinapay.utils.StringUtil;
+import com.yyw.yhyc.utils.HttpClientUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -40,7 +41,7 @@ public class HttpRequestHandler {
 	 */
 	public static Map<String, String> executePostHttpRequest(Map<String, Object> params, String action) {
 		System.out.println("银联请求参数："+params.toString());
-		HttpClient client = new HttpClient();
+		HttpClient client = HttpClientUtil.getHttpClient();
 		PostMethod post = new PostMethod(action);
 		post.addRequestHeader("User-Agent", "Mozilla/4.0");
 		NameValuePair[] nameValuePair = getRequestParams(params);
