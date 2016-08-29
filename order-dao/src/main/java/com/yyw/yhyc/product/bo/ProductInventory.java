@@ -49,10 +49,6 @@ public class ProductInventory extends Model{
 	  */
 	private Integer frontInventory;
 
-	/**
-	  *	最小拆零包装
-	  */
-	private Integer minimumPacking;
 
 	/**
 	  *	商品供应类型  1 生产厂家 2 供应商
@@ -189,22 +185,7 @@ public class ProductInventory extends Model{
 	{
 		this.frontInventory = frontInventory;
 	}
-	
-	/**
-	  *	最小拆零包装
-	  */
-	public Integer getMinimumPacking()
-	{
-		return minimumPacking;
-	}
-	
-	/**
-	  *	最小拆零包装
-	  */
-	public void setMinimumPacking(Integer minimumPacking)
-	{
-		this.minimumPacking = minimumPacking;
-	}
+
 	
 	/**
 	  *	商品供应类型  1 生产厂家 2 供应商
@@ -342,8 +323,7 @@ public class ProductInventory extends Model{
 					", currentInventory=" + currentInventory + 
 					", warningInventory=" + warningInventory + 
 					", blockedInventory=" + blockedInventory + 
-					", frontInventory=" + frontInventory + 
-					", minimumPacking=" + minimumPacking + 
+					", frontInventory=" + frontInventory +
 					", supplyType=" + supplyType + 
 					", supplyId=" + supplyId + 
 					", supplyName=" + supplyName + 

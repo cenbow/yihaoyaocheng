@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<!-- 
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
  **
  * Created By: XI
- * Created On: 2016-8-29 11:23:12
+ * Created On: 2016-8-29 11:46:32
  *
  * Amendment History:
- * 
+ *
  * Amended By       Amended On      Amendment Description
  * ************     ***********     *********************************************
  *
@@ -13,9 +13,9 @@
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yyw.yhyc.product.mapper.ProductInventoryMapper">
-    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
-           flushInterval="86400000" size="1024000">
-    </cache>
+	<cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+		   flushInterval="86400000" size="1024000">
+	</cache>
 	<resultMap id="ProductInventoryResultMapper" type="ProductInventory">
 		<result column="id" property="id"/>
 		<result column="spu_code" property="spuCode"/>
@@ -23,7 +23,6 @@
 		<result column="warning_inventory" property="warningInventory"/>
 		<result column="blocked_inventory" property="blockedInventory"/>
 		<result column="front_inventory" property="frontInventory"/>
-		<result column="minimum_packing" property="minimumPacking"/>
 		<result column="supply_type" property="supplyType"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="supply_name" property="supplyName"/>
@@ -33,15 +32,14 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="remark" property="remark"/>
 	</resultMap>
-	
+
 	<sql id="commonColumns">
-		 id
+		id
 		, spu_code
 		, current_inventory
 		, warning_inventory
 		, blocked_inventory
 		, front_inventory
-		, minimum_packing
 		, supply_type
 		, supply_id
 		, supply_name
@@ -52,31 +50,29 @@
 		, remark
 	</sql>
 
-    <sql id="commonColumnsNotPK">
-				 spu_code
-				, current_inventory
-				, warning_inventory
-				, blocked_inventory
-				, front_inventory
-				, minimum_packing
-				, supply_type
-				, supply_id
-				, supply_name
-				, create_user
-				, create_time
-				, update_user
-				, update_time
-				, remark
-    </sql>
-	
+	<sql id="commonColumnsNotPK">
+		spu_code
+		, current_inventory
+		, warning_inventory
+		, blocked_inventory
+		, front_inventory
+		, supply_type
+		, supply_id
+		, supply_name
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, remark
+	</sql>
+
 	<sql id="commonProcessDateColumns">
-		 id
+		id
 		, spu_code
 		, current_inventory
 		, warning_inventory
 		, blocked_inventory
 		, front_inventory
-		, minimum_packing
 		, supply_type
 		, supply_id
 		, supply_name
@@ -86,66 +82,62 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, remark
 	</sql>
-	
+
 	<sql id="commonCondition">
-		<if test="id!= null and id!= ''"> 
+		<if test="id!= null and id!= ''">
 			AND id=#{id}
 		</if>
-		<if test="spuCode!= null and spuCode!= ''"> 
+		<if test="spuCode!= null and spuCode!= ''">
 			AND spu_code=#{spuCode}
 		</if>
-		<if test="currentInventory!= null and currentInventory!= ''"> 
+		<if test="currentInventory!= null and currentInventory!= ''">
 			AND current_inventory=#{currentInventory}
 		</if>
-		<if test="warningInventory!= null and warningInventory!= ''"> 
+		<if test="warningInventory!= null and warningInventory!= ''">
 			AND warning_inventory=#{warningInventory}
 		</if>
-		<if test="blockedInventory!= null and blockedInventory!= ''"> 
+		<if test="blockedInventory!= null and blockedInventory!= ''">
 			AND blocked_inventory=#{blockedInventory}
 		</if>
-		<if test="frontInventory!= null and frontInventory!= ''"> 
+		<if test="frontInventory!= null and frontInventory!= ''">
 			AND front_inventory=#{frontInventory}
 		</if>
-		<if test="minimumPacking!= null and minimumPacking!= ''"> 
-			AND minimum_packing=#{minimumPacking}
-		</if>
-		<if test="supplyType!= null and supplyType!= ''"> 
+		<if test="supplyType!= null and supplyType!= ''">
 			AND supply_type=#{supplyType}
 		</if>
-		<if test="supplyId!= null and supplyId!= ''"> 
+		<if test="supplyId!= null and supplyId!= ''">
 			AND supply_id=#{supplyId}
 		</if>
-		<if test="supplyName!= null and supplyName!= ''"> 
+		<if test="supplyName!= null and supplyName!= ''">
 			AND supply_name=#{supplyName}
 		</if>
-		<if test="createUser!= null and createUser!= ''"> 
+		<if test="createUser!= null and createUser!= ''">
 			AND create_user=#{createUser}
 		</if>
-		<if test="createTime!= null and createTime!= ''"> 
+		<if test="createTime!= null and createTime!= ''">
 			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="updateUser!= null and updateUser!= ''"> 
+		<if test="updateUser!= null and updateUser!= ''">
 			AND update_user=#{updateUser}
 		</if>
-		<if test="updateTime!= null and updateTime!= ''"> 
+		<if test="updateTime!= null and updateTime!= ''">
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="remark!= null and remark!= ''"> 
+		<if test="remark!= null and remark!= ''">
 			AND remark=#{remark}
 		</if>
 	</sql>
-	
+
 	<insert id="save" parameterType="ProductInventory">
 		<![CDATA[ INSERT INTO t_product_inventory ( ]]>
-			<include refid="commonColumnsNotPK"/>
+		<include refid="commonColumnsNotPK"/>
 		<![CDATA[
-			) VALUES ( 
+			) VALUES (
 				 #{spuCode}
 				, #{currentInventory}
 				, #{warningInventory}
 				, #{blockedInventory}
 				, #{frontInventory}
-				, #{minimumPacking}
 				, #{supplyType}
 				, #{supplyId}
 				, #{supplyName}
@@ -157,22 +149,21 @@
   ) ]]>
 	</insert>
 	<update id="update" parameterType="ProductInventory">
-		<![CDATA[ UPDATE t_product_inventory SET 
-			 id=#{id} 
-			, spu_code=#{spuCode} 
-			, current_inventory=#{currentInventory} 
-			, warning_inventory=#{warningInventory} 
-			, blocked_inventory=#{blockedInventory} 
-			, front_inventory=#{frontInventory} 
-			, minimum_packing=#{minimumPacking} 
-			, supply_type=#{supplyType} 
-			, supply_id=#{supplyId} 
-			, supply_name=#{supplyName} 
-			, create_user=#{createUser} 
+		<![CDATA[ UPDATE t_product_inventory SET
+			 id=#{id}
+			, spu_code=#{spuCode}
+			, current_inventory=#{currentInventory}
+			, warning_inventory=#{warningInventory}
+			, blocked_inventory=#{blockedInventory}
+			, front_inventory=#{frontInventory}
+			, supply_type=#{supplyType}
+			, supply_id=#{supplyId}
+			, supply_name=#{supplyName}
+			, create_user=#{createUser}
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-			, update_user=#{updateUser} 
+			, update_user=#{updateUser}
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
-			, remark=#{remark} 
+			, remark=#{remark}
 		WHERE id = #{id}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -181,7 +172,7 @@
 	<delete id="deleteByPKeys" parameterType="map">
 		DELETE FROM t_product_inventory WHERE
 		<foreach collection="primaryKeys" index="index" item="id"
-			open=" id IN(" separator="," close=") ">
+				 open=" id IN(" separator="," close=") ">
 			${id}
 		</foreach>
 	</delete>
@@ -191,28 +182,28 @@
 	</delete>
 	<select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductInventoryResultMapper">
 		<![CDATA[ SELECT ]]>
-			 <include refid="commonProcessDateColumns"/>
-		FROM t_product_inventory WHERE id = #{id}  
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory WHERE id = #{id}
 	</select>
 	<select id="list" resultMap="ProductInventoryResultMapper">
 		<![CDATA[ SELECT ]]>
-			 <include refid="commonProcessDateColumns"/>
- 		FROM t_product_inventory
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory
 	</select>
 	<select id="listByProperty" parameterType="ProductInventory" resultMap="ProductInventoryResultMapper">
 		<![CDATA[ SELECT ]]>
-			<include refid="commonProcessDateColumns"/>
-		FROM t_product_inventory WHERE 1=1 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="listPaginationByProperty" parameterType="ProductInventory" resultMap="ProductInventoryResultMapper">
-		SELECT 
+		SELECT
 		<include refid="commonProcessDateColumns"/>
-		FROM t_product_inventory WHERE 1=1 
+		FROM t_product_inventory WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="findByCount" parameterType="ProductInventory" resultType="int">
-		SELECT count(1) AS totalcount FROM t_product_inventory WHERE 1=1 
+		SELECT count(1) AS totalcount FROM t_product_inventory WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 </mapper>
