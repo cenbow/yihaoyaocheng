@@ -329,7 +329,7 @@ public class OrderController extends BaseJsonController {
 	}
 
 	/**
-	 *
+	 * 可以用账期支付的(商品)拆单逻辑
 	 * @param allShoppingCart
 	 * @param periodParamsList
 	 * @return
@@ -348,12 +348,10 @@ public class OrderController extends BaseJsonController {
 		List<ShoppingCartListDto> resultShoppingCartList = new ArrayList<ShoppingCartListDto>();
 
 		/* 账期商品-组装信息 */
-//		List<ShoppingCartListDto> periodTermShoppingCartList = new ArrayList<ShoppingCartListDto>();
 		List<ShoppingCartDto> shoppingCartDtoListPeriodTerm = null;
 		ShoppingCartListDto shoppingCartListDtoPeriodTerm = null;
 
 		/* 非账期商品-组装信息 */
-//		List<ShoppingCartListDto> normalShoppingCartList = new ArrayList<ShoppingCartListDto>();
 		List<ShoppingCartDto> shoppingCartDtoList = null;
 		ShoppingCartListDto shoppingCartListDto = null;
 
@@ -361,10 +359,6 @@ public class OrderController extends BaseJsonController {
 			if(UtilHelper.isEmpty(s) || UtilHelper.isEmpty(s.getBuyer())  || UtilHelper.isEmpty(s.getSeller())|| UtilHelper.isEmpty(s.getShoppingCartDtoList()) ){
 				continue;
 			}
-			/* 如果账期商品的总额为0，则不再进行拆单。进行下一个供应商数据的处理 */
-//			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
-//				continue;
-//			}
 
 			logger.info("检查订单页-查询是否可用资信结算接口，creditDubboService=" + creditDubboService);
 			if(UtilHelper.isEmpty(creditDubboService)){
