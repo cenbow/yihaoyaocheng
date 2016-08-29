@@ -304,7 +304,7 @@ public class OrderExceptionController extends BaseJsonController{
 				creditParams.setOrderTotal(order.getOrderTotal());//订单金额
 			creditParams.setFlowId(oe.getFlowId());//订单编码
 			creditParams.setStatus("2");
-			creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
+			creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
 				// TODO: 2016/8/25 暂时注释 不抛出异常
@@ -663,7 +663,7 @@ public class OrderExceptionController extends BaseJsonController{
 					SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
 						CreditParams creditParams = new CreditParams();
-						creditParams.setSourceFlowId(oe.getFlowId());//源订单单号
+						//creditParams.setSourceFlowId(oe.getFlowId());源订单单号
 						creditParams.setBuyerCode(oe.getCustId() + "");
 						creditParams.setSellerCode(oe.getSupplyId() + "");
 						creditParams.setBuyerName(oe.getCustName());
@@ -671,7 +671,7 @@ public class OrderExceptionController extends BaseJsonController{
 						creditParams.setOrderTotal(order.getOrgTotal());//订单金额
 						creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
 						creditParams.setStatus("2");
-						creditParams.setReceiveTime(DateHelper.parseDate(oe.getReceiveTime()));
+						creditParams.setReceiveTime(DateHelper.parseTime(oe.getReceiveTime()));
 						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 						if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 							throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
@@ -727,15 +727,15 @@ public class OrderExceptionController extends BaseJsonController{
 						SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 						if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
 							CreditParams creditParams = new CreditParams();
-							creditParams.setSourceFlowId(oe.getFlowId());//源订单单号
+							//creditParams.setSourceFlowId(oe.getFlowId());//源订单单号
 							creditParams.setBuyerCode(oe.getCustId() + "");
 							creditParams.setSellerCode(oe.getSupplyId() + "");
 							creditParams.setBuyerName(oe.getCustName());
 							creditParams.setSellerName(oe.getSupplyName());
 							creditParams.setOrderTotal(order.getOrgTotal());//订单金额
-							creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+							creditParams.setFlowId(oe.getFlowId());//订单编码
 							creditParams.setStatus("2");
-							creditParams.setReceiveTime(DateHelper.parseDate(order.getReceiveTime()));
+							creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 							CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 							if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 								logger.error("接口调用失败！");
