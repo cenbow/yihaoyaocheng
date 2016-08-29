@@ -1144,7 +1144,7 @@ public class OrderExceptionService {
 		if(SystemRefundOrderStatusEnum.BuyerDelivered.getType().equals(systemStatus))
 			return BuyerRefundOrderStatusEnum.WaitingSellerReceived;
 		if(SystemRefundOrderStatusEnum.SellerReceived.getType().equals(systemStatus)||SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(systemStatus)){
-			if(payType == SystemPayTypeEnum.PayOffline.getPayType() || payType == SystemPayTypeEnum.PayOnline.getPayType())
+			if(payType == SystemPayTypeEnum.PayOffline.getPayType() || OnlinePayTypeEnum.getPayName(payType) != null)
 				return BuyerRefundOrderStatusEnum.refunding;
 			if(payType == SystemPayTypeEnum.PayPeriodTerm.getPayType())
 				return BuyerRefundOrderStatusEnum.Finished;
@@ -1172,7 +1172,7 @@ public class OrderExceptionService {
 		if(SystemRefundOrderStatusEnum.BuyerDelivered.getType().equals(systemStatus))
 			return SellerRefundOrderStatusEnum.WaitingSellerReceived;
 		if(SystemRefundOrderStatusEnum.SellerReceived.getType().equals(systemStatus)||SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(systemStatus)){
-			if(payType == SystemPayTypeEnum.PayOffline.getPayType() || payType == SystemPayTypeEnum.PayOnline.getPayType())
+			if(payType == SystemPayTypeEnum.PayOffline.getPayType() || OnlinePayTypeEnum.getPayName(payType) != null)
 				return SellerRefundOrderStatusEnum.refunding;
 			if(payType == SystemPayTypeEnum.PayPeriodTerm.getPayType())
 				return SellerRefundOrderStatusEnum.Finished;

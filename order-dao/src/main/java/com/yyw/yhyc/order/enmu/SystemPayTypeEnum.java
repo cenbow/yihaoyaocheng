@@ -8,7 +8,7 @@ public enum  SystemPayTypeEnum {
 
     PayOnline(1,"在线支付"),
     PayPeriodTerm(2,"账期支付"),
-    PayOffline(3,"线下支付"), ;
+    PayOffline(3,"线下支付");
 
     /* 支付方式 */
     private Integer payType;

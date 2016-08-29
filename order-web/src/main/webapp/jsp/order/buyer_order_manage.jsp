@@ -160,14 +160,14 @@
                         <div class="form-horizontal">
                             <div class="form-group">
                                 <label for="scope" class="col-xs-3 control-label">请选择对剩余商品的处理并确认，默认做为拒收处理：</label>
-                                <div class="col-xs-8">
+                                <div class="col-xs-8" style="padding-top: 2%;">
                                     <input type='hidden' name='list.returnType' id="returnType" >
-                                    <input type="radio" name="ownw" value="4">拒收
+                                    <input type="radio" checked="checked" name="ownw" value="4">拒收
                                     <input type="radio" name="ownw" value="3">补货
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="cancelResult" class="col-xs-3 control-label">拒收/补货说明：:</label>
+                                <label for="cancelResult" class="col-xs-3 control-label">拒收/补货说明:</label>
                                 <div class="col-xs-5 control-label text-left">
                                     <textarea type="text" class="form-control" id="returnDesc" name="list.returnDesc"
                                       placeholder="" maxlength="200"></textarea>

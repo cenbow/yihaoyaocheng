@@ -621,13 +621,13 @@ public class OrderService {
 		if(UtilHelper.isEmpty(userDto)) return;
 		if(UtilHelper.isEmpty(payFlowId)) return;
 		OrderPay orderPay = new OrderPay();
-		orderPay.setOrderId(order.getOrderId());
-		orderPay.setFlowId(order.getFlowId());
-		orderPay.setPayFlowId(payFlowId);
-		orderPay.setPayTypeId(order.getPayTypeId());
+		orderPay.setOrderId(order.getOrderId());//订单id
+		orderPay.setFlowId(order.getFlowId());//订单编号
+		orderPay.setPayFlowId(payFlowId);//支付流水号
 		orderPay.setCreateTime(systemDateMapper.getSystemDate());
-		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
+		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
 		orderPay.setCreateUser(userDto.getUserName());
+		orderPay.setOrderMoney(order.getOrderTotal());//订单金额
 		orderPayMapper.save(orderPay);
 	}
 
@@ -689,7 +689,7 @@ public class OrderService {
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
 			order.setPaymentTerm(0);
 		/* 在线支付 */
-		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(  systemPayType.getPayType() )){
+		}else if(OnlinePayTypeEnum.getPayName(systemPayType.getPayType()) != null){
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
 			order.setPaymentTerm(0);
 		/* 账期支付 */
