@@ -10,4 +10,8 @@ import java.util.*;
 @Service("chinaPayService")
 public class ChinaPayServiceImpl implements PayService {
 
+    @Override
+    public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, String Action) {
+        return null;
+    }
 }
