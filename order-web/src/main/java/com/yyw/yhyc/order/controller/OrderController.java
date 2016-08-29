@@ -31,6 +31,8 @@ import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -327,7 +329,7 @@ public class OrderController extends BaseJsonController {
 	}
 
 	/**
-	 *
+	 * 可以用账期支付的(商品)拆单逻辑
 	 * @param allShoppingCart
 	 * @param periodParamsList
 	 * @return
@@ -346,12 +348,10 @@ public class OrderController extends BaseJsonController {
 		List<ShoppingCartListDto> resultShoppingCartList = new ArrayList<ShoppingCartListDto>();
 
 		/* 账期商品-组装信息 */
-//		List<ShoppingCartListDto> periodTermShoppingCartList = new ArrayList<ShoppingCartListDto>();
 		List<ShoppingCartDto> shoppingCartDtoListPeriodTerm = null;
 		ShoppingCartListDto shoppingCartListDtoPeriodTerm = null;
 
 		/* 非账期商品-组装信息 */
-//		List<ShoppingCartListDto> normalShoppingCartList = new ArrayList<ShoppingCartListDto>();
 		List<ShoppingCartDto> shoppingCartDtoList = null;
 		ShoppingCartListDto shoppingCartListDto = null;
 
@@ -359,10 +359,6 @@ public class OrderController extends BaseJsonController {
 			if(UtilHelper.isEmpty(s) || UtilHelper.isEmpty(s.getBuyer())  || UtilHelper.isEmpty(s.getSeller())|| UtilHelper.isEmpty(s.getShoppingCartDtoList()) ){
 				continue;
 			}
-			/* 如果账期商品的总额为0，则不再进行拆单。进行下一个供应商数据的处理 */
-//			if(UtilHelper.isEmpty(s.getPeriodProductPriceCount()) || s.getPeriodProductPriceCount().compareTo(new BigDecimal(0)) <= 0){
-//				continue;
-//			}
 
 			logger.info("检查订单页-查询是否可用资信结算接口，creditDubboService=" + creditDubboService);
 			if(UtilHelper.isEmpty(creditDubboService)){
@@ -381,16 +377,16 @@ public class OrderController extends BaseJsonController {
 			creditParams.setBuyerCode(s.getBuyer().getEnterpriseId() + "");
 			creditParams.setSellerCode(s.getSeller().getEnterpriseId()+ "");
 			creditParams.setOrderTotal(s.getProductPriceCount());
-			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + creditParams);
+			logger.info("检查订单页-查询是否可用资信结算接口，请求参数creditParams=" + JSONObject.fromObject(creditParams));
 			CreditDubboResult creditDubboResult = null;
 			try{
 				creditDubboResult = creditDubboService.queryCreditAvailability(creditParams);
 			}catch (Exception e){
 				logger.error(e.getMessage());
 			}
-			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + creditDubboResult);
+			logger.info("检查订单页-查询是否可用资信结算接口，响应数据creditDubboResult=" + JSONObject.fromObject(creditDubboResult));
 
-			if(UtilHelper.isEmpty(creditDubboResult) || !"1".equals(creditDubboResult.getIsSuccessful()) || s.getAccountAmount() <=0){
+			if(UtilHelper.isEmpty(creditDubboResult) || !"1".equals(creditDubboResult.getIsSuccessful())){
 				/* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
 				logger.error("检查订单页-查询是否可用资信结算接口:资信为空或查询资信失败");
 
@@ -525,7 +521,7 @@ public class OrderController extends BaseJsonController {
 			}
 		}
 
-		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:请求参数paramsList=" + paramsList);
+		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:请求参数paramsList=" + JSONArray.fromObject(paramsList));
 		PeriodDubboResult periodDubboResult=null;
 		try{
 			 periodDubboResult = creditDubboService.queryPeriod(paramsList);
@@ -542,6 +538,7 @@ public class OrderController extends BaseJsonController {
 			}
 			return  paramsList;
 		}
+		logger.info("检查订单页-调用武汉的dubbo接口查询商品账期信息:响应参数periodDubboResult=" + JSONObject.fromObject(periodDubboResult) );
 		return  periodDubboResult.getData();
 	}
 

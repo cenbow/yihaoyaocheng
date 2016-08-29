@@ -446,7 +446,7 @@ function confirmReceipt(){
                 $("#bodyDiv").show();//display="block";
                 return;
             }
-            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+            list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val(),"productCount":$(productCount[i]).val()})
         }
     }else{
         //当补货框出来再次验证收采购与收货量是否相同如果相同则清除处理类型和备注
@@ -465,6 +465,12 @@ function confirmReceipt(){
             if($(recieveCount[i]).val()!=$(productCount[i]).val()){
                 flag=false;
             }
+
+            if($(recieveCount[i]).val()>$(productCount[i]).val()){
+                alertModal("收货数量不能大于采购数量!");
+                return;
+            }
+
         }
         if(!flag){
             if(ownw.val()==null||ownw.val()==""){
@@ -472,11 +478,11 @@ function confirmReceipt(){
                 return;
             }
             for(var i=0;i<recieveCount.length;i++){
-                list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val()})
+                list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val(),"productCount":$(productCount[i]).val()})
             }
         }else{
             for(var i=0;i<recieveCount.length;i++){
-                list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":"","returnDesc":"","recieveCount":$(recieveCount[i]).val()})
+                list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":"","returnDesc":"","recieveCount":$(recieveCount[i]).val(),"productCount":$(productCount[i]).val()})
             }
         }
     }

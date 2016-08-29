@@ -167,7 +167,6 @@ function fillTableJson(data) {
         tr += "</tr>";
         trs += tr;
     }
-    console.info(trs);
     $(".table-box tbody").append(trs);
     changeColor();
 }

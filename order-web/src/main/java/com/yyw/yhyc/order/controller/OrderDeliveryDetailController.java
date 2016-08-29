@@ -16,6 +16,7 @@ import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.JsonHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
@@ -163,6 +164,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 						creditParams.setOrderTotal(od.getOrgTotal());//订单金额  扣减后的
 						creditParams.setFlowId(od.getFlowId());//订单编码
 						creditParams.setStatus("2");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
+						creditParams.setReceiveTime(DateHelper.parseTime(od.getReceiveTime()));
 						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 						if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
 							throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
