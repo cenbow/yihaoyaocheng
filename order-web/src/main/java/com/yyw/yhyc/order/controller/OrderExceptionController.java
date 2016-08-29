@@ -757,7 +757,8 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public String editConfirmReceiptReturn(@RequestBody OrderException orderException) throws Exception{
 		UserDto userDto = super.getLoginUser();
-		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
+
+		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto,creditDubboService);
 		return "{\"msg\":"+msg+"}" ;
 	}
 

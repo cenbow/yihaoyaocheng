@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
@@ -75,6 +76,10 @@ public class OrderExceptionService {
 	public void setOrderDeliveryDetailMapper(OrderDeliveryDetailMapper orderDeliveryDetailMapper) {
 		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
 	}
+	@Autowired
+	private OrderService orderService;
+	@Autowired
+	private SystemPayType systemPayType;
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -1593,7 +1598,7 @@ public class OrderExceptionService {
 	 * @param exceptionOrderId
 	 * @param userDto
 	 */
-	public String editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto) throws Exception{
+	public String editConfirmReceiptReturn(String exceptionOrderId,UserDto userDto,CreditDubboServiceInterface creditDubboService) throws Exception{
 		String msg ="false";
 		OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
 		if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
@@ -1622,6 +1627,18 @@ public class OrderExceptionService {
 			orderTrace.setCreateTime(now);
 			orderTrace.setCreateUser(userDto.getUserName());
 			orderTraceMapper.save(orderTrace);
+
+
+			//调用资信接口
+			SystemPayType  systemPayType = null;
+			Order order = orderMapper.getByPK(orderException.getOrderId());
+			try {
+				systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+			}catch (Exception e){
+				throw new RuntimeException("未找到订单");
+			}
+			orderService.sendReundCredit(creditDubboService,systemPayType,orderException);
+
 			msg = "true";
 			saveReturnOrderSettlement(orderException);
 		}else{
