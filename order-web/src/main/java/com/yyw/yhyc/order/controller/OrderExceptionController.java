@@ -335,42 +335,42 @@ public class OrderExceptionController extends BaseJsonController{
 	public void sellerReviewReturnOrder(@RequestBody OrderException orderException){
 		UserDto userDto = super.getLoginUser();
 		orderExceptionService.modifyReviewReturnOrder(userDto, orderException);
-		OrderException oe;
-		Order order;
-		SystemPayType systemPayType;
-
-		try{
-			oe = orderExceptionService.getByPK(orderException.getExceptionId());
-			order = orderService.getByPK(oe.getOrderId());
-			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
-		}catch (Exception e){
-			throw new RuntimeException("未找到退货订单");
-		}
-		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(systemPayType)){
-			throw new RuntimeException("未找到订单");
-		}
-		if(UtilHelper.isEmpty(oe)){
-			throw new RuntimeException("未找到退货订单");
-		}
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemRefundOrderStatusEnum.SellerConfirmed.getType().equals(orderException.getOrderStatus())){
-			CreditParams creditParams = new CreditParams();
-			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
-			creditParams.setBuyerCode(oe.getCustId() + "");
-			creditParams.setSellerCode(oe.getSupplyId() + "");
-			creditParams.setBuyerName(oe.getCustName());
-			creditParams.setSellerName(oe.getSupplyName());
-//			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
-			creditParams.setOrderTotal(oe.getOrderMoney());//订单金额
-			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
-			creditParams.setStatus("6");
-			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-				// TODO: 2016/8/25 暂时注释 不抛出异常
-				logger.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
-				//throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
-			}
-		}
+//		OrderException oe;
+//		Order order;
+//		SystemPayType systemPayType;
+//
+//		try{
+//			oe = orderExceptionService.getByPK(orderException.getExceptionId());
+//			order = orderService.getByPK(oe.getOrderId());
+//			systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+//		}catch (Exception e){
+//			throw new RuntimeException("未找到退货订单");
+//		}
+//		if(UtilHelper.isEmpty(order)||UtilHelper.isEmpty(systemPayType)){
+//			throw new RuntimeException("未找到订单");
+//		}
+//		if(UtilHelper.isEmpty(oe)){
+//			throw new RuntimeException("未找到退货订单");
+//		}
+//		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
+//				&& SystemRefundOrderStatusEnum.SellerConfirmed.getType().equals(orderException.getOrderStatus())){
+//			CreditParams creditParams = new CreditParams();
+//			creditParams.setSourceFlowId(oe.getFlowId());//退货时，退货单对应的源订单单号
+//			creditParams.setBuyerCode(oe.getCustId() + "");
+//			creditParams.setSellerCode(oe.getSupplyId() + "");
+//			creditParams.setBuyerName(oe.getCustName());
+//			creditParams.setSellerName(oe.getSupplyName());
+////			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
+//			creditParams.setOrderTotal(oe.getOrderMoney());//订单金额
+//			creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+//			creditParams.setStatus("6");
+//			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+//			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+//				// TODO: 2016/8/25 暂时注释 不抛出异常
+//				logger.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
+//				//throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+//			}
+//		}
 	}
 
 	/**
@@ -757,7 +757,8 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public String editConfirmReceiptReturn(@RequestBody OrderException orderException) throws Exception{
 		UserDto userDto = super.getLoginUser();
-		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto);
+
+		String msg = orderExceptionService.editConfirmReceiptReturn(orderException.getExceptionOrderId(), userDto,creditDubboService);
 		return "{\"msg\":"+msg+"}" ;
 	}
 

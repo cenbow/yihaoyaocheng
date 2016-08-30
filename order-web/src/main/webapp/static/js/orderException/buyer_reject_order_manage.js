@@ -114,7 +114,7 @@ function doRefreshData(requestParam) {
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
                     console.info(data);
-                    var nowpage = data.buyerOrderList.page;
+                    var nowpage = data.rejectOrderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.rejectOrderList);
                 }

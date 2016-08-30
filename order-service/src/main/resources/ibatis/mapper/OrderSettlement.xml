@@ -36,6 +36,9 @@
 		<result column="create_time" property="createTime"/>
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="province" property="province"/>
+		<result column="city" property="city"/>
+		<result column="area" property="area"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -58,6 +61,9 @@
 		, create_time
 		, update_user
 		, update_time
+		, province
+		, city
+		, area
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -79,6 +85,9 @@
 				, create_time
 				, update_user
 				, update_time
+				, province
+				, city
+				, area
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -101,6 +110,9 @@
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, province
+		, city
+		, area
 	</sql>
 	
 	<sql id="commonCondition">
@@ -161,6 +173,15 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="province!= null and province!= ''">
+			AND province=#{province}
+		</if>
+		<if test="city!= null and city!= ''">
+			AND city=#{city}
+		</if>
+		<if test="area!= null and area!= ''">
+			AND area=#{area}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderSettlement">
@@ -186,6 +207,9 @@
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, #{updateUser}
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{province}
+				, #{city}
+				, #{area}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderSettlement">
@@ -209,6 +233,9 @@
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_user=#{updateUser} 
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, province = #{province}
+			, city = #{city}
+			, area = #{area}
 		WHERE order_settlement_id = #{orderSettlementId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -263,8 +290,6 @@
 			s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
 			FROM t_order_settlement s
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
-			LEFT JOIN t_passport_user u ON u.id = s.cust_id
-			LEFT JOIN t_usermanage_enterprise ue ON u.enterprise_id = ue.enterprise_id
 		]]>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="custId !=null and custId !=''">
@@ -299,13 +324,13 @@
 			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > s.order_time
 		</if>
 		<if test="province !=null and province != '' and province != '-1' ">
-			AND ue.province = #{province}
+			AND s.province = #{province}
 		</if>
 		<if test="city !=null and city != '' and city != '-1'">
-			AND ue.city = #{city}
+			AND s.city = #{city}
 		</if>
 		<if test="area !=null and area != '' and area !='-1'">
-			AND ue.district = #{area}
+			AND s.district = #{area}
 		</if>
 		ORDER BY s.order_settlement_id DESC
 	</select>

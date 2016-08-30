@@ -120,6 +120,18 @@ public class OrderSettlement extends Model{
      */
 	private java.math.BigDecimal differentMoney;
 	/**
+	 * 省
+     */
+	private java.lang.String province;
+	/**
+	 * 市
+     */
+	private java.lang.String city;
+	/**
+	 * 区域
+     */
+	private java.lang.String area;
+	/**
 	  *	订单ID主键
 	  */
 	public java.lang.Integer getOrderSettlementId() 
@@ -423,6 +435,30 @@ public class OrderSettlement extends Model{
 		this.differentMoney = differentMoney;
 	}
 
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
 	@Override
 	public String toString() {
 		return "OrderSettlement{" +
@@ -444,8 +480,11 @@ public class OrderSettlement extends Model{
 				", createTime='" + createTime + '\'' +
 				", updateUser='" + updateUser + '\'' +
 				", updateTime='" + updateTime + '\'' +
-				", refunSettlementMoney='" + refunSettlementMoney + '\'' +
-				", differentMoney='" + differentMoney + '\'' +
+				", refunSettlementMoney=" + refunSettlementMoney +
+				", differentMoney=" + differentMoney +
+				", province='" + province + '\'' +
+				", city='" + city + '\'' +
+				", area='" + area + '\'' +
 				'}';
 	}
 }
