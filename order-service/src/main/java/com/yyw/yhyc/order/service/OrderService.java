@@ -1436,14 +1436,14 @@ public class OrderService {
 		}
         //退货异常订单自动确认
         OrderException orderException=new OrderException();
-        orderException.setReturnType("1");
-        orderException.setOrderStatus("5");
+        orderException.setReturnType(OrderExceptionTypeEnum.RETURN.getType());
+        orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerDelivered.getType());
         List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
         for(OrderException o:le){
             //异常订单收货
 			Order order = orderMapper.getByPK(o.getOrderId());
 			SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
-            o.setOrderStatus("7");
+            o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
             o.setSellerReceiveTime(systemDateMapper.getSystemDate());
             orderExceptionMapper.update(o);
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
@@ -1453,24 +1453,24 @@ public class OrderService {
 
 		//补货异常订单自动确认
 		OrderException orderException1=new OrderException();
-		orderException1.setReturnType("3");
-		orderException1.setOrderStatus("4");
+		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
+		orderException1.setOrderStatus(SystemReplenishmentOrderStatusEnum.SellerDelivered.getType());
 		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
 		for(OrderException o:le1){
 			//异常订单收货
-			o.setOrderStatus("6");
+			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
 		}
 
 		//换货异常订单自动确认
 		OrderException orderException2=new OrderException();
-		orderException2.setReturnType("2");
-		orderException2.setOrderStatus("7");
+		orderException2.setReturnType(OrderExceptionTypeEnum.CHANGE.getType());
+		orderException2.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingBuyerReceived.getType());
 		List<OrderException> le2=orderExceptionMapper.listNodeliveryForChange(orderException2);
 		for(OrderException o:le2){
 			//异常订单收货
-			o.setOrderStatus("8");
+			o.setOrderStatus(SystemChangeGoodsOrderStatusEnum.AutoFinished.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
 		}
