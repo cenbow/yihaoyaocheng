@@ -19,14 +19,14 @@ flowIds: ${flowIds}
         String pay_url = PayUtil.getValue("pay_url");
 %>
 <form name="payment" action="<%= pay_url %>" method="POST">
-    <%
-        Map<String, Object> sendMap=(Map)request.getAttribute("payRequestParamMap");
-        for(Map.Entry<String, Object> entry:sendMap.entrySet()){
-    %>
-    <input type="hidden" name = '<%=entry.getKey() %>' id="<%=entry.getKey() %>" value ='<%=entry.getValue()%>'/>
-    <%
-        }
-    %>
+    <%--<%--%>
+        <%--Map<String, Object> sendMap=(Map)request.getAttribute("payRequestParamMap");--%>
+        <%--for(Map.Entry<String, Object> entry:sendMap.entrySet()){--%>
+    <%--%>--%>
+    <%--<input type="hidden" name = '<%=entry.getKey() %>' id="<%=entry.getKey() %>" value ='<%=entry.getValue()%>'/>--%>
+    <%--<%--%>
+        <%--}--%>
+    <%--%>--%>
 
 </form>
 <script language=JavaScript>
@@ -34,7 +34,7 @@ flowIds: ${flowIds}
     //        alert("抱歉，该订单中的供应商存在问题，不能进行支付！");
     //        window.close();
     //    }else{
-    document.payment.submit();
+//    document.payment.submit();
     //    }
 </script>
 </body>

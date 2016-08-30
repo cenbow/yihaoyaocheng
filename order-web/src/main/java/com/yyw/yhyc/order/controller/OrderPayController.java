@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.utils.RandomUtil;
+import com.yyw.yhyc.pay.impl.CmbPayServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class OrderPayController extends BaseJsonController {
 
 	@Autowired
 	private SystemDateService systemDateService;
+
+	@Autowired
+	private CmbPayServiceImpl cmbPayService;
 
 	/**
 	* 通过主键查询实体对象
@@ -150,15 +154,15 @@ public class OrderPayController extends BaseJsonController {
 		Map<String,Object> payRequestParamMap = null;
 		ModelAndView modelAndView = new ModelAndView();
 		if(OnlinePayTypeEnum.MerchantBank.getPayType() == payTypeId){
-			//TODO 招商银行支付
+			/* 招商银行支付 */
 			modelAndView.setViewName("orderPay/cmb_pay");
+			payRequestParamMap = cmbPayService.handleDataBeforeSendPayRequest(orderPay);
 		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayType() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayType()== payTypeId){
 			//TODO 银联支付
 			modelAndView.setViewName("orderPay/china_pay");
 		}else{
 			throw new Exception("非法参数");
 		}
-		modelAndView.addObject("flowIds",flowIds);
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
 		return modelAndView;
 	}

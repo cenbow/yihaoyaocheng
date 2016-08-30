@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.order.bo.OrderPay;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -139,5 +140,9 @@ public class OrderCombinedService {
 	public int findByCount(OrderCombined orderCombined) throws Exception
 	{
 		return orderCombinedMapper.findByCount(orderCombined);
+	}
+
+	public OrderCombined findByPayFlowId(String payFlowId){
+		return orderCombinedMapper.findByPayFlowId(payFlowId);
 	}
 }

@@ -15,19 +15,16 @@
     <title>订单支付-提交到招商银行</title>
 </head>
 <body>
-flowIds: ${flowIds}
+招商银行支付测试：
 <br/>
-<%
-//    String pay_url = PayUtil.getValue("pay_url");
-    String pay_url = null;
-%>
-<form name="payment" action="<%= pay_url %>" method="POST">
-    <TEXTAREA id="order" name="order" rows="4" cols="110"> </TEXTAREA>
+
+<form name="payment" action="${payRequestParamMap.CMB_PAY_URL}" method="POST">
+    <TEXTAREA id="order" name="order" rows="4" cols="110">${payRequestParamMap.order}</TEXTAREA>
     <br><BR>签名信息：<BR>
-    <TEXTAREA id="sigdat" name="sigdat" rows="8" cols="110"> </TEXTAREA>
+    <TEXTAREA id="sigdat" name="sigdat" rows="8" cols="110">${payRequestParamMap.sigdat}</TEXTAREA>
     <BR><BR>
     <input type="hidden" name="charset"  value="utf-8">
-
+    <input type="submit" value="立即支付">
 </form>
 
 <script language=JavaScript>
@@ -35,7 +32,7 @@ flowIds: ${flowIds}
 //        alert("抱歉，该订单中的供应商存在问题，不能进行支付！");
 //        window.close();
 //    }else{
-        document.payment.submit();
+//        document.payment.submit();
 //    }
 </script>
 </body>

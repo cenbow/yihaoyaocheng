@@ -215,4 +215,10 @@
 		SELECT count(1) AS totalcount FROM t_order_combined WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+
+	<select id="findByPayFlowId" parameterType="java.lang.String" resultMap="OrderCombinedResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_combined WHERE pay_flow_id = #{payFlowId}
+	</select>
 </mapper>

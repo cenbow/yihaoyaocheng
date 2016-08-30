@@ -10,12 +10,10 @@
  **/
 package com.yyw.yhyc.order.service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -389,6 +387,10 @@ public class OrderPayService {
 		map=HttpRequestHandler.getSubmitFormMap(map);
 		map=HttpRequestHandler.getSignMap(map);
 		return map;
+	}
+
+	public OrderPay getByPayFlowId( String payFlowId){
+		return orderPayMapper.getByPayFlowId(payFlowId);
 	}
 
 }
