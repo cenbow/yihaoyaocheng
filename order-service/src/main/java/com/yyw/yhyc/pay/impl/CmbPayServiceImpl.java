@@ -1,18 +1,15 @@
 package com.yyw.yhyc.pay.impl;
 
-import com.alibaba.druid.support.logging.Log;
-import com.alibaba.druid.support.logging.LogFactory;
+
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.bo.AccountPayInfo;
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.OrderCombined;
-import com.yyw.yhyc.order.bo.OrderPay;
+import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.service.AccountPayInfoService;
 import com.yyw.yhyc.order.service.OrderCombinedService;
-import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.pay.cmbPay.CmbPayUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +24,7 @@ import java.util.Map;
 @Service("cmbPayService")
 public class CmbPayServiceImpl implements PayService{
 
-    private Log log = LogFactory.getLog(CmbPayServiceImpl.class);
-
-    private OrderPayService orderPayService;
-    @Autowired
-    public void setOrderPayService(OrderPayService orderPayService) {
-        this.orderPayService = orderPayService;
-    }
+    private static final Logger log = LoggerFactory.getLogger(CmbPayServiceImpl.class);
 
     private OrderCombinedService orderCombinedService;
     @Autowired
@@ -61,9 +52,11 @@ public class CmbPayServiceImpl implements PayService{
     /**
      * 在发送支付请求之前，组装数据
      * @param orderPay
+     * @param systemPayType
      * @return
      */
-    public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay) throws Exception {
+    @Override
+    public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType) throws Exception {
         if(UtilHelper.isEmpty(orderPay) || UtilHelper.isEmpty(orderPay.getPayFlowId())){
             return null;
         }
@@ -124,4 +117,6 @@ public class CmbPayServiceImpl implements PayService{
         payRequestParamMap.put("CMB_PAY_URL",CMB_PAY_URL);
         return payRequestParamMap;
     }
+
+
 }
