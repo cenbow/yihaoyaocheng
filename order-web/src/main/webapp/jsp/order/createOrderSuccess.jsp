@@ -1,4 +1,5 @@
 <%@ page import="com.yyw.yhyc.order.enmu.SystemPayTypeEnum" %>
+<%@ page import="com.yyw.yhyc.order.enmu.OnlinePayTypeEnum" %>
 <%--
   Created by IntelliJ IDEA.
   User: lizhou
@@ -8,8 +9,8 @@
 --%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <!doctype html>
 <html>
 <head>
@@ -51,20 +52,21 @@
                 <div class="pay-type mt40">
                     <p class="pay-type-top">请选择在线支付方式：</p>
                     <div class="radio-select">
-                        <label>
+                        <label payTypeId="<%=OnlinePayTypeEnum.MerchantBank.getPayType()%>">
                             <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-cmb"></i><br><span>
                             <i class="common-icon radio-tip"></i>需开通招商银行企业网银</span>
                         </label>
-                        <label>
+                        <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayType()%>">
                             <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span>银联卡支付</span>
                         </label>
-                        <label>
+                        <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2C.getPayType()%>">
                             <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付</span>
                         </label>
+                        <input type="hidden" id="payTypeId">
                     </div>
                 </div>
                 <div class="mt45 tc btn">
-                    <a href="javascript:alert('开发中,敬请期待!');" class="os-btn-pay">立即在线支付</a>
+                    <a href="javascript:pay();" class="os-btn-pay">立即在线支付</a>
                     <a href="<%=request.getContextPath()%>/order/buyerOrderManage" class="os-btn-order">订单中心</a>
                 </div>
             </c:when>
@@ -92,15 +94,14 @@
             <c:choose>
                 <c:when test="${orderDtoList != null && fn:length(orderDtoList) gt 0 }">
                     <c:forEach var="orderDto"  items="${orderDtoList}">
-
-                        <c:choose>
-                            <c:when test="${orderDto.payTypeId == offlinePayType}">
-                                <tr>
-                                    <td>${orderDto.flowId}</td>
-                                    <td>${orderDto.supplyName}</td>
-                                    <td>¥ ${orderDto.orderTotal}</td>
-                                    <td>
-                                            <span class="pr">${orderDto.payTypeName}
+                        <tr>
+                            <td>${orderDto.flowId}<input type="hidden" name="flowId" value="${orderDto.flowId}"></td>
+                            <td>${orderDto.supplyName}</td>
+                            <td>¥ <fmt:formatNumber value="${orderDto.orderTotal}" minFractionDigits="2"/></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${orderDto.payTypeId == offlinePayType}">
+                                          <span class="pr">${orderDto.payTypeName}
                                               <i class="common-icon query-icon">
                                                 <div class="tips-frame">
                                                   <i class="common-icon frame-icon"></i>
@@ -109,20 +110,14 @@
                                                   </p>
                                                 </div>
                                               </i>
-                                            </span>
-                                    </td>
-                                </tr>
-                            </c:when>
-                            <c:otherwise>
-                                <tr>
-                                    <td>${orderDto.flowId}</td>
-                                    <td>${orderDto.supplyName}</td>
-                                    <td>¥ <fmt:formatNumber value="${orderDto.orderTotal}" minFractionDigits="2"/></td>
-                                    <td>${orderDto.payTypeName}</td>
-                                </tr>
-                            </c:otherwise>
-                        </c:choose>
-
+                                          </span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        ${orderDto.payTypeName}
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
@@ -136,7 +131,37 @@
 </div>
 
 <%@ include file="../footer.jsp"%>
-
 <script type="text/javascript" src="${STATIC_URL}/static/js/dialog.js"></script>
+<script type="text/javascript">
+    $(function(){
+        /* 支付方式单选按钮 */
+        $('.radio-select label').click(function () {
+            $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
+            $(this).find('i:first').addClass('radio-skin-selected');
+            var _payTypeId = $(this).attr("payTypeId");
+            console.info("_payTypeId=" + _payTypeId);
+            $("#payTypeId").val(_payTypeId);
+        });
+    });
+
+    function pay(){
+        var flowIds = "";
+        $("input[name='flowId']").each(function(){
+            if(this.value != null && this.value != "" && typeof this.value != "undefined"){
+                if(flowIds == ""){
+                    flowIds +=  this.value + ","
+                }else{
+                    flowIds +=  this.value
+                }
+            }
+        });
+        var payTypeId = $("#payTypeId").val();
+        if(payTypeId == null || payTypeId == "" || typeof  payTypeId == "undefined"){
+            alert("请选择在线支付方式");
+            return;
+        }
+        window.location.href= ctx + "/orderPay/pay?flowIds="+flowIds+"&payTypeId="+payTypeId;
+    }
+</script>
 </body>
 </html>
