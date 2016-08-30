@@ -10,6 +10,7 @@
 package com.yyw.yhyc.order.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
@@ -24,6 +25,7 @@ import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -247,7 +249,7 @@ public class OrderSettlementService {
     }
 
     /**
-     * for 银联支付
+     * just for 银联支付
      * @param type 业务类型
      *             1 在线支付  买家已付款  (进入应付)
      *             2 买家全部收货或者买家部分收货或者系统自动确认收货时(进入应收)
@@ -260,13 +262,8 @@ public class OrderSettlementService {
      * @param orderException
      * @return
      */
-    public OrderSettlement parseOnlineSettlement(Integer type,OrderSettlement orderSettlement,UserDto userDto,Order order,OrderException orderException){
-        UsermanageEnterprise ue = usermanageEnterpriseMapper.getByEnterpriseId(userDto.getCustId()+"");
-        if(ue!=null){//不为空，设置省市区代码
-            orderSettlement.setProvince(ue.getProvince());
-            orderSettlement.setCity(ue.getCity());
-            orderSettlement.setArea(ue.getDistrict());
-        }
+    public OrderSettlement parseOnlineSettlement(Integer type,OrderSettlement orderSettlement,UserDto userDto,Order order){
+        parseSettlementProvince(orderSettlement,order.getCustId()+"");
         switch (type) {
             case 1:
                 //生成买家结算
@@ -305,7 +302,40 @@ public class OrderSettlementService {
                 orderSettlement.setSupplyId(null);
                 orderSettlement.setConfirmSettlement("0");
                 break;
+            default:
+                break;
         }
         return orderSettlement;
+    }
+
+    /**
+     * for all orderSettlement
+     * 设置省市区代码
+     * @param orderSettlement
+     * @param custId 采购商id
+     */
+    public void parseSettlementProvince(OrderSettlement orderSettlement,String custId){
+        UsermanageEnterprise ue = usermanageEnterpriseMapper.getByEnterpriseId(custId);
+        if(ue!=null){//不为空，设置省市区代码
+            orderSettlement.setProvince(ue.getProvince());
+            orderSettlement.setCity(ue.getCity());
+            orderSettlement.setArea(ue.getDistrict());
+        }
+    }
+    /**
+     * just for 在线-招行支付
+     * 退货退款成功回调
+     */
+    public void updateSettlementByMap(Integer exceptionOrderId,Integer supplyId){
+        Map<String,Object> condition = new HashedMap();
+        condition.put("flowId",exceptionOrderId);
+        condition.put("businessType",2);//退货退款
+        condition.put("supplyId",supplyId);
+        OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+        if(orderSettlement==null){
+            throw new RuntimeException("未找到有效订单");
+        }
+        orderSettlement.setConfirmSettlement("1");
+        orderSettlementMapper.update(orderSettlement);
     }
 }
