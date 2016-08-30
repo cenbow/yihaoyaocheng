@@ -669,7 +669,7 @@ public class OrderExceptionController extends BaseJsonController{
 						creditParams.setBuyerName(oe.getCustName());
 						creditParams.setSellerName(oe.getSupplyName());
 						creditParams.setOrderTotal(order.getOrgTotal());//订单金额
-						creditParams.setFlowId(oe.getExceptionOrderId());//订单编码
+						creditParams.setFlowId(order.getFlowId());//订单编码
 						creditParams.setStatus("2");
 						creditParams.setReceiveTime(DateHelper.parseTime(oe.getReceiveTime()));
 						CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
