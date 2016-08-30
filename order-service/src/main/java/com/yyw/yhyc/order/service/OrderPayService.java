@@ -32,20 +32,12 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.bo.AccountPayInfo;
-import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderPayDto;
-import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.chinapay.httpClient.HttpRequestHandler;
 import com.yyw.yhyc.pay.chinapay.utils.ChinaPayUtil;
 import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,9 +50,7 @@ public class OrderPayService {
 	private Log log = LogFactory.getLog(OrderPayService.class);
 
 	private OrderPayMapper	orderPayMapper;
-	private OrderMapper orderMapper;
 	private SystemPayTypeMapper systemPayTypeMapper;
-	private SystemDateMapper systemDateMapper;
 	private AccountPayInfoMapper accountPayInfoMapper;
 
 	private SystemDateMapper systemDateMapper;
@@ -79,23 +69,12 @@ public class OrderPayService {
 		this.systemDateMapper = systemDateMapper;
 	}
 
-	private Log log = LogFactory.getLog(OrderExceptionService.class);
-
-	@Autowired
-	public void setOrderMapper(OrderMapper orderMapper) {
-		this.orderMapper = orderMapper;
-	}
-
 	@Autowired
 	public void setOrderPayMapper(OrderPayMapper orderPayMapper)
 	{
 		this.orderPayMapper = orderPayMapper;
 	}
 
-	@Autowired
-	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
-		this.systemDateMapper = systemDateMapper;
-	}
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper) {
 		this.orderMapper = orderMapper;
