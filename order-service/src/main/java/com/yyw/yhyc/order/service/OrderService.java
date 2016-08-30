@@ -288,8 +288,8 @@ public class OrderService {
 		log.info("创建订单接口-订单配送信息orderDelivery ：" + orderDelivery);
 
 		/* 创建支付流水号 */
-		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginEnterpriseId);
-		log.info("创建订单接口-创建支付流水号,payFlowId = " + payFlowId);
+//		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginEnterpriseId);
+//		log.info("创建订单接口-创建支付流水号,payFlowId = " + payFlowId);
 
 		List<Order> orderNewList =  new ArrayList<Order>();
 		/* 遍历订单数据中的各个供应商,即按供应商为单位拆单(一期需求) */
@@ -317,7 +317,7 @@ public class OrderService {
 					continue;
 				}
 			}
-			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),payFlowId);
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -494,10 +494,10 @@ public class OrderService {
 				orderDtoNew.setProductInfoDtoList(productInfoDtoList);
 
 				/* 创建支付流水号 */
-				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
-				payFlowId += "-" + i;
+//				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
+//				payFlowId += "-" + (i+1);
 
-				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto,payFlowId);
+				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto);
 				if(!UtilHelper.isEmpty(orderNew)){
 					/* 账期订单生成结算数据 */
 					//savePaymentDateSettlement(userDto,orderNew.getOrderId()); 需求变量 在确认收货时生成结算数据
@@ -537,12 +537,11 @@ public class OrderService {
 	 * @param orderDto 订单、商品相关信息
 	 * @param orderDelivery 订单发货、配送相关信息
 	 * @param userDto		买家用户信息
-	 * @param payFlowId	支付流水号
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto, String payFlowId) throws Exception{
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto) throws Exception{
 		if( UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())
-				|| UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(payFlowId)){
+				|| UtilHelper.isEmpty(orderDelivery) ){
 			return null;
 		}
 
@@ -560,9 +559,6 @@ public class OrderService {
 
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
-
-		/* 插入数据到订单支付表 */
-		insertOrderPay(order, userDto, payFlowId);
 
 		/* TODO 删除购物车 */
 //		deleteShoppingCart(orderDto);
@@ -612,27 +608,7 @@ public class OrderService {
 
 
 
-	/**
-	 * 插入订单支付表
-	 * @param order 新生成的订单
-	 * @param userDto 当前登陆人的信息
-	 * @param payFlowId 支付流水号
-	 * @throws Exception
-     */
-	private void insertOrderPay(Order order, UserDto userDto, String payFlowId) throws Exception {
-		if(UtilHelper.isEmpty(order)) return;
-		if(UtilHelper.isEmpty(userDto)) return;
-		if(UtilHelper.isEmpty(payFlowId)) return;
-		OrderPay orderPay = new OrderPay();
-		orderPay.setOrderId(order.getOrderId());//订单id
-		orderPay.setFlowId(order.getFlowId());//订单编号
-		orderPay.setPayFlowId(payFlowId);//支付流水号
-		orderPay.setCreateTime(systemDateMapper.getSystemDate());
-		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
-		orderPay.setCreateUser(userDto.getUserName());
-		orderPay.setOrderMoney(order.getOrderTotal());//订单金额
-		orderPayMapper.save(orderPay);
-	}
+
 
 	/**
 	 * 插入订单跟踪信息表
