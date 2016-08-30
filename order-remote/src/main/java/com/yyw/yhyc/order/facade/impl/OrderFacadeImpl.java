@@ -249,7 +249,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 */
 	public void doneOrderForDelivery() throws Exception{
-		orderService.updateDoneOrderForDelivery();
+		//orderService.updateDoneOrderForDelivery();
 	}
 	/**
 	 * 收款确认
