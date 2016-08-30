@@ -150,10 +150,10 @@ public class OrderPayController extends BaseJsonController {
 		Map<String,Object> payRequestParamMap = null;
 		ModelAndView modelAndView = new ModelAndView();
 		if(OnlinePayTypeEnum.MerchantBank.getPayType() == payTypeId){
-			//TODO
+			//TODO 招商银行支付
 			modelAndView.setViewName("orderPay/cmb_pay");
 		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayType() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayType()== payTypeId){
-			//TODO
+			//TODO 银联支付
 			modelAndView.setViewName("orderPay/china_pay");
 		}else{
 			throw new Exception("非法参数");

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 
-@Service("chinalPayB2cService")
+@Service("chinaPayB2cService")
 public class ChinaPayServiceImpl implements PayService {
 
     @Override
