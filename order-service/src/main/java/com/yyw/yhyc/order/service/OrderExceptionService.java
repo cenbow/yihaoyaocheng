@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.util.*;
 
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
@@ -76,8 +77,7 @@ public class OrderExceptionService {
 	public void setOrderDeliveryDetailMapper(OrderDeliveryDetailMapper orderDeliveryDetailMapper) {
 		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
 	}
-	@Autowired
-	private OrderService orderService;
+
 
 	/**
 	 * 通过主键查询实体对象
@@ -1636,6 +1636,7 @@ public class OrderExceptionService {
 			}catch (Exception e){
 				throw new RuntimeException("未找到订单");
 			}
+			OrderService orderService=(OrderService)SpringBeanHelper.getBean("orderService");
 			orderService.sendReundCredit(creditDubboService,systemPayType,orderException);
 
 			msg = "true";
