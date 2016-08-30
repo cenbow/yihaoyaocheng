@@ -78,8 +78,7 @@ public class OrderExceptionService {
 	}
 	@Autowired
 	private OrderService orderService;
-	@Autowired
-	private SystemPayType systemPayType;
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
