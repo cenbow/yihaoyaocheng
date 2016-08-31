@@ -30,18 +30,36 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
             User u = (User) request.getAttribute("loginUser");
-            if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getAttribute(UserDto.REQUEST_KEY))){
+            if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getSession().getAttribute(UserDto.REQUEST_KEY))){
                 String commonInfo = CacheUtil.getSingleton().get(CACHE_PREFIX + COMMON_INFO + request.getSession().getId());
+                String user = CacheUtil.getSingleton().get(CACHE_PREFIX + request.getSession().getId());
+
                 UserDto userDto = new UserDto();
                 userDto.setUserName(u.getUsername());
                 userDto.setCustId(u.getEnterprise_id());
 
+                //用户信息
+                if(!UtilHelper.isEmpty(user))
+                {
+                    Map<String, Object> map = JSONObject.parseObject(user, HashMap.class);
+                    userDto.setUser(map);
+                }
+
+                //企业信息
                 if(!UtilHelper.isEmpty(commonInfo)){
                     Map<String, String> map = JSONObject.parseObject(commonInfo, HashMap.class);
 
                     log.info("commonInfo-->" + commonInfo);
 
                     userDto.setCustName(map.get("enterpriseName"));
+                    userDto.setProvince(map.get("province"));
+                    userDto.setProvinceName(map.get("provinceName"));
+                    userDto.setCity(map.get("city"));
+                    userDto.setCityName(map.get("cityName"));
+                    userDto.setDistrict(map.get("district"));
+                    userDto.setDistrictName(map.get("districtName"));
+                    userDto.setRegisteredAddress(map.get("registeredAddress"));
+
                     String roleType = map.get("roleType");
                     if(!UtilHelper.isEmpty(roleType)){
                         CustTypeEnum custTypeEnum = null;
@@ -63,7 +81,7 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                     }
                 }
 
-                request.setAttribute(UserDto.REQUEST_KEY, userDto);
+                request.getSession().setAttribute(UserDto.REQUEST_KEY, userDto);
 
                 log.info("userDto-->" + userDto.toString());
             }
