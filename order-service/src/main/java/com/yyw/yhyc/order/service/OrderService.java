@@ -1650,10 +1650,11 @@ public class OrderService {
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPageNo(Integer.valueOf(data.get("pageNo")));
 		pagination.setPageSize(Integer.valueOf(data.get("pageSize")));
+		pagination.setPaginationFlag(Boolean.valueOf(data.get("paginationFlag")));
 		OrderDto orderDto = new OrderDto();
 		orderDto.setSupplyName(data.get("supplyName"));
 		orderDto.setCustName(data.get("custName"));
-		orderDto.setPayType(Integer.valueOf(data.get("payType")));
+		orderDto.setPayType(Integer.valueOf("".equals(data.get("payType")) ?  "0":data.get("payType")));
 		orderDto.setCreateBeginTime(data.get("createBeginTime"));
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
@@ -1671,7 +1672,9 @@ public class OrderService {
 
 		}
 
+		log.info("listPgOperationsOrder pagination:"+pagination);
 		List<OrderDto> orderDtoList = orderMapper.listPaginationOperationsOrder(pagination,orderDto);
+		log.info("listPgOperationsOrder orderDtoList:"+orderDtoList);
 		pagination.setResultList(orderDtoList);
 
 		resutlMap.put("orderDtoList",pagination);
