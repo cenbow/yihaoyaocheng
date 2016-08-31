@@ -66,12 +66,14 @@ function fillPagerUtil(data, requestParam) {
 }
 
 function setOrderCount(orderStatusCount) {
+    $("a[name^='statusCount']").find("span").remove();
+
     if (orderStatusCount) {
         for (var o in orderStatusCount){
+            if(o == 2 || o == 3 || o == 8) continue;
+
             var  $a = $("a[name='statusCount" + o +"']");
             var text = $a.text();
-            var index = text.indexOf("(");
-            if(index>0) text = text.substr(0, index);
 
             $a.html(text + '<span style="color: red;">('+orderStatusCount[o]+')</span>');
         }
