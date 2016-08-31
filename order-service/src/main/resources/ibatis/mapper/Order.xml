@@ -1169,7 +1169,7 @@
 		FROM
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T2 ON T1.PAY_TYPE_ID = T2.PAY_TYPE_ID
-		WHERE
+		WHERE 1=1
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>
