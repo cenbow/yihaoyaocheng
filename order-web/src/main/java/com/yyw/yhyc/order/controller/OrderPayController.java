@@ -175,4 +175,25 @@ public class OrderPayController extends BaseJsonController {
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
 		return modelAndView;
 	}
+
+
+	/**
+	 * 招行支付成功回调
+	 * @return
+     */
+	@RequestMapping(value = "/cmbchinaPaySuccess", method = RequestMethod.POST)
+	public String cmbchinaPaySuccess(){
+		String tmplate =  "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?><DATA><RESPONSE><STSCOD>%s</STSCOD><STSMSG>%s</STSMSG></RESPONSE></DATA>";
+
+		return String.format(tmplate,"1000","失败");
+	}
+
+	/**
+	 * 招行分账成功回调
+	 * @return
+	 */
+	@RequestMapping(value = "/cmbchinaSplitSuccess", method = RequestMethod.POST)
+	public String cmbchinaSplitSuccess(){
+		return null;
+	}
 }

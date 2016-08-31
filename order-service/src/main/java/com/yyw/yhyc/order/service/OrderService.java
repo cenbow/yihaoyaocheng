@@ -1636,4 +1636,45 @@ public class OrderService {
 	public Order getOrderbyFlowId(String flowId){
 		return orderMapper.getOrderbyFlowId(flowId);
 	}
+
+
+	/**
+	 * 运营人员查询订单
+	 * @param data
+     * @return
+     */
+	public Map<String,Object> listPgOperationsOrder(Map<String,String> data){
+		if(UtilHelper.isEmpty(data)) throw  new RuntimeException("参数异常");
+		Map<String,Object> resutlMap = new HashMap<String,Object>();
+
+		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		pagination.setPageNo(Integer.valueOf(data.get("pageNo")));
+		pagination.setPageSize(Integer.valueOf(data.get("pageSize")));
+		OrderDto orderDto = new OrderDto();
+		orderDto.setSupplyName(data.get("supplyName"));
+		orderDto.setCustName(data.get("custName"));
+		orderDto.setPayType(Integer.valueOf(data.get("payType")));
+		orderDto.setCreateBeginTime(data.get("createBeginTime"));
+		orderDto.setCreateEndTime(data.get("createEndTime"));
+		orderDto.setOrderStatus(data.get("orderStatus"));
+
+		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
+			try {
+				Date endTime = DateUtils.formatDate(orderDto.getCreateEndTime(),"yyyy-MM-dd");
+				Date endTimeAddOne = DateUtils.addDays(endTime,1);
+				orderDto.setCreateEndTime(DateUtils.getStringFromDate(endTimeAddOne));
+			} catch (ParseException e) {
+				log.error("datefromat error,date: "+orderDto.getCreateEndTime());
+				e.printStackTrace();
+				throw new RuntimeException("日期错误");
+			}
+
+		}
+
+		List<OrderDto> orderDtoList = orderMapper.listPaginationOperationsOrder(pagination,orderDto);
+		pagination.setResultList(orderDtoList);
+
+		resutlMap.put("orderDtoList",pagination);
+		return resutlMap;
+	}
 }
