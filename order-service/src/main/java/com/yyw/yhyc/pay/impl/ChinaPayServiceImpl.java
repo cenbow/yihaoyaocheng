@@ -145,4 +145,12 @@ public class ChinaPayServiceImpl implements PayService {
     public String paymentCallback(HttpServletRequest request) {
         return null;
     }
+
+    // TODO: 2016/8/31 银联分账成功回调  待江帅编写
+    @Override
+    public String spiltPaymentCallback(HttpServletRequest request) {
+        return null;
+    }
+
+
 }

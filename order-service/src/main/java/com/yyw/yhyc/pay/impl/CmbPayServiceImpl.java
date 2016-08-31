@@ -209,12 +209,23 @@ public class CmbPayServiceImpl implements PayService{
         return String.format(CmbPayUtil.CALLBACK_RESPONSE_TEMPATE,code,msg);
     }
 
+
     /**
      * 解析招行支付成功回调接口请求数据
      * @param xml
      * @return
      */
     private Map<String,String> getCallBackRequestData(String xml){
+        return null;
+    }
+
+    /**
+     * 招行分账成功回调
+     * @param request
+     * @return
+     */
+    @Override
+    public String spiltPaymentCallback(HttpServletRequest request) {
         return null;
     }
 
