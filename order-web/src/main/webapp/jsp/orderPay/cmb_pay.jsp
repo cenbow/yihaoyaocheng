@@ -27,7 +27,7 @@
     <input type="submit" value="立即支付">
 </form>
 
-<script language=JavaScript>
+<script type="text/javascript">
 //    if(document.getElementById('MerSplitMsg').value=='0'){
 //        alert("抱歉，该订单中的供应商存在问题，不能进行支付！");
 //        window.close();
