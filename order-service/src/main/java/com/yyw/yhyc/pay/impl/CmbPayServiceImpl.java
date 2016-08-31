@@ -121,8 +121,70 @@ public class CmbPayServiceImpl implements PayService{
 
     @Override
     public String paymentCallback(HttpServletRequest request) {
-        log.debug("招行支付回调请求信息，request:"+request);
+        log.info("招行支付回调请求信息，request:"+request);
 
+        String code = CmbPayUtil.CALLBACK_FAILURE_CODE;
+        String msg = "未知异常";
+        try{
+            // TODO: 2016/8/31 解析request数据
+            String xml = "";
+            log.info("paymentCallback xml:"+xml);
+            Map<String,String> requestMap = getCallBackRequestData(xml);
+            /**
+             * <?xml version="1.0" encoding="ISO8859-1"?>
+             <DATA>
+             <REQUEST>
+             <NCB2BFIN>
+             <REQNBR>流程实例号</REQNBR>
+             <MCHNBR>商户编号</MCHNBR>
+             <REFORD>订单号</REFORD>
+             <SUBORD>订单支付号</SUBORD>
+             <CCYNBR>订单币种</CCYNBR>
+             <TRSAMT>订单金额</TRSAMT>
+             <ENDAMT>结账金额</ENDAMT>
+             <BBKNBR>付方分行号</BBKNBR>
+             <PAYACC>付方账号</PAYACC>
+             <ACCNAM>付方户名</ACCNAM>
+             <YURREF>业务参考号</YURREF>
+             <ENDDAT>付款日期</ENDDAT>
+             <RTNFLG>业务请求结果</RTNFLG>
+             <RTNDSP>结果描述</RTNDSP>
+             </NCB2BFIN>
+             </REQUEST>
+             </DATA>
+             */
+            String REQNBR = requestMap.get("REQNBR");
+            String MCHNBR = requestMap.get("MCHNBR");
+            String REFORD = requestMap.get("REFORD");//支付流水号
+            String SUBORD = requestMap.get("SUBORD");
+            String CCYNBR = requestMap.get("CCYNBR");
+            String TRSAMT = requestMap.get("TRSAMT");
+            String ENDAMT = requestMap.get("ENDAMT");
+            String BBKNBR = requestMap.get("BBKNBR");
+            String PAYACC = requestMap.get("PAYACC");
+            String ACCNAM = requestMap.get("ACCNAM");
+            String YURREF = requestMap.get("YURREF");
+            String ENDDAT = requestMap.get("ENDDAT");
+            String RTNFLG = requestMap.get("RTNFLG");
+            String RTNDSP = requestMap.get("RTNDSP");
+
+            log.info("招行支付回调请求参数，requestMap:"+requestMap);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("招行支付回调处理失败，e:"+e.getMessage());
+        }
+
+
+        return String.format(CmbPayUtil.CALLBACK_RESPONSE_TEMPATE,code,msg);
+    }
+
+    /**
+     * 解析招行支付成功回调接口请求数据
+     * @param xml
+     * @return
+     */
+    private Map<String,String> getCallBackRequestData(String xml){
         return null;
     }
 

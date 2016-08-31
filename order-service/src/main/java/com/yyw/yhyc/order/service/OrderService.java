@@ -1658,6 +1658,7 @@ public class OrderService {
 		orderDto.setCreateBeginTime(data.get("createBeginTime"));
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
+		orderDto.setFlowId(data.get("flowId"));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
