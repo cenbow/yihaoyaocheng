@@ -501,8 +501,9 @@ public class OrderExceptionController extends BaseJsonController{
 
 		//确定该信息是否可取消
 		OrderException orderException = orderExceptionService.getByPK(id);
-		if(UtilHelper.isEmpty(orderException) || !BuyerChangeGoodsOrderStatusEnum.WaitingConfirmation.getValue().equals(orderException.getOrderStatus())) {
+		if(UtilHelper.isEmpty(orderException) || !BuyerChangeGoodsOrderStatusEnum.WaitingConfirmation.getType().equals(orderException.getOrderStatus())) {
 			map.put("message", "当前状态下不可取消，请刷新页面后重试。");
+			return map;
 		}
 
 		UserDto u = super.getLoginUser();

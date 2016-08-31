@@ -1,5 +1,8 @@
 package com.yyw.yhyc.pay.interfaces;
 
+import com.yyw.yhyc.order.bo.OrderPay;
+import com.yyw.yhyc.order.bo.SystemPayType;
+
 import java.util.Map;
 
 /**
@@ -11,5 +14,14 @@ public interface PayService {
      * Action 1 确认收货 2 取消订单
      */
     public Map<String,Object> postToBankForDoneOrder(Map<String,Object> orderInfo,int Action);
+
+    /**
+     *  在发送支付请求之前，组装数据
+     * @param orderPay
+     * @param systemPayType
+     * @return
+     * @throws Exception
+     */
+    public Map<String,Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType) throws Exception ;
 
 }

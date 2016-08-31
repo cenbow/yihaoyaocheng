@@ -26,12 +26,12 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.mapper.OrderPayMapper;
 
 @Service("orderPayService")
 public class OrderPayService {
@@ -47,15 +47,16 @@ public class OrderPayService {
 	private OrderCombinedMapper orderCombinedMapper;
 
 	@Autowired
+	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+		this.systemDateMapper = systemDateMapper;
+	}
+
+	@Autowired
 	public void setOrderPayMapper(OrderPayMapper orderPayMapper)
 	{
 		this.orderPayMapper = orderPayMapper;
 	}
 
-	@Autowired
-	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
-		this.systemDateMapper = systemDateMapper;
-	}
 	@Autowired
 	public void setOrderMapper(OrderMapper orderMapper) {
 		this.orderMapper = orderMapper;
@@ -269,6 +270,10 @@ public class OrderPayService {
 		orderPayMapper.save(orderPay);
 		log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
 		return orderPay;
+	}
+
+	public OrderPay getByPayFlowId( String payFlowId){
+		return orderPayMapper.getByPayFlowId(payFlowId);
 	}
 
 }

@@ -312,7 +312,7 @@ public class OrderDeliveryService {
 				stringBuffer.append("数量为空,");
 			}
 
-			if(!rowMap.get("1").equals(orderDeliveryDto.getFlowId())){
+			if((!UtilHelper.isEmpty(rowMap.get("1")))&&!rowMap.get("1").equals(orderDeliveryDto.getFlowId())){
 				stringBuffer.append("订单编码与发货订单编码不相同,");
 			}
 

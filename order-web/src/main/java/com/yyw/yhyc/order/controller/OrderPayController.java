@@ -12,16 +12,21 @@
 package com.yyw.yhyc.order.controller;
 
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.SystemDateService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.order.utils.RandomUtil;
+import com.yyw.yhyc.pay.impl.CmbPayServiceImpl;
+import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +46,15 @@ public class OrderPayController extends BaseJsonController {
 
 	@Autowired
 	private SystemDateService systemDateService;
+
+	@Autowired
+	private CmbPayServiceImpl cmbPayService;
+
+	private SystemPayTypeService systemPayTypeService;
+	@Autowired
+	public void setSystemPayTypeService(SystemPayTypeService systemPayTypeService) {
+		this.systemPayTypeService = systemPayTypeService;
+	}
 
 	/**
 	* 通过主键查询实体对象
@@ -137,28 +151,27 @@ public class OrderPayController extends BaseJsonController {
 		if(userDto == null ){
 			throw new Exception("登陆超时");
 		}
-
 		if(OnlinePayTypeEnum.getPayName(payTypeId) == null )throw new Exception("非法参数");
 		if(UtilHelper.isEmpty(flowIds)) throw new Exception("非法参数");
 
-		/* 创建支付流水号 */
-		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
-		/* 在线支付订单前，预处理订单数据 */
-		OrderPay orderPay = orderPayService.preHandler(userDto ,flowIds,payTypeId,payFlowId);
-		if(UtilHelper.isEmpty(orderPay)) throw new Exception("非法参数");
-
-		Map<String,Object> payRequestParamMap = null;
 		ModelAndView modelAndView = new ModelAndView();
 		if(OnlinePayTypeEnum.MerchantBank.getPayType() == payTypeId){
-			//TODO 招商银行支付
 			modelAndView.setViewName("orderPay/cmb_pay");
 		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayType() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayType()== payTypeId){
-			//TODO 银联支付
 			modelAndView.setViewName("orderPay/china_pay");
 		}else{
 			throw new Exception("非法参数");
 		}
-		modelAndView.addObject("flowIds",flowIds);
+
+		/* 在线支付订单前，预处理订单数据 */
+		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
+		OrderPay orderPay = orderPayService.preHandler(userDto ,flowIds,payTypeId,payFlowId);
+		if(UtilHelper.isEmpty(orderPay)) throw new Exception("非法参数");
+
+		/* 在线支付订单前，组装订单数据 */
+		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
+		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType);
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
 		return modelAndView;
 	}

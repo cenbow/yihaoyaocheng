@@ -19,4 +19,6 @@ import com.yyw.yhyc.bo.Pagination;
 public interface OrderCombinedMapper extends GenericIBatisMapper<OrderCombined, Integer> {
 
 	public List<OrderCombined> listPaginationByProperty(Pagination<OrderCombined> pagination, OrderCombined orderCombined);
+
+	public OrderCombined findByPayFlowId(String payFlowId);
 }

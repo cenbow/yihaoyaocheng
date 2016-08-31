@@ -36,7 +36,15 @@
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
 	</resultMap>
-	
+
+	<resultMap id="OrderPayDtoResultMapper" type="OrderPayDto">
+		<result column="pay_account_no" property="payAccountNo"/>
+		<result column="pay_account_name" property="payAccountName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="org_total" property="orgTotal"/>
+	</resultMap>
+
 	<sql id="commonColumns">
 		 order_pay_id
 		, order_id
@@ -242,4 +250,21 @@
 		SELECT count(1) AS totalcount FROM t_order_pay WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+
+	<select id="getByPayFlowId" parameterType="java.lang.String" resultMap="OrderPayResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_pay WHERE pay_flow_id=#{payFlowId}
+	</select>
+
+
+	<select id="listOrderPayDtoByProperty" parameterType="OrderPay" resultMap="OrderPayDtoResultMapper">
+		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no FROM
+		t_order_pay p,t_order o,t_order_combined c,t_account_pay_info a
+		WHERE p.pay_flow_id=c.pay_flow_id AND c.order_combined_id=o.order_combined_id
+		AND o.supply_id=a.cust_id AND a.account_status=1
+		AND p.pay_flow_id=#{payFlowId} AND a.pay_type_id=#{payTypeId}
+	</select>
+
+
 </mapper>
