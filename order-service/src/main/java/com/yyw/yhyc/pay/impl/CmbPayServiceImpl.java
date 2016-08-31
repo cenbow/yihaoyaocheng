@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +117,13 @@ public class CmbPayServiceImpl implements PayService{
         payRequestParamMap.put("sigdat", sigdat);//签名
         payRequestParamMap.put("CMB_PAY_URL",CMB_PAY_URL);
         return payRequestParamMap;
+    }
+
+    @Override
+    public String paymentCallback(HttpServletRequest request) {
+        log.debug("招行支付回调请求信息，request:"+request);
+
+        return null;
     }
 
 

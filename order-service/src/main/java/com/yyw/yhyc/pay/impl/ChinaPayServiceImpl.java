@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -73,6 +74,8 @@ public class ChinaPayServiceImpl implements PayService {
         }
         return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list);
     }
+
+
 
     private Map<String,Object> findPayMapByPayFlowId(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list) throws Exception{
         Map<String,Object> map=new HashMap<String,Object>();
@@ -135,5 +138,11 @@ public class ChinaPayServiceImpl implements PayService {
         map=HttpRequestHandler.getSignMap(map);
         log.info("发送银联支付请求之前，组装数据map=" + map);
         return map;
+    }
+
+    // TODO: 2016/8/31 银联支付回调  待江帅编写 
+    @Override
+    public String paymentCallback(HttpServletRequest request) {
+        return null;
     }
 }

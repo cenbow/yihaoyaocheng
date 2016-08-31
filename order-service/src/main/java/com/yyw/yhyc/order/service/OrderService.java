@@ -1674,6 +1674,11 @@ public class OrderService {
 
 		log.info("listPgOperationsOrder pagination:"+pagination);
 		List<OrderDto> orderDtoList = orderMapper.listPaginationOperationsOrder(pagination,orderDto);
+		if(!UtilHelper.isEmpty(orderDtoList)){
+			for (OrderDto od : orderDtoList){
+				od.setOrderStatusName(SystemOrderStatusEnum.getName(od.getOrderStatus()));
+			}
+		}
 		log.info("listPgOperationsOrder orderDtoList:"+orderDtoList);
 		pagination.setResultList(orderDtoList);
 
