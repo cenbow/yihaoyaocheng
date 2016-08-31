@@ -1686,4 +1686,14 @@ public class OrderService {
 		resutlMap.put("orderDtoList",pagination);
 		return resutlMap;
 	}
+
+	//延期收货
+	public String postponeOrder(Integer orderId,Integer day){
+		Order order = orderMapper.getByPK(orderId);
+		if(order==null){
+			throw  new RuntimeException("未找到订单");
+		}
+		//TODO 延期收货订单逻辑
+		return "";
+	}
 }
