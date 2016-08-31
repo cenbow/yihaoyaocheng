@@ -32,7 +32,8 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
             User u = (User) request.getAttribute("loginUser");
             if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getAttribute(UserDto.REQUEST_KEY))){
                 String commonInfo = CacheUtil.getSingleton().get(CACHE_PREFIX + COMMON_INFO + request.getSession().getId());
-                String user = CacheUtil.getSingleton().get("passport" + request.getSession().getId());
+                String user = CacheUtil.getSingleton().get(CACHE_PREFIX + request.getSession().getId());
+
                 UserDto userDto = new UserDto();
                 userDto.setUserName(u.getUsername());
                 userDto.setCustId(u.getEnterprise_id());
