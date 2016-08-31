@@ -60,8 +60,8 @@ public class ChinaPayServiceImpl implements PayService {
             throw new RuntimeException("支付流水不能为空");
         }
 
-        if(UtilHelper.isEmpty(orderPay.getOrderPayId())){
-            log.info("订单编号不能为空");
+        if(UtilHelper.isEmpty(orderPay.getPayTypeId())){
+            log.info("支付类型不能为空");
             throw new RuntimeException("参数不能为空");
         }
 
@@ -133,6 +133,7 @@ public class ChinaPayServiceImpl implements PayService {
         map.put("fromWhere", fromWhere);
         map=HttpRequestHandler.getSubmitFormMap(map);
         map=HttpRequestHandler.getSignMap(map);
+        log.info("发送银联支付请求之前，组装数据map=" + map);
         return map;
     }
 }
