@@ -22,5 +22,5 @@
     <dubbo:service interface="com.yyw.yhyc.order.facade.ShoppingCartFacade" ref="shoppingCartFacade"/>
     <dubbo:service interface="com.yyw.yhyc.order.facade.SystemPayTypeFacade" ref="systemPayTypeFacade"/>
     <dubbo:service interface="com.yyw.yhyc.order.facade.OrderExceptionFacade" ref="orderExceptionFacade"/>
-
+    <dubbo:service interface="com.yyw.yhyc.order.facade.Order4ManagerFacade" ref="order4ManagerFacade"/>
 </beans>

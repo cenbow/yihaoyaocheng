@@ -1163,5 +1163,37 @@
 	</update>
 
 
+	<select id="listPaginationOperationsOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap" useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,T2.PAY_TYPE,T2.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T2 ON T1.PAY_TYPE_ID = T2.PAY_TYPE_ID
+		WHERE
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T2.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND T1.ORDER_STATUS = #{orderStatus}
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
+
+
 
 </mapper>
