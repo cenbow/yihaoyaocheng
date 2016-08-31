@@ -121,9 +121,9 @@ public class ChinaPayServiceImpl implements PayService {
         map.put("TranTime", fDate.split(",")[1]);
         String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         map.put("OrderAmt", OrderAmt);
-        map.put("MerPageUrl", PayUtil.getValue("payReturnHost") + "/buyerOrderManage.action");
-        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/OrderCallBackPay.action");
-        log.info(PayUtil.getValue("payReturnHost") + "/OrderCallBackPay.action");
+        map.put("MerPageUrl", PayUtil.getValue("payReturnHost") + "/buyerOrderManage");
+        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/OrderCallBackPay");
+        log.info(PayUtil.getValue("payReturnHost") + "/OrderCallBackPay");
         String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
         log.info("CommodityMsg="+CommodityMsg);
         map.put("CommodityMsg", CommodityMsg);

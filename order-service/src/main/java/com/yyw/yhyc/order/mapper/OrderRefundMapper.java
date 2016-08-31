@@ -19,4 +19,7 @@ import com.yyw.yhyc.bo.Pagination;
 public interface OrderRefundMapper extends GenericIBatisMapper<OrderRefund, Integer> {
 
 	public List<OrderRefund> listPaginationByProperty(Pagination<OrderRefund> pagination, OrderRefund orderRefund);
+
+	public OrderRefund getOrderRefundByOrderId(int OrderId);
+
 }
