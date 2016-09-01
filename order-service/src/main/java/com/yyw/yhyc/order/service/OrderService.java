@@ -17,11 +17,13 @@ import java.util.*;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
@@ -47,7 +49,7 @@ public class OrderService {
 	private Log log = LogFactory.getLog(OrderService.class);
 
 	private OrderMapper	orderMapper;
-	private SystemPayTypeService systemPayTypeService;
+	private SystemPayTypeMapper systemPayTypeMapper;
 	private SystemDateMapper systemDateMapper;
 	private OrderDetailService orderDetailService;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
@@ -85,10 +87,9 @@ public class OrderService {
 		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
 	}
 
-
 	@Autowired
-	public void setSystemPayTypeService(SystemPayTypeService systemPayTypeService) {
-		this.systemPayTypeService = systemPayTypeService;
+	public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
+		this.systemPayTypeMapper = systemPayTypeMapper;
 	}
 
 	@Autowired
@@ -661,7 +662,7 @@ public class OrderService {
 		}
 
 		order.setPayTypeId(orderDto.getPayTypeId());
-		SystemPayType systemPayType = systemPayTypeService.getByPK(orderDto.getPayTypeId());
+		SystemPayType systemPayType = systemPayTypeMapper.getByPK(orderDto.getPayTypeId());
 		String orderFlowIdPrefix = "";
 		/* 线下支付 */
 		if(SystemPayTypeEnum.PayOffline.getPayType().equals(  systemPayType.getPayType() )){
@@ -1226,6 +1227,11 @@ public class OrderService {
 					log.error("order info :"+order);
 					throw new RuntimeException("订单取消失败");
 				}
+
+				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+				PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+				payService.handleRefund(userDto,1,order.getFlowId(),"卖家主动取消订单");
+
 				//插入日志表
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
@@ -1421,7 +1427,7 @@ public class OrderService {
         for(OrderException o:le){
             //异常订单收货
 			Order order = orderMapper.getByPK(o.getOrderId());
-			SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+			SystemPayType systemPayType= systemPayTypeMapper.getByPK(order.getPayTypeId());
             o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
             o.setSellerReceiveTime(systemDateMapper.getSystemDate());
             orderExceptionMapper.update(o);
@@ -1759,11 +1765,75 @@ public class OrderService {
 				orderDetailsdto.setOrderDeliveryDetail(listDeliveryDetai.get(0));
 			}
 		}
-		OrderPay orderPay = orderPayMapper.getByPayFlowId(flowId);
+		OrderCombined orderPay = orderCombinedMapper.getByPK(orderDetailsdto.getOrderCombinedId());
 		if(!UtilHelper.isEmpty(orderPay))
 			orderDetailsdto.setPayFlowId(orderPay.getPayFlowId());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("orderDetailsDto",orderDetailsdto);
 		return map;
+	}
+
+	public Map<String, Object> listPgProducts(Map<String, String> data) throws Exception {
+		if(UtilHelper.isEmpty(data)){
+			throw new RuntimeException("参数异常");
+		}
+		Map<String,Object> resutlMap = new HashMap<String,Object>();
+		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
+		pagination.setPageNo(Integer.valueOf(data.get("pageNo")));
+		pagination.setPageSize(Integer.valueOf(data.get("pageSize")));
+		pagination.setPaginationFlag(Boolean.valueOf(data.get("paginationFlag")));
+		OrderDeliveryDetailDto orderDeliveryDetailDto = new OrderDeliveryDetailDto();
+		orderDeliveryDetailDto.setFlowId(data.get("flowId"));
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationByProperty(pagination, orderDeliveryDetailDto);
+
+		pagination.setResultList(list);
+
+		resutlMap.put("productsList", pagination);
+		return resutlMap;
+	}
+
+	/**
+	 * 后台管理取消订单
+	 * @param userDto
+	 * @param orderId
+	 */
+	public void  cancelOrder4Manage(String userName,String orderId,String cancelResult){
+		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
+			throw new RuntimeException("参数错误");
+		}
+		Order order =  orderMapper.getByPK(Integer.parseInt(orderId));
+		log.debug(order);
+		if(UtilHelper.isEmpty(order)){
+			log.error("can not find order ,orderId:"+orderId);
+			throw new RuntimeException("未找到订单");
+		}
+		if((SystemOrderStatusEnum.SellerDelivered.getType().equals(order.getOrderStatus()) )){//卖家已发货
+			order.setOrderStatus(SystemOrderStatusEnum.BackgroundCancellation.getType());//标记订单为卖家取消状态
+			String now = systemDateMapper.getSystemDate();
+			order.setCancelResult("后台取消");
+			order.setRemark(cancelResult);
+			order.setUpdateUser(userName);
+			order.setUpdateTime(now);
+			order.setCancelTime(now);
+			int count = orderMapper.update(order);
+			if(count == 0){
+				log.error("order info :"+order);
+				throw new RuntimeException("订单取消失败");
+			}
+			//插入日志表
+			OrderTrace orderTrace = new OrderTrace();
+			orderTrace.setOrderId(order.getOrderId());
+			orderTrace.setNodeName("后台取消订单");
+			orderTrace.setDealStaff(userName);
+			orderTrace.setRecordDate(now);
+			orderTrace.setRecordStaff(userName);
+			orderTrace.setOrderStatus(order.getOrderStatus());
+			orderTrace.setCreateTime(now);
+			orderTrace.setCreateUser(userName);
+			orderTraceMapper.save(orderTrace);
+		}else{
+			log.error("order status error ,orderStatus:"+order.getOrderStatus());
+			throw new RuntimeException("订单状态不正确");
+		}
 	}
 }

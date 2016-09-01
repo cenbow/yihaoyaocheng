@@ -24,6 +24,7 @@ import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,6 +46,7 @@ public class OrderExceptionService {
 	private OrderMapper	orderMapper;
 	private OrderTraceMapper orderTraceMapper;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
+	private SystemPayTypeMapper systemPayTypeMapper;
 	@Autowired
 	private OrderDeliveryMapper orderDeliveryMapper;
 	@Autowired
@@ -76,6 +78,11 @@ public class OrderExceptionService {
 	@Autowired
 	public void setOrderDeliveryDetailMapper(OrderDeliveryDetailMapper orderDeliveryDetailMapper) {
 		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
+	}
+
+	@Autowired
+	public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
+		this.systemPayTypeMapper = systemPayTypeMapper;
 	}
 
 
@@ -583,6 +590,10 @@ public class OrderExceptionService {
 			order.setReceiveTime(now);
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
+
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+			PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+			payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
 		}else{
 			order=orderMapper.getOrderbyFlowId(oe.getFlowId());
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
@@ -1472,6 +1483,10 @@ public class OrderExceptionService {
 				order.setUpdateUser(userDto.getUserName());
 				orderMapper.update(order);
 				createOrderTrace(order, userDto, now, 2, "买家部分收货");
+
+				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+				PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+				payService.handleRefund(userDto,3,orderException.getExceptionOrderId(),"买家补货确认收货");
 			} else {
 				log.info("订单状态不正确:" + orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");

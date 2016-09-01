@@ -38,6 +38,14 @@ public interface PayService {
     public String spiltPaymentCallback(HttpServletRequest request);
 
     /**
+     * 退款回调
+     * @param request
+     * @return
+     */
+    public String redundCallBack(HttpServletRequest request);
+
+
+    /**
      * 发起退款请求
      * @param userDto 用户信息
      * @param orderType 订单类型 1：原始订单 2:拒收订单 3：补货订单

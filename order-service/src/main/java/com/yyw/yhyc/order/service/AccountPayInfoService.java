@@ -52,7 +52,7 @@ public class AccountPayInfoService {
 	}
 	/**
 	 * 通过供应商custId查询线下支付帐号
-	 * @param primaryKey
+	 * @param custId
 	 * @return
 	 * @throws Exception
 	 */
