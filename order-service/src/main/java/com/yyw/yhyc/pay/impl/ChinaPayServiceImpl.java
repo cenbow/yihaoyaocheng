@@ -73,11 +73,6 @@ public class ChinaPayServiceImpl implements PayService {
         this.orderExceptionMapper = orderExceptionMapper;
     }
 
-    @Override
-    public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, int Action) {
-        return null;
-    }
-
 
     @Autowired
     public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
@@ -318,4 +313,13 @@ public class ChinaPayServiceImpl implements PayService {
         orderRefundMapper.save(orderRefund);
     }
 
+    @Override
+    public boolean confirmReceivedOrder(String payFlowId) throws Exception {
+        return false;
+    }
+
+    @Override
+    public boolean cancelOrder(String payFlowId) throws Exception {
+        return false;
+    }
 }

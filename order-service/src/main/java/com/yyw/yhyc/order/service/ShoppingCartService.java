@@ -186,6 +186,12 @@ public class ShoppingCartService {
 		condition.setSupplyId(shoppingCart.getSupplyId());
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
 
+		condition = new ShoppingCart();
+		condition.setCustId(shoppingCart.getCustId());
+		int count = shoppingCartMapper.findByCount(condition);
+		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
+			throw new Exception("进货单最多只能添加100个品种，请先下单。");
+
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice());
 		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
 			shoppingCartMapper.save(shoppingCart);
