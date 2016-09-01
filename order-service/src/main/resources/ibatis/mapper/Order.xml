@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- 
  **
  * Created By: XI
@@ -53,8 +53,8 @@
 		<result column="receive_Type" property="receiveType"/>
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="payment_term" property="paymentTerm"/>
-		<result column="delay_times" property="delayimes"/>
-	</resultMap>T
+		<result column="delay_times" property="delayTimes"/>
+	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
 		<result column="order_id" property="orderId"/>
@@ -139,7 +139,7 @@
 		, payment_term_status
 		, payment_term
 		, delay_times
-
+	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
 				, cust_name
@@ -178,7 +178,7 @@
 				, payment_term
 				, delay_times
     </sql>
-	
+
 	<sql id="commonProcessDateColumns">
 		 order_id
 		, flow_id
@@ -297,123 +297,123 @@
 		, o.payment_term_status
 		, o.payment_term
 	</sql>
-	
+
 	<sql id="commonCondition">
-		<if test="orderId!= null and orderId!= ''"> 
+		<if test="orderId!= null and orderId!= ''">
 			AND order_id=#{orderId}
 		</if>
-		<if test="flowId!= null and flowId!= ''"> 
+		<if test="flowId!= null and flowId!= ''">
 			AND flow_id=#{flowId}
 		</if>
-		<if test="custName!= null and custName!= ''"> 
+		<if test="custName!= null and custName!= ''">
 			AND cust_name=#{custName}
 		</if>
-		<if test="custId!= null and custId!= ''"> 
+		<if test="custId!= null and custId!= ''">
 			AND cust_id=#{custId}
 		</if>
-		<if test="supplyName!= null and supplyName!= ''"> 
+		<if test="supplyName!= null and supplyName!= ''">
 			AND supply_name=#{supplyName}
 		</if>
-		<if test="supplyId!= null and supplyId!= ''"> 
+		<if test="supplyId!= null and supplyId!= ''">
 			AND supply_id=#{supplyId}
 		</if>
-		<if test="cancelResult!= null and cancelResult!= ''"> 
+		<if test="cancelResult!= null and cancelResult!= ''">
 			AND cancel_result=#{cancelResult}
 		</if>
-		<if test="orgTotal!= null and orgTotal!= ''"> 
+		<if test="orgTotal!= null and orgTotal!= ''">
 			AND org_total=#{orgTotal}
 		</if>
-		<if test="freight!= null and freight!= ''"> 
+		<if test="freight!= null and freight!= ''">
 			AND freight=#{freight}
 		</if>
-		<if test="orderTotal!= null and orderTotal!= ''"> 
+		<if test="orderTotal!= null and orderTotal!= ''">
 			AND order_total=#{orderTotal}
 		</if>
-		<if test="finalPay!= null and finalPay!= ''"> 
+		<if test="finalPay!= null and finalPay!= ''">
 			AND final_pay=#{finalPay}
 		</if>
-		<if test="totalCount!= null and totalCount!= ''"> 
+		<if test="totalCount!= null and totalCount!= ''">
 			AND total_count=#{totalCount}
 		</if>
-		<if test="orderStatus!= null and orderStatus!= ''"> 
+		<if test="orderStatus!= null and orderStatus!= ''">
 			AND order_status=#{orderStatus}
 		</if>
-		<if test="remark!= null and remark!= ''"> 
+		<if test="remark!= null and remark!= ''">
 			AND remark=#{remark}
 		</if>
-		<if test="leaveMessage!= null and leaveMessage!= ''"> 
+		<if test="leaveMessage!= null and leaveMessage!= ''">
 			AND leave_message=#{leaveMessage}
 		</if>
-		<if test="orderCombinedId!= null and orderCombinedId!= ''"> 
+		<if test="orderCombinedId!= null and orderCombinedId!= ''">
 			AND order_combined_id=#{orderCombinedId}
 		</if>
-		<if test="confirmSettlement!= null and confirmSettlement!= ''"> 
+		<if test="confirmSettlement!= null and confirmSettlement!= ''">
 			AND confirm_settlement=#{confirmSettlement}
 		</if>
-		<if test="settlementMoney!= null and settlementMoney!= ''"> 
+		<if test="settlementMoney!= null and settlementMoney!= ''">
 			AND settlement_money=#{settlementMoney}
 		</if>
-		<if test="preferentialMoney!= null and preferentialMoney!= ''"> 
+		<if test="preferentialMoney!= null and preferentialMoney!= ''">
 			AND preferential_money=#{preferentialMoney}
 		</if>
-		<if test="preferentialRemark!= null and preferentialRemark!= ''"> 
+		<if test="preferentialRemark!= null and preferentialRemark!= ''">
 			AND preferential_remark=#{preferentialRemark}
 		</if>
-		<if test="payStatus!= null and payStatus!= ''"> 
+		<if test="payStatus!= null and payStatus!= ''">
 			AND pay_status=#{payStatus}
 		</if>
-		<if test="payTypeId!= null and payTypeId!= ''"> 
+		<if test="payTypeId!= null and payTypeId!= ''">
 			AND pay_type_id=#{payTypeId}
 		</if>
-		<if test="createTime!= null and createTime!= ''"> 
+		<if test="createTime!= null and createTime!= ''">
 			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="payTime!= null and payTime!= ''"> 
+		<if test="payTime!= null and payTime!= ''">
 			AND pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="cancelTime!= null and cancelTime!= ''"> 
+		<if test="cancelTime!= null and cancelTime!= ''">
 			AND cancel_time=str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="deliverTime!= null and deliverTime!= ''"> 
+		<if test="deliverTime!= null and deliverTime!= ''">
 			AND deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="receiveTime!= null and receiveTime!= ''"> 
+		<if test="receiveTime!= null and receiveTime!= ''">
 			AND receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="settlementTime!= null and settlementTime!= ''"> 
+		<if test="settlementTime!= null and settlementTime!= ''">
 			AND settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="createUser!= null and createUser!= ''"> 
+		<if test="createUser!= null and createUser!= ''">
 			AND create_user=#{createUser}
 		</if>
-		<if test="updateTime!= null and updateTime!= ''"> 
+		<if test="updateTime!= null and updateTime!= ''">
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="updateUser!= null and updateUser!= ''"> 
+		<if test="updateUser!= null and updateUser!= ''">
 			AND update_user=#{updateUser}
 		</if>
-		<if test="billType!= null and billType!= ''"> 
+		<if test="billType!= null and billType!= ''">
 			AND bill_type=#{billType}
 		</if>
-		<if test="delayLog!= null and delayLog!= ''"> 
+		<if test="delayLog!= null and delayLog!= ''">
 			AND Delay_log=#{delayLog}
 		</if>
-		<if test="receiveType!= null and receiveType!= ''"> 
+		<if test="receiveType!= null and receiveType!= ''">
 			AND receive_Type=#{receiveType}
 		</if>
-		<if test="paymentTermStatus!= null and paymentTermStatus!= ''"> 
+		<if test="paymentTermStatus!= null and paymentTermStatus!= ''">
 			AND payment_term_status=#{paymentTermStatus}
 		</if>
 		<if test="paymentTerm!= null">
 			AND payment_term=#{paymentTerm}
 		</if>
 	</sql>
-	
+
 	<insert id="save" parameterType="Order">
 		<![CDATA[ INSERT INTO t_order ( ]]>
 			<include refid="commonColumnsNotPK"/>
 		<![CDATA[
-			) VALUES ( 
+			) VALUES (
 				 #{flowId}
 				, #{custName}
 				, #{custId}
@@ -578,7 +578,7 @@
 	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 			 <include refid="commonProcessDateColumns"/>
-		FROM t_order WHERE order_id = #{orderId}  
+		FROM t_order WHERE order_id = #{orderId}
 	</select>
 	<select id="list" resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
@@ -588,17 +588,17 @@
 	<select id="listByProperty" parameterType="Order" resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 			<include refid="commonProcessDateColumns"/>
-		FROM t_order WHERE 1=1 
+		FROM t_order WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="listPaginationByProperty" parameterType="Order" resultMap="OrderResultMapper">
-		SELECT 
+		SELECT
 		<include refid="commonProcessDateColumns"/>
-		FROM t_order WHERE 1=1 
+		FROM t_order WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="findByCount" parameterType="Order" resultType="int">
-		SELECT count(1) AS totalcount FROM t_order WHERE 1=1 
+		SELECT count(1) AS totalcount FROM t_order WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 
