@@ -23,4 +23,11 @@ public class Order4ManagerFacadeImpl implements Order4ManagerFacade {
     public Map<String, Object> listPgOperationsOrder(Map<String, String> data) {
         return orderService.listPgOperationsOrder(data);
     }
+
+    @Override
+    public Map<String, Object> getOrderDetails4Manager(String flowId) throws Exception{
+        return orderService.getOrderDetails4Manager(flowId);
+    }
+
+
 }
