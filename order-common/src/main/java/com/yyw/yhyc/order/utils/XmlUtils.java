@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by zhangqiang on 2016/8/31.
  */
-public class XmlUtil {
+public class XmlUtils {
 
     /**
      * 从指定节点开始,递归遍历所有子节点

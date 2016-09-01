@@ -268,6 +268,9 @@ public class OrderPayService {
 		orderPay.setCreateTime(systemDateMapper.getSystemDate());
 		log.info("在线支付订单前，预处理订单数据:插入orderPay数据=" + orderPay);
 		orderPayMapper.save(orderPay);
+		List<OrderPay> orderPayList = orderPayMapper.listByProperty(orderPay);
+		if(UtilHelper.isEmpty(orderPayList) || orderPayList.size() != 1) throw new Exception("服务器异常!");
+		orderPay = orderPayList.get(0);
 		log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
 		return orderPay;
 	}

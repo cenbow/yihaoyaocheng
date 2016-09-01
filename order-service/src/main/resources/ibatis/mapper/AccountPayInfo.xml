@@ -35,6 +35,9 @@
 		<result column="pay_account_area" property="payAccountArea"/>
 		<result column="pay_subbank_name" property="paySubbankName"/>
 		<result column="remark" property="remark"/>
+		<result column="province_name" property="provinceName"/>
+		<result column="city_name" property="cityName"/>
+		<result column="district_name" property="districtName"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -56,26 +59,32 @@
 		, pay_account_area
 		, pay_subbank_name
 		, remark
+		, province_name
+		, city_name
+		, district_name
 	</sql>
 
     <sql id="commonColumnsNotPK">
-				 cust_id
-				, pay_type_id
-				, account_type
-				, pay_account_no
-				, pay_account_name
-				, receive_account_no
-				, receive_account_name
-				, account_status
-				, create_user
-				, create_time
-				, update_user
-				, update_time
-				, account_area
-				, subbank_name
-				, pay_account_area
-				, pay_subbank_name
-				, remark
+		 cust_id
+		, pay_type_id
+		, account_type
+		, pay_account_no
+		, pay_account_name
+		, receive_account_no
+		, receive_account_name
+		, account_status
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, account_area
+		, subbank_name
+		, pay_account_area
+		, pay_subbank_name
+		, remark
+		, province_name
+		, city_name
+		, district_name
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -97,6 +106,9 @@
 		, pay_account_area
 		, pay_subbank_name
 		, remark
+		, province_name
+		, city_name
+		, district_name
 	</sql>
 	
 	<sql id="commonCondition">
@@ -154,6 +166,15 @@
 		<if test="remark!= null and remark!= ''"> 
 			AND remark=#{remark}
 		</if>
+		<if test="provinceName!= null and provinceName!= ''">
+			AND province_name=#{provinceName}
+		</if>
+		<if test="cityName!= null and cityName!= ''">
+			AND city_name=#{cityName}
+		</if>
+		<if test="districtName!= null and districtName!= ''">
+			AND district_name=#{districtName}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="AccountPayInfo">
@@ -178,29 +199,74 @@
 				, #{payAccountArea}
 				, #{paySubbankName}
 				, #{remark}
+				, #{provinceName}
+				, #{cityName}
+				, #{districtName}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="AccountPayInfo">
-		<![CDATA[ UPDATE t_account_pay_info SET 
-			 account_info_id=#{accountInfoId} 
-			, cust_id=#{custId} 
-			, pay_type_id=#{payTypeId} 
-			, account_type=#{accountType} 
-			, pay_account_no=#{payAccountNo} 
-			, pay_account_name=#{payAccountName} 
-			, receive_account_no=#{receiveAccountNo} 
-			, receive_account_name=#{receiveAccountName} 
-			, account_status=#{accountStatus} 
-			, create_user=#{createUser} 
+		<![CDATA[ UPDATE t_account_pay_info SET account_info_id=#{accountInfoId} ]]>
+		<if test="custId!= null and custId!= ''">
+			, cust_id=#{custId}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''">
+			, pay_type_id=#{payTypeId}
+		</if>
+		<if test="accountType!= null and accountType!= ''">
+			, account_type=#{accountType}
+		</if>
+		<if test="payAccountNo!= null and payAccountNo!= ''">
+			, pay_account_no=#{payAccountNo}
+		</if>
+		<if test="payAccountName!= null and payAccountName!= ''">
+			, pay_account_name=#{payAccountName}
+		</if>
+		<if test="receiveAccountNo!= null and receiveAccountNo!= ''">
+			, receive_account_no=#{receiveAccountNo}
+		</if>
+		<if test="receiveAccountName!= null and receiveAccountName!= ''">
+			, receive_account_name=#{receiveAccountName}
+		</if>
+		<if test="accountStatus!= null and accountStatus!= ''">
+			, account_status=#{accountStatus}
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			, create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-			, update_user=#{updateUser} 
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			, update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
-			, account_area=#{accountArea} 
-			, subbank_name=#{subbankName} 
-			, pay_account_area=#{payAccountArea} 
-			, pay_subbank_name=#{paySubbankName} 
-			, remark=#{remark} 
-		WHERE account_info_id = #{accountInfoId}  ]]>
+		</if>
+		<if test="accountArea!= null and accountArea!= ''">
+			, account_area=#{accountArea}
+		</if>
+		<if test="subbankName!= null and subbankName!= ''">
+			, subbank_name=#{subbankName}
+		</if>
+		<if test="payAccountArea!= null and payAccountArea!= ''">
+			, pay_account_area=#{payAccountArea}
+		</if>
+		<if test="paySubbankName!= null and paySubbankName!= ''">
+			, pay_subbank_name=#{paySubbankName}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="provinceName!= null and provinceName!= ''">
+			, province_name=#{provinceName}
+		</if>
+		<if test="cityName!= null and cityName!= ''">
+			, city_name=#{cityName}
+		</if>
+		<if test="districtName!= null and districtName!= ''">
+			, district_name=#{districtName}
+		</if>
+		<![CDATA[  WHERE account_info_id = #{accountInfoId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_account_pay_info WHERE account_info_id = #{accountInfoId}  ]]>

@@ -14,6 +14,7 @@ public class CmbPayUtil {
 
 	public static final String MCHNBR = "MCHNBR";
 	public static final String REFORD = "REFORD";
+	public static final String SUBORD = "SUBORD";
 	public static final String CCYNBR = "CCYNBR";
 	public static final String TRSAMT = "TRSAMT";
 	public static final String CRTACC = "CRTACC";

@@ -10,6 +10,8 @@ import com.yyw.yhyc.order.service.OrderCombinedService;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.utils.XmlUtil;
+import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.order.utils.XmlUtils;
 import com.yyw.yhyc.pay.cmbPay.CmbPayUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
@@ -32,28 +34,28 @@ public class CmbPayServiceImpl implements PayService{
 
     private static final Logger log = LoggerFactory.getLogger(CmbPayServiceImpl.class);
 
-    private OrderCombinedService orderCombinedService;
+    private OrderCombinedMapper orderCombinedMapper;
     @Autowired
-    public void setOrderCombinedService(OrderCombinedService orderCombinedService) {
-        this.orderCombinedService = orderCombinedService;
+    public void setOrderCombinedMapper(OrderCombinedMapper orderCombinedMapper) {
+        this.orderCombinedMapper = orderCombinedMapper;
     }
 
-    private OrderService orderService;
+    private OrderMapper orderMapper;
     @Autowired
-    public void setOrderService(OrderService orderService) {
-        this.orderService = orderService;
+    public void setOrderMapper(OrderMapper orderMapper) {
+        this.orderMapper = orderMapper;
     }
 
-    private AccountPayInfoService accountPayInfoService;
+    private AccountPayInfoMapper accountPayInfoMapper;
     @Autowired
-    public void setAccountPayInfoService(AccountPayInfoService accountPayInfoService) {
-        this.accountPayInfoService = accountPayInfoService;
+    public void setAccountPayInfoMapper(AccountPayInfoMapper accountPayInfoMapper) {
+        this.accountPayInfoMapper = accountPayInfoMapper;
     }
 
-    private OrderPayService orderPayService;
+    private OrderPayMapper orderPayMapper;
     @Autowired
-    public void setOrderPayService(OrderPayService orderPayService) {
-        this.orderPayService = orderPayService;
+    public void setOrderPayMapper(OrderPayMapper orderPayMapper) {
+        this.orderPayMapper = orderPayMapper;
     }
 
     private SystemDateMapper systemDateMapper;
@@ -63,7 +65,62 @@ public class CmbPayServiceImpl implements PayService{
     }
 
     @Override
-    public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, int Action) {
+    public String postToBankForDoneOrder(Map<String, Object> orderInfo, int action) throws Exception {
+        if (UtilHelper.isEmpty(orderInfo)) throw  new Exception("非法参数");
+        OrderPay orderPay = (OrderPay) orderInfo.get("orderPay");
+        if(UtilHelper.isEmpty(orderPay))throw  new Exception("非法参数");
+
+        String operationAction = "";
+        if (PayService.ORDER_RECEIVED_ACTION == action) {
+            operationAction = "A";
+        } else if (PayService.ORDER_CANCELLED_ACTION == action) {
+            operationAction = "C";
+        } else{
+            throw  new Exception("非法参数");
+        }
+
+        String requestXML =
+                "<?xml version=\"1.0\" encoding = \"GBK\"?>" +
+                    "<CMBSDKPGK>" +
+                        "<INFO>" +
+                            "<FUNNAM>%s</FUNNAM>" +
+                            "<DATTYP>%s</DATTYP>" +
+                            "<LGNNAM>%s</LGNNAM>" +
+                        "</INFO>" +
+                        "<NTORDCFMX>" +
+                            "<MCHNBR>%s</MCHNBR>" +
+                            "<SEQNBR>%s</SEQNBR>" +
+                            "<SUBSEQ>%s</SUBSEQ>" +
+                            "<STSCOD>%s</STSCOD>" +
+                        "</NTORDCFMX>" +
+                    "</CMBSDKPGK>";
+        //TODO 请填写登录名
+        requestXML = String.format(requestXML,"NTORDCFM" , 2 , "---请填写登录名---",
+                CmbPayUtil.getValue(CmbPayUtil.MCHNBR) , orderPay.getPayFlowId() , orderPay.getOrderPayId() , operationAction);
+        //TODO 发送请求
+        return null;
+    }
+
+    /* 确认收货后，向招商银行发送分账请求 */
+    public boolean confirmReceivedOrder(String payFlowId) throws Exception {
+        OrderPay orderPay = validateOrderPay(payFlowId);
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderPay",orderPay);
+        String response = postToBankForDoneOrder(map,PayService.ORDER_RECEIVED_ACTION);
+        return false;
+    }
+
+    /* 已付款的订单取消后，向招商银行发送撤销请求 */
+    public boolean cancelOrder(String payFlowId) throws Exception {
+        OrderPay orderPay = validateOrderPay(payFlowId);
+        Map<String,Object> map = new HashMap<>();
+        map.put("orderPay",orderPay);
+        String response = postToBankForDoneOrder(map,PayService.ORDER_CANCELLED_ACTION);
+        return false;
+    }
+
+    private OrderPay validateOrderPay(String payFlowId){
+        //TODO
         return null;
     }
 
@@ -78,22 +135,21 @@ public class CmbPayServiceImpl implements PayService{
         if(UtilHelper.isEmpty(orderPay) || UtilHelper.isEmpty(orderPay.getPayFlowId())){
             return null;
         }
-        OrderCombined orderCombined = orderCombinedService.findByPayFlowId(orderPay.getPayFlowId());
+        OrderCombined orderCombined = orderCombinedMapper.findByPayFlowId(orderPay.getPayFlowId());
         if(UtilHelper.isEmpty(orderCombined)) return null;
 
         Order orderQuery = new Order();
         orderQuery.setOrderCombinedId(orderCombined.getOrderCombinedId());
-        List<Order> orderList = orderService.listByProperty(orderQuery);
+        List<Order> orderList = orderMapper.listByProperty(orderQuery);
         if(UtilHelper.isEmpty(orderList)) return null;
 
         StringBuffer orderDataInfo = new StringBuffer();
-        Integer orderDataInfoCount = 0;
         AccountPayInfo accountPayInfo = null;
         for(Order order : orderList){
             accountPayInfo = new AccountPayInfo();
             accountPayInfo.setCustId(order.getSupplyId());
             accountPayInfo.setPayTypeId(order.getPayTypeId());
-            List<AccountPayInfo> accountPayInfoList = accountPayInfoService.listByProperty(accountPayInfo);
+            List<AccountPayInfo> accountPayInfoList = accountPayInfoMapper.listByProperty(accountPayInfo);
             if(UtilHelper.isEmpty(accountPayInfoList) || accountPayInfoList.size() != 1){
                 throw  new Exception("供应商收款账户异常");
             }
@@ -102,26 +158,20 @@ public class CmbPayServiceImpl implements PayService{
                     || UtilHelper.isEmpty(accountPayInfo.getReceiveAccountName())){
                 throw  new Exception("供应商收款账户异常");
             }
-
-            if(orderDataInfoCount != 0){
-                orderDataInfo.append("\r\n");
-            }
-
             orderDataInfo.append( CmbPayUtil.MCHNBR + "=" + CmbPayUtil.getValue(CmbPayUtil.MCHNBR) + " ;");//商户编码
             orderDataInfo.append( CmbPayUtil.REFORD + "=" + orderPay.getPayFlowId() + " ;");//订单号
+            orderDataInfo.append( CmbPayUtil.SUBORD + "=" + order.getOrderId() + " ;");//订单支付号
             orderDataInfo.append( CmbPayUtil.CCYNBR + "=" + CmbPayUtil.getValue(CmbPayUtil.CCYNBR) + " ;");//订单币种
-            orderDataInfo.append( CmbPayUtil.TRSAMT + "=" + orderPay.getOrderMoney() + " ;");//订单金额
+            orderDataInfo.append( CmbPayUtil.TRSAMT + "=" + order.getOrgTotal() + " ;");//订单金额
             orderDataInfo.append( CmbPayUtil.CRTACC + "=" + accountPayInfo.getReceiveAccountNo()  + " ;");//收方账号
             orderDataInfo.append( CmbPayUtil.CRTNAM + "=" + accountPayInfo.getReceiveAccountName() + " ;");//收方账户名
             orderDataInfo.append( CmbPayUtil.CRTBNK + "=" + accountPayInfo.getSubbankName()  + " ;");//收方开户行
-//            TODO 省市区的字段如何处理？
-//            orderDataInfo.append( CmbPayUtil.CRTPVC + "=" +   + " ;");//收方省份
-//            orderDataInfo.append( CmbPayUtil.CRTCTY + "=" +   + " ;");//收方城市
-            orderDataInfo.append( CmbPayUtil.RETURL + "=" + CmbPayUtil.getValue("payHost") + " /" + CmbPayUtil.getValue("payReturnUrl") + " ;");//同步响应URL
+            orderDataInfo.append( CmbPayUtil.CRTPVC + "=" +  accountPayInfo.getProvinceName() + " ;");//收方省份
+            orderDataInfo.append( CmbPayUtil.CRTCTY + "=" +  accountPayInfo.getCityName() + " ;");//收方城市
+            orderDataInfo.append( CmbPayUtil.RETURL + "=" + CmbPayUtil.getValue("payHost") + CmbPayUtil.getValue("payReturnUrl") + " ;");//同步响应URL
             orderDataInfo.append("\0");
-            orderDataInfoCount++;
         }
-        log.info("招商银行支付请求之前，组装数据:orderDataInfo=" + orderDataInfo);
+        log.info("招商银行支付请求之前，组装数据:\n orderDataInfo=" + orderDataInfo);
 
         String sigdat = "";
         //TODO 调用生成签名接口
@@ -184,7 +234,7 @@ public class CmbPayServiceImpl implements PayService{
 
             //更新支付状态为已支付
             if(!UtilHelper.isEmpty(REFORD)){
-                OrderPay orderPay =  orderPayService.getByPayFlowId(REFORD);
+                OrderPay orderPay =  orderPayMapper.getByPayFlowId(REFORD);
                 if(!UtilHelper.isEmpty(orderPay)){
                     String now = systemDateMapper.getSystemDate();
                     orderPay.setPayStatus("1");//已支付
@@ -194,7 +244,7 @@ public class CmbPayServiceImpl implements PayService{
                     orderPay.setPayMoney(new BigDecimal(ENDAMT));
                     orderPay.setUpdateTime(now);
                     orderPay.setPaymentPlatforReturn(xml);
-                    int count = orderPayService.update(orderPay);
+                    int count = orderPayMapper.update(orderPay);
                     if(count != 0){
                         code = CmbPayUtil.CALLBACK_SUCCESS_CODE;
                         msg = "响应成功";
@@ -227,7 +277,7 @@ public class CmbPayServiceImpl implements PayService{
      */
     private Map<String,String> getCallBackRequestData(String xml){
         Map<String,String> map = new HashMap<String,String>();
-        List<Map<String,String>> list = XmlUtil.readXmlAsList(xml);
+        List<Map<String,String>> list = XmlUtils.readXmlAsList(xml);
         for(Map<String,String> item: list){
             for(Map.Entry<String,String> entry : item.entrySet()){
                 map.put(entry.getKey(),entry.getValue());

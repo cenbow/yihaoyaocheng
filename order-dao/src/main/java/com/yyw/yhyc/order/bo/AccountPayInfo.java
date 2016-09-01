@@ -109,6 +109,22 @@ public class AccountPayInfo extends Model{
 	  */
 	private java.lang.String remark;
 
+
+	/**
+	 *	省名称
+	 */
+	private String provinceName;
+
+	/**
+	 *	市名称
+	 */
+	private String cityName;
+
+	/**
+	 *	区名称
+	 */
+	private String districtName;
+
 	/**
 	  *	
 	  */
@@ -396,29 +412,56 @@ public class AccountPayInfo extends Model{
 	{
 		this.remark = remark;
 	}
-	
-	public String toString()
-	{
-		return "AccountPayInfo [" + 
-					"accountInfoId=" + accountInfoId + 
-					", custId=" + custId + 
-					", payTypeId=" + payTypeId + 
-					", accountType=" + accountType + 
-					", payAccountNo=" + payAccountNo + 
-					", payAccountName=" + payAccountName + 
-					", receiveAccountNo=" + receiveAccountNo + 
-					", receiveAccountName=" + receiveAccountName + 
-					", accountStatus=" + accountStatus + 
-					", createUser=" + createUser + 
-					", createTime=" + createTime + 
-					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime + 
-					", accountArea=" + accountArea + 
-					", subbankName=" + subbankName + 
-					", payAccountArea=" + payAccountArea + 
-					", paySubbankName=" + paySubbankName + 
-					", remark=" + remark + 
-				"]";
+
+	public String getProvinceName() {
+		return provinceName;
+	}
+
+	public void setProvinceName(String provinceName) {
+		this.provinceName = provinceName;
+	}
+
+	public String getCityName() {
+		return cityName;
+	}
+
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
+	}
+
+	public String getDistrictName() {
+		return districtName;
+	}
+
+	public void setDistrictName(String districtName) {
+		this.districtName = districtName;
+	}
+
+	@Override
+	public String toString() {
+		return "AccountPayInfo{" +
+				"accountInfoId=" + accountInfoId +
+				", custId=" + custId +
+				", payTypeId=" + payTypeId +
+				", accountType='" + accountType + '\'' +
+				", payAccountNo='" + payAccountNo + '\'' +
+				", payAccountName='" + payAccountName + '\'' +
+				", receiveAccountNo='" + receiveAccountNo + '\'' +
+				", receiveAccountName='" + receiveAccountName + '\'' +
+				", accountStatus='" + accountStatus + '\'' +
+				", createUser='" + createUser + '\'' +
+				", createTime='" + createTime + '\'' +
+				", updateUser='" + updateUser + '\'' +
+				", updateTime='" + updateTime + '\'' +
+				", accountArea='" + accountArea + '\'' +
+				", subbankName='" + subbankName + '\'' +
+				", payAccountArea='" + payAccountArea + '\'' +
+				", paySubbankName='" + paySubbankName + '\'' +
+				", remark='" + remark + '\'' +
+				", provinceName='" + provinceName + '\'' +
+				", cityName='" + cityName + '\'' +
+				", districtName='" + districtName + '\'' +
+				'}';
 	}
 }
 

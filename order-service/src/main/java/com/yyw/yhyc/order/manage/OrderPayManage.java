@@ -14,6 +14,7 @@ import com.yyw.yhyc.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -21,6 +22,7 @@ import java.util.*;
 /**
  * Created by jiangshuai on 2016/8/30.
  */
+@Service("orderPayMamage")
 public class OrderPayManage {
 
     private static final Logger log = LoggerFactory.getLogger(OrderPayManage.class);
@@ -402,8 +404,6 @@ public class OrderPayManage {
         updateOrderpayInfos(flowPayId, new BigDecimal(money),map.toString());
     }
 
-
-
     // 支付完成更新信息
     public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String Payment)
             throws Exception {
@@ -458,4 +458,99 @@ public class OrderPayManage {
             }
         }
     }
+
+
+    // 确认收货更新信息
+    private void updateTakeConfirmOrderInfos(String payFlowId, String orderStatus) throws Exception {
+        log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo start ----");
+
+        List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
+
+        if (UtilHelper.isEmpty(listOrder)||listOrder.size()==0) {
+            // 商户数据异常
+            log.info("根据订单流水号查询订单不存在");
+            throw new Exception("支付信息异常！");
+        }
+        String now = systemDateMapper.getSystemDate();
+        if (orderStatus.equals("0000")) {// 打款成功
+            for (Order order : listOrder) {
+                if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+                    //生产订单日志
+                    createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
+                }
+            }
+        } else {// 打款异常
+            for (Order order : listOrder) {
+                if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+                    order.setOrderStatus(SystemOrderStatusEnum.PaidException.getType());
+                    orderMapper.update(order);
+                    //生产订单日志
+                    createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款失败.");
+                }
+            }
+        }
+        log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo end ----");
+
+    }
+/*
+
+    // 退款更新信息
+    private void updateRedundOrderInfos(String PayflowId, String orderStatus, Map<String, Object> map)
+            throws ServiceException {
+        logger.info(PayflowId + "----- 退款成功后更新信息  update orderInfo start ----");
+
+        List<Order> listOrder = orderService.listOrderInfosByPayFlowId(PayflowId);
+
+        if (UtilHelper.isEmpty(listOrder)) {
+            // 商户数据异常
+            throw new ServiceException(Message3kwResource.ERROR_MESSAGE_3KW_SYSTEM_ERROR, "退款信息异常！");
+        }
+        for (Order o : listOrder) {
+            OrderRefund orderRefund = orderRefundService.getByPK(o.getOrderId());
+            if (UtilHelper.isEmpty(orderRefund)) {
+                orderRefund.setRemark(map.toString());
+                if (orderStatus.equals("0000")) {
+                    o.setOrderStatus(CommonType.ORDER_STATUS_BSUCCESS);
+                    orderService.updateStatus(o);
+                    orderRefund.setRefundStatus(CommonType.ORDER_STATUS_BSUCCESS);
+                    orderRefundService.update(orderRefund);
+                    o.setOrderStatus(CommonType.ORDER_STATUS_BSUCCESS);
+                    orderService.update(o);
+                } else {
+                    orderRefund.setRefundStatus(CommonType.ORDER_STATUS_PAY_EXCEPTION);
+                    orderRefundService.update(orderRefund);
+                }
+
+            }
+        }
+
+        logger.info(PayflowId + "----- 退款成功后更新信息  update orderInfo end ----");
+
+    }
+*/
+
+
+    public void createOrderTrace(Object order,String userName,String now,int type,String nodeName){
+        //插入日志表
+        OrderTrace orderTrace = new OrderTrace();
+        orderTrace.setDealStaff(userName);
+        orderTrace.setRecordDate(now);
+        orderTrace.setRecordStaff(userName);
+
+        orderTrace.setCreateTime(now);
+        orderTrace.setCreateUser(userName);
+        if(type==1){
+            OrderException orderException=(OrderException)order;
+            orderTrace.setOrderId(orderException.getExceptionId());
+            orderTrace.setOrderStatus(orderException.getOrderStatus());
+            orderTrace.setNodeName(nodeName);
+        }else{
+            Order newOrder=(Order)order;
+            orderTrace.setOrderId(newOrder.getOrderId());
+            orderTrace.setOrderStatus(newOrder.getOrderStatus());
+            orderTrace.setNodeName(nodeName);
+        }
+        orderTraceMapper.save(orderTrace);
+    }
+
 }
