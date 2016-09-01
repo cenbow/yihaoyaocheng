@@ -351,6 +351,11 @@ public class CmbPayServiceImpl implements PayService{
         //买家已付款
         if(!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()))
             return;
+        OrderRefund er=orderRefundMapper.getOrderRefundByOrderId(order.getOrderId());
+        //订单是否已退款
+        if(!UtilHelper.isEmpty(er)){
+            throw new RuntimeException("订单已申请退款");
+        }
 
         OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
         //调用招行退款
