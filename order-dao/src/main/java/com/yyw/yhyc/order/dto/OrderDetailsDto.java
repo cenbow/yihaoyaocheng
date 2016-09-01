@@ -21,6 +21,10 @@ public class OrderDetailsDto extends Order {
     private String payTypeName;
     //订单类型枚举值
    private String orderStatusName;
+    /**
+     * 支付流水号
+     */
+    private String payFlowId;
 
     //结算备注。
    private String  settlementRemark;
@@ -31,6 +35,14 @@ public class OrderDetailsDto extends Order {
 
     public void setSettlementRemark(String settlementRemark) {
         this.settlementRemark = settlementRemark;
+    }
+
+    public String getPayFlowId() {
+        return payFlowId;
+    }
+
+    public void setPayFlowId(String payFlowId) {
+        this.payFlowId = payFlowId;
     }
 
     //订单类型

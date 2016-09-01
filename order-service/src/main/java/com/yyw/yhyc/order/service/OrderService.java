@@ -1696,4 +1696,64 @@ public class OrderService {
 		//TODO 延期收货订单逻辑
 		return "";
 	}
+
+	public Map<String, Object> getOrderDetails4Manager(String flowId) throws Exception{
+		Order order = new Order();
+		order.setFlowId(flowId);
+		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsdto)){
+			return null;
+		}
+		//订单类型翻译
+		orderDetailsdto.setOrderStatusName(SystemOrderStatusEnum.getName(orderDetailsdto.getOrderStatus()));
+		//计算确认收货金额
+		BigDecimal total=new BigDecimal(0);
+		BigDecimal productTotal=new BigDecimal(0);
+		for (OrderDetail detail:orderDetailsdto.getDetails())
+		{
+			BigDecimal proudcutCount=new BigDecimal(detail.getProductCount());
+			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
+				BigDecimal count=new BigDecimal(detail.getRecieveCount());
+				total=total.add(detail.getProductPrice().multiply(count));
+			}
+			productTotal=productTotal.add(detail.getProductPrice().multiply(proudcutCount));
+		}
+
+		if(orderDetailsdto.getPayType()==SystemPayTypeEnum.PayOffline.getPayType()){
+			OrderSettlement orderSettlement=new OrderSettlement();
+			orderSettlement.setOrderId(orderDetailsdto.getOrderId());
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setPayTypeId(orderDetailsdto.getPayTypeId());
+			List<OrderSettlement> settlements= orderSettlementMapper.listByProperty(orderSettlement);
+			if(settlements.size()>0){
+				orderDetailsdto.setSettlementRemark(settlements.get(0).getRemark());
+			}
+
+		}
+
+
+
+		orderDetailsdto.setProductTotal(productTotal);
+		orderDetailsdto.setReceiveTotal(total);
+		//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
+		OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
+		orderDeliveryDetail.setFlowId(order.getFlowId());
+		orderDeliveryDetail.setDeliveryStatus(0);
+		List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+		if(list.size()>0){
+			orderDetailsdto.setOrderDeliveryDetail(list.get(0));
+		}else{
+			orderDeliveryDetail.setDeliveryStatus(1);
+			List<OrderDeliveryDetail> listDeliveryDetai=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+			if(listDeliveryDetai.size()>0){
+				orderDetailsdto.setOrderDeliveryDetail(listDeliveryDetai.get(0));
+			}
+		}
+		OrderPay orderPay = orderPayMapper.getByPayFlowId(flowId);
+		if(!UtilHelper.isEmpty(orderPay))
+			orderDetailsdto.setPayFlowId(orderPay.getPayFlowId());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("orderDetailsDto",orderDetailsdto);
+		return map;
+	}
 }
