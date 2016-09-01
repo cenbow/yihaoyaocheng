@@ -2,6 +2,7 @@ package com.yyw.yhyc.pay.interfaces;
 
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.UserDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -11,14 +12,6 @@ import java.util.Map;
  */
 public interface PayService {
 
-    public static final int ORDER_RECEIVED_ACTION = 1;
-
-    public static final int ORDER_CANCELLED_ACTION = 2;
-
-    /**
-     * Action 1 确认收货 2 取消订单
-     */
-    public Object postToBankForDoneOrder(Map<String,Object> orderInfo,int Action) throws Exception;
 
     /**
      *  在发送支付请求之前，组装数据
@@ -43,5 +36,38 @@ public interface PayService {
      * @return
      */
     public String spiltPaymentCallback(HttpServletRequest request);
+
+    /**
+     * 退款回调
+     * @param request
+     * @return
+     */
+    public String redundCallBack(HttpServletRequest request);
+
+
+    /**
+     * 发起退款请求
+     * @param userDto 用户信息
+     * @param orderType 订单类型 1：原始订单 2:拒收订单 3：补货订单
+     * @param flowId 订单id
+     * @param refundDesc 退款原因
+     */
+    public void handleRefund(UserDto userDto,int orderType,String flowId,String refundDesc);
+
+
+    /**
+     * 确认收货后，向招商银行发送分账请求
+     * @param payFlowId  支付流水号
+     * @return 发送请求的结果：成功或者失败
+     */
+    public boolean confirmReceivedOrder(String payFlowId) throws Exception;
+
+
+    /**
+     * 已付款的订单取消后，向招商银行发送撤销请求
+     * @param payFlowId 支付流水号
+     * @return 发送请求的结果：成功或者失败
+     */
+    public boolean cancelOrder(String payFlowId) throws Exception;
 
 }
