@@ -221,10 +221,10 @@
 			 <include refid="commonProcessDateColumns"/>
 		FROM t_account_pay_info WHERE account_info_id = #{accountInfoId}  
 	</select>
-	<select id="getByCustId" parameterType="java.lang.Integer" resultMap="AccountPayInfoResultMapper">
+	<select id="getByCustId" parameterType="AccountPayInfo" resultMap="AccountPayInfoResultMapper">
 		<![CDATA[ SELECT ]]>
 			 <include refid="commonProcessDateColumns"/>
-		FROM t_account_pay_info WHERE cust_id = #{custId}  LIMIT 1
+		FROM t_account_pay_info WHERE cust_id = #{custId} AND pay_type_id=#{payTypeId} LIMIT 1
 	</select>
 	<select id="list" resultMap="AccountPayInfoResultMapper">
 		<![CDATA[ SELECT ]]>

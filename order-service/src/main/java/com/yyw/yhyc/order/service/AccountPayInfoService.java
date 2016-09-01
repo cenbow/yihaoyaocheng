@@ -12,6 +12,10 @@ package com.yyw.yhyc.order.service;
 
 import java.util.List;
 
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +27,13 @@ import com.yyw.yhyc.order.mapper.AccountPayInfoMapper;
 public class AccountPayInfoService {
 
 	private AccountPayInfoMapper	accountPayInfoMapper;
+	private SystemPayTypeMapper systemPayTypeMapper;
 
+	@Autowired
+	public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper)
+	{
+		this.systemPayTypeMapper = systemPayTypeMapper;
+	}
 	@Autowired
 	public void setAccountPayInfoMapper(AccountPayInfoMapper accountPayInfoMapper)
 	{
@@ -41,13 +51,27 @@ public class AccountPayInfoService {
 		return accountPayInfoMapper.getByPK(primaryKey);
 	}
 	/**
-	 * 通过供应商custId查询
+	 * 通过供应商custId查询线下支付帐号
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
 	 */
 	public AccountPayInfo getByCustId(Integer custId) throws Exception {
-		return accountPayInfoMapper.getByCustId(custId);
+		SystemPayType systemPayType = new SystemPayType();
+		//获取线下支付类型
+		systemPayType.setPayType(SystemPayTypeEnum.PayOffline.getPayType());
+		//获取线下支付类型ID
+		List<SystemPayType> systemPayTypeList= systemPayTypeMapper.listByProperty(systemPayType);
+		//如果线下支付类型不存在或者存在的个数不等于1，则返回null(线下支付在支付类型表中有且只能有一个)
+		if(UtilHelper.isEmpty(systemPayTypeList) || systemPayTypeList.size() != 1){
+			return null;
+		}
+		AccountPayInfo accountPayInfo = new AccountPayInfo();
+		//设置支付类型ID
+		accountPayInfo.setPayTypeId(systemPayTypeList.get(0).getPayTypeId());
+		//设置客户ID
+		accountPayInfo.setCustId(custId);
+		return accountPayInfoMapper.getByCustId(accountPayInfo);
 	}
 	/**
 	 * 查询所有记录
