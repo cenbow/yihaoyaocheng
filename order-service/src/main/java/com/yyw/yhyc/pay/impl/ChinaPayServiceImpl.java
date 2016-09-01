@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -39,32 +38,13 @@ public class ChinaPayServiceImpl implements PayService {
     private OrderPayMapper orderPayMapper;
 
     private OrderPayManage orderPayManage;
-    private OrderRefundMapper orderRefundMapper;
     private SystemDateMapper systemDateMapper;
     private OrderMapper orderMapper;
-    private OrderExceptionMapper orderExceptionMapper;
-    private SystemPayTypeMapper systemPayTypeMapper;
-
     private SystemPayTypeMapper systemPayTypeMapper;
 
     private OrderRefundMapper orderRefundMapper;
 
     private OrderExceptionMapper orderExceptionMapper;
-
-    @Autowired
-    public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
-        this.orderExceptionMapper = orderExceptionMapper;
-    }
-
-    @Autowired
-    public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
-        this.systemPayTypeMapper = systemPayTypeMapper;
-    }
-
-    @Autowired
-    public void setOrderRefundMapper(OrderRefundMapper orderRefundMapper) {
-        this.orderRefundMapper = orderRefundMapper;
-    }
 
     @Autowired
     public void setOrderPayManage(OrderPayManage orderPayManage) {
