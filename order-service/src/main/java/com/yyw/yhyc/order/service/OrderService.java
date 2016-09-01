@@ -17,11 +17,13 @@ import java.util.*;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
@@ -47,7 +49,7 @@ public class OrderService {
 	private Log log = LogFactory.getLog(OrderService.class);
 
 	private OrderMapper	orderMapper;
-	private SystemPayTypeService systemPayTypeService;
+	private SystemPayTypeMapper systemPayTypeMapper;
 	private SystemDateMapper systemDateMapper;
 	private OrderDetailService orderDetailService;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
@@ -85,10 +87,9 @@ public class OrderService {
 		this.orderDeliveryDetailMapper = orderDeliveryDetailMapper;
 	}
 
-
 	@Autowired
-	public void setSystemPayTypeService(SystemPayTypeService systemPayTypeService) {
-		this.systemPayTypeService = systemPayTypeService;
+	public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
+		this.systemPayTypeMapper = systemPayTypeMapper;
 	}
 
 	@Autowired
@@ -661,7 +662,7 @@ public class OrderService {
 		}
 
 		order.setPayTypeId(orderDto.getPayTypeId());
-		SystemPayType systemPayType = systemPayTypeService.getByPK(orderDto.getPayTypeId());
+		SystemPayType systemPayType = systemPayTypeMapper.getByPK(orderDto.getPayTypeId());
 		String orderFlowIdPrefix = "";
 		/* 线下支付 */
 		if(SystemPayTypeEnum.PayOffline.getPayType().equals(  systemPayType.getPayType() )){
@@ -1223,6 +1224,11 @@ public class OrderService {
 					log.error("order info :"+order);
 					throw new RuntimeException("订单取消失败");
 				}
+
+				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+				PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+				payService.handleRefund(userDto,1,order.getFlowId(),"卖家主动取消订单");
+
 				//插入日志表
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
@@ -1418,7 +1424,7 @@ public class OrderService {
         for(OrderException o:le){
             //异常订单收货
 			Order order = orderMapper.getByPK(o.getOrderId());
-			SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+			SystemPayType systemPayType= systemPayTypeMapper.getByPK(order.getPayTypeId());
             o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
             o.setSellerReceiveTime(systemDateMapper.getSystemDate());
             orderExceptionMapper.update(o);

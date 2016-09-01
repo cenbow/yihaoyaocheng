@@ -570,8 +570,9 @@ public class ChinaPayServiceImpl implements PayService {
      * @param refundDesc 退款原因
      */
     @Override
-    public void handleRefund(UserDto userDto, int orderType, String flowId,String refundDesc) {
+    public void handleRefund(UserDto userDto, int orderType, String flowId,String refundDesc){
         OrderRefund orderRefund = new OrderRefund();
+        BigDecimal orderMoney = null;
         Order order = null;
         if(orderType == 1){
             order = orderMapper.getOrderbyFlowId(flowId);
@@ -580,6 +581,9 @@ public class ChinaPayServiceImpl implements PayService {
         }else if(orderType == 2 || orderType == 3 ){
             OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
             order = orderMapper.getByPK(orderException.getOrderId());
+            //拒收订单+买家已确认
+            if(OrderExceptionTypeEnum.REJECT.getType().equals(orderException.getReturnType()) && SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+                orderMoney = orderException.getOrderMoney();
         }else{
             log.error("调用银联退款，orderType类型不正确，orderType="+orderType);
             throw new RuntimeException("orderType类型不正确");
@@ -601,7 +605,17 @@ public class ChinaPayServiceImpl implements PayService {
 
         OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
 
+        //public Map<String, String> sendPayQuestForOrder(OrderPay orderPay , List<Order> orderList,BigDecimal orderMoney) throws Exception
         // TODO: 2016/9/1 调用银联退款
+        List<Order> orderList = new ArrayList<Order>();
+        orderList.add(order);
+        Map<String, String> resultMap = null;
+        try {
+            resultMap = this.sendPayQuestForOrder(orderPay,orderList,orderMoney);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
 
         String now = systemDateMapper.getSystemDate();
         orderRefund.setCreateUser(userDto.getUserName());
