@@ -956,7 +956,7 @@ public class OrderService {
 					try {
 						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
 						if(od.getDelayTimes()!=null){//延期次数*每次延期的天数
-							time += CommonType.POSTPONE_TIME*od.getDelayTimes()*60*60*24;
+							time -= CommonType.POSTPONE_TIME*od.getDelayTimes()*60*60*24;
 						}
 						if(time > 0){
 							//计算自动确认时间与当前时间剩余秒数
