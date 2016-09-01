@@ -4,12 +4,14 @@ package com.yyw.yhyc.pay.impl;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.service.AccountPayInfoService;
 import com.yyw.yhyc.order.service.OrderCombinedService;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.OrderService;
-import com.yyw.yhyc.order.utils.XmlUtil;
+import com.yyw.yhyc.order.utils.XmlUtils;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.XmlUtils;
 import com.yyw.yhyc.pay.cmbPay.CmbPayUtil;
@@ -62,6 +64,24 @@ public class CmbPayServiceImpl implements PayService{
     @Autowired
     public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
         this.systemDateMapper = systemDateMapper;
+    }
+
+    private OrderExceptionMapper orderExceptionMapper;
+    @Autowired
+    public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
+        this.orderExceptionMapper = orderExceptionMapper;
+    }
+
+    private OrderRefundMapper orderRefundMapper;
+    @Autowired
+    public void setOrderRefundMapper(OrderRefundMapper orderRefundMapper) {
+        this.orderRefundMapper = orderRefundMapper;
+    }
+
+    private SystemPayTypeMapper systemPayTypeMapper;
+    @Autowired
+    public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
+        this.systemPayTypeMapper = systemPayTypeMapper;
     }
 
     @Override
@@ -296,9 +316,56 @@ public class CmbPayServiceImpl implements PayService{
         return null;
     }
 
+    /**
+     * 发起退款请求
+     * @param userDto 用户信息
+     * @param orderType 订单类型 1：原始订单 2:拒收订单 3：补货订单
+     * @param flowId 订单id
+     * @param refundDesc 退款原因
+     */
     @Override
-    public void handleRefund(UserDto userDto, int orderType, String flowId) {
+    public void handleRefund(UserDto userDto, int orderType, String flowId,String refundDesc) {
+        OrderRefund orderRefund = new OrderRefund();
+        Order order = null;
+        if(orderType == 1){
+            order = orderMapper.getOrderbyFlowId(flowId);
+            orderRefund.setCustId(order.getCustId());
+            orderRefund.setSupplyId(order.getSupplyId());
+        }else if(orderType == 2 || orderType == 3 ){
+            OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
+            order = orderMapper.getByPK(orderException.getOrderId());
+        }else{
+            log.error("调用银联退款，orderType类型不正确，orderType="+orderType);
+            throw new RuntimeException("orderType类型不正确");
+        }
+        SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+        log.info("调用银联退款，订单详情:"+order);
+        //在线支付订单
+        if(!SystemPayTypeEnum.PayOnline.equals(systemPayType.getPayType()))
+            return;
+        //买家已付款
+        if(!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()))
+            return;
 
+        OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
+        //调用招行退款
+        try{
+            this.cancelOrder(orderPay.getPayFlowId());
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("调用银联退款，调用招行退款接口失败，e:"+e.getMessage());
+        }
+
+        String now = systemDateMapper.getSystemDate();
+        orderRefund.setCreateUser(userDto.getUserName());
+        orderRefund.setCustId(order.getCustId());
+        orderRefund.setSupplyId(order.getSupplyId());
+        orderRefund.setRefundSum(order.getOrgTotal());
+        orderRefund.setFlowId(flowId);
+        orderRefund.setCreateTime(now);
+        orderRefund.setRefundStatus("1");//未退款
+        orderRefund.setRefundDesc(refundDesc);
+        orderRefundMapper.save(orderRefund);
     }
 
 
