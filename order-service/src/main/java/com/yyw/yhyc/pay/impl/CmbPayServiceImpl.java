@@ -4,18 +4,16 @@ package com.yyw.yhyc.pay.impl;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
-import com.yyw.yhyc.order.service.AccountPayInfoService;
-import com.yyw.yhyc.order.service.OrderCombinedService;
-import com.yyw.yhyc.order.service.OrderPayService;
-import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.utils.XmlUtils;
 import com.yyw.yhyc.order.mapper.*;
-import com.yyw.yhyc.order.utils.XmlUtils;
 import com.yyw.yhyc.pay.cmbPay.CmbPayUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.utils.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,11 +86,8 @@ public class CmbPayServiceImpl implements PayService{
         this.systemPayTypeMapper = systemPayTypeMapper;
     }
 
-    private String postToBankForDoneOrder(Map<String, Object> orderInfo, int action) throws Exception {
-        if (UtilHelper.isEmpty(orderInfo)) throw  new Exception("非法参数");
-        OrderPay orderPay = (OrderPay) orderInfo.get("orderPay");
-        if(UtilHelper.isEmpty(orderPay))throw  new Exception("非法参数");
-
+    private boolean sendPostToCmbBank(OrderPay orderPay, int action) throws Exception {
+        if (UtilHelper.isEmpty(orderPay)) throw  new Exception("非法参数");
         String operationAction = "";
         if (ORDER_RECEIVED_ACTION == action) {
             operationAction = "A";
@@ -120,33 +115,93 @@ public class CmbPayServiceImpl implements PayService{
         //TODO 请填写登录名
         requestXML = String.format(requestXML,"NTORDCFM" , 2 , "---请填写登录名---",
                 CmbPayUtil.getValue(CmbPayUtil.MCHNBR) , orderPay.getPayFlowId() , orderPay.getOrderPayId() , operationAction);
-        //TODO 发送请求
-        return null;
+        return HttpClientUtil.sendPost(CmbPayUtil.CMB_PAY_URL_WITHOUT_SIGNED,requestXML,HttpClientUtil.CONTENT_TYPE_XML);
     }
 
-    /* 确认收货后，向招商银行发送分账请求 */
+    /**
+     * 确认收货后，向招商银行发送分账请求
+     * @param payFlowId  支付流水号
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean confirmReceivedOrder(String payFlowId) throws Exception {
-        OrderPay orderPay = validateOrderPay(payFlowId);
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderPay",orderPay);
-        String response = postToBankForDoneOrder(map,ORDER_RECEIVED_ACTION);
-        return false;
+        OrderPay orderPay = validateConfirmReceivedOrder(payFlowId);
+        if(UtilHelper.isEmpty(orderPay)){
+            log.error("支付流水号校验失败!");
+            return false;
+        }
+        return sendPostToCmbBank(orderPay,ORDER_RECEIVED_ACTION);
     }
 
-    /* 已付款的订单取消后，向招商银行发送撤销请求 */
+    /**
+     * 已付款的订单取消后，向招商银行发送撤销请求
+     * @param payFlowId 支付流水号
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean cancelOrder(String payFlowId) throws Exception {
-        OrderPay orderPay = validateOrderPay(payFlowId);
-        Map<String,Object> map = new HashMap<>();
-        map.put("orderPay",orderPay);
-        String response = postToBankForDoneOrder(map,ORDER_CANCELLED_ACTION);
-        return false;
+        OrderPay orderPay = validateCancelOrder(payFlowId);
+        if(UtilHelper.isEmpty(orderPay)){
+            log.error("支付流水号校验失败!");
+            return false;
+        }
+        return sendPostToCmbBank(orderPay,ORDER_CANCELLED_ACTION);
     }
 
+    private OrderPay validateConfirmReceivedOrder(String payFlowId){
+        OrderPay orderPay = validateOrderPay(payFlowId);
+        if(UtilHelper.isEmpty(orderPay)) return null;
+        OrderCombined orderCombined = orderCombinedMapper.findByPayFlowId(orderPay.getPayFlowId());
+        Order order = new Order();
+        order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+        List<Order> orderList = orderMapper.listByProperty(order);
+        if(UtilHelper.isEmpty(orderList)) return null;
+        for(Order orderTemp : orderList){
+            if(UtilHelper.isEmpty(orderTemp)){
+                return null;
+            }
+            if( !SystemOrderStatusEnum.BuyerAllReceived.getValue().equals(orderTemp.getOrderStatus())){
+                log.error("订单状态异常!");
+                return null;
+            }
+        }
+        return orderPay;
+    }
+
+    private OrderPay validateCancelOrder(String payFlowId){
+        OrderPay orderPay = validateOrderPay(payFlowId);
+        if(UtilHelper.isEmpty(orderPay)) return null;
+        OrderCombined orderCombined = orderCombinedMapper.findByPayFlowId(orderPay.getPayFlowId());
+        Order order = new Order();
+        order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+        List<Order> orderList = orderMapper.listByProperty(order);
+        if(UtilHelper.isEmpty(orderList)) return null;
+        for(Order orderTemp : orderList){
+            if(UtilHelper.isEmpty(orderTemp)){
+                return null;
+            }
+            if( !SystemOrderStatusEnum.BuyerAlreadyPaid.getValue().equals(orderTemp.getOrderStatus())){
+                log.error("订单状态异常!");
+                return null;
+            }
+        }
+        return orderPay;
+    }
     private OrderPay validateOrderPay(String payFlowId){
-        //TODO
-        return null;
+        if (UtilHelper.isEmpty(payFlowId)) return null;
+        OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+        if (UtilHelper.isEmpty(orderPay)) return null;
+        if ( !OnlinePayTypeEnum.MerchantBank.getPayType().equals(orderPay.getOrderPayId())) {
+            log.error("该orderPay的支付方式不是招商银行");
+            return null;
+        }
+        if ( !OrderPayStatusEnum.PAYED.getPayStatus().equals(orderPay.getPayStatus())) {
+            log.error("该orderPay的支付状态为待支付");
+            return null;
+        }
+        return orderPay;
     }
 
     /**
@@ -360,7 +415,10 @@ public class CmbPayServiceImpl implements PayService{
         OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
         //调用招行退款
         try{
-            this.cancelOrder(orderPay.getPayFlowId());
+            boolean result = this.cancelOrder(orderPay.getPayFlowId());
+            if(!result){
+                log.error("调用招商银行退款，发送请求失败!");
+            }
         }catch (Exception e){
             e.printStackTrace();
             log.error("调用招商银行退款，调用退款接口失败，e:"+e.getMessage());
