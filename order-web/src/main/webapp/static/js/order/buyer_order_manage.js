@@ -103,7 +103,6 @@ function doRefreshData(requestParam) {
                 alertModal(data.message);
                 return;
             }
-            console.info(data);
             //设置订单数量
             setOrderCount(data.orderStatusCount);
             //填充表格数据
@@ -125,7 +124,6 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
-                    console.info(data);
                     var nowpage = data.buyerOrderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.buyerOrderList);
@@ -161,7 +159,6 @@ $.fn.serializeObject = function () {
  * @param data
  */
 function fillTableJson(data) {
-    console.info(data)
     var indexNum = 1;
     if(!data || !data.resultList)
         return;
@@ -204,7 +201,7 @@ function typeToOperate(order) {
     if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
         result += '<span id="order_f_' + order.orderId + '" ></span><br/>';
         result += '<a href="javascript:listPg(\''+order.flowId+'\')" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
-        result += '<a href="#" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
+        result += '<a href="javascript:showPostponeModal('+order.orderId+')" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
     }
     if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
         result += '<a href="'+ctx+'/orderException/getDetails-1/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
@@ -266,8 +263,6 @@ function doInterval() {
             }
         }
     }
-    // console.info(dataList)
-    // console.info("working...")
 }
 
 /**
@@ -307,8 +302,6 @@ function calNYR(msg,seconds) {
         str += minB + '秒';
 
 
-    console.info(day + " " + hour + " " + min);
-
     return str;
 
 }
@@ -326,8 +319,6 @@ function selectDate(day){
 
     $("input[name='createBeginTime']").val(format(pre));
     $("input[name='createEndTime']").val(format(now));
-    console.info(format(now));
-    console.info(format(pre));
 }
 
 function format(date){
@@ -381,7 +372,6 @@ function listPg(flowId) {
  * @param data
  */
 function fillTable(data) {
-    console.info(data)
     var indexNum = 1;
     if (!data || !data.resultList)
         return;
@@ -493,7 +483,6 @@ function confirmReceipt(){
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
-            console.info(data);
             //var obj=eval("(" + data + ")");
             if(data.code==0){
                 alertModal(data.msg);
@@ -506,6 +495,47 @@ function confirmReceipt(){
         }
     });
 
+}
+
+function  showPostponeModal(orderId) {
+    $("#postponeOrderId").val(orderId);
+    var orderId = $("#postponeOrderId").val();
+    $.ajax({
+        url :ctx+'/order/showPostponeOrder',
+        data: "orderId="+orderId,
+        type: 'GET',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            //var obj=eval("(" + data + ")");
+            alert(data);
+            $("#postponeOrder").modal("show");
+        }
+    });
+}
+
+
+function postponeOrder() {
+    var orderId = $("#postponeOrderId").val();
+    var jsonData = {"orderId":orderId};
+    $.ajax({
+        url :ctx+'/order/postponeOrder',
+        data: JSON.stringify(jsonData),
+        type: 'POST',
+        dataType: 'json',
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) {
+            //var obj=eval("(" + data + ")");
+            if(data.code==0){
+                alertModal(data.msg);
+            }else{
+                alertModal(data.msg);
+                $("#myModalConfirmReceipt").modal("hide");
+                pasretFormData();
+                doRefreshData(params);
+            }
+        }
+    });
+    $("#postponeOrder").modal("hide");
 }
 
 function fmoney(s, n)

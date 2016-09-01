@@ -29,11 +29,16 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
+import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
+import com.yyw.yhyc.utils.DateUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.collections.map.HashedMap;
+import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +71,9 @@ public class OrderController extends BaseJsonController {
 
 	@Autowired
 	private SystemPayTypeService systemPayTypeService;
+
+	@Autowired
+	private SystemDateService systemDateService;
 
     /**
      * 通过主键查询实体对象
@@ -838,5 +846,19 @@ public class OrderController extends BaseJsonController {
 		return view;
 	}
 
+	@RequestMapping(value = "/showPostponeOrder",method = RequestMethod.GET)
+	@ResponseBody
+	public String showPostponeOrder(Integer orderId)throws Exception{
+		Order order = orderService.getByPK(orderId);
+		Integer day = DateUtils.getDaysBetweenStartAndEnd(systemDateService.getSystemDate(),order.getReceiveTime());
+		return "{\"day\":"+day+"}";
+	}
+
+	@RequestMapping(value = "/postponeOrder",method = RequestMethod.POST)
+	@ResponseBody
+	public String postponeOrder(Order order){
+		System.out.println(order.getOrderId());
+		return null;
+	}
 
 }
