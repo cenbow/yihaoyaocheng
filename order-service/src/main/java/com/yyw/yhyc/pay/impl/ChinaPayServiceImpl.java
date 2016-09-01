@@ -5,6 +5,8 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderPayDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.chinapay.httpClient.HttpRequestHandler;
@@ -40,6 +42,7 @@ public class ChinaPayServiceImpl implements PayService {
     private SystemDateMapper systemDateMapper;
     private OrderMapper orderMapper;
     private OrderExceptionMapper orderExceptionMapper;
+    private SystemPayTypeMapper systemPayTypeMapper;
 
     @Autowired
     public void setOrderPayManage(OrderPayManage orderPayManage) {
@@ -75,6 +78,11 @@ public class ChinaPayServiceImpl implements PayService {
         return null;
     }
 
+
+    @Autowired
+    public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
+        this.systemPayTypeMapper = systemPayTypeMapper;
+    }
 
     /**
      * 在发送支付请求之前，组装数据
@@ -265,28 +273,44 @@ public class ChinaPayServiceImpl implements PayService {
      */
     @Override
     public void handleRefund(UserDto userDto, int orderType, String flowId,String refundDesc) {
-
         OrderRefund orderRefund = new OrderRefund();
+        Order order = null;
         if(orderType == 1){
-            Order order = orderMapper.getOrderbyFlowId(flowId);
+            order = orderMapper.getOrderbyFlowId(flowId);
             orderRefund.setCustId(order.getCustId());
             orderRefund.setSupplyId(order.getSupplyId());
-            orderRefund.setRefundSum(order.getOrgTotal());
         }else if(orderType == 2 || orderType == 3 ){
             OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
-            orderRefund.setCustId(orderException.getCustId());
-            orderRefund.setSupplyId(orderException.getSupplyId());
-            Order order = orderMapper.getByPK(orderException.getOrderId());
-            orderRefund.setRefundSum(order.getOrgTotal());
+            order = orderMapper.getByPK(orderException.getOrderId());
         }else{
             log.error("调用银联退款，orderType类型不正确，orderType="+orderType);
             throw new RuntimeException("orderType类型不正确");
         }
-        
+        SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+        log.info("调用银联退款，订单详情:"+order);
+        //在线支付订单
+        if(!SystemPayTypeEnum.PayOnline.equals(systemPayType.getPayType()))
+            return;
+        //买家已付款
+        if(!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()))
+            return;
+
+        OrderRefund er=orderRefundMapper.getOrderRefundByOrderId(order.getOrderId());
+        //订单是否已退款
+        if(!UtilHelper.isEmpty(er)){
+            throw new RuntimeException("订单已申请退款");
+        }
+
+        OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
+
         // TODO: 2016/9/1 调用银联退款
 
         String now = systemDateMapper.getSystemDate();
         orderRefund.setCreateUser(userDto.getUserName());
+        orderRefund.setCustId(order.getCustId());
+        orderRefund.setSupplyId(order.getSupplyId());
+        orderRefund.setRefundSum(order.getOrgTotal());
+        orderRefund.setOrderId(order.getOrderId());
         orderRefund.setFlowId(flowId);
         orderRefund.setCreateTime(now);
         orderRefund.setRefundStatus("1");//未退款
