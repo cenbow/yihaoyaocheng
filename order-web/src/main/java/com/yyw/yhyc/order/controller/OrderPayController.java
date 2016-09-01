@@ -48,14 +48,6 @@ public class OrderPayController extends BaseJsonController {
 	@Autowired
 	private SystemDateService systemDateService;
 
-	@Autowired
-	@Qualifier("cmbPayService")
-	private PayService cmbPayService;
-
-	@Autowired
-	@Qualifier("chinaPayService")
-	private PayService chinaPayService;
-
 	private SystemPayTypeService systemPayTypeService;
 	@Autowired
 	public void setSystemPayTypeService(SystemPayTypeService systemPayTypeService) {
@@ -189,7 +181,8 @@ public class OrderPayController extends BaseJsonController {
      */
 	@RequestMapping(value = "/cmbchinaPaySuccess", method = RequestMethod.POST)
 	public String cmbchinaPaySuccess(){
-		return cmbPayService.paymentCallback(super.request);
+		PayService payService = (PayService) SpringBeanHelper.getBean("cmbPayService");
+		return payService.paymentCallback(super.request);
 	}
 
 	/**
@@ -198,6 +191,7 @@ public class OrderPayController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/cmbchinaSplitSuccess", method = RequestMethod.POST)
 	public String cmbchinaSplitSuccess(){
-		return cmbPayService.spiltPaymentCallback(super.request);
+		PayService payService = (PayService) SpringBeanHelper.getBean("cmbPayService");
+		return payService.spiltPaymentCallback(super.request);
 	}
 }

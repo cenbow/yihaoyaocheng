@@ -2,6 +2,7 @@ package com.yyw.yhyc.pay.interfaces;
 
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.UserDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -39,5 +40,14 @@ public interface PayService {
      * @return
      */
     public String spiltPaymentCallback(HttpServletRequest request);
+
+    /**
+     * 发起退款请求
+     * @param userDto 用户信息
+     * @param orderType 订单类型 1：原始订单 2:拒收订单 3：补货订单
+     * @param flowId 订单id
+     * @param refundDesc 退款原因
+     */
+    public void handleRefund(UserDto userDto,int orderType,String flowId,String refundDesc);
 
 }

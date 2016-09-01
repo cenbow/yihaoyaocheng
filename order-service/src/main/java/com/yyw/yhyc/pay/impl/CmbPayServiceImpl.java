@@ -3,6 +3,7 @@ package com.yyw.yhyc.pay.impl;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.service.AccountPayInfoService;
 import com.yyw.yhyc.order.service.OrderCombinedService;
@@ -137,7 +138,7 @@ public class CmbPayServiceImpl implements PayService{
 
     @Override
     public String paymentCallback(HttpServletRequest request) {
-        // TODO: 2016/9/1 需验证签名 
+        // TODO: 2016/9/1 需验证签名
         log.info("招行支付回调请求信息，request:"+request);
         String code = CmbPayUtil.CALLBACK_FAILURE_CODE;
         String msg = "未知异常";
@@ -243,6 +244,11 @@ public class CmbPayServiceImpl implements PayService{
     @Override
     public String spiltPaymentCallback(HttpServletRequest request) {
         return null;
+    }
+
+    @Override
+    public void handleRefund(UserDto userDto, int orderType, String flowId) {
+
     }
 
 

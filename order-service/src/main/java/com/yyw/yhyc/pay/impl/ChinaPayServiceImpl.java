@@ -1,12 +1,12 @@
 package com.yyw.yhyc.pay.impl;
 
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.bo.OrderPay;
-import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderPayDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.manage.OrderPayManage;
-import com.yyw.yhyc.order.mapper.OrderPayMapper;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.chinapay.httpClient.HttpRequestHandler;
 import com.yyw.yhyc.pay.chinapay.utils.ChinaPayUtil;
 import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
@@ -36,6 +36,10 @@ public class ChinaPayServiceImpl implements PayService {
 
     private OrderPayMapper orderPayMapper;
     private OrderPayManage orderPayManage;
+    private OrderRefundMapper orderRefundMapper;
+    private SystemDateMapper systemDateMapper;
+    private OrderMapper orderMapper;
+    private OrderExceptionMapper orderExceptionMapper;
 
     @Autowired
     public void setOrderPayManage(OrderPayManage orderPayManage) {
@@ -47,10 +51,30 @@ public class ChinaPayServiceImpl implements PayService {
         this.orderPayMapper = orderPayMapper;
     }
 
+    @Autowired
+    public void setOrderRefundMapper(OrderRefundMapper orderRefundMapper) {
+        this.orderRefundMapper = orderRefundMapper;
+    }
+
+    @Autowired
+    public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+        this.systemDateMapper = systemDateMapper;
+    }
+
+    @Autowired
+    public void setOrderMapper(OrderMapper orderMapper) {
+        this.orderMapper = orderMapper;
+    }
+    @Autowired
+    public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
+        this.orderExceptionMapper = orderExceptionMapper;
+    }
+
     @Override
     public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, int Action) {
         return null;
     }
+
 
     /**
      * 在发送支付请求之前，组装数据
@@ -187,7 +211,7 @@ public class ChinaPayServiceImpl implements PayService {
         return orderStatus;
     }
 
-    // TODO: 2016/9/1 分账成功回调 待江帅编写 
+    // TODO: 2016/9/1 分账成功回调 待江帅编写
     /**
      * 银联分账成功回调
      * @param request
@@ -226,6 +250,43 @@ public class ChinaPayServiceImpl implements PayService {
             e.printStackTrace();
         }
         System.out.println("接收银联回调所有参数结束。。。。。。。。");
+    }
+
+    /**
+     * 发起退款请求
+     * @param userDto 用户信息
+     * @param orderType 订单类型 1：原始订单 2:拒收订单 3：补货订单
+     * @param flowId 订单id
+     * @param refundDesc 退款原因
+     */
+    @Override
+    public void handleRefund(UserDto userDto, int orderType, String flowId,String refundDesc) {
+
+        OrderRefund orderRefund = new OrderRefund();
+        if(orderType == 1){
+            Order order = orderMapper.getOrderbyFlowId(flowId);
+            orderRefund.setCustId(order.getCustId());
+            orderRefund.setSupplyId(order.getSupplyId());
+            orderRefund.setRefundSum(order.getOrgTotal());
+        }else if(orderType == 2 || orderType == 3 ){
+            OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
+            orderRefund.setCustId(orderException.getCustId());
+            orderRefund.setSupplyId(orderException.getSupplyId());
+            Order order = orderMapper.getByPK(orderException.getOrderId());
+            orderRefund.setRefundSum(order.getOrgTotal());
+        }else{
+            throw new RuntimeException("orderType类型不正确");
+        }
+        
+        // TODO: 2016/9/1 调用银联退款
+
+        String now = systemDateMapper.getSystemDate();
+        orderRefund.setCreateUser(userDto.getUserName());
+        orderRefund.setFlowId(flowId);
+        orderRefund.setCreateTime(now);
+        orderRefund.setRefundStatus("1");//未退款
+        orderRefund.setRefundDesc(refundDesc);
+        orderRefundMapper.save(orderRefund);
     }
 
 }
