@@ -251,4 +251,11 @@
 		SELECT count(1) AS totalcount FROM t_order_refund WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+
+	<select id="getOrderRefundByOrderId" parameterType="java.lang.Integer" resultMap="OrderRefundResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_refund WHERE order_id=#{orderId}
+	</select>
+
 </mapper>

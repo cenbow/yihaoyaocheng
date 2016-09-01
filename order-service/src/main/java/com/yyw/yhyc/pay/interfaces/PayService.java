@@ -3,6 +3,7 @@ package com.yyw.yhyc.pay.interfaces;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.bo.SystemPayType;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -23,5 +24,20 @@ public interface PayService {
      * @throws Exception
      */
     public Map<String,Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType) throws Exception ;
+
+
+    /**
+     * 支付成功回调
+     * @param request
+     * @return
+     */
+    public String  paymentCallback(HttpServletRequest request) ;
+
+    /**
+     * 分账成功回调
+     * @param request
+     * @return
+     */
+    public String spiltPaymentCallback(HttpServletRequest request);
 
 }

@@ -30,6 +30,7 @@ import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -48,7 +49,12 @@ public class OrderPayController extends BaseJsonController {
 	private SystemDateService systemDateService;
 
 	@Autowired
-	private CmbPayServiceImpl cmbPayService;
+	@Qualifier("cmbPayService")
+	private PayService cmbPayService;
+
+	@Autowired
+	@Qualifier("chinaPayService")
+	private PayService chinaPayService;
 
 	private SystemPayTypeService systemPayTypeService;
 	@Autowired
@@ -183,9 +189,7 @@ public class OrderPayController extends BaseJsonController {
      */
 	@RequestMapping(value = "/cmbchinaPaySuccess", method = RequestMethod.POST)
 	public String cmbchinaPaySuccess(){
-		String tmplate =  "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?><DATA><RESPONSE><STSCOD>%s</STSCOD><STSMSG>%s</STSMSG></RESPONSE></DATA>";
-
-		return String.format(tmplate,"1000","失败");
+		return cmbPayService.paymentCallback(super.request);
 	}
 
 	/**
@@ -194,6 +198,6 @@ public class OrderPayController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/cmbchinaSplitSuccess", method = RequestMethod.POST)
 	public String cmbchinaSplitSuccess(){
-		return null;
+		return cmbPayService.spiltPaymentCallback(super.request);
 	}
 }

@@ -196,8 +196,12 @@ public class Order extends Model{
 
 	/* 订单账期（单位：天） */
 	private Integer paymentTerm;
-	
-	
+
+	/**
+	 * 延期次数
+	 * @return
+     */
+	private  Integer delayTimes;
 
 	public Integer getPaymentTermStatus() {
 		return paymentTermStatus;
@@ -760,6 +764,14 @@ public class Order extends Model{
 		this.paymentTerm = paymentTerm;
 	}
 
+	public Integer getDelayTimes() {
+		return delayTimes;
+	}
+
+	public void setDelayTimes(Integer delayTimes) {
+		this.delayTimes = delayTimes;
+	}
+
 	@Override
 	public String toString() {
 		return "Order{" +
@@ -799,6 +811,7 @@ public class Order extends Model{
 				", receiveType=" + receiveType +
 				", paymentTermStatus=" + paymentTermStatus +
 				", paymentTerm=" + paymentTerm +
+				", delayTimes=" + delayTimes +
 				'}';
 	}
 }

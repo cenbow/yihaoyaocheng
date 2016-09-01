@@ -53,8 +53,8 @@
 		<result column="receive_Type" property="receiveType"/>
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="payment_term" property="paymentTerm"/>
-
-	</resultMap>
+		<result column="delay_times" property="delayimes"/>
+	</resultMap>T
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
 		<result column="order_id" property="orderId"/>
@@ -94,6 +94,7 @@
 		<result column="pay_type_name" property="payTypeName"/>
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="pay_type" property="payType"/>
+		<result column="delay_times" property="delayimes"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -137,7 +138,7 @@
 		, receive_Type
 		, payment_term_status
 		, payment_term
-	</sql>
+		, delay_times
 
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -175,6 +176,7 @@
 				, Delay_log
 				, receive_Type
 				, payment_term
+				, delay_times
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -214,6 +216,7 @@
 		, Delay_log
 		, receive_Type
 		, payment_term
+		, delay_times
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -446,6 +449,7 @@
 				, #{delayLog}
 				, #{receiveType}
 				, #{paymentTerm}
+				, #{delayTimes}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -1169,7 +1173,7 @@
 		FROM
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T2 ON T1.PAY_TYPE_ID = T2.PAY_TYPE_ID
-		WHERE
+		WHERE 1=1
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>
@@ -1194,6 +1198,12 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
-
+	<select id="listOrderByPayFlowId" parameterType="java.lang.String"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateOrderColumns"/>
+		FROM t_order o,t_order_combined c
+		WHERE o.order_combined_id=c.order_combined_id
+		AND c.pay_flow_id=#{payFlowId}
+	</select>
 
 </mapper>

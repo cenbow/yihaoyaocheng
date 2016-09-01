@@ -1650,13 +1650,15 @@ public class OrderService {
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPageNo(Integer.valueOf(data.get("pageNo")));
 		pagination.setPageSize(Integer.valueOf(data.get("pageSize")));
+		pagination.setPaginationFlag(Boolean.valueOf(data.get("paginationFlag")));
 		OrderDto orderDto = new OrderDto();
 		orderDto.setSupplyName(data.get("supplyName"));
 		orderDto.setCustName(data.get("custName"));
-		orderDto.setPayType(Integer.valueOf(data.get("payType")));
+		orderDto.setPayType(Integer.valueOf("".equals(data.get("payType")) ?  "0":data.get("payType")));
 		orderDto.setCreateBeginTime(data.get("createBeginTime"));
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
+		orderDto.setFlowId(data.get("flowId"));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
@@ -1671,10 +1673,87 @@ public class OrderService {
 
 		}
 
+		log.info("listPgOperationsOrder pagination:"+pagination);
 		List<OrderDto> orderDtoList = orderMapper.listPaginationOperationsOrder(pagination,orderDto);
+		if(!UtilHelper.isEmpty(orderDtoList)){
+			for (OrderDto od : orderDtoList){
+				od.setOrderStatusName(SystemOrderStatusEnum.getName(od.getOrderStatus()));
+			}
+		}
+		log.info("listPgOperationsOrder orderDtoList:"+orderDtoList);
 		pagination.setResultList(orderDtoList);
 
 		resutlMap.put("orderDtoList",pagination);
 		return resutlMap;
+	}
+
+	//延期收货
+	public String postponeOrder(Integer orderId,Integer day){
+		Order order = orderMapper.getByPK(orderId);
+		if(order==null){
+			throw  new RuntimeException("未找到订单");
+		}
+		//TODO 延期收货订单逻辑
+		return "";
+	}
+
+	public Map<String, Object> getOrderDetails4Manager(String flowId) throws Exception{
+		Order order = new Order();
+		order.setFlowId(flowId);
+		OrderDetailsDto orderDetailsdto=orderMapper.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsdto)){
+			return null;
+		}
+		//订单类型翻译
+		orderDetailsdto.setOrderStatusName(SystemOrderStatusEnum.getName(orderDetailsdto.getOrderStatus()));
+		//计算确认收货金额
+		BigDecimal total=new BigDecimal(0);
+		BigDecimal productTotal=new BigDecimal(0);
+		for (OrderDetail detail:orderDetailsdto.getDetails())
+		{
+			BigDecimal proudcutCount=new BigDecimal(detail.getProductCount());
+			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
+				BigDecimal count=new BigDecimal(detail.getRecieveCount());
+				total=total.add(detail.getProductPrice().multiply(count));
+			}
+			productTotal=productTotal.add(detail.getProductPrice().multiply(proudcutCount));
+		}
+
+		if(orderDetailsdto.getPayType()==SystemPayTypeEnum.PayOffline.getPayType()){
+			OrderSettlement orderSettlement=new OrderSettlement();
+			orderSettlement.setOrderId(orderDetailsdto.getOrderId());
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setPayTypeId(orderDetailsdto.getPayTypeId());
+			List<OrderSettlement> settlements= orderSettlementMapper.listByProperty(orderSettlement);
+			if(settlements.size()>0){
+				orderDetailsdto.setSettlementRemark(settlements.get(0).getRemark());
+			}
+
+		}
+
+
+
+		orderDetailsdto.setProductTotal(productTotal);
+		orderDetailsdto.setReceiveTotal(total);
+		//加载导入的批号信息，如果有一条失败则状态为失败否则查询成功数据
+		OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
+		orderDeliveryDetail.setFlowId(order.getFlowId());
+		orderDeliveryDetail.setDeliveryStatus(0);
+		List<OrderDeliveryDetail> list=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+		if(list.size()>0){
+			orderDetailsdto.setOrderDeliveryDetail(list.get(0));
+		}else{
+			orderDeliveryDetail.setDeliveryStatus(1);
+			List<OrderDeliveryDetail> listDeliveryDetai=orderDeliveryDetailMapper.listByProperty(orderDeliveryDetail);
+			if(listDeliveryDetai.size()>0){
+				orderDetailsdto.setOrderDeliveryDetail(listDeliveryDetai.get(0));
+			}
+		}
+		OrderPay orderPay = orderPayMapper.getByPayFlowId(flowId);
+		if(!UtilHelper.isEmpty(orderPay))
+			orderDetailsdto.setPayFlowId(orderPay.getPayFlowId());
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("orderDetailsDto",orderDetailsdto);
+		return map;
 	}
 }

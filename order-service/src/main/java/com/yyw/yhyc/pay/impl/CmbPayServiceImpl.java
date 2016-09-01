@@ -3,9 +3,12 @@ package com.yyw.yhyc.pay.impl;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.service.AccountPayInfoService;
 import com.yyw.yhyc.order.service.OrderCombinedService;
+import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.utils.XmlUtil;
 import com.yyw.yhyc.pay.cmbPay.CmbPayUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
@@ -13,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +47,18 @@ public class CmbPayServiceImpl implements PayService{
     @Autowired
     public void setAccountPayInfoService(AccountPayInfoService accountPayInfoService) {
         this.accountPayInfoService = accountPayInfoService;
+    }
+
+    private OrderPayService orderPayService;
+    @Autowired
+    public void setOrderPayService(OrderPayService orderPayService) {
+        this.orderPayService = orderPayService;
+    }
+
+    private SystemDateMapper systemDateMapper;
+    @Autowired
+    public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+        this.systemDateMapper = systemDateMapper;
     }
 
     @Override
@@ -116,6 +133,116 @@ public class CmbPayServiceImpl implements PayService{
         payRequestParamMap.put("sigdat", sigdat);//签名
         payRequestParamMap.put("CMB_PAY_URL",CMB_PAY_URL);
         return payRequestParamMap;
+    }
+
+    @Override
+    public String paymentCallback(HttpServletRequest request) {
+        // TODO: 2016/9/1 需验证签名 
+        log.info("招行支付回调请求信息，request:"+request);
+        String code = CmbPayUtil.CALLBACK_FAILURE_CODE;
+        String msg = "未知异常";
+        try{
+            String xml = "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?>" +
+                    "             <DATA>" +
+                    "             <REQUEST>" +
+                    "             <NCB2BFIN>" +
+                    "             <REQNBR>流程实例号</REQNBR>" +
+                    "             <MCHNBR>商户编号</MCHNBR>" +
+                    "             <REFORD>订单号</REFORD>" +
+                    "             <SUBORD>订单支付号</SUBORD>" +
+                    "             <CCYNBR>订单币种</CCYNBR>" +
+                    "             <TRSAMT>订单金额</TRSAMT>" +
+                    "             <ENDAMT>结账金额</ENDAMT>" +
+                    "             <BBKNBR>付方分行号</BBKNBR>" +
+                    "             <PAYACC>付方账号</PAYACC>" +
+                    "             <ACCNAM>付方户名</ACCNAM>" +
+                    "             <YURREF>业务参考号</YURREF>" +
+                    "             <ENDDAT>付款日期</ENDDAT>" +
+                    "             <RTNFLG>业务请求结果</RTNFLG>" +
+                    "             <RTNDSP>结果描述</RTNDSP>" +
+                    "             </NCB2BFIN>" +
+                    "             </REQUEST>" +
+                    "             </DATA>";
+            log.info("paymentCallback xml:"+xml);
+            Map<String,String> requestMap = getCallBackRequestData(xml);
+            log.info("招行支付回调,请求参数requestMap:"+requestMap);
+            String REQNBR = requestMap.get("REQNBR");
+            String MCHNBR = requestMap.get("MCHNBR");
+            String REFORD = requestMap.get("REFORD");//支付流水号
+            String SUBORD = requestMap.get("SUBORD");
+            String CCYNBR = requestMap.get("CCYNBR");
+            String TRSAMT = requestMap.get("TRSAMT");
+            String ENDAMT = requestMap.get("ENDAMT");
+            String BBKNBR = requestMap.get("BBKNBR");
+            String PAYACC = requestMap.get("PAYACC");
+            String ACCNAM = requestMap.get("ACCNAM");
+            String YURREF = requestMap.get("YURREF");
+            String ENDDAT = requestMap.get("ENDDAT");
+            String RTNFLG = requestMap.get("RTNFLG");
+            String RTNDSP = requestMap.get("RTNDSP");
+
+            //更新支付状态为已支付
+            if(!UtilHelper.isEmpty(REFORD)){
+                OrderPay orderPay =  orderPayService.getByPayFlowId(REFORD);
+                if(!UtilHelper.isEmpty(orderPay)){
+                    String now = systemDateMapper.getSystemDate();
+                    orderPay.setPayStatus("1");//已支付
+                    orderPay.setUpdateUser("招商银行");
+                    orderPay.setPayAccountName(ACCNAM);
+                    orderPay.setPayAccountNo(PAYACC);
+                    orderPay.setPayMoney(new BigDecimal(ENDAMT));
+                    orderPay.setUpdateTime(now);
+                    orderPay.setPaymentPlatforReturn(xml);
+                    int count = orderPayService.update(orderPay);
+                    if(count != 0){
+                        code = CmbPayUtil.CALLBACK_SUCCESS_CODE;
+                        msg = "响应成功";
+                    }else{
+                        msg = "更新t_order_pay失败";
+                        log.error("招行支付回调,更新t_order_pay失败");
+                    }
+                }else{
+                    msg = "未找到订单记录,REFORD:"+REFORD;
+                    log.error("招行支付回调,未找到订单记录");
+                }
+            }else{
+                msg = "请求参数【REFORD】为空";
+                log.error("招行支付回调,招行请求参数【REFORD】为空");
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("招行支付回调,招行支付回调处理失败，e:"+e.getMessage());
+        }
+
+        return String.format(CmbPayUtil.CALLBACK_RESPONSE_TEMPATE,code,msg);
+    }
+
+
+    /**
+     * 解析招行支付成功回调接口请求数据
+     * @param xml
+     * @return
+     */
+    private Map<String,String> getCallBackRequestData(String xml){
+        Map<String,String> map = new HashMap<String,String>();
+        List<Map<String,String>> list = XmlUtil.readXmlAsList(xml);
+        for(Map<String,String> item: list){
+            for(Map.Entry<String,String> entry : item.entrySet()){
+                map.put(entry.getKey(),entry.getValue());
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 招行分账成功回调
+     * @param request
+     * @return
+     */
+    @Override
+    public String spiltPaymentCallback(HttpServletRequest request) {
+        return null;
     }
 
 

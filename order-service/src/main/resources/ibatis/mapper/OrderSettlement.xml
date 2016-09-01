@@ -330,7 +330,7 @@
 			AND s.city = #{city}
 		</if>
 		<if test="area !=null and area != '' and area !='-1'">
-			AND s.district = #{area}
+			AND s.area = #{area}
 		</if>
 		ORDER BY s.order_settlement_id DESC
 	</select>
