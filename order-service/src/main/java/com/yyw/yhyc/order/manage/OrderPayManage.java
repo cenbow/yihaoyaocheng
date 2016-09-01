@@ -33,6 +33,13 @@ public class OrderPayManage {
     private SystemDateMapper systemDateMapper;
     private OrderTraceMapper orderTraceMapper;
 
+    private OrderRefundMapper orderRefundMapper;
+
+    @Autowired
+    public void setOrderRefundMapper(OrderRefundMapper orderRefundMapper) {
+        this.orderRefundMapper = orderRefundMapper;
+    }
+
     @Autowired
     public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
         this.orderTraceMapper = orderTraceMapper;
@@ -53,7 +60,7 @@ public class OrderPayManage {
         this.orderPayMapper = orderPayMapper;
     }
 
-    /*// 确认收货
+    // 确认收货
     public void takeConfirmReturn(Map<String, Object> map) throws Exception {
         log.debug("----收到确认收货订单后台通知------" + map.toString());
 
@@ -68,8 +75,8 @@ public class OrderPayManage {
 
         String flowPayId = map.get("flowPayId").toString();
         String orderStatus = map.get("orderStatus").toString();
-        updateRedundOrderInfos(flowPayId, orderStatus, map);
-    }*/
+        updateRedundOrderInfos(flowPayId, orderStatus, map.toString());
+    }
 
 
     // 支付完成
@@ -79,20 +86,12 @@ public class OrderPayManage {
         String flowPayId = map.get("flowPayId").toString();
         String money = map.get("money").toString();
         String MerId = map.get("MerId").toString();
-        int fromWhere = OnlinePayTypeEnum.UnionPayB2C.getPayType();
-        if (MerId.equals(PayUtil.getValue("MerId"))) {
-            fromWhere = OnlinePayTypeEnum.UnionPayB2C.getPayType();
-        } else if (MerId.equals(PayUtil.getAppValue("MerId"))) {
-            fromWhere = OnlinePayTypeEnum.UnionPayNoCard.getPayType();
-        }
        log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
-       /* boolean isReceive = HttpRequestHandler.isBysystemReceiveMoney(map);*/
-        /*log.debug("---当前订单是否为代收货款--"+ flowPayId +"=="+ isReceive);*/
         updateOrderpayInfos(flowPayId, new BigDecimal(money),map.toString());
     }
 
     // 支付完成更新信息
-    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String Payment)
+    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
             throws Exception {
         log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
 
@@ -112,7 +111,7 @@ public class OrderPayManage {
                 // 更新订单支付信息
                 orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
                 orderPay.setPayTime(now);
-                orderPay.setPaymentPlatforReturn(Payment);
+                orderPay.setPaymentPlatforReturn(parameter);
                 orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                 orderPayMapper.update(orderPay);
 
@@ -125,18 +124,7 @@ public class OrderPayManage {
                         orderMapper.update(order);
                         /*orderManager.sendSMS(order, null, order.getSupplyId(), MessageTemplate.BUYER_PAY_ORDER_INFO_CODE);*/
                         // 保存订单操作记录
-
-                        //插入日志表
-                        OrderTrace orderTrace = new OrderTrace();
-                        orderTrace.setOrderId(order.getOrderId());
-                        orderTrace.setNodeName("补货卖家已发货");
-                        orderTrace.setDealStaff("银联回调");
-                        orderTrace.setRecordDate(now);
-                        orderTrace.setRecordStaff("银联回调");
-                        orderTrace.setOrderStatus(order.getOrderStatus());
-                        orderTrace.setCreateTime(now);
-                        orderTrace.setCreateUser("银联回调");
-                        orderTraceMapper.save(orderTrace);
+                        createOrderTrace(order, "银联回调", now, 2, "买家已付款.");
 
                         //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
                     }
@@ -179,43 +167,37 @@ public class OrderPayManage {
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo end ----");
 
     }
-/*
+
 
     // 退款更新信息
-    private void updateRedundOrderInfos(String PayflowId, String orderStatus, Map<String, Object> map)
-            throws ServiceException {
-        logger.info(PayflowId + "----- 退款成功后更新信息  update orderInfo start ----");
+    private void updateRedundOrderInfos(String payFlowId, String orderStatus, String parameter)
+            throws Exception {
+        log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----");
 
-        List<Order> listOrder = orderService.listOrderInfosByPayFlowId(PayflowId);
+        List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
 
         if (UtilHelper.isEmpty(listOrder)) {
             // 商户数据异常
-            throw new ServiceException(Message3kwResource.ERROR_MESSAGE_3KW_SYSTEM_ERROR, "退款信息异常！");
+            log.info("退款信息异常！");
+            throw new Exception("退款信息异常！");
         }
         for (Order o : listOrder) {
-            OrderRefund orderRefund = orderRefundService.getByPK(o.getOrderId());
+            OrderRefund orderRefund = orderRefundMapper.getOrderRefundByOrderId(o.getOrderId());
             if (UtilHelper.isEmpty(orderRefund)) {
-                orderRefund.setRemark(map.toString());
+                orderRefund.setRemark(parameter);
                 if (orderStatus.equals("0000")) {
-                    o.setOrderStatus(CommonType.ORDER_STATUS_BSUCCESS);
-                    orderService.updateStatus(o);
-                    orderRefund.setRefundStatus(CommonType.ORDER_STATUS_BSUCCESS);
-                    orderRefundService.update(orderRefund);
-                    o.setOrderStatus(CommonType.ORDER_STATUS_BSUCCESS);
-                    orderService.update(o);
+                    o.setOrderStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
+                    orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
+                    orderRefundMapper.update(orderRefund);
                 } else {
-                    orderRefund.setRefundStatus(CommonType.ORDER_STATUS_PAY_EXCEPTION);
-                    orderRefundService.update(orderRefund);
+                    orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusFail.getType());
+                    orderRefundMapper.update(orderRefund);
                 }
 
             }
         }
-
-        logger.info(PayflowId + "----- 退款成功后更新信息  update orderInfo end ----");
-
+        log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo end ----");
     }
-*/
-
 
     public void createOrderTrace(Object order,String userName,String now,int type,String nodeName){
         //插入日志表

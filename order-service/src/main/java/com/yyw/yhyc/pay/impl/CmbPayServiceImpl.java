@@ -318,7 +318,7 @@ public class CmbPayServiceImpl implements PayService{
      */
     @Override
     public String spiltPaymentCallback(HttpServletRequest request) {
-        return null;
+        return "";
     }
 
     /**
@@ -373,5 +373,10 @@ public class CmbPayServiceImpl implements PayService{
         orderRefundMapper.save(orderRefund);
     }
 
+    @Override
+    public String redundCallBack(HttpServletRequest request)
+    {
+     return "";
+    }
 
 }
