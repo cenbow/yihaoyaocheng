@@ -153,35 +153,50 @@ public class ChinaPayServiceImpl implements PayService {
 
     // TODO: 2016/8/31 银联支付回调  待江帅编写 
     @Override
-    public String paymentCallback(HttpServletRequest request)  throws  Exception {
+    public String paymentCallback(HttpServletRequest request){
         String orderStatus="";
-        System.out.println("支付成功后回调开始。。。。。。。。");
-        printRequestParam("支付成功后回调",request);
-        Map<String,Object> map=new HashMap<String,Object>();
-        String[] requests=new String[]{"Version", "AccessType" , "AcqCode" , "MerId" , "MerOrderNo" , "TranDate" , "TranTime" , "OrderAmt" , "TranType" , "BusiType" , "CurryNo" , "OrderStatus" , "SplitType" , "SplitMethod" ,
-                "MerSplitMsg" , "AcqSeqId" , "AcqDate" , "ChannelSeqId" , "ChannelDate" , "ChannelTime" , "PayBillNo" , "BankInstNo" , "CommodityMsg" ,
-                "MerResv" , "TranReserved" , "CardTranData" , "PayTimeOut" , "TimeStamp" , "RemoteAddr" , "CompleteDate" , "CompleteTime" , "Signature"};
-        for(String str:requests){
-            if(!UtilHelper.isEmpty(request.getParameter(str))){
-                map.put(str,URLDecoder.decode(request.getParameter(str), "utf-8"));
+        try{
+            System.out.println("支付成功后回调开始。。。。。。。。");
+            printRequestParam("支付成功后回调",request);
+            Map<String,Object> map=new HashMap<String,Object>();
+            String[] requests=new String[]{"Version", "AccessType" , "AcqCode" , "MerId" , "MerOrderNo" , "TranDate" , "TranTime" , "OrderAmt" , "TranType" , "BusiType" , "CurryNo" , "OrderStatus" , "SplitType" , "SplitMethod" ,
+                    "MerSplitMsg" , "AcqSeqId" , "AcqDate" , "ChannelSeqId" , "ChannelDate" , "ChannelTime" , "PayBillNo" , "BankInstNo" , "CommodityMsg" ,
+                    "MerResv" , "TranReserved" , "CardTranData" , "PayTimeOut" , "TimeStamp" , "RemoteAddr" , "CompleteDate" , "CompleteTime" , "Signature"};
+            for(String str:requests){
+                if(!UtilHelper.isEmpty(request.getParameter(str))){
+                    map.put(str,URLDecoder.decode(request.getParameter(str), "utf-8"));
+                }
             }
-        }
-        if(UtilHelper.isEmpty(map.get("OrderStatus"))&&!UtilHelper.isEmpty(request.getParameter("&OrderStatus"))){
-            map.put("OrderStatus",URLDecoder.decode(request.getParameter("&OrderStatus"), "utf-8"));
-        }
-        if(SignUtil.verify(map)){
-             orderStatus=map.get("OrderStatus").toString();
-            if(orderStatus.equals("0000")){
-                map.put("flowPayId",map.get("MerOrderNo"));
-                map.put("money",map.get("OrderAmt"));
+            if(UtilHelper.isEmpty(map.get("OrderStatus"))&&!UtilHelper.isEmpty(request.getParameter("&OrderStatus"))){
+                map.put("OrderStatus",URLDecoder.decode(request.getParameter("&OrderStatus"), "utf-8"));
             }
+            if(SignUtil.verify(map)){
+                orderStatus=map.get("OrderStatus").toString();
+                if(orderStatus.equals("0000")){
+                    map.put("flowPayId",map.get("MerOrderNo"));
+                    map.put("money",map.get("OrderAmt"));
+                }
+            }
+            //回调更新信息
+            orderPayManage.orderPayReturn(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("银联支付成功回调");
         }
-        //回调更新信息
-        orderPayManage.orderPayReturn(map);
+
         return orderStatus;
     }
 
-
+    // TODO: 2016/9/1 分账成功回调 待江帅编写 
+    /**
+     * 银联分账成功回调
+     * @param request
+     * @return
+     */
+    @Override
+    public String spiltPaymentCallback(HttpServletRequest request) {
+        return null;
+    }
 
 
     private void printRequestParam(String lonNode,HttpServletRequest request){
