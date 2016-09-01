@@ -279,6 +279,7 @@ public class ChinaPayServiceImpl implements PayService {
             Order order = orderMapper.getByPK(orderException.getOrderId());
             orderRefund.setRefundSum(order.getOrgTotal());
         }else{
+            log.error("调用银联退款，orderType类型不正确，orderType="+orderType);
             throw new RuntimeException("orderType类型不正确");
         }
         
