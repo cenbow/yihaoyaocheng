@@ -13,5 +13,9 @@ public interface Order4ManagerFacade {
      */
     public Map<String,Object> listPgOperationsOrder(Map<String,String>  data);
 
+    public Map<String,Object> listPgProducts (Map<String,String>  data) throws Exception;
+
     public Map<String,Object> getOrderDetails4Manager(String flowId) throws Exception;
+
+    public void cancelOrder(String userName,String orderId,String cancelResult)throws Exception;
 }
