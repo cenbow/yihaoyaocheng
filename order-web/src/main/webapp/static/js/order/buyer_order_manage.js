@@ -507,8 +507,17 @@ function  showPostponeModal(orderId) {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
-            alert(data);
-            $("#postponeOrder").modal("show");
+            if(data.day && data.day<=3){
+                $("#postponeOrder .modal-body").html("每笔订单最多延期两次，确定延期收货吗?")
+                $("#postponeOrder").modal("show");
+                $("#postponeOrder .modal-footer button").show();
+                $("#postponeOrder .modal-footer button:eq(1)").html("取消");
+            }else{
+                $("#postponeOrder .modal-body").html("您好！距离确认收货截止日期前3天内才可以延期!")
+                $("#postponeOrder").modal("show");
+                $("#postponeOrder .modal-footer button:first").hide();
+                $("#postponeOrder .modal-footer button:eq(1)").html("确定");
+            }
         }
     });
 }
@@ -525,17 +534,17 @@ function postponeOrder() {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
+            $("#postponeOrder").modal("hide");
             if(data.code==0){
-                alertModal(data.msg);
+                alertModal("操作失败了思密达，稍后再试吧");
             }else{
-                alertModal(data.msg);
-                $("#myModalConfirmReceipt").modal("hide");
+                alertModal("操作成功");
                 pasretFormData();
                 doRefreshData(params);
             }
         }
     });
-    $("#postponeOrder").modal("hide");
+
 }
 
 function fmoney(s, n)

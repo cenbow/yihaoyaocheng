@@ -954,6 +954,9 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getDeliverTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
+						if(od.getDelayTimes()!=null){//延期次数*每次延期的天数
+							time += CommonType.POSTPONE_TIME*od.getDelayTimes()*60*60*24;
+						}
 						if(time > 0){
 							//计算自动确认时间与当前时间剩余秒数
 							time = CommonType.AUTO_RECEIVE_TIME*60*60*24-time;
@@ -1688,13 +1691,20 @@ public class OrderService {
 	}
 
 	//延期收货
-	public String postponeOrder(Integer orderId,Integer day){
+	public void postponeOrder(Integer orderId,Integer day){
 		Order order = orderMapper.getByPK(orderId);
 		if(order==null){
 			throw  new RuntimeException("未找到订单");
 		}
-		//TODO 延期收货订单逻辑
-		return "";
+        // 延期收货订单逻辑
+		Integer delayTimes = order.getDelayTimes()==null?0:order.getDelayTimes();
+        delayTimes++ ;
+        String nowTimeStr = systemDateMapper.getSystemDate();
+        order.setDelayTimes(delayTimes);
+        order.setUpdateTime(nowTimeStr);
+        order.setDelayLog(nowTimeStr+",当前第"+delayTimes+"次延期收货;");
+        orderMapper.update(order);
+
 	}
 
 	public Map<String, Object> getOrderDetails4Manager(String flowId) throws Exception{
