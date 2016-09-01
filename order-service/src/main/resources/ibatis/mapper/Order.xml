@@ -94,7 +94,7 @@
 		<result column="pay_type_name" property="payTypeName"/>
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="pay_type" property="payType"/>
-		<result column="delay_times" property="delayimes"/>
+		<result column="delay_times" property="delayTimes"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
