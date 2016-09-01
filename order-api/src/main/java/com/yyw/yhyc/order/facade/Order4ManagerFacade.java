@@ -12,4 +12,6 @@ public interface Order4ManagerFacade {
      * @return
      */
     public Map<String,Object> listPgOperationsOrder(Map<String,String>  data);
+
+    public Map<String,Object> getOrderDetails4Manager(String flowId) throws Exception;
 }

@@ -3,13 +3,8 @@ package com.yyw.yhyc.order.manage;
 import com.sun.xml.internal.bind.v2.TODO;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
-import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemRefundPayStatusEnum;
-import com.yyw.yhyc.order.mapper.AccountPayInfoMapper;
-import com.yyw.yhyc.order.mapper.OrderPayMapper;
-import com.yyw.yhyc.order.mapper.OrderRefundMapper;
-import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
+import com.yyw.yhyc.order.enmu.*;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.chinapay.httpClient.HttpRequestHandler;
 import com.yyw.yhyc.pay.chinapay.pay.ChinaPay;
 import com.yyw.yhyc.pay.chinapay.utils.ChinaPayUtil;
@@ -34,6 +29,24 @@ public class OrderPayManage {
     private SystemPayTypeMapper systemPayTypeMapper;
     private AccountPayInfoMapper accountPayInfoMapper;
     private OrderRefundMapper orderRefundMapper;
+    private OrderMapper orderMapper;
+    private SystemDateMapper systemDateMapper;
+    private OrderTraceMapper orderTraceMapper;
+
+    @Autowired
+    public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
+        this.orderTraceMapper = orderTraceMapper;
+    }
+
+    @Autowired
+    public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+        this.systemDateMapper = systemDateMapper;
+    }
+
+    @Autowired
+    public void setOrderMapper(OrderMapper orderMapper) {
+        this.orderMapper = orderMapper;
+    }
 
     @Autowired
     public void setOrderRefundMapper(OrderRefundMapper orderRefundMapper) {
@@ -85,7 +98,7 @@ public class OrderPayManage {
 
         //取得当前父订单中是否已经支付
         if(len==cancelNum+doneNum&&merIdNum==len){
-            if(orderPay.getPayStatus().equals("1")){
+            if(orderPay.getPayStatus().equals(OrderPayStatusEnum.PAYED.getPayStatus())){
              /*   //根据当前分账信息判断是否全是由一号药业收款
                 boolean isReceive= HttpRequestHandler.isBysystemReceiveMoney(initmap);
                 System.out.println("订单是否为代收货款:"+orderParent.getPayFlowId()+"=="+isReceive);
@@ -176,10 +189,14 @@ public class OrderPayManage {
             if(status.equals(SystemOrderStatusEnum.BuyerAllReceived.getType())||status.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())){
                 doneNum=doneNum+1;
             }
+            AccountPayInfo accountPayInfo=new AccountPayInfo();
+            accountPayInfo.setCustId(o.getSupplyId());
+            accountPayInfo.setPayTypeId(systemPayType.getPayTypeId());
+            accountPayInfo=accountPayInfoMapper.getByCustId(accountPayInfo);
 
             String MerId = "";
             if(!UtilHelper.isEmpty(orderPay)){
-                MerId = orderPay.getReceiveAccountNo();
+                MerId = accountPayInfo.getReceiveAccountNo();
             }
             if(!UtilHelper.isEmpty(MerId)){
                 merIdNum=merIdNum+1;
@@ -197,12 +214,6 @@ public class OrderPayManage {
                     ||status.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType())
                     ||status.equals(SystemOrderStatusEnum.BackgroundCancellation.getType())){
                 cancelNum=cancelNum+1;
-                if(!UtilHelper.isEmpty(orderPay)){
-                    MerId = orderPay.getPayAccountNo();
-                }
-                if(!UtilHelper.isEmpty(MerId)){
-                    merIdNum=merIdNum+1;
-                }
                 OrderRefund orderRefund=orderRefundMapper.getOrderRefundByOrderId(o.getOrderId());
                 if(UtilHelper.isEmpty(orderRefund)){
                     BigDecimal payMoney=o.getOrgTotal();
@@ -288,7 +299,7 @@ public class OrderPayManage {
         sendMap.put("MerSplitMsg", RedundMerSplitMsg);//分账信息，需要传输过来
         sendMap.put("fromWhere", fromWhere);
 
-        log.info(orderPay.getPayFlowId()+"退款请求参数1= " + sendMap.toString());
+        log.info(orderPay.getPayFlowId() + "退款请求参数1= " + sendMap.toString());
         //支付日期
         Map<String,String> rt=pay.cancelOrder(sendMap);
         log.info(orderPay.getPayFlowId() + "退款请求结果1= " + rt.toString());
@@ -352,4 +363,99 @@ public class OrderPayManage {
         return rMap;
     }
 
+
+    /*// 确认收货
+    public void takeConfirmReturn(Map<String, Object> map) throws Exception {
+        log.debug("----收到确认收货订单后台通知------" + map.toString());
+
+        String flowPayId = map.get("flowPayId").toString();
+        String orderStatus = map.get("orderStatus").toString();
+        updateTakeConfirmOrderInfos(flowPayId, orderStatus);
+    }
+
+    // 收到订单退款通知
+    public void redundCallBack(Map<String, Object> map) throws Exception {
+        log.debug("----收到三方支付返回订单退款通知------" + map.toString());
+
+        String flowPayId = map.get("flowPayId").toString();
+        String orderStatus = map.get("orderStatus").toString();
+        updateRedundOrderInfos(flowPayId, orderStatus, map);
+    }*/
+
+
+    // 支付完成
+    public void orderPayReturn(Map<String, Object> map) throws Exception {
+        log.debug("----收到三方支付返回的订单后台通知------" + map.toString());
+
+        String flowPayId = map.get("flowPayId").toString();
+        String money = map.get("money").toString();
+        String MerId = map.get("MerId").toString();
+        int fromWhere = OnlinePayTypeEnum.UnionPayB2C.getPayType();
+        if (MerId.equals(PayUtil.getValue("MerId"))) {
+            fromWhere = OnlinePayTypeEnum.UnionPayB2C.getPayType();
+        } else if (MerId.equals(PayUtil.getAppValue("MerId"))) {
+            fromWhere = OnlinePayTypeEnum.UnionPayNoCard.getPayType();
+        }
+       log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
+       /* boolean isReceive = HttpRequestHandler.isBysystemReceiveMoney(map);*/
+        /*log.debug("---当前订单是否为代收货款--"+ flowPayId +"=="+ isReceive);*/
+        updateOrderpayInfos(flowPayId, new BigDecimal(money),map.toString());
+    }
+
+
+
+    // 支付完成更新信息
+    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String Payment)
+            throws Exception {
+        log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
+
+        synchronized(payFlowId){
+            String now = systemDateMapper.getSystemDate();
+            OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+
+            if (!UtilHelper.isEmpty(orderPay)&& (orderPay.getPayStatus().equals(OrderPayStatusEnum.UN_PAYED.getPayStatus()))) {//未支付
+
+                List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
+
+                if (UtilHelper.isEmpty(listOrder)||listOrder.size()==0) {
+                    // 商户数据异常
+                    log.info("根据订单流水号查询订单不存在");
+                    throw new Exception("支付信息异常！");
+                }
+                // 更新订单支付信息
+                orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
+                orderPay.setPayTime(now);
+                orderPay.setPaymentPlatforReturn(Payment);
+                orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+                orderPayMapper.update(orderPay);
+
+                for (Order order : listOrder) {
+                    if (SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) {
+                        // 更新订单信息
+                        order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
+                        order.setUpdateTime(now);
+                        order.setPayTime(now);
+                        orderMapper.update(order);
+                        /*orderManager.sendSMS(order, null, order.getSupplyId(), MessageTemplate.BUYER_PAY_ORDER_INFO_CODE);*/
+                        // 保存订单操作记录
+
+                        //插入日志表
+                        OrderTrace orderTrace = new OrderTrace();
+                        orderTrace.setOrderId(order.getOrderId());
+                        orderTrace.setNodeName("补货卖家已发货");
+                        orderTrace.setDealStaff("银联回调");
+                        orderTrace.setRecordDate(now);
+                        orderTrace.setRecordStaff("银联回调");
+                        orderTrace.setOrderStatus(order.getOrderStatus());
+                        orderTrace.setCreateTime(now);
+                        orderTrace.setCreateUser("银联回调");
+                        orderTraceMapper.save(orderTrace);
+
+                        //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
+                    }
+                }
+               log.info(payFlowId + "-----支付成功后更新信息   update orderInfo end ----");
+            }
+        }
+    }
 }

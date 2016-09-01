@@ -31,6 +31,13 @@ public interface PayService {
      * @param request
      * @return
      */
-    public String  paymentCallback(HttpServletRequest request);
+    public String  paymentCallback(HttpServletRequest request) ;
+
+    /**
+     * 分账成功回调
+     * @param request
+     * @return
+     */
+    public String spiltPaymentCallback(HttpServletRequest request);
 
 }

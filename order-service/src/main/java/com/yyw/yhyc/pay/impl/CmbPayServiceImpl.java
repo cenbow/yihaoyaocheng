@@ -8,6 +8,7 @@ import com.yyw.yhyc.order.service.AccountPayInfoService;
 import com.yyw.yhyc.order.service.OrderCombinedService;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.utils.XmlUtil;
 import com.yyw.yhyc.pay.cmbPay.CmbPayUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
@@ -136,12 +137,11 @@ public class CmbPayServiceImpl implements PayService{
 
     @Override
     public String paymentCallback(HttpServletRequest request) {
+        // TODO: 2016/9/1 需验证签名 
         log.info("招行支付回调请求信息，request:"+request);
-
         String code = CmbPayUtil.CALLBACK_FAILURE_CODE;
         String msg = "未知异常";
         try{
-            // TODO: 2016/8/31 解析request数据
             String xml = "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?>" +
                     "             <DATA>" +
                     "             <REQUEST>" +
@@ -165,7 +165,7 @@ public class CmbPayServiceImpl implements PayService{
                     "             </DATA>";
             log.info("paymentCallback xml:"+xml);
             Map<String,String> requestMap = getCallBackRequestData(xml);
-            log.info("招行支付回调请求参数，requestMap:"+requestMap);
+            log.info("招行支付回调,请求参数requestMap:"+requestMap);
             String REQNBR = requestMap.get("REQNBR");
             String MCHNBR = requestMap.get("MCHNBR");
             String REFORD = requestMap.get("REFORD");//支付流水号
@@ -181,6 +181,7 @@ public class CmbPayServiceImpl implements PayService{
             String RTNFLG = requestMap.get("RTNFLG");
             String RTNDSP = requestMap.get("RTNDSP");
 
+            //更新支付状态为已支付
             if(!UtilHelper.isEmpty(REFORD)){
                 OrderPay orderPay =  orderPayService.getByPayFlowId(REFORD);
                 if(!UtilHelper.isEmpty(orderPay)){
@@ -196,18 +197,27 @@ public class CmbPayServiceImpl implements PayService{
                     if(count != 0){
                         code = CmbPayUtil.CALLBACK_SUCCESS_CODE;
                         msg = "响应成功";
+                    }else{
+                        msg = "更新t_order_pay失败";
+                        log.error("招行支付回调,更新t_order_pay失败");
                     }
+                }else{
+                    msg = "未找到订单记录,REFORD:"+REFORD;
+                    log.error("招行支付回调,未找到订单记录");
                 }
+            }else{
+                msg = "请求参数【REFORD】为空";
+                log.error("招行支付回调,招行请求参数【REFORD】为空");
             }
 
         }catch (Exception e){
             e.printStackTrace();
-            log.error("招行支付回调处理失败，e:"+e.getMessage());
+            log.error("招行支付回调,招行支付回调处理失败，e:"+e.getMessage());
         }
-
 
         return String.format(CmbPayUtil.CALLBACK_RESPONSE_TEMPATE,code,msg);
     }
+
 
     /**
      * 解析招行支付成功回调接口请求数据
@@ -215,6 +225,23 @@ public class CmbPayServiceImpl implements PayService{
      * @return
      */
     private Map<String,String> getCallBackRequestData(String xml){
+        Map<String,String> map = new HashMap<String,String>();
+        List<Map<String,String>> list = XmlUtil.readXmlAsList(xml);
+        for(Map<String,String> item: list){
+            for(Map.Entry<String,String> entry : item.entrySet()){
+                map.put(entry.getKey(),entry.getValue());
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 招行分账成功回调
+     * @param request
+     * @return
+     */
+    @Override
+    public String spiltPaymentCallback(HttpServletRequest request) {
         return null;
     }
 

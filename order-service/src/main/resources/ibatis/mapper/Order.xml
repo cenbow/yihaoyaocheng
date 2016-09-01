@@ -1198,6 +1198,12 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
-
+	<select id="listOrderByPayFlowId" parameterType="java.lang.String"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateOrderColumns"/>
+		FROM t_order o,t_order_combined c
+		WHERE o.order_combined_id=c.order_combined_id
+		AND c.pay_flow_id=#{payFlowId}
+	</select>
 
 </mapper>

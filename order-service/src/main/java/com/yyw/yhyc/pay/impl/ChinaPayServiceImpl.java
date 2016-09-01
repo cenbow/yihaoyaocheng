@@ -5,10 +5,13 @@ import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderPayDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.OrderPayMapper;
 import com.yyw.yhyc.pay.chinapay.httpClient.HttpRequestHandler;
 import com.yyw.yhyc.pay.chinapay.utils.ChinaPayUtil;
 import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
+import com.yyw.yhyc.pay.chinapay.utils.SignUtil;
+import com.yyw.yhyc.pay.chinapay.utils.StringUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +35,12 @@ public class ChinaPayServiceImpl implements PayService {
     private static final Logger log = LoggerFactory.getLogger(ChinaPayServiceImpl.class);
 
     private OrderPayMapper orderPayMapper;
+    private OrderPayManage orderPayManage;
+
+    @Autowired
+    public void setOrderPayManage(OrderPayManage orderPayManage) {
+        this.orderPayManage = orderPayManage;
+    }
 
     @Autowired
     public void setOrderPayMapper(OrderPayMapper orderPayMapper) {
@@ -142,7 +153,79 @@ public class ChinaPayServiceImpl implements PayService {
 
     // TODO: 2016/8/31 银联支付回调  待江帅编写 
     @Override
-    public String paymentCallback(HttpServletRequest request) {
+    public String paymentCallback(HttpServletRequest request){
+        String orderStatus="";
+        try{
+            System.out.println("支付成功后回调开始。。。。。。。。");
+            printRequestParam("支付成功后回调",request);
+            Map<String,Object> map=new HashMap<String,Object>();
+            String[] requests=new String[]{"Version", "AccessType" , "AcqCode" , "MerId" , "MerOrderNo" , "TranDate" , "TranTime" , "OrderAmt" , "TranType" , "BusiType" , "CurryNo" , "OrderStatus" , "SplitType" , "SplitMethod" ,
+                    "MerSplitMsg" , "AcqSeqId" , "AcqDate" , "ChannelSeqId" , "ChannelDate" , "ChannelTime" , "PayBillNo" , "BankInstNo" , "CommodityMsg" ,
+                    "MerResv" , "TranReserved" , "CardTranData" , "PayTimeOut" , "TimeStamp" , "RemoteAddr" , "CompleteDate" , "CompleteTime" , "Signature"};
+            for(String str:requests){
+                if(!UtilHelper.isEmpty(request.getParameter(str))){
+                    map.put(str,URLDecoder.decode(request.getParameter(str), "utf-8"));
+                }
+            }
+            if(UtilHelper.isEmpty(map.get("OrderStatus"))&&!UtilHelper.isEmpty(request.getParameter("&OrderStatus"))){
+                map.put("OrderStatus",URLDecoder.decode(request.getParameter("&OrderStatus"), "utf-8"));
+            }
+            if(SignUtil.verify(map)){
+                orderStatus=map.get("OrderStatus").toString();
+                if(orderStatus.equals("0000")){
+                    map.put("flowPayId",map.get("MerOrderNo"));
+                    map.put("money",map.get("OrderAmt"));
+                }
+            }
+            //回调更新信息
+            orderPayManage.orderPayReturn(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            log.error("银联支付成功回调");
+        }
+
+        return orderStatus;
+    }
+
+    // TODO: 2016/9/1 分账成功回调 待江帅编写 
+    /**
+     * 银联分账成功回调
+     * @param request
+     * @return
+     */
+    @Override
+    public String spiltPaymentCallback(HttpServletRequest request) {
         return null;
     }
+
+
+    private void printRequestParam(String lonNode,HttpServletRequest request){
+
+        System.out.println("客户支付后接收银联回调所有参数开始。。。。。。。。");
+        Map<String,Object> mapBacnk=request.getParameterMap();
+        String re="";
+        for(String key:mapBacnk.keySet()){
+            try {
+                re=re+ URLDecoder.decode(request.getParameter(key), "utf-8");
+                System.out.println(key+"=="+URLDecoder.decode(request.getParameter(key), "utf-8"));
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try {
+            if(!UtilHelper.isEmpty(request.getParameter("MerOrderNo"))){
+                log.info(URLDecoder.decode(request.getParameter("MerOrderNo"), "utf-8")+lonNode+"="+ StringUtil.paserMaptoStr(mapBacnk) );
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("接收银联回调所有参数结束。。。。。。。。");
+    }
+
 }

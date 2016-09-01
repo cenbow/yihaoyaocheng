@@ -51,6 +51,7 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public java.math.BigDecimal findBuyerOrderTotal(OrderDto orderDto);
 
-
 	public List<OrderDto> listPaginationOperationsOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
+
+	public List<Order> listOrderByPayFlowId(String payFlowId);
 }
