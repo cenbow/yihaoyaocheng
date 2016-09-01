@@ -249,6 +249,22 @@
     </div>
 </div>
 
+<div class="modal fade" id="postponeOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-header">延期收获</div>
+            <div class="modal-body font-size-16 text-center" >
+                每笔订单最多延期收货两次，确认延期收货吗？
+            </div>
+            <div class="modal-footer text-center">
+                <input type="hidden" id="postponeOrderId">
+                <button type="button" class="btn btn-default" onclick="postponeOrder();">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
