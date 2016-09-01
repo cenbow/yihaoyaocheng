@@ -232,13 +232,4 @@ public class ChinaPayServiceImpl implements PayService {
         System.out.println("接收银联回调所有参数结束。。。。。。。。");
     }
 
-    /**
-     * 分账成功回调
-     * @param request
-     * @return
-     */
-    public String spiltPaymentCallback(HttpServletRequest request){
-        return "";
-    }
-
 }
