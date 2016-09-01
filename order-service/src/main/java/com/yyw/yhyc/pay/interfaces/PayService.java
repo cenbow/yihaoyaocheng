@@ -11,10 +11,14 @@ import java.util.Map;
  */
 public interface PayService {
 
+    public static final int ORDER_RECEIVED_ACTION = 1;
+
+    public static final int ORDER_CANCELLED_ACTION = 2;
+
     /**
      * Action 1 确认收货 2 取消订单
      */
-    public Map<String,Object> postToBankForDoneOrder(Map<String,Object> orderInfo,int Action);
+    public Object postToBankForDoneOrder(Map<String,Object> orderInfo,int Action) throws Exception;
 
     /**
      *  在发送支付请求之前，组装数据
