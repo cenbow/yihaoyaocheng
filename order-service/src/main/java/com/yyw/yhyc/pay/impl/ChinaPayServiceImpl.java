@@ -87,7 +87,7 @@ public class ChinaPayServiceImpl implements PayService {
     }
 
 
-
+    //组装数据
     private Map<String,Object> findPayMapByPayFlowId(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list) throws Exception{
         Map<String,Object> map=new HashMap<String,Object>();
 
@@ -150,8 +150,12 @@ public class ChinaPayServiceImpl implements PayService {
         log.info("发送银联支付请求之前，组装数据map=" + map);
         return map;
     }
-
-    // TODO: 2016/8/31 银联支付回调  待江帅编写 
+    /**
+     * 银联支付回调
+     * @param request
+     * @return
+     * @throws Exception
+     */
     @Override
     public String paymentCallback(HttpServletRequest request)  throws  Exception {
         String orderStatus="";
@@ -181,9 +185,6 @@ public class ChinaPayServiceImpl implements PayService {
         return orderStatus;
     }
 
-
-
-
     private void printRequestParam(String lonNode,HttpServletRequest request){
 
         System.out.println("客户支付后接收银联回调所有参数开始。。。。。。。。");
@@ -211,6 +212,15 @@ public class ChinaPayServiceImpl implements PayService {
             e.printStackTrace();
         }
         System.out.println("接收银联回调所有参数结束。。。。。。。。");
+    }
+
+    /**
+     * 分账成功回调
+     * @param request
+     * @return
+     */
+    public String spiltPaymentCallback(HttpServletRequest request){
+        return "";
     }
 
 }
