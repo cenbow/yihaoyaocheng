@@ -36,6 +36,10 @@ public class CmbPayServiceImpl implements PayService{
 
     private static final Logger log = LoggerFactory.getLogger(CmbPayServiceImpl.class);
 
+    public static final int ORDER_RECEIVED_ACTION = 1;
+
+    public static final int ORDER_CANCELLED_ACTION = 2;
+
     private OrderCombinedMapper orderCombinedMapper;
     @Autowired
     public void setOrderCombinedMapper(OrderCombinedMapper orderCombinedMapper) {
@@ -84,16 +88,15 @@ public class CmbPayServiceImpl implements PayService{
         this.systemPayTypeMapper = systemPayTypeMapper;
     }
 
-    @Override
-    public String postToBankForDoneOrder(Map<String, Object> orderInfo, int action) throws Exception {
+    private String postToBankForDoneOrder(Map<String, Object> orderInfo, int action) throws Exception {
         if (UtilHelper.isEmpty(orderInfo)) throw  new Exception("非法参数");
         OrderPay orderPay = (OrderPay) orderInfo.get("orderPay");
         if(UtilHelper.isEmpty(orderPay))throw  new Exception("非法参数");
 
         String operationAction = "";
-        if (PayService.ORDER_RECEIVED_ACTION == action) {
+        if (ORDER_RECEIVED_ACTION == action) {
             operationAction = "A";
-        } else if (PayService.ORDER_CANCELLED_ACTION == action) {
+        } else if (ORDER_CANCELLED_ACTION == action) {
             operationAction = "C";
         } else{
             throw  new Exception("非法参数");
@@ -122,20 +125,22 @@ public class CmbPayServiceImpl implements PayService{
     }
 
     /* 确认收货后，向招商银行发送分账请求 */
+    @Override
     public boolean confirmReceivedOrder(String payFlowId) throws Exception {
         OrderPay orderPay = validateOrderPay(payFlowId);
         Map<String,Object> map = new HashMap<>();
         map.put("orderPay",orderPay);
-        String response = postToBankForDoneOrder(map,PayService.ORDER_RECEIVED_ACTION);
+        String response = postToBankForDoneOrder(map,ORDER_RECEIVED_ACTION);
         return false;
     }
 
     /* 已付款的订单取消后，向招商银行发送撤销请求 */
+    @Override
     public boolean cancelOrder(String payFlowId) throws Exception {
         OrderPay orderPay = validateOrderPay(payFlowId);
         Map<String,Object> map = new HashMap<>();
         map.put("orderPay",orderPay);
-        String response = postToBankForDoneOrder(map,PayService.ORDER_CANCELLED_ACTION);
+        String response = postToBankForDoneOrder(map,ORDER_CANCELLED_ACTION);
         return false;
     }
 
@@ -335,11 +340,11 @@ public class CmbPayServiceImpl implements PayService{
             OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
             order = orderMapper.getByPK(orderException.getOrderId());
         }else{
-            log.error("调用银联退款，orderType类型不正确，orderType="+orderType);
+            log.error("调用招商银行退款，orderType类型不正确，orderType="+orderType);
             throw new RuntimeException("orderType类型不正确");
         }
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-        log.info("调用银联退款，订单详情:"+order);
+        log.info("调用银联招商银行退款，订单详情:"+order);
         //在线支付订单
         if(!SystemPayTypeEnum.PayOnline.equals(systemPayType.getPayType()))
             return;
@@ -353,7 +358,7 @@ public class CmbPayServiceImpl implements PayService{
             this.cancelOrder(orderPay.getPayFlowId());
         }catch (Exception e){
             e.printStackTrace();
-            log.error("调用银联退款，调用招行退款接口失败，e:"+e.getMessage());
+            log.error("调用招商银行退款，调用退款接口失败，e:"+e.getMessage());
         }
 
         String now = systemDateMapper.getSystemDate();

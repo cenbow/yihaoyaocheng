@@ -70,11 +70,6 @@ public class ChinaPayServiceImpl implements PayService {
         this.orderExceptionMapper = orderExceptionMapper;
     }
 
-    @Override
-    public Map<String, Object> postToBankForDoneOrder(Map<String, Object> orderInfo, int Action) {
-        return null;
-    }
-
 
     /**
      * 在发送支付请求之前，组装数据
@@ -294,4 +289,13 @@ public class ChinaPayServiceImpl implements PayService {
         orderRefundMapper.save(orderRefund);
     }
 
+    @Override
+    public boolean confirmReceivedOrder(String payFlowId) throws Exception {
+        return false;
+    }
+
+    @Override
+    public boolean cancelOrder(String payFlowId) throws Exception {
+        return false;
+    }
 }
