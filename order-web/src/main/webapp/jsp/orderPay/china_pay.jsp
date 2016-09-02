@@ -16,7 +16,7 @@
 <form name="payment" action="<%= pay_url %>" method="POST">
     <%
         Map<String, Object> sendMap = new HashMap<String, Object>();
-        sendMap=(Map)request.getAttribute("PayMap");
+        sendMap=(Map)request.getAttribute("payRequestParamMap");
         if(!sendMap.containsKey("MerSplitMsg")){
             sendMap.put("MerSplitMsg", "0");
         }
