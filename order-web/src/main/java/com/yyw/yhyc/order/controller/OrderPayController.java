@@ -21,16 +21,15 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.order.utils.RandomUtil;
-import com.yyw.yhyc.pay.impl.CmbPayServiceImpl;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -149,13 +148,18 @@ public class OrderPayController extends BaseJsonController {
 		if(userDto == null ){
 			throw new Exception("登陆超时");
 		}
-		if(OnlinePayTypeEnum.getPayName(payTypeId) == null )throw new Exception("非法参数");
+		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
+		if(UtilHelper.isEmpty(systemPayType)){
+			throw new Exception("登陆超时");
+		}
+
+		if(!SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType()))throw new Exception("非法参数");
 		if(UtilHelper.isEmpty(flowIds)) throw new Exception("非法参数");
 
 		ModelAndView modelAndView = new ModelAndView();
-		if(OnlinePayTypeEnum.MerchantBank.getPayType() == payTypeId){
+		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId() == payTypeId){
 			modelAndView.setViewName("orderPay/cmb_pay");
-		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayType() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayType()== payTypeId){
+		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId){
 			modelAndView.setViewName("orderPay/china_pay");
 		}else{
 			throw new Exception("非法参数");
@@ -167,7 +171,6 @@ public class OrderPayController extends BaseJsonController {
 		if(UtilHelper.isEmpty(orderPay)) throw new Exception("非法参数");
 
 		/* 在线支付订单前，组装订单数据 */
-		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
 		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType);
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
