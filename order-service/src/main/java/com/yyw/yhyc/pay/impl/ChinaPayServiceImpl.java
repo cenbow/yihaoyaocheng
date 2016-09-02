@@ -573,8 +573,8 @@ public class ChinaPayServiceImpl implements PayService {
         //在线支付订单
         if(!SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType()))
             return;
-        //非【卖家已下单】
-        if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()))
+        //买家已付款
+        if(!OrderPayStatusEnum.PAYED.getPayStatus().equals(order.getPayStatus()))
             return;
 
         OrderRefund er=orderRefundMapper.getOrderRefundByOrderId(order.getOrderId());
