@@ -38,8 +38,8 @@
 	</resultMap>
 
 	<resultMap id="OrderPayDtoResultMapper" type="OrderPayDto">
-		<result column="pay_account_no" property="payAccountNo"/>
-		<result column="pay_account_name" property="payAccountName"/>
+		<result column="receive_account_no" property="receiveAccountNo"/>
+		<result column="receive_account_name" property="receiveAccountName"/>
 		<result column="cust_id" property="custId"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="org_total" property="orgTotal"/>

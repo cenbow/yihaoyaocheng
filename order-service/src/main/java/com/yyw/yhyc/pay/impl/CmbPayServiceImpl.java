@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -310,29 +311,52 @@ public class CmbPayServiceImpl implements PayService{
             String RTNFLG = requestMap.get("RTNFLG");
             String RTNDSP = requestMap.get("RTNDSP");
 
+            // TODO: 2016/9/2  需验证哪些字段必填
+
             //更新支付状态为已支付
             if(!UtilHelper.isEmpty(REFORD)){
                 OrderPay orderPay =  orderPayMapper.getByPayFlowId(REFORD);
                 if(!UtilHelper.isEmpty(orderPay)){
-                    String now = systemDateMapper.getSystemDate();
-                    orderPay.setPayStatus("1");//已支付
-                    orderPay.setUpdateUser("招商银行");
-                    orderPay.setPayAccountName(ACCNAM);
-                    orderPay.setPayAccountNo(PAYACC);
-                    orderPay.setPayMoney(new BigDecimal(ENDAMT));
-                    orderPay.setUpdateTime(now);
-                    orderPay.setPaymentPlatforReturn(xml);
-                    int count = orderPayMapper.update(orderPay);
-                    if(count != 0){
-                        code = CmbPayUtil.CALLBACK_SUCCESS_CODE;
-                        msg = "响应成功";
+                    if(!OrderPayStatusEnum.PAYED.getPayStatus().equals(orderPay.getPayStatus())){
+                        List<Order> orderList = orderMapper.listOrderByPayFlowId(REFORD);
+                        if(!UtilHelper.isEmpty(orderList)){
+                            /*更新订单表支付状态*/
+                            List<Integer> primaryKeys = new ArrayList<Integer>();
+                            for(Order o : orderList)
+                                primaryKeys.add(o.getOrderId());
+                            Map<String,Object> updateMap = new HashMap<String,Object>();
+                            updateMap.put("payStatus",OrderPayStatusEnum.PAYED.getPayStatus());
+                            updateMap.put("primaryKeys",primaryKeys);
+                            orderMapper.updateOrderPayStatusByPk(updateMap);
+
+                            /*更新支付表支付状态*/
+                            String now = systemDateMapper.getSystemDate();
+                            orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());//已支付
+                            orderPay.setUpdateUser("招商银行");
+                            orderPay.setPayAccountName(ACCNAM);
+                            orderPay.setPayAccountNo(PAYACC);
+                            orderPay.setPayMoney(new BigDecimal(ENDAMT));
+                            orderPay.setUpdateTime(now);
+                            orderPay.setPaymentPlatforReturn(xml);
+                            int count = orderPayMapper.update(orderPay);
+                            if(count != 0){
+                                code = CmbPayUtil.CALLBACK_SUCCESS_CODE;
+                                msg = "响应成功";
+                            }else{
+                                msg = "更新t_order_pay失败";
+                                log.error("招行支付回调,更新t_order_pay失败");
+                            }
+                        }else{
+                            msg = "未找到订单记录,REFORD:"+REFORD;
+                            log.error("招行支付回调,未找到订单记录");
+                        }
                     }else{
-                        msg = "更新t_order_pay失败";
-                        log.error("招行支付回调,更新t_order_pay失败");
+                        msg = "订单已支付";
+                        log.error("招行支付回调,订单已支付");
                     }
                 }else{
-                    msg = "未找到订单记录,REFORD:"+REFORD;
-                    log.error("招行支付回调,未找到订单记录");
+                    msg = "未找到订单支付记录,REFORD:"+REFORD;
+                    log.error("招行支付回调,未找到订单支付记录");
                 }
             }else{
                 msg = "请求参数【REFORD】为空";
@@ -399,11 +423,12 @@ public class CmbPayServiceImpl implements PayService{
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
         log.info("调用银联招商银行退款，订单详情:"+order);
         //在线支付订单
-        if(!SystemPayTypeEnum.PayOnline.equals(systemPayType.getPayType()))
+        if(!SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType()))
             return;
         //买家已付款
-        if(!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()))
+        if(!OrderPayStatusEnum.PAYED.getPayStatus().equals(order.getPayStatus()))
             return;
+
         OrderRefund er=orderRefundMapper.getOrderRefundByOrderId(order.getOrderId());
         //订单是否已退款
         if(!UtilHelper.isEmpty(er)){

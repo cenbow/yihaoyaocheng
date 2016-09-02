@@ -1211,4 +1211,12 @@
 		AND c.pay_flow_id=#{payFlowId}
 	</select>
 
+	<delete id="updateOrderPayStatusByPk" parameterType="map">
+		UPDATE T_ORDER SET pay_status=#{payStatus} WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+				 open=" order_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+
 </mapper>

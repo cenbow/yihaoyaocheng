@@ -33,6 +33,15 @@
 		<result column="remark" property="remark"/>
 	</resultMap>
 
+	<resultMap id="ProductInventoryDtoResultMapper" type="ProductInventoryDto" extends="ProductInventoryResultMapper">
+		<result column="productcode_company" property="productcodeCompany"/>
+		<result column="product_name" property="productName"/>
+		<result column="short_name" property="shortName"/>
+		<result column="spec" property="spec"/>
+		<result column="factory_name" property="factoryName"/>
+		<result column="minimum_packing" property="minimumPacking"/>
+	</resultMap>
+
 	<sql id="commonColumns">
 		id
 		, spu_code
@@ -81,6 +90,23 @@
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, remark
+	</sql>
+
+	<sql id="PicommonProcessDateColumns">
+		pi.id
+		, pi.spu_code
+		, pi.current_inventory
+		, pi.warning_inventory
+		, pi.blocked_inventory
+		, pi.front_inventory
+		, pi.supply_type
+		, pi.supply_id
+		, pi.supply_name
+		, pi.create_user
+		, date_format(pi.create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, pi.update_user
+		, date_format(pi.update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, pi.remark
 	</sql>
 
 	<sql id="commonCondition">
@@ -149,22 +175,47 @@
   ) ]]>
 	</insert>
 	<update id="update" parameterType="ProductInventory">
-		<![CDATA[ UPDATE t_product_inventory SET
-			 id=#{id}
+		<![CDATA[ UPDATE t_product_inventory SET id=#{id} ]]>
+		<if test="spuCode!= null and spuCode!= ''">
 			, spu_code=#{spuCode}
+		</if>
+		<if test="currentInventory!= null and currentInventory!= ''">
 			, current_inventory=#{currentInventory}
+		</if>
+		<if test="warningInventory!= null and warningInventory!= ''">
 			, warning_inventory=#{warningInventory}
+		</if>
+		<if test="blockedInventory!= null and blockedInventory!= ''">
 			, blocked_inventory=#{blockedInventory}
+		</if>
+		<if test="frontInventory!= null and frontInventory!= ''">
 			, front_inventory=#{frontInventory}
+		</if>
+		<if test="supplyType!= null and supplyType!= ''">
 			, supply_type=#{supplyType}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
 			, supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
 			, supply_name=#{supplyName}
+		</if>
+		<if test="createUser!= null and createUser!= ''">
 			, create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
 			, update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="remark!= null and remark!= ''">
 			, remark=#{remark}
-		WHERE id = #{id}  ]]>
+		</if>
+		WHERE id = #{id}
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_product_inventory WHERE id = #{id}  ]]>
@@ -196,14 +247,59 @@
 		FROM t_product_inventory WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
-	<select id="listPaginationByProperty" parameterType="ProductInventory" resultMap="ProductInventoryResultMapper">
-		SELECT
-		<include refid="commonProcessDateColumns"/>
-		FROM t_product_inventory WHERE 1=1
-		<include refid="commonCondition"/>
+
+	<select id="listPaginationByProperty" parameterType="ProductInventoryDto" resultMap="ProductInventoryDtoResultMapper">
+		select <include refid="PicommonProcessDateColumns"/>,p.product_name,p.short_name,p.spec,f.factory_name,pa.productcode_company,pa.minimum_packing from t_product_audit pa
+        LEFT JOIN
+        t_product_info p
+        ON pa.spu_code=p.spu_code
+        LEFT JOIN t_product_inventory  pi
+        ON pa.spu_code=pi.spu_code and pa.seller_code=pi.supply_id
+		LEFT JOIN t_product_factory f
+		ON p.factory_name=f.id
+        where  pa.seller_code=#{supplyId}  and pa.audit_status='1' and p.status='0'
+		<if test="productcodeCompany!= null and productcodeCompany!= ''">
+			AND pa.productcode_company LIKE CONCAT('%',#{productcodeCompany},'%' )
+		</if>
+		<if test="shortName!= null and shortName!= ''">
+			AND p.short_name LIKE CONCAT('%',#{shortName},'%' )
+		</if>
+		<if test="factoryName!= null and factoryName!= ''">
+			AND f.factory_name LIKE CONCAT('%',#{factoryName},'%' )
+		</if>
+		<if test="beginUpdateTime!= null and beginUpdateTime!= ''">
+			<![CDATA[ AND pi.update_time >= #{beginUpdateTime} ]]>
+		</if>
+		<if test="endUpdateIime!= null and endUpdateIime!= ''">
+			<![CDATA[ AND pi.update_time <= #{endUpdateIime} ]]>
+		</if>
+		<if test='warningStatus == "1"'><!--预警状态1、缺货2、库存预警-->
+			<![CDATA[ AND pi.front_inventory <  pa.minimum_packing]]>
+		</if>
+		<if test='warningStatus == "2"'><!--预警状态1、缺货2、库存预警-->
+			<![CDATA[ AND pi.current_inventory <= pi.warning_inventory ]]>
+		</if>
 	</select>
+
 	<select id="findByCount" parameterType="ProductInventory" resultType="int">
 		SELECT count(1) AS totalcount FROM t_product_inventory WHERE 1=1
 		<include refid="commonCondition"/>
+	</select>
+
+	<update id="updateInventory" parameterType="ProductInventory">
+		 UPDATE t_product_inventory SET  current_inventory=#{currentInventory}
+		    <if test="warningInventory!= null and warningInventory!= ''">
+			, warning_inventory=#{warningInventory}
+		    </if>
+		    , front_inventory=#{currentInventory}-blocked_inventory
+			, update_user=#{updateUser}
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE id = #{id}
+	</update>
+
+	<select id="findBySupplyIdSpuCode" parameterType="java.util.HashMap" resultMap="ProductInventoryResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory WHERE supply_id=#{supplyId} AND spu_code=#{spuCode}
 	</select>
 </mapper>

@@ -254,6 +254,7 @@ public class OrderPayService {
 			order = new Order();
 			order.setOrderId(orderId);
 			order.setPayTypeId(payTypeId);
+			order.setPayTime(systemDateMapper.getSystemDate());
 			order.setOrderCombinedId(orderCombined.getOrderCombinedId());
 			orderMapper.update(order);
 		}
@@ -266,6 +267,7 @@ public class OrderPayService {
 		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
 		orderPay.setCreateUser(userDto.getUserName());
 		orderPay.setCreateTime(systemDateMapper.getSystemDate());
+		orderPay.setPayTime(systemDateMapper.getSystemDate());
 		log.info("在线支付订单前，预处理订单数据:插入orderPay数据=" + orderPay);
 		orderPayMapper.save(orderPay);
 		List<OrderPay> orderPayList = orderPayMapper.listByProperty(orderPay);
