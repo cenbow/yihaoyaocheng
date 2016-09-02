@@ -17,12 +17,11 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
-import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
-import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.ShoppingCartService;
+import net.sf.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,6 +111,8 @@ public class ShoppingCartController extends BaseJsonController {
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCart(shoppingCart);
+
+//		logger.info("购物车页面数据：\n" + JSONArray.fromObject(allShoppingCart).toString());
 
 		/* 获取商品图片 */
 //		logger.info("购物车页面-获取商品图片：iProductDubboManageService = " + iProductDubboManageService);

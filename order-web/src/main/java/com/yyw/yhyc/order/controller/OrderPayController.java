@@ -14,6 +14,7 @@ package com.yyw.yhyc.order.controller;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -21,8 +22,10 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderPayService;
+import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.order.utils.RandomUtil;
@@ -51,6 +54,12 @@ public class OrderPayController extends BaseJsonController {
 	@Autowired
 	public void setSystemPayTypeService(SystemPayTypeService systemPayTypeService) {
 		this.systemPayTypeService = systemPayTypeService;
+	}
+
+	private OrderService orderService;
+	@Autowired
+	public void setOrderService(OrderService orderService) {
+		this.orderService = orderService;
 	}
 
 	/**
@@ -113,24 +122,31 @@ public class OrderPayController extends BaseJsonController {
 
 	/**
 	 * 从订单中心跳到 确认支付页面
-	 * @param flowIds
+	 * @param orderId 订单id
 	 * @return
      */
 	@RequestMapping(value = "/confirmPay", method = RequestMethod.GET)
-	public ModelAndView confirmPay(@RequestParam("flowIds") String flowIds) throws Exception {
+	public ModelAndView confirmPay(@RequestParam("orderId") Integer orderId) throws Exception {
 
 		UserDto userDto = super.getLoginUser();
-		if(userDto == null ){
+		if(userDto == null || UtilHelper.isEmpty(userDto.getCustId())){
 			throw new Exception("登陆超时");
 		}
-
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("orderPay/confirmPay");
 
-		if(UtilHelper.isEmpty(flowIds)) return modelAndView;
-
-		modelAndView.addObject("flowIds",flowIds);
-
+		if(UtilHelper.isEmpty(orderId)) return modelAndView;
+		Order order = orderService.getByPK(orderId);
+		if(UtilHelper.isEmpty(order)){
+			throw new Exception("非法参数!");
+		}
+		if(userDto.getCustId() != order.getCustId()){
+			throw new Exception("非法参数!");
+		}
+		if(!SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){
+			throw new Exception("订单状态异常!");
+		}
+		modelAndView.addObject("order",order);
 		return modelAndView;
 	}
 
@@ -176,6 +192,8 @@ public class OrderPayController extends BaseJsonController {
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
 		return modelAndView;
 	}
+
+
 
 
 	/**
