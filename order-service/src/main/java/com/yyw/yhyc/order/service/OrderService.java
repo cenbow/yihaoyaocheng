@@ -1820,6 +1820,13 @@ public class OrderService {
 				log.error("order info :"+order);
 				throw new RuntimeException("订单取消失败");
 			}
+
+			UserDto userDto = new UserDto();
+			userDto.setUserName(userName);
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+			PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+			payService.handleRefund(userDto,1,order.getFlowId(),"运营后台取消订单");
+
 			//插入日志表
 			OrderTrace orderTrace = new OrderTrace();
 			orderTrace.setOrderId(order.getOrderId());
