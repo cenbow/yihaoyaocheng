@@ -46,6 +46,8 @@ public class ChinaPayServiceImpl implements PayService {
 
     private OrderExceptionMapper orderExceptionMapper;
 
+    private OrderCombinedMapper orderCombinedMapper;
+
     @Autowired
     public void setOrderPayManage(OrderPayManage orderPayManage) {
         this.orderPayManage = orderPayManage;
@@ -75,10 +77,14 @@ public class ChinaPayServiceImpl implements PayService {
         this.orderExceptionMapper = orderExceptionMapper;
     }
 
-
     @Autowired
     public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
         this.systemPayTypeMapper = systemPayTypeMapper;
+    }
+
+    @Autowired
+    public void setOrderCombinedMapper(OrderCombinedMapper orderCombinedMapper) {
+        this.orderCombinedMapper = orderCombinedMapper;
     }
 
     /**
@@ -550,11 +556,9 @@ public class ChinaPayServiceImpl implements PayService {
         OrderRefund orderRefund = new OrderRefund();
         BigDecimal orderMoney = null;
         Order order = null;
-        if(orderType == 1){
+        if(orderType == 1){//原始订单
             order = orderMapper.getOrderbyFlowId(flowId);
-            orderRefund.setCustId(order.getCustId());
-            orderRefund.setSupplyId(order.getSupplyId());
-        }else if(orderType == 2 || orderType == 3 ){
+        }else if(orderType == 2 || orderType == 3 ){//异常订单
             OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
             order = orderMapper.getByPK(orderException.getOrderId());
             //拒收订单+买家已确认
@@ -567,10 +571,10 @@ public class ChinaPayServiceImpl implements PayService {
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
         log.info("调用银联退款，订单详情:"+order);
         //在线支付订单
-        if(!SystemPayTypeEnum.PayOnline.equals(systemPayType.getPayType()))
+        if(!SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType()))
             return;
-        //买家已付款
-        if(!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()))
+        //非【卖家已下单】
+        if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()))
             return;
 
         OrderRefund er=orderRefundMapper.getOrderRefundByOrderId(order.getOrderId());
