@@ -2,10 +2,13 @@ package com.yyw.yhyc.product.manage;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.mapper.ProductInventoryLogMapper;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,9 +24,22 @@ import java.util.Map;
 public class ProductInventoryManage {
     private static final Logger log = LoggerFactory.getLogger(ProductInventoryManage.class);
     private ProductInventoryMapper productInventoryMapper;
+    private SystemDateMapper systemDateMapper;
+    private ProductInventoryLogMapper productInventoryLogMapper;
 
+    @Autowired
     public void setProductInventoryMapper(ProductInventoryMapper productInventoryMapper) {
         this.productInventoryMapper = productInventoryMapper;
+    }
+
+    @Autowired
+    public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
+        this.systemDateMapper = systemDateMapper;
+    }
+
+    @Autowired
+    public void setProductInventoryLogMapper(ProductInventoryLogMapper productInventoryLogMapper) {
+        this.productInventoryLogMapper = productInventoryLogMapper;
     }
 
     /**
