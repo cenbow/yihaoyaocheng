@@ -597,7 +597,7 @@ public class ChinaPayServiceImpl implements PayService {
             throw new RuntimeException(e.getMessage());
         }
 
-        if(!"0000".equals(resultMap.get("code"))){
+        if(!"0000".equals(resultMap.get("code")) && !"1003".equals(resultMap.get("code"))){
             log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
             throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
         }
@@ -606,10 +606,11 @@ public class ChinaPayServiceImpl implements PayService {
         orderRefund.setCustId(order.getCustId());
         orderRefund.setSupplyId(order.getSupplyId());
         orderRefund.setRefundSum(order.getOrgTotal());
-        orderRefund.setOrderId(order.getOrderId());
+        orderRefund.setRefundFreight(new BigDecimal(0));
         orderRefund.setFlowId(flowId);
         orderRefund.setCreateTime(now);
-        orderRefund.setRefundStatus("1");//未退款
+        orderRefund.setRefundDate(now);
+        orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
         orderRefund.setRefundDesc(refundDesc);
         orderRefundMapper.save(orderRefund);
     }
