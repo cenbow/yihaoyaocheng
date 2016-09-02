@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-8-30 11:47:20
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.product.mapper.ProductAuditMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="ProductAuditResultMapper" type="ProductAudit">
+		<result column="id" property="id"/>
+		<result column="spu_code" property="spuCode"/>
+		<result column="seller_code" property="sellerCode"/>
+		<result column="seller_name" property="sellerName"/>
+		<result column="is_channel" property="isChannel"/>
+		<result column="productcode_company" property="productcodeCompany"/>
+		<result column="minimum_packing" property="minimumPacking"/>
+		<result column="big_packing" property="bigPacking"/>
+		<result column="audit_status" property="auditStatus"/>
+		<result column="channel_price" property="channelPrice"/>
+		<result column="update_staff" property="updateStaff"/>
+		<result column="update_date" property="updateDate"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 id
+		, spu_code
+		, seller_code
+		, seller_name
+		, is_channel
+		, productcode_company
+		, minimum_packing
+		, big_packing
+		, audit_status
+		, channel_price
+		, update_staff
+		, update_date
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 spu_code
+				, seller_code
+				, seller_name
+				, is_channel
+				, productcode_company
+				, minimum_packing
+				, big_packing
+				, audit_status
+				, channel_price
+				, update_staff
+				, update_date
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 id
+		, spu_code
+		, seller_code
+		, seller_name
+		, is_channel
+		, productcode_company
+		, minimum_packing
+		, big_packing
+		, audit_status
+		, channel_price
+		, update_staff
+		, date_format(update_date, '%Y-%m-%d %H:%i:%s') update_date
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="id!= null and id!= ''"> 
+			AND id=#{id}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''"> 
+			AND spu_code=#{spuCode}
+		</if>
+		<if test="sellerCode!= null and sellerCode!= ''"> 
+			AND seller_code=#{sellerCode}
+		</if>
+		<if test="sellerName!= null and sellerName!= ''"> 
+			AND seller_name=#{sellerName}
+		</if>
+		<if test="isChannel!= null and isChannel!= ''"> 
+			AND is_channel=#{isChannel}
+		</if>
+		<if test="productcodeCompany!= null and productcodeCompany!= ''"> 
+			AND productcode_company=#{productcodeCompany}
+		</if>
+		<if test="minimumPacking!= null and minimumPacking!= ''"> 
+			AND minimum_packing=#{minimumPacking}
+		</if>
+		<if test="bigPacking!= null and bigPacking!= ''"> 
+			AND big_packing=#{bigPacking}
+		</if>
+		<if test="auditStatus!= null and auditStatus!= ''"> 
+			AND audit_status=#{auditStatus}
+		</if>
+		<if test="channelPrice!= null and channelPrice!= ''"> 
+			AND channel_price=#{channelPrice}
+		</if>
+		<if test="updateStaff!= null and updateStaff!= ''"> 
+			AND update_staff=#{updateStaff}
+		</if>
+		<if test="updateDate!= null and updateDate!= ''"> 
+			AND update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="ProductAudit">
+		<![CDATA[ INSERT INTO t_product_audit ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{spuCode}
+				, #{sellerCode}
+				, #{sellerName}
+				, #{isChannel}
+				, #{productcodeCompany}
+				, #{minimumPacking}
+				, #{bigPacking}
+				, #{auditStatus}
+				, #{channelPrice}
+				, #{updateStaff}
+				, str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="ProductAudit">
+		<![CDATA[ UPDATE t_product_audit SET 
+			 id=#{id} 
+			, spu_code=#{spuCode} 
+			, seller_code=#{sellerCode} 
+			, seller_name=#{sellerName} 
+			, is_channel=#{isChannel} 
+			, productcode_company=#{productcodeCompany} 
+			, minimum_packing=#{minimumPacking} 
+			, big_packing=#{bigPacking} 
+			, audit_status=#{auditStatus} 
+			, channel_price=#{channelPrice} 
+			, update_staff=#{updateStaff} 
+			, update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+		WHERE id = #{id}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_product_audit WHERE id = #{id}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_product_audit WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="ProductAudit">
+		DELETE FROM t_product_audit WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductAuditResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_product_audit WHERE id = #{id}  
+	</select>
+	<select id="list" resultMap="ProductAuditResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_product_audit
+	</select>
+	<select id="listByProperty" parameterType="ProductAudit" resultMap="ProductAuditResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_product_audit WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="ProductAudit" resultMap="ProductAuditResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_audit WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="ProductAudit" resultType="int">
+		SELECT count(1) AS totalcount FROM t_product_audit WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+
+	<select id="getProductcodeCompany" parameterType="java.util.HashMap" resultMap="ProductAuditResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_audit WHERE  seller_code=#{sellerCode} and productcode_company=#{productcodeCompany} and audit_status='1'
+	</select>
+</mapper>
