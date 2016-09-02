@@ -20,33 +20,9 @@
     <%@ include file="../config.jsp"%>
     <link rel="stylesheet" href="${STATIC_URL}/static/css/inside.css"></head>
 <body>
-<div class="top">
-    <div class="wapper">
-        <div class="top-side">
-            <ul>
-                <li>
-                    您好，欢迎您来到1号药城药品信息网
-                    <!-- <a href="#" class="pl25">我的名字啦</a>
-                  <a href="#">退出</a>
-                  -->
-                    <a href="#" class="red pl25">请登录</a>
-                </li>
-                <li>
-                    <a href="#">我的订单</a>
-                </li>
-                <li>
-                    <a href="#">我的1号药城</a>
-                </li>
-                <li>
-                    <a href="#">帮助</a>
-                </li>
-                <li class="last-li"><i class="common-icon top-phone"></i>
-                    <span class="red">4009215767</span>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
+
+<%@ include file="../head.jsp"%>
+
 <div class="wapper header">
     <h1 class="common-icon">
         <a href="#">1号药城 — 方便.快捷.第一</a>

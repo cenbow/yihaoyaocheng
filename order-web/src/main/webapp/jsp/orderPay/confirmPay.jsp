@@ -61,7 +61,6 @@
             $(this).parent('div').find('.radio-skin').removeClass('radio-skin-selected');
             $(this).find('i:first').addClass('radio-skin-selected');
             var _payTypeId = $(this).attr("payTypeId");
-            console.info("_payTypeId=" + _payTypeId);
             $("#payTypeId").val(_payTypeId);
         });
     });
