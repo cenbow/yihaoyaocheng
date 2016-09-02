@@ -253,6 +253,7 @@
 		, T1.update_user
 		, T1.bill_type
 		, T1.Delay_log
+		, T1.delay_times
 		, T1.receive_Type
 		, T1.payment_term_status
 		, T1.payment_term
@@ -293,6 +294,7 @@
 		, o.update_user
 		, o.bill_type
 		, o.Delay_log
+		, o.delay_times
 		, o.receive_Type
 		, o.payment_term_status
 		, o.payment_term
@@ -549,6 +551,9 @@
 		</if>
 		<if test="delayLog!= null and delayLog!= ''">
 			, Delay_log=#{delayLog}
+		</if>
+		<if test="delayTimes!= null and delayTimes!= ''">
+			, delay_times=#{delayTimes}
 		</if>
 		<if test="receiveType!= null and receiveType!= ''">
 			, receive_Type=#{receiveType}

@@ -38,10 +38,10 @@
             <groupId>pay-chinapay</groupId>
             <artifactId>chinapayfilesecure</artifactId>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov</artifactId>
             <version>jdk14-135</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 </project>

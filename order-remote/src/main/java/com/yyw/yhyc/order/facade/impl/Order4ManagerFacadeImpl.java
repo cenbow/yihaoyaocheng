@@ -25,8 +25,18 @@ public class Order4ManagerFacadeImpl implements Order4ManagerFacade {
     }
 
     @Override
+    public Map<String, Object> listPgProducts(Map<String, String> data) throws Exception {
+        return orderService.listPgProducts(data);
+    }
+
+    @Override
     public Map<String, Object> getOrderDetails4Manager(String flowId) throws Exception{
         return orderService.getOrderDetails4Manager(flowId);
+    }
+
+    @Override
+    public void cancelOrder(String userName,String orderId, String cancelResult) throws Exception {
+        orderService.cancelOrder4Manage(userName,orderId, cancelResult);
     }
 
 

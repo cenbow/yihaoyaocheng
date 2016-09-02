@@ -18,6 +18,7 @@ import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.annotation.Token;
+import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
@@ -621,7 +622,7 @@ public class OrderController extends BaseJsonController {
         pagination.setPageSize(requestModel.getPageSize());
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		orderDto.setCustId(userDto.getCustId());
+		orderDto.setCustId(6066);
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
@@ -849,17 +850,35 @@ public class OrderController extends BaseJsonController {
 
 	@RequestMapping(value = "/showPostponeOrder",method = RequestMethod.GET)
 	@ResponseBody
-	public String showPostponeOrder(Integer orderId)throws Exception{
+	public Map<String,Object> showPostponeOrder(Integer orderId)throws Exception{
+		Map<String,Object> map = new HashedMap();
 		Order order = orderService.getByPK(orderId);
-		Integer day = DateUtils.getDaysBetweenStartAndEnd(systemDateService.getSystemDate(),order.getReceiveTime());
-		return "{\"day\":"+day+"}";
+
+		Integer day = DateUtils.getDaysBetweenStartAndEnd(systemDateService.getSystemDate(),order.getDeliverTime());
+		day += CommonType.AUTO_RECEIVE_TIME; //自动加上七天
+		if(order.getDelayTimes()!=null){//如果延期不为空则，加上延期时间
+			day += CommonType.POSTPONE_TIME*order.getDelayTimes();
+			map.put("delayTimes",order.getDelayTimes());
+		}else{
+			map.put("delayTimes",0);
+		}
+
+		map.put("day",day);
+		return map;
 	}
 
 	@RequestMapping(value = "/postponeOrder",method = RequestMethod.POST)
 	@ResponseBody
-	public String postponeOrder(Order order){
-		System.out.println(order.getOrderId());
-		return null;
+	public Map<String,Object> postponeOrder(@RequestBody Order order){
+		String code = "1";
+		Map<String,Object> map = new HashedMap();
+		try {
+			orderService.postponeOrder(order.getOrderId(),CommonType.POSTPONE_TIME);
+		}catch (Exception e){
+			code ="0";
+		}
+		map.put("code",code);
+		return map;
 	}
 
 }

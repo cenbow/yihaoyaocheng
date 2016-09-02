@@ -195,24 +195,15 @@ public class ChinaPayServiceImpl implements PayService {
      */
     @Override
     public String paymentCallback(HttpServletRequest request){
-        String orderStatus="";
+        String flag="1";
         try{
             System.out.println("支付成功后回调开始。。。。。。。。");
             printRequestParam("支付成功后回调",request);
             Map<String,Object> map=new HashMap<String,Object>();
-            String[] requests=new String[]{"Version", "AccessType" , "AcqCode" , "MerId" , "MerOrderNo" , "TranDate" , "TranTime" , "OrderAmt" , "TranType" , "BusiType" , "CurryNo" , "OrderStatus" , "SplitType" , "SplitMethod" ,
-                    "MerSplitMsg" , "AcqSeqId" , "AcqDate" , "ChannelSeqId" , "ChannelDate" , "ChannelTime" , "PayBillNo" , "BankInstNo" , "CommodityMsg" ,
-                    "MerResv" , "TranReserved" , "CardTranData" , "PayTimeOut" , "TimeStamp" , "RemoteAddr" , "CompleteDate" , "CompleteTime" , "Signature"};
-            for(String str:requests){
-                if(!UtilHelper.isEmpty(request.getParameter(str))){
-                    map.put(str,URLDecoder.decode(request.getParameter(str), "utf-8"));
-                }
-            }
-            if(UtilHelper.isEmpty(map.get("OrderStatus"))&&!UtilHelper.isEmpty(request.getParameter("&OrderStatus"))){
-                map.put("OrderStatus",URLDecoder.decode(request.getParameter("&OrderStatus"), "utf-8"));
-            }
+            //解析参数转成map
+            map=getParameter(request);
             if(SignUtil.verify(map)){
-                orderStatus=map.get("OrderStatus").toString();
+                String orderStatus=map.get("OrderStatus").toString();
                 if(orderStatus.equals("0000")){
                     map.put("flowPayId",map.get("MerOrderNo"));
                     map.put("money",map.get("OrderAmt"));
@@ -221,11 +212,12 @@ public class ChinaPayServiceImpl implements PayService {
             //回调更新信息
             orderPayManage.orderPayReturn(map);
         }catch (Exception e){
+            flag="0";
             e.printStackTrace();
             log.error("银联支付成功回调");
         }
 
-        return orderStatus;
+        return flag;
     }
 
     // TODO: 2016/9/1 分账成功回调 待江帅编写
@@ -236,9 +228,51 @@ public class ChinaPayServiceImpl implements PayService {
      */
     @Override
     public String spiltPaymentCallback(HttpServletRequest request) {
-        return null;
+        String flag="1";
+            System.out.println("确认收货后回调开始。。。。。。。。");
+            Map<String,Object> map=new HashMap<String,Object>();
+        try{
+            printRequestParam("确认收货后回调", request);
+            //解析参数转成map
+            map=getParameter(request);
+            if(SignUtil.verify(map)){
+                map.put("flowPayId",map.get("OriOrderNo"));
+                map.put("orderStatus", map.get("orderStatus"));
+                orderPayManage.takeConfirmReturn(map);
+            }
+        }catch (Exception e){
+            flag="0";
+            e.printStackTrace();
+            log.error("银联支付成功回调异常参数："+map.toString());
+        }
+        return flag;
     }
 
+    /**
+     * 银联退款回调
+     * @param request
+     * @return
+     */
+    @Override
+    public String redundCallBack(HttpServletRequest request) {
+        String flag="1";
+        System.out.println("退款回调开始。。。。。。。。");
+        Map<String,Object> map=new HashMap<String,Object>();
+        try{
+            printRequestParam("退款回调",request);
+            map=getParameter(request);
+            if(SignUtil.verify(map)){
+                map.put("flowPayId",map.get("OriOrderNo"));
+                map.put("orderStatus", map.get("orderStatus"));
+                orderPayManage.redundCallBack(map);
+            }
+        }catch (Exception e){
+            flag="0";
+            e.printStackTrace();
+            log.error("银联支付成功回调异常参数："+map.toString());
+        }
+        return flag;
+    }
 
     private void printRequestParam(String lonNode,HttpServletRequest request){
 
@@ -606,5 +640,24 @@ public class ChinaPayServiceImpl implements PayService {
     @Override
     public boolean cancelOrder(String payFlowId) throws Exception {
         return false;
+    }
+
+
+
+    public Map<String,Object>  getParameter(HttpServletRequest request) throws Exception{
+        Map<String,Object> map=new HashMap<String,Object>();
+        String[] requests=new String[]{"Version","AccessType","AcqCode","MerId","MerOrderNo","TranDate",
+                "TranTime","OriOrderNo","OriTranDate","RefundAmt","OrderAmt","TranType","BusiType","CurryNo",
+                "OrderStatus","SplitType","SplitMethod","MerSplitMsg","AcqSeqId","AcqDate","MerResv","TranReserved",
+                "CompleteDate","CompleteTime","Signature"};
+        for(String str:requests){
+            if(!UtilHelper.isEmpty(request.getParameter(str))){
+                map.put(str, URLDecoder.decode(request.getParameter(str), "utf-8"));
+            }
+        }
+        if(UtilHelper.isEmpty(map.get("OrderStatus"))&&!UtilHelper.isEmpty(request.getParameter("&OrderStatus"))){
+            map.put("OrderStatus",URLDecoder.decode(request.getParameter("&OrderStatus"), "utf-8"));
+        }
+        return map;
     }
 }

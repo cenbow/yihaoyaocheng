@@ -955,6 +955,9 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getDeliverTime()) && SystemOrderStatusEnum.SellerDelivered.getType().equals(od.getOrderStatus())){
 					try {
 						time = DateUtils.getSeconds(od.getDeliverTime(),od.getNowTime());
+						if(od.getDelayTimes()!=null){//延期次数*每次延期的天数
+							time -= CommonType.POSTPONE_TIME*od.getDelayTimes()*60*60*24;
+						}
 						if(time > 0){
 							//计算自动确认时间与当前时间剩余秒数
 							time = CommonType.AUTO_RECEIVE_TIME*60*60*24-time;
@@ -1694,13 +1697,20 @@ public class OrderService {
 	}
 
 	//延期收货
-	public String postponeOrder(Integer orderId,Integer day){
+	public void postponeOrder(Integer orderId,Integer day){
 		Order order = orderMapper.getByPK(orderId);
 		if(order==null){
 			throw  new RuntimeException("未找到订单");
 		}
-		//TODO 延期收货订单逻辑
-		return "";
+        // 延期收货订单逻辑
+		Integer delayTimes = order.getDelayTimes()==null?0:order.getDelayTimes();
+        delayTimes++ ;
+        String nowTimeStr = systemDateMapper.getSystemDate();
+        order.setDelayTimes(delayTimes);
+        order.setUpdateTime(nowTimeStr);
+        order.setDelayLog(nowTimeStr+",当前第"+delayTimes+"次延期收货;");
+        orderMapper.update(order);
+
 	}
 
 	public Map<String, Object> getOrderDetails4Manager(String flowId) throws Exception{
@@ -1755,11 +1765,75 @@ public class OrderService {
 				orderDetailsdto.setOrderDeliveryDetail(listDeliveryDetai.get(0));
 			}
 		}
-		OrderPay orderPay = orderPayMapper.getByPayFlowId(flowId);
+		OrderCombined orderPay = orderCombinedMapper.getByPK(orderDetailsdto.getOrderCombinedId());
 		if(!UtilHelper.isEmpty(orderPay))
 			orderDetailsdto.setPayFlowId(orderPay.getPayFlowId());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("orderDetailsDto",orderDetailsdto);
 		return map;
+	}
+
+	public Map<String, Object> listPgProducts(Map<String, String> data) throws Exception {
+		if(UtilHelper.isEmpty(data)){
+			throw new RuntimeException("参数异常");
+		}
+		Map<String,Object> resutlMap = new HashMap<String,Object>();
+		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
+		pagination.setPageNo(Integer.valueOf(data.get("pageNo")));
+		pagination.setPageSize(Integer.valueOf(data.get("pageSize")));
+		pagination.setPaginationFlag(Boolean.valueOf(data.get("paginationFlag")));
+		OrderDeliveryDetailDto orderDeliveryDetailDto = new OrderDeliveryDetailDto();
+		orderDeliveryDetailDto.setFlowId(data.get("flowId"));
+		List<OrderDeliveryDetailDto> list = orderDeliveryDetailMapper.listPaginationByProperty(pagination, orderDeliveryDetailDto);
+
+		pagination.setResultList(list);
+
+		resutlMap.put("productsList", pagination);
+		return resutlMap;
+	}
+
+	/**
+	 * 后台管理取消订单
+	 * @param userDto
+	 * @param orderId
+	 */
+	public void  cancelOrder4Manage(String userName,String orderId,String cancelResult){
+		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
+			throw new RuntimeException("参数错误");
+		}
+		Order order =  orderMapper.getByPK(Integer.parseInt(orderId));
+		log.debug(order);
+		if(UtilHelper.isEmpty(order)){
+			log.error("can not find order ,orderId:"+orderId);
+			throw new RuntimeException("未找到订单");
+		}
+		if((SystemOrderStatusEnum.SellerDelivered.getType().equals(order.getOrderStatus()) )){//卖家已发货
+			order.setOrderStatus(SystemOrderStatusEnum.BackgroundCancellation.getType());//标记订单为卖家取消状态
+			String now = systemDateMapper.getSystemDate();
+			order.setCancelResult("后台取消");
+			order.setRemark(cancelResult);
+			order.setUpdateUser(userName);
+			order.setUpdateTime(now);
+			order.setCancelTime(now);
+			int count = orderMapper.update(order);
+			if(count == 0){
+				log.error("order info :"+order);
+				throw new RuntimeException("订单取消失败");
+			}
+			//插入日志表
+			OrderTrace orderTrace = new OrderTrace();
+			orderTrace.setOrderId(order.getOrderId());
+			orderTrace.setNodeName("后台取消订单");
+			orderTrace.setDealStaff(userName);
+			orderTrace.setRecordDate(now);
+			orderTrace.setRecordStaff(userName);
+			orderTrace.setOrderStatus(order.getOrderStatus());
+			orderTrace.setCreateTime(now);
+			orderTrace.setCreateUser(userName);
+			orderTraceMapper.save(orderTrace);
+		}else{
+			log.error("order status error ,orderStatus:"+order.getOrderStatus());
+			throw new RuntimeException("订单状态不正确");
+		}
 	}
 }
