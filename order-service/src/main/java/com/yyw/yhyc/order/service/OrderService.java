@@ -678,6 +678,7 @@ public class OrderService {
 			order.setPaymentTerm(orderDto.getPaymentTerm());
 		}
 
+		order.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus());
 		order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 		order.setCreateTime(systemDateMapper.getSystemDate());
 		order.setCreateUser(userDto.getUserName());
@@ -1792,11 +1793,13 @@ public class OrderService {
 		return resutlMap;
 	}
 
+
 	/**
 	 * 后台管理取消订单
-	 * @param userDto
+	 * @param userName
 	 * @param orderId
-	 */
+	 * @param cancelResult
+     */
 	public void  cancelOrder4Manage(String userName,String orderId,String cancelResult){
 		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");

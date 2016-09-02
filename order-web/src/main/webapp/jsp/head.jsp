@@ -11,10 +11,16 @@
         <div class="top-side">
             <ul>
                 <li>
-                    您好，欢迎您来到1号药城药品信息网
-                    <!-- <a href="#" class="pl25">我的名字啦</a>
-                    <a href="#">退出</a> -->
-                    <a href="#" class="red pl25">请登录</a>
+                    <c:choose>
+                        <c:when test="${loginUserDto != null }">
+                            <a href="#" class="pl25">您好，${loginUserDto != null ? loginUserDto.custName : ""}</a>
+                            <a href="#" style="padding-right: 10px">退出</a>
+                        </c:when>
+                        <c:otherwise>
+                            您好，欢迎您来到1号药城药品信息网
+                            <a href="#" class="red pl25">请登录</a>
+                        </c:otherwise>
+                    </c:choose>
                 </li>
                 <li><a href="#">我的订单</a></li>
                 <li><a href="#">我的1号药城</a></li>
