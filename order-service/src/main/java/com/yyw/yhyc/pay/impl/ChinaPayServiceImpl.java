@@ -567,7 +567,7 @@ public class ChinaPayServiceImpl implements PayService {
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
         log.info("调用银联退款，订单详情:"+order);
         //在线支付订单
-        if(!SystemPayTypeEnum.PayOnline.equals(systemPayType.getPayType()))
+        if(!SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType()))
             return;
         //买家已付款
         if(!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()))
