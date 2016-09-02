@@ -591,7 +591,7 @@ public class ChinaPayServiceImpl implements PayService {
             throw new RuntimeException(e.getMessage());
         }
 
-        if(!"0000".equals(resultMap.get("code")) && !"1003".equals(resultMap.get("code"))){
+        if(!"0000".equals(resultMap.get("code")) || !"1003".equals(resultMap.get("code"))){
             log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
             throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
         }
