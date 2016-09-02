@@ -85,6 +85,8 @@ public class OrderExceptionService {
 		this.systemPayTypeMapper = systemPayTypeMapper;
 	}
 
+	@Autowired
+	private OrderSettlementService orderSettlementService;
 
 	/**
 	 * 通过主键查询实体对象
@@ -262,7 +264,6 @@ public class OrderExceptionService {
 		orderSettlement.setFlowId(orderException.getExceptionOrderId());
 		orderSettlement.setCustId(orderException.getCustId());
 		orderSettlement.setCustName(orderException.getCustName());
-		orderSettlement.setSupplyId(orderException.getSupplyId());
 		orderSettlement.setSupplyName(orderException.getSupplyName());
 		orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
 		orderSettlement.setPayTypeId(order.getPayTypeId());
@@ -272,7 +273,15 @@ public class OrderExceptionService {
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
 		orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
-
+		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())){
+			//如银联支付 只有买家看到
+			orderSettlement.setCustId(orderException.getCustId());
+		}else {
+			orderSettlement.setCustId(orderException.getCustId());
+			orderSettlement.setSupplyId(orderException.getSupplyId());
+		}
+		//加上省市区
+		orderSettlementService.parseSettlementProvince(orderSettlement,orderException.getCustId()+"");
 		orderSettlementMapper.save(orderSettlement);
 	}
 

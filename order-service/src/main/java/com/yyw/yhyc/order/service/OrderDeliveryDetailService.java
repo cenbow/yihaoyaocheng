@@ -53,6 +53,9 @@ public class OrderDeliveryDetailService {
 	@Autowired
 	private OrderSettlementMapper orderSettlementMapper;
 
+	@Autowired
+	private OrderSettlementService orderSettlementService;
+
 
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
@@ -284,7 +287,7 @@ public class OrderDeliveryDetailService {
 
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
-			orderDeliveryDetailMapper.update(orderDeliveryDetail);
+			//orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
 				//根据发货两比对如果不同则生成退换货信息
 				if(orderDeliveryDetail.getDeliveryProductCount()>orderDeliveryDetail.getRecieveCount()){
@@ -309,7 +312,7 @@ public class OrderDeliveryDetailService {
 					orderReturn.setOrderDeliveryDetailId(orderDeliveryDetail.getOrderDeliveryDetailId());
 					orderReturn.setBatchNumber(orderDeliveryDetail.getBatchNumber());
 					orderReturn.setProductCode(orderDetail.getProductCode());
-					orderReturnMapper.save(orderReturn);
+					//orderReturnMapper.save(orderReturn);
 				}
 			}
 			if(UtilHelper.isEmpty(map.get(dto.getOrderDetailId()))){
@@ -344,10 +347,10 @@ public class OrderDeliveryDetailService {
 		order.setReceiveType(1);//买家确认收货
 		order.setUpdateTime(now);
 		order.setUpdateUser(user.getUserName());
-		orderMapper.update(order);
+		//orderMapper.update(order);
 
 		//生成结算信息当是账期支付时
-		saveOrderSettlement(order);
+		saveOrderSettlement(order,moneyTotal);
 
 		//插入日志表
 		OrderTrace orderTrace = new OrderTrace();
@@ -359,7 +362,7 @@ public class OrderDeliveryDetailService {
 		orderTrace.setOrderStatus(order.getOrderStatus());
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(user.getUserName());
-		orderTraceMapper.save(orderTrace);
+		//orderTraceMapper.save(orderTrace);
 
 		//生成异常订单
 		if (!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
@@ -385,7 +388,7 @@ public class OrderDeliveryDetailService {
 			orderException.setExceptionOrderId(exceptionOrderId);
 			orderException.setUpdateTime(now);
 			orderException.setUpdateUser(user.getUserName());
-			orderExceptionMapper.save(orderException);
+			//orderExceptionMapper.save(orderException);
 
 			//插入异常订单日志
 			OrderTrace orderTrace1 = new OrderTrace();
@@ -401,7 +404,7 @@ public class OrderDeliveryDetailService {
 			orderTrace1.setOrderStatus(orderException.getOrderStatus());
 			orderTrace1.setCreateTime(now);
 			orderTrace1.setCreateUser(user.getUserName());
-			orderTraceMapper.save(orderTrace1);
+			//orderTraceMapper.save(orderTrace1);
 
 		}
 			returnMap.put("code","1");
@@ -414,15 +417,15 @@ public class OrderDeliveryDetailService {
 	 * @param order
 	 * @throws Exception
 	 */
-	public void saveOrderSettlement(Order order) throws Exception{
+	public void saveOrderSettlement(Order order,BigDecimal moneyTotal) throws Exception{
 		if(UtilHelper.isEmpty(order)){
 			throw new RuntimeException("未找到订单");
 		}
 		//当为账期支付时
+		String now = systemDateMapper.getSystemDate();
 		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		OrderSettlement orderSettlement = new OrderSettlement();
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
-			String now = systemDateMapper.getSystemDate();
-		    OrderSettlement orderSettlement = new OrderSettlement();
 		    orderSettlement.setBusinessType(1);
 		    orderSettlement.setOrderId(order.getOrderId());
 		    orderSettlement.setFlowId(order.getFlowId());
@@ -438,7 +441,33 @@ public class OrderDeliveryDetailService {
 		    orderSettlement.setOrderTime(order.getCreateTime());
 		    orderSettlement.setSettlementMoney(order.getOrgTotal());
 		    orderSettlementMapper.save(orderSettlement);
+		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())){//在线支付
+			if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+				//如果是招商支付则加上 买家id 银联支付不加
+				orderSettlement.setCustId(order.getCustId());
+			}
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setOrderId(order.getOrderId());
+			orderSettlement.setFlowId(order.getFlowId());
+			orderSettlement.setCustName(order.getCustName());
+			orderSettlement.setSupplyId(order.getSupplyId());
+			orderSettlement.setSupplyName(order.getSupplyName());
+			orderSettlement.setConfirmSettlement("1");//在线支付 是已结算
+			orderSettlement.setPayTypeId(order.getPayTypeId());
+			orderSettlement.setSettlementTime(now);
+			orderSettlement.setCreateUser(order.getCustName());
+			orderSettlement.setCreateTime(now);
+			orderSettlement.setOrderTime(order.getCreateTime());
+
+			//拒收的 结算金额需要减去拒收的金额
+			if(moneyTotal!=null&&SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())){
+				orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(moneyTotal));
+			}else {
+				orderSettlement.setSettlementMoney(order.getOrgTotal());
+			}
 		}
+		orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
+		orderSettlementMapper.save(orderSettlement);
 	}
 
 	/**
