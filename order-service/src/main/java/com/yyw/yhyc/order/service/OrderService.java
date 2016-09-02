@@ -669,7 +669,7 @@ public class OrderService {
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
 			order.setPaymentTerm(0);
 		/* 在线支付 */
-		}else if(OnlinePayTypeEnum.getPayName(systemPayType.getPayType()) != null){
+		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())) {
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
 			order.setPaymentTerm(0);
 		/* 账期支付 */
