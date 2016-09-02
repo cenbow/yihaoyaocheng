@@ -495,7 +495,7 @@ public class ChinaPayServiceImpl implements PayService {
         splitMap.put("OrderAmt", new Integer(orderPay.getPayMoney().multiply(multiple).intValue()).toString());//定单金额，需要转过来
         splitMap.put("OriOrderNo", orderPay.getPayFlowId());//原定单号 需要传输
         // 返回参数请参考 (新一代商户接入手册V2.1-) 后续类交易接口 的异步返回报文章
-        splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/ConfirmCallBack.action");//不需要转过来
+        splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/ConfirmCallBack");//不需要转过来
         splitMap.put("MerSplitMsg", MerSplitMsg);//分账信息，需要传输过来
         splitMap.put("fromWhere", fromWhere);
         log.info(orderPay.getPayFlowId() + "分账请求参数= " + splitMap.toString());
