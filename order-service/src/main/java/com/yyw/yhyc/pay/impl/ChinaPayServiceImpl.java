@@ -583,7 +583,9 @@ public class ChinaPayServiceImpl implements PayService {
             throw new RuntimeException("订单已申请退款");
         }
 
-        OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
+        OrderCombined orderCombined = orderCombinedMapper.getByPK(order.getOrderCombinedId());
+
+        OrderPay orderPay =  orderPayMapper.getByPayFlowId(orderCombined.getPayFlowId());
 
         List<Order> orderList = new ArrayList<Order>();
         orderList.add(order);
