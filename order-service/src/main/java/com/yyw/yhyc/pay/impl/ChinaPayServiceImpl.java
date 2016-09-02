@@ -571,8 +571,6 @@ public class ChinaPayServiceImpl implements PayService {
 
         OrderPay orderPay =  orderPayMapper.getByPayFlowId(order.getFlowId());
 
-        //public Map<String, String> sendPayQuestForOrder(OrderPay orderPay , List<Order> orderList,BigDecimal orderMoney) throws Exception
-        // TODO: 2016/9/1 调用银联退款
         List<Order> orderList = new ArrayList<Order>();
         orderList.add(order);
         Map<String, String> resultMap = null;
@@ -583,6 +581,10 @@ public class ChinaPayServiceImpl implements PayService {
             throw new RuntimeException(e.getMessage());
         }
 
+        if(!"0000".equals(resultMap.get("code"))){
+            log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
+            throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
+        }
         String now = systemDateMapper.getSystemDate();
         orderRefund.setCreateUser(userDto.getUserName());
         orderRefund.setCustId(order.getCustId());
