@@ -141,7 +141,9 @@ public class HttpRequestHandler {
 		// 敏感信息加密处理
 		if (StringUtil.isNotEmpty(cardResvedStr)) {
 			cardResvedStr = SignUtil.decryptData(cardResvedStr);
-			sendMap.put(cardResveredKey, cardResvedStr);
+			if(StringUtil.isNotEmpty(cardResvedStr)){
+				sendMap.put(cardResveredKey, cardResvedStr);
+			}
 		}
 		if (StringUtil.isNotEmpty(transResvedStr)) {
 			sendMap.put(transResveredKey, transResvedStr);
@@ -164,9 +166,9 @@ public class HttpRequestHandler {
 			 if(busiType.equals("9908")||busiType.equals("0401")){
 			    sendMap.remove("BankInstNo");
 			 }
-			 if(busiType.equals("0001")){
+			/* if(busiType.equals("0001")){
 				 sendMap.put("MerPageUrl", PayUtil.getValue("payReturnHost") + "/thirdpay/app_submit_success.html");
-			  }
+			  }*/
 			 sendMap.remove("fromWhere");
 			 signature = SignUtil.signForApp(sendMap);
 		 }else{

@@ -170,10 +170,11 @@ public class ChinaPayServiceImpl implements PayService {
         String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         map.put("OrderAmt", OrderAmt);
         map.put("MerPageUrl", PayUtil.getValue("payReturnHost") + "/buyerOrderManage");
+
         map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/OrderCallBackPay");
         log.info(PayUtil.getValue("payReturnHost") + "/OrderCallBackPay");
         String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
-        log.info("CommodityMsg="+CommodityMsg);
+        log.info("CommodityMsg=" + CommodityMsg);
         map.put("CommodityMsg", CommodityMsg);
 
         if(isNoHaveMerId){
@@ -382,6 +383,9 @@ public class ChinaPayServiceImpl implements PayService {
                     rMap.put("code", donePay.get("respCode"));
                     rMap.put("msg", donePay.get("respMsg"));
                 }
+            }else{
+                rMap.put("code", "9998");
+                rMap.put("msg", "支付状态错误");
             }
         return rMap;
     }
