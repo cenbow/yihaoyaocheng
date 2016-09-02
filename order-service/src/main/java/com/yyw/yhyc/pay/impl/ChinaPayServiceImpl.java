@@ -151,9 +151,9 @@ public class ChinaPayServiceImpl implements PayService {
             }
         }
 
-        if(OnlinePayTypeEnum.UnionPayB2C.getPayType().intValue()==systemPayType.getPayType().intValue()){
+        if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
             fromWhere= ChinaPayUtil.B2C;
-        }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayType().intValue()==systemPayType.getPayType().intValue()){
+        }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
             fromWhere=ChinaPayUtil.NOCARD;
         }else{
             fromWhere=ChinaPayUtil.B2C;
@@ -376,12 +376,6 @@ public class ChinaPayServiceImpl implements PayService {
                     }else{
                         log.info("退款结果" + cancelPay.toString());
                     }
-
-                    if(cancelPay.get("respCode").equals("1003")
-                            ||cancelPay.get("respCode").equals("0000")){
-                        //写入退款记录
-                        this.createRefundRecord(orderRefundList);
-                    }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
                 }else{
@@ -412,9 +406,9 @@ public class ChinaPayServiceImpl implements PayService {
             Order o=orderList.get(i);
             String status=o.getOrderStatus();
 
-            if(OnlinePayTypeEnum.UnionPayB2C.getPayType().intValue()==systemPayType.getPayType().intValue()){
+            if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().intValue()==systemPayType.getPayType().intValue()){
                 fromWhere=ChinaPayUtil.B2C;
-            }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayType().intValue()==systemPayType.getPayType().intValue()){
+            }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().intValue()==systemPayType.getPayType().intValue()){
                 fromWhere=ChinaPayUtil.NOCARD;
             }else{
                 fromWhere=ChinaPayUtil.B2C;
@@ -527,9 +521,9 @@ public class ChinaPayServiceImpl implements PayService {
         return rt;
     }
 
-    /*
+  /*  *//*
     * 取消定单时写入退款记录
-    */
+    *//*
     private void createRefundRecord(List<Order> orderRefundList) throws Exception{
         for(Order refund:orderRefundList){
             OrderRefund orderRefund=new OrderRefund();
@@ -543,7 +537,7 @@ public class ChinaPayServiceImpl implements PayService {
             orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());
             orderRefundMapper.save(orderRefund);
         }
-    }
+    }*/
     /**
      * 发起退款请求
      * @param userDto 用户信息

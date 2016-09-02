@@ -68,14 +68,14 @@
                         <div class="pay-type mt40">
                             <p class="pay-type-top">请选择在线支付方式：</p>
                             <div class="radio-select">
-                                <label payTypeId="<%=OnlinePayTypeEnum.MerchantBank.getPayType()%>">
+                                <label payTypeId="<%=OnlinePayTypeEnum.MerchantBank.getPayTypeId()%>">
                                     <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-cmb"></i><br><span>
                                 <i class="common-icon radio-tip"></i>需开通招商银行企业网银</span>
                                 </label>
-                                <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayType()%>">
+                                <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()%>">
                                     <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span>银联卡支付</span>
                                 </label>
-                                <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2C.getPayType()%>">
+                                <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()%>">
                                     <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付</span>
                                 </label>
                                 <input type="hidden" id="payTypeId">

@@ -9,26 +9,26 @@ public enum OnlinePayTypeEnum {
     UnionPayNoCard(4,"银联无卡支付"),
     MerchantBank(5,"招商银行支付");
 
-    /* 支付方式 */
-    private Integer payType;
+    /* 支付方式Id */
+    private Integer payTypeId;
 
     /* 支付方式名称 */
     private String payName;
 
-    OnlinePayTypeEnum(Integer payType,String payTypeName){
-        this.payType = payType;
+    OnlinePayTypeEnum(Integer payTypeId,String payTypeName){
+        this.payTypeId = payTypeId;
         this.payName = payTypeName;
     }
 
-    public static String getPayName(Integer payType) {
+    public static String getPayName(Integer payTypeId) {
         for (OnlinePayTypeEnum onlinePayTypeEnum : OnlinePayTypeEnum.values()) {
-            if (onlinePayTypeEnum.payType.equals(payType) )
+            if (onlinePayTypeEnum.payTypeId.equals(payTypeId) )
                 return onlinePayTypeEnum.payName;
         }
         return null;
     }
 
-    public Integer getPayType() {
-        return payType;
+    public Integer getPayTypeId() {
+        return payTypeId;
     }
 }

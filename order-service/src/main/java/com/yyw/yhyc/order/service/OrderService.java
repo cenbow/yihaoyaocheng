@@ -669,7 +669,7 @@ public class OrderService {
 			orderFlowIdPrefix = CommonType.ORDER_OFFLINE_PAY_PREFIX;
 			order.setPaymentTerm(0);
 		/* 在线支付 */
-		}else if(OnlinePayTypeEnum.getPayName(systemPayType.getPayType()) != null){
+		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())) {
 			orderFlowIdPrefix = CommonType.ORDER_ONLINE_PAY_PREFIX;
 			order.setPaymentTerm(0);
 		/* 账期支付 */
@@ -1708,7 +1708,7 @@ public class OrderService {
         String nowTimeStr = systemDateMapper.getSystemDate();
         order.setDelayTimes(delayTimes);
         order.setUpdateTime(nowTimeStr);
-        order.setDelayLog(nowTimeStr+",当前第"+delayTimes+"次延期收货;");
+        order.setDelayLog((order.getDelayLog()==null?"":order.getDelayLog())+nowTimeStr+",当前第"+delayTimes+"次延期收货;");
         orderMapper.update(order);
 
 	}

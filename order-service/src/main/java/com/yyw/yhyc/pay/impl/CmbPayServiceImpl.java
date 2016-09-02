@@ -190,7 +190,7 @@ public class CmbPayServiceImpl implements PayService{
         if (UtilHelper.isEmpty(payFlowId)) return null;
         OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
         if (UtilHelper.isEmpty(orderPay)) return null;
-        if ( !OnlinePayTypeEnum.MerchantBank.getPayType().equals(orderPay.getOrderPayId())) {
+        if ( !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(orderPay.getOrderPayId())) {
             log.error("该orderPay的支付方式不是招商银行");
             return null;
         }
