@@ -1708,7 +1708,7 @@ public class OrderService {
         String nowTimeStr = systemDateMapper.getSystemDate();
         order.setDelayTimes(delayTimes);
         order.setUpdateTime(nowTimeStr);
-        order.setDelayLog(nowTimeStr+",当前第"+delayTimes+"次延期收货;");
+        order.setDelayLog((order.getDelayLog()==null?"":order.getDelayLog())+nowTimeStr+",当前第"+delayTimes+"次延期收货;");
         orderMapper.update(order);
 
 	}
