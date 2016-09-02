@@ -494,19 +494,10 @@ public class ChinaPayServiceImpl implements PayService {
         splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/ConfirmCallBack.action");//不需要转过来
         splitMap.put("MerSplitMsg", MerSplitMsg);//分账信息，需要传输过来
         splitMap.put("fromWhere", fromWhere);
-
-        log.info(orderPay.getPayFlowId() + "分账请求参数1= " + splitMap.toString());
+        log.info(orderPay.getPayFlowId() + "分账请求参数= " + splitMap.toString());
         //支付日期
         Map<String,String> rt=pay.sendPay2ChinaPay(splitMap);
-        log.info(orderPay.getPayFlowId() + "分账请求结果1= " + rt.toString());
-        if(!rt.get("respCode").equals("0000")){
-            paydate=StringUtil.getRelevantDate(DateUtils.getDateFromString(DateUtils.getNextDay(1, orderPay.getPayTime())));
-            splitMap.put("OriTranDate", paydate);//原定单交易日期 需要传输
-            splitMap.put("MerOrderNo", orderPay.getPayFlowId() + "FZ1");//原定单交易日期 需要传输
-            log.info(orderPay.getPayFlowId() + "分账请求参数2= " + splitMap.toString());
-            rt = pay.sendPay2ChinaPay(splitMap);
-            log.info(orderPay.getPayFlowId()+"分账请求结果2= "+rt.toString());
-        }
+        log.info(orderPay.getPayFlowId() + "分账请求结果= " + rt.toString());
         return rt;//需要组装定单确认分账的map信息
     }
 
@@ -528,20 +519,11 @@ public class ChinaPayServiceImpl implements PayService {
         sendMap.put("RefundAmt", new Integer(cancelMoney.multiply(multiple).intValue()).toString());//退款金额 需要传输
         sendMap.put("MerSplitMsg", RedundMerSplitMsg);//分账信息，需要传输过来
         sendMap.put("fromWhere", fromWhere);
-
-        log.info(orderPay.getPayFlowId() + "退款请求参数1= " + sendMap.toString());
+        log.info(orderPay.getPayFlowId() + "退款请求参数= " + sendMap.toString());
         //支付日期
         Map<String,String> rt=pay.cancelOrder(sendMap);
-        log.info(orderPay.getPayFlowId() + "退款请求结果1= " + rt.toString());
-        if(!rt.get("respCode").equals("1003")
-                ||!rt.get("respCode").equals("0000")){
-            paydate=StringUtil.getRelevantDate(DateUtils.getDateFromString(DateUtils.getNextDay(1, orderPay.getPayTime())));
-            sendMap.put("OriTranDate", paydate);//原定单交易日期 需要传输
-            sendMap.put("MerOrderNo", orderPay.getPayFlowId()+"TK1");//原定单交易日期 需要传输
-            log.info(orderPay.getPayFlowId()+"退款请求参数2= " + sendMap.toString());
-            rt=pay.cancelOrder(sendMap);
-            log.info(orderPay.getPayFlowId()+"退款请求结果2= " + rt.toString());
-        }
+        log.info(orderPay.getPayFlowId() + "退款请求结果= " + rt.toString());
+
         return rt;
     }
 
