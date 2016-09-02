@@ -186,7 +186,6 @@ public class OrderPayManage {
             if (UtilHelper.isEmpty(orderRefund)) {
                 orderRefund.setRemark(parameter);
                 if (orderStatus.equals("0000")) {
-                    o.setOrderStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
                 } else {

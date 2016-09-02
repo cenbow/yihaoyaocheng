@@ -4,7 +4,7 @@
  * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
- * 
+ *
  * Amended By       Amended On      Amendment Description
  * ------------     -----------     ---------------------------------------------
  *
@@ -35,9 +35,9 @@ public class OrderTraceController extends BaseJsonController {
 	private OrderTraceService orderTraceService;
 
 	/**
-	* 通过主键查询实体对象
-	* @return
-	*/
+	 * 通过主键查询实体对象
+	 * @return
+	 */
 	@RequestMapping(value = "/getByPK/{key}", method = RequestMethod.GET)
 	@ResponseBody
 	public OrderTrace getByPK(@PathVariable("key") Integer key) throws Exception
@@ -46,9 +46,9 @@ public class OrderTraceController extends BaseJsonController {
 	}
 
 	/**
-	* 分页查询记录
-	* @return
-	*/
+	 * 分页查询记录
+	 * @return
+	 */
 	@RequestMapping(value = {"", "/listPg"}, method = RequestMethod.GET)
 	@ResponseBody
 	public Pagination<OrderTrace> listPgOrderTrace(RequestModel<OrderTrace> requestModel) throws Exception
@@ -63,9 +63,9 @@ public class OrderTraceController extends BaseJsonController {
 	}
 
 	/**
-	* 新增记录
-	* @return
-	*/
+	 * 新增记录
+	 * @return
+	 */
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public void add(OrderTrace orderTrace) throws Exception
 	{
@@ -73,9 +73,9 @@ public class OrderTraceController extends BaseJsonController {
 	}
 
 	/**
-	* 根据多条主键值删除记录
-	* @return
-	*/
+	 * 根据多条主键值删除记录
+	 * @return
+	 */
 	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
 	public void delete(RequestListModel<Integer> requestListModel) throws Exception
 	{
@@ -83,9 +83,9 @@ public class OrderTraceController extends BaseJsonController {
 	}
 
 	/**
-	* 修改记录
-	* @return
-	*/
+	 * 修改记录
+	 * @return
+	 */
 	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	public void update(OrderTrace orderTrace) throws Exception
 	{

@@ -193,7 +193,7 @@ public class OrderPayService {
 		/* 过滤非法订单参数 */
 		if(UtilHelper.isEmpty(userDto)) return null;
 		if(UtilHelper.isEmpty(flowIds)) return null;
-		if( OnlinePayTypeEnum.getPayName(payTypeId) == null ) return null;
+		if(OnlinePayTypeEnum.getPayName(payTypeId) == null ) return null;
 		if(UtilHelper.isEmpty(payFlowId)) return null;
 
 		/* 查询、校验、处理合法订单数据 */
