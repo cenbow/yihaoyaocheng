@@ -30,7 +30,7 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
             User u = (User) request.getAttribute("loginUser");
-            if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getSession().getAttribute(UserDto.REQUEST_KEY))){
+            if(!UtilHelper.isEmpty(u) && !UtilHelper.isEmpty(request.getSession().getAttribute(UserDto.REQUEST_KEY))){
                 String commonInfo = CacheUtil.getSingleton().get(CACHE_PREFIX + COMMON_INFO + request.getSession().getId());
                 String user = CacheUtil.getSingleton().get(CACHE_PREFIX + request.getSession().getId());
 

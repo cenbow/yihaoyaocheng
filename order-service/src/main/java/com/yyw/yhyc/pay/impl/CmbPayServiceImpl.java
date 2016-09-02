@@ -4,10 +4,7 @@ package com.yyw.yhyc.pay.impl;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
-import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.utils.XmlUtils;
 import com.yyw.yhyc.order.mapper.*;
@@ -193,7 +190,7 @@ public class CmbPayServiceImpl implements PayService{
         if (UtilHelper.isEmpty(payFlowId)) return null;
         OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
         if (UtilHelper.isEmpty(orderPay)) return null;
-        if ( !OnlinePayTypeEnum.MerchantBank.getPayType().equals(orderPay.getOrderPayId())) {
+        if ( !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(orderPay.getOrderPayId())) {
             log.error("该orderPay的支付方式不是招商银行");
             return null;
         }
@@ -269,6 +266,7 @@ public class CmbPayServiceImpl implements PayService{
     @Override
     public String paymentCallback(HttpServletRequest request) {
         // TODO: 2016/9/1 需验证签名
+
         log.info("招行支付回调请求信息，request:"+request);
         String code = CmbPayUtil.CALLBACK_FAILURE_CODE;
         String msg = "未知异常";
@@ -429,9 +427,11 @@ public class CmbPayServiceImpl implements PayService{
         orderRefund.setCustId(order.getCustId());
         orderRefund.setSupplyId(order.getSupplyId());
         orderRefund.setRefundSum(order.getOrgTotal());
+        orderRefund.setRefundFreight(new BigDecimal(0));
         orderRefund.setFlowId(flowId);
         orderRefund.setCreateTime(now);
-        orderRefund.setRefundStatus("1");//未退款
+        orderRefund.setRefundDate(now);
+        orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
         orderRefund.setRefundDesc(refundDesc);
         orderRefundMapper.save(orderRefund);
     }
