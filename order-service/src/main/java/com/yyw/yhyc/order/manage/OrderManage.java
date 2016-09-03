@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service("orderMamage")
-public class OrderMamage {
+@Service("orderManage")
+public class OrderManage {
 
 	private OrderMapper	orderMapper;
 

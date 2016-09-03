@@ -54,4 +54,6 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public List<OrderDto> listPaginationOperationsOrder(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public List<Order> listOrderByPayFlowId(String payFlowId);
+
+	public void updateOrderPayStatusByPk(Map<String,Object> orders);
 }
