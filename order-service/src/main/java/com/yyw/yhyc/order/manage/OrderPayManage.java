@@ -119,6 +119,7 @@ public class OrderPayManage {
                     if (SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) {
                         // 更新订单信息
                         order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
+                        order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                         order.setUpdateTime(now);
                         order.setPayTime(now);
                         orderMapper.update(order);

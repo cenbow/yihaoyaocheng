@@ -25,7 +25,7 @@ public class ProductInventoryLog extends Model{
 	private Integer id;
 
 	/**
-	  *	1 冻结  2 扣减  3 释放
+	  *	1 添加库存(初始) 2 修改库存 3 冻结  4 扣减  5 释放
 	  */
 	private Integer logType;
 
