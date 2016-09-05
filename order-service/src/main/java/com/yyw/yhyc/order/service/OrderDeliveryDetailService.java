@@ -460,7 +460,7 @@ public class OrderDeliveryDetailService {
 			orderSettlement.setCustName(order.getCustName());
 			orderSettlement.setSupplyId(order.getSupplyId());
 			orderSettlement.setSupplyName(order.getSupplyName());
-			orderSettlement.setConfirmSettlement("1");//在线支付 是已结算
+			orderSettlement.setConfirmSettlement("0");//
 			orderSettlement.setPayTypeId(order.getPayTypeId());
 			orderSettlement.setSettlementTime(now);
 			orderSettlement.setCreateUser(order.getCustName());

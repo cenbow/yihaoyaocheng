@@ -332,12 +332,13 @@ public class OrderSettlementService {
     /**
      * just for 在线-招行支付
      * 退货退款成功回调
+     * flowId  order 的flowId 或者是 exceptionOrder 的 exceptionOrderId
+     * type 1 销售货款  2 退货货款   3 拒收货款 4 取消订单退款
      */
-    public void updateSettlementByMap(Integer exceptionOrderId,Integer supplyId){
+    public void updateSettlementByMap(String flowId,Integer type){
         Map<String,Object> condition = new HashedMap();
-        condition.put("flowId",exceptionOrderId);
-        condition.put("businessType",2);//退货退款
-        condition.put("supplyId",supplyId);
+        condition.put("flowId",flowId);
+        condition.put("businessType",type);//退货退款
         OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
         if(orderSettlement==null){
             throw new RuntimeException("未找到有效订单");

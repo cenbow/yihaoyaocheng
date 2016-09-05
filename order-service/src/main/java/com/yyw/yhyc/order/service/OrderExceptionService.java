@@ -1698,6 +1698,8 @@ public class OrderExceptionService {
 		orderSettlement.setCreateTime(now);
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
+
+		orderSettlementService.parseSettlementProvince(orderSettlement,orderException.getCustId()+"");
 		orderSettlementMapper.save(orderSettlement);
 	}
 

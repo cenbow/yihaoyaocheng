@@ -5,6 +5,7 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.order.service.OrderSettlementService;
 import com.yyw.yhyc.pay.chinapay.httpClient.HttpRequestHandler;
 import com.yyw.yhyc.pay.chinapay.pay.ChinaPay;
 import com.yyw.yhyc.pay.chinapay.utils.ChinaPayUtil;
@@ -40,6 +41,9 @@ public class OrderPayManage {
     public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
         this.orderExceptionMapper = orderExceptionMapper;
     }
+
+    @Autowired
+    private OrderSettlementService orderSettlementService;
 
     @Autowired
     public void setOrderRefundMapper(OrderRefundMapper orderRefundMapper) {
@@ -134,6 +138,13 @@ public class OrderPayManage {
                         createOrderTrace(order, "银联回调", now, 2, "买家已付款.");
 
                         //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
+
+
+                        //银联支付成功 生成结算信息
+                        if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(order.getPayTypeId()) ){
+                            OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
+                            orderSettlementService.save(orderSettlement);
+                        }
                     }
                 }
                log.info(payFlowId + "-----支付成功后更新信息   update orderInfo end ----");
@@ -159,6 +170,8 @@ public class OrderPayManage {
                 if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
+                    //更新结算信息为已结算
+                    orderSettlementService.updateSettlementByMap(order.getFlowId(),1);
                 }
             }
         } else {// 打款异常
@@ -195,7 +208,8 @@ public class OrderPayManage {
                 if (orderStatus.equals("0000")) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
-                    //更新拒收异常订单为已退款
+                    //更新取消订单退款为已结算
+                    orderSettlementService.updateSettlementByMap(o.getFlowId(),4);
                     OrderException orderException=new OrderException();
                     orderException.setFlowId(o.getFlowId());
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
@@ -204,6 +218,8 @@ public class OrderPayManage {
                         orderException=list.get(0);
                         orderException.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
                         orderExceptionMapper.update(orderException);
+                        //更新拒收结算为已结算
+                        orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3);
                     }
                 } else {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusFail.getType());
