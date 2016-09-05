@@ -507,16 +507,23 @@ function  showPostponeModal(orderId) {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
-            if(data.day && data.day<=3){
-                $("#postponeOrder .modal-body").html("每笔订单最多延期两次，确定延期收货吗?")
-                $("#postponeOrder").modal("show");
-                $("#postponeOrder .modal-footer button").show();
-                $("#postponeOrder .modal-footer button:eq(1)").html("取消");
-            }else{
-                $("#postponeOrder .modal-body").html("您好！距离确认收货截止日期前3天内才可以延期!")
+            if(data.delayTimes>=2){
+                $("#postponeOrder .modal-body").html("当前订单已延期两次，不可延期")
                 $("#postponeOrder").modal("show");
                 $("#postponeOrder .modal-footer button:first").hide();
                 $("#postponeOrder .modal-footer button:eq(1)").html("确定");
+            }else {
+                if(data.day && data.day<=3){
+                    $("#postponeOrder .modal-body").html("每笔订单最多延期两次，确定延期收货吗?")
+                    $("#postponeOrder").modal("show");
+                    $("#postponeOrder .modal-footer button").show();
+                    $("#postponeOrder .modal-footer button:eq(1)").html("取消");
+                }else{
+                    $("#postponeOrder .modal-body").html("您好！距离确认收货截止日期前3天内才可以延期!")
+                    $("#postponeOrder").modal("show");
+                    $("#postponeOrder .modal-footer button:first").hide();
+                    $("#postponeOrder .modal-footer button:eq(1)").html("确定");
+                }
             }
         }
     });
