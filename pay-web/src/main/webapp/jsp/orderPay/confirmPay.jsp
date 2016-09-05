@@ -81,7 +81,7 @@
             alert("请选择在线支付方式");
             return;
         }
-        window.location.href= ctx + "/orderPay/pay?flowIds="+flowIds+"&payTypeId="+payTypeId;
+        window.location.href = "${PAY_DOMAIN}/pay-web/orderPay/pay?flowIds="+flowIds+"&payTypeId="+payTypeId;
     }
 </script>
 
