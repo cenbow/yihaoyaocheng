@@ -25,4 +25,22 @@ public interface ProductInventoryMapper extends GenericIBatisMapper<ProductInven
 	public void updateInventory(ProductInventory productInventory);
 
 	public ProductInventory findBySupplyIdSpuCode(@Param("supplyId") Integer supplyId,@Param("spuCode") String spuCode);
+
+	/**
+	 * 冻结库存
+	 * @param productInventory
+	 */
+	public void updateFrozenInventory(ProductInventory productInventory);
+
+	/**
+	 * 释放库存
+	 * @param productInventory
+	 */
+	public void updateReleaseInventory(ProductInventory productInventory);
+
+	/**
+	 * 扣减库存
+	 * @param productInventory
+	 */
+	public void updateDeductionInventory(ProductInventory productInventory);
 }

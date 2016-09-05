@@ -406,7 +406,7 @@ public class ProductInventoryService {
         return true;
     }
 
-    public synchronized Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
+    public  Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         ProductInventory productInventory1 = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
         if (UtilHelper.isEmpty(productInventory1)) {
@@ -425,7 +425,7 @@ public class ProductInventoryService {
         return resultMap;
     }
 
-    public synchronized Map<String, Object> findInventoryListNumber(List<ProductInventory> productInventoryList) throws Exception {
+    public  Map<String, Object> findInventoryListNumber(List<ProductInventory> productInventoryList) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         if (UtilHelper.isEmpty(productInventoryList)) {
             resultMap.put("code", 0);
@@ -453,6 +453,28 @@ public class ProductInventoryService {
         }
         resultMap.put("code", 2);
         resultMap.put("msg", "库存正常");
+        return resultMap;
+    }
+
+    /**
+     * 获取商品库存
+     *
+     * @param productInventory
+     * @return
+     * @throws Exception
+     */
+    public Map<String, Object> getProductInventory(ProductInventory productInventory) throws Exception {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
+        if (UtilHelper.isEmpty(product)) {
+            resultMap.put("isSuccessful", 0);
+            resultMap.put("frontInventory",0);
+            resultMap.put("message", "参数错误");
+            return resultMap;
+        }
+        resultMap.put("isSuccessful", 1);
+        resultMap.put("frontInventory", product.getFrontInventory());
+        resultMap.put("message", "库存正常");
         return resultMap;
     }
 
