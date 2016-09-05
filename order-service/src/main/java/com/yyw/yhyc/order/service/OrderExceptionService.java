@@ -599,10 +599,6 @@ public class OrderExceptionService {
 			order.setReceiveTime(now);
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
-
-			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-			PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-			payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
 		}else{
 			order=orderMapper.getOrderbyFlowId(oe.getFlowId());
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
@@ -611,6 +607,9 @@ public class OrderExceptionService {
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
 		}
+		SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+		PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+		payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
 
 		if(count == 0){
 			log.error("原始订单更新失败,order info :"+order);

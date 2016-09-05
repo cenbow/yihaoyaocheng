@@ -576,18 +576,6 @@ public class ChinaPayServiceImpl implements PayService {
 
         OrderPay orderPay =  orderPayMapper.getByPayFlowId(orderCombined.getPayFlowId());
 
-        String now = systemDateMapper.getSystemDate();
-        orderRefund.setCreateUser(userDto.getUserName());
-        orderRefund.setCustId(order.getCustId());
-        orderRefund.setSupplyId(order.getSupplyId());
-        orderRefund.setRefundSum(order.getOrgTotal());
-        orderRefund.setRefundFreight(new BigDecimal(0));
-        orderRefund.setFlowId(flowId);
-        orderRefund.setCreateTime(now);
-        orderRefund.setRefundDate(now);
-        orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
-        orderRefund.setRefundDesc(refundDesc);
-
         List<Order> orderList = new ArrayList<Order>();
         orderList.add(order);
         Map<String, String> resultMap = null;
@@ -602,6 +590,21 @@ public class ChinaPayServiceImpl implements PayService {
             log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
             throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
         }
+
+        String now = systemDateMapper.getSystemDate();
+        orderRefund.setCreateUser(userDto.getUserName());
+        orderRefund.setCustId(order.getCustId());
+        orderRefund.setSupplyId(order.getSupplyId());
+        orderRefund.setRefundSum(order.getOrgTotal());
+        orderRefund.setRefundFreight(new BigDecimal(0));
+        orderRefund.setFlowId(flowId);
+        orderRefund.setCreateTime(now);
+        orderRefund.setRefundDate(now);
+        orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
+        orderRefund.setRefundDesc(refundDesc);
+        //补货订单 + 原始订单全部收货 不需要退款
+        if(orderType == 3 || SystemOrderStatusEnum.BuyerAllReceived.equals(order.getOrderStatus()))
+            return;
         orderRefundMapper.save(orderRefund);
     }
 
