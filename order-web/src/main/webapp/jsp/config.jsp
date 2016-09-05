@@ -15,5 +15,6 @@
 	var enterpriseId = "<%=enterpriseId%>";
 	var contextPath = ctx + "/static";
 	var domainPath = "<%=domainPath%>";
+	var PAY_DOMAIN = "${PAY_DOMAIN}"
 
 </script>
