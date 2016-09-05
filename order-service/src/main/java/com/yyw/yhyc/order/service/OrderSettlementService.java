@@ -249,6 +249,7 @@ public class OrderSettlementService {
     }
 
     /**
+     * 正常订单
      * just for 银联支付
      * @param type 业务类型
      *             1 在线支付  买家已付款  (进入应付)
@@ -262,35 +263,40 @@ public class OrderSettlementService {
      * @param orderException
      * @return
      */
-    public OrderSettlement parseOnlineSettlement(Integer type,OrderSettlement orderSettlement,UserDto userDto,Order order){
+    public OrderSettlement parseOnlineSettlement(Integer type,Integer custId,Integer supplyId,String createUser,OrderSettlement orderSettlement,Order order){
+        if(orderSettlement==null) orderSettlement = new OrderSettlement();
         parseSettlementProvince(orderSettlement,order.getCustId()+"");
+        String now = systemDateMapper.getSystemDate();
+        //默认的结算属性
+        orderSettlement.setOrderId(order.getOrderId());
+        orderSettlement.setFlowId(order.getFlowId());
+        orderSettlement.setCustName(order.getCustName());
+        orderSettlement.setSupplyName(order.getSupplyName());
+        orderSettlement.setCreateTime(now);
+        orderSettlement.setOrderTime(order.getCreateTime());
+        orderSettlement.setSettlementTime(now);
+        orderSettlement.setPayTypeId(order.getPayTypeId());
+        orderSettlement.setCreateUser(createUser);
+
+
         switch (type) {
             case 1:
                 //生成买家结算
-                String now = systemDateMapper.getSystemDate();
                 orderSettlement.setBusinessType(1);
-                orderSettlement.setOrderId(order.getOrderId());
-                orderSettlement.setFlowId(order.getFlowId());
                 orderSettlement.setCustId(order.getCustId());
-                orderSettlement.setCustName(order.getCustName());
-
-                orderSettlement.setSupplyName(order.getSupplyName());
                 orderSettlement.setConfirmSettlement("1");//生成结算信息时都是已结算
-                orderSettlement.setPayTypeId(order.getPayTypeId());
+
                 orderSettlement.setCreateUser(order.getCustName());
-                orderSettlement.setCreateTime(now);
-                orderSettlement.setOrderTime(order.getCreateTime());
-                orderSettlement.setSettlementTime(now);
                 orderSettlement.setSettlementMoney(order.getOrgTotal());
                 break;
             case 2:
                 //包装卖家结算信息;
                 orderSettlement.setCustId(null);
-                orderSettlement.setSupplyId(userDto.getCustId());
+                orderSettlement.setSupplyId(supplyId);
                 orderSettlement.setConfirmSettlement("0");
                 break;
             case 3:
-                orderSettlement.setCustId(userDto.getCustId());
+                orderSettlement.setCustId(custId);
                 orderSettlement.setSupplyId(null);
                 orderSettlement.setConfirmSettlement("0");
                 break;
@@ -298,10 +304,11 @@ public class OrderSettlementService {
                 //退款 暂时不做调整
                 break;
             case 5:
-                orderSettlement.setCustId(userDto.getCustId());
-                orderSettlement.setSupplyId(null);
-                orderSettlement.setConfirmSettlement("0");
-                break;
+                orderSettlement.setBusinessType(4);
+                orderSettlement.setCustId(order.getCustId());
+                orderSettlement.setConfirmSettlement("0");//生成结算信息时都是已结算
+
+                orderSettlement.setSettlementMoney(order.getOrgTotal());
             default:
                 break;
         }

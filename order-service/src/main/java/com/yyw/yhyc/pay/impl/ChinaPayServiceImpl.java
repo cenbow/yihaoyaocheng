@@ -204,7 +204,7 @@ public class ChinaPayServiceImpl implements PayService {
     public String paymentCallback(HttpServletRequest request){
         String flag="1";
         try{
-            System.out.println("支付成功后回调开始。。。。。。。。");
+            log.info("支付成功后回调开始。。。。。。。。");
             printRequestParam("支付成功后回调",request);
             Map<String,Object> map=new HashMap<String,Object>();
             //解析参数转成map
@@ -235,8 +235,8 @@ public class ChinaPayServiceImpl implements PayService {
      */
     @Override
     public String spiltPaymentCallback(HttpServletRequest request) {
-        String flag="1";
-            System.out.println("确认收货后回调开始。。。。。。。。");
+            String flag="1";
+            log.info("确认收货后回调开始。。。。。。。。");
             Map<String,Object> map=new HashMap<String,Object>();
         try{
             printRequestParam("确认收货后回调", request);
@@ -263,7 +263,7 @@ public class ChinaPayServiceImpl implements PayService {
     @Override
     public String redundCallBack(HttpServletRequest request) {
         String flag="1";
-        System.out.println("退款回调开始。。。。。。。。");
+        log.info("退款回调开始。。。。。。。。");
         Map<String,Object> map=new HashMap<String,Object>();
         try{
             printRequestParam("退款回调",request);
@@ -282,8 +282,7 @@ public class ChinaPayServiceImpl implements PayService {
     }
 
     private void printRequestParam(String lonNode,HttpServletRequest request){
-
-        System.out.println("客户支付后接收银联回调所有参数开始。。。。。。。。");
+        log.info("客户支付后接收银联回调所有参数开始。。。。。。。。");
         Map<String,Object> mapBacnk=request.getParameterMap();
         String re="";
         for(String key:mapBacnk.keySet()){
@@ -307,7 +306,7 @@ public class ChinaPayServiceImpl implements PayService {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("接收银联回调所有参数结束。。。。。。。。");
+        log.info("接收银联回调所有参数结束。。。。。。。。");
     }
 
     /**
@@ -355,33 +354,19 @@ public class ChinaPayServiceImpl implements PayService {
                 //赂银联发起分账请求
                 donePay=this.doneOrderToChianPay(orderPay, date, time, paydate,
                         cancelMoney, multiple, MerSplitMsg, fromWhere);
-                log.info(orderPay.getPayFlowId() + "退款订单分账信息= " + RedundMerSplitMsg);
-                System.out.println("分账请求结果= "+donePay.toString());
-                System.out.println("退款订单数量= "+RedundMerSplitMsg);
                 if(donePay.get("respCode").equals("0000")){
-                    log.info("分账成功结果"+donePay.toString());
                     //TODO 是否记录分账结果
-                        /*orderParent.setRoutingStatus(1);
-                        orderParent.setRoutingRemark("分账结果"+donePay.toString());*/
-                }else{
-                    log.info("分账失败结果"+donePay.toString());
-                        /*orderParent.setRoutingStatus(2);
-                        orderParent.setRoutingRemark("分账结果"+donePay.toString());*/
                 }
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
                     //取消定单
                     cancelPay=this.cancelOrderToChianPay(orderPay, date, time,
                             paydate, cancelMoney, multiple, RedundMerSplitMsg, fromWhere);
-                    System.out.println("退款请求结果= "+cancelPay.toString());
                     //当银联进行受理退款时写入退款记录
 
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
-                        log.info("退款成功结果" + donePay.toString());
                         //TODO 是否记录退款结果
-                    }else{
-                        log.info("退款结果" + cancelPay.toString());
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));

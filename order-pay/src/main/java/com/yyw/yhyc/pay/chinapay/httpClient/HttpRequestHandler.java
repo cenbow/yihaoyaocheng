@@ -145,9 +145,9 @@ public class HttpRequestHandler {
 				sendMap.put(cardResveredKey, cardResvedStr);
 			}
 		}
-		if (StringUtil.isNotEmpty(transResvedStr)) {
-			sendMap.put(transResveredKey, transResvedStr);
-		}
+		//if (StringUtil.isNotEmpty(transResvedStr)) {
+			//sendMap.put(transResveredKey, transResvedStr);
+		//}
 		// 商户签名
 		String busiType=(String)sendMap.get(PayUtil.TranType);
 		String MerBgUrls="";
@@ -181,6 +181,8 @@ public class HttpRequestHandler {
 		if(busiType.equals("9908")){
 			sendMap.put(PayUtil.MerBgUrl, MerBgUrls);
 		}
+		System.out.println("=========<");
+		System.out.println(sendMap);
 		return sendMap;
 	}
 
