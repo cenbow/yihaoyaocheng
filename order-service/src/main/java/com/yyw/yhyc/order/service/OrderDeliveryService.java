@@ -399,9 +399,14 @@ public class OrderDeliveryService {
 						orderDetail=detailList.get(0);
 						detailMap.put(code,orderDetail.getOrderDetailId());
 						if(orderDetail.getProductCount()!=Integer.parseInt(codeMap.get(code))){
-							errorMap=new HashMap<String, String>();
-							errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
-							errorList.add(errorMap);
+							for(Map<String,String> rowMap:list){
+								if(rowMap.get(2).equals(code)){
+									errorMap=rowMap;
+									errorMap=new HashMap<String, String>();
+									errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
+									errorList.add(errorMap);
+								}
+							}
 						}
 					}
 				}

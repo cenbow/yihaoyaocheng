@@ -446,9 +446,9 @@ public class ChinaPayServiceImpl implements PayService {
 
                 //组装退款分账信息
                 if(UtilHelper.isEmpty(RedundMerSplitMsg)){
-                    RedundMerSplitMsg=MerId+"^"+o.getOrgTotal().multiply(multiple).intValue();
+                    RedundMerSplitMsg=MerId+"^"+cancelMoney.multiply(multiple).intValue();
                 }else{
-                    RedundMerSplitMsg=RedundMerSplitMsg+";"+MerId+"^"+o.getOrgTotal().multiply(multiple).intValue();
+                    RedundMerSplitMsg=RedundMerSplitMsg+";"+MerId+"^"+cancelMoney.multiply(multiple).intValue();
                 }
             }
         }
