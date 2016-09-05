@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import java.util.Map;
 
 @Controller
@@ -125,7 +124,7 @@ public class OrderPayController extends BaseJsonController {
 
 		/* 在线支付订单前，预处理订单数据 */
 		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
-		OrderPay orderPay = orderPayService.preHandler(userDto ,flowIds,payTypeId,payFlowId);
+		OrderPay orderPay = orderPayService.preHandler(userDto, flowIds, payTypeId, payFlowId);
 		if(UtilHelper.isEmpty(orderPay)) throw new Exception("非法参数");
 
 		/* 在线支付订单前，组装订单数据 */
@@ -156,5 +155,39 @@ public class OrderPayController extends BaseJsonController {
 	public String cmbchinaSplitSuccess(){
 		PayService payService = (PayService) SpringBeanHelper.getBean("cmbPayService");
 		return payService.spiltPaymentCallback(super.request);
+	}
+
+
+	/**
+	 * 银联支付成功回调
+	 * @return
+	 */
+	@RequestMapping(value = "/chinaPayCallback", method = RequestMethod.POST)
+	public String chinaPayCallback(){
+		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
+		payService.paymentCallback(super.request);
+		return "success";
+	}
+
+	/**
+	 * 银联确认收货回调
+	 * @return
+	 */
+	@RequestMapping(value = "/chinaPaySpiltPaymentCallback", method = RequestMethod.POST)
+	public String chinaPaySpiltPaymentCallback(){
+		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
+		payService.spiltPaymentCallback(super.request);
+		return "success";
+	}
+
+	/**
+	 * 银联退款回调
+	 * @return
+	 */
+	@RequestMapping(value = "/chinaPayRedundCallBack", method = RequestMethod.POST)
+	public String chinaPayRedundCallBack(){
+		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
+		payService.redundCallBack(super.request);
+		return "success";
 	}
 }

@@ -24,6 +24,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
@@ -64,7 +65,13 @@ public class OrderService {
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
 
-    @Autowired
+	private ProductInventoryManage productInventoryManage;
+	@Autowired
+	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
+		this.productInventoryManage = productInventoryManage;
+	}
+
+	@Autowired
     private OrderDeliveryDetailService orderDeliveryDetailService;
 
     @Autowired
@@ -290,19 +297,12 @@ public class OrderService {
 		OrderDelivery orderDelivery = handlerOrderDelivery(enterprise,orderCreateDto);
 		log.info("创建订单接口-订单配送信息orderDelivery ：" + orderDelivery);
 
-		/* 创建支付流水号 */
-//		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),currentLoginEnterpriseId);
-//		log.info("创建订单接口-创建支付流水号,payFlowId = " + payFlowId);
-
 		List<Order> orderNewList =  new ArrayList<Order>();
 		/* 遍历订单数据中的各个供应商,即按供应商为单位拆单(一期需求) */
 		for (OrderDto orderDto : orderCreateDto.getOrderDtoList()){
 			if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 				continue;
 			}
-
-            /* 校验所购买商品的合法性 */
-			validateProducts(currentLoginEnterpriseId,orderDto);
 
             /* 创建订单相关的所有信息 */
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
@@ -557,6 +557,9 @@ public class OrderService {
 		Order order = insertOrderAndOrderDetail(orderDto,userDto);
 		log.info("创建订单接口 ：插入订单表、订单详情表 order= " + order);
 
+		/* 冻结库存 */
+		productInventoryManage.frozenInventory(orderDto);
+
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
 
@@ -781,7 +784,7 @@ public class OrderService {
 			throw new Exception("不能购买自己的商品");
 		}
 
-		//TODO 校验供应商下的商品信息、价格
+		//TODO 校验供应商下的商品信息
 		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
 		if(UtilHelper.isEmpty(productInfoDtoList)){
 			log.info("统一校验订单商品接口 ：商品不能为空!" );
@@ -795,14 +798,7 @@ public class OrderService {
 				log.info("统一校验订单商品接口 ：商品(productId=" + productInfoDto.getId() + ")不存在!" );
 				throw new Exception("商品不存在!");
 			}
-			//TODO 商品状态、价格校验
-		}
-
-		//TODO 特殊校验(选择账期支付方式的订单，校验买家账期、商品账期)
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(orderDto.getPayTypeId())){
-			//TODO 校验该供应的账期(是否存在、是否有效)
-			//TODO 校验每个商品的账期(是否存在、是否有效)
-
+			//TODO 商品状态校验
 		}
 		log.info("统一校验订单商品接口 ：校验成功" );
 		return true;

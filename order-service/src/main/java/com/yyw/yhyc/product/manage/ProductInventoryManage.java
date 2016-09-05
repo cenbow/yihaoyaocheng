@@ -1,9 +1,13 @@
 package com.yyw.yhyc.product.manage;
 
+import com.sun.tools.corba.se.idl.StringGen;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.bo.ProductInventoryLog;
+import com.yyw.yhyc.product.enmu.ProductInventoryLogTypeEnum;
 import com.yyw.yhyc.product.mapper.ProductInventoryLogMapper;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
 import org.slf4j.Logger;
@@ -44,11 +48,12 @@ public class ProductInventoryManage {
 
     /**
      * 检查购物车库存数量
+     *
      * @param productInventory
      * @return
      * @throws Exception
      */
-    public synchronized Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
+    public Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         ProductInventory productInventory1 = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
         if (UtilHelper.isEmpty(productInventory1)) {
@@ -69,11 +74,12 @@ public class ProductInventoryManage {
 
     /**
      * 检查订单库存数量
+     *
      * @param productInventoryList
      * @return
      * @throws Exception
      */
-    public synchronized Map<String, Object> findInventoryListNumber(List<ProductInventory> productInventoryList) throws Exception {
+    public Map<String, Object> findInventoryListNumber(List<ProductInventory> productInventoryList) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         if (UtilHelper.isEmpty(productInventoryList)) {
             resultMap.put("code", 0);
@@ -106,27 +112,116 @@ public class ProductInventoryManage {
 
     /**
      * 冻结库存（提交）
+     *
+     * @param orderDto
      * @throws Exception
      */
-    public void frozenInventory() throws Exception{
-
+    public void frozenInventory(OrderDto orderDto) throws Exception {
+        try {
+            if (!UtilHelper.isEmpty(orderDto)) {
+                String nowTime = systemDateMapper.getSystemDate();
+                for (OrderDetail orderDetail : orderDto.getOrderDetailList()) {
+                    ProductInventory productInventory = new ProductInventory();
+                    productInventory.setSpuCode(orderDetail.getSpuCode());
+                    productInventory.setSupplyId(orderDetail.getSupplyId());
+                    productInventory.setBlockedInventory(orderDetail.getProductCount());
+                    productInventory.setUpdateUser(orderDto.getSupplyName());
+                    productInventory.setUpdateTime(nowTime);
+                    productInventoryMapper.updateFrozenInventory(productInventory);
+                    saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.frozen.getType(), nowTime, orderDto.getSupplyName(), null);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
     /**
      * 释放冻结库存(取消)
+     *
+     * @param orderDetailList
+     * @param supplyName      供应商自己操作是 operator=supplyName
+     * @param operator
      * @throws Exception
      */
-    public void releaseInventory(List<OrderDetail> orderDetailList) throws Exception{
-
+    public void releaseInventory(List<OrderDetail> orderDetailList, String supplyName, String operator) throws Exception {
+        try {
+            if (!UtilHelper.isEmpty(orderDetailList)) {
+                String nowTime = systemDateMapper.getSystemDate();
+                for (OrderDetail orderDetail : orderDetailList) {
+                    ProductInventory productInventory = new ProductInventory();
+                    productInventory.setSpuCode(orderDetail.getSpuCode());
+                    productInventory.setSupplyId(orderDetail.getSupplyId());
+                    productInventory.setBlockedInventory(orderDetail.getProductCount());
+                    productInventory.setUpdateUser(operator);
+                    productInventory.setUpdateTime(nowTime);
+                    productInventoryMapper.updateReleaseInventory(productInventory);
+                    saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.release.getType(), nowTime, supplyName, operator);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * 扣减冻结库存(发货)
+     *
+     * @param orderDetailList
+     * @param supplyName
      * @throws Exception
      */
-    public void deductionInventory(List<OrderDetail> orderDetailList) throws Exception{
+    public void deductionInventory(List<OrderDetail> orderDetailList, String supplyName) throws Exception {
+        try {
+            if (!UtilHelper.isEmpty(orderDetailList)) {
+                String nowTime = systemDateMapper.getSystemDate();
+                for (OrderDetail orderDetail : orderDetailList) {
+                    ProductInventory productInventory = new ProductInventory();
+                    productInventory.setSpuCode(orderDetail.getSpuCode());
+                    productInventory.setSupplyId(orderDetail.getSupplyId());
+                    productInventory.setBlockedInventory(orderDetail.getProductCount());
+                    productInventory.setUpdateUser(supplyName);
+                    productInventory.setUpdateTime(nowTime);
+                    productInventoryMapper.updateDeductionInventory(productInventory);
+                    saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.deduction.getType(), nowTime, supplyName, null);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     * 库存日志
+     *
+     * @param orderDetail
+     * @param logType
+     * @param currentTime
+     * @param supplyName
+     * @param operator
+     * @throws Exception
+     */
+    private void saveProductInventoryLog(OrderDetail orderDetail, Integer logType, String currentTime, String supplyName, String operator) throws Exception {
+        ProductInventoryLog productInventoryLog = new ProductInventoryLog();
+        productInventoryLog.setLogType(ProductInventoryLogTypeEnum.deduction.getType());
+        productInventoryLog.setSpuCode(orderDetail.getSpuCode());
+        productInventoryLog.setProductName(orderDetail.getProductName());
+        productInventoryLog.setProductCount(orderDetail.getProductCount());
+        productInventoryLog.setSupplyType(2);
+        productInventoryLog.setSupplyId(orderDetail.getSupplyId());
+        productInventoryLog.setSupplyName(supplyName);
+        productInventoryLog.setCreateTime(currentTime);
+        productInventoryLog.setUpdateTime(currentTime);
+        if (!UtilHelper.isEmpty(operator)) {
+            productInventoryLog.setCreateUser(operator);
+            productInventoryLog.setUpdateUser(operator);
+        } else {
+            productInventoryLog.setCreateUser(supplyName);
+            productInventoryLog.setUpdateUser(supplyName);
+        }
+        productInventoryLog.setRemark(orderDetail.getOrderId() + ProductInventoryLogTypeEnum.getName(logType) + orderDetail.getProductCount());
+        productInventoryLogMapper.save(productInventoryLog);
     }
 
 }
