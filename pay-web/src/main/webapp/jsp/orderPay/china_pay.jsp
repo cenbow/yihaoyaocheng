@@ -20,7 +20,7 @@
 %>
 <form name="payment" action="<%= pay_url %>" method="POST">
     <%
-        Map<String, Object> sendMap = (Map<String, Object>) request.getAttribute("PayMap");
+        Map<String, Object> sendMap = (Map<String, Object>) request.getAttribute("payRequestParamMap");
 
         logger.error( "sendMap = " + sendMap);
 
