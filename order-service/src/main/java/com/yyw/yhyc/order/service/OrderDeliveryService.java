@@ -398,11 +398,10 @@ public class OrderDeliveryService {
 					if(detailList.size()>0){
 						orderDetail=detailList.get(0);
 						detailMap.put(code,orderDetail.getOrderDetailId());
-						if(orderDetail.getProductCount()!=Integer.parseInt(codeMap.get(code))){
+						if(orderDetail.getProductCount().intValue()!=Integer.parseInt(codeMap.get(code))){
 							for(Map<String,String> rowMap:list){
-								if(rowMap.get(2).equals(code)){
+								if(rowMap.get("2").equals(code)){
 									errorMap=rowMap;
-									errorMap=new HashMap<String, String>();
 									errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
 									errorList.add(errorMap);
 								}
@@ -429,9 +428,13 @@ public class OrderDeliveryService {
 							}
 						}
 						if (returnMap.get(code).intValue() != Integer.parseInt(codeMap.get(code))) {
-							errorMap = new HashMap<String, String>();
-							errorMap.put("5", "商品编码为" + code + "的商品导入数量不等于缺货数量");
-							errorList.add(errorMap);
+							for(Map<String,String> rowMap:list){
+								if(rowMap.get("2").equals(code)){
+									errorMap=rowMap;
+									errorMap.put("5","商品编码为"+code+"的商品导入数量不等于采购数量");
+									errorList.add(errorMap);
+								}
+							}
 						}
 					}
 				}
