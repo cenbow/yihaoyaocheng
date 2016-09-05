@@ -113,30 +113,27 @@ public class ProductInventoryManage {
     /**
      * 冻结库存（提交）
      *
-     * @param orderDtoList
+     * @param orderDto
      * @throws Exception
      */
-    public void frozenInventory(List<OrderDto> orderDtoList) throws Exception {
+    public void frozenInventory(OrderDto orderDto) throws Exception {
         try {
-            if (!UtilHelper.isEmpty(orderDtoList)) {
+            if (!UtilHelper.isEmpty(orderDto)) {
                 String nowTime = systemDateMapper.getSystemDate();
-                for (OrderDto orderDto : orderDtoList) {
-                    for (OrderDetail orderDetail : orderDto.getOrderDetailList()) {
-                        ProductInventory productInventory = new ProductInventory();
-                        productInventory.setSpuCode(orderDetail.getSpuCode());
-                        productInventory.setSupplyId(orderDetail.getSupplyId());
-                        productInventory.setBlockedInventory(orderDetail.getProductCount());
-                        productInventory.setUpdateUser(orderDto.getSupplyName());
-                        productInventory.setUpdateTime(nowTime);
-                        productInventoryMapper.updateFrozenInventory(productInventory);
-                        saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.frozen.getType(), nowTime, orderDto.getSupplyName(), null);
-                    }
+                for (OrderDetail orderDetail : orderDto.getOrderDetailList()) {
+                    ProductInventory productInventory = new ProductInventory();
+                    productInventory.setSpuCode(orderDetail.getSpuCode());
+                    productInventory.setSupplyId(orderDetail.getSupplyId());
+                    productInventory.setBlockedInventory(orderDetail.getProductCount());
+                    productInventory.setUpdateUser(orderDto.getSupplyName());
+                    productInventory.setUpdateTime(nowTime);
+                    productInventoryMapper.updateFrozenInventory(productInventory);
+                    saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.frozen.getType(), nowTime, orderDto.getSupplyName(), null);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 
