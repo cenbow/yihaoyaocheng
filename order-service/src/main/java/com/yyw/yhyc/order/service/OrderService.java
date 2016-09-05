@@ -737,6 +737,7 @@ public class OrderService {
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
 			orderDetail.setManufactures(productInfo.getFactoryName());//生产厂家
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
+			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
 			orderDetailService.save(orderDetail);
 		}
