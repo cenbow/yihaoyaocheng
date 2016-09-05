@@ -82,9 +82,23 @@ function createOrder(){
 
     $("#createOrderForm").attr({"action": ctx + "/order/createOrder"});
     $("#createOrderForm").ajaxSubmit(function(_resultJsonObj) {
+
+        var goToShoppingCartUrl = _resultJsonObj.goToShoppingCart == true ? "/shoppingCart/index" : "";
+
         if(_resultJsonObj.message != null && _resultJsonObj.message != ""){
             console.info(_resultJsonObj.message );
-            alert(_resultJsonObj.message);
+            if(goToShoppingCartUrl != ""){
+                new Dialog({
+                    title:'提示',
+                    content:'<p class="mt60 f14">' + _resultJsonObj.message + '</p>',
+                    ok:'返回进货单',
+                    afterOk:function(){
+                        window.location.href = ctx + goToShoppingCartUrl;
+                    }
+                });
+            }else{
+                alert(_resultJsonObj.message);
+            }
             return;
         }
 

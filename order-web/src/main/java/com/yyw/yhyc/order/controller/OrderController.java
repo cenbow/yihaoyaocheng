@@ -15,6 +15,7 @@ import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
 import com.yao.trade.interfaces.credit.model.PeriodParams;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.annotation.Token;
@@ -30,16 +31,15 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.utils.DateUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections.map.HashedMap;
-import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +75,9 @@ public class OrderController extends BaseJsonController {
 
 	@Autowired
 	private SystemDateService systemDateService;
+
+	@Reference
+	private IProductDubboManageService productDubboManageService;
 
     /**
      * 通过主键查询实体对象
@@ -132,15 +135,13 @@ public class OrderController extends BaseJsonController {
 
 	/**
 	 * 校验要购买的商品(通用方法)
-	 * @param orderDto
+	 * @param userDto  当前登陆企业的信息
+	 * @param orderDto 订单信息
+	 * @return
 	 * @throws Exception
-	 */
-	@RequestMapping(value = "/validateProducts", method = RequestMethod.POST)
-	@ResponseBody
-	public Map<String,Object> validateProducts(OrderDto orderDto) throws Exception {
+     */
+	private Map<String,Object> validateProducts(UserDto userDto,OrderDto orderDto) throws Exception {
 
-		/* 获取当前登陆人的企业用户id */
-		UserDto userDto = super.getLoginUser();
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw new Exception("用户未登录");
 		}
@@ -152,6 +153,41 @@ public class OrderController extends BaseJsonController {
 			validateResult = orderService.validateProducts(currentLoginCustId,orderDto);
 		}catch (Exception e){
 			logger.error(e.getMessage());
+			map.put("result", false);
+			map.put("message", e.getMessage());
+			map.put("goToShoppingCart", true);
+		}
+
+		if(UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+			throw new Exception("非法参数");
+		}
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+			if(UtilHelper.isEmpty(productInfoDto)) continue;
+			if(UtilHelper.isEmpty(productDubboManageService)){
+				logger.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
+				map.put("result", false);
+				map.put("message", "查询商品价格失败");
+				map.put("goToShoppingCart", true);
+				return map;
+			}
+
+			String productPrice ="0";
+			try{
+				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode());
+			}catch (Exception e){
+				logger.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
+				map.put("result", false);
+				map.put("message", "查询商品价格失败");
+				map.put("goToShoppingCart", true);
+			}
+			logger.info("统一校验订单商品接口,查询商品价格，productPrice= " + productPrice + ",productInfoDto.getProductPrice()=" + productInfoDto.getProductPrice());
+			if(UtilHelper.isEmpty(productInfoDto.getProductPrice()) || UtilHelper.isEmpty(productPrice)
+					||  !productInfoDto.getProductPrice().equals(new BigDecimal(productPrice))){
+				map.put("result", false);
+				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
+				map.put("goToShoppingCart", true);
+				return map;
+			}
 		}
 		map.put("result", validateResult);
 		return map;
@@ -159,53 +195,6 @@ public class OrderController extends BaseJsonController {
 
 	/**
 	 * 创建订单
-	 * 请求数据格式：
-
-	 {
-	 	 "custId":123,
-	 	 "receiveAddressId":2,
-		 "orderDtoList": [
-				 {
-					 "custId": "123",
-					 "supplyId": "321",
-					 "productInfoDtoList": [
-						 {
-							 "id": "111",
-							 "productCount": "1",
-	 						 "productPrice":12.5
-						 },
-						 {
-							 "id": "112",
-							 "productCount": "2",
-	 						 "productPrice":4.5
-						 }
-					 ],
-					 "billType": "1",
-					 "payTypeId": "1",
-					 "leaveMessage": "买家留言啦！！"
-				 },
-				 {
-					 "custId": "123",
-					 "supplyId": "124",
-					 "productInfoDtoList": [
-							 {
-								 "id": "222",
-								 "productCount": "1",
-	 							 "productPrice":2.5
-							 },
-							 {
-								 "id": "223",
-								 "productCount": "2",
-	 							 "productPrice":5
-							 }
-					 ],
-					 "billType": "2",
-					 "payTypeId": "2",
-					 "leaveMessage": "买家留言咯！！"
-				 }
-		 ]
-	 }
-
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
@@ -217,7 +206,18 @@ public class OrderController extends BaseJsonController {
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw new Exception("用户未登录");
 		}
+		if(UtilHelper.isEmpty(orderCreateDto))throw new Exception("非法参数");
 		orderCreateDto.setUserDto(userDto);
+		if(UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()))throw new Exception("非法参数");
+		for(OrderDto orderDto : orderCreateDto.getOrderDtoList()){
+
+			/* 校验所购买商品的合法性 */
+			Map<String,Object> map = validateProducts(userDto,orderDto);
+			boolean result = (boolean) map.get("result");
+			if(!result){
+				return map;
+			}
+		}
 
 		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
