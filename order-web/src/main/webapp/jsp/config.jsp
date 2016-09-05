@@ -2,6 +2,7 @@
 <%
 	request.setAttribute("ctx", request.getContextPath());
 	request.setAttribute("STATIC_URL", MyConfigUtil.STATIC_URL);
+	request.setAttribute("PAY_DOMAIN", MyConfigUtil.PAY_DOMAIN);
 	String enterpriseId = request.getParameter("enterpriseId");
 
 	
@@ -10,8 +11,9 @@
 %>
 <script type="text/javascript">
 
-var ctx = '${ctx}';
-var enterpriseId = "<%=enterpriseId%>";
-var contextPath = ctx + "/static";
+	var ctx = '${ctx}';
+	var enterpriseId = "<%=enterpriseId%>";
+	var contextPath = ctx + "/static";
+	var domainPath = "<%=domainPath%>";
 
 </script>

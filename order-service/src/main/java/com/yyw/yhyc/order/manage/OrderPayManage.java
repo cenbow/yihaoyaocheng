@@ -35,6 +35,12 @@ public class OrderPayManage {
     private OrderTraceMapper orderTraceMapper;
 
     private OrderRefundMapper orderRefundMapper;
+    private OrderExceptionMapper orderExceptionMapper;
+
+    @Autowired
+    public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
+        this.orderExceptionMapper = orderExceptionMapper;
+    }
 
     @Autowired
     private OrderSettlementService orderSettlementService;
@@ -202,6 +208,16 @@ public class OrderPayManage {
                 if (orderStatus.equals("0000")) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
+                    //更新拒收异常订单为已退款
+                    OrderException orderException=new OrderException();
+                    orderException.setFlowId(o.getFlowId());
+                    orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+                    List<OrderException> list= orderExceptionMapper.listByProperty(orderException);
+                    if(list.size()>0){
+                        orderException=list.get(0);
+                        orderException.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
+                        orderExceptionMapper.update(orderException);
+                    }
                 } else {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusFail.getType());
                     orderRefundMapper.update(orderRefund);
