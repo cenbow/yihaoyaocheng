@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
+import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
@@ -24,6 +25,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
+import com.yyw.yhyc.pay.interfaces.PayService;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -407,9 +409,15 @@ public class OrderDeliveryDetailService {
 			//orderTraceMapper.save(orderTrace1);
 
 		}
-			returnMap.put("code","1");
-			returnMap.put("msg","操作成功");
-			return returnMap;
+		//正常全部收货确认收货分账
+		if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
+			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+			PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+			payService.handleRefund(user,1,order.getFlowId(),"");
+		}
+		returnMap.put("code","1");
+		returnMap.put("msg","操作成功");
+		return returnMap;
 	}
 
 	/**
