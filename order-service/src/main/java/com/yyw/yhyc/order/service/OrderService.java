@@ -24,6 +24,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
@@ -64,7 +65,13 @@ public class OrderService {
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
 
-    @Autowired
+	private ProductInventoryManage productInventoryManage;
+	@Autowired
+	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
+		this.productInventoryManage = productInventoryManage;
+	}
+
+	@Autowired
     private OrderDeliveryDetailService orderDeliveryDetailService;
 
     @Autowired
@@ -549,6 +556,9 @@ public class OrderService {
 		/*  数据插入订单表、订单详情表 */
 		Order order = insertOrderAndOrderDetail(orderDto,userDto);
 		log.info("创建订单接口 ：插入订单表、订单详情表 order= " + order);
+
+		/* 冻结库存 */
+		productInventoryManage.frozenInventory(orderDto);
 
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
