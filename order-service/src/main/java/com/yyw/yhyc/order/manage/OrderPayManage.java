@@ -208,7 +208,8 @@ public class OrderPayManage {
                 if (orderStatus.equals("0000")) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
-                    //更新拒收异常订单为已退款
+                    //更新取消订单退款为已结算
+                    orderSettlementService.updateSettlementByMap(o.getFlowId(),4);
                     OrderException orderException=new OrderException();
                     orderException.setFlowId(o.getFlowId());
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
@@ -217,6 +218,8 @@ public class OrderPayManage {
                         orderException=list.get(0);
                         orderException.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
                         orderExceptionMapper.update(orderException);
+                        //更新拒收结算为已结算
+                        orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3);
                     }
                 } else {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusFail.getType());
