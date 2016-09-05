@@ -181,6 +181,7 @@ public class HttpRequestHandler {
 		if(busiType.equals("9908")){
 			sendMap.put(PayUtil.MerBgUrl, MerBgUrls);
 		}
+		System.out.print("银联支付请求参数："+sendMap);
 		return sendMap;
 	}
 
@@ -241,10 +242,10 @@ public class HttpRequestHandler {
 		if(!TranType.equals("0002")&&!TranType.equals("0001")){
 			return sendMap;
 		}
-		
+		/*
 		if(isBysystemReceiveMoney(sendMap)){
 			sendMap.put("SplitType", "0001");
-		}
+		}*/
 		return sendMap;
 	}
 	
