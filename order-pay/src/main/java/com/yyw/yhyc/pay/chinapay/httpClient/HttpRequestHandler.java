@@ -181,8 +181,6 @@ public class HttpRequestHandler {
 		if(busiType.equals("9908")){
 			sendMap.put(PayUtil.MerBgUrl, MerBgUrls);
 		}
-		System.out.println("=========<");
-		System.out.println(sendMap);
 		return sendMap;
 	}
 
