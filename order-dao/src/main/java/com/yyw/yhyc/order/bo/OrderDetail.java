@@ -128,6 +128,9 @@ public class OrderDetail extends Model{
 	/* 通用名 (二期)*/
 	private java.lang.String shortName;
 
+	/* 商品的SPU编码 (三期)*/
+	private java.lang.String spuCode;
+
 
 
 	/**
@@ -474,6 +477,14 @@ public class OrderDetail extends Model{
 		this.shortName = shortName;
 	}
 
+	public String getSpuCode() {
+		return spuCode;
+	}
+
+	public void setSpuCode(String spuCode) {
+		this.spuCode = spuCode;
+	}
+
 	public String toString()
 	{
 		return "OrderDetail [" + 
@@ -499,6 +510,7 @@ public class OrderDetail extends Model{
 					", updateUser=" + updateUser + 
 					", updateTime=" + updateTime +
 					", shortName=" + shortName +
+					", spuCode=" + spuCode +
 				"]";
 	}
 }
