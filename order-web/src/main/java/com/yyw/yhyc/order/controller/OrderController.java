@@ -272,6 +272,9 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/createOrderSuccess", method = RequestMethod.GET)
 	public ModelAndView createOrderSuccess(@RequestParam("orderIds") String orderIds) throws Exception {
 		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto)) {
+			throw new Exception("登陆超时");
+		}
 		ModelAndView model = new ModelAndView();
 
 		List<OrderDto> orderDtoList = new ArrayList<OrderDto>();
