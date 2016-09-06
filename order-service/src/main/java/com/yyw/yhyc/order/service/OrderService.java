@@ -807,6 +807,7 @@ public class OrderService {
 			Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
 			String code = map.get("code").toString();
 			if("0".equals(code) || "1".equals(code)){
+				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + map );
 				throw  new Exception(map.get("msg").toString());
 			}
 		}

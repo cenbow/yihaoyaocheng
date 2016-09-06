@@ -20,6 +20,8 @@ import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
 
 @Service("shoppingCartService")
 public class ShoppingCartService {
+
+	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartService.class);
 
 	private ShoppingCartMapper	shoppingCartMapper;
 	private ProductInventoryManage productInventoryManage;
@@ -179,6 +183,7 @@ public class ShoppingCartService {
 		Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
 		String code = map.get("code").toString();
 		if("0".equals(code) || "1".equals(code)){
+			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
 			throw  new Exception(map.get("msg").toString());
 		}
 		ShoppingCart newShoppingCart = new ShoppingCart();
