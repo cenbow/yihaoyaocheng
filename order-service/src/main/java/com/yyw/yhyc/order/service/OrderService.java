@@ -24,6 +24,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
@@ -67,7 +68,7 @@ public class OrderService {
 
 	private ProductInventoryManage productInventoryManage;
 	@Autowired
-	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
+	public void set(ProductInventoryManage productInventoryManage) {
 		this.productInventoryManage = productInventoryManage;
 	}
 
@@ -777,7 +778,6 @@ public class OrderService {
 			throw new Exception("供应商不存在!");
 		}
 		orderDto.setSupplyName(seller.getEnterpriseName());
-
 		//TODO 校验要采购商与供应商是否相同
 		if (seller.getEnterpriseId().equals(currentLoginEnterpriseId + "") ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
@@ -791,6 +791,9 @@ public class OrderService {
 			throw new Exception("商品不能为空!");
 		}
 		ProductInfo productInfo = null;
+		//校验库存数量，是否可以购买
+		ProductInventory productInventory = new ProductInventory();
+		productInventory.setSupplyId(orderDto.getSupplyId());
 		for(ProductInfoDto productInfoDto : productInfoDtoList){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
@@ -799,6 +802,14 @@ public class OrderService {
 				throw new Exception("商品不存在!");
 			}
 			//TODO 商品状态校验
+			productInventory.setSpuCode(productInfo.getSpuCode());
+			//检查购物车库存数量
+			Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
+			String code = map.get("code").toString();
+			if("0".equals(code) || "1".equals(code)){
+				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + map );
+				throw  new Exception(map.get("msg").toString());
+			}
 		}
 		log.info("统一校验订单商品接口 ：校验成功" );
 		return true;
@@ -1109,6 +1120,9 @@ public class OrderService {
 				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
 
+				//释放冻结库存
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1239,6 +1253,7 @@ public class OrderService {
 					orderSettlementMapper.save(orderSettlement);
 				}
 
+
 				//插入日志表
 				OrderTrace orderTrace = new OrderTrace();
 				orderTrace.setOrderId(order.getOrderId());
@@ -1250,6 +1265,9 @@ public class OrderService {
 				orderTrace.setCreateTime(now);
 				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
+
+				//释放冻结库存
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1921,6 +1939,8 @@ public class OrderService {
 				orderSettlementMapper.save(orderSettlement);
 			}
 
+			//释放冻结库存
+			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName);
 
 
 		}else{

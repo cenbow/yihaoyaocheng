@@ -22,12 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -114,5 +113,16 @@ public class AccountPayInfoController extends BaseJsonController {
 	public void update(AccountPayInfo accountPayInfo) throws Exception
 	{
 		accountPayInfoService.update(accountPayInfo);
+	}
+
+	/**
+	 * 分页查询记录
+	 * @return
+	 */
+	@RequestMapping(value = {"", "/accTest"})
+	@ResponseBody
+	public Map<String,String> accTest(@RequestBody List<AccountPayInfo> accountPayInfoList ) throws Exception
+	{
+		return accountPayInfoService.saveOrUpdateAccountPayInfo(accountPayInfoList);
 	}
 }
