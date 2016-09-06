@@ -4,6 +4,7 @@ import com.sun.tools.corba.se.idl.StringGen;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.bo.ProductInventoryLog;
@@ -30,6 +31,7 @@ public class ProductInventoryManage {
     private ProductInventoryMapper productInventoryMapper;
     private SystemDateMapper systemDateMapper;
     private ProductInventoryLogMapper productInventoryLogMapper;
+    private OrderDetailMapper orderDetailMapper;
 
     @Autowired
     public void setProductInventoryMapper(ProductInventoryMapper productInventoryMapper) {
@@ -46,6 +48,11 @@ public class ProductInventoryManage {
         this.productInventoryLogMapper = productInventoryLogMapper;
     }
 
+    @Autowired
+    public void setOrderDetailMapper(OrderDetailMapper orderDetailMapper)
+    {
+        this.orderDetailMapper = orderDetailMapper;
+    }
     /**
      * 检查购物车库存数量
      *
@@ -140,16 +147,17 @@ public class ProductInventoryManage {
     /**
      * 释放冻结库存(取消)
      *
-     * @param orderDetailList
+     * @param OrderId
      * @param supplyName      供应商自己操作是 operator=supplyName
      * @param operator
      * @throws Exception
      */
-    public void releaseInventory(List<OrderDetail> orderDetailList, String supplyName, String operator) throws Exception {
+    public void releaseInventory(int OrderId, String supplyName, String operator) throws Exception {
         try {
-            if (!UtilHelper.isEmpty(orderDetailList)) {
+            List<OrderDetail> list=orderDetailMapper.listOrderDetailInfoByOrderId(OrderId);
+            if (!UtilHelper.isEmpty(list)) {
                 String nowTime = systemDateMapper.getSystemDate();
-                for (OrderDetail orderDetail : orderDetailList) {
+                for (OrderDetail orderDetail : list) {
                     ProductInventory productInventory = new ProductInventory();
                     productInventory.setSpuCode(orderDetail.getSpuCode());
                     productInventory.setSupplyId(orderDetail.getSupplyId());
