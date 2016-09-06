@@ -289,7 +289,7 @@ public class OrderDeliveryDetailService {
 
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
-			//orderDeliveryDetailMapper.update(orderDeliveryDetail);
+			orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
 				//根据发货两比对如果不同则生成退换货信息
 				if(orderDeliveryDetail.getDeliveryProductCount()>orderDeliveryDetail.getRecieveCount()){
@@ -314,7 +314,7 @@ public class OrderDeliveryDetailService {
 					orderReturn.setOrderDeliveryDetailId(orderDeliveryDetail.getOrderDeliveryDetailId());
 					orderReturn.setBatchNumber(orderDeliveryDetail.getBatchNumber());
 					orderReturn.setProductCode(orderDetail.getProductCode());
-					//orderReturnMapper.save(orderReturn);
+					orderReturnMapper.save(orderReturn);
 				}
 			}
 			if(UtilHelper.isEmpty(map.get(dto.getOrderDetailId()))){
@@ -349,7 +349,7 @@ public class OrderDeliveryDetailService {
 		order.setReceiveType(1);//买家确认收货
 		order.setUpdateTime(now);
 		order.setUpdateUser(user.getUserName());
-		//orderMapper.update(order);
+		orderMapper.update(order);
 
 		//生成结算信息当是账期支付时
 		saveOrderSettlement(order,moneyTotal);
@@ -364,7 +364,7 @@ public class OrderDeliveryDetailService {
 		orderTrace.setOrderStatus(order.getOrderStatus());
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(user.getUserName());
-		//orderTraceMapper.save(orderTrace);
+		orderTraceMapper.save(orderTrace);
 
 		//生成异常订单
 		if (!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
@@ -390,7 +390,7 @@ public class OrderDeliveryDetailService {
 			orderException.setExceptionOrderId(exceptionOrderId);
 			orderException.setUpdateTime(now);
 			orderException.setUpdateUser(user.getUserName());
-			//orderExceptionMapper.save(orderException);
+			orderExceptionMapper.save(orderException);
 
 			//插入异常订单日志
 			OrderTrace orderTrace1 = new OrderTrace();
@@ -406,7 +406,7 @@ public class OrderDeliveryDetailService {
 			orderTrace1.setOrderStatus(orderException.getOrderStatus());
 			orderTrace1.setCreateTime(now);
 			orderTrace1.setCreateUser(user.getUserName());
-			//orderTraceMapper.save(orderTrace1);
+			orderTraceMapper.save(orderTrace1);
 
 		}
 		//正常全部收货确认收货分账
