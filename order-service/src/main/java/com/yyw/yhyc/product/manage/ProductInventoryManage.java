@@ -123,7 +123,7 @@ public class ProductInventoryManage {
      * @param orderDto
      * @throws Exception
      */
-    public void frozenInventory(OrderDto orderDto) throws Exception {
+    public void frozenInventory(OrderDto orderDto){
         try {
             if (!UtilHelper.isEmpty(orderDto)) {
                 String nowTime = systemDateMapper.getSystemDate();
@@ -180,7 +180,7 @@ public class ProductInventoryManage {
      * @param supplyName
      * @throws Exception
      */
-    public void deductionInventory(List<OrderDetail> orderDetailList, String supplyName) throws Exception {
+    public void deductionInventory(List<OrderDetail> orderDetailList, String supplyName) {
         try {
             if (!UtilHelper.isEmpty(orderDetailList)) {
                 String nowTime = systemDateMapper.getSystemDate();
