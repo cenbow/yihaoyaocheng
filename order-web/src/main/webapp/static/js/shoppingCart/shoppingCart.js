@@ -42,8 +42,11 @@ function totalSub(e){
     var tdamount=Number($(e).parent().find('.its-buy-num').val());
     var tdprice=Number($(e).parents('.holder-list').find('.td-price span').html());
     var tdsum= tdamount*tdprice;
-    tdsumObject.html(tdsum.toFixed(2));
-    tdsumObject.find("input[name='productSettlementPrice']").val(tdsum.toFixed(2));
+    tdsumObject.html(fmoney(tdsum,2));
+
+    var productSettlementPriceObject=$(e).parents('.holder-list').find("input[name='productSettlementPrice']");
+    // console.info("productSettlementPriceObject=" + productSettlementPriceObject + ",value="+productSettlementPriceObject.val());
+    productSettlementPriceObject.val(tdsum.toFixed(2));
 }
 //商品总额
 function totalSum(){
@@ -103,7 +106,58 @@ function priceNeed(){
 }
 
 /**
+ * 更新购物车中数量（当用户手动输入商品数量的场景使用）
+ * @param _shoppingCartId
+ * @param _this
+ */
+function updateNum(_shoppingCartId,_this){
+    var _productCountInput = $(_this);
+    var _productCountAttr = _productCountInput.attr("productCount");
+    if(_productCountInput.val() < 1){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">购买数量不能小于1 ！</p>',
+            cancel:'取消',
+            ok:'确定'
+        });
+        return;
+    }
+    if(_productCountInput.val() > 999999999){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">购买数量不能大于999999999 ！</p>',
+            cancel:'取消',
+            ok:'确定'
+        });
+        return;
+    }
+    console.info("_shoppingCartId=" + _shoppingCartId +",_productCountInput.val()=" + _productCountInput.val() +",_productCountAttr=" + _productCountAttr);
+    return;
+
+    /* 小计 */
+    var tdsumObject=$(_this).parents('.holder-list').find('.td-sum span');
+    var tdamount = Number(_productCountInput.val());
+    var tdprice=Number($(_this).parents('.holder-list').find('.td-price span').html());
+    var tdsum= tdamount*tdprice;
+    tdsumObject.html(tdsum.toFixed(2));
+
+    //品种总计
+    totalItem();
+
+    //商品总额
+    totalSum();
+
+    //判断是满足购买
+    priceNeed();
+
+    //发送请求：更新购物车中数量
+    updateNumInShoppingCart(_shoppingCartId,_value);
+}
+
+
+/**
  * 更新购物车中数量
+ * （只发送更新购物车中数量的请求，不做业务、页面样式的处理。这是个通用的方法，给其他方法调用）
  * @param _shoppingCartId
  * @param _value
  */
@@ -114,8 +168,25 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
     if(_value == null || _value == "" || typeof _value == "undefined"){
         return;
     }
+    if(_value < 1){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">购买数量不能小于1 ！</p>',
+            cancel:'取消',
+            ok:'确定'
+        });
+        return;
+    }
+    if(_value > 999999999){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">购买数量不能大于999999999 ！</p>',
+            cancel:'取消',
+            ok:'确定'
+        });
+        return;
+    }
     var _data = {"shoppingCartId":_shoppingCartId,"productCount":_value};
-
     $.ajax({
         url:ctx + "/shoppingCart/updateNum",
         data:JSON.stringify(_data),
@@ -416,8 +487,19 @@ function submitCheckOrderPage(){
     }
     
     //TODO AJAX 检验商品上架、下架状态
-
-    
+    // $.ajax({
+    //     url:ctx + "/shoppingCart/check",
+    //     data:JSON.stringify(_data),
+    //     type:"post",
+    //     dataType:"json",   //返回参数类型
+    //     contentType :"application/json",   //请求参数类型
+    //     success:function(data){
+    //         console.info(data);
+    //     },
+    //     error:function(){
+    //
+    //     }
+    // })
     $("#submitCheckOrderPage").attr({"action": ctx + "/order/checkOrderPage"});
     $("#submitCheckOrderPage").submit();
 }
