@@ -158,9 +158,10 @@ public class ShoppingCartController extends BaseJsonController {
 				}
 				shoppingCartDto.setUnit(unit); //最小拆零包装单位
 				shoppingCartDto.setSaleStart(saleStart);//起售量
-				shoppingCartDto.setUpStep(Integer.valueOf(unit)); //每次增加、减少的 递增数量
+				shoppingCartDto.setUpStep(upStep); //每次增加、减少的 递增数量
 
 				/* 商品图片 */
+				map.remove("seller_code");
 				map.put("type_id", "1");
 				String filePath ="";
 				List picUrlList = null;
