@@ -20,6 +20,10 @@ public class ShoppingCartDto extends ShoppingCart  {
 
     /* 最小包装单位 */
     private String unit;
+
+    /* 最小拆零包装数量 */
+    private int minimumPacking;
+
     /**
      * 商品起售数量
      */
@@ -77,6 +81,14 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.paymentTerm = paymentTerm;
     }
 
+    public int getMinimumPacking() {
+        return minimumPacking;
+    }
+
+    public void setMinimumPacking(int minimumPacking) {
+        this.minimumPacking = minimumPacking;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -84,6 +96,9 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", periodProduct=" + periodProduct +
                 ", paymentTerm=" + paymentTerm +
                 ", unit='" + unit + '\'' +
+                ", minimumPacking=" + minimumPacking +
+                ", saleStart=" + saleStart +
+                ", upStep=" + upStep +
                 '}';
     }
 }

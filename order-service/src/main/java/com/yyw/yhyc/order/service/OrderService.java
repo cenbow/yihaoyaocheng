@@ -716,6 +716,7 @@ public class OrderService {
 		OrderDetail orderDetail = null;
 		ProductInfo productInfo = null;
 		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
+		List<OrderDetail> orderDetailList = new ArrayList<>();
 		for(ProductInfoDto productInfoDto : productInfoDtoList){
 			if(UtilHelper.isEmpty(productInfoDto)){
 				continue;
@@ -744,7 +745,9 @@ public class OrderService {
 			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
 			orderDetailService.save(orderDetail);
+			orderDetailList.add(orderDetail);
 		}
+		orderDto.setOrderDetailList(orderDetailList);
 		return order;
 	}
 
@@ -803,6 +806,7 @@ public class OrderService {
 			}
 			//TODO 商品状态校验
 			productInventory.setSpuCode(productInfo.getSpuCode());
+			productInventory.setFrontInventory(productInfoDto.getProductCount());
 			//检查购物车库存数量
 			Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
 			String code = map.get("code").toString();
