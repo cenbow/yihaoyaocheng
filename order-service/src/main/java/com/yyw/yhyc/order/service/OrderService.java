@@ -1253,8 +1253,6 @@ public class OrderService {
 					orderSettlementMapper.save(orderSettlement);
 				}
 
-				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
 
 				//插入日志表
 				OrderTrace orderTrace = new OrderTrace();
@@ -1267,6 +1265,9 @@ public class OrderService {
 				orderTrace.setCreateTime(now);
 				orderTrace.setCreateUser(userDto.getUserName());
 				orderTraceMapper.save(orderTrace);
+
+				//释放冻结库存
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
