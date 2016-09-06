@@ -1495,29 +1495,49 @@ public class OrderService {
             orderDeliveryDetailService.saveOrderSettlement(od,null);
 		}
         //退货异常订单自动确认
-        OrderException orderException=new OrderException();
-        orderException.setReturnType(OrderExceptionTypeEnum.RETURN.getType());
-        orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerDelivered.getType());
-        List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
-        for(OrderException o:le){
-            //异常订单收货
+		autoConfirmRefundOrder(creditDubboService);
+		//补货异常订单自动确认
+		cal=autoConfirmReplenishmentOrder(cal);
+		//换货异常订单自动确认
+		autoConfirmChangeOrder();
+
+		if(UtilHelper.isEmpty(cal)) return;
+		//确认收货
+		orderMapper.doneOrderForDelivery(cal);
+	}
+
+	/*
+	 *退货异常订单自动确认
+	 */
+	private void autoConfirmRefundOrder(CreditDubboServiceInterface creditDubboService)throws Exception{
+		OrderException orderException=new OrderException();
+		orderException.setReturnType(OrderExceptionTypeEnum.RETURN.getType());
+		orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerDelivered.getType());
+		List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
+		for(OrderException o:le){
+			//异常订单收货
 			Order order = orderMapper.getByPK(o.getOrderId());
 			SystemPayType systemPayType= systemPayTypeMapper.getByPK(order.getPayTypeId());
 			o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
-            orderExceptionMapper.update(o);
+			orderExceptionMapper.update(o);
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
 			//调用资信接口
 			sendReundCredit(creditDubboService,systemPayType,orderException);
-        }
+		}
+	}
 
-		//补货异常订单自动确认
+	/*
+	 *补货异常订单自动确认
+	 */
+	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal){
+
 		OrderException orderException1=new OrderException();
 		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
 		orderException1.setOrderStatus(SystemReplenishmentOrderStatusEnum.SellerDelivered.getType());
 		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
 		for(OrderException o:le1){
-            Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
+			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
@@ -1547,8 +1567,13 @@ public class OrderService {
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
 		}
+		return cal;
+	}
 
-		//换货异常订单自动确认
+	/*
+	* 换货异常订单自动确认
+	 */
+	private void autoConfirmChangeOrder(){
 		OrderException orderException2=new OrderException();
 		orderException2.setReturnType(OrderExceptionTypeEnum.CHANGE.getType());
 		orderException2.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingBuyerReceived.getType());
@@ -1559,10 +1584,6 @@ public class OrderService {
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
 		}
-
-		if(UtilHelper.isEmpty(cal)) return;
-		//确认收货
-		orderMapper.doneOrderForDelivery(cal);
 	}
 
 	/*
