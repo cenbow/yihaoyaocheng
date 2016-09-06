@@ -138,9 +138,8 @@ public class ShoppingCartController extends BaseJsonController {
 				map.put("spu_code", shoppingCartDto.getSpuCode());
 				map.put("seller_code", shoppingCartDto.getSupplyId());
 
-				String unit = "1";
+				int minimumPacking = 1;
 				int saleStart = 1;
-				int upStep = 1;
 				List productList = null;
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
@@ -153,12 +152,12 @@ public class ShoppingCartController extends BaseJsonController {
 					logger.error("购物车页面-查询的商品信息异常" );
 				}else{
 					JSONObject productJson = JSONObject.fromObject(productList.get(0));
-					unit = (String) productJson.get("unit");
-					saleStart = (int) productJson.get("minimum_packing");
+					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
+					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : (int) productJson.get("wholesale_num");
 				}
-				shoppingCartDto.setUnit(unit); //最小拆零包装单位
+				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装单位
 				shoppingCartDto.setSaleStart(saleStart);//起售量
-				shoppingCartDto.setUpStep(upStep); //每次增加、减少的 递增数量
+				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 
 				/* 商品图片 */
 				map.remove("seller_code");
