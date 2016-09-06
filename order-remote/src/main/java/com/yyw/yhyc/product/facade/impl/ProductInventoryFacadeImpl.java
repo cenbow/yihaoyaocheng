@@ -10,6 +10,7 @@
  **/
 package com.yyw.yhyc.product.facade.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,9 @@ public class ProductInventoryFacadeImpl implements ProductInventoryFacade {
 	 */
 	public Map<String,Object> getProductInventory(ProductInventory productInventory) throws Exception{
 		return  productInventoryService.getProductInventory(productInventory);
+	}
+
+	public List<ProductInventory> updateInventory(List<ProductInventory> productInventoryList) throws Exception{
+		 return  productInventoryService.updateSupplyIdInventory(productInventoryList);
 	}
 }
