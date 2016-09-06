@@ -1438,11 +1438,15 @@ public class OrderService {
 					}
 					if(done){//退款成功
 						cal.add(od.getOrderId());
+						//库存
+						productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 					}
 				}
 
 			}else{
 				cal.add(od.getOrderId());
+				//库存
+				productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 			}
 
 		}
