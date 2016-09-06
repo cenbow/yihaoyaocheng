@@ -152,7 +152,7 @@ public class ProductInventoryManage {
      * @param operator
      * @throws Exception
      */
-    public void releaseInventory(int OrderId, String supplyName, String operator) throws Exception {
+    public void releaseInventory(int OrderId, String supplyName, String operator){
         try {
             List<OrderDetail> list=orderDetailMapper.listOrderDetailInfoByOrderId(OrderId);
             if (!UtilHelper.isEmpty(list)) {

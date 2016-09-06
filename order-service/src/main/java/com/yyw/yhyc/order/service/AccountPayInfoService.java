@@ -273,7 +273,7 @@ public class AccountPayInfoService {
                     && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     )
-                continue;
+                throw new RuntimeException("payTypeId不正确");
 			/*银联b2c 或 银联无卡*/
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
