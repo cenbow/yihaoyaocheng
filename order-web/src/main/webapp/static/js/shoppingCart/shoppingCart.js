@@ -201,6 +201,7 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                     cancel:'取消',
                     ok:'确定'
                 });
+                if(_type == 'updateText')
                 $(_this).parent().find('.its-buy-num').val(_preValue);
             }
         },
@@ -270,6 +271,7 @@ $(function() {
         //totalItem();
         //totalSum();
         //priceNeed();
+        var _preValue =   $(this).parent().find('.its-buy-num').attr("preValue");
         updateNumInShoppingCart(shoppingCartId,value,this,'minusitem');
     });
     $('.its-btn-add').click(function(){
