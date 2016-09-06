@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.facade.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -141,5 +142,14 @@ public class AccountPayInfoFacadeImpl implements AccountPayInfoFacade {
 	public int findByCount(AccountPayInfo accountPayInfo) throws Exception
 	{
 		return accountPayInfoService.findByCount(accountPayInfo);
+	}
+
+	/**
+	 * 新增修改支付账户信息
+	 *
+	 * @return
+	 */
+	public Map<String, String> saveOrUpdateAccountPayInfo(List<AccountPayInfo> accountPayInfoList) {
+		return accountPayInfoService.saveOrUpdateAccountPayInfo(accountPayInfoList);
 	}
 }
