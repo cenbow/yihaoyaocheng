@@ -156,6 +156,7 @@ public class OrderController extends BaseJsonController {
 			map.put("result", false);
 			map.put("message", e.getMessage());
 			map.put("goToShoppingCart", true);
+			return map;
 		}
 
 		if(UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){

@@ -20,6 +20,30 @@ public class ShoppingCartDto extends ShoppingCart  {
 
     /* 最小包装单位 */
     private String unit;
+    /**
+     * 商品起售数量
+     */
+    private Integer saleStart;
+    /**
+     * 递增数量
+     */
+    private Integer upStep;
+
+    public Integer getSaleStart() {
+        return saleStart;
+    }
+
+    public void setSaleStart(Integer saleStart) {
+        this.saleStart = saleStart;
+    }
+
+    public Integer getUpStep() {
+        return upStep;
+    }
+
+    public void setUpStep(Integer upStep) {
+        this.upStep = upStep;
+    }
 
     public String getProductImageUrl() {
         return productImageUrl;

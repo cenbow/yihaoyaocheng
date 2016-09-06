@@ -24,6 +24,8 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
@@ -64,7 +66,13 @@ public class OrderService {
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
 
-    @Autowired
+	private ProductInventoryManage productInventoryManage;
+	@Autowired
+	public void set(ProductInventoryManage productInventoryManage) {
+		this.productInventoryManage = productInventoryManage;
+	}
+
+	@Autowired
     private OrderDeliveryDetailService orderDeliveryDetailService;
 
     @Autowired
@@ -550,6 +558,9 @@ public class OrderService {
 		Order order = insertOrderAndOrderDetail(orderDto,userDto);
 		log.info("创建订单接口 ：插入订单表、订单详情表 order= " + order);
 
+		/* 冻结库存 */
+		productInventoryManage.frozenInventory(orderDto);
+
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
 
@@ -767,7 +778,6 @@ public class OrderService {
 			throw new Exception("供应商不存在!");
 		}
 		orderDto.setSupplyName(seller.getEnterpriseName());
-
 		//TODO 校验要采购商与供应商是否相同
 		if (seller.getEnterpriseId().equals(currentLoginEnterpriseId + "") ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
@@ -781,6 +791,9 @@ public class OrderService {
 			throw new Exception("商品不能为空!");
 		}
 		ProductInfo productInfo = null;
+		//校验库存数量，是否可以购买
+		ProductInventory productInventory = new ProductInventory();
+		productInventory.setSupplyId(orderDto.getSupplyId());
 		for(ProductInfoDto productInfoDto : productInfoDtoList){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
@@ -789,6 +802,13 @@ public class OrderService {
 				throw new Exception("商品不存在!");
 			}
 			//TODO 商品状态校验
+			productInventory.setSpuCode(productInfo.getSpuCode());
+			//检查购物车库存数量
+			Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
+			String code = map.get("code").toString();
+			if("0".equals(code) || "1".equals(code)){
+				throw  new Exception(map.get("msg").toString());
+			}
 		}
 		log.info("统一校验订单商品接口 ：校验成功" );
 		return true;

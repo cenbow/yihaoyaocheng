@@ -87,7 +87,8 @@ function changeBillType(id,_node){
     $('.goi-table').css('height', $showtr);
     $('.goi-product-list .goi-mover-btn').click(function(){
         if(extend){
-            $(this).siblings('.goi-table').animate({height:$table.height()+1});
+            var closeTableHeight = $(this).siblings('.goi-table').find(".common-table").height()+1 ;
+            $(this).siblings('.goi-table').animate({height:closeTableHeight});
             extend = false;
             $(this).html('<i class="inside-icon goi-arrow goi-arrow-click"></i>收起');
         } else{

@@ -20,12 +20,15 @@ import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
 import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +38,9 @@ import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
 
 @Service("orderSettlementService")
 public class OrderSettlementService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderSettlementService.class);
+
 
     private OrderSettlementMapper orderSettlementMapper;
 
@@ -340,10 +346,11 @@ public class OrderSettlementService {
         condition.put("flowId",flowId);
         condition.put("businessType",type);//退货退款
         OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
-        if(orderSettlement==null){
-            throw new RuntimeException("未找到有效订单");
+        if(orderSettlement!=null){
+            orderSettlement.setConfirmSettlement("1");
+            orderSettlementMapper.update(orderSettlement);
+        }else {
+            log.info("更新结算信息->未找到有效订单:"+flowId);
         }
-        orderSettlement.setConfirmSettlement("1");
-        orderSettlementMapper.update(orderSettlement);
     }
 }

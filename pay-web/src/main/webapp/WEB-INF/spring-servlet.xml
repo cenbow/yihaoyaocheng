@@ -58,12 +58,6 @@
 			<bean class="com.yyw.yhyc.order.inteceptor.GetUserInteceptor"/>
 		</mvc:interceptor>
 
-		<!-- 配置Token拦截器，防止用户重复提交数据 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/**"/>
-			<mvc:exclude-mapping path="/static/**"/>
-			<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>
-		</mvc:interceptor>
 	</mvc:interceptors>
 
 	<import resource="dubbo-consumer.xml"/>
