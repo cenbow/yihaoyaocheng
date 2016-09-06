@@ -494,21 +494,21 @@ public class ProductInventoryService {
                     ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
                     productInventory.setUpdateTime(now);
                     productInventory.setUpdateUser(productInventory.getSupplyName());
-                    if (UtilHelper.isEmpty(product)){  //添加
+                    if (UtilHelper.isEmpty(productInventory.getSupplyType())) {
+                        productInventory.setSupplyType(2);
+                        productInventoryLog.setSupplyType(2);
+                    } else {
+                        productInventoryLog.setSupplyType(productInventory.getSupplyType());
+                    }
+                    if (UtilHelper.isEmpty(product)) {  //添加
                         productInventory.setCreateTime(now);
                         productInventory.setCreateUser(productInventory.getSupplyName());
                         productInventory.setBlockedInventory(0);
                         productInventory.setFrontInventory(productInventory.getCurrentInventory());
-                        if(UtilHelper.isEmpty(productInventory.getSupplyType())){
-                            productInventory.setSupplyType(2);
-                            productInventoryLog.setSupplyType(2);
-                        }else {
-                            productInventoryLog.setSupplyType(productInventory.getSupplyType());
-                        }
                         productInventoryMapper.save(productInventory);
                         productInventoryLog.setRemark("初始库存");
                         productInventoryLog.setLogType(ProductInventoryLogTypeEnum.addto.getType());
-                    }else {                          //修改
+                    } else {                          //修改
                         productInventory.setId(product.getId());
                         productInventoryMapper.updateInventory(productInventory);
                         productInventoryLog.setRemark("修改库存");
