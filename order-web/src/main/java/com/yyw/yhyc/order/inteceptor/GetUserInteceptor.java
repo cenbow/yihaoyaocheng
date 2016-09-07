@@ -50,7 +50,7 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
 
                 //企业信息
                 if(!UtilHelper.isEmpty(commonInfo)){
-                    Map<String, String> commonMap = JSONObject.parseObject(commonInfo, HashMap.class);
+                    Map<String, String> commonMap = JSONObject.parseObject(commonInfo, new HashMap<String, String>().getClass());
 
                     userDto.setCustName(commonMap.get("enterpriseName"));
                     userDto.setProvince(commonMap.get("province"));
