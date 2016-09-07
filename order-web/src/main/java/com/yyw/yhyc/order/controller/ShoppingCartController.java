@@ -158,26 +158,6 @@ public class ShoppingCartController extends BaseJsonController {
 				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装单位
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
-
-				/* 商品图片 */
-				map.remove("seller_code");
-				map.put("type_id", "1");
-				String filePath ="";
-				List picUrlList = null;
-				try{
-					logger.info("购物车页面-查询商品图片,请求参数:" + map);
-					picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
-					logger.info("购物车页面-查询商品图片,响应参数:" + JSONArray.fromObject(picUrlList));
-				}catch (Exception e){
-					logger.error("购物车页面-查询商品图片失败，" + e.getMessage() );
-				}
-				if(UtilHelper.isEmpty(picUrlList) || picUrlList.size() != 1){
-					logger.error("购物车页面-查询商品图片异常" );
-				}else{
-					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
-					filePath = (String) productJson.get("file_path");
-				}
-				shoppingCartDto.setProductImageUrl(filePath); //商品图片
 			}
 		}
 
