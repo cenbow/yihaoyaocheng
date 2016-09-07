@@ -48,6 +48,11 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<mvc:exclude-mapping path="/static/**"/>
+			<mvc:exclude-mapping path="/orderPay/cmbchinaPaySuccess"/>
+			<mvc:exclude-mapping path="/orderPay/cmbchinaSplitSuccess"/>
+			<mvc:exclude-mapping path="/orderPay/chinaPayCallback"/>
+			<mvc:exclude-mapping path="/orderPay/chinaPaySpiltPaymentCallback"/>
+			<mvc:exclude-mapping path="/orderPay/chinaPayRedundCallBack"/>
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
 		</mvc:interceptor>
 
