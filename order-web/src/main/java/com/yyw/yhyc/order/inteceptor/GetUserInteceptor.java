@@ -50,23 +50,23 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
 
                 //企业信息
                 if(!UtilHelper.isEmpty(commonInfo)){
-                    Map<String, String> commonMap = JSONObject.parseObject(commonInfo, new HashMap<String, String>().getClass());
+                    Map commonMap = JSONObject.parseObject(commonInfo, new HashMap<String, String>().getClass());
 
-                    userDto.setCustName(commonMap.get("enterpriseName"));
-                    userDto.setProvince(commonMap.get("province"));
-                    userDto.setProvinceName(commonMap.get("provinceName"));
-                    userDto.setCity(commonMap.get("city"));
-                    userDto.setCityName(commonMap.get("cityName"));
-                    userDto.setDistrict(commonMap.get("district"));
-                    userDto.setDistrictName(commonMap.get("districtName"));
-                    userDto.setRegisteredAddress(commonMap.get("registeredAddress"));
+                    userDto.setCustName(commonMap.get("enterpriseName").toString());
+                    userDto.setProvince(commonMap.get("province").toString());
+                    userDto.setProvinceName(commonMap.get("provinceName").toString());
+                    userDto.setCity(commonMap.get("city").toString());
+                    userDto.setCityName(commonMap.get("cityName").toString());
+                    userDto.setDistrict(commonMap.get("district").toString());
+                    userDto.setDistrictName(commonMap.get("districtName").toString());
+                    userDto.setRegisteredAddress(commonMap.get("registeredAddress").toString());
 
                     log.debug("+++++++++++++++++++++++++++++++++++++++++++");
                     log.debug(commonMap.toString());
                     log.debug(commonMap.get("roleType").getClass().getName());
-                    log.debug(commonMap.get("roleType"));
+                    log.debug(commonMap.get("roleType").toString());
 
-                    String roleType = commonMap.get("roleType");
+                    String roleType = commonMap.get("roleType").toString();
                     if(!UtilHelper.isEmpty(roleType)){
                         CustTypeEnum custTypeEnum = null;
                         switch (roleType){
@@ -94,5 +94,4 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
 
             return true;
     }
-
 }
