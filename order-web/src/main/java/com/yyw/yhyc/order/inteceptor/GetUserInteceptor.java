@@ -60,6 +60,11 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                     userDto.setDistrictName(map.get("districtName"));
                     userDto.setRegisteredAddress(map.get("registeredAddress"));
 
+                    log.debug("+++++++++++++++++++++++++++++++++++++++++++");
+                    log.debug(map.toString());
+                    log.debug(map.get("roleType").getClass().getName());
+                    log.debug(map.get("roleType"));
+
                     String roleType = map.get("roleType");
                     if(!UtilHelper.isEmpty(roleType)){
                         CustTypeEnum custTypeEnum = null;
