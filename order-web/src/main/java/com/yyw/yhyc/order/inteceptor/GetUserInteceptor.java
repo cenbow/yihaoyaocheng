@@ -44,13 +44,13 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                 //用户信息
                 if(!UtilHelper.isEmpty(user))
                 {
-                    Map<String, Object> userMap = JSONObject.parseObject(user, HashMap.class);
+                    Map userMap = JSONObject.parseObject(user, HashMap.class);
                     userDto.setUser(userMap);
                 }
 
                 //企业信息
                 if(!UtilHelper.isEmpty(commonInfo)){
-                    Map commonMap = JSONObject.parseObject(commonInfo, new HashMap<String, String>().getClass());
+                    Map commonMap = JSONObject.parseObject(commonInfo, HashMap.class);
 
                     userDto.setCustName(commonMap.get("enterpriseName").toString());
                     userDto.setProvince(commonMap.get("province").toString());
