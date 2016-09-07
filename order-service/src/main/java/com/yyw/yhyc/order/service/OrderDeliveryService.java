@@ -28,6 +28,7 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
@@ -64,6 +65,13 @@ public class OrderDeliveryService {
 	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	private OrderTraceMapper orderTraceMapper;
+
+	private ProductInventoryManage productInventoryManage;
+
+	@Autowired
+	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
+		this.productInventoryManage = productInventoryManage;
+	}
 
 	private Log log = LogFactory.getLog(OrderDeliveryService.class);
 
@@ -602,7 +610,7 @@ public class OrderDeliveryService {
 	}
 
 	//更新发货信息 更新日志表
-	public void updateOrderDelivery(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,Map<String,String> map,String excelPath,String now,String filePath){
+	public void updateOrderDelivery(List<Map<String,String>> errorList,OrderDeliveryDto orderDeliveryDto,Map<String,String> map,String excelPath,String now,String filePath) throws Exception{
 
 		if(errorList.size()>0){
 			map.put("code", "2");
@@ -646,6 +654,12 @@ public class OrderDeliveryService {
 				orderDelivery.setUpdateTime(now);
 				orderDelivery.setCreateTime(now);
 				orderDeliveryMapper.update(orderDelivery);
+				//发货调用扣减冻结库存
+				OrderDetail orderDetail=new OrderDetail();
+				orderDetail.setOrderId(order.getOrderId());
+				orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
+				List<OrderDetail> detailList=orderDetailMapper.listByProperty(orderDetail);
+				productInventoryManage.deductionInventory(detailList,orderDeliveryDto.getUserDto().getUserName());
 			}else {
 				//更新异常订单
 				OrderException  orderException=orderExceptionMapper.getByExceptionOrderId(orderDeliveryDto.getFlowId());

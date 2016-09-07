@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.facade;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.AccountPayInfo;
 import com.yyw.yhyc.bo.Pagination;
@@ -101,4 +102,10 @@ public interface AccountPayInfoFacade {
 	 */
 	public Pagination<AccountPayInfo> listPaginationByProperty(Pagination<AccountPayInfo> pagination, AccountPayInfo accountPayInfo) throws Exception;
 
+	/**
+	 * 新增修改支付账户信息
+	 *
+	 * @return
+	 */
+	public Map<String, String> saveOrUpdateAccountPayInfo(List<AccountPayInfo> accountPayInfoList) ;
 }

@@ -152,10 +152,11 @@ public class OrderController extends BaseJsonController {
 		try{
 			validateResult = orderService.validateProducts(currentLoginCustId,orderDto);
 		}catch (Exception e){
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(),e);
 			map.put("result", false);
 			map.put("message", e.getMessage());
 			map.put("goToShoppingCart", true);
+			return map;
 		}
 
 		if(UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){

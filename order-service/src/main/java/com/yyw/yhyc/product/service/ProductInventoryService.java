@@ -406,7 +406,7 @@ public class ProductInventoryService {
         return true;
     }
 
-    public  Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
+    public Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         ProductInventory productInventory1 = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
         if (UtilHelper.isEmpty(productInventory1)) {
@@ -425,7 +425,7 @@ public class ProductInventoryService {
         return resultMap;
     }
 
-    public  Map<String, Object> findInventoryListNumber(List<ProductInventory> productInventoryList) throws Exception {
+    public Map<String, Object> findInventoryListNumber(List<ProductInventory> productInventoryList) throws Exception {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         if (UtilHelper.isEmpty(productInventoryList)) {
             resultMap.put("code", 0);
@@ -468,14 +468,68 @@ public class ProductInventoryService {
         ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
         if (UtilHelper.isEmpty(product)) {
             resultMap.put("isSuccessful", 0);
-            resultMap.put("frontInventory",0);
-            resultMap.put("message", "参数错误");
+            resultMap.put("frontInventory", 0);
+            resultMap.put("message", "该商品没有库存信息");
             return resultMap;
         }
         resultMap.put("isSuccessful", 1);
         resultMap.put("frontInventory", product.getFrontInventory());
         resultMap.put("message", "库存正常");
         return resultMap;
+    }
+
+    /**
+     * 根据供应商修改-保存、库存信息
+     *
+     * @param productInventoryList
+     * @throws Exception
+     */
+    public List<ProductInventory> updateSupplyIdInventory(List<ProductInventory> productInventoryList) throws Exception {
+        if (!UtilHelper.isEmpty(productInventoryList)) {
+            List<ProductInventory> list = new ArrayList<ProductInventory>();
+            String now = systemDateMapper.getSystemDate();
+            for (ProductInventory productInventory : productInventoryList) {
+                if (!UtilHelper.isEmpty(productInventory.getSpuCode()) && !UtilHelper.isEmpty(productInventory.getSupplyId()) && !UtilHelper.isEmpty(productInventory.getCurrentInventory())) {
+                    ProductInventoryLog productInventoryLog = new ProductInventoryLog();
+                    ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
+                    productInventory.setUpdateTime(now);
+                    productInventory.setUpdateUser(productInventory.getSupplyName());
+                    if (UtilHelper.isEmpty(productInventory.getSupplyType())) {
+                        productInventory.setSupplyType(2);
+                        productInventoryLog.setSupplyType(2);
+                    } else {
+                        productInventoryLog.setSupplyType(productInventory.getSupplyType());
+                    }
+                    if (UtilHelper.isEmpty(product)) {  //添加
+                        productInventory.setCreateTime(now);
+                        productInventory.setCreateUser(productInventory.getSupplyName());
+                        productInventory.setBlockedInventory(0);
+                        productInventory.setFrontInventory(productInventory.getCurrentInventory());
+                        productInventoryMapper.save(productInventory);
+                        productInventoryLog.setRemark("初始库存");
+                        productInventoryLog.setLogType(ProductInventoryLogTypeEnum.addto.getType());
+                    } else {                          //修改
+                        productInventory.setId(product.getId());
+                        productInventoryMapper.updateInventory(productInventory);
+                        productInventoryLog.setRemark("修改库存");
+                        productInventoryLog.setLogType(ProductInventoryLogTypeEnum.modify.getType());
+                    }
+                    productInventoryLog.setSpuCode(productInventory.getSpuCode());
+                    productInventoryLog.setProductCount(productInventory.getCurrentInventory());
+                    productInventoryLog.setSupplyId(productInventory.getSupplyId());
+                    productInventoryLog.setSupplyName(productInventory.getSupplyName());
+                    productInventoryLog.setCreateUser(productInventory.getSupplyName());
+                    productInventoryLog.setCreateTime(now);
+                    productInventoryLog.setUpdateUser(productInventory.getSupplyName());
+                    productInventoryLog.setUpdateTime(now);
+                    productInventoryLogMapper.save(productInventoryLog);
+                } else {
+                    list.add(productInventory);
+                }
+            }
+            return list;
+        }
+        return null;
     }
 
 }

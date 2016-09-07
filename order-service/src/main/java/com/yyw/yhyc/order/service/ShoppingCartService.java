@@ -18,6 +18,10 @@ import java.util.Map;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +32,14 @@ import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
 @Service("shoppingCartService")
 public class ShoppingCartService {
 
+	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartService.class);
+
 	private ShoppingCartMapper	shoppingCartMapper;
+	private ProductInventoryManage productInventoryManage;
+	@Autowired
+	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
+		this.productInventoryManage = productInventoryManage;
+	}
 
 	@Autowired
 	public void setShoppingCartMapper(ShoppingCartMapper shoppingCartMapper)
@@ -156,13 +167,24 @@ public class ShoppingCartService {
 	 * @param shoppingCart
 	 * @param userDto
      */
-	public int updateNum(ShoppingCart shoppingCart, UserDto userDto) {
+	public int updateNum(ShoppingCart shoppingCart, UserDto userDto) throws Exception{
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId())){
 			return 0 ;
 		}
 		ShoppingCart oldShoppingCart =  shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
 		if(UtilHelper.isEmpty(oldShoppingCart)){
 			return 0;
+		}
+		ProductInventory productInventory = new ProductInventory();
+		productInventory.setSupplyId(oldShoppingCart.getSupplyId());//设置供应商Id
+		productInventory.setSpuCode(oldShoppingCart.getSpuCode());//设置SPUCODE
+		productInventory.setFrontInventory(shoppingCart.getProductCount());//获取当前数量
+		//检查购物车库存数量
+		Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
+		String code = map.get("code").toString();
+		if("0".equals(code) || "1".equals(code)){
+			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
+			throw  new Exception(map.get("msg").toString());
 		}
 		ShoppingCart newShoppingCart = new ShoppingCart();
 		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());

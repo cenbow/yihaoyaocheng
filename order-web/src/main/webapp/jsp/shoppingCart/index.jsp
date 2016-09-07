@@ -83,7 +83,7 @@
                                             <div class="cart-checkbox select-all" shoppingCartId="${shoppingCartDto.shoppingCartId}"><span class="inside-icon" >全选所有商品</span></div>
                                         </li>
                                         <li class="fl td-pic">
-                                            <img src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
                                             <p class="item-title">${shoppingCartDto.productName} ${shoppingCartDto.specification}</p>
@@ -99,17 +99,21 @@
                                                         <div class="its-input">
                                                             <a href="javascript:;" class="its-btn-reduce">-</a>
                                                             <a href="javascript:;" class="its-btn-add">+</a>
-                                                            <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}">
+                                                            <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}"
+                                                                   saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}">
                                                         </div>
                                                     </div>
                                                     <%--<div class="pt13 pl20 fl">瓶</div>--%>
                                                 </div>
-                                                <%--<p class="color-gray9">2盒起售 限购5盒</p>--%>
-                                                <%--<c:if test="${shoppingCartDto.unit > 0 }">--%>
-                                                    <%--<div class="pr-list-tips-frame tc">--%>
-                                                        <%--<i class="common-icon pl-frame-icon"></i><p>最小拆零包装：${shoppingCartDto.unit}</p>--%>
-                                                    <%--</div>--%>
-                                                <%--</c:if>--%>
+                                                <c:if test="${shoppingCartDto.saleStart > 0 }">
+                                                    <span class="color-gray9">${shoppingCartDto.saleStart}起售</span>
+                                                </c:if>
+                                                <c:if test="${shoppingCartDto.upStep > 0 }">
+                                                    <%--<div class="pr-list-tips-frame tc">
+                                                        <i class="common-icon pl-frame-icon"></i><p>最小拆零包装：${shoppingCartDto.upStep}</p>
+                                                    </div>--%>
+                                                    <span class="color-gray9">${shoppingCartDto.upStep}递增</span>
+                                                </c:if>
                                             </div>
                                         </li>
                                         <li class="fl td-sum">

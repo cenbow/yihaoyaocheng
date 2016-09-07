@@ -7,5 +7,7 @@
        http://code.alibabatech.com/schema/dubbo
        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-    <dubbo:annotation package="com.yyw.yhyc.order.facade.impl"/>
+    <dubbo:reference id="jobCallback" interface="com.gangling.scheduler.IJobCallback" />
+
+    <dubbo:annotation package="com.yyw.yhyc.order.facade.impl,com.yyw.yhyc.job.order.service.impl"/>
 </beans>

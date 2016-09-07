@@ -402,6 +402,8 @@ function fillTable(data) {
     $(".table-box2 tbody").append(trs);
     $("#myModalConfirmReceipt").modal().hide();
     $("#bodyDiv").hide();
+    $("#js").prop("checked",false);
+    $("#bh").prop("checked",false);
 }
 
 
@@ -434,12 +436,14 @@ function confirmReceipt(){
 
             if($(recieveCount[i]).val()!=$(productCount[i]).val()){
                 $("#bodyDiv").show();//display="block";
+                $("#js").prop("checked","checked");
                 return;
             }
             list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":ownw.val(),"returnDesc":returnDesc,"recieveCount":$(recieveCount[i]).val(),"productCount":$(productCount[i]).val()})
         }
     }else{
         //当补货框出来再次验证收采购与收货量是否相同如果相同则清除处理类型和备注
+
         var ownw = $("input[type=radio][name=ownw]:checked");
         for(var i=0;i<recieveCount.length;i++){
             if($(recieveCount[i]).val()==""){
