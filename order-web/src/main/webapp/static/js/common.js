@@ -23,7 +23,7 @@ function fmoney(s, n)
 $(function(){
     /* 加载商品的图片 */
     $("img").each(function(index,element){
-        console.info("index=" + index +",element=" + element + ",src=" + this.src );
+        // console.info("index=" + index +",element=" + element + ",src=" + this.src );
         if($(this).hasClass("productImageUrl")){
             var spuCode = $(this).attr("spuCode");
             var productImageUrl = getProductImgUrl(spuCode);

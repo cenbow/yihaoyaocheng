@@ -114,7 +114,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].paymentTerm" value="${shoppingCartDto.paymentTerm}"/>
                                                     <tr>
                                                         <td class="tl">
-                                                            <img src="${STATIC_URL}/static/images/pro_img.jpg" class="fl pr20">
+                                                            <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
                                                             <h3><span class="ct-lable">渠道</span>${shoppingCartDto.productName} ${shoppingCartDto.specification}</h3>
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
