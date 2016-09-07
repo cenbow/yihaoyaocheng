@@ -52,21 +52,21 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                 if(!UtilHelper.isEmpty(commonInfo)){
                     Map commonMap = JSONObject.parseObject(commonInfo, HashMap.class);
 
-                    userDto.setCustName(commonMap.get("enterpriseName").toString());
-                    userDto.setProvince(commonMap.get("province").toString());
-                    userDto.setProvinceName(commonMap.get("provinceName").toString());
-                    userDto.setCity(commonMap.get("city").toString());
-                    userDto.setCityName(commonMap.get("cityName").toString());
-                    userDto.setDistrict(commonMap.get("district").toString());
-                    userDto.setDistrictName(commonMap.get("districtName").toString());
-                    userDto.setRegisteredAddress(commonMap.get("registeredAddress").toString());
+                    userDto.setCustName(this.getMapToString(commonMap, "enterpriseName"));
+                    userDto.setProvince(this.getMapToString(commonMap, "province"));
+                    userDto.setProvinceName(this.getMapToString(commonMap, "provinceName"));
+                    userDto.setCity(this.getMapToString(commonMap, "city"));
+                    userDto.setCityName(this.getMapToString(commonMap, "cityName"));
+                    userDto.setDistrict(this.getMapToString(commonMap, "district"));
+                    userDto.setDistrictName(this.getMapToString(commonMap, "districtName"));
+                    userDto.setRegisteredAddress(this.getMapToString(commonMap, "registeredAddress"));
 
                     log.debug("+++++++++++++++++++++++++++++++++++++++++++");
                     log.debug(commonMap.toString());
-                    log.debug(commonMap.get("roleType").getClass().getName());
-                    log.debug(commonMap.get("roleType").toString());
+                    log.debug(this.getMapToString(commonMap, "roleType").getClass().getName());
+                    log.debug(this.getMapToString(commonMap, "roleType"));
 
-                    String roleType = commonMap.get("roleType").toString();
+                    String roleType = this.getMapToString(commonMap, "roleType");
                     if(!UtilHelper.isEmpty(roleType)){
                         CustTypeEnum custTypeEnum = null;
                         switch (roleType){
@@ -93,5 +93,12 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
             }
 
             return true;
+    }
+
+    private String getMapToString(Map map, String key){
+        if(UtilHelper.isEmpty(map) || UtilHelper.isEmpty(map.get(key)))
+            return "";
+        else
+            return map.get(key).toString();
     }
 }
