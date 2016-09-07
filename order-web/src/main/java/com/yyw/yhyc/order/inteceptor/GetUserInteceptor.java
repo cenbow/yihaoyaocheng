@@ -34,6 +34,9 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                 String commonInfo = CacheUtil.getSingleton().get(CACHE_PREFIX + COMMON_INFO + request.getSession().getId());
                 String user = CacheUtil.getSingleton().get(CACHE_PREFIX + request.getSession().getId());
 
+                log.info("user-->" + user);
+                log.info("commonInfo-->" + commonInfo);
+
                 UserDto userDto = new UserDto();
                 userDto.setUserName(u.getUsername());
                 userDto.setCustId(u.getEnterprise_id());
@@ -41,31 +44,29 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                 //用户信息
                 if(!UtilHelper.isEmpty(user))
                 {
-                    Map<String, Object> map = JSONObject.parseObject(user, HashMap.class);
-                    userDto.setUser(map);
+                    Map<String, Object> userMap = JSONObject.parseObject(user, HashMap.class);
+                    userDto.setUser(userMap);
                 }
 
                 //企业信息
                 if(!UtilHelper.isEmpty(commonInfo)){
-                    Map<String, String> map = JSONObject.parseObject(commonInfo, HashMap.class);
+                    Map<String, String> commonMap = JSONObject.parseObject(commonInfo, HashMap.class);
 
-                    log.info("commonInfo-->" + commonInfo);
-
-                    userDto.setCustName(map.get("enterpriseName"));
-                    userDto.setProvince(map.get("province"));
-                    userDto.setProvinceName(map.get("provinceName"));
-                    userDto.setCity(map.get("city"));
-                    userDto.setCityName(map.get("cityName"));
-                    userDto.setDistrict(map.get("district"));
-                    userDto.setDistrictName(map.get("districtName"));
-                    userDto.setRegisteredAddress(map.get("registeredAddress"));
+                    userDto.setCustName(commonMap.get("enterpriseName"));
+                    userDto.setProvince(commonMap.get("province"));
+                    userDto.setProvinceName(commonMap.get("provinceName"));
+                    userDto.setCity(commonMap.get("city"));
+                    userDto.setCityName(commonMap.get("cityName"));
+                    userDto.setDistrict(commonMap.get("district"));
+                    userDto.setDistrictName(commonMap.get("districtName"));
+                    userDto.setRegisteredAddress(commonMap.get("registeredAddress"));
 
                     log.debug("+++++++++++++++++++++++++++++++++++++++++++");
-                    log.debug(map.toString());
-                    log.debug(map.get("roleType").getClass().getName());
-                    log.debug(map.get("roleType"));
+                    log.debug(commonMap.toString());
+                    log.debug(commonMap.get("roleType").getClass().getName());
+                    log.debug(commonMap.get("roleType"));
 
-                    String roleType = map.get("roleType");
+                    String roleType = commonMap.get("roleType");
                     if(!UtilHelper.isEmpty(roleType)){
                         CustTypeEnum custTypeEnum = null;
                         switch (roleType){
