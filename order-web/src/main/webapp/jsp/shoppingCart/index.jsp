@@ -84,7 +84,7 @@
                                         </li>
                                         <li class="fl td-pic">
                                             <input type="hidden" value="${shoppingCartDto.productImageUrl}">
-                                            <img src="${shoppingCartDto.productImageUrl}" onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
                                             <p class="item-title">${shoppingCartDto.productName} ${shoppingCartDto.specification}</p>

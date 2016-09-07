@@ -17,3 +17,46 @@ function fmoney(s, n)
     }
     return t.split("").reverse().join("") + "." + r;
 }
+
+
+
+$(function(){
+    /* 加载商品的图片 */
+    $("img").each(function(index,element){
+        console.info("index=" + index +",element=" + element + ",src=" + this.src );
+        if($(this).hasClass("productImageUrl")){
+            var spuCode = $(this).attr("spuCode");
+            var productImageUrl = getProductImgUrl(spuCode);
+            // console.info("spuCode=" + spuCode + ",productImageUrl=" + productImageUrl);
+            this.src = productImageUrl;
+        }
+    });
+});
+
+/**
+ * 异步加载每个商品的(单张)图片
+ * @param _spuCode
+ * @return 商品图片的url地址
+ */
+function getProductImgUrl(_spuCode){
+    var productImageUrl = ctx +"/static/images/img_03.jpg";
+    try{
+        $.ajax({
+            url:ctx + "/product/getProductImg?spuCode="+_spuCode,
+            type:"get",
+            async:false,
+            success:function(data){
+                // console.info("data=" + data);
+                if(data != null && typeof data != "undefined"  &&  data.trim() != "" ){
+                    productImageUrl = data;
+                }
+            },
+            error:function(data){
+                console.info("商品图片服务异常!");
+            }
+        });
+    }catch (e){
+        return productImageUrl;
+    }
+    return productImageUrl;
+}
