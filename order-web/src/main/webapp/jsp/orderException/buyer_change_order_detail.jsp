@@ -191,7 +191,7 @@
                                     <td>
                                         <div class="clearfix">
                                             <div class="fl">
-                                                <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                <img  class="productImageUrl" spuCode="${orderReturnDto.spuCode}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                             </div>
                                             <div class="fl fontbox">
                                                 <p class="title">${orderReturnDto.productName}</p>
@@ -293,6 +293,7 @@
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/common.js"></script>
 <script>
     $(".lookgoodlist").click(function(){
         $("#myModal").modal();
