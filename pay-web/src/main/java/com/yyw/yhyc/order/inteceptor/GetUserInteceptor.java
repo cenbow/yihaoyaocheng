@@ -8,7 +8,6 @@ import com.yyw.yhyc.order.enmu.CustTypeEnum;
 import com.yyw.yhyc.utils.CacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,9 +29,12 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
             User u = (User) request.getAttribute("loginUser");
-            if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getSession().getAttribute(UserDto.REQUEST_KEY))){
+            if(!UtilHelper.isEmpty(u) && UtilHelper.isEmpty(request.getAttribute(UserDto.REQUEST_KEY))){
                 String commonInfo = CacheUtil.getSingleton().get(CACHE_PREFIX + COMMON_INFO + request.getSession().getId());
                 String user = CacheUtil.getSingleton().get(CACHE_PREFIX + request.getSession().getId());
+
+                log.info("user-->" + user);
+                log.info("commonInfo-->" + commonInfo);
 
                 UserDto userDto = new UserDto();
                 userDto.setUserName(u.getUsername());
@@ -41,26 +43,29 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                 //用户信息
                 if(!UtilHelper.isEmpty(user))
                 {
-                    Map<String, Object> map = JSONObject.parseObject(user, HashMap.class);
-                    userDto.setUser(map);
+                    Map userMap = JSONObject.parseObject(user, HashMap.class);
+                    userDto.setUser(userMap);
                 }
 
                 //企业信息
                 if(!UtilHelper.isEmpty(commonInfo)){
-                    Map<String, String> map = JSONObject.parseObject(commonInfo, HashMap.class);
+                    Map commonMap = JSONObject.parseObject(commonInfo, HashMap.class);
 
-                    log.info("commonInfo-->" + commonInfo);
+                    userDto.setCustName(this.getMapToString(commonMap, "enterpriseName"));
+                    userDto.setProvince(this.getMapToString(commonMap, "province"));
+                    userDto.setProvinceName(this.getMapToString(commonMap, "provinceName"));
+                    userDto.setCity(this.getMapToString(commonMap, "city"));
+                    userDto.setCityName(this.getMapToString(commonMap, "cityName"));
+                    userDto.setDistrict(this.getMapToString(commonMap, "district"));
+                    userDto.setDistrictName(this.getMapToString(commonMap, "districtName"));
+                    userDto.setRegisteredAddress(this.getMapToString(commonMap, "registeredAddress"));
 
-                    userDto.setCustName(map.get("enterpriseName"));
-                    userDto.setProvince(map.get("province"));
-                    userDto.setProvinceName(map.get("provinceName"));
-                    userDto.setCity(map.get("city"));
-                    userDto.setCityName(map.get("cityName"));
-                    userDto.setDistrict(map.get("district"));
-                    userDto.setDistrictName(map.get("districtName"));
-                    userDto.setRegisteredAddress(map.get("registeredAddress"));
+                    log.debug("+++++++++++++++++++++++++++++++++++++++++++");
+                    log.debug(commonMap.toString());
+                    log.debug(this.getMapToString(commonMap, "roleType").getClass().getName());
+                    log.debug(this.getMapToString(commonMap, "roleType"));
 
-                    String roleType = map.get("roleType");
+                    String roleType = this.getMapToString(commonMap, "roleType");
                     if(!UtilHelper.isEmpty(roleType)){
                         CustTypeEnum custTypeEnum = null;
                         switch (roleType){
@@ -81,7 +86,7 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                     }
                 }
 
-                request.getSession().setAttribute(UserDto.REQUEST_KEY, userDto);
+                request.setAttribute(UserDto.REQUEST_KEY, userDto);
 
                 log.info("userDto-->" + userDto.toString());
             }
@@ -89,4 +94,10 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
             return true;
     }
 
+    private String getMapToString(Map map, String key){
+        if(UtilHelper.isEmpty(map) || UtilHelper.isEmpty(map.get(key)))
+            return "";
+        else
+            return map.get(key).toString();
+    }
 }
