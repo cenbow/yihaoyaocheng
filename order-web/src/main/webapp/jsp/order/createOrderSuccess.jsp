@@ -168,9 +168,9 @@
         $("input[name='flowId']").each(function(){
             if(this.value != null && this.value != "" && typeof this.value != "undefined"){
                 if(flowIds == ""){
-                    flowIds +=  this.value + ","
-                }else{
                     flowIds +=  this.value
+                }else{
+                    flowIds +=  + "," + this.value
                 }
             }
         });

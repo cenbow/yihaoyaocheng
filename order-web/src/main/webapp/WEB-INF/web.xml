@@ -51,7 +51,23 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
     <!-- Spring MVC配置结束-->
-    
+    <servlet>
+        <servlet-name>glhealthcheck</servlet-name>
+        <servlet-class>com.gangling.healthcheck.servlet.HealthCheck</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>glhealthcheck</servlet-name>
+        <url-pattern>/glhealthcheck/*</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <filter-name>healthcheckFilter</filter-name>
+        <filter-class>com.gangling.healthcheck.filter.HealthCheckFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>healthcheckFilter</filter-name>
+        <url-pattern>/glhealthcheck/*</url-pattern>
+    </filter-mapping>
     <!-- DruidStat -->
     <filter>
 		<filter-name>DruidWebStatFilter</filter-name>
