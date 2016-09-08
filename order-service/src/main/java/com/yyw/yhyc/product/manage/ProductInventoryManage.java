@@ -212,7 +212,7 @@ public class ProductInventoryManage {
      */
     private void saveProductInventoryLog(OrderDetail orderDetail, Integer logType, String currentTime, String supplyName, String operator) throws Exception {
         ProductInventoryLog productInventoryLog = new ProductInventoryLog();
-        productInventoryLog.setLogType(ProductInventoryLogTypeEnum.deduction.getType());
+        productInventoryLog.setLogType(logType);
         productInventoryLog.setSpuCode(orderDetail.getSpuCode());
         productInventoryLog.setProductName(orderDetail.getProductName());
         productInventoryLog.setProductCount(orderDetail.getProductCount());
@@ -228,7 +228,7 @@ public class ProductInventoryManage {
             productInventoryLog.setCreateUser(supplyName);
             productInventoryLog.setUpdateUser(supplyName);
         }
-        productInventoryLog.setRemark(orderDetail.getOrderId() + ProductInventoryLogTypeEnum.getName(logType) + orderDetail.getProductCount());
+        productInventoryLog.setRemark(orderDetail.getOrderId()+"的订单" + ProductInventoryLogTypeEnum.getName(logType) +"库存"+ orderDetail.getProductCount());
         productInventoryLogMapper.save(productInventoryLog);
     }
 

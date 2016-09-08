@@ -83,7 +83,7 @@
                                             <div class="cart-checkbox select-all" shoppingCartId="${shoppingCartDto.shoppingCartId}"><span class="inside-icon" >全选所有商品</span></div>
                                         </li>
                                         <li class="fl td-pic">
-                                            <img src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
                                             <p class="item-title">${shoppingCartDto.productName} ${shoppingCartDto.specification}</p>

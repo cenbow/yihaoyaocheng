@@ -152,7 +152,7 @@ public class OrderController extends BaseJsonController {
 		try{
 			validateResult = orderService.validateProducts(currentLoginCustId,orderDto);
 		}catch (Exception e){
-			logger.error(e.getMessage());
+			logger.error(e.getMessage(),e);
 			map.put("result", false);
 			map.put("message", e.getMessage());
 			map.put("goToShoppingCart", true);
@@ -629,7 +629,6 @@ public class OrderController extends BaseJsonController {
         pagination.setPageSize(requestModel.getPageSize());
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		orderDto.setCustId(6066);
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
