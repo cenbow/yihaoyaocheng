@@ -13,8 +13,7 @@
 
 </head>
 <body>
-<!--#include file="header.asp" -->
-<!--#include file="sidebar.asp" -->
+
 <!--框架右侧内容 start-->
 <div id="main-content" class="main-content">
   <div class="wrapper">
@@ -230,11 +229,3 @@
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/productInventory/product_inventory_manage.js"></script>
-<script>
-  $(".cancel_order").click(function(){
-    $("#myModal1").modal();
-  });
-  $("#delete").click(function(){
-    alertModal("确定要删除吗？");
-  });
-</script>
