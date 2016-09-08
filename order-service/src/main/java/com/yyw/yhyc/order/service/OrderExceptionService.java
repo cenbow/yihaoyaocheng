@@ -607,9 +607,11 @@ public class OrderExceptionService {
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
 		}
-		SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-		PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-		payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
+		if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOnline.getPayType())){
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+			PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+			payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
+		}
 
 		if(count == 0){
 			log.error("原始订单更新失败,order info :"+order);
@@ -1491,10 +1493,11 @@ public class OrderExceptionService {
 				order.setUpdateUser(userDto.getUserName());
 				orderMapper.update(order);
 				createOrderTrace(order, userDto, now, 2, "买家部分收货");
-
-				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-				PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-				payService.handleRefund(userDto,3,orderException.getExceptionOrderId(),"买家补货确认收货");
+				if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOnline.getPayType())){
+					SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+					PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+					payService.handleRefund(userDto,3,orderException.getExceptionOrderId(),"买家补货确认收货");
+				}
 			} else {
 				log.info("订单状态不正确:" + orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
