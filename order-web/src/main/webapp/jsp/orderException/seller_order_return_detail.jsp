@@ -209,7 +209,7 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
-                                                    <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    <img alt="${orderReturnDto.productName}" class="productImageUrl" spuCode="${orderReturnDto.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                 </div>
                                                 <div class="fl fontbox">
                                                     <p class="title">${orderReturnDto.productName}</p>
@@ -256,6 +256,7 @@
 </div>
 </body>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>

@@ -17,6 +17,7 @@ public class OrderReturnDto extends OrderReturn {
     private String imageUrl;                //商品图片
     private String orderLineNo;             //订单行号
     private String formOfDrug;              //剂型
+    private String spuCode ;                //spu编码 ，图片专用
 
     public String getProductName() {
         return productName;
@@ -80,5 +81,13 @@ public class OrderReturnDto extends OrderReturn {
 
     public void setFormOfDrug(String formOfDrug) {
         this.formOfDrug = formOfDrug;
+    }
+
+    public String getSpuCode() {
+        return spuCode;
+    }
+
+    public void setSpuCode(String spuCode) {
+        this.spuCode = spuCode;
     }
 }
