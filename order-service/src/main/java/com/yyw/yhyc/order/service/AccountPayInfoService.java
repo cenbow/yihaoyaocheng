@@ -72,18 +72,9 @@ public class AccountPayInfoService {
      * @throws Exception
      */
     public AccountPayInfo getByCustId(Integer custId) throws Exception {
-        SystemPayType systemPayType = new SystemPayType();
-        //获取线下支付类型
-        systemPayType.setPayType(SystemPayTypeEnum.PayOffline.getPayType());
-        //获取线下支付类型ID
-        List<SystemPayType> systemPayTypeList = systemPayTypeMapper.listByProperty(systemPayType);
-        //如果线下支付类型不存在或者存在的个数不等于1，则返回null(线下支付在支付类型表中有且只能有一个)
-        if (UtilHelper.isEmpty(systemPayTypeList) || systemPayTypeList.size() != 1) {
-            return null;
-        }
         AccountPayInfo accountPayInfo = new AccountPayInfo();
         //设置支付类型ID
-        accountPayInfo.setPayTypeId(systemPayTypeList.get(0).getPayTypeId());
+        accountPayInfo.setPayTypeId(OnlinePayTypeEnum.MerchantBank.getPayTypeId());
         //设置客户ID
         accountPayInfo.setCustId(custId);
         return accountPayInfoMapper.getByCustId(accountPayInfo);
@@ -197,6 +188,7 @@ public class AccountPayInfoService {
     public Map<String, String> saveOrUpdateAccountPayInfo(List<AccountPayInfo> accountPayInfoList) {
         Map<String, String> resultMap = new HashMap<String, String>();
         try {
+            logger.info("添加修改支付帐号接口：accountPayInfoList："+accountPayInfoList);
             if (UtilHelper.isEmpty(accountPayInfoList)) {
                 resultMap.put("code", "1111");
                 resultMap.put("msg", "入参集合不能为空");

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ public class ProductController extends BaseJsonController {
     private IProductDubboManageService iProductDubboManageService;
 
     @RequestMapping(value = "/getProductImg", method = RequestMethod.GET)
+    @ResponseBody
     private String getProductImg(@RequestParam("spuCode")  String spuCode ){
         String filePath="";
         Map map = new HashMap();

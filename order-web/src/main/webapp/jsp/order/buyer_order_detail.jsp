@@ -426,7 +426,7 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
-                                                    <img src="" alt="${details.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    <img alt="${details.productName}" class="productImageUrl" spuCode="${details.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                 </div>
                                                 <div class="fl fontbox">
                                                     <p class="title">${details.productName}</p>
@@ -558,6 +558,7 @@
 </body>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
+<script type="text/javascript" src="${STATIC_URL}/static/js/common.js"></script>
 </html>
 <script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
@@ -565,6 +566,7 @@
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_delivery_detail.js"></script>
+
 <script>
     $(".gathering").click(function(){
         $("#myModal1").modal();

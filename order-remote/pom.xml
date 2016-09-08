@@ -22,6 +22,11 @@
             <artifactId>order-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.yyw.yhyc</groupId>
+            <artifactId>order-job</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- test start -->
         <dependency>
