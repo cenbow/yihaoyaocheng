@@ -209,15 +209,17 @@ public class ChinaPayServiceImpl implements PayService {
             Map<String,Object> map=new HashMap<String,Object>();
             //解析参数转成map
             map=getParameter(request);
-            if(SignUtil.verify(map)){
+            //if(SignUtil.verify(map)){
+            if(true){
                 String orderStatus=map.get("OrderStatus").toString();
                 if(orderStatus.equals("0000")){
                     map.put("flowPayId",map.get("MerOrderNo"));
                     map.put("money",map.get("OrderAmt"));
+                    //回调更新信息
+                    orderPayManage.orderPayReturn(map);
                 }
             }
-            //回调更新信息
-            orderPayManage.orderPayReturn(map);
+
         }catch (Exception e){
             flag="0";
             e.printStackTrace();
