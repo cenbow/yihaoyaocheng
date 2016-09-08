@@ -39,13 +39,16 @@ public class ProductController extends BaseJsonController {
         map.put("type_id", "1");
         try{
             List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
-            JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
-            filePath = (String)productJson.get("file_path");
-            if(UtilHelper.isEmpty(picUrlList)||UtilHelper.isEmpty(filePath)){
+            if(UtilHelper.isEmpty(picUrlList)){
                 logger.error("图片接口调用异常");
                 return "";
             }
+            JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+            filePath = (String)productJson.get("file_path");
+            if (UtilHelper.isEmpty(filePath))
+             return "";
         }catch (Exception e){
+            logger.error("图片接口调用异常");
             logger.error(e.getMessage());
         }
         return filePath;
