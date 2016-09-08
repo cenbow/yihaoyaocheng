@@ -805,6 +805,7 @@ public class OrderExceptionController extends BaseJsonController{
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionOrderId(exceptionId);
+		orderExceptionDto.setCustId(user.getCustId());
 		orderExceptionDto = orderExceptionService.getBuyerChangeGoodsOrderDetails(orderExceptionDto);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);

@@ -1,7 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,7 +8,9 @@
   <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
   <%@ include file="../config.jsp" %>
   <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
+
   <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
+
 </head>
 <body>
 <!--#include file="header.asp" -->

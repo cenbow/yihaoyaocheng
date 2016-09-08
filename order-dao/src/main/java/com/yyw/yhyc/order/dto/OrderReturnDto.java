@@ -17,7 +17,7 @@ public class OrderReturnDto extends OrderReturn {
     private String imageUrl;                //商品图片
     private String orderLineNo;             //订单行号
     private String formOfDrug;              //剂型
-    private String spuCode ;                //spu编码 ，图片专用
+    private String spuCode;                 //商品spu编码
 
     public String getProductName() {
         return productName;
@@ -89,5 +89,21 @@ public class OrderReturnDto extends OrderReturn {
 
     public void setSpuCode(String spuCode) {
         this.spuCode = spuCode;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderReturnDto{" +
+                "orderReturn="+super.toString()+
+                ", productId=" + productId +
+                ", productName='" + productName + '\'' +
+                ", productPrice=" + productPrice +
+                ", specification='" + specification + '\'' +
+                ", manufactures='" + manufactures + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", orderLineNo='" + orderLineNo + '\'' +
+                ", formOfDrug='" + formOfDrug + '\'' +
+                ", spuCode='" + spuCode + '\'' +
+                '}';
     }
 }

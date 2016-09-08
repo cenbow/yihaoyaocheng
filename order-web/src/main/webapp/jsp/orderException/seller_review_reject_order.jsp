@@ -147,7 +147,7 @@
                                             <td>
                                                 <div class="clearfix">
                                                     <div class="fl">
-                                                        <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                        <img  class="productImageUrl" spuCode="${orderReturnDto.spuCode}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                     </div>
                                                     <div class="fl fontbox">
                                                         <p class="title">${orderReturnDto.productName}</p>
@@ -197,6 +197,7 @@
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
 <script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/common.js"></script>
 <script type="text/javascript">
     function review(type){
         if(type == 2 || type == 3){

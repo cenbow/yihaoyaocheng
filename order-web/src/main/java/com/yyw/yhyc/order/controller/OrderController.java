@@ -629,6 +629,7 @@ public class OrderController extends BaseJsonController {
         pagination.setPageSize(requestModel.getPageSize());
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
