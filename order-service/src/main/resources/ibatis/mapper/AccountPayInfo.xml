@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:55
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.AccountPayInfoMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="AccountPayInfoResultMapper" type="AccountPayInfo">
+		<result column="account_info_id" property="accountInfoId"/>
+		<result column="cust_id" property="custId"/>
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="account_type" property="accountType"/>
+		<result column="pay_account_no" property="payAccountNo"/>
+		<result column="pay_account_name" property="payAccountName"/>
+		<result column="receive_account_no" property="receiveAccountNo"/>
+		<result column="receive_account_name" property="receiveAccountName"/>
+		<result column="account_status" property="accountStatus"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="account_area" property="accountArea"/>
+		<result column="subbank_name" property="subbankName"/>
+		<result column="pay_account_area" property="payAccountArea"/>
+		<result column="pay_subbank_name" property="paySubbankName"/>
+		<result column="remark" property="remark"/>
+		<result column="province_name" property="provinceName"/>
+		<result column="city_name" property="cityName"/>
+		<result column="district_name" property="districtName"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 account_info_id
+		, cust_id
+		, pay_type_id
+		, account_type
+		, pay_account_no
+		, pay_account_name
+		, receive_account_no
+		, receive_account_name
+		, account_status
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, account_area
+		, subbank_name
+		, pay_account_area
+		, pay_subbank_name
+		, remark
+		, province_name
+		, city_name
+		, district_name
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+		 cust_id
+		, pay_type_id
+		, account_type
+		, pay_account_no
+		, pay_account_name
+		, receive_account_no
+		, receive_account_name
+		, account_status
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, account_area
+		, subbank_name
+		, pay_account_area
+		, pay_subbank_name
+		, remark
+		, province_name
+		, city_name
+		, district_name
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 account_info_id
+		, cust_id
+		, pay_type_id
+		, account_type
+		, pay_account_no
+		, pay_account_name
+		, receive_account_no
+		, receive_account_name
+		, account_status
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, account_area
+		, subbank_name
+		, pay_account_area
+		, pay_subbank_name
+		, remark
+		, province_name
+		, city_name
+		, district_name
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="accountInfoId!= null and accountInfoId!= ''"> 
+			AND account_info_id=#{accountInfoId}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''"> 
+			AND pay_type_id=#{payTypeId}
+		</if>
+		<if test="accountType!= null and accountType!= ''"> 
+			AND account_type=#{accountType}
+		</if>
+		<if test="payAccountNo!= null and payAccountNo!= ''"> 
+			AND pay_account_no=#{payAccountNo}
+		</if>
+		<if test="payAccountName!= null and payAccountName!= ''"> 
+			AND pay_account_name=#{payAccountName}
+		</if>
+		<if test="receiveAccountNo!= null and receiveAccountNo!= ''"> 
+			AND receive_account_no=#{receiveAccountNo}
+		</if>
+		<if test="receiveAccountName!= null and receiveAccountName!= ''"> 
+			AND receive_account_name=#{receiveAccountName}
+		</if>
+		<if test="accountStatus!= null and accountStatus!= ''"> 
+			AND account_status=#{accountStatus}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="accountArea!= null and accountArea!= ''"> 
+			AND account_area=#{accountArea}
+		</if>
+		<if test="subbankName!= null and subbankName!= ''"> 
+			AND subbank_name=#{subbankName}
+		</if>
+		<if test="payAccountArea!= null and payAccountArea!= ''"> 
+			AND pay_account_area=#{payAccountArea}
+		</if>
+		<if test="paySubbankName!= null and paySubbankName!= ''"> 
+			AND pay_subbank_name=#{paySubbankName}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="provinceName!= null and provinceName!= ''">
+			AND province_name=#{provinceName}
+		</if>
+		<if test="cityName!= null and cityName!= ''">
+			AND city_name=#{cityName}
+		</if>
+		<if test="districtName!= null and districtName!= ''">
+			AND district_name=#{districtName}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="AccountPayInfo">
+		<![CDATA[ INSERT INTO t_account_pay_info ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{custId}
+				, #{payTypeId}
+				, #{accountType}
+				, #{payAccountNo}
+				, #{payAccountName}
+				, #{receiveAccountNo}
+				, #{receiveAccountName}
+				, #{accountStatus}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{accountArea}
+				, #{subbankName}
+				, #{payAccountArea}
+				, #{paySubbankName}
+				, #{remark}
+				, #{provinceName}
+				, #{cityName}
+				, #{districtName}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="AccountPayInfo">
+		<![CDATA[ UPDATE t_account_pay_info SET account_info_id=#{accountInfoId} ]]>
+		<if test="custId!= null and custId!= ''">
+			, cust_id=#{custId}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''">
+			, pay_type_id=#{payTypeId}
+		</if>
+		<if test="accountType!= null and accountType!= ''">
+			, account_type=#{accountType}
+		</if>
+		<if test="payAccountNo!= null and payAccountNo!= ''">
+			, pay_account_no=#{payAccountNo}
+		</if>
+		<if test="payAccountName!= null and payAccountName!= ''">
+			, pay_account_name=#{payAccountName}
+		</if>
+		<if test="receiveAccountNo!= null and receiveAccountNo!= ''">
+			, receive_account_no=#{receiveAccountNo}
+		</if>
+		<if test="receiveAccountName!= null and receiveAccountName!= ''">
+			, receive_account_name=#{receiveAccountName}
+		</if>
+		<if test="accountStatus!= null and accountStatus!= ''">
+			, account_status=#{accountStatus}
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			, create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			, update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="accountArea!= null and accountArea!= ''">
+			, account_area=#{accountArea}
+		</if>
+		<if test="subbankName!= null and subbankName!= ''">
+			, subbank_name=#{subbankName}
+		</if>
+		<if test="payAccountArea!= null and payAccountArea!= ''">
+			, pay_account_area=#{payAccountArea}
+		</if>
+		<if test="paySubbankName!= null and paySubbankName!= ''">
+			, pay_subbank_name=#{paySubbankName}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="provinceName!= null and provinceName!= ''">
+			, province_name=#{provinceName}
+		</if>
+		<if test="cityName!= null and cityName!= ''">
+			, city_name=#{cityName}
+		</if>
+		<if test="districtName!= null and districtName!= ''">
+			, district_name=#{districtName}
+		</if>
+		<![CDATA[  WHERE account_info_id = #{accountInfoId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_account_pay_info WHERE account_info_id = #{accountInfoId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_account_pay_info WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" account_info_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="AccountPayInfo">
+		DELETE FROM t_account_pay_info WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="AccountPayInfoResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_account_pay_info WHERE account_info_id = #{accountInfoId}  
+	</select>
+	<select id="getByCustId" parameterType="AccountPayInfo" resultMap="AccountPayInfoResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_account_pay_info WHERE cust_id = #{custId} AND pay_type_id=#{payTypeId} LIMIT 1
+	</select>
+	<select id="list" resultMap="AccountPayInfoResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_account_pay_info
+	</select>
+	<select id="listByProperty" parameterType="AccountPayInfo" resultMap="AccountPayInfoResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_account_pay_info WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="AccountPayInfo" resultMap="AccountPayInfoResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_account_pay_info WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="AccountPayInfo" resultType="int">
+		SELECT count(1) AS totalcount FROM t_account_pay_info WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

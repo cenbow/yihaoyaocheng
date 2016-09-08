@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:56
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderPayMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderPayResultMapper" type="OrderPay">
+		<result column="order_pay_id" property="orderPayId"/>
+		<result column="order_id" property="orderId"/>
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="pay_flow_id" property="payFlowId"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="pay_status" property="payStatus"/>
+		<result column="pay_account_name" property="payAccountName"/>
+		<result column="pay_account_no" property="payAccountNo"/>
+		<result column="pay_money" property="payMoney"/>
+		<result column="order_money" property="orderMoney"/>
+		<result column="receive_account_name" property="receiveAccountName"/>
+		<result column="receive_account_no" property="receiveAccountNo"/>
+		<result column="payment_platfor_return" property="paymentPlatforReturn"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+
+	<resultMap id="OrderPayDtoResultMapper" type="OrderPayDto">
+		<result column="receive_account_no" property="receiveAccountNo"/>
+		<result column="receive_account_name" property="receiveAccountName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="org_total" property="orgTotal"/>
+	</resultMap>
+
+	<sql id="commonColumns">
+		 order_pay_id
+		, order_id
+		, pay_type_id
+		, flow_id
+		, pay_flow_id
+		, pay_time
+		, pay_status
+		, pay_account_name
+		, pay_account_no
+		, pay_money
+		, order_money
+		, receive_account_name
+		, receive_account_no
+		, payment_platfor_return
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 order_id
+				, pay_type_id
+				, flow_id
+				, pay_flow_id
+				, pay_time
+				, pay_status
+				, pay_account_name
+				, pay_account_no
+				, pay_money
+				, order_money
+				, receive_account_name
+				, receive_account_no
+				, payment_platfor_return
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 order_pay_id
+		, order_id
+		, pay_type_id
+		, flow_id
+		, pay_flow_id
+		, date_format(pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, pay_status
+		, pay_account_name
+		, pay_account_no
+		, pay_money
+		, order_money
+		, receive_account_name
+		, receive_account_no
+		, payment_platfor_return
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="orderPayId!= null and orderPayId!= ''"> 
+			AND order_pay_id=#{orderPayId}
+		</if>
+		<if test="orderId!= null and orderId!= ''"> 
+			AND order_id=#{orderId}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''"> 
+			AND pay_type_id=#{payTypeId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="payFlowId!= null and payFlowId!= ''"> 
+			AND pay_flow_id=#{payFlowId}
+		</if>
+		<if test="payTime!= null and payTime!= ''"> 
+			AND pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="payStatus!= null and payStatus!= ''"> 
+			AND pay_status=#{payStatus}
+		</if>
+		<if test="payAccountName!= null and payAccountName!= ''"> 
+			AND pay_account_name=#{payAccountName}
+		</if>
+		<if test="payAccountNo!= null and payAccountNo!= ''"> 
+			AND pay_account_no=#{payAccountNo}
+		</if>
+		<if test="payMoney!= null and payMoney!= ''"> 
+			AND pay_money=#{payMoney}
+		</if>
+		<if test="orderMoney!= null and orderMoney!= ''"> 
+			AND order_money=#{orderMoney}
+		</if>
+		<if test="receiveAccountName!= null and receiveAccountName!= ''"> 
+			AND receive_account_name=#{receiveAccountName}
+		</if>
+		<if test="receiveAccountNo!= null and receiveAccountNo!= ''"> 
+			AND receive_account_no=#{receiveAccountNo}
+		</if>
+		<if test="paymentPlatforReturn!= null and paymentPlatforReturn!= ''"> 
+			AND payment_platfor_return=#{paymentPlatforReturn}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderPay">
+		<![CDATA[ INSERT INTO t_order_pay ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{orderId}
+				, #{payTypeId}
+				, #{flowId}
+				, #{payFlowId}
+				, str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+				, #{payStatus}
+				, #{payAccountName}
+				, #{payAccountNo}
+				, #{payMoney}
+				, #{orderMoney}
+				, #{receiveAccountName}
+				, #{receiveAccountNo}
+				, #{paymentPlatforReturn}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderPay">
+		<![CDATA[ UPDATE t_order_pay SET 
+			 order_pay_id=#{orderPayId} 
+			, order_id=#{orderId} 
+			, pay_type_id=#{payTypeId} 
+			, flow_id=#{flowId} 
+			, pay_flow_id=#{payFlowId} 
+			, pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+			, pay_status=#{payStatus} 
+			, pay_account_name=#{payAccountName} 
+			, pay_account_no=#{payAccountNo} 
+			, pay_money=#{payMoney} 
+			, order_money=#{orderMoney} 
+			, receive_account_name=#{receiveAccountName} 
+			, receive_account_no=#{receiveAccountNo} 
+			, payment_platfor_return=#{paymentPlatforReturn} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE order_pay_id = #{orderPayId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_pay WHERE order_pay_id = #{orderPayId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_pay WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" order_pay_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderPay">
+		DELETE FROM t_order_pay WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderPayResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_pay WHERE order_pay_id = #{orderPayId}  
+	</select>
+	<select id="list" resultMap="OrderPayResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_pay
+	</select>
+	<select id="listByProperty" parameterType="OrderPay" resultMap="OrderPayResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_pay WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderPay" resultMap="OrderPayResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_pay WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderPay" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_pay WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+
+	<select id="getByPayFlowId" parameterType="java.lang.String" resultMap="OrderPayResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_pay WHERE pay_flow_id=#{payFlowId}
+	</select>
+
+
+	<select id="listOrderPayDtoByProperty" parameterType="OrderPay" resultMap="OrderPayDtoResultMapper">
+		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no FROM
+		t_order_pay p,t_order o,t_order_combined c,t_account_pay_info a
+		WHERE p.pay_flow_id=c.pay_flow_id AND c.order_combined_id=o.order_combined_id
+		AND o.supply_id=a.cust_id AND a.account_status=1
+		AND p.pay_flow_id=#{payFlowId} AND a.pay_type_id=#{payTypeId}
+	</select>
+
+
+</mapper>

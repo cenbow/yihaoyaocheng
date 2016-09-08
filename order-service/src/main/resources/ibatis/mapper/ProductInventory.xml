@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ **
+ * Created By: XI
+ * Created On: 2016-8-29 11:46:32
+ *
+ * Amendment History:
+ *
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.product.mapper.ProductInventoryMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+    <resultMap id="ProductInventoryResultMapper" type="ProductInventory">
+        <result column="id" property="id"/>
+        <result column="spu_code" property="spuCode"/>
+        <result column="current_inventory" property="currentInventory"/>
+        <result column="warning_inventory" property="warningInventory"/>
+        <result column="blocked_inventory" property="blockedInventory"/>
+        <result column="front_inventory" property="frontInventory"/>
+        <result column="supply_type" property="supplyType"/>
+        <result column="supply_id" property="supplyId"/>
+        <result column="supply_name" property="supplyName"/>
+        <result column="create_user" property="createUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <resultMap id="ProductInventoryDtoResultMapper" type="ProductInventoryDto" extends="ProductInventoryResultMapper">
+        <result column="productcode_company" property="productcodeCompany"/>
+        <result column="product_name" property="productName"/>
+        <result column="short_name" property="shortName"/>
+        <result column="spec" property="spec"/>
+        <result column="factory_name" property="factoryName"/>
+        <result column="minimum_packing" property="minimumPacking"/>
+    </resultMap>
+
+    <sql id="commonColumns">
+		id
+		, spu_code
+		, current_inventory
+		, warning_inventory
+		, blocked_inventory
+		, front_inventory
+		, supply_type
+		, supply_id
+		, supply_name
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, remark
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+		spu_code
+		, current_inventory
+		, warning_inventory
+		, blocked_inventory
+		, front_inventory
+		, supply_type
+		, supply_id
+		, supply_name
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, remark
+	</sql>
+
+    <sql id="commonProcessDateColumns">
+		id
+		, spu_code
+		, current_inventory
+		, warning_inventory
+		, blocked_inventory
+		, front_inventory
+		, supply_type
+		, supply_id
+		, supply_name
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, remark
+	</sql>
+
+    <sql id="PicommonProcessDateColumns">
+		pi.id
+		, pi.spu_code
+		, pi.current_inventory
+		, pi.warning_inventory
+		, pi.blocked_inventory
+		, pi.front_inventory
+		, pi.supply_type
+		, pi.supply_id
+		, pi.supply_name
+		, pi.create_user
+		, date_format(pi.create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, pi.update_user
+		, date_format(pi.update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, pi.remark
+	</sql>
+
+    <sql id="commonCondition">
+        <if test="id!= null and id!= ''">
+            AND id=#{id}
+        </if>
+        <if test="spuCode!= null and spuCode!= ''">
+            AND spu_code=#{spuCode}
+        </if>
+        <if test="currentInventory!= null and currentInventory!= ''">
+            AND current_inventory=#{currentInventory}
+        </if>
+        <if test="warningInventory!= null and warningInventory!= ''">
+            AND warning_inventory=#{warningInventory}
+        </if>
+        <if test="blockedInventory!= null and blockedInventory!= ''">
+            AND blocked_inventory=#{blockedInventory}
+        </if>
+        <if test="frontInventory!= null and frontInventory!= ''">
+            AND front_inventory=#{frontInventory}
+        </if>
+        <if test="supplyType!= null and supplyType!= ''">
+            AND supply_type=#{supplyType}
+        </if>
+        <if test="supplyId!= null and supplyId!= ''">
+            AND supply_id=#{supplyId}
+        </if>
+        <if test="supplyName!= null and supplyName!= ''">
+            AND supply_name=#{supplyName}
+        </if>
+        <if test="createUser!= null and createUser!= ''">
+            AND create_user=#{createUser}
+        </if>
+        <if test="createTime!= null and createTime!= ''">
+            AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="updateUser!= null and updateUser!= ''">
+            AND update_user=#{updateUser}
+        </if>
+        <if test="updateTime!= null and updateTime!= ''">
+            AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="remark!= null and remark!= ''">
+            AND remark=#{remark}
+        </if>
+    </sql>
+
+    <insert id="save" parameterType="ProductInventory">
+        <![CDATA[ INSERT INTO t_product_inventory ( ]]>
+        <include refid="commonColumnsNotPK"/>
+        <![CDATA[
+			) VALUES (
+				 #{spuCode}
+				, #{currentInventory}
+				, #{warningInventory}
+				, #{blockedInventory}
+				, #{frontInventory}
+				, #{supplyType}
+				, #{supplyId}
+				, #{supplyName}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{remark}
+  ) ]]>
+    </insert>
+    <update id="update" parameterType="ProductInventory">
+        <![CDATA[ UPDATE t_product_inventory SET id=#{id} ]]>
+        <if test="spuCode!= null and spuCode!= ''">
+            , spu_code=#{spuCode}
+        </if>
+        <if test="currentInventory!= null and currentInventory!= ''">
+            , current_inventory=#{currentInventory}
+        </if>
+        <if test="warningInventory!= null and warningInventory!= ''">
+            , warning_inventory=#{warningInventory}
+        </if>
+        <if test="blockedInventory!= null and blockedInventory!= ''">
+            , blocked_inventory=#{blockedInventory}
+        </if>
+        <if test="frontInventory!= null and frontInventory!= ''">
+            , front_inventory=#{frontInventory}
+        </if>
+        <if test="supplyType!= null and supplyType!= ''">
+            , supply_type=#{supplyType}
+        </if>
+        <if test="supplyId!= null and supplyId!= ''">
+            , supply_id=#{supplyId}
+        </if>
+        <if test="supplyName!= null and supplyName!= ''">
+            , supply_name=#{supplyName}
+        </if>
+        <if test="createUser!= null and createUser!= ''">
+            , create_user=#{createUser}
+        </if>
+        <if test="createTime!= null and createTime!= ''">
+            , create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="updateUser!= null and updateUser!= ''">
+            , update_user=#{updateUser}
+        </if>
+        <if test="updateTime!= null and updateTime!= ''">
+            , update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="remark!= null and remark!= ''">
+            , remark=#{remark}
+        </if>
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[
+
+
+
+         DELETE FROM t_product_inventory WHERE id = #{id}
+
+
+
+        ]]>
+	</delete>
+    <delete id="deleteByPKeys" parameterType="map">
+        DELETE FROM t_product_inventory WHERE
+        <foreach collection="primaryKeys" index="index" item="id"
+                 open=" id IN(" separator="," close=") ">
+            ${id}
+        </foreach>
+    </delete>
+    <delete id="deleteByProperty" parameterType="ProductInventory">
+        DELETE FROM t_product_inventory WHERE 1 = 1
+        <include refid="commonCondition"/>
+    </delete>
+    <select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductInventoryResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_inventory WHERE id = #{id}
+    </select>
+    <select id="list" resultMap="ProductInventoryResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_inventory
+    </select>
+    <select id="listByProperty" parameterType="ProductInventory" resultMap="ProductInventoryResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_inventory WHERE 1=1
+        <include refid="commonCondition"/>
+    </select>
+
+    <select id="listPaginationByProperty" parameterType="ProductInventoryDto"
+            resultMap="ProductInventoryDtoResultMapper">
+        select
+        <include refid="PicommonProcessDateColumns"/>
+        ,p.product_name,p.short_name,p.spec,f.factory_name,pa.productcode_company,pa.minimum_packing from
+        t_product_audit pa
+        LEFT JOIN
+        t_product_info p
+        ON pa.spu_code=p.spu_code
+        LEFT JOIN t_product_inventory pi
+        ON pa.spu_code=pi.spu_code and pa.seller_code=pi.supply_id
+        LEFT JOIN t_product_factory f
+        ON p.factory_name=f.id
+        where pa.seller_code=#{supplyId} and pa.audit_status='1' and p.status='0'
+        <if test="productcodeCompany!= null and productcodeCompany!= ''">
+            AND pa.productcode_company LIKE CONCAT('%',#{productcodeCompany},'%' )
+        </if>
+        <if test="shortName!= null and shortName!= ''">
+            AND p.short_name LIKE CONCAT('%',#{shortName},'%' )
+        </if>
+        <if test="factoryName!= null and factoryName!= ''">
+            AND f.factory_name LIKE CONCAT('%',#{factoryName},'%' )
+        </if>
+        <if test="beginUpdateTime!= null and beginUpdateTime!= ''">
+            <![CDATA[ AND pi.update_time >= #{beginUpdateTime} ]]>
+        </if>
+        <if test="endUpdateIime!= null and endUpdateIime!= ''">
+            <![CDATA[ AND pi.update_time <= #{endUpdateIime} ]]>
+        </if>
+        <if test='warningStatus == "1"'><!--预警状态1、缺货2、库存预警-->
+            <![CDATA[ AND pi.front_inventory <  pa.minimum_packing]]>
+        </if>
+        <if test='warningStatus == "2"'><!--预警状态1、缺货2、库存预警-->
+            <![CDATA[ AND pi.current_inventory <= pi.warning_inventory ]]>
+        </if>
+    </select>
+
+    <select id="findByCount" parameterType="ProductInventory" resultType="int">
+        SELECT count(1) AS totalcount FROM t_product_inventory WHERE 1=1
+        <include refid="commonCondition"/>
+    </select>
+
+    <update id="updateInventory" parameterType="ProductInventory">
+        UPDATE t_product_inventory SET current_inventory=#{currentInventory}
+        <if test="warningInventory!= null and warningInventory!= ''">
+            , warning_inventory=#{warningInventory}
+        </if>
+        , front_inventory=#{currentInventory}-blocked_inventory
+        , update_user=#{updateUser}
+        , update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+        WHERE id = #{id}
+    </update>
+
+    <select id="findBySupplyIdSpuCode" parameterType="java.util.HashMap" resultMap="ProductInventoryResultMapper">
+        <![CDATA[ SELECT ]]>
+        <include refid="commonProcessDateColumns"/>
+        FROM t_product_inventory WHERE supply_id=#{supplyId} AND spu_code=#{spuCode}
+    </select>
+
+    <!--冻结库存-->
+    <update id="updateFrozenInventory" parameterType="ProductInventory">
+		UPDATE t_product_inventory SET
+		  blocked_inventory=#{blockedInventory}+blocked_inventory
+		, front_inventory=front_inventory-#{blockedInventory}
+		, update_user=#{updateUser}
+		, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE spu_code=#{spuCode} AND supply_id=#{supplyId}
+	</update>
+
+    <!--释放库存-->
+    <update id="updateReleaseInventory" parameterType="ProductInventory">
+		UPDATE t_product_inventory SET
+		  blocked_inventory=blocked_inventory-#{blockedInventory}
+		, front_inventory=front_inventory+#{blockedInventory}
+		, update_user=#{updateUser}
+		, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE spu_code=#{spuCode} AND supply_id=#{supplyId}
+	</update>
+
+    <!--扣减库存-->
+    <update id="updateDeductionInventory" parameterType="ProductInventory">
+        UPDATE t_product_inventory SET
+          current_inventory=current_inventory-#{blockedInventory}
+        ,blocked_inventory=blocked_inventory-#{blockedInventory}
+        , update_user=#{updateUser}
+        , update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+        WHERE spu_code=#{spuCode} AND supply_id=#{supplyId}
+    </update>
+</mapper>

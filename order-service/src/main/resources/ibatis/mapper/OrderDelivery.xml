@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:55
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderDeliveryMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderDeliveryResultMapper" type="OrderDelivery">
+		<result column="delivery_id" property="deliveryId"/>
+		<result column="order_id" property="orderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="receive_person" property="receivePerson"/>
+		<result column="receive_region" property="receiveRegion"/>
+		<result column="receive_city" property="receiveCity"/>
+		<result column="receive_province" property="receiveProvince"/>
+		<result column="receive_address" property="receiveAddress"/>
+		<result column="receive_contact_phone" property="receiveContactPhone"/>
+		<result column="zip_code" property="zipCode"/>
+		<result column="receive_date" property="receiveDate"/>
+		<result column="delivery_address" property="deliveryAddress"/>
+		<result column="delivery_contact_phone" property="deliveryContactPhone"/>
+		<result column="delivery_date" property="deliveryDate"/>
+		<result column="update_date" property="updateDate"/>
+		<result column="remark" property="remark"/>
+		<result column="delivery_method" property="deliveryMethod"/>
+		<result column="delivery_contact_person" property="deliveryContactPerson"/>
+		<result column="delivery_express_no" property="deliveryExpressNo"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="delivery_person" property="deliveryPerson"/>
+
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 delivery_id
+		, order_id
+		, flow_id
+		, receive_person
+		, receive_region
+		, receive_city
+		, receive_province
+		, receive_address
+		, receive_contact_phone
+		, zip_code
+		, receive_date
+		, delivery_address
+		, delivery_contact_phone
+		, delivery_date
+		, update_date
+		, remark
+		, delivery_method
+		, delivery_contact_person
+		, delivery_express_no
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, delivery_person
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 order_id
+				, flow_id
+				, receive_person
+				, receive_region
+				, receive_city
+				, receive_province
+				, receive_address
+				, receive_contact_phone
+				, zip_code
+				, receive_date
+				, delivery_address
+				, delivery_contact_phone
+				, delivery_date
+				, update_date
+				, remark
+				, delivery_method
+				, delivery_contact_person
+				, delivery_express_no
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+				,delivery_person
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 delivery_id
+		, order_id
+		, flow_id
+		, receive_person
+		, receive_region
+		, receive_city
+		, receive_province
+		, receive_address
+		, receive_contact_phone
+		, zip_code
+		, date_format(receive_date, '%Y-%m-%d %H:%i:%s') receive_date
+		, delivery_address
+		, delivery_contact_phone
+		, date_format(delivery_date, '%Y-%m-%d %H:%i:%s') delivery_date
+		, date_format(update_date, '%Y-%m-%d %H:%i:%s') update_date
+		, remark
+		, delivery_method
+		, delivery_contact_person
+		, delivery_express_no
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, delivery_person
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="deliveryId!= null and deliveryId!= ''"> 
+			AND delivery_id=#{deliveryId}
+		</if>
+		<if test="orderId!= null and orderId!= ''"> 
+			AND order_id=#{orderId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="receivePerson!= null and receivePerson!= ''"> 
+			AND receive_person=#{receivePerson}
+		</if>
+		<if test="receiveRegion!= null and receiveRegion!= ''"> 
+			AND receive_region=#{receiveRegion}
+		</if>
+		<if test="receiveCity!= null and receiveCity!= ''"> 
+			AND receive_city=#{receiveCity}
+		</if>
+		<if test="receiveProvince!= null and receiveProvince!= ''"> 
+			AND receive_province=#{receiveProvince}
+		</if>
+		<if test="receiveAddress!= null and receiveAddress!= ''"> 
+			AND receive_address=#{receiveAddress}
+		</if>
+		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
+			AND receive_contact_phone=#{receiveContactPhone}
+		</if>
+		<if test="zipCode!= null and zipCode!= ''"> 
+			AND zip_code=#{zipCode}
+		</if>
+		<if test="receiveDate!= null and receiveDate!= ''"> 
+			AND receive_date=str_to_date(#{receiveDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="deliveryAddress!= null and deliveryAddress!= ''"> 
+			AND delivery_address=#{deliveryAddress}
+		</if>
+		<if test="deliveryContactPhone!= null and deliveryContactPhone!= ''"> 
+			AND delivery_contact_phone=#{deliveryContactPhone}
+		</if>
+		<if test="deliveryDate!= null and deliveryDate!= ''"> 
+			AND delivery_date=str_to_date(#{deliveryDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateDate!= null and updateDate!= ''"> 
+			AND update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="deliveryMethod!= null and deliveryMethod!= ''"> 
+			AND delivery_method=#{deliveryMethod}
+		</if>
+		<if test="deliveryContactPerson!= null and deliveryContactPerson!= ''"> 
+			AND delivery_contact_person=#{deliveryContactPerson}
+		</if>
+		<if test="deliveryExpressNo!= null and deliveryExpressNo!= ''"> 
+			AND delivery_express_no=#{deliveryExpressNo}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="deliveryPerson!= null and deliveryPerson!= ''">
+			AND delivery_person=#{deliveryPerson}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderDelivery">
+		<![CDATA[ INSERT INTO t_order_delivery ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{orderId}
+				, #{flowId}
+				, #{receivePerson}
+				, #{receiveRegion}
+				, #{receiveCity}
+				, #{receiveProvince}
+				, #{receiveAddress}
+				, #{receiveContactPhone}
+				, #{zipCode}
+				, str_to_date(#{receiveDate},'%Y-%m-%d %H:%i:%s')
+				, #{deliveryAddress}
+				, #{deliveryContactPhone}
+				, str_to_date(#{deliveryDate},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+				, #{remark}
+				, #{deliveryMethod}
+				, #{deliveryContactPerson}
+				, #{deliveryExpressNo}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{deliveryPerson}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderDelivery">
+		<![CDATA[ UPDATE t_order_delivery SET 
+			 delivery_id=#{deliveryId} 
+			, order_id=#{orderId} 
+			, flow_id=#{flowId} 
+			, receive_person=#{receivePerson} 
+			, receive_region=#{receiveRegion} 
+			, receive_city=#{receiveCity} 
+			, receive_province=#{receiveProvince} 
+			, receive_address=#{receiveAddress} 
+			, receive_contact_phone=#{receiveContactPhone} 
+			, zip_code=#{zipCode} 
+			, receive_date=str_to_date(#{receiveDate},'%Y-%m-%d %H:%i:%s')
+			, delivery_address=#{deliveryAddress} 
+			, delivery_contact_phone=#{deliveryContactPhone} 
+			, delivery_date=str_to_date(#{deliveryDate},'%Y-%m-%d %H:%i:%s')
+			, update_date=str_to_date(#{updateDate},'%Y-%m-%d %H:%i:%s')
+			, remark=#{remark} 
+			, delivery_method=#{deliveryMethod} 
+			, delivery_contact_person=#{deliveryContactPerson} 
+			, delivery_express_no=#{deliveryExpressNo} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, delivery_person=#{deliveryPerson}
+		WHERE delivery_id = #{deliveryId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_delivery WHERE delivery_id = #{deliveryId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_delivery WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" delivery_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderDelivery">
+		DELETE FROM t_order_delivery WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE delivery_id = #{deliveryId}  
+	</select>
+	<select id="list" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_delivery
+	</select>
+	<select id="listByProperty" parameterType="OrderDelivery" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE 1=1 
+		<include refid="commonCondition"/>
+		ORDER BY delivery_id ASC
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderDelivery" resultMap="OrderDeliveryResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderDelivery" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_delivery WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="getByFlowId" parameterType="java.lang.String" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE flow_id = #{flowId}
+	</select>
+
+	<select id="getOrderDeliveryByFlowId" parameterType="java.lang.String" resultMap="OrderDeliveryResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery WHERE flow_id = #{flowId} ORDER BY delivery_id ASC
+	</select>
+
+</mapper>

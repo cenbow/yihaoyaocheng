@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://code.alibabatech.com/schema/dubbo
+       http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <dubbo:service interface="com.yyw.yhyc.order.facade.SystemDateFacade" ref="systemDateFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.AccountPayInfoFacade" ref="accountPayInfoFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderCombinedFacade" ref="orderCombinedFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderDeliveryDetailFacade" ref="orderDeliveryDetailFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderDeliveryFacade" ref="orderDeliveryFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderDetailFacade" ref="orderDetailFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderFacade" ref="orderFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderPayFacade" ref="orderPayFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderRefundFacade" ref="orderRefundFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderReturnFacade" ref="orderReturnFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderSettlementFacade" ref="orderSettlementFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderTraceFacade" ref="orderTraceFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.ShoppingCartFacade" ref="shoppingCartFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.SystemPayTypeFacade" ref="systemPayTypeFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderExceptionFacade" ref="orderExceptionFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.Order4ManagerFacade" ref="order4ManagerFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.product.facade.ProductInventoryFacade" ref="productInventoryFacade"/>
+
+    <!-- job任务接口 -->
+    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoPayJobService" ref="orderCancelForNoPayJobService"/>
+    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoDeliveryJobService" ref="orderCancelForNoDeliveryJobService"/>
+    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService" ref="orderDoneForDeliveryJobService"/>
+</beans>
