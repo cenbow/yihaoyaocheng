@@ -140,7 +140,7 @@ public class OrderPayManage {
 
 
                         //银联支付成功 生成结算信息
-                        if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(order.getPayTypeId()) ){
+                        if(!OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(order.getPayTypeId()) ){
                             OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
                             orderSettlementService.save(orderSettlement);
                         }
