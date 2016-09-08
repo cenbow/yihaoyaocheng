@@ -188,6 +188,7 @@ public class AccountPayInfoService {
     public Map<String, String> saveOrUpdateAccountPayInfo(List<AccountPayInfo> accountPayInfoList) {
         Map<String, String> resultMap = new HashMap<String, String>();
         try {
+            logger.info("添加修改支付帐号接口：accountPayInfoList："+accountPayInfoList);
             if (UtilHelper.isEmpty(accountPayInfoList)) {
                 resultMap.put("code", "1111");
                 resultMap.put("msg", "入参集合不能为空");
