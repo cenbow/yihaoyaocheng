@@ -39,7 +39,7 @@ $(function(){
  * @return 商品图片的url地址
  */
 function getProductImgUrl(_spuCode){
-    var productImageUrl = ctx +"/static/images/img_03.jpg";
+    var productImageUrl = ctx +"/static/images/product_default_img.jpg";
     try{
         $.ajax({
             url:ctx + "/product/getProductImg?spuCode="+_spuCode,
