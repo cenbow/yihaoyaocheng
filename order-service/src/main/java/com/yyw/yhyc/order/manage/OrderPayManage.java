@@ -80,7 +80,7 @@ public class OrderPayManage {
 
     // 收到订单退款通知
     public void redundCallBack(Map<String, Object> map) throws Exception {
-        log.debug("----收到三方支付返回订单退款通知------" + map.toString());
+        log.debug("----收到三方支付返回订单退款通知------" + map);
 
         String flowPayId = map.get("flowPayId").toString();
         String orderStatus = map.get("orderStatus").toString();
@@ -90,8 +90,7 @@ public class OrderPayManage {
 
     // 支付完成
     public void orderPayReturn(Map<String, Object> map) throws Exception {
-        log.debug("----收到三方支付返回的订单后台通知------" + map.toString());
-
+        log.info("----收到三方支付返回的订单后台通知------" + map);
         String flowPayId = map.get("flowPayId").toString();
         String money = map.get("money").toString();
         String MerId = map.get("MerId").toString();
