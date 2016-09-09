@@ -1969,17 +1969,16 @@ public class OrderService {
 			orderTrace.setCreateUser(userName);
 			orderTraceMapper.save(orderTrace);
 
-			if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
-				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+			if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
 				PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 				payService.handleRefund(userDto, 1, order.getFlowId(), "运营后台取消订单");
+			}
 
-				//如果是银联在线支付，生成结算信息，类型为订单取消退款
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
-					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
-					orderSettlementMapper.save(orderSettlement);
-				}
-
+			//如果是银联在线支付，生成结算信息，类型为订单取消退款
+			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
+				orderSettlementMapper.save(orderSettlement);
 			}
 
 			//释放冻结库存
