@@ -1247,14 +1247,16 @@ public class OrderService {
 					throw new RuntimeException("订单取消失败");
 				}
 
-				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-				PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-				payService.handleRefund(userDto,1,order.getFlowId(),"卖家主动取消订单");
+				if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+					SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+					payService.handleRefund(userDto, 1, order.getFlowId(), "卖家主动取消订单");
 
-				//如果是银联在线支付，生成结算信息，类型为订单取消退款
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
-					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
-					orderSettlementMapper.save(orderSettlement);
+					//如果是银联在线支付，生成结算信息，类型为订单取消退款
+					if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+						OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
+						orderSettlementMapper.save(orderSettlement);
+					}
 				}
 
 
@@ -1682,7 +1684,7 @@ public class OrderService {
 	 */
 	public boolean updateOrderStatus(List<Order> order) {
 		// TODO Auto-generated method stub
-		log.info("还款接口调用="+order.size());
+		log.info("updateOrderStatus start 还款接口调用="+order.size());
 		boolean re=true;
 		try{
 		Order on=new Order();
@@ -1717,13 +1719,16 @@ public class OrderService {
 						ld.add(l.get(0));
 					}
 				}
+				log.info("updateOrderStatus ld.size 还款接口调用="+ld.size());
                 for(OrderSettlement os:ld){
 					String now = systemDateMapper.getSystemDate();
 					os.setConfirmSettlement("1");
 					os.setSettlementTime(now);
 					os.setUpdateTime(now);
+					log.info("updateOrderStatus doing 还款接口调用="+os.toString());
 					orderSettlementMapper.update(orderSettlement);
 				}
+
 				// end  修改结算记录信息
 			}else{
 				re= false;
@@ -1954,9 +1959,6 @@ public class OrderService {
 
 			UserDto userDto = new UserDto();
 			userDto.setUserName(userName);
-			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-			PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-			payService.handleRefund(userDto,1,order.getFlowId(),"运营后台取消订单");
 
 			//插入日志表
 			OrderTrace orderTrace = new OrderTrace();
@@ -1969,6 +1971,12 @@ public class OrderService {
 			orderTrace.setCreateTime(now);
 			orderTrace.setCreateUser(userName);
 			orderTraceMapper.save(orderTrace);
+
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
+			if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+				PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+				payService.handleRefund(userDto, 1, order.getFlowId(), "运营后台取消订单");
+			}
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){

@@ -42,7 +42,7 @@
                             <input type="hidden" value="${orderExceptionDto.exceptionId}" id="exceptionId"/>
                             <div class="form-group">
                                 <label class="col-xs-2 control-label">买家拒收说明:</label>
-                                <div class="col-xs-9 control-label text-left">货物已损坏，双方同意当场销毁</div>
+                                <div class="col-xs-9 control-label text-left">${orderExceptionDto.returnDesc}</div>
                             </div>
                             <div class="form-group">
                                 <label  class="col-xs-2 control-label">审核说明：</label>
