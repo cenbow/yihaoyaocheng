@@ -228,15 +228,15 @@ $(function() {
     getSelectedShoppingCart();
     $('.its-buy-num').blur(function(){
         var shoppingCartId = $(this).parent().find('.its-buy-num').attr("shoppingCartId");
-        var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");
-        var upStep = $(this).parent().find('.its-buy-num').attr("upStep");
+        // var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");//起批量
+        var upStep = $(this).parent().find('.its-buy-num').attr("upStep");//最小可拆零包装量(用于递增、递减)
         if(upStep == '' || Number(upStep) <=0){
             upStep=1;
         }
         var value = 0;
-        if(Number($(this).parent().find('.its-buy-num').val()) <= Number(saleStart)){
-            $(this).parent().find('.its-buy-num').val(saleStart);
-            value = saleStart;
+        if(Number($(this).parent().find('.its-buy-num').val()) <= Number(upStep)){
+            $(this).parent().find('.its-buy-num').val(upStep);
+            value = upStep;
             $(this).addClass('its-btn-gray');
         }else{
             value = $(this).parent().find('.its-buy-num').val();
@@ -248,19 +248,19 @@ $(function() {
     $('.its-btn-reduce').click(function(){
         
         var shoppingCartId = $(this).parent().find('.its-buy-num').attr("shoppingCartId");
-        var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");
-        var upStep = $(this).parent().find('.its-buy-num').attr("upStep");
+        // var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");//起批量
+        var upStep = $(this).parent().find('.its-buy-num').attr("upStep");//最小可拆零包装量(用于递增、递减)
         if(upStep == '' || Number(upStep) <=0){
             upStep=1;
         }
-        if(saleStart == '' || Number(saleStart) <=0){
-            saleStart=1;
-        }
+        // if(saleStart == '' || Number(saleStart) <=0){
+        //     saleStart=1;
+        // }
         // console.info("shoppingCartId=" + shoppingCartId );
         var value = 0;
-        if(Number($(this).parent().find('.its-buy-num').val())-Number(upStep) <= Number(saleStart)){
-            $(this).parent().find('.its-buy-num').val(saleStart);
-            value = saleStart;
+        if(Number($(this).parent().find('.its-buy-num').val())-Number(upStep) <= Number(upStep)){
+            $(this).parent().find('.its-buy-num').val(upStep);
+            value = upStep;
             $(this).addClass('its-btn-gray');
         }else{
             value = Number($(this).parent().find('.its-buy-num').val()) - Number(upStep);
@@ -277,17 +277,17 @@ $(function() {
     $('.its-btn-add').click(function(){
         
         var shoppingCartId = $(this).parent().find('.its-buy-num').attr("shoppingCartId");
-        var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");
-        var upStep = $(this).parent().find('.its-buy-num').attr("upStep");
+        // var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");//起批量
+        var upStep = $(this).parent().find('.its-buy-num').attr("upStep"); //最小可拆零包装量(用于递增、递减)
         if(upStep == '' || Number(upStep) <=0){
             upStep=1;
         }
-        if(saleStart == '' || Number(saleStart) <=0){
-            saleStart=1;
-        }
+        // if(saleStart == '' || Number(saleStart) <=0){
+        //     saleStart=1;
+        // }
         // console.info("shoppingCartId=" + shoppingCartId );
 
-        if(Number($(this).parent().find('.its-buy-num').val())+Number(upStep) > Number(saleStart)){
+        if(Number($(this).parent().find('.its-buy-num').val())+Number(upStep) > Number(upStep)){
             $(this).parent().find('.its-btn-reduce').removeClass('its-btn-gray');
         }
         var value =  Number($(this).parent().find('.its-buy-num').val()) + Number(upStep);
