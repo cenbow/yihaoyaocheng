@@ -25,7 +25,7 @@ import java.util.Map;
 @RequestMapping(value = "/product")
 public class ProductController extends BaseJsonController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProductInventoryController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @Reference
     private IProductDubboManageService iProductDubboManageService;
@@ -38,9 +38,11 @@ public class ProductController extends BaseJsonController {
         map.put("spu_code", spuCode);
         map.put("type_id", "1");
         try{
+            logger.info("查询图片接口:请求参数：map=" + map);
             List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+            logger.info("查询图片接口:响应参数：picUrlList=" + picUrlList);
             if(UtilHelper.isEmpty(picUrlList)){
-                logger.error("图片接口调用异常");
+                logger.error("调用图片接口：无响应");
                 return "";
             }
             JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
@@ -48,8 +50,7 @@ public class ProductController extends BaseJsonController {
             if (UtilHelper.isEmpty(filePath))
              return "";
         }catch (Exception e){
-            logger.error("图片接口调用异常");
-            logger.error(e.getMessage());
+            logger.error("查询图片接口:调用异常," + e.getMessage());
         }
         return filePath;
     }

@@ -273,7 +273,7 @@ public class OrderExceptionService {
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
 		orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
-		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())){
+		if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())){
 			//如银联支付 只有买家看到
 			orderSettlement.setCustId(orderException.getCustId());
 		}else {
