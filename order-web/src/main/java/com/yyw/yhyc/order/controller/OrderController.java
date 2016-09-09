@@ -174,6 +174,7 @@ public class OrderController extends BaseJsonController {
 
 			String productPrice ="0";
 			try{
+				logger.info("统一校验订单商品接口,查询商品价格，请求参数,supply_id=" + orderDto.getSupplyId() + ",spuCode=" + productInfoDto.getSpuCode());
 				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode());
 			}catch (Exception e){
 				logger.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
