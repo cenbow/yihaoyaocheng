@@ -213,9 +213,9 @@ public class OrderPayManage {
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
                     List<OrderException> list= orderExceptionMapper.listByProperty(orderException);
                     if(list.size()>0){
-                        orderException=list.get(0);
+                       /* orderException=list.get(0);
                         orderException.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
-                        orderExceptionMapper.update(orderException);
+                        orderExceptionMapper.update(orderException);*/
                         //更新拒收结算为已结算
                         orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3);
                     }
