@@ -1684,12 +1684,12 @@ public class OrderService {
 	 */
 	public boolean updateOrderStatus(List<Order> order) {
 		// TODO Auto-generated method stub
-		log.info("updateOrderStatus start 还款接口调用="+order.size());
+		log.debug("updateOrderStatus start 还款接口调用="+order.size());
 		boolean re=true;
 		try{
 		Order on=new Order();
 		for(Order o:order){
-			log.info("还款接口调用="+o.toString());
+			log.debug("还款接口调用="+o.toString());
 			Order no=orderMapper.getOrderbyFlowId(o.getFlowId());
 			if(no!=null&&o!=null&&(no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())
 			 || no.getOrderStatus().equals(SystemOrderStatusEnum.BuyerPartReceived.getType())
@@ -1719,14 +1719,14 @@ public class OrderService {
 						ld.add(l.get(0));
 					}
 				}
-				log.info("updateOrderStatus ld.size 还款接口调用="+ld.size());
+				log.debug("updateOrderStatus ld.size 还款接口调用="+ld.size());
                 for(OrderSettlement os:ld){
 					String now = systemDateMapper.getSystemDate();
 					os.setConfirmSettlement("1");
 					os.setSettlementTime(now);
 					os.setUpdateTime(now);
-					log.info("updateOrderStatus doing 还款接口调用="+os.toString());
-					orderSettlementMapper.update(orderSettlement);
+					log.debug("updateOrderStatus doing 还款接口调用="+os.toString());
+					orderSettlementMapper.update(os);
 				}
 
 				// end  修改结算记录信息
