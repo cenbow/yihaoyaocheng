@@ -1935,7 +1935,10 @@ public class OrderService {
      */
 	public void  cancelOrder4Manage(String userName,String orderId,String cancelResult){
 		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
-			throw new RuntimeException("参数错误");
+			throw new RuntimeException("参数错误:订单编号为空");
+		}
+		if(  UtilHelper.isEmpty(cancelResult)){
+			throw new RuntimeException("参数错误:取消原因为空");
 		}
 		Order order =  orderMapper.getByPK(Integer.parseInt(orderId));
 		log.debug(order);
@@ -1990,7 +1993,7 @@ public class OrderService {
 
 		}else{
 			log.error("order status error ,orderStatus:"+order.getOrderStatus());
-			throw new RuntimeException("订单状态不正确");
+			throw new RuntimeException("当前订单状态下不能进行取消订单！");
 		}
 	}
 }
