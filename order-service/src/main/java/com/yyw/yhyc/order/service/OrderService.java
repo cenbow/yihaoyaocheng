@@ -305,7 +305,7 @@ public class OrderService {
 				continue;
 			}
 
-            /* 创建订单相关的所有信息 */
+            /* 发票类型 */
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
 				orderDto.setBillType(orderCreateDto.getBillType());
 			}
@@ -321,7 +321,10 @@ public class OrderService {
 					continue;
 				}
 			}
+
+			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -567,8 +570,8 @@ public class OrderService {
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
-		/* TODO 删除购物车 */
-//		deleteShoppingCart(orderDto);
+		/* 删除购物车中相关的商品 */
+		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
