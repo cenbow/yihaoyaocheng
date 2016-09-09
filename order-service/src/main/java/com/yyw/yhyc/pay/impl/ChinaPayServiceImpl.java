@@ -175,10 +175,10 @@ public class ChinaPayServiceImpl implements PayService {
         map.put("TranTime", fDate.split(",")[1]);
         String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         map.put("OrderAmt", OrderAmt);
-        map.put("MerPageUrl", PayUtil.getValue("orderReturnHost") + "/buyerOrderManage");
+        map.put("MerPageUrl", PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
 
-        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/orderPay/chinaPayCallback");
-        log.info(PayUtil.getValue("payReturnHost") + "/orderPay/chinaPayCallback");
+        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
+        log.info(PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
         String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
         log.info("CommodityMsg=" + CommodityMsg);
         map.put("CommodityMsg", CommodityMsg);
@@ -483,7 +483,7 @@ public class ChinaPayServiceImpl implements PayService {
         splitMap.put("OrderAmt", new Integer(orderPay.getPayMoney().multiply(multiple).intValue()).toString());//定单金额，需要转过来
         splitMap.put("OriOrderNo", orderPay.getPayFlowId());//原定单号 需要传输
         // 返回参数请参考 (新一代商户接入手册V2.1-) 后续类交易接口 的异步返回报文章
-        splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/orderPay/chinaPaySpiltPaymentCallback");//不需要转过来
+        splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPaySpiltPaymentCallback");//不需要转过来
         splitMap.put("MerSplitMsg", MerSplitMsg);//分账信息，需要传输过来
         splitMap.put("fromWhere", fromWhere);
         log.info(orderPay.getPayFlowId() + "分账请求参数= " + splitMap.toString());
@@ -506,7 +506,7 @@ public class ChinaPayServiceImpl implements PayService {
         sendMap.put("TranDate", date);//当前交易日期
         sendMap.put("TranTime", time);//当前交易时间
         sendMap.put("OriTranDate", paydate);
-        sendMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/orderPay/chinaPayRedundCallBack");//要转过来,成功后会返回应答
+        sendMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayRedundCallBack");//要转过来,成功后会返回应答
         sendMap.put("OriOrderNo", orderPay.getPayFlowId());//原定单号 需要传输
         sendMap.put("RefundAmt", new Integer(cancelMoney.multiply(multiple).intValue()).toString());//退款金额 需要传输
         sendMap.put("MerSplitMsg", RedundMerSplitMsg);//分账信息，需要传输过来
