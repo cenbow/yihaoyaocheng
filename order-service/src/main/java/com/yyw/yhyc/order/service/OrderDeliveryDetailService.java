@@ -410,9 +410,9 @@ public class OrderDeliveryDetailService {
 
 		}
 		//正常全部收货确认收货分账
+		SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 		if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())
-				&&order.getPayTypeId().equals(SystemPayTypeEnum.PayOnline.getPayType())){
-			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+				&&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())){
 			PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 			payService.handleRefund(user,1,order.getFlowId(),"");
 		}
