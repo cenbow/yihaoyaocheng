@@ -52,7 +52,7 @@
                                         <option value="1">销售货款</option>
                                         <option value="2">退货货款</option>
                                         <option value="3">拒收</option>
-                                        <option value="3">取消订单退款</option>
+                                        <option value="4">取消订单退款</option>
                                 </select>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">订单号</label>
