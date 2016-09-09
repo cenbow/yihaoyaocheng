@@ -166,7 +166,7 @@ function typeToOperate(businessType,confirm,settlementId) {
 	return result;
 }
 function typeToshowMoney(businessType,money) {
-	if(businessType==2||businessType==3){
+	if(businessType==2||businessType==3||businessType==4){
 		return "-"+money;
 	}
 	return money;

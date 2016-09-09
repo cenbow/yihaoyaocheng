@@ -93,8 +93,8 @@
                                             ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></span>
                                         </li>
                                         <li class="fl td-amount">
-                                            <div class="it-sort-col5 clearfix pr">
-                                                <div class="clearfix">
+                                            <div class="it-sort-col5 clearfix pr" style="width: 120px;">
+                                                <div class="clearfix" style="padding-left: 20px;">
                                                     <div class="its-choose-amount fl">
                                                         <div class="its-input">
                                                             <a href="javascript:;" class="its-btn-reduce">-</a>
@@ -105,14 +105,15 @@
                                                     </div>
                                                     <%--<div class="pt13 pl20 fl">瓶</div>--%>
                                                 </div>
-                                                <c:if test="${shoppingCartDto.saleStart > 0 }">
-                                                    <span class="color-gray9">${shoppingCartDto.saleStart}起售</span>
-                                                </c:if>
+                                                <%--<c:if test="${shoppingCartDto.saleStart > 0 }">--%>
+                                                    <%--<span class="color-gray9">${shoppingCartDto.saleStart}起售</span>--%>
+                                                <%--</c:if>--%>
                                                 <c:if test="${shoppingCartDto.upStep > 0 }">
                                                     <%--<div class="pr-list-tips-frame tc">
                                                         <i class="common-icon pl-frame-icon"></i><p>最小拆零包装：${shoppingCartDto.upStep}</p>
                                                     </div>--%>
-                                                    <span class="color-gray9">${shoppingCartDto.upStep}递增</span>
+                                                    <%--<span class="color-gray9">${shoppingCartDto.upStep}递增</span>--%>
+                                                    <span class="color-gray9">最小拆零包装:${shoppingCartDto.upStep}${shoppingCartDto.unit}</span>
                                                 </c:if>
                                             </div>
                                         </li>

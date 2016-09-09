@@ -16,5 +16,5 @@
         </property>
     </bean>
 
-    <import resource="spring-dataSource.xml"/>
+    <import resource="classpath*:spring-dataSource.xml"/>
 </beans>

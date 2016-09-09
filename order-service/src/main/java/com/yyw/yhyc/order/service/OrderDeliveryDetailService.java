@@ -449,7 +449,6 @@ public class OrderDeliveryDetailService {
 		    orderSettlement.setCreateTime(now);
 		    orderSettlement.setOrderTime(order.getCreateTime());
 		    orderSettlement.setSettlementMoney(order.getOrgTotal());
-		    orderSettlementMapper.save(orderSettlement);
 		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())){//在线支付
 			if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
 				//如果是招商支付则加上 买家id 银联支付不加
