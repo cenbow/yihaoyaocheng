@@ -1684,7 +1684,7 @@ public class OrderService {
 	 */
 	public boolean updateOrderStatus(List<Order> order) {
 		// TODO Auto-generated method stub
-		log.info("还款接口调用="+order.size());
+		log.info("updateOrderStatus start 还款接口调用="+order.size());
 		boolean re=true;
 		try{
 		Order on=new Order();
@@ -1719,13 +1719,16 @@ public class OrderService {
 						ld.add(l.get(0));
 					}
 				}
+				log.info("updateOrderStatus ld.size 还款接口调用="+ld.size());
                 for(OrderSettlement os:ld){
 					String now = systemDateMapper.getSystemDate();
 					os.setConfirmSettlement("1");
 					os.setSettlementTime(now);
 					os.setUpdateTime(now);
+					log.info("updateOrderStatus doing 还款接口调用="+os.toString());
 					orderSettlementMapper.update(orderSettlement);
 				}
+
 				// end  修改结算记录信息
 			}else{
 				re= false;
