@@ -676,10 +676,6 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
 	@ResponseBody
 	public void sellerCancelOrder(@RequestBody Order order){
-		/**
-		 *  http://localhost:8088/order/sellerCancelOrder
-		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
-		 */
 		UserDto userDto = super.getLoginUser();
 		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
 

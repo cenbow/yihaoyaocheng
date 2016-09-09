@@ -600,6 +600,7 @@ public class ChinaPayServiceImpl implements PayService {
         orderRefund.setSupplyId(order.getSupplyId());
         orderRefund.setRefundSum(order.getOrgTotal());
         orderRefund.setRefundFreight(new BigDecimal(0));
+        orderRefund.setOrderId(order.getOrderId());
         orderRefund.setFlowId(flowId);
         orderRefund.setCreateTime(now);
         orderRefund.setRefundDate(now);
