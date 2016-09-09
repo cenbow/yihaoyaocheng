@@ -48,7 +48,7 @@ public class OrderSettlementController extends BaseJsonController {
 	{
 		OrderSettlement orderSettlement= orderSettlementService.getByPK(key);
 		if(orderSettlement!=null && orderSettlement.getSettlementMoney()!=null && orderSettlement.getRefunSettlementMoney()!=null){
-			if(orderSettlement.getRefunSettlementMoney().doubleValue()!=0 && orderSettlement.getRefunSettlementMoney().doubleValue()!=0){
+			if(orderSettlement.getRefunSettlementMoney().doubleValue()>=0 && orderSettlement.getRefunSettlementMoney().doubleValue()>0){
 				orderSettlement.setDifferentMoney(orderSettlement.getRefunSettlementMoney().subtract(orderSettlement.getSettlementMoney()));
 			}else {
 				orderSettlement.setDifferentMoney(new BigDecimal(0));
