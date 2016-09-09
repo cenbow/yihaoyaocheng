@@ -244,11 +244,11 @@ public class ChinaPayServiceImpl implements PayService {
             printRequestParam("确认收货后回调", request);
             //解析参数转成map
             map=getParameter(request);
-            if(SignUtil.verify(map)){
+            /*if(SignUtil.verify(map)){*/
                 map.put("flowPayId",map.get("OriOrderNo"));
-                map.put("orderStatus", map.get("orderStatus"));
+                map.put("orderStatus", map.get("OrderStatus"));
                 orderPayManage.takeConfirmReturn(map);
-            }
+            /*}*/
         }catch (Exception e){
             flag="0";
             e.printStackTrace();
@@ -270,11 +270,11 @@ public class ChinaPayServiceImpl implements PayService {
         try{
             printRequestParam("退款回调",request);
             map=getParameter(request);
-            if(SignUtil.verify(map)){
+       /*     if(SignUtil.verify(map)){*/
                 map.put("flowPayId",map.get("OriOrderNo"));
-                map.put("orderStatus", map.get("orderStatus"));
+                map.put("orderStatus", map.get("OrderStatus"));
                 orderPayManage.redundCallBack(map);
-            }
+            /*}*/
         }catch (Exception e){
             flag="0";
             e.printStackTrace();
@@ -290,7 +290,7 @@ public class ChinaPayServiceImpl implements PayService {
         for(String key:mapBacnk.keySet()){
             try {
                 re=re+ URLDecoder.decode(request.getParameter(key), "utf-8");
-                System.out.println(key+"=="+URLDecoder.decode(request.getParameter(key), "utf-8"));
+                log.info(key + "==" + URLDecoder.decode(request.getParameter(key), "utf-8"));
             } catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -321,6 +321,7 @@ public class ChinaPayServiceImpl implements PayService {
         Map<String,String> rMap=new HashMap<String,String>();
         //初始化支付相关数据
         Map<String,Object> initmap=this.initPayData(orderPay, orderList,orderMoney);
+        log.info("银联分账退款组织数据:"+initmap.toString());
         /*//得到定单中支付分账号个数
         Integer merIdNum=(Integer)initmap.get("merIdNum");*/
         //所有子定单中的取消的数量

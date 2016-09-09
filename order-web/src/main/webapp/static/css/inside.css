@@ -935,6 +935,11 @@ a.red,
 .common-table td.tl {
   text-align: left;
 }
+.common-table th.tl img,
+.common-table td.tl img {
+  height: 120px;
+  width: 120px;
+}
 .ct-lable {
   color: #e60012;
   border: 1px solid #e60012;
