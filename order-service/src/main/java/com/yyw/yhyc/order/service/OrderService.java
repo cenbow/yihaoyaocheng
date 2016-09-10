@@ -17,6 +17,7 @@ import java.util.*;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
@@ -1409,6 +1410,26 @@ public class OrderService {
 		return  ExcelUtil.exportExcel("订单信息", dataset);
 	}
 
+	private void sendCredit(Order od,CreditDubboServiceInterface creditDubboService,String status){
+		SystemPayType systemPayType= systemPayTypeMapper.getByPK(od.getPayTypeId());
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			CreditParams creditParams = new CreditParams();
+			creditParams.setSourceFlowId(od.getFlowId());//订单编码
+			creditParams.setBuyerCode(od.getCustId() + "");
+			creditParams.setSellerCode(od.getSupplyId() + "");
+			creditParams.setBuyerName(od.getCustName());
+			creditParams.setSellerName(od.getSupplyName());
+			creditParams.setOrderTotal(od.getOrgTotal());//订单金额  扣减后的
+			creditParams.setFlowId(od.getFlowId());//订单编码
+			creditParams.setStatus(status);//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
+			creditParams.setReceiveTime(DateHelper.parseTime(od.getReceiveTime()));
+			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+			}
+		}
+	}
+
 	/**
 	 * 系统自动取消订单
 	 * 1在线支付订单24小时系统自动取消
@@ -1416,6 +1437,10 @@ public class OrderService {
 	 * @return
 	 */
 	public void updateCancelOrderForNoPay(){
+		List<Order> lo=orderMapper.listCancelOrderForNoPay();
+		for(Order od:lo){
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+		}
 		orderMapper.cancelOrderForNoPay();
 	}
 
@@ -1424,7 +1449,7 @@ public class OrderService {
 	 * 订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoDelivery(){
+	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService){
 		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
@@ -1439,6 +1464,7 @@ public class OrderService {
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
+				orderSettlement.setConfirmSettlement("1");
 				orderSettlementMapper.save(orderSettlement);
 				Integer payTypeId=od.getPayTypeId();
 				if(!UtilHelper.isEmpty(payTypeId)){
@@ -1448,14 +1474,12 @@ public class OrderService {
 					userDto.setCustName("admin");
 					boolean done=true;
 					try {
-
 						payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
 					}catch (RuntimeException r){
 						done=false;
 						r.printStackTrace();
 					}
 					if(done){//退款成功
-						cal.add(od.getOrderId());
 						//库存
 						productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 					}
@@ -1463,10 +1487,10 @@ public class OrderService {
 				}
 
 			}else{
-				cal.add(od.getOrderId());
-				//库存
-				productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+				sendCredit(od,creditDubboService,"4");
 			}
+			//库存
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
@@ -1488,11 +1512,14 @@ public class OrderService {
 			od.setReceiveTime(now);
 			od.setReceiveType(2);
 			orderMapper.update(od);
+			//账期结算信息
+			orderDeliveryDetailService.saveOrderSettlement(od,null);
 			//根据订单来源进行自动分账 三期 对接
 			log.info("订单发货后7个自然日后系统自动确认收货="+od.toString());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
+
 				OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
 				if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
 					SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
@@ -1512,8 +1539,8 @@ public class OrderService {
 					}
 					log.info("订单发货后7个自然日后系统自动确认收货分账结果="+od.getFlowId()+";"+done);
 				}
-			}else{//分账成功
-				cal.add(od.getOrderId());
+			}else{
+				sendCredit(od,creditDubboService,"2");
 			}
             //如为账期订单则生成结算信息
             orderDeliveryDetailService.saveOrderSettlement(od,null);
@@ -1521,7 +1548,7 @@ public class OrderService {
         //退货异常订单自动确认
 		autoConfirmRefundOrder(creditDubboService);
 		//补货异常订单自动确认
-		cal=autoConfirmReplenishmentOrder(cal);
+		cal=autoConfirmReplenishmentOrder(cal,creditDubboService);
 		//换货异常订单自动确认
 		autoConfirmChangeOrder();
 
@@ -1555,7 +1582,7 @@ public class OrderService {
 	/*
 	 *补货异常订单自动确认
 	 */
-	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal){
+	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService){
 
 		OrderException orderException1=new OrderException();
 		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
@@ -1568,6 +1595,12 @@ public class OrderService {
 			od.setReceiveTime(now);
 			od.setReceiveType(2);
 			orderMapper.update(od);
+			//生成结算信息
+			try {
+				orderDeliveryDetailService.saveOrderSettlement(od,null);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			log.info("补货异常订单自动确认="+o.toString()+";"+od.toString());
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
@@ -1591,6 +1624,8 @@ public class OrderService {
 						cal.add(od.getOrderId());
 					}
 					log.info("补货异常订单自动确认分账结果="+od.toString()+done);
+				}else{
+					sendCredit(od,creditDubboService,"2");
 				}
 
 			}
