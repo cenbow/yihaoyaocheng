@@ -1425,7 +1425,12 @@ public class OrderService {
 		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
+			String now = systemDateMapper.getSystemDate();
 			log.info("订单7个自然日未发货系统自动取消="+od.toString());
+			od.setCancelTime(now);
+			od.setCancelResult("系统自动取消");
+			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoCanceled.getType());
+			orderMapper.update(od);
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
@@ -1440,6 +1445,7 @@ public class OrderService {
 					userDto.setCustName("admin");
 					boolean done=true;
 					try {
+
 						payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
 					}catch (RuntimeException r){
 						done=false;
@@ -1460,10 +1466,9 @@ public class OrderService {
 			}
 
 		}
-
-		if(UtilHelper.isEmpty(cal)) return;
+		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
-		orderMapper. cancelOrderForNoDelivery(cal);
+		//orderMapper. cancelOrderForNoDelivery(cal);
 	}
 
 	/**
@@ -1475,6 +1480,11 @@ public class OrderService {
 		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
+			String now = systemDateMapper.getSystemDate();
+			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+			od.setReceiveTime(now);
+			od.setReceiveType(2);
+			orderMapper.update(od);
 			//根据订单来源进行自动分账 三期 对接
 			log.info("订单发货后7个自然日后系统自动确认收货="+od.toString());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
@@ -1512,9 +1522,9 @@ public class OrderService {
 		//换货异常订单自动确认
 		autoConfirmChangeOrder();
 
-		if(UtilHelper.isEmpty(cal)) return;
+		//if(UtilHelper.isEmpty(cal)) return;
 		//确认收货
-		orderMapper.doneOrderForDelivery(cal);
+		//orderMapper.doneOrderForDelivery(cal);
 	}
 
 	/*
@@ -1550,6 +1560,11 @@ public class OrderService {
 		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
 		for(OrderException o:le1){
 			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
+			String now = systemDateMapper.getSystemDate();
+			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+			od.setReceiveTime(now);
+			od.setReceiveType(2);
+			orderMapper.update(od);
 			log.info("补货异常订单自动确认="+o.toString()+";"+od.toString());
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
