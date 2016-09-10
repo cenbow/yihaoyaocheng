@@ -169,7 +169,7 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
     if(_value == null || _value == "" || typeof _value == "undefined"){
         return;
     }
-    if(!_value.match(reg)){
+    if(!(""+_value).match(reg)){
         $(_this).parent().find('.its-buy-num').val(_preValue);
         return;
     }
