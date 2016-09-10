@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>拒收订单管理</title>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/header.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
     <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
 
@@ -110,9 +110,9 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/orderException/buyer_reject_order_manage.js"></script>
