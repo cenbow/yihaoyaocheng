@@ -1542,8 +1542,6 @@ public class OrderService {
 			}else{
 				sendCredit(od,creditDubboService,"2");
 			}
-            //如为账期订单则生成结算信息
-            orderDeliveryDetailService.saveOrderSettlement(od,null);
 		}
         //退货异常订单自动确认
 		autoConfirmRefundOrder(creditDubboService);
