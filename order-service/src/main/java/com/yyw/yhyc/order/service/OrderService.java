@@ -309,7 +309,7 @@ public class OrderService {
 				continue;
 			}
 
-            /* 创建订单相关的所有信息 */
+            /* 发票类型 */
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
 				orderDto.setBillType(orderCreateDto.getBillType());
 			}
@@ -325,7 +325,10 @@ public class OrderService {
 					continue;
 				}
 			}
+
+			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -571,8 +574,8 @@ public class OrderService {
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
-		/* TODO 删除购物车 */
-//		deleteShoppingCart(orderDto);
+		/* 删除购物车中相关的商品 */
+		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
@@ -1489,7 +1492,7 @@ public class OrderService {
 					boolean done=true;
 					try {
 						payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
-						orderPayManage.updateTakeConfirmOrderInfos(orderCombined.getPayFlowId(),"0000");
+
 					}catch (RuntimeException r){
 						done=false;
 						r.printStackTrace();
@@ -1564,7 +1567,7 @@ public class OrderService {
 					boolean done=true;
 					try {
 						payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-						orderPayManage.updateTakeConfirmOrderInfos(orderCombined.getPayFlowId(),"0000");
+
 					}catch (Exception r){
 						done=false;
 						r.printStackTrace();
@@ -1576,7 +1579,6 @@ public class OrderService {
 				}
 
 			}
-
 			//异常订单收货
 			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
