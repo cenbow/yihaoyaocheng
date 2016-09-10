@@ -1,7 +1,7 @@
 function submitForm(){
     var refunSettlementMoney=$("#refunSettlementMoney").val().trim();
     var remark=$("#remark").val().trim();
-    var reg = /^[0-9]+(.[0-9]{2})?$/;
+    var reg = /^(?!0+(?:\.0+)?$)(?:[1-9]\d*|0)(?:\.\d{1,2})?$/;
     if(!refunSettlementMoney.match(reg) || null==refunSettlementMoney || ""==refunSettlementMoney){
         alert("实际收款金额输入有误，请重新输入");
         return false;

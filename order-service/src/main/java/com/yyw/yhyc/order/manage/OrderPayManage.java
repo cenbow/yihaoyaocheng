@@ -165,21 +165,21 @@ public class OrderPayManage {
         String now = systemDateMapper.getSystemDate();
         if (orderStatus.equals("0000")) {// 打款成功
             for (Order order : listOrder) {
-                if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+               // if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
                     //更新结算信息为已结算
                     orderSettlementService.updateSettlementByMap(order.getFlowId(),1);
-                }
+                //}
             }
         } else {// 打款异常
             for (Order order : listOrder) {
-                if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+                //if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                     order.setOrderStatus(SystemOrderStatusEnum.PaidException.getType());
                     orderMapper.update(order);
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款失败.");
-                }
+               // }
             }
         }
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo end ----");

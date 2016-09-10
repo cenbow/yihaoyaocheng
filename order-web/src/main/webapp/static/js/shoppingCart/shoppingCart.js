@@ -162,10 +162,15 @@ function updateNum(_shoppingCartId,_this){
  * @param _value
  */
 function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
+    var reg = /^[1-9]\d*$/;
     if(_shoppingCartId == null || _shoppingCartId == "" || typeof _shoppingCartId == "undefined"){
         return;
     }
     if(_value == null || _value == "" || typeof _value == "undefined"){
+        return;
+    }
+    if(!(""+_value).match(reg)){
+        $(_this).parent().find('.its-buy-num').val(_preValue);
         return;
     }
     if(_value < 1){

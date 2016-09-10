@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.product.bo.ProductInventory;
@@ -65,6 +66,9 @@ public class OrderService {
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
+
+	@Autowired
+	private OrderPayManage orderPayManage;
 
 	private ProductInventoryManage productInventoryManage;
 	@Autowired
@@ -305,7 +309,7 @@ public class OrderService {
 				continue;
 			}
 
-            /* 创建订单相关的所有信息 */
+            /* 发票类型 */
 			if(UtilHelper.isEmpty(orderDto.getBillType())){
 				orderDto.setBillType(orderCreateDto.getBillType());
 			}
@@ -321,7 +325,10 @@ public class OrderService {
 					continue;
 				}
 			}
+
+			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
 		}
@@ -567,8 +574,8 @@ public class OrderService {
 		/* 订单跟踪信息表 */
 		insertOrderTrace(order);
 
-		/* TODO 删除购物车 */
-//		deleteShoppingCart(orderDto);
+		/* 删除购物车中相关的商品 */
+		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
@@ -1421,7 +1428,12 @@ public class OrderService {
 		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
+			String now = systemDateMapper.getSystemDate();
 			log.info("订单7个自然日未发货系统自动取消="+od.toString());
+			od.setCancelTime(now);
+			od.setCancelResult("系统自动取消");
+			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoCanceled.getType());
+			orderMapper.update(od);
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
@@ -1436,6 +1448,7 @@ public class OrderService {
 					userDto.setCustName("admin");
 					boolean done=true;
 					try {
+
 						payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
 					}catch (RuntimeException r){
 						done=false;
@@ -1456,10 +1469,9 @@ public class OrderService {
 			}
 
 		}
-
-		if(UtilHelper.isEmpty(cal)) return;
+		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
-		orderMapper. cancelOrderForNoDelivery(cal);
+		//orderMapper. cancelOrderForNoDelivery(cal);
 	}
 
 	/**
@@ -1471,6 +1483,11 @@ public class OrderService {
 		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
+			String now = systemDateMapper.getSystemDate();
+			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+			od.setReceiveTime(now);
+			od.setReceiveType(2);
+			orderMapper.update(od);
 			//根据订单来源进行自动分账 三期 对接
 			log.info("订单发货后7个自然日后系统自动确认收货="+od.toString());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
@@ -1480,9 +1497,12 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
 					SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+					UserDto userDto=new UserDto();
+					userDto.setCustName("admin");
 					boolean done=true;
 					try {
-						payService.confirmReceivedOrder(orderCombined.getPayFlowId());
+						payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
+
 					}catch (RuntimeException r){
 						done=false;
 						r.printStackTrace();
@@ -1505,9 +1525,9 @@ public class OrderService {
 		//换货异常订单自动确认
 		autoConfirmChangeOrder();
 
-		if(UtilHelper.isEmpty(cal)) return;
+		//if(UtilHelper.isEmpty(cal)) return;
 		//确认收货
-		orderMapper.doneOrderForDelivery(cal);
+		//orderMapper.doneOrderForDelivery(cal);
 	}
 
 	/*
@@ -1543,12 +1563,17 @@ public class OrderService {
 		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
 		for(OrderException o:le1){
 			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
+			String now = systemDateMapper.getSystemDate();
+			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+			od.setReceiveTime(now);
+			od.setReceiveType(2);
+			orderMapper.update(od);
 			log.info("补货异常订单自动确认="+o.toString()+";"+od.toString());
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
-
+					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
 					Integer payTypeId=od.getPayTypeId();
 					SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
@@ -1557,7 +1582,8 @@ public class OrderService {
 					boolean done=true;
 					try {
 						payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-					}catch (RuntimeException r){
+
+					}catch (Exception r){
 						done=false;
 						r.printStackTrace();
 					}
@@ -1568,7 +1594,6 @@ public class OrderService {
 				}
 
 			}
-
 			//异常订单收货
 			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());

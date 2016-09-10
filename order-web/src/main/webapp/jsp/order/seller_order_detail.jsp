@@ -7,10 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <title>订单详情</title>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
-    <link href="http://static.yaoex.com/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-    <link href="http://static.yaoex.com/css/font-awesome.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/header.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/sidebar.js"></script>
+    <link href="http://yhycstatic.yaoex.com/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <link href="http://yhycstatic.yaoex.com/css/font-awesome.css" type="text/css" rel="stylesheet" />
     <%@ include file="../config.jsp"%>
     <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
 
@@ -581,8 +581,8 @@
 
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
