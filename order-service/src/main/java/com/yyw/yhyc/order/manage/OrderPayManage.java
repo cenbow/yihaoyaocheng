@@ -152,7 +152,7 @@ public class OrderPayManage {
 
 
     // 确认收货更新信息
-    private void updateTakeConfirmOrderInfos(String payFlowId, String orderStatus) throws Exception {
+    public void updateTakeConfirmOrderInfos(String payFlowId, String orderStatus) throws Exception {
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo start ----");
 
         List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
@@ -188,7 +188,7 @@ public class OrderPayManage {
 
 
     // 退款更新信息
-    private void updateRedundOrderInfos(String payFlowId, String orderStatus, String parameter)
+    public void updateRedundOrderInfos(String payFlowId, String orderStatus, String parameter)
             throws Exception {
         log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----");
 

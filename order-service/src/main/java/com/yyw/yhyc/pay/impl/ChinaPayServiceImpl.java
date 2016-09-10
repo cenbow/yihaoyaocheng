@@ -357,9 +357,9 @@ public class ChinaPayServiceImpl implements PayService {
                 //赂银联发起分账请求
                 donePay=this.doneOrderToChianPay(orderPay, date, time, paydate,
                         cancelMoney, multiple, MerSplitMsg, fromWhere);
-                if(donePay.get("respCode").equals("0000")){
-                    //TODO 是否记录分账结果
-                }
+                //分账后进行相关操作
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), donePay.get("respCode"));
+
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
                     //取消定单
@@ -369,7 +369,11 @@ public class ChinaPayServiceImpl implements PayService {
 
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
-                        //TODO 是否记录退款结果
+                        // //退款成功记录相关信息
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0000",cancelPay.get("respMsg"));
+                    }else{
+                        //退款失败记录相关信息
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0001",cancelPay.get("respMsg"));
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
