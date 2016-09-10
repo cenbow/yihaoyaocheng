@@ -175,8 +175,8 @@ public class OrderPayController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/chinaPaySpiltPaymentCallback", method = RequestMethod.POST)
 	public String chinaPaySpiltPaymentCallback(){
-		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
-		payService.spiltPaymentCallback(super.request);
+		//PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
+		//payService.spiltPaymentCallback(super.request);
 		return "success";
 	}
 
@@ -186,8 +186,8 @@ public class OrderPayController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/chinaPayRedundCallBack", method = RequestMethod.POST)
 	public String chinaPayRedundCallBack(){
-		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
-		payService.redundCallBack(super.request);
+		//PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
+		//payService.redundCallBack(super.request);
 		return "success";
 	}
 }

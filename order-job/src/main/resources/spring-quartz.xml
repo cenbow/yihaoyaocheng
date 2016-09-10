@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <beans>
+        <bean id="orderCancelForNoDeliveryJobService" class="com.yyw.yhyc.job.order.service.impl.OrderCancelForNoDeliveryJobServiceImpl"/>
+        <bean id="orderCancelForNoPayJobService" class="com.yyw.yhyc.job.order.service.impl.OrderCancelForNoPayJobServiceImpl"/>
+        <bean id="orderDoneForDeliveryJobService" class="com.yyw.yhyc.job.order.service.impl.OrderDoneForDeliveryJobServiceImpl"/>
+
+        <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            <!-- 添加触发器 -->
+            <property name="triggers">
+                <list>
+                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
+                        <constructor-arg ref="orderCancelForNoDeliveryJobService"/>
+                        <constructor-arg value="0 */1 * * * ?"/>
+                    </bean>
+                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
+                        <constructor-arg ref="orderCancelForNoPayJobService"/>
+                        <constructor-arg value="0 */1 * * * ?"/>
+                    </bean>
+                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
+                        <constructor-arg ref="orderDoneForDeliveryJobService"/>
+                        <constructor-arg value="0 */1 * * * ?"/>
+                    </bean>
+                </list>
+            </property>
+        </bean>
+
+    </beans>
+</beans>

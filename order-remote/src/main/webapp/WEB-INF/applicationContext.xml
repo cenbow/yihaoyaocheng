@@ -36,8 +36,9 @@
 		<constructor-arg index="3" value="${redis.timeout}"/>
 	</bean>-->
 
-	<import resource="spring-dataSource.xml"/>
+	<import resource="classpath*:spring-dataSource.xml"/>
 	<import resource="dubbo-provider.xml"/>
 	<import resource="dubbo-consumer.xml"/>
+	<import resource="classpath*:spring-quartz.xml"/>
 
 </beans>

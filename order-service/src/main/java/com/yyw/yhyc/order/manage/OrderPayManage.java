@@ -152,7 +152,7 @@ public class OrderPayManage {
 
 
     // 确认收货更新信息
-    private void updateTakeConfirmOrderInfos(String payFlowId, String orderStatus) throws Exception {
+    public void updateTakeConfirmOrderInfos(String payFlowId, String orderStatus) throws Exception {
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo start ----");
 
         List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
@@ -165,21 +165,21 @@ public class OrderPayManage {
         String now = systemDateMapper.getSystemDate();
         if (orderStatus.equals("0000")) {// 打款成功
             for (Order order : listOrder) {
-                if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+               // if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
                     //更新结算信息为已结算
                     orderSettlementService.updateSettlementByMap(order.getFlowId(),1);
-                }
+                //}
             }
         } else {// 打款异常
             for (Order order : listOrder) {
-                if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+                //if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                     order.setOrderStatus(SystemOrderStatusEnum.PaidException.getType());
                     orderMapper.update(order);
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款失败.");
-                }
+               // }
             }
         }
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo end ----");
@@ -188,7 +188,7 @@ public class OrderPayManage {
 
 
     // 退款更新信息
-    private void updateRedundOrderInfos(String payFlowId, String orderStatus, String parameter)
+    public void updateRedundOrderInfos(String payFlowId, String orderStatus, String parameter)
             throws Exception {
         log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----");
 
@@ -201,7 +201,7 @@ public class OrderPayManage {
         }
         for (Order o : listOrder) {
             OrderRefund orderRefund = orderRefundMapper.getOrderRefundByOrderId(o.getOrderId());
-            if (UtilHelper.isEmpty(orderRefund)) {
+            if (!UtilHelper.isEmpty(orderRefund)) {
                 orderRefund.setRemark(parameter);
                 if (orderStatus.equals("0000")) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
@@ -213,9 +213,6 @@ public class OrderPayManage {
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
                     List<OrderException> list= orderExceptionMapper.listByProperty(orderException);
                     if(list.size()>0){
-                       /* orderException=list.get(0);
-                        orderException.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
-                        orderExceptionMapper.update(orderException);*/
                         //更新拒收结算为已结算
                         orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3);
                     }

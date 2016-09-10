@@ -18,10 +18,16 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+
         <dependency>
-            <groupId>com.gangling.scheduler</groupId>
-            <artifactId>scheduler-interface</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>4.1.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.3</version>
         </dependency>
 
         <!-- dubbo start -->

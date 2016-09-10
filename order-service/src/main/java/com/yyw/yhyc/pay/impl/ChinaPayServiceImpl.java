@@ -357,9 +357,9 @@ public class ChinaPayServiceImpl implements PayService {
                 //赂银联发起分账请求
                 donePay=this.doneOrderToChianPay(orderPay, date, time, paydate,
                         cancelMoney, multiple, MerSplitMsg, fromWhere);
-                if(donePay.get("respCode").equals("0000")){
-                    //TODO 是否记录分账结果
-                }
+                //分账后进行相关操作
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), donePay.get("respCode"));
+
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
                     //取消定单
@@ -369,7 +369,11 @@ public class ChinaPayServiceImpl implements PayService {
 
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
-                        //TODO 是否记录退款结果
+                        // //退款成功记录相关信息
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0000",cancelPay.get("respMsg"));
+                    }else{
+                        //退款失败记录相关信息
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0001",cancelPay.get("respMsg"));
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
@@ -581,6 +585,26 @@ public class ChinaPayServiceImpl implements PayService {
 
         List<Order> orderList = new ArrayList<Order>();
         orderList.add(order);
+
+        //补货订单 + 原始订单全部收货 不需要退款
+        if(!(orderType == 3 || SystemOrderStatusEnum.BuyerAllReceived.equals(order.getOrderStatus())))
+        {
+            //写入退款记录
+            String now = systemDateMapper.getSystemDate();
+            orderRefund.setCreateUser(userDto.getUserName());
+            orderRefund.setCustId(order.getCustId());
+            orderRefund.setSupplyId(order.getSupplyId());
+            orderRefund.setRefundSum(orderMoney);
+            orderRefund.setRefundFreight(new BigDecimal(0));
+            orderRefund.setOrderId(order.getOrderId());
+            orderRefund.setFlowId(flowId);
+            orderRefund.setCreateTime(now);
+            orderRefund.setRefundDate(now);
+            orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
+            orderRefund.setRefundDesc(refundDesc);
+            orderRefundMapper.save(orderRefund);
+        }
+
         Map<String, String> resultMap = null;
         try {
             resultMap = this.sendPayQuestForOrder(orderPay,orderList,orderMoney);
@@ -593,23 +617,6 @@ public class ChinaPayServiceImpl implements PayService {
             log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
             throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
         }
-
-        String now = systemDateMapper.getSystemDate();
-        orderRefund.setCreateUser(userDto.getUserName());
-        orderRefund.setCustId(order.getCustId());
-        orderRefund.setSupplyId(order.getSupplyId());
-        orderRefund.setRefundSum(order.getOrgTotal());
-        orderRefund.setRefundFreight(new BigDecimal(0));
-        orderRefund.setOrderId(order.getOrderId());
-        orderRefund.setFlowId(flowId);
-        orderRefund.setCreateTime(now);
-        orderRefund.setRefundDate(now);
-        orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
-        orderRefund.setRefundDesc(refundDesc);
-        //补货订单 + 原始订单全部收货 不需要退款
-        if(orderType == 3 || SystemOrderStatusEnum.BuyerAllReceived.equals(order.getOrderStatus()))
-            return;
-        orderRefundMapper.save(orderRefund);
     }
 
     @Override
