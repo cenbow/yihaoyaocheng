@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.product.bo.ProductInventory;
@@ -65,6 +66,9 @@ public class OrderService {
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
+
+	@Autowired
+	private OrderPayManage orderPayManage;
 
 	private ProductInventoryManage productInventoryManage;
 	@Autowired
@@ -1480,9 +1484,12 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
 					SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+					UserDto userDto=new UserDto();
+					userDto.setCustName("admin");
 					boolean done=true;
 					try {
-						payService.confirmReceivedOrder(orderCombined.getPayFlowId());
+						payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
+						orderPayManage.updateTakeConfirmOrderInfos(orderCombined.getPayFlowId(),"0000");
 					}catch (RuntimeException r){
 						done=false;
 						r.printStackTrace();
@@ -1548,7 +1555,7 @@ public class OrderService {
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
-
+					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
 					Integer payTypeId=od.getPayTypeId();
 					SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
@@ -1557,7 +1564,8 @@ public class OrderService {
 					boolean done=true;
 					try {
 						payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-					}catch (RuntimeException r){
+						orderPayManage.updateTakeConfirmOrderInfos(orderCombined.getPayFlowId(),"0000");
+					}catch (Exception r){
 						done=false;
 						r.printStackTrace();
 					}
