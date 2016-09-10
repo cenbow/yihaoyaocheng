@@ -201,7 +201,7 @@ public class OrderPayManage {
         }
         for (Order o : listOrder) {
             OrderRefund orderRefund = orderRefundMapper.getOrderRefundByOrderId(o.getOrderId());
-            if (UtilHelper.isEmpty(orderRefund)) {
+            if (!UtilHelper.isEmpty(orderRefund)) {
                 orderRefund.setRemark(parameter);
                 if (orderStatus.equals("0000")) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
@@ -213,9 +213,6 @@ public class OrderPayManage {
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
                     List<OrderException> list= orderExceptionMapper.listByProperty(orderException);
                     if(list.size()>0){
-                       /* orderException=list.get(0);
-                        orderException.setOrderStatus(SystemOrderExceptionStatusEnum.Refunded.getType());
-                        orderExceptionMapper.update(orderException);*/
                         //更新拒收结算为已结算
                         orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3);
                     }
