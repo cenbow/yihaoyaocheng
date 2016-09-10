@@ -1492,7 +1492,7 @@ public class OrderService {
 					boolean done=true;
 					try {
 						payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
-						orderPayManage.updateTakeConfirmOrderInfos(orderCombined.getPayFlowId(),"0000");
+
 					}catch (RuntimeException r){
 						done=false;
 						r.printStackTrace();
@@ -1567,7 +1567,7 @@ public class OrderService {
 					boolean done=true;
 					try {
 						payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-						orderPayManage.updateTakeConfirmOrderInfos(orderCombined.getPayFlowId(),"0000");
+
 					}catch (Exception r){
 						done=false;
 						r.printStackTrace();
@@ -1579,7 +1579,6 @@ public class OrderService {
 				}
 
 			}
-
 			//异常订单收货
 			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
