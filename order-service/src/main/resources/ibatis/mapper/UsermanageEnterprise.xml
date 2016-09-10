@@ -45,6 +45,7 @@
 		<result column="is_check" property="isCheck"/>
 		<result column="enterprise_code" property="enterpriseCode"/>
 		<result column="is_3merge1" property="is3merge1"/>
+		<result column="order_samount" property="orderSamount"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -76,6 +77,7 @@
 		, is_check
 		, enterprise_code
 		, is_3merge1
+		, order_samount
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -106,6 +108,7 @@
 				, is_check
 				, enterprise_code
 				, is_3merge1
+				, order_samount
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -137,6 +140,7 @@
 		, is_check
 		, enterprise_code
 		, is_3merge1
+		, order_samount
 	</sql>
 	
 	<sql id="commonCondition">
@@ -224,6 +228,9 @@
 		<if test="is3merge1!= null and is3merge1!= ''"> 
 			AND is_3merge1=#{is3merge1}
 		</if>
+		<if test="orderSamount!= null and orderSamount!= ''">
+			AND order_samount=#{orderSamount}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="UsermanageEnterprise">
@@ -258,6 +265,7 @@
 				, #{isCheck}
 				, #{enterpriseCode}
 				, #{is3merge1}
+				, #{orderSamount}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="UsermanageEnterprise">
@@ -289,7 +297,8 @@
 			, is_use=#{isUse} 
 			, is_check=#{isCheck} 
 			, enterprise_code=#{enterpriseCode} 
-			, is_3merge1=#{is3merge1} 
+			, is_3merge1=#{is3merge1}
+		    , order_samount=#{orderSamount}
 		WHERE id = #{id}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
