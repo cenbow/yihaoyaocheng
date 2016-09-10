@@ -422,7 +422,7 @@ public class OrderDeliveryDetailService {
 	}
 
 	/**
-	 * 账期订单卖家收货生成结算记录
+	 * 卖家收货（账期支付，银联支付）,自动收货，手动收货，生成结算记录
 	 * @param order
 	 * @throws Exception
 	 */
