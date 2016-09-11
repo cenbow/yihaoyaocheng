@@ -1472,26 +1472,14 @@ public class OrderService {
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
-					boolean done=true;
-					try {
-						payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
-					}catch (RuntimeException r){
-						done=false;
-						r.printStackTrace();
-					}
-					if(done){//退款成功
-						//库存
-						productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
-					}
-					log.info("订单7个自然日未发货系统自动取消退款结果="+od.getFlowId()+";"+done);
+					payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
+					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 				}
-
 			}else{
 				sendCredit(od,creditDubboService,"4");
 			}
 			//库存
 			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
-
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -1526,18 +1514,8 @@ public class OrderService {
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
-					boolean done=true;
-					try {
-						payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
-
-					}catch (RuntimeException r){
-						done=false;
-						r.printStackTrace();
-					}
-					if(done){//分账成功
-						cal.add(od.getOrderId());
-					}
-					log.info("订单发货后7个自然日后系统自动确认收货分账结果="+od.getFlowId()+";"+done);
+					payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
+					cal.add(od.getOrderId());
 				}
 			}else{
 				sendCredit(od,creditDubboService,"2");
@@ -1580,7 +1558,7 @@ public class OrderService {
 	/*
 	 *补货异常订单自动确认
 	 */
-	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService){
+	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService)throws Exception{
 
 		OrderException orderException1=new OrderException();
 		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
@@ -1594,11 +1572,7 @@ public class OrderService {
 			od.setReceiveType(2);
 			orderMapper.update(od);
 			//生成结算信息
-			try {
-				orderDeliveryDetailService.saveOrderSettlement(od,null);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			orderDeliveryDetailService.saveOrderSettlement(od,null);
 			log.info("补货异常订单自动确认="+o.toString()+";"+od.toString());
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
@@ -1610,18 +1584,8 @@ public class OrderService {
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
-					boolean done=true;
-					try {
-						payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-
-					}catch (Exception r){
-						done=false;
-						r.printStackTrace();
-					}
-					if(done){//成功分账
-						cal.add(od.getOrderId());
-					}
-					log.info("补货异常订单自动确认分账结果="+od.toString()+done);
+					payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
+					cal.add(od.getOrderId());
 				}else{
 					sendCredit(od,creditDubboService,"2");
 				}
