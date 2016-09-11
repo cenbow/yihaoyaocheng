@@ -7,8 +7,8 @@
 <head>
     <meta charset="UTF-8">
     <title>审核订单</title>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/header.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp" %>
     <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
     <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
@@ -42,7 +42,7 @@
                             <input type="hidden" value="${orderExceptionDto.exceptionId}" id="exceptionId"/>
                             <div class="form-group">
                                 <label class="col-xs-2 control-label">买家拒收说明:</label>
-                                <div class="col-xs-9 control-label text-left">货物已损坏，双方同意当场销毁</div>
+                                <div class="col-xs-9 control-label text-left">${orderExceptionDto.returnDesc}</div>
                             </div>
                             <div class="form-group">
                                 <label  class="col-xs-2 control-label">审核说明：</label>
@@ -147,7 +147,7 @@
                                             <td>
                                                 <div class="clearfix">
                                                     <div class="fl">
-                                                        <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                        <img  class="productImageUrl" spuCode="${orderReturnDto.spuCode}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                     </div>
                                                     <div class="fl fontbox">
                                                         <p class="title">${orderReturnDto.productName}</p>
@@ -195,8 +195,9 @@
 </body>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/common.js"></script>
 <script type="text/javascript">
     function review(type){
         if(type == 2 || type == 3){

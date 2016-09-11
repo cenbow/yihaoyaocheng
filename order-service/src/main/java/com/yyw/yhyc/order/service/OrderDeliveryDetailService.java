@@ -410,8 +410,9 @@ public class OrderDeliveryDetailService {
 
 		}
 		//正常全部收货确认收货分账
-		if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
-			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+		SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+		if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())
+				&&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())){
 			PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 			payService.handleRefund(user,1,order.getFlowId(),"");
 		}
@@ -421,7 +422,7 @@ public class OrderDeliveryDetailService {
 	}
 
 	/**
-	 * 账期订单卖家收货生成结算记录
+	 * 卖家收货（账期支付，银联支付）,自动收货，手动收货，生成结算记录
 	 * @param order
 	 * @throws Exception
 	 */
@@ -448,7 +449,6 @@ public class OrderDeliveryDetailService {
 		    orderSettlement.setCreateTime(now);
 		    orderSettlement.setOrderTime(order.getCreateTime());
 		    orderSettlement.setSettlementMoney(order.getOrgTotal());
-		    orderSettlementMapper.save(orderSettlement);
 		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())){//在线支付
 			if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
 				//如果是招商支付则加上 买家id 银联支付不加

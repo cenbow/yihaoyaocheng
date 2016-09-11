@@ -28,6 +28,7 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 
@@ -174,6 +175,7 @@ public class OrderController extends BaseJsonController {
 
 			String productPrice ="0";
 			try{
+				logger.info("统一校验订单商品接口,查询商品价格，请求参数,supply_id=" + orderDto.getSupplyId() + ",spuCode=" + productInfoDto.getSpuCode());
 				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode());
 			}catch (Exception e){
 				logger.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
@@ -261,6 +263,12 @@ public class OrderController extends BaseJsonController {
 				CreditDubboResult creditDubboResult = null;
 				try{
 					creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+					/* 账期订单信息发送成功后，更新该订单的支付状态与支付时间 */
+					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getMessage())){
+						order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+						order.setPayTime(systemDateService.getSystemDate());
+						update(order);
+					}
 				}catch (Exception e){
 					logger.error(e.getMessage());
 				}
@@ -629,6 +637,7 @@ public class OrderController extends BaseJsonController {
         pagination.setPageSize(requestModel.getPageSize());
 		OrderDto orderDto = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
@@ -674,10 +683,6 @@ public class OrderController extends BaseJsonController {
 	@RequestMapping(value = "/sellerCancelOrder", method = RequestMethod.POST)
 	@ResponseBody
 	public void sellerCancelOrder(@RequestBody Order order){
-		/**
-		 *  http://localhost:8088/order/sellerCancelOrder
-		 *  {"orderId":1,"cancelResult":"代表月亮取消订单"}
-		 */
 		UserDto userDto = super.getLoginUser();
 		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
 

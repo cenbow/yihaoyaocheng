@@ -175,10 +175,10 @@ public class ChinaPayServiceImpl implements PayService {
         map.put("TranTime", fDate.split(",")[1]);
         String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         map.put("OrderAmt", OrderAmt);
-        map.put("MerPageUrl", PayUtil.getValue("payReturnHost") + "/buyerOrderManage");
+        map.put("MerPageUrl", PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
 
-        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/orderPay/chinaPayCallback");
-        log.info(PayUtil.getValue("payReturnHost") + "/orderPay/chinaPayCallback");
+        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
+        log.info(PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
         String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
         log.info("CommodityMsg=" + CommodityMsg);
         map.put("CommodityMsg", CommodityMsg);
@@ -209,15 +209,17 @@ public class ChinaPayServiceImpl implements PayService {
             Map<String,Object> map=new HashMap<String,Object>();
             //解析参数转成map
             map=getParameter(request);
-            if(SignUtil.verify(map)){
+            //if(SignUtil.verify(map)){
+            if(true){
                 String orderStatus=map.get("OrderStatus").toString();
                 if(orderStatus.equals("0000")){
                     map.put("flowPayId",map.get("MerOrderNo"));
                     map.put("money",map.get("OrderAmt"));
+                    //回调更新信息
+                    orderPayManage.orderPayReturn(map);
                 }
             }
-            //回调更新信息
-            orderPayManage.orderPayReturn(map);
+
         }catch (Exception e){
             flag="0";
             e.printStackTrace();
@@ -242,11 +244,11 @@ public class ChinaPayServiceImpl implements PayService {
             printRequestParam("确认收货后回调", request);
             //解析参数转成map
             map=getParameter(request);
-            if(SignUtil.verify(map)){
+            /*if(SignUtil.verify(map)){*/
                 map.put("flowPayId",map.get("OriOrderNo"));
-                map.put("orderStatus", map.get("orderStatus"));
+                map.put("orderStatus", map.get("OrderStatus"));
                 orderPayManage.takeConfirmReturn(map);
-            }
+            /*}*/
         }catch (Exception e){
             flag="0";
             e.printStackTrace();
@@ -268,11 +270,11 @@ public class ChinaPayServiceImpl implements PayService {
         try{
             printRequestParam("退款回调",request);
             map=getParameter(request);
-            if(SignUtil.verify(map)){
+       /*     if(SignUtil.verify(map)){*/
                 map.put("flowPayId",map.get("OriOrderNo"));
-                map.put("orderStatus", map.get("orderStatus"));
+                map.put("orderStatus", map.get("OrderStatus"));
                 orderPayManage.redundCallBack(map);
-            }
+            /*}*/
         }catch (Exception e){
             flag="0";
             e.printStackTrace();
@@ -288,7 +290,7 @@ public class ChinaPayServiceImpl implements PayService {
         for(String key:mapBacnk.keySet()){
             try {
                 re=re+ URLDecoder.decode(request.getParameter(key), "utf-8");
-                System.out.println(key+"=="+URLDecoder.decode(request.getParameter(key), "utf-8"));
+                log.info(key + "==" + URLDecoder.decode(request.getParameter(key), "utf-8"));
             } catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -319,6 +321,7 @@ public class ChinaPayServiceImpl implements PayService {
         Map<String,String> rMap=new HashMap<String,String>();
         //初始化支付相关数据
         Map<String,Object> initmap=this.initPayData(orderPay, orderList,orderMoney);
+        log.info("银联分账退款组织数据:"+initmap.toString());
         /*//得到定单中支付分账号个数
         Integer merIdNum=(Integer)initmap.get("merIdNum");*/
         //所有子定单中的取消的数量
@@ -354,9 +357,9 @@ public class ChinaPayServiceImpl implements PayService {
                 //赂银联发起分账请求
                 donePay=this.doneOrderToChianPay(orderPay, date, time, paydate,
                         cancelMoney, multiple, MerSplitMsg, fromWhere);
-                if(donePay.get("respCode").equals("0000")){
-                    //TODO 是否记录分账结果
-                }
+                //分账后进行相关操作
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), donePay.get("respCode"));
+
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
                     //取消定单
@@ -366,7 +369,11 @@ public class ChinaPayServiceImpl implements PayService {
 
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
-                        //TODO 是否记录退款结果
+                        // //退款成功记录相关信息
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0000",cancelPay.get("respMsg"));
+                    }else{
+                        //退款失败记录相关信息
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0001",cancelPay.get("respMsg"));
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
@@ -480,7 +487,7 @@ public class ChinaPayServiceImpl implements PayService {
         splitMap.put("OrderAmt", new Integer(orderPay.getPayMoney().multiply(multiple).intValue()).toString());//定单金额，需要转过来
         splitMap.put("OriOrderNo", orderPay.getPayFlowId());//原定单号 需要传输
         // 返回参数请参考 (新一代商户接入手册V2.1-) 后续类交易接口 的异步返回报文章
-        splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/orderPay/chinaPaySpiltPaymentCallback");//不需要转过来
+        splitMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPaySpiltPaymentCallback");//不需要转过来
         splitMap.put("MerSplitMsg", MerSplitMsg);//分账信息，需要传输过来
         splitMap.put("fromWhere", fromWhere);
         log.info(orderPay.getPayFlowId() + "分账请求参数= " + splitMap.toString());
@@ -503,7 +510,7 @@ public class ChinaPayServiceImpl implements PayService {
         sendMap.put("TranDate", date);//当前交易日期
         sendMap.put("TranTime", time);//当前交易时间
         sendMap.put("OriTranDate", paydate);
-        sendMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "/orderPay/chinaPayRedundCallBack");//要转过来,成功后会返回应答
+        sendMap.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayRedundCallBack");//要转过来,成功后会返回应答
         sendMap.put("OriOrderNo", orderPay.getPayFlowId());//原定单号 需要传输
         sendMap.put("RefundAmt", new Integer(cancelMoney.multiply(multiple).intValue()).toString());//退款金额 需要传输
         sendMap.put("MerSplitMsg", RedundMerSplitMsg);//分账信息，需要传输过来
@@ -578,6 +585,26 @@ public class ChinaPayServiceImpl implements PayService {
 
         List<Order> orderList = new ArrayList<Order>();
         orderList.add(order);
+
+        //补货订单 + 原始订单全部收货 不需要退款
+        if(!(orderType == 3 || SystemOrderStatusEnum.BuyerAllReceived.equals(order.getOrderStatus())))
+        {
+            //写入退款记录
+            String now = systemDateMapper.getSystemDate();
+            orderRefund.setCreateUser(userDto.getUserName());
+            orderRefund.setCustId(order.getCustId());
+            orderRefund.setSupplyId(order.getSupplyId());
+            orderRefund.setRefundSum(orderMoney);
+            orderRefund.setRefundFreight(new BigDecimal(0));
+            orderRefund.setOrderId(order.getOrderId());
+            orderRefund.setFlowId(flowId);
+            orderRefund.setCreateTime(now);
+            orderRefund.setRefundDate(now);
+            orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
+            orderRefund.setRefundDesc(refundDesc);
+            orderRefundMapper.save(orderRefund);
+        }
+
         Map<String, String> resultMap = null;
         try {
             resultMap = this.sendPayQuestForOrder(orderPay,orderList,orderMoney);
@@ -590,22 +617,6 @@ public class ChinaPayServiceImpl implements PayService {
             log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
             throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
         }
-
-        String now = systemDateMapper.getSystemDate();
-        orderRefund.setCreateUser(userDto.getUserName());
-        orderRefund.setCustId(order.getCustId());
-        orderRefund.setSupplyId(order.getSupplyId());
-        orderRefund.setRefundSum(order.getOrgTotal());
-        orderRefund.setRefundFreight(new BigDecimal(0));
-        orderRefund.setFlowId(flowId);
-        orderRefund.setCreateTime(now);
-        orderRefund.setRefundDate(now);
-        orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
-        orderRefund.setRefundDesc(refundDesc);
-        //补货订单 + 原始订单全部收货 不需要退款
-        if(orderType == 3 || SystemOrderStatusEnum.BuyerAllReceived.equals(order.getOrderStatus()))
-            return;
-        orderRefundMapper.save(orderRefund);
     }
 
     @Override

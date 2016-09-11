@@ -10,6 +10,8 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -29,7 +31,9 @@ public class HttpRequestHandler {
 	private static final String cardResveredKey = "CardTranData";
 	private static final String signatureField = "Signature";
 	private static final String queryKeys=",Version,MerId,MerOrderNo,TranDate,TranTime,TranType,BusiType,TranReserved,Signature,";
-	
+
+
+	private static final Logger log = LoggerFactory.getLogger(HttpRequestHandler.class);
 
 	public HttpRequestHandler() {
 		// TODO Auto-generated constructor stub
@@ -40,7 +44,7 @@ public class HttpRequestHandler {
 	 * 
 	 */
 	public static Map<String, String> executePostHttpRequest(Map<String, Object> params, String action) {
-		System.out.println("银联请求参数："+params.toString());
+		log.info("银联请求参数：" + params.toString());
 		HttpClient client = HttpClientUtil.getHttpClient();
 		PostMethod post = new PostMethod(action);
 		post.addRequestHeader("User-Agent", "Mozilla/4.0");
@@ -56,17 +60,17 @@ public class HttpRequestHandler {
 			
 			//后台http请求状态
 			if(status!=200){
-			  System.out.println("银联响应异常结果："+returnStr);
+				log.info("银联响应异常结果：" + returnStr);
 			   return getErrorMap();
 			}else{
-			  System.out.println("银联响应结果："+returnStr);
+				log.info("银联响应结果：" + returnStr);
 			}
 		} catch (HttpException e) {
-			System.out.println("银联响应异常结果："+returnStr);
+			log.info("银联响应异常结果：" + returnStr);
 			e.printStackTrace();
 			return getErrorMap();
 		} catch (IOException e) {
-			System.out.println("银联响应异常结果："+returnStr);
+			log.info("银联响应异常结果：" + returnStr);
 			e.printStackTrace();
 			return getErrorMap();
 		}
@@ -76,10 +80,10 @@ public class HttpRequestHandler {
 		Map<String, String> reponse= StringUtil.paserStrtoMap(returnStr);
 		Map<String, String> reponseOld=StringUtil.paserStrtoMap(returnStrOld);
 		if(SignUtil.verify(reponseOld)){
-			System.out.println("银联响签名结果：true");
+			log.info("银联响签名结果：true");
 			return reponse;
 		}else{
-			System.out.println("银联响签名结果：false");
+			log.info("银联响签名结果：false");
 		}
 		
 		return reponse;

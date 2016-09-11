@@ -139,6 +139,7 @@ public class ShoppingCartController extends BaseJsonController {
 				map.put("seller_code", shoppingCartDto.getSupplyId());
 
 				int minimumPacking = 1;
+				String unit = "";
 				int saleStart = 1;
 				List productList = null;
 				try{
@@ -154,8 +155,10 @@ public class ShoppingCartController extends BaseJsonController {
 					JSONObject productJson = JSONObject.fromObject(productList.get(0));
 					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
 					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : (int) productJson.get("wholesale_num");
+					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : (String) productJson.get("unit");
 				}
-				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装单位
+				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
+				shoppingCartDto.setUnit(unit);//最小拆零包装单位
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 			}

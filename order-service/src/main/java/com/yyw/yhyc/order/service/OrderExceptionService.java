@@ -273,7 +273,7 @@ public class OrderExceptionService {
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
 		orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
-		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())){
+		if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())){
 			//如银联支付 只有买家看到
 			orderSettlement.setCustId(orderException.getCustId());
 		}else {
@@ -607,9 +607,12 @@ public class OrderExceptionService {
 			order.setUpdateUser(userDto.getUserName());
 			count = orderMapper.update(order);
 		}
+
 		SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-		PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-		payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
+		if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())){
+			PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+			payService.handleRefund(userDto,2,oe.getExceptionOrderId(),"卖家审核通过拒收订单");
+		}
 
 		if(count == 0){
 			log.error("原始订单更新失败,order info :"+order);
@@ -1491,10 +1494,11 @@ public class OrderExceptionService {
 				order.setUpdateUser(userDto.getUserName());
 				orderMapper.update(order);
 				createOrderTrace(order, userDto, now, 2, "买家部分收货");
-
 				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-				PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
-				payService.handleRefund(userDto,3,orderException.getExceptionOrderId(),"买家补货确认收货");
+				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())){
+					PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
+					payService.handleRefund(userDto,3,orderException.getExceptionOrderId(),"买家补货确认收货");
+				}
 			} else {
 				log.info("订单状态不正确:" + orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");

@@ -56,4 +56,6 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public List<Order> listOrderByPayFlowId(String payFlowId);
 
 	public void updateOrderPayStatusByPk(Map<String,Object> orders);
+
+	public List<Order> listCancelOrderForNoPay();
 }

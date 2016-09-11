@@ -1,21 +1,19 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>库存管理</title>
-  <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
-  <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
+  <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/header.js"></script>
+  <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/sidebar.js"></script>
   <%@ include file="../config.jsp" %>
   <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
+
   <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
+
 </head>
 <body>
-<!--#include file="header.asp" -->
-<!--#include file="sidebar.asp" -->
+
 <!--框架右侧内容 start-->
 <div id="main-content" class="main-content">
   <div class="wrapper">
@@ -100,7 +98,7 @@
                     <th>生产企业</th>
                     <th>当前库存</th>
                     <th>冻结库存</th>
-                    <th>可售库存</th>
+                    <th>前端可售库存</th>
                     <th>是否缺货</th>
                     <th>预警库存</th>
                     <th>更新时间</th>
@@ -225,17 +223,9 @@
 
 </body>
 
-<script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/productInventory/product_inventory_manage.js"></script>
-<script>
-  $(".cancel_order").click(function(){
-    $("#myModal1").modal();
-  });
-  $("#delete").click(function(){
-    alertModal("确定要删除吗？");
-  });
-</script>

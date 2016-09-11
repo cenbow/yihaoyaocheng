@@ -12,6 +12,8 @@ package com.yyw.yhyc.usermanage.bo;
 
 import com.yyw.yhyc.bo.Model;
 
+import java.math.BigDecimal;
+
 public class UsermanageEnterprise extends Model{
 
 	/**
@@ -158,6 +160,11 @@ public class UsermanageEnterprise extends Model{
 	  *	是否三证合一（1:是，0：否）
 	  */
 	private Byte is3merge1;
+
+	/**
+	 * 订单起售金额
+	 */
+	private BigDecimal orderSamount;
 
 
 	/**
@@ -607,7 +614,14 @@ public class UsermanageEnterprise extends Model{
 	{
 		this.is3merge1 = is3merge1;
 	}
-	
+
+	public BigDecimal getOrderSamount() {
+		return orderSamount;
+	}
+
+	public void setOrderSamount(BigDecimal orderSamount) {
+		this.orderSamount = orderSamount;
+	}
 
 	public String toString()
 	{
@@ -639,7 +653,8 @@ public class UsermanageEnterprise extends Model{
 					", isUse=" + isUse + 
 					", isCheck=" + isCheck + 
 					", enterpriseCode=" + enterpriseCode + 
-					", is3merge1=" + is3merge1 + 
+					", is3merge1=" + is3merge1 +
+					", orderSamount=" + orderSamount +
 				"]";
 	}
 }

@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 
 @Controller
 @RequestMapping(value = "/order/orderSettlement")
@@ -47,8 +48,10 @@ public class OrderSettlementController extends BaseJsonController {
 	{
 		OrderSettlement orderSettlement= orderSettlementService.getByPK(key);
 		if(orderSettlement!=null && orderSettlement.getSettlementMoney()!=null && orderSettlement.getRefunSettlementMoney()!=null){
-			if(orderSettlement.getRefunSettlementMoney().intValue()!=0 && orderSettlement.getRefunSettlementMoney().intValue()!=0){
+			if(orderSettlement.getRefunSettlementMoney().doubleValue()>0 && orderSettlement.getRefunSettlementMoney().doubleValue()>0){
 				orderSettlement.setDifferentMoney(orderSettlement.getRefunSettlementMoney().subtract(orderSettlement.getSettlementMoney()));
+			}else {
+				orderSettlement.setDifferentMoney(new BigDecimal(0));
 			}
 		}
 		return orderSettlement;

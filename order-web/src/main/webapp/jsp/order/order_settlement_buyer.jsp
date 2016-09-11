@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>结算管理-应付</title>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/header.js"></script>
-    <script type="text/javascript" src="http://static.yaoex.com/jsp/common/sidebar.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/header.js"></script>
+    <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/sidebar.js"></script>
     <%@ include file="../config.jsp"%>
     <link rel="Shortcut Icon" href="${STATIC_URL}/static/images/enterprise_new/yjs.ico">
     <link href="${STATIC_URL}/static/css/common.css" rel="stylesheet" />
@@ -47,6 +47,7 @@
                                         <option value="1">采购货款</option>
                                         <option value="2">退货货款</option>
                                         <option value="3">拒收</option>
+                                        <option value="4">取消订单退款</option>
                                 </select>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">订单号</label>
@@ -196,8 +197,8 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="http://static.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://static.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
 <script>
 $(".editbtn").click(function(){
 $("#myModal1").modal();
@@ -206,7 +207,7 @@ $("#delete").click(function(){
 alertModal("确定要删除吗？");
 });
 </script>
-<script type="text/javascript" src="http://static.yaoex.com/jsp/common/footer.js"></script>
+<script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_settlement_buyer.js"></script>

@@ -1137,6 +1137,17 @@
 		             and create_time <![CDATA[<]]> date_add(sysdate(), interval -7 day))
 	</update>
 
+	<select id="listCancelOrderForNoPay"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE
+		(pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=1) and order_status=1
+		and create_time <![CDATA[<]]> date_add(sysdate(), interval -1 day))
+		or
+		(pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=3) and order_status=1
+		and create_time <![CDATA[<]]> date_add(sysdate(), interval -7 day))
+	</select>
+
 	<select id="listOrderForNoDelivery"  resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
@@ -1163,7 +1174,7 @@
 	</select>
 
 	<update id="doneOrderForDelivery" parameterType="map">
-		update t_order  set order_status=11 WHERE
+		update t_order  set order_status=11,receive_time=sysdate(),receive_Type=2 WHERE
 		order_status=6 and
 		<foreach collection="list" index="index" item="id"
 				 open=" order_id in(" separator="," close=") ">
