@@ -16,8 +16,31 @@ function deleteShoppingCart(_shoppingCartId){
 
         }
     })
-    
 }
+
+function deleteSelectedShoppingCart(_shoppingCartId){
+
+    //TODO 删除已选中的
+
+    // if(_shoppingCartId == null || _shoppingCartId == "" || typeof _shoppingCartId == "undefined"){
+    //     return;
+    // }
+    // var _data = {"list":[_shoppingCartId]};
+    // $.ajax({
+    //     url:ctx + "/shoppingCart/delete",
+    //     data:JSON.stringify(_data),
+    //     type:"post",
+    //     dataType:"json",   //返回参数类型
+    //     contentType :"application/json",   //请求参数类型
+    //     success:function(data){
+    //         console.info(data);
+    //     },
+    //     error:function(){
+    //
+    //     }
+    // })
+}
+
 
 function additem(e,value){
     var inputObject = $(e).parent().find('.its-buy-num');
@@ -154,13 +177,13 @@ function updateOrderSaleAmount(){
             orderSamountObject.attr("needPrice",Number(0));
             $(e).parents('.order-holder').find('.need-price').html(fmoney(0));
             $(e).parents('.order-holder').find('.holder-top p').hide();
-            $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
+            // $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
         }else{
             var needPrice = (Number(orderSamount) - Number( buyedOrderAmount)).toFixed(2);
             orderSamountObject.attr("needPrice",needPrice);
             $(e).parents('.order-holder').find('.need-price').html(fmoney(needPrice));
             $(e).parents('.order-holder').find('.holder-top p').show();
-            $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
+            // $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
         }
     });
     
@@ -380,7 +403,17 @@ $(function() {
             totalSum();
             removeSelectedShoppingCart();
         }else{
-            $(this).addClass('select-all');
+            //全选：是否符合订单起售金额
+            var obj = $(this).parents('.order-holder').find("input[name='orderSamount']");
+            var needPrice = obj.attr("needPrice");
+
+            //全选:排除无库存
+            var holderTop = $(this).parents('.order-holder').find('.holder-list');
+            holderTop.each(function(){
+                if( !$(this).hasClass("no-stock") && Number(needPrice) <= 0 ){
+                    $(this).addClass('select-all');
+                }
+            });
             totalItem();
             totalSum();
             getSelectedShoppingCart();
@@ -407,16 +440,23 @@ $(function() {
             $(this).parent().parent().find('.cart-checkbox').removeClass('select-all');
             removeSelectedShoppingCart();
         }else{
-            //排除无库存 全选
+
+            //全选：是否符合订单起售金额
+            var obj = $(this).parents('.order-holder').find("input[name='orderSamount']");
+            var needPrice = obj.attr("needPrice");
+
+            //全选:排除无库存
             var holderTop = $(this).parents('.order-holder').find('.holder-list');
             holderTop.each(function(){
-                $(this).find('.cart-checkbox').addClass('select-all');
-                $(this).parents('.order-holder').find('.holder-top .cart-checkbox').addClass('select-all');
+                if( !$(this).hasClass("no-stock") && Number(needPrice) <= 0 ){
+                    $(this).find('.cart-checkbox').addClass('select-all');
+                    $(this).parents('.order-holder').find('.holder-top .cart-checkbox').addClass('select-all');
+                }
             });
-            getSelectedShoppingCart();
         }
         totalItem();
         totalSum();
+        getSelectedShoppingCart();
     });
     //删除选中商品
     $('.delete-items').click(function(){
@@ -464,26 +504,33 @@ $(function() {
                     console.log('222');
                 }
             });
-        }else if($('.order-holder:first .cart-checkbox').hasClass('select-all')){
+        }else if($('.order-holder .cart-checkbox').hasClass('select-all')){
 
+            var canSubmit = true; 
             $("input[name='orderSamount']").each(function(index,element){
                 var needPrice = $(this).attr("needPrice");
                 // console.info("needPrice =" + needPrice );
                 if(Number(needPrice) > 0 ){
-                    new Dialog({
-                        title:'提示',
-                        content:'<p class="f14 mt40">你有部分商品金额低于供货商的发货标准，<br>此商品无法结算，是否继续？</p>',
-                        cancel:'取消',
-                        ok:'确定',
-                        afterOk:function(){
-                            submitCheckOrderPage();
-                        },
-                        afterClose:function(){
-                            console.log('222');
-                        }
-                    });    
+                    canSubmit = false;
                 }
             });
+            if(!canSubmit){
+                new Dialog({
+                    title:'提示',
+                    content:'<p class="f14 mt40">你有部分商品金额低于供货商的发货标准，<br>此商品无法结算，是否继续？</p>',
+                    cancel:'取消',
+                    ok:'确定',
+                    afterOk:function(){
+                        submitCheckOrderPage();
+                    },
+                    afterClose:function(){
+                        console.log('222');
+                    }
+                });    
+            }else{
+                submitCheckOrderPage();
+            }
+            
         }else if($('.select-all').hasClass('checkbox-disable')){
             // 缺货 无库存
             new Dialog({
@@ -554,6 +601,17 @@ function submitCheckOrderPage(){
 
     if(!getSelectedShoppingCart()){
         /* 如果没有选中任何商品 则不跳转到检查订单页面 */
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14 ">请选择相应的商品！</p>',
+            ok:'确定',
+            afterOk:function(){
+                console.log('111');
+            },
+            afterClose:function(){
+                console.log('222');
+            }
+        });
         return ;
     }
 
@@ -568,25 +626,53 @@ function submitCheckOrderPage(){
         }
     });
     console.info("array="+array);
-    
-    // //TODO AJAX 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
-    // $.ajax({
-    //     url:ctx + "/shoppingCart/check",
-    //     data:JSON.stringify(array),
-    //     type:"post",
-    //     dataType:"json",   //返回参数类型
-    //     contentType :"application/json",   //请求参数类型
-    //     async:false,
-    //     success:function(data){
-    //         console.info(data);
-    //     },
-    //     error:function(){
-    //        
-    //     }
-    // });
-    //
-    // return ;
-    
-    $("#submitCheckOrderPage").attr({"action": ctx + "/order/checkOrderPage"});
-    $("#submitCheckOrderPage").submit();
+
+    if(array == null ){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14 ">请选择相应的商品！</p>',
+            ok:'确定',
+            afterOk:function(){
+                console.log('111');
+            },
+            afterClose:function(){
+                console.log('222');
+            }
+        });
+        return ;
+    }
+    var _data = _data = {"list":array};
+
+    // console.info("_data="+_data);
+    //TODO AJAX 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
+    $.ajax({
+        url:ctx + "/shoppingCart/check",
+        data:JSON.stringify(_data),
+        type:"post",
+        dataType:"json",   //返回参数类型
+        contentType :"application/json",   //请求参数类型
+        async:false,
+        success:function(data){
+            console.info(data);
+            if(data.result){
+                $("#submitCheckOrderPage").attr({"action": ctx + "/order/checkOrderPage"});
+                $("#submitCheckOrderPage").submit();            
+            }else{
+                new Dialog({
+                    title:'提示',
+                    content:'<p class="mt60 f14">' + data.msg || data.message  + '</p>',
+                    ok:'确定',
+                    afterOk:function(){
+                        console.log('111');
+                    },
+                    afterClose:function(){
+                        console.log('222');
+                    }
+                });
+            }
+        },
+        error:function(){
+           
+        }
+    });
 }

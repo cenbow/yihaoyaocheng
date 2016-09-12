@@ -178,7 +178,7 @@ public class OrderPayManage {
             for (Order order : listOrder) {
                 //if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                 //更新订单支付标记
-                    order.setPayFlag(SystemOrderPayFlag.PlayMoneySuccess.getType());
+                    order.setPayFlag(SystemOrderPayFlag.PlayMoneyError.getType());
                     orderMapper.update(order);
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款失败.");

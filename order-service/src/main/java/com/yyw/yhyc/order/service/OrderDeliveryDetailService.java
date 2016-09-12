@@ -22,11 +22,14 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
+import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,9 @@ import com.yyw.yhyc.bo.Pagination;
 
 @Service("orderDeliveryDetailService")
 public class OrderDeliveryDetailService {
+
+	private static final Logger log = LoggerFactory.getLogger(OrderDeliveryDetailService.class);
+
 
 	private OrderDeliveryDetailMapper	orderDeliveryDetailMapper;
 
@@ -477,6 +483,10 @@ public class OrderDeliveryDetailService {
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 			}
 		}
+		log.info("HHJJ拒收支付类型systemPayType.getPayTypeId:"+systemPayType.getPayTypeId());
+		log.info("HHJJ拒收结算是否保存saveFlag:"+saveFlag);
+		log.info("HHJJ拒收结算moneyTotal:"+moneyTotal);
+		log.info("HHJJ拒收:order.getOrderStatus:"+order.getOrderStatus());
 		if(saveFlag){
 			orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
 			orderSettlementMapper.save(orderSettlement);

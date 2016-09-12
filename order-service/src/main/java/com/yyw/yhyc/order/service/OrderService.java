@@ -744,7 +744,7 @@ public class OrderService {
 			orderDetail.setProductCount(productInfoDto.getProductCount());
 			orderDetail.setProductId(productInfo.getId());
 			orderDetail.setProductName(productInfo.getProductName());//商品名称
-			orderDetail.setProductCode(productInfo.getProductCode());//商品编码
+			orderDetail.setProductCode(productInfoDto.getProductCodeCompany());//存的是本公司商品编码
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
 //			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型

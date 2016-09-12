@@ -349,6 +349,7 @@ public class OrderSettlementService {
      * type 1 销售货款  2 退货货款   3 拒收货款 4 取消订单退款
      */
     public void updateSettlementByMap(String flowId,Integer type){
+        log.info("银联同步回调->更新结算信息->订单:"+flowId+";业务类型:"+type);
         Map<String,Object> condition = new HashedMap();
         condition.put("flowId",flowId);
         condition.put("businessType",type);//退货退款
