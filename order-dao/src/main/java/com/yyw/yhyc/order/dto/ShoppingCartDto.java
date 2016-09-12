@@ -33,6 +33,9 @@ public class ShoppingCartDto extends ShoppingCart  {
      */
     private Integer upStep;
 
+    /* 是否还有商品库存 */
+    private boolean existProductInventory;
+
     public Integer getSaleStart() {
         return saleStart;
     }
@@ -89,6 +92,14 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.minimumPacking = minimumPacking;
     }
 
+    public boolean isExistProductInventory() {
+        return existProductInventory;
+    }
+
+    public void setExistProductInventory(boolean existProductInventory) {
+        this.existProductInventory = existProductInventory;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -99,6 +110,7 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", minimumPacking=" + minimumPacking +
                 ", saleStart=" + saleStart +
                 ", upStep=" + upStep +
+                ", existProductInventory=" + existProductInventory +
                 '}';
     }
 }

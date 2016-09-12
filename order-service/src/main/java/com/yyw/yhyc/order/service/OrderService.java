@@ -576,7 +576,7 @@ public class OrderService {
 		insertOrderTrace(order);
 
 		/* 删除购物车中相关的商品 */
-		deleteShoppingCart(orderDto);
+//		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
@@ -1045,9 +1045,11 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType()) ) {// 买家全部收货+系统自动确认收货+买家部分收货
             return BuyerOrderStatusEnum.Finished;//已完成
         }
+		/*打款异常单独一个字段保存
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
             return BuyerOrderStatusEnum.Finished;//已完成
         }
+        */
         return null;
     }
 
@@ -1085,9 +1087,11 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())) {// 买家全部收货+系统自动确认收货+买家部分收货
             return SellerOrderStatusEnum.Finished;//已完成
         }
+		/* 打款异常单独一个字段保存
         if (systemOrderStatus.equals(SystemOrderStatusEnum.PaidException.getType())) {//打款异常
             return SellerOrderStatusEnum.Finished;//已完成
         }
+		*/
         return null;
     }
 
