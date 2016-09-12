@@ -130,8 +130,6 @@ public class OrderPayManage {
                         order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                         order.setUpdateTime(now);
                         order.setPayTime(now);
-                        //更新订单支付标记
-                        order.setPayFlag(SystemOrderPayFlag.PlayMoneySuccess.getType());
                         orderMapper.update(order);
                         /*orderManager.sendSMS(order, null, order.getSupplyId(), MessageTemplate.BUYER_PAY_ORDER_INFO_CODE);*/
                         // 保存订单操作记录
