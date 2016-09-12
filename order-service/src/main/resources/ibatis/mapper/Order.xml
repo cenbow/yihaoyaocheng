@@ -464,7 +464,6 @@
 				, #{paymentTerm}
 				, #{delayTimes}
 				, #{payFlag}
-		</if>
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
