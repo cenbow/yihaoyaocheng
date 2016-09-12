@@ -87,13 +87,13 @@ function totalSub(e){
         orderSamountObject.attr("needPrice",Number(0));
         $(e).parents('.order-holder').find('.need-price').html(fmoney(0));
         $(e).parents('.order-holder').find('.holder-top p').hide();
-        $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
+        // $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
     }else{
         var needPrice = (Number(orderSamount) - Number( buyedOrderAmount)).toFixed(2);
         orderSamountObject.attr("needPrice",needPrice);
         $(e).parents('.order-holder').find('.need-price').html(fmoney(needPrice));
         $(e).parents('.order-holder').find('.holder-top p').show();
-        $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
+        // $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
     }
     getSelectedShoppingCart();
 }
@@ -404,16 +404,16 @@ $(function() {
             removeSelectedShoppingCart();
         }else{
             //全选：是否符合订单起售金额
-            var obj = $(this).parents('.order-holder').find("input[name='orderSamount']");
-            var needPrice = obj.attr("needPrice");
+            // var obj = $(this).parents('.order-holder').find("input[name='orderSamount']");
+            // var needPrice = obj.attr("needPrice");
 
             //全选:排除无库存
-            var holderTop = $(this).parents('.order-holder').find('.holder-list');
-            holderTop.each(function(){
-                if( !$(this).hasClass("no-stock") && Number(needPrice) <= 0 ){
+            // var holderTop = $(this).parents('.order-holder').find('.holder-list');
+            // holderTop.each(function(){
+            //     if( !$(this).hasClass("no-stock")){
                     $(this).addClass('select-all');
-                }
-            });
+            //     }
+            // });
             totalItem();
             totalSum();
             getSelectedShoppingCart();
@@ -440,23 +440,16 @@ $(function() {
             $(this).parent().parent().find('.cart-checkbox').removeClass('select-all');
             removeSelectedShoppingCart();
         }else{
-
-            //全选：是否符合订单起售金额
-            var obj = $(this).parents('.order-holder').find("input[name='orderSamount']");
-            var needPrice = obj.attr("needPrice");
-
-            //全选:排除无库存
+            //排除无库存 全选
             var holderTop = $(this).parents('.order-holder').find('.holder-list');
             holderTop.each(function(){
-                if( !$(this).hasClass("no-stock") && Number(needPrice) <= 0 ){
-                    $(this).find('.cart-checkbox').addClass('select-all');
-                    $(this).parents('.order-holder').find('.holder-top .cart-checkbox').addClass('select-all');
-                }
+                $(this).find('.cart-checkbox').addClass('select-all');
+                $(this).parents('.order-holder').find('.holder-top .cart-checkbox').addClass('select-all');
             });
+            getSelectedShoppingCart();
         }
         totalItem();
         totalSum();
-        getSelectedShoppingCart();
     });
     //删除选中商品
     $('.delete-items').click(function(){

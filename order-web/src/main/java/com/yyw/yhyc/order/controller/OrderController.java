@@ -16,6 +16,8 @@ import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
 import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.annotation.Token;
@@ -79,6 +81,9 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private IProductDubboManageService productDubboManageService;
+
+	@Reference
+	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
 
     /**
      * 通过主键查询实体对象
@@ -163,37 +168,89 @@ public class OrderController extends BaseJsonController {
 		if(UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
 			throw new Exception("非法参数");
 		}
-		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
-			if(UtilHelper.isEmpty(productInfoDto)) continue;
-			if(UtilHelper.isEmpty(productDubboManageService)){
-				logger.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
-				map.put("result", false);
-				map.put("message", "查询商品价格失败");
-				map.put("goToShoppingCart", true);
-				return map;
-			}
 
-			String productPrice ="0";
-			try{
-				logger.info("统一校验订单商品接口,查询商品价格，请求参数,supply_id=" + orderDto.getSupplyId() + ",spuCode=" + productInfoDto.getSpuCode());
-				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode());
-			}catch (Exception e){
-				logger.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
-				map.put("result", false);
-				map.put("message", "查询商品价格失败");
-				map.put("goToShoppingCart", true);
-			}
-			logger.info("统一校验订单商品接口,查询商品价格，productPrice= " + productPrice + ",productInfoDto.getProductPrice()=" + productInfoDto.getProductPrice());
-			if(UtilHelper.isEmpty(productInfoDto.getProductPrice()) || UtilHelper.isEmpty(productPrice)
-					||  !productInfoDto.getProductPrice().equals(new BigDecimal(productPrice))){
-				map.put("result", false);
-				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
-				map.put("goToShoppingCart", true);
-				return map;
-			}
-		}
+//		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
+//			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
+//			map.put("result", false);
+//			map.put("message", "查询客户组失败");
+//			map.put("goToShoppingCart", true);
+//			return map;
+//		}
+//
+//		CustGroupDubboRet custGroupDubboRet = null;
+//		try{
+//			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
+//			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
+//			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
+//		}catch (Exception e){
+//			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage());
+//		}
+//
+//		String [] custGroupCode = null;
+//		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
+//			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage());
+//			map.put("result", false);
+//			map.put("message", "查询商品价格失败");
+//			map.put("goToShoppingCart", true);
+//			return map;
+//		}else{
+//			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
+//		}
+//
+//		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+//			if(UtilHelper.isEmpty(productInfoDto)) continue;
+//			if(UtilHelper.isEmpty(productDubboManageService)){
+//				logger.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
+//				map.put("result", false);
+//				map.put("message", "查询商品价格失败");
+//				map.put("goToShoppingCart", true);
+//				return map;
+//			}
+//
+//			String productPrice = "[{\"group_price\":0.00}]";
+//			List<BigDecimal> queriedPriceList = new ArrayList<>();
+//			try{
+//				logger.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId()
+//						+ ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
+//				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode(),custGroupCode);
+//				JSONArray jsonArray = JSONArray.fromObject(productPrice);
+//				for(Object object: jsonArray.toArray()){
+//					Map m = (Map)object;
+//					if(!UtilHelper.isEmpty(map.get("group_price")+"")){
+//						queriedPriceList.add(new BigDecimal(map.get("group_price")+""));
+//					}
+//				}
+//			}catch (Exception e){
+//				logger.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
+//				map.put("result", false);
+//				map.put("message", "查询商品价格失败");
+//				map.put("goToShoppingCart", true);
+//			}
+//			logger.info("统一校验订单商品接口,查询商品价格，productInfoDto.getProductPrice()=" + productInfoDto.getProductPrice()+",queriedPriceList="+queriedPriceList);
+//			if(UtilHelper.isEmpty(productInfoDto.getProductPrice()) || UtilHelper.isEmpty(productPrice)
+//					||  !queriedPriceList.contains(productInfoDto.getProductPrice())){
+//				map.put("result", false);
+//				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
+//				map.put("goToShoppingCart", true);
+//				return map;
+//			}
+//		}
 		map.put("result", validateResult);
 		return map;
+	}
+
+	private String[] getCustGroupCode(List<Map<String, Object>> data) {
+		if(UtilHelper.isEmpty(data)) return null;
+		List<String> list = new ArrayList();
+
+		for(Map map : data){
+			if(UtilHelper.isEmpty(map)) continue;
+			if(!UtilHelper.isEmpty(map.get("code")+"")){
+				list.add(map.get("code")+"");
+			}
+		}
+		return (String[]) list.toArray();
+
 	}
 
 	/**
