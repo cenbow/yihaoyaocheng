@@ -34,6 +34,9 @@ public class OrderDto extends Order {
     /* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
     private int accountAmount ;
 
+    /*打款状态说明*/
+    private String payFlagName;
+
 
     public int getOrderCount() {
         return orderCount;
@@ -163,6 +166,14 @@ public class OrderDto extends Order {
         this.accountAmount = accountAmount;
     }
 
+    public String getPayFlagName() {
+        return payFlagName;
+    }
+
+    public void setPayFlagName(String payFlagName) {
+        this.payFlagName = payFlagName;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
@@ -183,6 +194,7 @@ public class OrderDto extends Order {
                 ", productInfoDtoList=" + productInfoDtoList +
                 ", orderDelivery=" + orderDelivery +
                 ", accountAmount=" + accountAmount +
+                ". payFlagName="+payFlagName+
                 '}';
     }
 }
