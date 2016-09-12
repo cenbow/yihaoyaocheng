@@ -30,6 +30,9 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /* 商品的账期 */
     private int paymentTerm;
 
+    /*商品的本公司编码*/
+    private String productCodeCompany;
+
 
     public BigDecimal getProductPrice() {
         return productPrice;
@@ -79,6 +82,14 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.paymentTerm = paymentTerm;
     }
 
+    public String getProductCodeCompany() {
+        return productCodeCompany;
+    }
+
+    public void setProductCodeCompany(String productCodeCompany) {
+        this.productCodeCompany = productCodeCompany;
+    }
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
@@ -88,6 +99,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", periodProduct=" + periodProduct +
                 ", paymentTerm=" + paymentTerm +
+                ", productCodeCompany='" + productCodeCompany + '\'' +
                 '}';
     }
 }

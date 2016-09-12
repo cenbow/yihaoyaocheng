@@ -259,20 +259,23 @@ public class OrderController extends BaseJsonController {
 				creditParams.setSellerCode(order.getSupplyId() + "");
 				creditParams.setSellerName(order.getSupplyName());
 				creditParams.setPaymentDays(order.getPaymentTerm());//账期
-				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
 				CreditDubboResult creditDubboResult = null;
 				try{
+					logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
 					creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+					logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,响应参数creditDubboResult= " + creditDubboResult);
+
 					/* 账期订单信息发送成功后，更新该订单的支付状态与支付时间 */
 					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getMessage())){
 						order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
 						order.setPayTime(systemDateService.getSystemDate());
 						update(order);
+						logger.info("创建订单接口-生成账期订单后，成功更新资信可用额度,更新订单信息，order=" + order);
 					}
 				}catch (Exception e){
 					logger.error(e.getMessage());
 				}
-				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 响应参数creditDubboResult= " + creditDubboResult);
+
 			}
 		}
 		return map;

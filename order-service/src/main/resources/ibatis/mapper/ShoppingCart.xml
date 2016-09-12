@@ -326,6 +326,10 @@
 			SELECT	DISTINCT  CUST_ID,SUPPLY_ID FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
 	</select>
 
+	<select id="listDistinctCustIdAndSupplyId" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper" useCache="false">
+		SELECT	DISTINCT  CUST_ID,SUPPLY_ID FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
+	</select>
+
 	<select id="listShoppingCartDtoByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartDtoResultMapper">
 		<![CDATA[ SELECT ]]>
 		sc.shopping_cart_id
