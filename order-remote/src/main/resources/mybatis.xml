@@ -5,7 +5,7 @@
 	<!-- settings 一定要配置在plugins标签前面，有顺序讲究 -->
 	<settings>
 		<!-- 配置全局性 cache 的 ( 开 / 关) default:true -->
-		<setting name="cacheEnabled" value="false" />
+		<setting name="cacheEnabled" value="true" />
 
 		<!-- 是否使用 懒加载 关联对象  同 hibernate中的延迟加载 一样  default:true  -->
 		<setting name="lazyLoadingEnabled" value="false" />
