@@ -1828,6 +1828,7 @@ public class OrderService {
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
+		orderDto.setPayFlag(Integer.valueOf("".equals(data.get("payFlag")) ?  "0":data.get("payFlag")));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
@@ -1847,6 +1848,7 @@ public class OrderService {
 		if(!UtilHelper.isEmpty(orderDtoList)){
 			for (OrderDto od : orderDtoList){
 				od.setOrderStatusName(SystemOrderStatusEnum.getName(od.getOrderStatus()));
+				od.setPayFlagName(SystemOrderPayFlag.getName(od.getPayFlag()));
 			}
 		}
 		log.info("listPgOperationsOrder orderDtoList:"+orderDtoList);
