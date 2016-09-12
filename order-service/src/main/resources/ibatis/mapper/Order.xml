@@ -54,6 +54,7 @@
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="payment_term" property="paymentTerm"/>
 		<result column="delay_times" property="delayTimes"/>
+		<result column="pay_flag" property="payFlag"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -95,6 +96,7 @@
 		<result column="payment_term_status" property="paymentTermStatus"/>
 		<result column="pay_type" property="payType"/>
 		<result column="delay_times" property="delayTimes"/>
+		<result column="pay_flag" property="payFlag"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -139,6 +141,7 @@
 		, payment_term_status
 		, payment_term
 		, delay_times
+		, pay_flag
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -177,6 +180,7 @@
 				, receive_Type
 				, payment_term
 				, delay_times
+				, pay_flag
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -217,6 +221,7 @@
 		, receive_Type
 		, payment_term
 		, delay_times
+		, pay_flag
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -257,6 +262,7 @@
 		, T1.receive_Type
 		, T1.payment_term_status
 		, T1.payment_term
+		, T1.pay_flag
 	</sql>
 
 
@@ -298,6 +304,7 @@
 		, o.receive_Type
 		, o.payment_term_status
 		, o.payment_term
+		, o.pay_flag
 	</sql>
 
 	<sql id="commonCondition">
@@ -409,6 +416,10 @@
 		<if test="paymentTerm!= null">
 			AND payment_term=#{paymentTerm}
 		</if>
+
+		<if test="payFlag!= null">
+			AND pay_flag=#{payFlag}
+		</if>
 	</sql>
 
 	<insert id="save" parameterType="Order">
@@ -452,6 +463,8 @@
 				, #{receiveType}
 				, #{paymentTerm}
 				, #{delayTimes}
+				, #{payFlag}
+		</if>
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -563,6 +576,9 @@
 		</if>
 		<if test="paymentTerm!= null">
 			, payment_term=#{paymentTerm}
+		</if>
+		<if test="payFlag!= null">
+			,pay_flag=#{payFlag}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>

@@ -214,9 +214,21 @@ public class ChinaPayServiceImpl implements PayService {
                 String orderStatus=map.get("OrderStatus").toString();
                 if(orderStatus.equals("0000")){
                     map.put("flowPayId",map.get("MerOrderNo"));
-                    map.put("money",map.get("OrderAmt"));
+                    map.put("money", map.get("OrderAmt"));
                     //回调更新信息
                     orderPayManage.orderPayReturn(map);
+                }else{
+                    //支付回调失败更新支付标记为打款异常
+                    List<Order> listOrder = orderMapper.listOrderByPayFlowId(map.get("MerOrderNo").toString());
+                    String now = systemDateMapper.getSystemDate();
+                    for (Order order : listOrder) {
+                        if (SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) {
+                            order.setUpdateTime(now);
+                            //更新订单支付标记
+                            order.setPayFlag(SystemOrderPayFlag.PlayMoneyError.getType());
+                            orderMapper.update(order);
+                        }
+                    }
                 }
             }
 
