@@ -214,7 +214,7 @@ public class ChinaPayServiceImpl implements PayService {
                 String orderStatus=map.get("OrderStatus").toString();
                 if(orderStatus.equals("0000")){
                     map.put("flowPayId",map.get("MerOrderNo"));
-                    map.put("money",map.get("OrderAmt"));
+                    map.put("money", map.get("OrderAmt"));
                     //回调更新信息
                     orderPayManage.orderPayReturn(map);
                 }

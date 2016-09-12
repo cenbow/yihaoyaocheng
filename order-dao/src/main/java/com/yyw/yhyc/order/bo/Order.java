@@ -203,6 +203,23 @@ public class Order extends Model{
      */
 	private  Integer delayTimes;
 
+
+	/**
+	 * 	订单支付标记 1：打款成功 2：打款失败 3：退款成功 4：退款失败'
+	 * @return
+	 */
+	private int payFlag;
+
+
+	public Integer getPayFlag() {
+		return payFlag;
+	}
+
+	public void setPayFlag(Integer payFlag) {
+		this.payFlag = payFlag;
+	}
+
+
 	public Integer getPaymentTermStatus() {
 		return paymentTermStatus;
 	}
@@ -812,6 +829,7 @@ public class Order extends Model{
 				", paymentTermStatus=" + paymentTermStatus +
 				", paymentTerm=" + paymentTerm +
 				", delayTimes=" + delayTimes +
+				", payFlag=" + payFlag +
 				'}';
 	}
 }

@@ -515,8 +515,8 @@ public class OrderDeliveryService {
 			if (orderDeliveryDetails.size() > 0) {
 				orderDeliveryDetailMapper.deleteByPK(orderDeliveryDetails.get(0).getOrderDeliveryDetailId());
 			}
+			int i = 1;
 			for (Map<String, String> rowMap : list) {
-				int i = 1;
 				OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
 				orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
 				orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
