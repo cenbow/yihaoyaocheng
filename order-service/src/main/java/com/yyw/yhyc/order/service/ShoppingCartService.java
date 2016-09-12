@@ -221,6 +221,9 @@ public class ShoppingCartService {
 
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice());
 		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
+			if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
+				shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
+			}
 			shoppingCartMapper.save(shoppingCart);
 		}else {//已经存在商品
 			shoppingCart.setUpdateUser(shoppingCart.getCreateUser());
