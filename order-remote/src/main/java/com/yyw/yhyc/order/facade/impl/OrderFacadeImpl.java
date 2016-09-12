@@ -240,7 +240,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 */
 	public void cancelOrderForNoDelivery() {
-		orderService.updateCancelOrderForNoDelivery();
+	//	orderService.updateCancelOrderForNoDelivery();
 	}
 
 	/**
