@@ -466,7 +466,7 @@ function confirmReceipt(){
                 flag=false;
             }
 
-            if($(recieveCount[i]).val()>$(productCount[i]).val()){
+            if(parseInt($(recieveCount[i]).val())>parseInt($(productCount[i]).val())){
                 alertModal("收货数量不能大于采购数量!");
                 return;
             }
