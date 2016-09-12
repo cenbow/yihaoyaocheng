@@ -434,6 +434,7 @@ public class OrderDeliveryDetailService {
 		String now = systemDateMapper.getSystemDate();
 		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		OrderSettlement orderSettlement = new OrderSettlement();
+		boolean saveFlag = true;
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 		    orderSettlement.setBusinessType(1);
 		    orderSettlement.setOrderId(order.getOrderId());
@@ -470,12 +471,16 @@ public class OrderDeliveryDetailService {
 			//拒收的 结算金额需要减去拒收的金额
 			if(moneyTotal!=null&&SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())){
 				orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(moneyTotal));
+				//拒收暂时不保存，在审核通过保存
+				saveFlag = false;
 			}else {
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 			}
 		}
-		orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
-		orderSettlementMapper.save(orderSettlement);
+		if(saveFlag){
+			orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
+			orderSettlementMapper.save(orderSettlement);
+		}
 	}
 
 	/**
