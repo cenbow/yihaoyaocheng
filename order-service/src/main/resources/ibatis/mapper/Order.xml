@@ -1144,7 +1144,7 @@
 
 
 	<update id="cancelOrderForNoPay">
-		update t_order  set order_status=4
+		update t_order  set order_status=4,cancel_time=sysdate(),cancel_result='系统自动取消'
 		      where (pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=1) and order_status=1
 		             and create_time <![CDATA[<]]> date_add(sysdate(), interval -1 day))
 		           or
