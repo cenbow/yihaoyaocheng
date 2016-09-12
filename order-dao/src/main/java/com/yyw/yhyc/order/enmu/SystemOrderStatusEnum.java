@@ -18,7 +18,7 @@ public enum SystemOrderStatusEnum {
     Replenishing("10", "补货中"),
     SystemAutoConfirmReceipt("11", "系统自动确认收货"),
     BuyerDeferredReceipt("12", "买家延期收货"),
-    PaidException("13", "退款异常"),
+    //PaidException("13", "退款异常"),
     BuyerPartReceived("14", "买家部分收货");
 
     private String type;
