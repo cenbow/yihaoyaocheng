@@ -1828,7 +1828,7 @@ public class OrderService {
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
-		orderDto.setPayFlag(Integer.valueOf("".equals(data.get("payFlag")) ?  "0":data.get("payFlag")));
+		orderDto.setPayFlag(Integer.valueOf((data.get("payFlag")==null || "".equals(data.get("payFlag"))) ?  "0":data.get("payFlag")));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
