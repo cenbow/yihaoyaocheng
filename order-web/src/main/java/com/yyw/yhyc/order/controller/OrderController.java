@@ -207,17 +207,29 @@ public class OrderController extends BaseJsonController {
 //				return map;
 //			}
 //
-//			String productPrice = "[{\"group_price\":0.00}]";
+//			String productPrice = "";
 //			List<BigDecimal> queriedPriceList = new ArrayList<>();
+//			BigDecimal publicPrice = new BigDecimal(0);
 //			try{
 //				logger.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId()
 //						+ ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
 //				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode(),custGroupCode);
-//				JSONArray jsonArray = JSONArray.fromObject(productPrice);
-//				for(Object object: jsonArray.toArray()){
-//					Map m = (Map)object;
-//					if(!UtilHelper.isEmpty(map.get("group_price")+"")){
-//						queriedPriceList.add(new BigDecimal(map.get("group_price")+""));
+//
+//				try{
+//					JSONArray jsonArray = JSONArray.fromObject(productPrice);
+//					for(Object object: jsonArray.toArray()){
+//						Map m = (Map)object;
+//						if(!UtilHelper.isEmpty(map.get("group_price")+"")){
+//							queriedPriceList.add(new BigDecimal(map.get("group_price")+""));
+//						}
+//					}
+//					logger.info("统一校验订单商品接口,查询商品价格，客户组价格(即渠道价格)queriedPriceList="+queriedPriceList);
+//				}catch (Exception e){
+//					logger.error("统一校验订单商品接口,解析客户组价格(即渠道价格)失败:"+e.getMessage());
+//					JSONObject jsonObject = JSONObject.fromObject(productPrice);
+//					if(!UtilHelper.isEmpty(jsonObject.get("group_price")+"")){
+//						publicPrice = new BigDecimal(jsonObject.get("group_price")+"");
+//						logger.info("统一校验订单商品接口,查询商品价格，公开价格publicPrice="+publicPrice);
 //					}
 //				}
 //			}catch (Exception e){
@@ -226,9 +238,13 @@ public class OrderController extends BaseJsonController {
 //				map.put("message", "查询商品价格失败");
 //				map.put("goToShoppingCart", true);
 //			}
-//			logger.info("统一校验订单商品接口,查询商品价格，productInfoDto.getProductPrice()=" + productInfoDto.getProductPrice()+",queriedPriceList="+queriedPriceList);
-//			if(UtilHelper.isEmpty(productInfoDto.getProductPrice()) || UtilHelper.isEmpty(productPrice)
-//					||  !queriedPriceList.contains(productInfoDto.getProductPrice())){
+//			logger.info("统一校验订单商品接口,查询商品价格，productInfoDto.getProductPrice()=" + productInfoDto.getProductPrice()  + ",publicPrice=" + publicPrice + ",queriedPriceList=" + queriedPriceList);
+//			if(UtilHelper.isEmpty(queriedPriceList) && !UtilHelper.isEmpty(publicPrice) && publicPrice.compareTo(productInfoDto.getProductPrice()) != 0){
+//				map.put("result", false);
+//				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
+//				map.put("goToShoppingCart", true);
+//				return map;
+//			}else if(!UtilHelper.isEmpty(queriedPriceList) && !queriedPriceList.contains(productInfoDto.getProductPrice())){
 //				map.put("result", false);
 //				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
 //				map.put("goToShoppingCart", true);
@@ -323,7 +339,7 @@ public class OrderController extends BaseJsonController {
 					logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,响应参数creditDubboResult= " + creditDubboResult);
 
 					/* 账期订单信息发送成功后，更新该订单的支付状态与支付时间 */
-					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getMessage())){
+					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getIsSuccessful())){
 						order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
 						order.setPayTime(systemDateService.getSystemDate());
 						update(order);
