@@ -288,22 +288,25 @@ public class OrderSettlementService {
         orderSettlement.setPayTypeId(order.getPayTypeId());
         orderSettlement.setCreateUser(createUser);
 
+        custId = custId ==null?order.getCustId():custId;
+        supplyId = supplyId==null?order.getSupplyId():supplyId;
 
         switch (type) {
             case 1:
                 //生成买家结算
                 orderSettlement.setBusinessType(1);
-                orderSettlement.setCustId(order.getCustId());
+                orderSettlement.setCustId(custId);
                 orderSettlement.setConfirmSettlement("1");//生成结算信息时都是已结算
-
                 orderSettlement.setCreateUser(order.getCustName());
                 orderSettlement.setSettlementMoney(order.getOrgTotal());
                 break;
             case 2:
                 //包装卖家结算信息;
+                orderSettlement.setBusinessType(1);
                 orderSettlement.setCustId(null);
                 orderSettlement.setSupplyId(supplyId);
                 orderSettlement.setConfirmSettlement("0");
+                orderSettlement.setSettlementMoney(order.getOrderTotal());
                 break;
             case 3:
                 orderSettlement.setCustId(custId);
