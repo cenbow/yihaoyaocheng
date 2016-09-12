@@ -87,13 +87,13 @@ function totalSub(e){
         orderSamountObject.attr("needPrice",Number(0));
         $(e).parents('.order-holder').find('.need-price').html(fmoney(0));
         $(e).parents('.order-holder').find('.holder-top p').hide();
-        $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
+        // $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
     }else{
         var needPrice = (Number(orderSamount) - Number( buyedOrderAmount)).toFixed(2);
         orderSamountObject.attr("needPrice",needPrice);
         $(e).parents('.order-holder').find('.need-price').html(fmoney(needPrice));
         $(e).parents('.order-holder').find('.holder-top p').show();
-        $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
+        // $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
     }
     getSelectedShoppingCart();
 }
