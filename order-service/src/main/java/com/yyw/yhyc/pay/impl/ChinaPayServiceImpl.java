@@ -622,12 +622,13 @@ public class ChinaPayServiceImpl implements PayService {
             resultMap = this.sendPayQuestForOrder(orderPay,orderList,orderMoney);
         }catch (Exception e){
             e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            log.error("调用银联退款，sendPayQuestForOrder方法执行异常，"+e.getMessage());
+            //throw new RuntimeException(e.getMessage());
         }
 
         if(!"0000".equals(resultMap.get("code")) && !"1003".equals(resultMap.get("code"))){
             log.error("调用银联退款，调用银联退款接口失败，"+resultMap.get("msg"));
-            throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
+            //throw new RuntimeException("调用银联退款接口失败，"+resultMap.get("msg"));
         }
     }
 
