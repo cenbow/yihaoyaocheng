@@ -50,13 +50,13 @@ public class ShoppingCart extends Model{
 	private java.lang.Integer productId;
 
 	/**
-	  *	SPU编码
+	  *	本公司编码
 	  */
 	private java.lang.String productCodeCompany;
 
 
 	/**
-	 *	本公司编码
+	 *	SPU编码
 	 */
 	private java.lang.String spuCode;
 
