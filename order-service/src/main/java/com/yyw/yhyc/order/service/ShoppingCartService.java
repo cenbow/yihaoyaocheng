@@ -158,6 +158,11 @@ public class ShoppingCartService {
 		return shoppingCartMapper.findByCount(shoppingCart);
 	}
 
+	/**
+	 * 查询当前采购商下面，进货单中所有的商品
+	 * @param shoppingCart
+	 * @return
+     */
 	public List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart) {
 		return shoppingCartMapper.listAllShoppingCart(shoppingCart);
 	}

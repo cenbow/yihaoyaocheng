@@ -216,15 +216,32 @@ public class ShoppingCartController extends BaseJsonController {
 
 	/**
 	 * 检查购物车中的商品合法信息
-	 * @param shoppingCartIdList
+	 * @param requestListModel
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
-	public Map<String,Object> check(String shoppingCartIdList) throws Exception {
+	@ResponseBody
+	public Map<String,Object> check(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
 		UserDto userDto = super.getLoginUser();
 
-		//TODO
+		Map<String,Object> resultMap = new HashMap<>();
+		if(UtilHelper.isEmpty(requestListModel) || UtilHelper.isEmpty(requestListModel.getList())){
+			resultMap.put("result",false);
+			resultMap.put("msg","您的进货单中没有商品");
+			return resultMap;
+		}
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+//		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCartById(shoppingCart,requestListModel.getList());
+//		if(UtilHelper.isEmpty(allShoppingCart)){
+//			resultMap.put("result",false);
+//			resultMap.put("msg","您的进货单中没有商品");
+//			return resultMap;
+//		}
+		//TODO  商品校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
 
-		return null;
+		resultMap.put("result",true);
+		resultMap.put("msg","校验成功");
+		return resultMap;
 	}
 }
