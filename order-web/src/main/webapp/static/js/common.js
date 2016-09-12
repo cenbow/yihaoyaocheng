@@ -48,7 +48,7 @@ function getProductImgUrl(_spuCode){
             success:function(data){
                 // console.info("data=" + data);
                 if(data != null && typeof data != "undefined"  &&  data.trim() != "" ){
-                    productImageUrl = data;
+                    productImageUrl = imgDomain + data;
                 }
             },
             error:function(data){
