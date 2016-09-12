@@ -94,9 +94,4 @@ public class OrderIssuedController extends BaseJsonController{
 	{
 		orderIssuedService.update(orderIssued);
 	}
-	@RequestMapping(value = "/findOrderIssuedListBySupplyId/{supplyId}", method = RequestMethod.GET)
-	@ResponseBody
-	public Map<String,Object> findOrderIssuedListBySupplyId(Integer supplyId) throws Exception{
-		return orderIssuedService.findOrderIssuedListBySupplyId(6067);
-	}
 }
