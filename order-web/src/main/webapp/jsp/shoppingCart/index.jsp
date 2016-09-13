@@ -84,13 +84,23 @@
                                 <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory}"> no-stock </c:if> ">
                                     <ul>
                                         <li class="fl td-chk">
-                                            <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>" shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}"><span class="inside-icon" >全选所有商品</span></div>
+                                            <c:if test="${shoppingCartDto.existProductInventory}">
+                                                <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
+                                                     shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
+                                                    <span class="inside-icon" >全选所有商品</span>
+                                                </div>
+                                            </c:if>
                                         </li>
-                                        <li class="fl td-pic">
+                                        <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                            <c:if test="${!shoppingCartDto.existProductInventory}">
+                                                <span class="inside-icon">缺货</span>
+                                            </c:if>
                                             <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
-                                            <p class="item-title">${shoppingCartDto.productName} ${shoppingCartDto.specification}</p>`
+                                            <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                                ${shoppingCartDto.productName} ${shoppingCartDto.specification}
+                                            </p>`
                                             <p>${shoppingCartDto.manufactures}</p>
                                         </li>
                                         <li class="fl td-price">
@@ -171,7 +181,7 @@
             </div>
         </div>
         <div class="btn">
-            <a class="os-btn-pay tc" href="javascript:submitCheckOrderPage();">立即结算</a>
+            <a class="os-btn-pay tc" href="javascript:void(0);">立即结算</a>
             <a class="os-btn-order tc" href="index.html">继续采购</a>
         </div>
     </div>

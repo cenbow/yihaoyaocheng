@@ -40,4 +40,6 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 	 * @return
      */
 	int updateProductCount(ShoppingCart shoppingCart);
+
+	List<ShoppingCart> listDistinctCustIdAndSupplyId(ShoppingCart shoppingCart);
 }

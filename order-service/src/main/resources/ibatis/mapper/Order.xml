@@ -1226,6 +1226,9 @@
 		<if test="orderStatus!= null and orderStatus!= ''">
 			AND T1.ORDER_STATUS = #{orderStatus}
 		</if>
+		<if test="payFlag!= null and payFlag!= ''">
+			<![CDATA[ AND T1.PAY_FLAG=#{payFlag} ]]>
+		</if>
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 

@@ -497,6 +497,7 @@ public class OrderDeliveryDetailService {
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 			}
 		}
+		log.info("HHJJ拒收:orderId:"+order.getOrderId());
 		log.info("HHJJ拒收支付类型systemPayType.getPayTypeId:"+systemPayType.getPayTypeId());
 		log.info("HHJJ拒收结算是否保存saveFlag:"+saveFlag);
 		log.info("HHJJ拒收结算moneyTotal:"+moneyTotal);

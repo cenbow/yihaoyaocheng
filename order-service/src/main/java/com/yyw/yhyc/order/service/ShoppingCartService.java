@@ -158,6 +158,11 @@ public class ShoppingCartService {
 		return shoppingCartMapper.findByCount(shoppingCart);
 	}
 
+	/**
+	 * 查询当前采购商下面，进货单中所有的商品
+	 * @param shoppingCart
+	 * @return
+     */
 	public List<ShoppingCartListDto> listAllShoppingCart(ShoppingCart shoppingCart) {
 		return shoppingCartMapper.listAllShoppingCart(shoppingCart);
 	}
@@ -216,6 +221,9 @@ public class ShoppingCartService {
 
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice());
 		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
+			if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
+				shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
+			}
 			shoppingCartMapper.save(shoppingCart);
 		}else {//已经存在商品
 			shoppingCart.setUpdateUser(shoppingCart.getCreateUser());
