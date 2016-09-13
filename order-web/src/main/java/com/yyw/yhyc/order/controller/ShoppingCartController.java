@@ -13,17 +13,21 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.service.ProductInventoryService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -35,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +57,15 @@ public class ShoppingCartController extends BaseJsonController {
 
 	@Reference
 	private IProductDubboManageService iProductDubboManageService;
+
+	@Autowired
+	private OrderService orderService;
+
+	@Reference
+	private IProductDubboManageService productDubboManageService;
+
+	@Reference
+	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
 
 	/**
 	* 通过主键查询实体对象
@@ -152,6 +166,7 @@ public class ShoppingCartController extends BaseJsonController {
 				String unit = "";
 				int saleStart = 1;
 				List productList = null;
+				Integer putaway_status = null;
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
 					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
@@ -166,11 +181,14 @@ public class ShoppingCartController extends BaseJsonController {
 					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
 					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : (int) productJson.get("wholesale_num");
 					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
+					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? null : (int) productJson.get("putaway_status");
 				}
+
 				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
 				shoppingCartDto.setUnit(unit);//最小拆零包装单位
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
+				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
 
 				/* 查询商品库存 */
 				ProductInventory productInventory = new ProductInventory();
@@ -216,32 +234,65 @@ public class ShoppingCartController extends BaseJsonController {
 
 	/**
 	 * 检查购物车中的商品合法信息
-	 * @param requestListModel
+	 * @param shoppingCartList
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/check", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> check(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
+	public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
 		UserDto userDto = super.getLoginUser();
 
 		Map<String,Object> resultMap = new HashMap<>();
-		if(UtilHelper.isEmpty(requestListModel) || UtilHelper.isEmpty(requestListModel.getList())){
+		if(UtilHelper.isEmpty(shoppingCartList)){
 			resultMap.put("result",false);
-			resultMap.put("msg","您的进货单中没有商品");
+			resultMap.put("message","您的进货单中没有商品");
 			return resultMap;
 		}
-		ShoppingCart shoppingCart = new ShoppingCart();
-		shoppingCart.setCustId(userDto.getCustId());
-//		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCartById(shoppingCart,requestListModel.getList());
-//		if(UtilHelper.isEmpty(allShoppingCart)){
-//			resultMap.put("result",false);
-//			resultMap.put("msg","您的进货单中没有商品");
-//			return resultMap;
-//		}
-		//TODO  商品校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
+		/* 查找出当前买家的进货单里面，有哪些供应商 */
+		ShoppingCart shoppingCartQuery = new ShoppingCart();
+		shoppingCartQuery.setCustId(userDto.getCustId());
+		List<ShoppingCart> custIdAndSupplyIdList = shoppingCartService.listDistinctCustIdAndSupplyId(shoppingCartQuery);
+		if(UtilHelper.isEmpty(custIdAndSupplyIdList)){
+			resultMap.put("result",false);
+			resultMap.put("message","您的进货单中没有商品");
+			return resultMap;
+		}
 
+		OrderDto orderDto = null;
+		List<ProductInfoDto> productInfoDtoList = null;
+		ProductInfoDto productInfoDto = null;
+		for(ShoppingCart custIdAndSupplyId : custIdAndSupplyIdList){
+			if(UtilHelper.isEmpty(custIdAndSupplyId)) continue;
+			orderDto = new OrderDto();
+			orderDto.setCustId(custIdAndSupplyId.getCustId());
+			orderDto.setSupplyId(custIdAndSupplyId.getSupplyId());
+
+			/* 遍历进货单中 选中的商品 */
+			productInfoDtoList = new ArrayList<>();
+			for( ShoppingCart shoppingCart : shoppingCartList){
+				if(UtilHelper.isEmpty(shoppingCart)) continue;
+				if(custIdAndSupplyId.getSupplyId().equals(shoppingCart.getSupplyId())){
+					productInfoDto = new ProductInfoDto();
+					ShoppingCart temp = shoppingCartService.getByPK(shoppingCart.getShoppingCartId());
+					if(UtilHelper.isEmpty(temp)) continue;
+					productInfoDto.setId(temp.getProductId());
+					productInfoDto.setSpuCode(temp.getSpuCode());
+					productInfoDto.setProductPrice(temp.getProductPrice());
+					productInfoDto.setProductCount(temp.getProductCount());
+					productInfoDtoList.add(productInfoDto);
+				}
+			}
+			if(productInfoDtoList.size() == 0) continue;
+			orderDto.setProductInfoDtoList(productInfoDtoList);
+
+			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
+			resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService);
+			boolean result = (boolean) resultMap.get("result");
+			if(!result){
+				return resultMap;
+			}
+		}
 		resultMap.put("result",true);
-		resultMap.put("msg","校验成功");
 		return resultMap;
 	}
 }

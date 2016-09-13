@@ -167,6 +167,14 @@ public class ShoppingCartService {
 		return shoppingCartMapper.listAllShoppingCart(shoppingCart);
 	}
 
+	public List<ShoppingCart>  listDistinctCustIdAndSupplyId(ShoppingCart shoppingCart){
+		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getCustId())){
+			return null;
+		}
+		return shoppingCartMapper.listDistinctCustIdAndSupplyId(shoppingCart);
+	}
+
+
 	/**
 	 *
 	 * @param shoppingCart

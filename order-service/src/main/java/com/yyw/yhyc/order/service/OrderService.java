@@ -821,14 +821,14 @@ public class OrderService {
 		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
 			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
 			map.put("result", false);
-			map.put("message", "查询客户组服务异常");
+			map.put("message", "请稍后再试");
 			map.put("goToShoppingCart", true);
 			return map;
 		}
 		if(UtilHelper.isEmpty(productDubboManageService)){
 			log.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
 			map.put("result", false);
-			map.put("message", "查询商品价格服务异常");
+			map.put("message", "请稍后再试");
 			map.put("goToShoppingCart", true);
 			return map;
 		}
@@ -876,7 +876,7 @@ public class OrderService {
 			if("0".equals(code) || "1".equals(code)){
 				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + m );
 				map.put("result", false);
-				map.put("message", m.get("msg").toString());
+				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 				map.put("goToShoppingCart", true);
 				return map;
 			}
@@ -903,7 +903,7 @@ public class OrderService {
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
 				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ", 0未上架  1上架  2本次下架  3非本次下架");
 				map.put("result", false);
-				map.put("message", "商品已下架");
+				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 				map.put("goToShoppingCart", true);
 				return map;
 			}
