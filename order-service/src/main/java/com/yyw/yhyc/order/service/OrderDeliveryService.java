@@ -1089,4 +1089,126 @@ public class OrderDeliveryService {
 		}
 		return map;
 	}
+
+	/**
+	 * 供应商发货
+	 *
+	 * @param manufacturerOrderList
+	 * @return
+	 */
+	public List<ManufacturerOrder> updateOrderDeliver(List<ManufacturerOrder> manufacturerOrderList) {
+		if (!UtilHelper.isEmpty(manufacturerOrderList)) {
+			String now = systemDateMapper.getSystemDate();
+			List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
+			for (ManufacturerOrder manufacturerOrder : manufacturerOrderList) {
+				if (!UtilHelper.isEmpty(manufacturerOrder.getSupplyId()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliverTime()) && !UtilHelper.isEmpty(manufacturerOrder.getOrderStatus()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliveryMethod())) {
+					Order order = orderMapper.getOrderbyFlowId(manufacturerOrder.getFlowId());
+					if (UtilHelper.isEmpty(order)) {
+						list.add(manufacturerOrder);
+						log.info("该订单" + manufacturerOrder.getFlowId() + "为空");
+						continue;
+					}
+					if (!manufacturerOrder.getSupplyId().equals(order.getSupplyId())) {
+						list.add(manufacturerOrder);
+						log.info("该订单" + manufacturerOrder.getFlowId() + "不是该" + manufacturerOrder.getSupplyId() + "供应商");
+						continue;
+					}
+					if (!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())) {
+						list.add(manufacturerOrder);
+						log.info("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态");
+						continue;
+					}
+					List<OrderDetail> orderDetailList = orderDetailMapper.listOrderDetailInfoByOrderId(order.getOrderId());
+					if (UtilHelper.isEmpty(orderDetailList)) {
+						list.add(manufacturerOrder);
+						log.info("该订单" + manufacturerOrder.getFlowId() + "的商品信息为空");
+						continue;
+					}
+					String path = writeExcel(orderDetailList, order.getFlowId(), "/opt/deploy/order-web/include/excel/");
+					int i = 1;
+					for (OrderDetail orderDetail : orderDetailList) {
+						OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+						orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, order.getFlowId()));
+						orderDeliveryDetail.setOrderId(order.getOrderId());
+						orderDeliveryDetail.setFlowId(order.getFlowId());
+						orderDeliveryDetail.setDeliveryStatus(1);
+						orderDeliveryDetail.setBatchNumber("1001");
+						orderDeliveryDetail.setOrderDetailId(orderDetail.getOrderDetailId());
+						orderDeliveryDetail.setDeliveryProductCount(orderDetail.getProductCount());
+						orderDeliveryDetail.setImportFileUrl(path);
+						orderDeliveryDetail.setCreateTime(now);
+						orderDeliveryDetail.setUpdateTime(now);
+						orderDeliveryDetail.setCreateUser(manufacturerOrder.getSupplyName());
+						orderDeliveryDetail.setUpdateUser(manufacturerOrder.getSupplyName());
+						orderDeliveryDetailMapper.save(orderDeliveryDetail);
+						i++;
+					}
+					//修改发货人地址
+					UsermanageReceiverAddress receiverAddress = receiverAddressMapper.findByEnterpriseId(manufacturerOrder.getSupplyId().toString());  //根据供应商编码查询最新的地址
+					OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(order.getFlowId());
+					orderDelivery.setDeliveryMethod(manufacturerOrder.getDeliveryMethod());
+					if (manufacturerOrder.getDeliveryMethod() == 1) {
+						orderDelivery.setDeliveryContactPerson(receiverAddress.getReceiverName());
+						orderDelivery.setDeliveryExpressNo(receiverAddress.getContactPhone());
+					}
+					orderDelivery.setDeliveryDate(manufacturerOrder.getDeliveryDate());
+					orderDelivery.setUpdateDate(now);
+					orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+					orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+					orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+					orderDelivery.setUpdateUser(manufacturerOrder.getSupplyName());
+					orderDelivery.setUpdateTime(now);
+					orderDeliveryMapper.update(orderDelivery);
+					//修改订单状态
+					order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+					order.setDeliverTime(manufacturerOrder.getDeliverTime());
+					order.setUpdateTime(now);
+					order.setUpdateUser(manufacturerOrder.getSupplyName());
+					orderMapper.update(order);
+					//插入日志表
+					OrderTrace orderTrace = new OrderTrace();
+					orderTrace.setOrderId(order.getOrderId());
+					orderTrace.setNodeName("卖家已发货");
+					orderTrace.setDealStaff(manufacturerOrder.getSupplyName());
+					orderTrace.setRecordDate(now);
+					orderTrace.setRecordStaff(manufacturerOrder.getSupplyName());
+					orderTrace.setOrderStatus(order.getOrderStatus());
+					orderTrace.setCreateTime(now);
+					orderTrace.setCreateUser(manufacturerOrder.getSupplyName());
+					orderTraceMapper.save(orderTrace);
+					//扣减冻结库存(发货)
+					productInventoryManage.deductionInventory(orderDetailList, manufacturerOrder.getSupplyName());
+				} else {
+					list.add(manufacturerOrder);
+				}
+			}
+			return list;
+		}
+		return null;
+	}
+
+	/**
+	 * 供应商发货商品信息写入Excel
+	 *
+	 * @param orderDetailList
+	 * @param flowId
+	 * @param path
+	 * @return
+	 */
+	public static String writeExcel(List<OrderDetail> orderDetailList, String flowId, String path) {
+		//创建路径
+		File fileUrl = new File(path);
+		if (!fileUrl.exists()) {
+			fileUrl.mkdirs();
+		}
+		String[] headers = new String[]{"序号", "订单编号", "商品编码", "批号", "数量"};
+		List<Object[]> dataset = new ArrayList<Object[]>();
+		int i = 1;
+		for (OrderDetail orderDetail : orderDetailList) {
+			dataset.add(new Object[]{i, flowId, orderDetail.getProductCode(), orderDetail.getSpuCode(), orderDetail.getProductCount()});
+			i++;
+		}
+		String fileName = ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset, path);
+		return path + fileName;
+	}
 }

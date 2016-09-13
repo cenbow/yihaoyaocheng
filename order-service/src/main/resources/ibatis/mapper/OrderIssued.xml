@@ -196,4 +196,15 @@
 	<!--<select id="getErpCodeByPro" parameterType="java.util.Map"  resultType="java.lang.String">
 		SELECT PA.PRODUCTCODE_COMPANY FROM T_PRODUCT_AUDIT PA WHERE PA.SELLER_CODE = #{supplyId} AND PA.SPU_CODE = #{spuCode}
 	</select>-->
+
+	<select id="getManufacturerOrder" parameterType="java.lang.Integer"  resultMap="OrderIssuedResultMapper">
+		SELECT
+		OI.FLOW_ID
+		FROM
+		T_ORDER_ISSUED OI LEFT JOIN  T_ORDER O
+		ON O.FLOW_ID =OI.FLOW_ID
+		WHERE
+		OI.SUPPLY_ID=#{supplyId} AND issued_status='1'
+		AND O.ORDER_STATUS = '5'
+	</select>
 </mapper>
