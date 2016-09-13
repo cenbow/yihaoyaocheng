@@ -1492,11 +1492,11 @@ public class OrderService {
 	 * 检查订单页的数据
 	 * @return
 	 * @param userDto
-	 * @param oldShoppingCartListDto
+	 * @param oldShoppingCartIdList
 	 */
-	public Map<String,Object> checkOrderPage(UserDto userDto, ShoppingCartListDto oldShoppingCartListDto) throws Exception {
+	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList) throws Exception {
 		log.info("检查订单页的数据,userDto = " + userDto);
-		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(oldShoppingCartIdList)){
 			return null;
 		}
 		Map<String,Object> resultMap = new HashMap<String, Object>();
@@ -1514,55 +1514,60 @@ public class OrderService {
 		resultMap.put("receiveAddressList",receiverAddressList );
 
 
-
-		/* 用户从购物车页面选中的商品 */
-		List<Integer> shoppingCartIdList = new ArrayList<Integer>();
-		if(!UtilHelper.isEmpty(oldShoppingCartListDto) && !UtilHelper.isEmpty(oldShoppingCartListDto.getShoppingCartDtoList())){
-			for(ShoppingCartDto shoppingCartDto: oldShoppingCartListDto.getShoppingCartDtoList()){
-				if(UtilHelper.isEmpty(shoppingCartDto) || UtilHelper.isEmpty(shoppingCartDto.getShoppingCartId()) || shoppingCartDto.getShoppingCartId()<= 0){
-					continue;
-				}
-				shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
-			}
+		/* 查找出当前买家的进货单里面，有哪些供应商 */
+		ShoppingCart shoppingCartQuery = new ShoppingCart();
+		shoppingCartQuery.setCustId(userDto.getCustId());
+		List<ShoppingCart> custIdAndSupplyIdList = shoppingCartMapper.listDistinctCustIdAndSupplyId(shoppingCartQuery);
+		if(UtilHelper.isEmpty(custIdAndSupplyIdList)){
+			resultMap.put("result",false);
+			resultMap.put("message","您的进货单中没有商品");
+			return resultMap;
 		}
 
-		/* 获取购物车中的商品信息 */
-		ShoppingCart shoppingCart = new ShoppingCart();
-		shoppingCart.setCustId(currentLoginEnterpriseId);
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
-		resultMap.put("allShoppingCart",allShoppingCart);
-		if(UtilHelper.isEmpty(allShoppingCart)) return resultMap;
-
-		/*遍历购物车所有供应商信息*/
+		List<ShoppingCartListDto> allShoppingCart = new ArrayList<>();
+		ShoppingCartListDto shoppingCartListDto = null;
+		List<ShoppingCartDto> shoppingCartDtoList = null;
+		ShoppingCartDto shoppingCartDto = null;
 		BigDecimal productPriceCount = null;
 		BigDecimal orderPriceCount = new BigDecimal(0);
-		List deleteSupplyList = new ArrayList();
-		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
-			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())) continue;
-			productPriceCount = new BigDecimal(0);
 
-			/*遍历购物车所有供应商下的商品信息*/
-			List deleteProductList = new ArrayList();
-			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
-				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
-				if(!UtilHelper.isEmpty(shoppingCartIdList) && !shoppingCartIdList.contains(shoppingCartDto.getShoppingCartId())){
-					deleteProductList.add(shoppingCartDto);
+		for(ShoppingCart custIdAndSupplyId : custIdAndSupplyIdList) {
+			if (UtilHelper.isEmpty(custIdAndSupplyId)) continue;
+			shoppingCartListDto = new ShoppingCartListDto();
+			shoppingCartListDto.setBuyer(enterpriseMapper.getByEnterpriseId(custIdAndSupplyId.getCustId()+""));
+			shoppingCartListDto.setSeller(enterpriseMapper.getByEnterpriseId(custIdAndSupplyId.getSupplyId()+""));
+
+			productPriceCount = new BigDecimal(0);
+			shoppingCartDtoList = new ArrayList<>();
+			/* 遍历进货单中 选中的商品 */
+			for( Integer shoppingCartId : oldShoppingCartIdList){
+				if(UtilHelper.isEmpty(shoppingCartId) || shoppingCartId <= 0){
 					continue;
 				}
-				productPriceCount = productPriceCount.add(shoppingCartDto.getProductPrice().multiply(new BigDecimal(shoppingCartDto.getProductCount())));
-			}
-			if(!UtilHelper.isEmpty(deleteProductList)){
-				shoppingCartListDto.getShoppingCartDtoList().removeAll(deleteProductList);
-			}
-			if(UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
-				deleteSupplyList.add(shoppingCartListDto);
-				continue;
+				ShoppingCart temp = shoppingCartMapper.getByPK(shoppingCartId);
+				if(UtilHelper.isEmpty(temp)) continue;
+				if(custIdAndSupplyId.getSupplyId().equals(temp.getSupplyId())){
+					shoppingCartDto = new ShoppingCartDto();
+					shoppingCartDto.setCustId(temp.getCustId());
+					shoppingCartDto.setSupplyId(temp.getSupplyId());
+					shoppingCartDto.setSpuCode(temp.getSpuCode());
+					shoppingCartDto.setProductId(temp.getProductId());
+					shoppingCartDto.setProductName(temp.getProductName());
+					shoppingCartDto.setManufactures(temp.getManufactures());
+					shoppingCartDto.setSpecification(temp.getSpecification());
+					shoppingCartDto.setProductCount(temp.getProductCount());
+					shoppingCartDto.setProductPrice(temp.getProductPrice());
+					shoppingCartDto.setProductSettlementPrice(temp.getProductSettlementPrice());
+					shoppingCartDto.setProductCodeCompany(temp.getProductCodeCompany());
+					shoppingCartDtoList.add(shoppingCartDto);
+
+					productPriceCount = productPriceCount.add(temp.getProductPrice().multiply(new BigDecimal(temp.getProductCount())));
+				}
 			}
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
 			orderPriceCount = orderPriceCount.add(productPriceCount);
-		}
-		if(!UtilHelper.isEmpty(deleteSupplyList)){
-			allShoppingCart.removeAll(deleteSupplyList);
+			shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
+			allShoppingCart.add(shoppingCartListDto);
 		}
 
 		resultMap.put("allShoppingCart",allShoppingCart);

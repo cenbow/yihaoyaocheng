@@ -696,7 +696,7 @@ function submitCheckOrderPage(){
             console.info(data);
             if(data.result){
                 $("#submitCheckOrderPage").attr({"action": ctx + "/order/checkOrderPage"});
-                $("#submitCheckOrderPage").submit();            
+                $("#submitCheckOrderPage").submit();
             }else{
                 new Dialog({
                     title:'提示',
