@@ -655,7 +655,6 @@ public class OrderExceptionController extends BaseJsonController{
 			UserDto userDto = super.getLoginUser();
 			orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, userDto);
 			//补货确认收货调用账期接口
-			try{
 				if (UtilHelper.isEmpty(creditDubboService))
 					logger.error("CreditDubboServiceInterface creditDubboService is null");
 				else {
@@ -679,12 +678,6 @@ public class OrderExceptionController extends BaseJsonController{
 						}
 					}
 				}
-			}catch (Exception e){
-				logger.debug(e.getMessage());
-				throw new RuntimeException("未找到拒收订单");
-			}
-
-
 	}
 
 	/**
