@@ -36,6 +36,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 是否还有商品库存 */
     private boolean existProductInventory;
 
+    /* （客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）*/
+    private int putawayStatus;
+
     public Integer getSaleStart() {
         return saleStart;
     }
@@ -100,6 +103,14 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.existProductInventory = existProductInventory;
     }
 
+    public int getPutawayStatus() {
+        return putawayStatus;
+    }
+
+    public void setPutawayStatus(int putawayStatus) {
+        this.putawayStatus = putawayStatus;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -111,6 +122,7 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", saleStart=" + saleStart +
                 ", upStep=" + upStep +
                 ", existProductInventory=" + existProductInventory +
+                ", putawayStatus=" + putawayStatus +
                 '}';
     }
 }

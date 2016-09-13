@@ -5,6 +5,7 @@
 function changeOrderDeliveryDetail(exceptionOrderId) {
     var requestUrl = ctx+"/order/orderDeliveryDetail/sellerChangeOrderDeliveryDetailDto";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:exceptionOrderId}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -12,6 +13,7 @@ function changeOrderDeliveryDetail(exceptionOrderId) {
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
+            tipRemove();
             //填充表格数据
             fillTableJson(data);
             var totalpage = data.totalPage;
@@ -32,6 +34,7 @@ function changeOrderDeliveryDetail(exceptionOrderId) {
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败",function(){
             });
         }

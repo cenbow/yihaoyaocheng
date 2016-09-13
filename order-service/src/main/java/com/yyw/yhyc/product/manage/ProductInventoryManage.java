@@ -60,7 +60,7 @@ public class ProductInventoryManage {
      * @return
      * @throws Exception
      */
-    public Map<String, Object> findInventoryNumber(ProductInventory productInventory) throws Exception {
+    public Map<String, Object> findInventoryNumber(ProductInventory productInventory) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         ProductInventory productInventory1 = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
         if (UtilHelper.isEmpty(productInventory1)) {

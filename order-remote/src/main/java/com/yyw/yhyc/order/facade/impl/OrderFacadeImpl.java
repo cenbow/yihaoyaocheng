@@ -159,8 +159,8 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto) throws Exception {
-		return orderService.validateProducts(currentLoginCustId,orderDto);
+	public Map<String,Object> validateProducts(UserDto userDto,OrderDto orderDto) throws Exception {
+		return orderService.validateProducts(userDto,orderDto,null,null);
 	}
 	/**
 	 * 查采购商订单查询

@@ -447,11 +447,13 @@ function fillTable(data) {
 function changeConfirmReceipt(){
     var exceptionOrderId= $("#changeExceptionOrderId").val();
     if (window.confirm("是否确认收货？")) {
+        tipLoad();
         $.ajax({
             url: ctx + "/orderException/changeGoodsBuyerConfirmReceipt/"+exceptionOrderId,
             type: "GET",
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
+                tipRemove();
                 if(data.statusCode || data.message){
                     alertModal(data.message);
                     return;
@@ -463,6 +465,7 @@ function changeConfirmReceipt(){
                 }
             },
             error: function () {
+                tipRemove();
                 alertModal("处理失败");
             }
         });
