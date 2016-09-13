@@ -69,6 +69,7 @@ function fillPagerUtil(data,requestParam) {
 
 function doRefreshData(requestParam){
 	var requestUrl = ctx+"/order/orderSettlement/listPg/t2";
+	tipLoad()
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -78,6 +79,7 @@ function doRefreshData(requestParam){
 		success : function(data) {
 			//填充表格数据
 			fillTableJson(data);
+			tipRemove();
 			//设置分页组件参数
 			// fillPagerUtil(data,requestParam);
 			var totalpage = data.totalPage;
@@ -92,12 +94,15 @@ function doRefreshData(requestParam){
 				asyn:1,
 				contentType:'application/json;charset=UTF-8',
 				callback:function(data,index){
+					tipLoad()
 					var nowpage = data.page;
 					$("#nowpageedit").val(nowpage);
 					fillTableJson(data);
+					tipRemove();
 				}});
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			tipRemove();
 			alertModal("查询结算列表错误",function(){
 				closeAlert();
 			});
@@ -190,12 +195,13 @@ function bindOperateBtn() {
 		var settlementId = $(this).attr("data-stmid");
 
 		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
-
+		tipLoad();
 		$.ajax({
 			url : requestUrl,
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
+				tipRemove();
 				$("#myModalDetail .form-group:eq(0) div" ).html(data.settlementMoney+"元")
 				$("#myModalDetail .form-group:eq(1) div" ).html(data.refunSettlementMoney+"元")
 				$("#myModalDetail .form-group:eq(2) div" ).html(data.differentMoney+"元")
@@ -203,9 +209,11 @@ function bindOperateBtn() {
 				$("#myModalDetail").modal();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				tipRemove();
 				alertModal("退款详情信息错误",function(){
 					closeAlert();
 				});
+
 			}
 		});
 	});
