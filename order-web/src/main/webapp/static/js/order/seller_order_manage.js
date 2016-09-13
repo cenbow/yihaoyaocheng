@@ -143,6 +143,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/order/listPgSellerOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -150,6 +151,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if (data.statusCode || data.message) {
                 alertModal(data.message);
                 return;
@@ -176,14 +178,17 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
+                    tipLoad();
                     console.info(data);
                     var nowpage = data.sellerOrderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.sellerOrderList);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -299,10 +304,12 @@ function sendDelivery(flowId) {
     $("#deliveryExpressNo1").val("");
     $("#deliveryContactPerson1").val("");
     $("#deliveryDate").val("");
+    tipLoad();
     $.ajax({
         url: ctx+"/order/orderDelivery/getReceiveAddressList",
         type: 'GET',
         success: function (data) {
+            tipRemove();
             console.info(data);
             if (data!=null) {
                     $("#warehouse").html("");
@@ -323,6 +330,7 @@ function sendDelivery(flowId) {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("加载失败");
         }
     });
@@ -425,12 +433,14 @@ function doCancle() {
     var orderId = $("#orderId").val().trim();
     var cancelResult = $("#cancelResult").val().trim();
     var data = {orderId:orderId,cancelResult:cancelResult};
+    tipLoad();
     $.ajax({
         url: ctx+"/order/sellerCancelOrder",
         data: JSON.stringify(data),
         type: 'POST',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if (data.statusCode || data.message) {
                 alertModal(data.message);
                 return;
@@ -441,6 +451,7 @@ function doCancle() {
             alertModal("取消成功");
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("取消失败");
         }
     });

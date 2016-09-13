@@ -154,6 +154,7 @@ function doRefreshData(requestParam,requestUrl){
 				}});
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			tipRemove();
 			alertModal("查询结算列表错误",function(){
 				closeAlert();
 			});
@@ -231,9 +232,7 @@ function bindOperateBtn() {
 	});
 	$(".back-detail").on("click",function () {
 		var flowId = $(this).attr("data-stmid");
-		alert(flowId);
-		return;
-		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
+		var requestUrl = "/order/orderSettlement/getByPK/"+flowId;
 		tipLoad();
 		$.ajax({
 			url : requestUrl,

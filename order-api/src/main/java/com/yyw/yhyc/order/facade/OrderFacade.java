@@ -110,7 +110,7 @@ public interface OrderFacade {
 	 * @param orderDto
 	 * @throws Exception
 	 */
-	public boolean validateProducts(Integer currentLoginCustId,OrderDto orderDto)throws Exception;
+	public Map<String,Object> validateProducts(UserDto userDto,OrderDto orderDto) throws Exception;
 
 
 	/**

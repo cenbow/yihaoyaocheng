@@ -70,6 +70,7 @@ function showSalesReturn(flowId){
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
+            tipRemove();
 
             //填充表格数据
             fillSaleReturnTable(data);
@@ -79,7 +80,6 @@ function showSalesReturn(flowId){
             $("#J_pager2").attr("current",nowpage);
             $("#J_pager2").attr("total",totalpage);
             $("#J_pager2").attr("url",requestUrl);
-            tipRemove();
             $("#J_pager2").pager({
                 data:requestParam,
                 requestType:"post",

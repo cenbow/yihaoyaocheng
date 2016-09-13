@@ -133,6 +133,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/orderException/listPgSellerReplenishmentOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -140,6 +141,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;
@@ -166,14 +168,17 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
+                    tipLoad();
                     console.info(data);
                     var nowpage = data.orderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.orderList);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -285,11 +290,12 @@ function sendDelivery(exceptionOrderId) {
     $("#deliveryExpressNo1").val("");
     $("#deliveryContactPerson1").val("");
     $("#deliveryDate").val("");
-
+    tipLoad();
     $.ajax({
         url: ctx+"/order/orderDelivery/getReceiveAddressList",
         type: 'GET',
         success: function (data) {
+            tipRemove();
             console.info(data);
             if (data!=null) {
                 $("#warehouse").html("");
@@ -310,6 +316,7 @@ function sendDelivery(exceptionOrderId) {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("加载失败");
         }
     });
@@ -367,11 +374,13 @@ function sendDeliverysubmit(){
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
+    tipLoad();
     $("#sendform").ajaxSubmit({
         url :ctx+'/order/orderDelivery/sendOrderDelivery',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
+            tipRemove();
             console.info(data);
             var obj=eval("(" + data + ")");
             if(obj.code==0){
