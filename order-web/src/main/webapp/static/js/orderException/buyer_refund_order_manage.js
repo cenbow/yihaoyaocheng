@@ -88,6 +88,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/orderException/listPgBuyerRefundOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -95,11 +96,11 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;
             }
-            console.info(data);
             //设置订单数量
             setOrderCount(data.orderStatusCount);
             //填充表格数据
@@ -121,14 +122,16 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
-                    console.info(data);
+                    tipLoad();
                     var nowpage = data.orderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.orderList);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -200,12 +203,14 @@ function createOperation(order){
  * @param orderId
  */
 function cancleOrder(exceptionId) {
+    tipLoad();
     if (window.confirm("确定取消退货订单？")) {
         $.ajax({
             url: ctx+"/orderException/buyerCancelRefundOrder/"+exceptionId,
             type: 'GET',
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
+                tipRemove();
                 if(data.statusCode || data.message){
                     alertModal(data.message);
                     return;
@@ -215,6 +220,7 @@ function cancleOrder(exceptionId) {
                 alertModal("取消成功");
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                tipRemove();
                 alertModal("取消失败");
             }
         });
@@ -261,12 +267,12 @@ function sendDelivery(exceptionId) {
     $("#deliveryExpressNo1").val("");
     $("#deliveryContactPerson1").val("");
     $("#deliveryDate").val("");
-
+    tipLoad();
     $.ajax({
         url: ctx+"/order/orderDelivery/getReceiveAddressList",
         type: 'GET',
         success: function (data) {
-            console.info(data);
+            tipRemove();
             if (data!=null) {
                 $("#warehouse").html("");
                 var divs = "";
@@ -286,6 +292,7 @@ function sendDelivery(exceptionId) {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("加载失败");
         }
     });
@@ -332,12 +339,13 @@ function sendDeliverysubmit(){
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
+    tipLoad();
     $("#sendform").ajaxSubmit({
         url :ctx+'/order/orderDelivery/sendOrderDeliveryForRefund',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
-            console.info(data);
+            tipRemove();
             var obj=eval("(" + data + ")");
             if(obj.code==0){
                 alertModal(obj.msg);
@@ -355,6 +363,10 @@ function sendDeliverysubmit(){
                 }
                 $("#msgDiv").append(div);
             }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
+            alertModal("操作失败");
         }
     });
 

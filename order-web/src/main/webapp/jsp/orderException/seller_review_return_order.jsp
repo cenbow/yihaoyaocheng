@@ -186,17 +186,9 @@
     </div>
 
 </div>
-    <div class="footer">
-        <p>监管机构：国家食品药品监督管理局   广东省食品药品监督管理局   广州市食品药品监督管理局</p>
-        <p>Copyright (C) 2010-2015 本网站版权归广东壹号药业有限公司所有  网站备案号:粤ICP备15048678</p>
-    </div>
-    <!--框架右侧内容 end-->
 </div>
 </body>
-<script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<%@ include file="../common_footer.jsp" %>
 <script type="text/javascript">
     function review(type){
         if(type == 3 || type == 4){
@@ -207,13 +199,14 @@
             }
             var remark = $("#remark").val().trim();
             var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
-
+            tipLoad();
             $.ajax({
                 url: ctx+"/orderException/sellerReviewReturnOrder",
                 data: JSON.stringify(data),
                 type: 'POST',
                 contentType: "application/json;charset=UTF-8",
                 success: function (data) {
+                    tipRemove();
                     if (data.statusCode || data.message) {
                         alertModal(data.message);
                         return;
@@ -224,6 +217,7 @@
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    tipRemove();
                     alertModal("审核失败");
                 }
             });

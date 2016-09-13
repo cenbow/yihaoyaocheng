@@ -248,18 +248,9 @@
 </div>
 
 </div>
-<div class="footer">
-    <p>监管机构：国家食品药品监督管理局   广东省食品药品监督管理局   广州市食品药品监督管理局</p>
-    <p>Copyright (C) 2010-2015 本网站版权归广东壹号药业有限公司所有  网站备案号:粤ICP备15048678</p>
-</div>
-<!--框架右侧内容 end-->
 </div>
 </body>
-<script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/common.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
+<%@ include file="../common_footer.jsp" %>
 </html>
 
 

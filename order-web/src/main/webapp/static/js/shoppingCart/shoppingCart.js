@@ -18,27 +18,36 @@ function deleteShoppingCart(_shoppingCartId){
     })
 }
 
-function deleteSelectedShoppingCart(_shoppingCartId){
+function deleteSelectedShoppingCart(){
+    var _shoppingCartIdList = new Array();
+    $('.holder-list .cart-checkbox').each(function(){
+        if($(this).hasClass('select-all')){
+            var shoppingCartId = $(this).attr("shoppingCartId");
+            if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
+                _shoppingCartIdList.push(shoppingCartId);
+            }    
+        }
+    });
+    var _data = {"list":_shoppingCartIdList};
+    sendDeleteAjaxRequest(_data);
+}
 
-    //TODO 删除已选中的
+function sendDeleteAjaxRequest(_data){
+    $.ajax({
+        url:ctx + "/shoppingCart/delete",
+        data:JSON.stringify(_data),
+        type:"post",
+        dataType:"json",   //返回参数类型
+        contentType :"application/json",   //请求参数类型
+        async:false,
+        success:function(data){
+            console.info("删除成功!");
+            window.location.reload();
+        },
+        error:function(){
 
-    // if(_shoppingCartId == null || _shoppingCartId == "" || typeof _shoppingCartId == "undefined"){
-    //     return;
-    // }
-    // var _data = {"list":[_shoppingCartId]};
-    // $.ajax({
-    //     url:ctx + "/shoppingCart/delete",
-    //     data:JSON.stringify(_data),
-    //     type:"post",
-    //     dataType:"json",   //返回参数类型
-    //     contentType :"application/json",   //请求参数类型
-    //     success:function(data){
-    //         console.info(data);
-    //     },
-    //     error:function(){
-    //
-    //     }
-    // })
+        }
+    })
 }
 
 
@@ -451,13 +460,46 @@ $(function() {
         totalItem();
         totalSum();
     });
-    //删除选中商品
+    // 删除选中商品
     $('.delete-items').click(function(){
-        $('.cart-checkbox').removeClass('select-all');
+        deleteSelectedShoppingCart();
+        $(".order-holder").each(function(){
+            var holderList = $('.holder-list',this);
+            if($(holderList).find(".cart-checkbox").hasClass("select-all")){
+                if(holderList.length == 1){
+                    $(this).remove();
+                }else{
+                    $('.holder-list',this).remove();
+                }
+            }
+        });
         totalItem();
         totalSum();
     });
-    //删除
+    //清除失效商品（缺货、下架等）
+    $(".clear-items").click(function(){
+        var _shoppingCartIdList = new Array();
+        $(".order-holder").each(function(_index,_element){
+            $('.holder-list',this).each(function(index,element){
+                if($(element).hasClass("no-stock")){
+                    var _shoppingCartId = $(element).find(".cart-checkbox").attr("shoppingCartId");
+                    if(_shoppingCartId != null || _shoppingCartId != '' && typeof _shoppingCartId != 'undefined'){
+                        _shoppingCartIdList.push(_shoppingCartId);
+                    }
+                    $(element).remove();
+                }
+            });
+            if($('.holder-list',this).length == 0 || $('.holder-list',this).length == 1){
+                $(this).remove();
+            }
+        });
+        var _data = {"list":_shoppingCartIdList};
+        sendDeleteAjaxRequest(_data);
+        totalItem();
+        totalSum();
+    });
+
+    // 删除
     $('.td-op .btn-delete').click(function(){
         var orderHolder =$(this).parents('.order-holder');
         var holderList=$('.holder-list',orderHolder).length;
@@ -542,6 +584,9 @@ $(function() {
 
 });
 
+
+
+/* 移除页面已勾选的 checkBox，用于提交 */
 function removeSelectedShoppingCart(){
     var array = new Array();
     $('.cart-checkbox').each(function(){
@@ -564,13 +609,16 @@ function removeSelectedShoppingCart(){
     }
 }
 
-
+/**
+ *  获取页面已勾选的 checkBox，用于提交
+ * @returns {boolean}
+ */
 function getSelectedShoppingCart(){
     var paramsHtml = "";
     $('.cart-checkbox').each(function(index,element){
         if($(this).hasClass('select-all')){
             var shoppingCartId = $(this).attr("shoppingCartId");
-            var supplyId = $(this).attr("shoppingCartId");
+            var supplyId = $(this).attr("supplyId");
             // console.info("shoppingCartId=" + shoppingCartId );
             if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
                 // array.push(shoppingCartId);
@@ -609,13 +657,13 @@ function submitCheckOrderPage(){
     }
 
     var array = new Array();
-    $('.cart-checkbox').each(function(){
-        if($(this).hasClass('select-all')){
-            var shoppingCartId = $(this).attr("shoppingCartId");
-            // console.info("shoppingCartId=" + shoppingCartId );
-            if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
-                array.push(shoppingCartId);
-            }
+    $("#submitCheckOrderPage").find(".selectedShoppingCart").each(function(){
+        var shoppingCartId = $(this).val();
+        var supplyId = $(this).attr("supplyId");
+        // console.info("shoppingCartId= "+shoppingCartId +",supplyId=" + supplyId);
+        if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
+            var _data = {"shoppingCartId":shoppingCartId,"supplyId":supplyId};
+            array.push(_data);
         }
     });
     console.info("array="+array);
@@ -634,13 +682,12 @@ function submitCheckOrderPage(){
         });
         return ;
     }
-    var _data = _data = {"list":array};
-
     // console.info("_data="+_data);
-    //TODO AJAX 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
+    
+    /*  检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
     $.ajax({
         url:ctx + "/shoppingCart/check",
-        data:JSON.stringify(_data),
+        data:JSON.stringify(array),
         type:"post",
         dataType:"json",   //返回参数类型
         contentType :"application/json",   //请求参数类型
@@ -653,7 +700,7 @@ function submitCheckOrderPage(){
             }else{
                 new Dialog({
                     title:'提示',
-                    content:'<p class="mt60 f14">' + data.msg || data.message  + '</p>',
+                    content:'<p class="mt60 f14">' + data.message  + '</p>',
                     ok:'确定',
                     afterOk:function(){
                         console.log('111');
