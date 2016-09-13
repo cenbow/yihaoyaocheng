@@ -81,7 +81,7 @@
                     <c:choose>
                         <c:when test="${shoppingCartListDto != null && fn:length(shoppingCartListDto.shoppingCartDtoList) gt 0}">
                             <c:forEach var="shoppingCartDto" items="${shoppingCartListDto.shoppingCartDtoList}"  varStatus="shoppingCartDtoVarStatus">
-                                <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory}"> no-stock </c:if> ">
+                                <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory || (shoppingCartDto.putawayStatus != null && shoppingCartDto.putawayStatus != 1)}"> no-stock </c:if> ">
                                     <ul>
                                         <li class="fl td-chk">
                                             <c:if test="${shoppingCartDto.existProductInventory}">
@@ -91,9 +91,13 @@
                                                 </div>
                                             </c:if>
                                         </li>
+
                                         <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                             <c:if test="${!shoppingCartDto.existProductInventory}">
                                                 <span class="inside-icon">缺货</span>
+                                            </c:if>
+                                            <c:if test="${shoppingCartDto.putawayStatus != null && shoppingCartDto.putawayStatus != 1}">
+                                                <span class="inside-icon">下架</span>
                                             </c:if>
                                             <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">

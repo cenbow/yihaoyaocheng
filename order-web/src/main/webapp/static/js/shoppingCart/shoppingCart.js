@@ -673,7 +673,7 @@ function submitCheckOrderPage(){
             }else{
                 new Dialog({
                     title:'提示',
-                    content:'<p class="mt60 f14">' + data.msg || data.message  + '</p>',
+                    content:'<p class="mt60 f14">' + data.message  + '</p>',
                     ok:'确定',
                     afterOk:function(){
                         console.log('111');
