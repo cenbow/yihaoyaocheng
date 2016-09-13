@@ -19,4 +19,6 @@ import com.yyw.yhyc.bo.Pagination;
 public interface UsermanageReceiverAddressMapper extends GenericIBatisMapper<UsermanageReceiverAddress, Integer> {
 
 	public List<UsermanageReceiverAddress> listPaginationByProperty(Pagination<UsermanageReceiverAddress> pagination, UsermanageReceiverAddress usermanageReceiverAddress);
+
+	public UsermanageReceiverAddress findByEnterpriseId(String enterpriseId);
 }

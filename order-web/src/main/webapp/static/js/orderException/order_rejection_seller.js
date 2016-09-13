@@ -232,9 +232,7 @@ function bindOperateBtn() {
 	});
 	$(".back-detail").on("click",function () {
 		var flowId = $(this).attr("data-stmid");
-		alert(flowId);
-		return;
-		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
+		var requestUrl = "/order/orderSettlement/getByPK/"+flowId;
 		tipLoad();
 		$.ajax({
 			url : requestUrl,

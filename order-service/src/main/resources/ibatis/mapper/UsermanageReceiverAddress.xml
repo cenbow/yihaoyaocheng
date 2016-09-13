@@ -224,4 +224,10 @@
 		SELECT count(1) AS totalcount FROM t_usermanage_receiver_address WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+
+	<select id="findByEnterpriseId" parameterType="java.lang.String" resultMap="UsermanageReceiverAddressResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_usermanage_receiver_address WHERE  enterprise_id=#{enterpriseId} ORDER BY id DESC LIMIT 0,1
+	</select>
 </mapper>
