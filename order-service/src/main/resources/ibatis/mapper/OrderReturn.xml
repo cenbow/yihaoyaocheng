@@ -328,6 +328,7 @@
 		T1.batch_number AS batchNumber,
 		T2.product_id AS productId,
 		T2.product_name AS productName,
+		T2.short_name AS shortName,
 		T2.specification,
 		T2.manufactures,
 	    T2.form_of_drug AS formOfDrug,
