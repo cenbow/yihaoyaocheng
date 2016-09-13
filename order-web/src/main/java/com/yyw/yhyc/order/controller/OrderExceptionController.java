@@ -662,6 +662,7 @@ public class OrderExceptionController extends BaseJsonController{
 					Order order = orderService.getByPK(oe.getOrderId());
 					SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+						logger.info("补货确认收货调用资讯接口");
 						CreditParams creditParams = new CreditParams();
 						//creditParams.setSourceFlowId(oe.getFlowId());源订单单号
 						creditParams.setBuyerCode(oe.getCustId() + "");
