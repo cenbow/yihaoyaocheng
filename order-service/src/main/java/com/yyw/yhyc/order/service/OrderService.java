@@ -863,7 +863,7 @@ public class OrderService {
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
 
-			productPriceCount = productPriceCount.multiply(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
+			productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 
 			/* 检查库存 */
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
