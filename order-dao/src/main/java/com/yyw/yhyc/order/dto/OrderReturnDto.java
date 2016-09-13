@@ -18,6 +18,7 @@ public class OrderReturnDto extends OrderReturn {
     private String orderLineNo;             //订单行号
     private String formOfDrug;              //剂型
     private String spuCode;                 //商品spu编码
+    private String shortName;               //通用名
 
     public String getProductName() {
         return productName;
@@ -91,10 +92,19 @@ public class OrderReturnDto extends OrderReturn {
         this.spuCode = spuCode;
     }
 
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
     @Override
     public String toString() {
         return "OrderReturnDto{" +
                 "orderReturn="+super.toString()+
+                ", shortName="+shortName+
                 ", productId=" + productId +
                 ", productName='" + productName + '\'' +
                 ", productPrice=" + productPrice +
