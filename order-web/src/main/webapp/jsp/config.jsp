@@ -20,3 +20,4 @@
     var imgDomain = "${imgDomain}";
 
 </script>
+<script type="text/javascript" src="${ctx }/static/js/b_common.js"></script>
