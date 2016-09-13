@@ -62,6 +62,7 @@ function showSalesReturn(flowId){
     flowId = flowId.trim();
     var requestUrl = ctx+"/order/orderDeliveryDetail/listPgReturn";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:1}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -78,18 +79,22 @@ function showSalesReturn(flowId){
             $("#J_pager2").attr("current",nowpage);
             $("#J_pager2").attr("total",totalpage);
             $("#J_pager2").attr("url",requestUrl);
+            tipRemove();
             $("#J_pager2").pager({
                 data:requestParam,
                 requestType:"post",
                 asyn:1,
                 contentType:'application/json;charset=UTF-8',
                 callback:function(data,index){
+                    tipLoad();
                     var nowpage = data.page;
                     $("#nowpageedit").val(nowpage);
                     fillSaleReturnTable(data);
+                    tipRemove();
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败",function(){
             });
         }
@@ -182,6 +187,7 @@ function confirmSaleReturn(){
         alert("没有符合退货的记录，请核实退货数量");
         return ;
     }
+    tipLoad();
     $.ajax({
         url :ctx+'/order/orderReturn/confirmSaleReturn',
         data: JSON.stringify(list),
@@ -189,7 +195,8 @@ function confirmSaleReturn(){
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
-            console.info(data);
+            // console.info(data);
+            tipRemove();
             if(data.code==0){
                 alertModal("操作失败，请稍后再试...");
             }else{

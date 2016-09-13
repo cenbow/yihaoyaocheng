@@ -75,6 +75,7 @@ function fillPagerUtil(data,requestParam) {
 
 function doRefreshData(requestParam){
 	var requestUrl = ctx+"/order/orderSettlement/listPg/t1";
+	tipLoad();
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -89,6 +90,7 @@ function doRefreshData(requestParam){
 			var totalpage = data.totalPage;
 			var nowpage = data.pageNo;
 			var totalCount = data.total;
+			tipRemove();
 			$("#J_pager").attr("current",nowpage);
 			$("#J_pager").attr("total",totalpage);
 			$("#J_pager").attr("url",requestUrl);
@@ -98,12 +100,15 @@ function doRefreshData(requestParam){
 				asyn:1,
 				contentType:'application/json;charset=UTF-8',
 				callback:function(data,index){
+					tipLoad();
 					var nowpage = data.page;
 					$("#nowpageedit").val(nowpage);
 					fillTableJson(data);
+					tipRemove();
 				}});
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			tipRemove();
 			alertModal("查询结算列表错误",function(){
 				closeAlert();
 			});
@@ -222,6 +227,7 @@ function  bindSettlementOperate() {
 		}
 		var param = $("#upForm").serializeObject();
 		var requestUrl = ctx+"/order/orderSettlement/refundSettlement";
+		tipLoad();
 		$.ajax({
 			url : requestUrl,
 			data : JSON.stringify(param),
@@ -229,6 +235,7 @@ function  bindSettlementOperate() {
 			dataType:'json',
 			contentType : "application/json;charset=UTF-8",
 			success : function(data) {
+				tipRemove();
 				if(data){
                     //Maskremove();
 					$("#myModalOperate").modal("hide");
@@ -237,6 +244,7 @@ function  bindSettlementOperate() {
 				};
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				tipRemove();
 				alertModal("保存失败",function(){
 					closeAlert();
 				});
