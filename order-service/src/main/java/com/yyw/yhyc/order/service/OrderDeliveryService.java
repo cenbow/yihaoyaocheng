@@ -1091,7 +1091,7 @@ public class OrderDeliveryService {
 	 * @param manufacturerOrderList
 	 * @return
 	 */
-	public List<ManufacturerOrder> updateOrderDeliver(List<ManufacturerOrder> manufacturerOrderList) {
+	public List<ManufacturerOrder> updateOrderDeliver(List<ManufacturerOrder> manufacturerOrderList,String filePath) {
 		if (!UtilHelper.isEmpty(manufacturerOrderList)) {
 			String now = systemDateMapper.getSystemDate();
 			List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
@@ -1119,7 +1119,7 @@ public class OrderDeliveryService {
 						log.info("该订单" + manufacturerOrder.getFlowId() + "的商品信息为空");
 						continue;
 					}
-					String path = writeExcel(orderDetailList, order.getFlowId(), "/opt/deploy/order-web/include/excel/");
+					String path = writeExcel(orderDetailList, order.getFlowId(), filePath);
 					int i = 1;
 					for (OrderDetail orderDetail : orderDetailList) {
 						OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
