@@ -24,4 +24,5 @@ public interface OrderIssuedMapper extends GenericIBatisMapper<OrderIssued, java
 	public List<OrderIssuedDto> findOrderIssuedListBySupplyId(Integer supplyId);
 	public List<OrderIssuedItemDto> getItemsById(Integer orderId);
 	public OrderIssued findByFlowId(String flowId);
+	public List<OrderIssued> getManufacturerOrder(Integer supplyId);
 }

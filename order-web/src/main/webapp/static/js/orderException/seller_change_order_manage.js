@@ -463,7 +463,7 @@ function fillChangeTable(list){
         tr += "<td>" + orderReturn.productCode + "</td>";
         tr += "<td>" + orderReturn.batchNumber + "</td>";
         tr += "<td>" + orderReturn.productName + "</td>";
-        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.shortName + "</td>";
         tr += "<td>" + orderReturn.specification + "</td>";
         tr += "<td>" + orderReturn.formOfDrug + "</td>";
         tr += "<td>" + orderReturn.manufactures + "</td>";

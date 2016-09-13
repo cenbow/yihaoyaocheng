@@ -228,6 +228,8 @@ alertModal("确定要删除吗？");
 <script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
 <script type="text/javascript" src="${ctx}/static/js/area_select.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_settlement_seller.js"></script>
+<script type="text/javascript" src="${ctx}/static/js/b_common.js"></script>
+
 </body>
 
 

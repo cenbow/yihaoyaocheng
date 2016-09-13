@@ -214,4 +214,8 @@ public class OrderIssuedService {
 		resultMap.put("code","1");
 		return resultMap;
 	}
+
+	public List<OrderIssued> getManufacturerOrder(Integer supplyId){
+		return orderIssuedMapper.getManufacturerOrder(supplyId);
+	}
 }
