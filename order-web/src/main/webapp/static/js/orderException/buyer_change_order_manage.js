@@ -82,6 +82,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/orderException/listPgBuyerChangeGoodsOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -89,6 +90,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;

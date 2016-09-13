@@ -84,6 +84,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/orderException/listPgBuyerReplenishmentOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -91,6 +92,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;
@@ -125,6 +127,7 @@ function doRefreshData(requestParam) {
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -211,6 +214,7 @@ function repListPg(ExceptionOrderId) {
     $("#crExceptionOrderId").val(ExceptionOrderId);
     var requestUrl = ctx+"/order/orderDeliveryDetail/listReplenishment";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:ExceptionOrderId,userType:1}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -218,7 +222,7 @@ function repListPg(ExceptionOrderId) {
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
-
+            tipRemove();
             //填充表格数据
             fillTable(data);
             var totalpage = data.totalPage;
@@ -239,6 +243,7 @@ function repListPg(ExceptionOrderId) {
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败",function(){
             });
         }
