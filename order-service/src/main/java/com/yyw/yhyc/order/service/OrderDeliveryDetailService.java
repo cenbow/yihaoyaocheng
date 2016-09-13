@@ -260,6 +260,20 @@ public class OrderDeliveryDetailService {
 				exceptionOrderId="BH"+flowId;
 		}
 
+		//如果收货异常根据异常类型更新订单状态
+		Order order = orderMapper.getOrderbyFlowId(flowId);
+		if (UtilHelper.isEmpty(order)){
+			returnMap.put("code","0");
+			returnMap.put("msg","订单不存在");
+			return returnMap;
+		}
+
+		if (!order.getOrderStatus().equals(SystemOrderStatusEnum.SellerDelivered.getType())){
+			returnMap.put("code","0");
+			returnMap.put("msg","当前状态不可收货");
+			return returnMap;
+		}
+
 		//更新批次收货数量
 		for (OrderDeliveryDetailDto dto : list){
 
@@ -292,6 +306,7 @@ public class OrderDeliveryDetailService {
 				returnMap.put("msg","收货数量不能大于采购数量");
 				return returnMap;
 			}
+
 
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
@@ -341,8 +356,7 @@ public class OrderDeliveryDetailService {
 			}
 		}
 
-		//如果收货异常根据异常类型更新订单状态
-		Order order = orderMapper.getOrderbyFlowId(flowId);
+
 		if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
 			if (returnType.equals("4"))
 				order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
