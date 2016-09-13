@@ -275,18 +275,20 @@ function bindOperateBtn() {
 		var settlementId = $(this).attr("data-stmid");
 
 		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
-
+		tipLoad();
 		$.ajax({
 			url : requestUrl,
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
+				tipRemove();
 				$("#myModalOperate .form-group:eq(0) div" ).html(data.settlementMoney+"元")
 				$('#myModalOperate input[name="orderSettlementId"]').val(settlementId);
 				$("#myModalOperate").modal();
 				bindSettlementOperate();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				tipRemove();
 				alertModal("退款详情信息错误",function(){
 					closeAlert();
 				});
@@ -299,12 +301,13 @@ function bindOperateBtn() {
 		var settlementId = $(this).attr("data-stmid");
 
 		var requestUrl = ctx+"/order/orderSettlement/getByPK/"+settlementId;
-
+		tipLoad();
 		$.ajax({
 			url : requestUrl,
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
+				tipRemove();
 				$("#myModalDetail .form-group:eq(0) div" ).html(data.settlementMoney+"元");
 				$("#myModalDetail .form-group:eq(1) div" ).html(data.refunSettlementMoney+"元");
 				$("#myModalDetail .form-group:eq(2) div" ).html(data.differentMoney+"元");
@@ -312,6 +315,7 @@ function bindOperateBtn() {
 				$("#myModalDetail").modal();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				tipRemove();
 				alertModal("查询结算列表错误",function(){
 					closeAlert();
 				});
