@@ -21,6 +21,7 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,6 @@ public class OrderDeliveryController extends BaseJsonController {
 
 	@Autowired
 	private OrderDeliveryService orderDeliveryService;
-
-	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	/**
 	* 通过主键查询实体对象
@@ -116,7 +115,8 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderDeliveryDto.setPath(request.getRealPath("/") + FILE_TEMPLATE_PATH);
+		orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
+
 		//验证通过生成发货信息并上传文件
 		if(!UtilHelper.isEmpty(excelFile)){
 			String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
@@ -181,7 +181,7 @@ public class OrderDeliveryController extends BaseJsonController {
             user.setCustId(123456);
         }
         orderDeliveryDto.setUserDto(user);
-        orderDeliveryDto.setPath(request.getRealPath("/") + FILE_TEMPLATE_PATH);
+        orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
         //验证通过生成发货信息并上传文件
         if(!UtilHelper.isEmpty(excelFile)){
             String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";

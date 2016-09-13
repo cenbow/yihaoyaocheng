@@ -12,10 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
@@ -61,8 +58,6 @@ public class OrderDeliveryService {
 	private OrderExceptionMapper orderExceptionMapper;
 
 	private OrderReturnMapper orderReturnMapper;
-
-	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	private OrderTraceMapper orderTraceMapper;
 
