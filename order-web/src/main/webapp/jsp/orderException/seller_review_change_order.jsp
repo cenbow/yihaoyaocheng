@@ -220,13 +220,14 @@
             }
             var remark = $("#remark").val().trim();
             var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
-
+            tipLoad();
             $.ajax({
                 url: ctx+"/orderException/sellerReviewChangeOrder",
                 data: JSON.stringify(data),
                 type: 'POST',
                 contentType: "application/json;charset=UTF-8",
                 success: function (data) {
+                    tipRemove();
                     if (data.statusCode || data.message) {
                         alertModal(data.message);
                         return;
@@ -237,6 +238,7 @@
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    tipRemove();
                     alertModal("审核失败");
                 }
             });

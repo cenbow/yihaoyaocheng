@@ -491,6 +491,7 @@ function confirmReceipt(){
             }
         }
     }
+    tipLoad();
     $.ajax({
         url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
         data: JSON.stringify(list),
@@ -498,6 +499,7 @@ function confirmReceipt(){
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             //var obj=eval("(" + data + ")");
             if(data.code==0){
                 alertModal(data.msg);
