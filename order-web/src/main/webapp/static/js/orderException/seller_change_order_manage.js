@@ -82,6 +82,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/orderException/listPgSellerChangeGoodsOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -89,6 +90,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;
@@ -115,14 +117,17 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
+                    tipLoad();
                     console.info(data);
                     var nowpage = data.buyerOrderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.rejectOrderList);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -238,11 +243,13 @@ function fmoney(s, n)
  */
 function cancleOrder(id, status) {
     if (window.confirm("订单取消后将无法恢复，确定取消？")) {
+        tipLoad();
         $.ajax({
             url: ctx+"/orderException/cancleOrder/"+id+"/"+status,
             type: 'GET',
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
+                tipRemove();
                 if(data.statusCode || data.message){
                     alertModal(data.message);
                     return;
@@ -257,6 +264,7 @@ function cancleOrder(id, status) {
                 }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                tipRemove();
                 alertModal("取消失败");
             }
         });
@@ -281,11 +289,12 @@ function sendDelivery(flowId) {
     $("#deliveryExpressNo1").val("");
     $("#deliveryContactPerson1").val("");
     $("#deliveryDate").val("");
-
+    tipLoad();
     $.ajax({
         url: ctx+"/order/orderDelivery/getReceiveAddressList",
         type: 'GET',
         success: function (data) {
+            tipRemove();
             console.info(data);
             if (data!=null) {
                 $("#warehouse").html("");
@@ -306,6 +315,7 @@ function sendDelivery(flowId) {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("加载失败");
         }
     });
@@ -363,11 +373,13 @@ function sendDeliverysubmit(){
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
+    tipLoad();
     $("#sendform").ajaxSubmit({
         url :ctx+'/order/orderDelivery/sendOrderDeliveryReturn',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
+            tipRemove();
             console.info(data);
             var obj=eval("(" + data + ")");
             if(obj.code==0){
@@ -406,6 +418,7 @@ $(function(){
 function  confirmSaleChange() {
     var requestUrl = ctx+"/orderException/editConfirmReceiptChange";
     var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
+    tipLoad();
     $.ajax({
         url: requestUrl,
         type: 'POST',
@@ -413,6 +426,7 @@ function  confirmSaleChange() {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data&&data.msg== true){
                 alertModal("操作成功");
                 $("#myConfirmReturn").modal("hide");
@@ -422,6 +436,7 @@ function  confirmSaleChange() {
 
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     })
@@ -433,12 +448,14 @@ function showChangeList (exceptionOrderId){
     //TODO  请求数据
     var requestUrl = ctx+"/order/orderReturn/listOrderReturn/"+exceptionOrderId;
     $("#curExceptionOrderId").val(exceptionOrderId);
+    tipLoad();
     $.ajax({
         url: requestUrl,
         type: 'POST',
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data&&data.length>0){
                 $("#curExceptionOrderId").val(exceptionOrderId);
                 fillChangeTable(data)
@@ -446,6 +463,7 @@ function showChangeList (exceptionOrderId){
 
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -463,7 +481,7 @@ function fillChangeTable(list){
         tr += "<td>" + orderReturn.productCode + "</td>";
         tr += "<td>" + orderReturn.batchNumber + "</td>";
         tr += "<td>" + orderReturn.productName + "</td>";
-        tr += "<td>" + orderReturn.productName + "</td>";
+        tr += "<td>" + orderReturn.shortName + "</td>";
         tr += "<td>" + orderReturn.specification + "</td>";
         tr += "<td>" + orderReturn.formOfDrug + "</td>";
         tr += "<td>" + orderReturn.manufactures + "</td>";

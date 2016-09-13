@@ -95,7 +95,7 @@ public class OrderPayManage {
         String money = map.get("money").toString();
         String MerId = map.get("MerId").toString();
        log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
-        updateOrderpayInfos(flowPayId, new BigDecimal(money),map.toString());
+        updateOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
     }
 
     // 支付完成更新信息
@@ -137,7 +137,6 @@ public class OrderPayManage {
 
                         //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
 
-
                         //银联支付成功 生成结算信息
                         if(!OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(order.getPayTypeId()) ){
                             OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
@@ -166,6 +165,9 @@ public class OrderPayManage {
         if (orderStatus.equals("0000")) {// 打款成功
             for (Order order : listOrder) {
                // if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
+                    //更新订单支付标记
+                    order.setPayFlag(SystemOrderPayFlag.PlayMoneySuccess.getType());
+                    orderMapper.update( order);
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
                     //更新结算信息为已结算
@@ -175,7 +177,8 @@ public class OrderPayManage {
         } else {// 打款异常
             for (Order order : listOrder) {
                 //if (SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
-                    order.setOrderStatus(SystemOrderStatusEnum.PaidException.getType());
+                //更新订单支付标记
+                    order.setPayFlag(SystemOrderPayFlag.PlayMoneyError.getType());
                     orderMapper.update(order);
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款失败.");
@@ -216,7 +219,13 @@ public class OrderPayManage {
                         //更新拒收结算为已结算
                         orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3);
                     }
+                    //更新订单支付标记
+                    o.setPayFlag(SystemOrderPayFlag.RefundSuccess.getType());
+                    orderMapper.update(o);
                 } else {
+                    //更新订单支付标记
+                    o.setPayFlag(SystemOrderPayFlag.RefundError.getType());
+                    orderMapper.update(o);
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusFail.getType());
                     orderRefundMapper.update(orderRefund);
                 }

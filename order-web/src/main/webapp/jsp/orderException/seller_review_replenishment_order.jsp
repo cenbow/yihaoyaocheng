@@ -184,11 +184,7 @@
 <!--框架右侧内容 end-->
 </div>
 </body>
-<script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript" src="${STATIC_URL}/static/js/common.js"></script>
+<%@ include file="../common_footer.jsp" %>
 <script type="text/javascript">
     function review(type){
         if(type == 2 || type == 3){
@@ -199,13 +195,14 @@
             }
             var remark = $("#remark").val().trim();
             var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
-
+            tipLoad();
             $.ajax({
                 url: ctx+"/orderException/sellerReviewReplenishmentOrder",
                 data: JSON.stringify(data),
                 type: 'POST',
                 contentType: "application/json;charset=UTF-8",
                 success: function (data) {
+                    tipRemove();
                     if (data.statusCode || data.message) {
                         alertModal(data.message);
                         return;
@@ -216,6 +213,7 @@
                     },1000)
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    tipRemove();
                     alertModal("审核失败");
                 }
             });

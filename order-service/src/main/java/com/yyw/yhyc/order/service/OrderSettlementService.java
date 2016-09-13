@@ -288,22 +288,25 @@ public class OrderSettlementService {
         orderSettlement.setPayTypeId(order.getPayTypeId());
         orderSettlement.setCreateUser(createUser);
 
+        custId = custId ==null?order.getCustId():custId;
+        supplyId = supplyId==null?order.getSupplyId():supplyId;
 
         switch (type) {
             case 1:
                 //生成买家结算
                 orderSettlement.setBusinessType(1);
-                orderSettlement.setCustId(order.getCustId());
+                orderSettlement.setCustId(custId);
                 orderSettlement.setConfirmSettlement("1");//生成结算信息时都是已结算
-
                 orderSettlement.setCreateUser(order.getCustName());
                 orderSettlement.setSettlementMoney(order.getOrgTotal());
                 break;
             case 2:
                 //包装卖家结算信息;
+                orderSettlement.setBusinessType(1);
                 orderSettlement.setCustId(null);
                 orderSettlement.setSupplyId(supplyId);
                 orderSettlement.setConfirmSettlement("0");
+                orderSettlement.setSettlementMoney(order.getOrderTotal());
                 break;
             case 3:
                 orderSettlement.setCustId(custId);
@@ -346,6 +349,7 @@ public class OrderSettlementService {
      * type 1 销售货款  2 退货货款   3 拒收货款 4 取消订单退款
      */
     public void updateSettlementByMap(String flowId,Integer type){
+        log.info("银联同步回调->更新结算信息->订单:"+flowId+";业务类型:"+type);
         Map<String,Object> condition = new HashedMap();
         condition.put("flowId",flowId);
         condition.put("businessType",type);//退货退款

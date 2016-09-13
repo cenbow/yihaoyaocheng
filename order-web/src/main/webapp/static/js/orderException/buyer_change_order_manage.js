@@ -82,6 +82,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/orderException/listPgBuyerChangeGoodsOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -89,6 +90,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;
@@ -429,8 +431,8 @@ function fillTable(data) {
         tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
         tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
         tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
-        tr += "<td>" + orderDeliveryDetail.brandName + "</td>";
         tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
@@ -445,11 +447,13 @@ function fillTable(data) {
 function changeConfirmReceipt(){
     var exceptionOrderId= $("#changeExceptionOrderId").val();
     if (window.confirm("是否确认收货？")) {
+        tipLoad();
         $.ajax({
             url: ctx + "/orderException/changeGoodsBuyerConfirmReceipt/"+exceptionOrderId,
             type: "GET",
             contentType: "application/json;charset=UTF-8",
             success: function (data) {
+                tipRemove();
                 if(data.statusCode || data.message){
                     alertModal(data.message);
                     return;
@@ -461,6 +465,7 @@ function changeConfirmReceipt(){
                 }
             },
             error: function () {
+                tipRemove();
                 alertModal("处理失败");
             }
         });

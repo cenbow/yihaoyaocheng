@@ -92,6 +92,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/order/listPgBuyerOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -118,19 +119,23 @@ function doRefreshData(requestParam) {
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
             $("#J_pager").attr("url", requestUrl);
+            tipRemove();
             $("#J_pager").pager({
                 data: requestParam,
                 requestType: "post",
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
+                    tipLoad();
                     var nowpage = data.buyerOrderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.buyerOrderList);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -194,10 +199,16 @@ function typeToOperate(order) {
     //result = '<span id="order_' + order.orderId + '" ></span>';
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 1)//在线支付+买家已下单
         result += '<span id="order_' + order.orderId + '" ></span><br/>';
-    if (order && order.orderStatus && order.payType && order.orderStatus == '1' && (order.payType == 1 || order.payType == 3)) {//买家已下单 + （在线支付 或 线下转账）
+    if (order && order.orderStatus && order.payType && order.orderStatus == '1' && (order.payType == 1 )) {//买家已下单 + （在线支付）
         result += '<a href=' + PAY_DOMAIN + '/pay-web/orderPay/confirmPay?orderId='+order.orderId+' class="btn btn-info btn-sm margin-r-10">付款</a>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
+
+    if (order && order.orderStatus && order.payType && order.orderStatus == '1' && ( order.payType == 3)) {//买家已下单 + （线下转账）
+        result += '<a href=' + domainPath + '/order-web/order/accountPayInfo/getByCustId/' + order.supplyId + ' class="btn btn-info btn-sm margin-r-10">付款</a>';
+        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+    }
+
     if(order && order.orderStatus && order.orderStatus == '6'){//卖家已发货
         result += '<span id="order_f_' + order.orderId + '" ></span><br/>';
         result += '<a href="javascript:listPg(\''+order.flowId+'\')" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
@@ -333,6 +344,7 @@ function listPg(flowId) {
     $("#crflowId").val(flowId);
     var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:1}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -349,15 +361,18 @@ function listPg(flowId) {
             $("#J_pager2").attr("current",nowpage);
             $("#J_pager2").attr("total",totalpage);
             $("#J_pager2").attr("url",requestUrl);
+            tipRemove();
             $("#J_pager2").pager({
                 data:requestParam,
                 requestType:"post",
                 asyn:1,
                 contentType:'application/json;charset=UTF-8',
                 callback:function(data,index){
+                    tipLoad();
                     var nowpage = data.page;
                     $("#nowpageedit").val(nowpage);
                     fillTable(data);
+                    tipRemove();
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
@@ -460,7 +475,7 @@ function confirmReceipt(){
                 flag=false;
             }
 
-            if($(recieveCount[i]).val()>$(productCount[i]).val()){
+            if(parseInt($(recieveCount[i]).val())>parseInt($(productCount[i]).val())){
                 alertModal("收货数量不能大于采购数量!");
                 return;
             }
@@ -480,6 +495,7 @@ function confirmReceipt(){
             }
         }
     }
+    tipLoad();
     $.ajax({
         url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
         data: JSON.stringify(list),
@@ -487,6 +503,7 @@ function confirmReceipt(){
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             //var obj=eval("(" + data + ")");
             if(data.code==0){
                 alertModal(data.msg);
@@ -504,6 +521,7 @@ function confirmReceipt(){
 function  showPostponeModal(orderId) {
     $("#postponeOrderId").val(orderId);
     var orderId = $("#postponeOrderId").val();
+    tipLoad();
     $.ajax({
         url :ctx+'/order/showPostponeOrder',
         data: "orderId="+orderId,
@@ -511,6 +529,7 @@ function  showPostponeModal(orderId) {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
+            tipRemove();
             if(data.delayTimes>=2){
                 $("#postponeOrder .modal-body").html("当前订单已延期两次，不可延期")
                 $("#postponeOrder").modal("show");
@@ -537,6 +556,7 @@ function  showPostponeModal(orderId) {
 function postponeOrder() {
     var orderId = $("#postponeOrderId").val();
     var jsonData = {"orderId":orderId};
+    tipLoad();
     $.ajax({
         url :ctx+'/order/postponeOrder',
         data: JSON.stringify(jsonData),
@@ -545,6 +565,7 @@ function postponeOrder() {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
+            tipRemove();
             $("#postponeOrder").modal("hide");
             if(data.code==0){
                 alertModal("操作失败了思密达，稍后再试吧");

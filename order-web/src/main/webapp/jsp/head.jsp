@@ -22,8 +22,8 @@
                         </c:otherwise>
                     </c:choose>
                 </li>
-                <li><a href="#">我的订单</a></li>
-                <li><a href="#">我的1号药城</a></li>
+                <li><a href="${ctx}/order/buyerOrderManage">我的订单</a></li>
+                <li><a href=${ctx}/order/buyerOrderManage">我的1号药城</a></li>
                 <li><a href="#">帮助</a></li>
                 <li class="last-li">
                     <i class="common-icon top-phone"></i>

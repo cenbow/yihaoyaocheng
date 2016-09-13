@@ -16,16 +16,14 @@ import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
 import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.annotation.Token;
-import com.yyw.yhyc.order.bo.CommonType;
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.OrderSettlement;
+import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
@@ -36,7 +34,6 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.utils.DateUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -79,6 +76,9 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private IProductDubboManageService productDubboManageService;
+
+	@Reference
+	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
 
     /**
      * 通过主键查询实体对象
@@ -133,69 +133,6 @@ public class OrderController extends BaseJsonController {
 		orderService.update(order);
     }
 
-
-	/**
-	 * 校验要购买的商品(通用方法)
-	 * @param userDto  当前登陆企业的信息
-	 * @param orderDto 订单信息
-	 * @return
-	 * @throws Exception
-     */
-	private Map<String,Object> validateProducts(UserDto userDto,OrderDto orderDto) throws Exception {
-
-		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
-			throw new Exception("用户未登录");
-		}
-		Integer currentLoginCustId = userDto.getCustId();
-
-		Map<String,Object> map = new HashMap<String, Object>();
-		boolean validateResult = false;
-		try{
-			validateResult = orderService.validateProducts(currentLoginCustId,orderDto);
-		}catch (Exception e){
-			logger.error(e.getMessage(),e);
-			map.put("result", false);
-			map.put("message", e.getMessage());
-			map.put("goToShoppingCart", true);
-			return map;
-		}
-
-		if(UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
-			throw new Exception("非法参数");
-		}
-		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
-			if(UtilHelper.isEmpty(productInfoDto)) continue;
-			if(UtilHelper.isEmpty(productDubboManageService)){
-				logger.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
-				map.put("result", false);
-				map.put("message", "查询商品价格失败");
-				map.put("goToShoppingCart", true);
-				return map;
-			}
-
-			String productPrice ="0";
-			try{
-				logger.info("统一校验订单商品接口,查询商品价格，请求参数,supply_id=" + orderDto.getSupplyId() + ",spuCode=" + productInfoDto.getSpuCode());
-				productPrice = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode());
-			}catch (Exception e){
-				logger.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
-				map.put("result", false);
-				map.put("message", "查询商品价格失败");
-				map.put("goToShoppingCart", true);
-			}
-			logger.info("统一校验订单商品接口,查询商品价格，productPrice= " + productPrice + ",productInfoDto.getProductPrice()=" + productInfoDto.getProductPrice());
-			if(UtilHelper.isEmpty(productInfoDto.getProductPrice()) || UtilHelper.isEmpty(productPrice)
-					||  !productInfoDto.getProductPrice().equals(new BigDecimal(productPrice))){
-				map.put("result", false);
-				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
-				map.put("goToShoppingCart", true);
-				return map;
-			}
-		}
-		map.put("result", validateResult);
-		return map;
-	}
-
 	/**
 	 * 创建订单
 	 * @param orderCreateDto
@@ -215,7 +152,7 @@ public class OrderController extends BaseJsonController {
 		for(OrderDto orderDto : orderCreateDto.getOrderDtoList()){
 
 			/* 校验所购买商品的合法性 */
-			Map<String,Object> map = validateProducts(userDto,orderDto);
+			Map<String,Object> map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
@@ -259,20 +196,23 @@ public class OrderController extends BaseJsonController {
 				creditParams.setSellerCode(order.getSupplyId() + "");
 				creditParams.setSellerName(order.getSupplyName());
 				creditParams.setPaymentDays(order.getPaymentTerm());//账期
-				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
 				CreditDubboResult creditDubboResult = null;
 				try{
+					logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 creditParams= " + creditParams);
 					creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+					logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,响应参数creditDubboResult= " + creditDubboResult);
+
 					/* 账期订单信息发送成功后，更新该订单的支付状态与支付时间 */
-					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getMessage())){
+					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getIsSuccessful())){
 						order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
 						order.setPayTime(systemDateService.getSystemDate());
 						update(order);
+						logger.info("创建订单接口-生成账期订单后，成功更新资信可用额度,更新订单信息，order=" + order);
 					}
 				}catch (Exception e){
 					logger.error(e.getMessage());
 				}
-				logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,请求参数 响应参数creditDubboResult= " + creditDubboResult);
+
 			}
 		}
 		return map;

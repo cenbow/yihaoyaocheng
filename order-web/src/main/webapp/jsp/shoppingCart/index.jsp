@@ -65,28 +65,43 @@
             <c:forEach var="shoppingCartListDto"  items="${allShoppingCart}" varStatus="shoppingCartListDtoVarStatus">
                 <div class="order-holder">
                     <div class="holder-top">
-                        <div class="cart-checkbox select-all"><span class="inside-icon">全选所有商品</span></div>
+                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>" ><span class="inside-icon">全选所有商品</span></div>
                         <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
-                        <a class="lts-shop-icon f12" href="javascript:;">进入店铺</a>
-                        <%--<p>--%>
-                            <%--此供应商订单起售价为<span class="from-price">100</span>元，您目前已购买<span class="buy-price">80</span>元，还差<span class="need-price">20</span>元 !--%>
-                        <%--</p>--%>
+                        <a class="lts-shop-icon f12" href="${domainPath}/front-web/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
+                        <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
+                            <input type="hidden" name="orderSamount" supplyId="${shoppingCartListDto.seller.enterpriseId}" supplyName="${shoppingCartListDto.seller.enterpriseName}"
+                                   value="${shoppingCartListDto.seller.orderSamount}" buyPrice="${shoppingCartListDto.productPriceCount}" needPrice="${shoppingCartListDto.needPrice}">
+                            此供应商订单起售价为<span class="from-price"><fmt:formatNumber value="${shoppingCartListDto.seller.orderSamount}" minFractionDigits="2"/></span>元，您目前已购买
+                            <span class="buy-price"><fmt:formatNumber value="${shoppingCartListDto.productPriceCount}" minFractionDigits="2"/></span>元，还差
+                            <span class="need-price"><fmt:formatNumber value="${shoppingCartListDto.needPrice}" minFractionDigits="2"/></span>元!
+                        </p>
                     </div>
 
                     <%--遍历该供应商下的商品信息  开始--%>
                     <c:choose>
                         <c:when test="${shoppingCartListDto != null && fn:length(shoppingCartListDto.shoppingCartDtoList) gt 0}">
                             <c:forEach var="shoppingCartDto" items="${shoppingCartListDto.shoppingCartDtoList}"  varStatus="shoppingCartDtoVarStatus">
-                                <div class="holder-list">
+                                <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory}"> no-stock </c:if> ">
                                     <ul>
                                         <li class="fl td-chk">
-                                            <div class="cart-checkbox select-all" shoppingCartId="${shoppingCartDto.shoppingCartId}"><span class="inside-icon" >全选所有商品</span></div>
+                                            <c:if test="${shoppingCartDto.existProductInventory}">
+                                                <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
+                                                     shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
+                                                    <span class="inside-icon" >全选所有商品</span>
+                                                </div>
+                                            </c:if>
                                         </li>
-                                        <li class="fl td-pic">
-                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                        <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                            <c:if test="${!shoppingCartDto.existProductInventory}">
+                                                <span class="inside-icon">缺货</span>
+                                            </c:if>
+                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
+                                                 alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
-                                            <p class="item-title">${shoppingCartDto.productName} ${shoppingCartDto.specification}</p>
+                                            <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                                ${shoppingCartDto.productName} ${shoppingCartDto.specification}
+                                            </p>`
                                             <p>${shoppingCartDto.manufactures}</p>
                                         </li>
                                         <li class="fl td-price">
@@ -167,7 +182,7 @@
             </div>
         </div>
         <div class="btn">
-            <a class="os-btn-pay tc" href="javascript:submitCheckOrderPage();">立即结算</a>
+            <a class="os-btn-pay tc" href="javascript:void(0);">立即结算</a>
             <a class="os-btn-order tc" href="index.html">继续采购</a>
         </div>
     </div>

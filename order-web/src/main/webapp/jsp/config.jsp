@@ -8,6 +8,7 @@
 
     String domainPath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
     request.setAttribute("domainPath", domainPath);
+    request.setAttribute("imgDomain", "http://p8.maiyaole.com");
 %>
 <script type="text/javascript">
 
@@ -15,6 +16,7 @@
     var enterpriseId = "<%=enterpriseId%>";
     var contextPath = ctx + "/static";
     var domainPath = "<%=domainPath%>";
-    var PAY_DOMAIN = "${PAY_DOMAIN}"
+    var PAY_DOMAIN = "${PAY_DOMAIN}";
+    var imgDomain = "${imgDomain}";
 
 </script>

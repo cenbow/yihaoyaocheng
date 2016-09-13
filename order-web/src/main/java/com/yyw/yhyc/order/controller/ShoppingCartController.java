@@ -23,6 +23,8 @@ import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.ShoppingCartService;
+import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.service.ProductInventoryService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,9 @@ public class ShoppingCartController extends BaseJsonController {
 
 	@Autowired
 	private ShoppingCartService shoppingCartService;
+
+	@Autowired
+	private ProductInventoryService productInventoryService;
 
 	@Reference
 	private IProductDubboManageService iProductDubboManageService;
@@ -123,11 +129,15 @@ public class ShoppingCartController extends BaseJsonController {
 
 		/* 处理商品信息： */
 		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
-			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
+			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) ||
+					UtilHelper.isEmpty(shoppingCartListDto.getSeller())){
 				continue;
 			}
+			BigDecimal productPriceCount = new BigDecimal(0);
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+
+				productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 
 				if(UtilHelper.isEmpty(iProductDubboManageService)){
 					logger.error("购物车页面-查询商品信息失败,iProductDubboManageService = " + iProductDubboManageService);
@@ -155,15 +165,37 @@ public class ShoppingCartController extends BaseJsonController {
 					JSONObject productJson = JSONObject.fromObject(productList.get(0));
 					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
 					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : (int) productJson.get("wholesale_num");
-					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : (String) productJson.get("unit");
+					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
 				}
 				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
 				shoppingCartDto.setUnit(unit);//最小拆零包装单位
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
+
+				/* 查询商品库存 */
+				ProductInventory productInventory = new ProductInventory();
+				productInventory.setSupplyId(shoppingCartDto.getSupplyId());
+				productInventory.setSpuCode(shoppingCartDto.getSpuCode());
+				productInventory.setFrontInventory(shoppingCartDto.getProductCount());
+				Map<String, Object> resultMap = productInventoryService.findInventoryNumber(productInventory);
+				String code = resultMap.get("code").toString();
+				if("0".equals(code) || "1".equals(code)){
+					logger.info("购物车页面-检查商品库存:商品(spuCode=" + shoppingCartDto.getSpuCode() + ")库存校验失败!msg=" + resultMap.get("msg").toString());
+					shoppingCartDto.setExistProductInventory(false);
+				}else{
+					shoppingCartDto.setExistProductInventory(true);
+				}
+			}
+
+			/* 计算是否符合订单起售金额 */
+			shoppingCartListDto.setProductPriceCount(productPriceCount);
+			if(productPriceCount.compareTo(shoppingCartListDto.getSeller().getOrderSamount()) > 0){
+				shoppingCartListDto.setNeedPrice(new BigDecimal(0));
+			}else{
+				BigDecimal needPrice = shoppingCartListDto.getSeller().getOrderSamount().subtract(productPriceCount);
+				shoppingCartListDto.setNeedPrice(needPrice);
 			}
 		}
-
 		model.addObject("allShoppingCart",allShoppingCart);
 		model.setViewName("shoppingCart/index");
 		return model;
@@ -172,6 +204,7 @@ public class ShoppingCartController extends BaseJsonController {
 	/**
 	 * 更新购物车中数量
 	 * @param shoppingCart
+	 * 
 	 * @throws Exception
      */
 	@RequestMapping(value = "/updateNum", method = RequestMethod.POST)
@@ -180,4 +213,35 @@ public class ShoppingCartController extends BaseJsonController {
 		int resultCount = shoppingCartService.updateNum(shoppingCart,userDto);
 	}
 
+
+	/**
+	 * 检查购物车中的商品合法信息
+	 * @param requestListModel
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/check", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> check(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
+		UserDto userDto = super.getLoginUser();
+
+		Map<String,Object> resultMap = new HashMap<>();
+		if(UtilHelper.isEmpty(requestListModel) || UtilHelper.isEmpty(requestListModel.getList())){
+			resultMap.put("result",false);
+			resultMap.put("msg","您的进货单中没有商品");
+			return resultMap;
+		}
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+//		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCartById(shoppingCart,requestListModel.getList());
+//		if(UtilHelper.isEmpty(allShoppingCart)){
+//			resultMap.put("result",false);
+//			resultMap.put("msg","您的进货单中没有商品");
+//			return resultMap;
+//		}
+		//TODO  商品校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
+
+		resultMap.put("result",true);
+		resultMap.put("msg","校验成功");
+		return resultMap;
+	}
 }

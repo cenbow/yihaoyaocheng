@@ -212,8 +212,7 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
+<%@ include file="../common_footer.jsp" %>
 <script>
 $(".editbtn").click(function(){
 $("#myModal1").modal();
@@ -222,12 +221,10 @@ $("#delete").click(function(){
 alertModal("确定要删除吗？");
 });
 </script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
 <script type="text/javascript" src="${ctx}/static/js/area_data.js"></script>
 <script type="text/javascript" src="${ctx}/static/js/area_select.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/order_settlement_seller.js"></script>
+
 </body>
 
 

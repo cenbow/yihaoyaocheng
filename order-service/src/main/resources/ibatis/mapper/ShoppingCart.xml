@@ -24,6 +24,7 @@
 		<result column="supply_id" property="supplyId"/>
 		<result column="product_id" property="productId"/>
 		<result column="spu_code" property="spuCode"/>
+		<result column="product_code_company" property="productCodeCompany"/>
 		<result column="product_name" property="productName"/>
 		<result column="manufactures" property="manufactures"/>
 		<result column="product_price" property="productPrice"/>
@@ -56,6 +57,7 @@
 		, supply_id
 		, product_id
 		, spu_code
+		, product_code_company
 		, product_name
 		, manufactures
 		, product_price
@@ -75,6 +77,7 @@
 				, supply_id
 				, product_id
 				, spu_code
+				, product_code_company
 				, product_name
 				, manufactures
 				, product_price
@@ -95,6 +98,7 @@
 		, supply_id
 		, product_id
 		, spu_code
+		, product_code_company
 		, product_name
 		, manufactures
 		, product_price
@@ -128,6 +132,9 @@
 		</if>
 		<if test="spuCode!= null and spuCode!= ''">
 			AND spu_code=#{spuCode}
+		</if>
+		<if test="productCodeCompany!= null and productCodeCompany!= ''">
+			AND product_code_company=#{productCodeCompany}
 		</if>
 		<if test="productName!= null and productName!= ''"> 
 			AND product_name=#{productName}
@@ -172,6 +179,7 @@
 				, #{supplyId}
 				, #{productId}
 				, #{spuCode}
+				, #{productCodeCompany}
 				, #{productName}
 				, #{manufactures}
 				, #{productPrice}
@@ -204,6 +212,9 @@
 		</if>
 		<if test="spuCode!= null and spuCode!= ''">
 			, spu_code=#{spuCode}
+		</if>
+		<if test="productCodeCompany!= null and productCodeCompany!= ''">
+			, product_code_company=#{productCodeCompany}
 		</if>
 		<if test="productName!= null and productName!= ''">
 			, product_name=#{productName}
@@ -243,6 +254,9 @@
 		</if>
 		<if test="spuCode!= null and spuCode!= ''">
 			, spu_code=#{spuCode}
+		</if>
+		<if test="productCodeCompany!= null and productCodeCompany!= ''">
+			, product_code_company=#{productCodeCompany}
 		</if>
 		<if test="productName!= null and productName!= ''">
 			, product_name=#{productName}
@@ -312,6 +326,10 @@
 			SELECT	DISTINCT  CUST_ID,SUPPLY_ID FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
 	</select>
 
+	<select id="listDistinctCustIdAndSupplyId" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper" useCache="false">
+		SELECT	DISTINCT  CUST_ID,SUPPLY_ID FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
+	</select>
+
 	<select id="listShoppingCartDtoByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartDtoResultMapper">
 		<![CDATA[ SELECT ]]>
 		sc.shopping_cart_id
@@ -321,11 +339,13 @@
 		, sc.supply_id
 		, sc.product_id
 		, sc.spu_code
+		, sc.product_code_company
 		, sc.product_name
 		, sc.manufactures
 		, sc.product_price
 		, sc.product_settlement_price
 		, sc.product_count
+		, sc.product_code_company
 		 ,p.unit
 		FROM t_shopping_cart sc  left join  t_product_info p on sc.product_id = p.id
 		WHERE 1=1

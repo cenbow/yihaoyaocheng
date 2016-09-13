@@ -50,8 +50,14 @@ public class ShoppingCart extends Model{
 	private java.lang.Integer productId;
 
 	/**
-	  *	SPU编码
+	  *	本公司编码
 	  */
+	private java.lang.String productCodeCompany;
+
+
+	/**
+	 *	SPU编码
+	 */
 	private java.lang.String spuCode;
 
 	/**
@@ -208,6 +214,15 @@ public class ShoppingCart extends Model{
 		this.spuCode = spuCode;
 	}
 
+
+	public String getProductCodeCompany() {
+		return productCodeCompany;
+	}
+
+	public void setProductCodeCompany(String productCodeCompany) {
+		this.productCodeCompany = productCodeCompany;
+	}
+
 	/**
 	  *	商品名称
 	  */
@@ -339,7 +354,7 @@ public class ShoppingCart extends Model{
 	/**
 	  *	记录更新者
 	  */
-	public java.lang.String getUpdateUser() 
+	public java.lang.String getUpdateUser()
 	{
 		return updateUser;
 	}
@@ -347,7 +362,7 @@ public class ShoppingCart extends Model{
 	/**
 	  *	记录更新者
 	  */
-	public void setUpdateUser(java.lang.String updateUser) 
+	public void setUpdateUser(java.lang.String updateUser)
 	{
 		this.updateUser = updateUser;
 	}
@@ -378,6 +393,7 @@ public class ShoppingCart extends Model{
 					", supplyId=" + supplyId + 
 					", productId=" + productId + 
 					", spuCode=" + spuCode +
+					", productCodeCompany=" + productCodeCompany +
 					", productName=" + productName + 
 					", manufactures=" + manufactures + 
 					", productPrice=" + productPrice + 

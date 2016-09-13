@@ -22,11 +22,14 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
+import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,9 @@ import com.yyw.yhyc.bo.Pagination;
 
 @Service("orderDeliveryDetailService")
 public class OrderDeliveryDetailService {
+
+	private static final Logger log = LoggerFactory.getLogger(OrderDeliveryDetailService.class);
+
 
 	private OrderDeliveryDetailMapper	orderDeliveryDetailMapper;
 
@@ -254,6 +260,20 @@ public class OrderDeliveryDetailService {
 				exceptionOrderId="BH"+flowId;
 		}
 
+		//如果收货异常根据异常类型更新订单状态
+		Order order = orderMapper.getOrderbyFlowId(flowId);
+		if (UtilHelper.isEmpty(order)){
+			returnMap.put("code","0");
+			returnMap.put("msg","订单不存在");
+			return returnMap;
+		}
+
+		if (!order.getOrderStatus().equals(SystemOrderStatusEnum.SellerDelivered.getType())){
+			returnMap.put("code","0");
+			returnMap.put("msg","当前状态不可收货");
+			return returnMap;
+		}
+
 		//更新批次收货数量
 		for (OrderDeliveryDetailDto dto : list){
 
@@ -286,6 +306,7 @@ public class OrderDeliveryDetailService {
 				returnMap.put("msg","收货数量不能大于采购数量");
 				return returnMap;
 			}
+
 
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
@@ -335,8 +356,7 @@ public class OrderDeliveryDetailService {
 			}
 		}
 
-		//如果收货异常根据异常类型更新订单状态
-		Order order = orderMapper.getOrderbyFlowId(flowId);
+
 		if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
 			if (returnType.equals("4"))
 				order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
@@ -434,6 +454,7 @@ public class OrderDeliveryDetailService {
 		String now = systemDateMapper.getSystemDate();
 		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		OrderSettlement orderSettlement = new OrderSettlement();
+		boolean saveFlag = true;
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 		    orderSettlement.setBusinessType(1);
 		    orderSettlement.setOrderId(order.getOrderId());
@@ -470,12 +491,21 @@ public class OrderDeliveryDetailService {
 			//拒收的 结算金额需要减去拒收的金额
 			if(moneyTotal!=null&&SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())){
 				orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(moneyTotal));
+				//拒收暂时不保存，在审核通过保存
+				saveFlag = false;
 			}else {
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 			}
 		}
-		orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
-		orderSettlementMapper.save(orderSettlement);
+		log.info("HHJJ拒收:orderId:"+order.getOrderId());
+		log.info("HHJJ拒收支付类型systemPayType.getPayTypeId:"+systemPayType.getPayTypeId());
+		log.info("HHJJ拒收结算是否保存saveFlag:"+saveFlag);
+		log.info("HHJJ拒收结算moneyTotal:"+moneyTotal);
+		log.info("HHJJ拒收:order.getOrderStatus:"+order.getOrderStatus());
+		if(saveFlag){
+			orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
+			orderSettlementMapper.save(orderSettlement);
+		}
 	}
 
 	/**

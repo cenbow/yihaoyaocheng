@@ -655,7 +655,6 @@ public class OrderExceptionController extends BaseJsonController{
 			UserDto userDto = super.getLoginUser();
 			orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, userDto);
 			//补货确认收货调用账期接口
-			try{
 				if (UtilHelper.isEmpty(creditDubboService))
 					logger.error("CreditDubboServiceInterface creditDubboService is null");
 				else {
@@ -663,6 +662,7 @@ public class OrderExceptionController extends BaseJsonController{
 					Order order = orderService.getByPK(oe.getOrderId());
 					SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+						logger.info("补货确认收货调用资讯接口");
 						CreditParams creditParams = new CreditParams();
 						//creditParams.setSourceFlowId(oe.getFlowId());源订单单号
 						creditParams.setBuyerCode(oe.getCustId() + "");
@@ -679,12 +679,6 @@ public class OrderExceptionController extends BaseJsonController{
 						}
 					}
 				}
-			}catch (Exception e){
-				logger.debug(e.getMessage());
-				throw new RuntimeException("未找到拒收订单");
-			}
-
-
 	}
 
 	/**

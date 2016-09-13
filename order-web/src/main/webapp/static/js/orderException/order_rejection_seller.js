@@ -120,7 +120,7 @@ function doRefreshData(requestParam,requestUrl){
 	if(!requestUrl || requestUrl == ''){
 		requestUrl = ctx+"/orderException/sellerRejcetOrderManage/list1";
 	}
-
+	tipLoad();
 	$.ajax({
 		url : requestUrl,
 		data : JSON.stringify(requestParam),
@@ -136,6 +136,7 @@ function doRefreshData(requestParam,requestUrl){
 			var totalpage = pagination.totalPage;
 			var nowpage = pagination.pageNo;
 			var totalCount = pagination.total;
+			tipRemove();
 			$("#J_pager").attr("current",nowpage);
 			$("#J_pager").attr("total",totalpage);
 			$("#J_pager").attr("url",requestUrl);
@@ -145,12 +146,15 @@ function doRefreshData(requestParam,requestUrl){
 				asyn:1,
 				contentType:'application/json;charset=UTF-8',
 				callback:function(data,index){
+					tipLoad();
 					var nowpage = data.pagination.page;
 					$("#nowpageedit").val(nowpage);
 					fillTableJson(data);
+					tipRemove();
 				}});
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			tipRemove();
 			alertModal("查询结算列表错误",function(){
 				closeAlert();
 			});
@@ -228,18 +232,17 @@ function bindOperateBtn() {
 	});
 	$(".back-detail").on("click",function () {
 		var flowId = $(this).attr("data-stmid");
-		alert(flowId);
-		return;
-		var requestUrl = "/order/orderSettlement/getByPK/"+settlementId;
-
+		var requestUrl = "/order/orderSettlement/getByPK/"+flowId;
+		tipLoad();
 		$.ajax({
 			url : requestUrl,
 			type : 'GET',
 			dataType:'json',
 			success : function(data) {
-
+				tipRemove();
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				tipRemove();
 				alertModal("退款详情信息错误",function(){
 					closeAlert();
 				});

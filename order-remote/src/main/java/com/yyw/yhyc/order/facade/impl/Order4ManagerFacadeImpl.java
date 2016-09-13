@@ -36,7 +36,7 @@ public class Order4ManagerFacadeImpl implements Order4ManagerFacade {
 
     @Override
     public void cancelOrder(String userName,String orderId, String cancelResult) throws Exception {
-        orderService.cancelOrder4Manage(userName,orderId, cancelResult);
+        orderService.updateOrder4Manage(userName,orderId, cancelResult);
     }
 
 

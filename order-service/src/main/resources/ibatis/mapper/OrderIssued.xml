@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-9-10 10:28:42
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderIssuedMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderIssuedResultMapper" type="OrderIssued">
+		<result column="order_issued_id" property="orderIssuedId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="issued_status" property="issuedStatus"/>
+		<result column="issued_count" property="issuedCount"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	<resultMap id="OrderIssuedItemsResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedItemDto">
+		<result column="product_id" property="productId"/>
+		<result column="product_count" property="goodsNum"/>
+		<result column="product_price" property="goodsUnitPrice"/>
+		<result column="product_code" property="produceCode"/>
+		<!--<association property="produceCode" column="{supplyId=supply_Id,spuCode=spu_code}"
+					 select="getErpCodeByPro"></association>-->
+	</resultMap>
+	<resultMap id="OrderIssuedDtoResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedDto">
+		<result column="flow_id" property="orderCode"/>
+		<result column="org_total" property="orderAmount"/>
+		<result column="create_time" property="createTime"/>
+		<result column="leave_message" property="leaveMessage"/>
+		<result column="order_id" property="orderId"/>
+		<result column="cust_id" property="custId"/>
+		<association property="orderDelivery" column="flow_id"
+					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+		<association property="orderItemList" column="order_id"
+					 select="getItemsById"></association>
+	</resultMap>
+
+	<sql id="commonColumns">
+		 order_issued_id
+		, flow_id
+		, supply_id
+		, issued_status
+		, issued_count
+		, create_time
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 flow_id
+				, supply_id
+				, issued_status
+				, issued_count
+				, create_time
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 order_issued_id
+		, flow_id
+		, supply_id
+		, issued_status
+		, issued_count
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="orderIssuedId!= null and orderIssuedId!= ''"> 
+			AND order_issued_id=#{orderIssuedId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="issuedStatus!= null and issuedStatus!= ''"> 
+			AND issued_status=#{issuedStatus}
+		</if>
+		<if test="issuedCount!= null and issuedCount!= ''"> 
+			AND issued_count=#{issuedCount}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderIssued">
+		<![CDATA[ INSERT INTO t_order_issued ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{flowId}
+				, #{supplyId}
+				, #{issuedStatus}
+				, #{issuedCount}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderIssued">
+		<![CDATA[ UPDATE t_order_issued SET 
+			 order_issued_id=#{orderIssuedId} 
+			, flow_id=#{flowId} 
+			, supply_id=#{supplyId} 
+			, issued_status=#{issuedStatus} 
+			, issued_count=#{issuedCount} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE order_issued_id = #{orderIssuedId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_issued WHERE order_issued_id = #{orderIssuedId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_issued WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" order_issued_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderIssued">
+		DELETE FROM t_order_issued WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderIssuedResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_issued WHERE order_issued_id = #{orderIssuedId}  
+	</select>
+	<select id="list" resultMap="OrderIssuedResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_issued
+	</select>
+	<select id="listByProperty" parameterType="OrderIssued" resultMap="OrderIssuedResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderIssued" resultMap="OrderIssuedResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderIssued" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_issued WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findOrderIssuedListBySupplyId" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper">
+		SELECT
+			O.FLOW_ID,
+			O.ORG_TOTAL,
+			O.SUPPLY_ID,
+			O.CREATE_TIME,
+			O.LEAVE_MESSAGE,
+			O.ORDER_ID,
+			PUO.OUT_USERID AS CUST_ID
+		FROM
+			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
+			ON O.FLOW_ID =OI.FLOW_ID
+			INNER JOIN T_PASSPORT_USER_OUT PUO
+			ON O.CUST_ID = PUO.USERID
+			AND O.SUPPLY_ID = ENTERPRISE_ID
+		WHERE
+			O.SUPPLY_ID = #{supplyId}
+		AND O.ORDER_STATUS = '5'
+		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
+		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL);
+	</select>
+	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper">
+		SELECT OD.PRODUCT_ID ,OD.PRODUCT_COUNT,OD.PRODUCT_PRICE,OD.SUPPLY_ID,OD.SPU_CODE,OD.PRODUCT_CODE FROM T_ORDER_DETAIL OD
+		WHERE OD.ORDER_ID = #{orderId}
+	</select>
+	<select id="findByFlowId" parameterType="java.lang.String"  resultMap="OrderIssuedResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued WHERE flow_id = #{flowId} limit 1
+	</select>
+	<!--<select id="getErpCodeByPro" parameterType="java.util.Map"  resultType="java.lang.String">
+		SELECT PA.PRODUCTCODE_COMPANY FROM T_PRODUCT_AUDIT PA WHERE PA.SELLER_CODE = #{supplyId} AND PA.SPU_CODE = #{spuCode}
+	</select>-->
+
+	<select id="getManufacturerOrder" parameterType="java.lang.Integer"  resultMap="OrderIssuedResultMapper">
+		SELECT
+		OI.FLOW_ID
+		FROM
+		T_ORDER_ISSUED OI LEFT JOIN  T_ORDER O
+		ON O.FLOW_ID =OI.FLOW_ID
+		WHERE
+		OI.SUPPLY_ID=#{supplyId} AND issued_status='1'
+		AND O.ORDER_STATUS = '5'
+	</select>
+</mapper>
