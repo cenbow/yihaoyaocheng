@@ -344,6 +344,7 @@ function listPg(flowId) {
     $("#crflowId").val(flowId);
     var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:1}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -360,15 +361,18 @@ function listPg(flowId) {
             $("#J_pager2").attr("current",nowpage);
             $("#J_pager2").attr("total",totalpage);
             $("#J_pager2").attr("url",requestUrl);
+            tipRemove();
             $("#J_pager2").pager({
                 data:requestParam,
                 requestType:"post",
                 asyn:1,
                 contentType:'application/json;charset=UTF-8',
                 callback:function(data,index){
+                    tipLoad();
                     var nowpage = data.page;
                     $("#nowpageedit").val(nowpage);
                     fillTable(data);
+                    tipRemove();
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
@@ -517,6 +521,7 @@ function confirmReceipt(){
 function  showPostponeModal(orderId) {
     $("#postponeOrderId").val(orderId);
     var orderId = $("#postponeOrderId").val();
+    tipLoad();
     $.ajax({
         url :ctx+'/order/showPostponeOrder',
         data: "orderId="+orderId,
@@ -524,6 +529,7 @@ function  showPostponeModal(orderId) {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
+            tipRemove();
             if(data.delayTimes>=2){
                 $("#postponeOrder .modal-body").html("当前订单已延期两次，不可延期")
                 $("#postponeOrder").modal("show");
@@ -550,6 +556,7 @@ function  showPostponeModal(orderId) {
 function postponeOrder() {
     var orderId = $("#postponeOrderId").val();
     var jsonData = {"orderId":orderId};
+    tipLoad();
     $.ajax({
         url :ctx+'/order/postponeOrder',
         data: JSON.stringify(jsonData),
@@ -558,6 +565,7 @@ function postponeOrder() {
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
             //var obj=eval("(" + data + ")");
+            tipRemove();
             $("#postponeOrder").modal("hide");
             if(data.code==0){
                 alertModal("操作失败了思密达，稍后再试吧");
