@@ -1426,7 +1426,10 @@ public class OrderService {
 			creditParams.setOrderTotal(od.getOrgTotal());//订单金额  扣减后的
 			creditParams.setFlowId(od.getFlowId());//订单编码
 			creditParams.setStatus(status);//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
-			creditParams.setReceiveTime(DateHelper.parseTime(od.getReceiveTime()));
+			if("2".equals(status)){
+				creditParams.setReceiveTime(DateHelper.parseTime(od.getReceiveTime()));
+			}
+
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
@@ -1480,7 +1483,7 @@ public class OrderService {
 					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 				}
 			}else{
-				sendCredit(od,creditDubboService,"4");
+				sendCredit(od,creditDubboService,"5");
 			}
 			//库存
 			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
@@ -1555,7 +1558,7 @@ public class OrderService {
 			orderExceptionMapper.update(o);
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
 			//调用资信接口
-			sendReundCredit(creditDubboService,systemPayType,orderException);
+			sendReundCredit(creditDubboService,systemPayType,o);
 		}
 	}
 
@@ -1623,33 +1626,32 @@ public class OrderService {
 	/*
 	* 退货通知资信接口
 	 */
-	public boolean sendReundCredit(CreditDubboServiceInterface creditDubboService,
+	public void sendReundCredit(CreditDubboServiceInterface creditDubboService,
 								 SystemPayType systemPayType,OrderException orderException) {
 
-		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)
-				&& SystemRefundOrderStatusEnum.SellerConfirmed.getType().equals(orderException.getOrderStatus())) {
+		if(UtilHelper.isEmpty(creditDubboService)){
+			throw new RuntimeException("接口调用失败,creditDubboService 服务为空");
+		}
+		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())
+				&& SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(orderException.getOrderStatus())) {
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(orderException.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(orderException.getCustId() + "");
 			creditParams.setSellerCode(orderException.getSupplyId() + "");
 			creditParams.setBuyerName(orderException.getCustName());
 			creditParams.setSellerName(orderException.getSupplyName());
-//			creditParams.setOrderTotal(order.getOrderTotal().subtract(orderExceptionService.getConfirmHistoryExceptionMoney(oe.getFlowId())));//订单金额
-			creditParams.setOrderTotal(orderException.getOrderMoney());//订单金额
+            creditParams.setOrderTotal(orderException.getOrderMoney());//订单金额
 			creditParams.setFlowId(orderException.getExceptionOrderId());//订单编码
 			creditParams.setStatus("6");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 				// TODO: 2016/8/25 暂时注释 不抛出异常
 				log.error("creditDubboResult error:" + (creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！"));
-				//throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
-				return false;
+				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
 		}else{
 			log.error("creditDubboService  error:" +  "接口调用失败，请求参数"+orderException.toString());
-			return false;
 		}
-		return true;
 	}
 
 	
