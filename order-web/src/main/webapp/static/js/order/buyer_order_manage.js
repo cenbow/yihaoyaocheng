@@ -92,6 +92,7 @@ function setOrderCount(orderStatusCount) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/order/listPgBuyerOrder";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -118,19 +119,23 @@ function doRefreshData(requestParam) {
             $("#J_pager").attr("current", nowpage);
             $("#J_pager").attr("total", totalpage);
             $("#J_pager").attr("url", requestUrl);
+            tipRemove();
             $("#J_pager").pager({
                 data: requestParam,
                 requestType: "post",
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
+                    tipLoad();
                     var nowpage = data.buyerOrderList.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data.buyerOrderList);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
@@ -486,6 +491,7 @@ function confirmReceipt(){
             }
         }
     }
+    tipLoad();
     $.ajax({
         url :ctx+'/order/orderDeliveryDetail/confirmReceipt',
         data: JSON.stringify(list),
@@ -493,6 +499,7 @@ function confirmReceipt(){
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             //var obj=eval("(" + data + ")");
             if(data.code==0){
                 alertModal(data.msg);

@@ -23,6 +23,12 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.x.session</groupId>
+            <artifactId>session-filter</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- dubbo start -->
         <dependency>
             <groupId>com.alibaba</groupId>

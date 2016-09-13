@@ -1961,7 +1961,7 @@ public class OrderService {
 	 * @param orderId
 	 * @param cancelResult
      */
-	public void  cancelOrder4Manage(String userName,String orderId,String cancelResult){
+	public void  updateOrder4Manage(String userName,String orderId,String cancelResult){
 		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误:订单编号为空");
 		}
