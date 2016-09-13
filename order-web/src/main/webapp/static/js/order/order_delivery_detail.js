@@ -3,6 +3,7 @@ function listPg(requestParam) {
     var flowId=$("#flowId").val().trim();
     var userType=$("#userType").val().trim();
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -10,6 +11,7 @@ function listPg(requestParam) {
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
+            tipRemove();
             //填充表格数据
             fillTableJson(data);
             var totalpage = data.totalPage;
@@ -24,12 +26,15 @@ function listPg(requestParam) {
                 asyn:1,
                 contentType:'application/json;charset=UTF-8',
                 callback:function(data,index){
+                    tipLoad();
                     var nowpage = data.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data);
+                    tipRemove();
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败",function(){
             });
         }
@@ -42,6 +47,7 @@ function listReplenishment(requestParam) {
     var flowId=$("#flowId").val().trim();
     var userType=$("#userType").val().trim();
     var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId}};
+    tipLoad();
     $.ajax({
         url : requestUrl,
         data : JSON.stringify(requestParam),
@@ -49,6 +55,7 @@ function listReplenishment(requestParam) {
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
+            tipRemove();
             //填充表格数据
             fillTableJson(data);
             var totalpage = data.totalPage;
@@ -63,12 +70,15 @@ function listReplenishment(requestParam) {
                 asyn:1,
                 contentType:'application/json;charset=UTF-8',
                 callback:function(data,index){
+                    tipLoad();
                     var nowpage = data.page;
                     $("#nowpageedit").val(nowpage);
                     fillTableJson(data);
+                    tipRemove();
                 }});
         },
         error : function(XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败",function(){
             });
         }
