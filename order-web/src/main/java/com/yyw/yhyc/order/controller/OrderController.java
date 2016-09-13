@@ -178,9 +178,8 @@ public class OrderController extends BaseJsonController {
 
 		/* 生成账期订单后，调用接口更新资信可用额度 */
 		List<Order> orderNewList = (List<Order>) newOrderMap.get("orderNewList");
-		logger.info("创建订单接口-生成账期订单后，调用接口更新资信可用额度,creditDubboService = " + creditDubboService);
+		logger.info("创建订单接口-资信可用额度更新接口,creditDubboService = " + creditDubboService);
 		if (!UtilHelper.isEmpty(orderNewList) && !UtilHelper.isEmpty(creditDubboService)) {
-
 			CreditParams creditParams = null;
 			for(Order order : orderNewList){
 				if(UtilHelper.isEmpty(order)) continue;
@@ -278,7 +277,24 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public ModelAndView checkOrderPage(ShoppingCartListDto shoppingCartListDto) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		Map<String,Object> dataMap = orderService.checkOrderPage(userDto,shoppingCartListDto);
+		ModelAndView model = new ModelAndView();
+		model.addObject("userDto",userDto);
+
+		Map<String,Object> dataMap = null;
+		if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())){
+			model.addObject("dataMap",dataMap);
+			model.setViewName("order/checkOrderPage");
+			return model;
+		}
+		List<Integer> shoppingCartIdList = new ArrayList<>();
+		for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+			if(UtilHelper.isEmpty(shoppingCartDto) || UtilHelper.isEmpty(shoppingCartDto.getShoppingCartId())){
+				continue;
+			}
+			shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
+		}
+
+		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList);
 
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
@@ -288,9 +304,7 @@ public class OrderController extends BaseJsonController {
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
 
-		ModelAndView model = new ModelAndView();
 		model.addObject("dataMap",dataMap);
-		model.addObject("userDto",userDto);
 		model.setViewName("order/checkOrderPage");
 		return model;
 	}
