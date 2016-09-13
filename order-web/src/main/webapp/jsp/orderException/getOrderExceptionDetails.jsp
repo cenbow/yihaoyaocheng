@@ -147,10 +147,10 @@
                                                     <td>
                                                         <div class="clearfix">
                                                             <div class="fl">
-                                                                <img  class="productImageUrl" spuCode="${orderReturnDto.spuCode}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                                <img  class="productImageUrl" spuCode="${orderReturnDto.spuCode}" alt="${orderReturnDto.shortName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                             </div>
                                                             <div class="fl fontbox">
-                                                                <p class="title">${orderReturnDto.productName}</p>
+                                                                <p class="title">${orderReturnDto.shortName}</p>
                                                                 <p class="text">${orderReturnDto.manufactures}</p>
                                                                 <p class="text">${orderReturnDto.specification}</p>
                                                             </div>
@@ -186,11 +186,6 @@
     </div>
 
 </div>
-    <div class="footer">
-        <p>监管机构：国家食品药品监督管理局   广东省食品药品监督管理局   广州市食品药品监督管理局</p>
-        <p>Copyright (C) 2010-2015 本网站版权归广东壹号药业有限公司所有  网站备案号:粤ICP备15048678</p>
-    </div>
-    <!--框架右侧内容 end-->
 </div>
 </body>
 <%@ include file="../common_footer.jsp" %>

@@ -426,10 +426,10 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
-                                                    <img alt="${details.productName}" class="productImageUrl" spuCode="${details.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    <img alt="${details.shortName}" class="productImageUrl" spuCode="${details.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                 </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${details.productName}</p>
+                                                    <p class="title">${details.shortName}</p>
 
                                                     <p class="text">${details.manufactures}</p>
 

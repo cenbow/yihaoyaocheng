@@ -821,14 +821,14 @@ public class OrderService {
 		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
 			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
 			map.put("result", false);
-			map.put("message", "查询客户组服务异常");
+			map.put("message", "请稍后再试");
 			map.put("goToShoppingCart", true);
 			return map;
 		}
 		if(UtilHelper.isEmpty(productDubboManageService)){
 			log.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
 			map.put("result", false);
-			map.put("message", "查询商品价格服务异常");
+			map.put("message", "请稍后再试");
 			map.put("goToShoppingCart", true);
 			return map;
 		}
@@ -853,12 +853,17 @@ public class OrderService {
 			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
 		}
 
+		/* 该供应商下所有商品的总金额（用于判断是否符合供应商的订单起售金额） */
+		BigDecimal productPriceCount = new BigDecimal(0);
+
 		ProductInfo productInfo = null;
 		//校验库存数量，是否可以购买
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(orderDto.getSupplyId());
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
+
+			productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 
 			/* 检查库存 */
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
@@ -876,7 +881,7 @@ public class OrderService {
 			if("0".equals(code) || "1".equals(code)){
 				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + m );
 				map.put("result", false);
-				map.put("message", m.get("msg").toString());
+				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 				map.put("goToShoppingCart", true);
 				return map;
 			}
@@ -903,7 +908,7 @@ public class OrderService {
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
 				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ", 0未上架  1上架  2本次下架  3非本次下架");
 				map.put("result", false);
-				map.put("message", "商品已下架");
+				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 				map.put("goToShoppingCart", true);
 				return map;
 			}
@@ -964,6 +969,14 @@ public class OrderService {
 				return map;
 			}
 		}
+
+		if(productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
+			map.put("result", false);
+			map.put("message", "你有部分商品金额低于供货商的发货标准，此商品无法结算");
+			map.put("goToShoppingCart", true);
+			return map;
+		}
+
 		log.info("统一校验订单商品接口 ：校验成功" );
 		map.put("result", true);
 		return map;
@@ -1594,6 +1607,10 @@ public class OrderService {
 	}
 
 	private void sendCredit(Order od,CreditDubboServiceInterface creditDubboService,String status){
+
+		if(UtilHelper.isEmpty(creditDubboService)){
+			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+od.toString());
+		}
 		SystemPayType systemPayType= systemPayTypeMapper.getByPK(od.getPayTypeId());
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 			CreditParams creditParams = new CreditParams();
@@ -1809,7 +1826,7 @@ public class OrderService {
 								 SystemPayType systemPayType,OrderException orderException) {
 
 		if(UtilHelper.isEmpty(creditDubboService)){
-			throw new RuntimeException("接口调用失败,creditDubboService 服务为空");
+			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+orderException.toString());
 		}
 		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())
 				&& SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(orderException.getOrderStatus())) {
