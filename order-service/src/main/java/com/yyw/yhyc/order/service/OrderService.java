@@ -1594,6 +1594,10 @@ public class OrderService {
 	}
 
 	private void sendCredit(Order od,CreditDubboServiceInterface creditDubboService,String status){
+
+		if(UtilHelper.isEmpty(creditDubboService)){
+			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+od.toString());
+		}
 		SystemPayType systemPayType= systemPayTypeMapper.getByPK(od.getPayTypeId());
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 			CreditParams creditParams = new CreditParams();
@@ -1809,7 +1813,7 @@ public class OrderService {
 								 SystemPayType systemPayType,OrderException orderException) {
 
 		if(UtilHelper.isEmpty(creditDubboService)){
-			throw new RuntimeException("接口调用失败,creditDubboService 服务为空");
+			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+orderException.toString());
 		}
 		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())
 				&& SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(orderException.getOrderStatus())) {
