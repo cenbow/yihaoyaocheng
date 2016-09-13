@@ -175,13 +175,8 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/js/My97DatePicker/WdatePicker.js"></script>
-<script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/pager.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/jquery.form.3.51.0.js"></script>
+<%@ include file="../common_footer.jsp" %>
 <script type="text/javascript" src="${ctx }/static/js/orderException/seller_refund_order_manage.js"></script>
-<script type="text/javascript" src="${ctx }/static/js/common.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/area_data.js"></script>
 </body>
 
