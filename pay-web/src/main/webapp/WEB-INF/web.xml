@@ -52,6 +52,20 @@
     </servlet-mapping>
     <!-- Spring MVC配置结束-->
 
+    <!-- session共享拦截器 -->
+    <filter>
+        <filter-name>springFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>sessionFilter</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>springFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <servlet>
         <servlet-name>glhealthcheck</servlet-name>
         <servlet-class>com.gangling.healthcheck.servlet.HealthCheck</servlet-class>
