@@ -853,12 +853,17 @@ public class OrderService {
 			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
 		}
 
+		/* 该供应商下所有商品的总金额（用于判断是否符合供应商的订单起售金额） */
+		BigDecimal productPriceCount = new BigDecimal(0);
+
 		ProductInfo productInfo = null;
 		//校验库存数量，是否可以购买
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(orderDto.getSupplyId());
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
+
+			productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 
 			/* 检查库存 */
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
@@ -964,6 +969,14 @@ public class OrderService {
 				return map;
 			}
 		}
+
+		if(productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
+			map.put("result", false);
+			map.put("message", "你有部分商品金额低于供货商的发货标准，此商品无法结算");
+			map.put("goToShoppingCart", true);
+			return map;
+		}
+
 		log.info("统一校验订单商品接口 ：校验成功" );
 		map.put("result", true);
 		return map;
