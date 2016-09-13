@@ -380,11 +380,13 @@ function sendDeliverysubmit(){
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
+    tipLoad();
     $("#sendform").ajaxSubmit({
         url :ctx+'/order/orderDelivery/sendOrderDelivery',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
+            tipRemove();
             console.info(data);
             var obj=eval("(" + data + ")");
                 if(obj.code==0){
