@@ -95,7 +95,8 @@
                                             <c:if test="${!shoppingCartDto.existProductInventory}">
                                                 <span class="inside-icon">缺货</span>
                                             </c:if>
-                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
+                                                 alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
                                             <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
