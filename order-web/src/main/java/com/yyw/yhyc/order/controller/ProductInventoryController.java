@@ -17,6 +17,7 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.dto.ProductInventoryDto;
 import com.yyw.yhyc.product.service.ProductInventoryService;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.yyw.yhyc.controller.BaseJsonController;
@@ -46,7 +47,6 @@ public class ProductInventoryController extends BaseJsonController{
 	@Autowired
 	private ProductInventoryService productInventoryService;
 
-	private String FILE_TEMPLATE_PATH="include/excel/product/";
 
 	/**
 	* 通过主键查询实体对象
@@ -133,7 +133,7 @@ public class ProductInventoryController extends BaseJsonController{
 	@ResponseBody
 	public Map<String,Object> sendOrderDelivery( MultipartFile excelFile) throws Exception
 	{
-		String path=request.getRealPath("/") + FILE_TEMPLATE_PATH;
+		String path= MyConfigUtil.PRODUCR_FILE_PATH;
 		//验证通过生成发货信息并上传文件
 		if(!UtilHelper.isEmpty(excelFile)){
 			String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "商品库存信息导入" + ".xls";
