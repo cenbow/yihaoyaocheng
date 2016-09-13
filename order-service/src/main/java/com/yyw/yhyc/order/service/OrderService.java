@@ -17,6 +17,9 @@ import java.util.*;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.order.bo.*;
@@ -39,6 +42,8 @@ import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 
 import com.yyw.yhyc.utils.ExcelUtil;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -763,70 +768,244 @@ public class OrderService {
 
 	/**
 	 * 校验要购买的商品(通用方法)
-	 * @param currentLoginEnterpriseId 当前登陆人的企业id
+	 * @param userDto 当前登陆人
 	 * @param orderDto 要提交订单的商品数据
-     * @return
+	 * @param iCustgroupmanageDubbo
+	 * @param productDubboManageService
+	 * @return
      */
-	public boolean validateProducts(Integer currentLoginEnterpriseId,OrderDto orderDto) throws Exception {
-		if(UtilHelper.isEmpty(currentLoginEnterpriseId) || UtilHelper.isEmpty(orderDto)){
-			log.info("统一校验订单商品接口-currentLoginCustId：" + currentLoginEnterpriseId +",orderDto=" + orderDto);
-			throw new Exception("非法参数");
+	public Map<String,Object> validateProducts(UserDto userDto, OrderDto orderDto,
+											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService){
+
+		Map<String,Object> map = new HashMap<String, Object>();
+
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList()) ){
+			log.info("统一校验订单商品接口-currentLoginCustId：" + userDto +",orderDto=" + orderDto);
+			map.put("result", false);
+			map.put("message", "非法参数");
+			map.put("goToShoppingCart", true);
+			return map;
 		}
 
-		//TODO 校验采购商状态、资质
-		UsermanageEnterprise buyer = enterpriseMapper.getByEnterpriseId(currentLoginEnterpriseId + "");
+		/* 校验采购商状态、资质 */
+		UsermanageEnterprise buyer = enterpriseMapper.getByEnterpriseId(userDto.getCustId()+"");
 		if(UtilHelper.isEmpty(buyer)){
 			log.info("统一校验订单商品接口-buyer ：" + buyer);
-			throw new Exception("采购商不存在!");
+			map.put("result", false);
+			map.put("message", "采购商不存在");
+			map.put("goToShoppingCart", true);
+			return map;
 		}
 		orderDto.setCustId(Integer.valueOf(buyer.getEnterpriseId()));
 		orderDto.setCustName(buyer.getEnterpriseName());
 
-		//TODO 校验要供应商状态、资质
+		/* 校验要供应商状态、资质 */
 		UsermanageEnterprise seller = enterpriseMapper.getByEnterpriseId(orderDto.getSupplyId() + "");
 		if(UtilHelper.isEmpty(seller)){
 			log.info("统一校验订单商品接口-seller ：" + seller);
-			throw new Exception("供应商不存在!");
+			map.put("result", false);
+			map.put("message", "供应商不存在");
+			map.put("goToShoppingCart", true);
+			return map;
 		}
 		orderDto.setSupplyName(seller.getEnterpriseName());
-		//TODO 校验要采购商与供应商是否相同
-		if (seller.getEnterpriseId().equals(currentLoginEnterpriseId + "") ){
+		/* 校验要采购商与供应商是否相同 */
+		if (seller.getEnterpriseId().equals(userDto + "") ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
-			throw new Exception("不能购买自己的商品");
+			map.put("result", false);
+			map.put("message", "不能购买自己的商品");
+			map.put("goToShoppingCart", true);
+			return map;
 		}
 
-		//TODO 校验供应商下的商品信息
-		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
-		if(UtilHelper.isEmpty(productInfoDtoList)){
-			log.info("统一校验订单商品接口 ：商品不能为空!" );
-			throw new Exception("商品不能为空!");
+		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
+			map.put("result", false);
+			map.put("message", "查询客户组服务异常");
+			map.put("goToShoppingCart", true);
+			return map;
 		}
+		if(UtilHelper.isEmpty(productDubboManageService)){
+			log.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
+			map.put("result", false);
+			map.put("message", "查询商品价格服务异常");
+			map.put("goToShoppingCart", true);
+			return map;
+		}
+
+		CustGroupDubboRet custGroupDubboRet = null;
+		try{
+			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
+			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
+			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
+		}catch (Exception e){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage());
+		}
+
+		String [] custGroupCode = null;
+		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage());
+			map.put("result", false);
+			map.put("message", "查询商品价格失败");
+			map.put("goToShoppingCart", true);
+			return map;
+		}else{
+			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
+		}
+
 		ProductInfo productInfo = null;
 		//校验库存数量，是否可以购买
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(orderDto.getSupplyId());
-		for(ProductInfoDto productInfoDto : productInfoDtoList){
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
+
+			/* 检查库存 */
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
 			if(UtilHelper.isEmpty(productInfo )){
 				log.info("统一校验订单商品接口 ：商品(productId=" + productInfoDto.getId() + ")不存在!" );
-				throw new Exception("商品不存在!");
+				map.put("result", false);
+				map.put("message", "商品不存在");
+				map.put("goToShoppingCart", true);
+				return map;
 			}
-			//TODO 商品状态校验
 			productInventory.setSpuCode(productInfo.getSpuCode());
 			productInventory.setFrontInventory(productInfoDto.getProductCount());
-			//检查购物车库存数量
-			Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
-			String code = map.get("code").toString();
+			Map<String, Object> m = productInventoryManage.findInventoryNumber(productInventory);
+			String code = m.get("code").toString();
 			if("0".equals(code) || "1".equals(code)){
-				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + map );
-				throw  new Exception(map.get("msg").toString());
+				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + m );
+				map.put("result", false);
+				map.put("message", m.get("msg").toString());
+				map.put("goToShoppingCart", true);
+				return map;
+			}
+
+			/* 查询商品上下架状态 */
+			Map mapQuery = new HashMap();
+			mapQuery.put("spu_code", productInfoDto.getSpuCode());
+			mapQuery.put("seller_code", orderDto.getSupplyId());
+			List productList = null;
+			Integer putawayStatus = 0;
+			try{
+				log.info("统一校验订单商品接口-查询商品上下架状态,请求参数:" + mapQuery);
+				productList = productDubboManageService.selectProductBySPUCodeAndSellerCode(mapQuery);
+				log.info("统一校验订单商品接口-查询商品上下架状态,响应参数:" + JSONArray.fromObject(productList));
+				JSONObject productJson = JSONObject.fromObject(productList.get(0));
+
+				//（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
+				putawayStatus = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : (int) productJson.get("putaway_status");
+
+			}catch (Exception e){
+				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage());
+			}
+
+			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
+				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ", 0未上架  1上架  2本次下架  3非本次下架");
+				map.put("result", false);
+				map.put("message", "商品已下架");
+				map.put("goToShoppingCart", true);
+				return map;
+			}
+
+
+			/* 查询价格 */
+			String resultJsonString = "";
+			BigDecimal publicPrice = null; //公开价格
+			BigDecimal groupPrice = null ; //客户组价格
+			try{
+				log.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId()
+						+ ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
+				resultJsonString = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode(),custGroupCode);
+				log.info("统一校验订单商品接口,查询商品价格，响应参数：" + resultJsonString);
+
+				JSONObject jsonObject = JSONObject.fromObject(resultJsonString);
+				if(!UtilHelper.isEmpty(jsonObject.get("group_price")+"")){
+					groupPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("group_price")+"") ? "0" : jsonObject.get("group_price")+"");
+				} else {
+					publicPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("channel_price")+"") ? "0" : jsonObject.get("channel_price")+"");
+				}
+				log.info("统一校验订单商品接口,查询商品价格，公开价格publicPrice=" + publicPrice + ",客户组价格groupPrice=" + groupPrice + ",页面上显示的商品价格=" + productInfoDto.getProductPrice());
+
+			}catch (Exception e){
+				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
+				map.put("result", false);
+				map.put("message", "查询商品价格失败");
+				map.put("goToShoppingCart", true);
+			}
+
+			if( !UtilHelper.isEmpty(groupPrice)){
+				if( groupPrice.compareTo(productInfoDto.getProductPrice()) == 0){
+					continue;
+				}else{
+					/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
+					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),groupPrice);
+					map.put("result", false);
+					map.put("message", "存在价格变化的商品，请返回进货单重新结算");
+					map.put("goToShoppingCart", true);
+					return map;
+				}
+			}else if(!UtilHelper.isEmpty(publicPrice)){
+				if( publicPrice.compareTo(productInfoDto.getProductPrice()) == 0){
+					continue;
+				}else{
+					/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
+					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),publicPrice);
+					map.put("result", false);
+					map.put("message", "存在价格变化的商品，请返回进货单重新结算");
+					map.put("goToShoppingCart", true);
+					return map;
+				}
+
+			}else{
+				map.put("result", false);
+				map.put("message", "查询商品价格服务异常");
+				map.put("goToShoppingCart", true);
+				return map;
 			}
 		}
 		log.info("统一校验订单商品接口 ：校验成功" );
-		return true;
+		map.put("result", true);
+		return map;
 	}
 
+	/**
+	 * 提交订单时，若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格
+	 * @param userDto
+	 * @param supplyId
+	 * @param spuCode
+	 * @param newProductPrice
+	 */
+	private void updateProductPrice(UserDto userDto, Integer supplyId, String spuCode, BigDecimal newProductPrice){
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+		shoppingCart.setSupplyId(supplyId);
+		shoppingCart.setSpuCode(spuCode);
+
+		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
+		if(!UtilHelper.isEmpty(shoppingCartList) && shoppingCartList.size() == 1){
+			shoppingCart = shoppingCartList.get(0);
+			shoppingCart.setProductPrice(newProductPrice);
+			shoppingCart.setProductSettlementPrice(newProductPrice.multiply(new BigDecimal(shoppingCart.getProductCount())));
+			shoppingCart.setUpdateUser(userDto.getUserName());
+			shoppingCart.setUpdateTime(systemDateMapper.getSystemDate());
+			log.info("统一校验订单商品接口,查询商品价格后价格发生变化，更新数据：" + shoppingCart);
+			shoppingCartMapper.update(shoppingCart);
+		}
+	}
+
+
+	private String[] getCustGroupCode(List<Map<String, Object>> data) {
+		if(UtilHelper.isEmpty(data)) return null;
+		List<String> list = new ArrayList();
+		for(Map map : data){
+			if(UtilHelper.isEmpty(map)) continue;
+			if(!UtilHelper.isEmpty(map.get("code")+"")){
+				list.add(map.get("code")+"");
+			}
+		}
+		return (String[]) list.toArray();
+	}
 
 
 	/**

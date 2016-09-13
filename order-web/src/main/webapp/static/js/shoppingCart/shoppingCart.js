@@ -591,7 +591,7 @@ function getSelectedShoppingCart(){
     $('.cart-checkbox').each(function(index,element){
         if($(this).hasClass('select-all')){
             var shoppingCartId = $(this).attr("shoppingCartId");
-            var supplyId = $(this).attr("shoppingCartId");
+            var supplyId = $(this).attr("supplyId");
             // console.info("shoppingCartId=" + shoppingCartId );
             if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
                 // array.push(shoppingCartId);
@@ -630,13 +630,13 @@ function submitCheckOrderPage(){
     }
 
     var array = new Array();
-    $('.cart-checkbox').each(function(){
-        if($(this).hasClass('select-all')){
-            var shoppingCartId = $(this).attr("shoppingCartId");
-            // console.info("shoppingCartId=" + shoppingCartId );
-            if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
-                array.push(shoppingCartId);
-            }
+    $("#submitCheckOrderPage").find(".selectedShoppingCart").each(function(){
+        var shoppingCartId = $(this).val();
+        var supplyId = $(this).attr("supplyId");
+        // console.info("shoppingCartId= "+shoppingCartId +",supplyId=" + supplyId);
+        if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
+            var _data = {"shoppingCartId":shoppingCartId,"supplyId":supplyId};
+            array.push(_data);
         }
     });
     console.info("array="+array);
@@ -655,13 +655,12 @@ function submitCheckOrderPage(){
         });
         return ;
     }
-    var _data = _data = {"list":array};
-
     // console.info("_data="+_data);
-    //TODO AJAX 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
+    
+    /*  检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
     $.ajax({
         url:ctx + "/shoppingCart/check",
-        data:JSON.stringify(_data),
+        data:JSON.stringify(array),
         type:"post",
         dataType:"json",   //返回参数类型
         contentType :"application/json",   //请求参数类型
