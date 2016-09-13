@@ -29,6 +29,10 @@ function deleteSelectedShoppingCart(){
         }
     });
     var _data = {"list":_shoppingCartIdList};
+    sendDeleteAjaxRequest(_data);
+}
+
+function sendDeleteAjaxRequest(_data){
     $.ajax({
         url:ctx + "/shoppingCart/delete",
         data:JSON.stringify(_data),
@@ -472,6 +476,29 @@ $(function() {
         totalItem();
         totalSum();
     });
+    //清除失效商品（缺货、下架等）
+    $(".clear-items").click(function(){
+        var _shoppingCartIdList = new Array();
+        $(".order-holder").each(function(_index,_element){
+            $('.holder-list',this).each(function(index,element){
+                if($(element).hasClass("no-stock")){
+                    var _shoppingCartId = $(element).find(".cart-checkbox").attr("shoppingCartId");
+                    if(_shoppingCartId != null || _shoppingCartId != '' && typeof _shoppingCartId != 'undefined'){
+                        _shoppingCartIdList.push(_shoppingCartId);
+                    }
+                    $(element).remove();
+                }
+            });
+            if($('.holder-list',this).length == 0 || $('.holder-list',this).length == 1){
+                $(this).remove();
+            }
+        });
+        var _data = {"list":_shoppingCartIdList};
+        sendDeleteAjaxRequest(_data);
+        totalItem();
+        totalSum();
+    });
+
     // 删除
     $('.td-op .btn-delete').click(function(){
         var orderHolder =$(this).parents('.order-holder');
