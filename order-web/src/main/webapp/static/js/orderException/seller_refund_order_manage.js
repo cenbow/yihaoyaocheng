@@ -297,6 +297,7 @@ function  confirmSaleReturn() {
 
     var requestUrl = ctx+"/orderException/editConfirmReceiptReturn";
     var data = {"exceptionOrderId":$("#curExceptionOrderId").val()};
+    tipLoad();
    $.ajax({
         url: requestUrl,
         type: 'POST',
@@ -304,6 +305,7 @@ function  confirmSaleReturn() {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
            if(data&&data.msg== true){
                alertModal("操作成功");
                $("#myConfirmReturn").modal("hide");
@@ -314,6 +316,7 @@ function  confirmSaleReturn() {
 
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     })
