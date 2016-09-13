@@ -18,27 +18,32 @@ function deleteShoppingCart(_shoppingCartId){
     })
 }
 
-function deleteSelectedShoppingCart(_shoppingCartId){
+function deleteSelectedShoppingCart(){
+    var _shoppingCartIdList = new Array();
+    $('.holder-list .cart-checkbox').each(function(){
+        if($(this).hasClass('select-all')){
+            var shoppingCartId = $(this).attr("shoppingCartId");
+            if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
+                _shoppingCartIdList.push(shoppingCartId);
+            }    
+        }
+    });
+    var _data = {"list":_shoppingCartIdList};
+    $.ajax({
+        url:ctx + "/shoppingCart/delete",
+        data:JSON.stringify(_data),
+        type:"post",
+        dataType:"json",   //返回参数类型
+        contentType :"application/json",   //请求参数类型
+        async:false,
+        success:function(data){
+            console.info("删除成功!");
+            window.location.reload();
+        },
+        error:function(){
 
-    //TODO 删除已选中的
-
-    // if(_shoppingCartId == null || _shoppingCartId == "" || typeof _shoppingCartId == "undefined"){
-    //     return;
-    // }
-    // var _data = {"list":[_shoppingCartId]};
-    // $.ajax({
-    //     url:ctx + "/shoppingCart/delete",
-    //     data:JSON.stringify(_data),
-    //     type:"post",
-    //     dataType:"json",   //返回参数类型
-    //     contentType :"application/json",   //请求参数类型
-    //     success:function(data){
-    //         console.info(data);
-    //     },
-    //     error:function(){
-    //
-    //     }
-    // })
+        }
+    })
 }
 
 
@@ -451,13 +456,23 @@ $(function() {
         totalItem();
         totalSum();
     });
-    //删除选中商品
+    // 删除选中商品
     $('.delete-items').click(function(){
-        $('.cart-checkbox').removeClass('select-all');
+        deleteSelectedShoppingCart();
+        $(".order-holder").each(function(){
+            var holderList = $('.holder-list',this);
+            if($(holderList).find(".cart-checkbox").hasClass("select-all")){
+                if(holderList.length == 1){
+                    $(this).remove();
+                }else{
+                    $('.holder-list',this).remove();
+                }
+            }
+        });
         totalItem();
         totalSum();
     });
-    //删除
+    // 删除
     $('.td-op .btn-delete').click(function(){
         var orderHolder =$(this).parents('.order-holder');
         var holderList=$('.holder-list',orderHolder).length;
@@ -542,6 +557,9 @@ $(function() {
 
 });
 
+
+
+/* 移除页面已勾选的 checkBox，用于提交 */
 function removeSelectedShoppingCart(){
     var array = new Array();
     $('.cart-checkbox').each(function(){
@@ -564,7 +582,10 @@ function removeSelectedShoppingCart(){
     }
 }
 
-
+/**
+ *  获取页面已勾选的 checkBox，用于提交
+ * @returns {boolean}
+ */
 function getSelectedShoppingCart(){
     var paramsHtml = "";
     $('.cart-checkbox').each(function(index,element){
