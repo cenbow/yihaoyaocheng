@@ -567,13 +567,12 @@ function convertValidNumber(_inputValue, _preValue, _upStep,_productInventory) {
 
     var mod = Number(_inputValue) % Number(_upStep);
 
-
     //递增逻辑
     if(Number(_inputValue) > Number(_preValue)){
         if(mod == 0){
             return _inputValue;
         }else{
-            var finalValue = Number(_inputValue) + Number(_upStep);
+            var finalValue = Number(_inputValue) - mod + Number(_upStep);
             return finalValue > Number(_productInventory) ? Number(_productInventory) : finalValue;
         }
 
@@ -582,7 +581,7 @@ function convertValidNumber(_inputValue, _preValue, _upStep,_productInventory) {
         if(mod == 0){
             return _inputValue;
         }else{
-            var finalValue = Number(_inputValue) - Number(_upStep);
+            var finalValue = Number(_inputValue) - mod;
             return finalValue < Number(_upStep) ? Number(_upStep) : finalValue;
         }
     }else{
