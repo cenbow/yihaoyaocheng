@@ -201,55 +201,6 @@ function updateOrderSaleAmount(){
 
 }
 
-/**
- * 更新购物车中数量（当用户手动输入商品数量的场景使用）
- * @param _shoppingCartId
- * @param _this
- */
-function updateNum(_shoppingCartId,_this){
-    var _productCountInput = $(_this);
-    var _productCountAttr = _productCountInput.attr("productCount");
-    if(_productCountInput.val() < 1){
-        new Dialog({
-            title:'提示',
-            content:'<p class="mt60 f14">购买数量不能小于1 ！</p>',
-            cancel:'取消',
-            ok:'确定'
-        });
-        return;
-    }
-    if(_productCountInput.val() > 999999999){
-        new Dialog({
-            title:'提示',
-            content:'<p class="mt60 f14">购买数量不能大于999999999 ！</p>',
-            cancel:'取消',
-            ok:'确定'
-        });
-        return;
-    }
-    console.info("_shoppingCartId=" + _shoppingCartId +",_productCountInput.val()=" + _productCountInput.val() +",_productCountAttr=" + _productCountAttr);
-    return;
-
-    /* 小计 */
-    var tdsumObject=$(_this).parents('.holder-list').find('.td-sum span');
-    var tdamount = Number(_productCountInput.val());
-    var tdprice=Number($(_this).parents('.holder-list').find('.td-price span').html());
-    var tdsum= tdamount*tdprice;
-    tdsumObject.html(tdsum.toFixed(2));
-
-    //品种总计
-    totalItem();
-
-    //商品总额
-    totalSum();
-
-    //判断是满足购买
-    priceNeed();
-
-    //发送请求：更新购物车中数量
-    updateNumInShoppingCart(_shoppingCartId,_value);
-}
-
 
 /**
  * 更新购物车中数量
@@ -292,18 +243,23 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
         url:ctx + "/shoppingCart/updateNum",
         data:JSON.stringify(_data),
         type:"post",
-        dataType:"json",   //返回参数类型
         contentType :"application/json",   //请求参数类型
+        async:false,
         success:function(data){
             if(data.statusCode || data.message){
+                // console.info("更新数量失败" );
                 new Dialog({
                     title:'提示',
                     content:'<p class="mt60 f14">'+data.message+'</p>',
                     cancel:'取消',
                     ok:'确定'
                 });
-                if(_type == 'updateText')
-                $(_this).parent().find('.its-buy-num').val(_preValue);
+            }else{
+                // console.info("更新数量成功" );
+                if(_type == 'updateText'){
+                    $(_this).parent().find('.its-buy-num').val(_value);
+                    $(_this).parent().find('.its-buy-num').attr("preValue",_value);
+                }
             }
         },
         error:function(data){

@@ -181,7 +181,7 @@ public class OrderController extends BaseJsonController {
 			orderDto.setSeller(seller);
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
-//			/* 校验所购买商品的合法性 */
+			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
 			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){

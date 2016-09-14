@@ -233,7 +233,7 @@ public class ShoppingCartController extends BaseJsonController {
 	@RequestMapping(value = "/updateNum", method = RequestMethod.POST)
 	public void updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		int resultCount = shoppingCartService.updateNum(shoppingCart,userDto);
+		shoppingCartService.updateNum(shoppingCart,userDto);
 	}
 
 
