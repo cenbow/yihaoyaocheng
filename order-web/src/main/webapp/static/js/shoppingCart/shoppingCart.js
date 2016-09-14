@@ -323,8 +323,6 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
 
 
 
-
-
 $(function() {
     getSelectedShoppingCart();
     $('.its-buy-num').blur(function(){
@@ -342,7 +340,12 @@ $(function() {
         }else{
             value = $(this).parent().find('.its-buy-num').val();
         }
-        var _preValue =   $(this).parent().find('.its-buy-num').attr("preValue");
+        var _preValue = $(this).parent().find('.its-buy-num').attr("preValue");
+        var _productInventory = $(this).parent().find('.its-buy-num').attr("productInventory");
+
+        /* 控制用户输入的商品数量，是以最小可拆零包装量的整数倍进行递增或者递减 */
+        value = convertValidNumber(value,_preValue,upStep,_productInventory);
+        console.info("转换后的value=" + value);
         updateNumInShoppingCart(shoppingCartId,value,this,'updateText',_preValue);
     });
     //小计
@@ -583,6 +586,53 @@ $(function() {
     });
 
 });
+
+/**
+ * 控制用户输入的商品数量，是以最小可拆零包装量的整数倍进行递增或者递减
+ * @param _inputValue 用户在框中输入的商品数量
+ * @param _preValue  原有的商品数量
+ * @param _upStep  最小可拆零包装数量(以这个参数控制递增、递减)
+ * @param _productInventory  库存数量
+ */
+function convertValidNumber(_inputValue, _preValue, _upStep,_productInventory) {
+    console.info("_inputValue=" + _inputValue + ",_preValue=" + _preValue + ",_upStep=" + _upStep + ",_productInventory=" + _productInventory);
+    /* 当库存低于最小可拆零包装数量，不让用户修改商品数量 */
+    if(Number(_productInventory) < Number(_upStep)){
+        return _preValue
+    }
+    //输入的数字低于最小可拆零包装数量，不修改
+    if(Number(_inputValue) < Number(_upStep)){
+        return _preValue;
+    }
+    //输入的数字高于库存数量，不修改
+    if(Number(_inputValue) > Number(_productInventory)){
+        return _preValue;
+    }
+
+    var mod = Number(_inputValue) % Number(_upStep);
+
+
+    //递增逻辑
+    if(Number(_inputValue) > Number(_preValue)){
+        if(mod == 0){
+            return _inputValue;
+        }else{
+            var finalValue = Number(_inputValue) + Number(_upStep);
+            return finalValue > Number(_productInventory) ? Number(_productInventory) : finalValue;
+        }
+
+    //递减逻辑
+    }if(Number(_inputValue) < Number(_preValue)){
+        if(mod == 0){
+            return _inputValue;
+        }else{
+            var finalValue = Number(_inputValue) - Number(_upStep);
+            return finalValue < Number(_upStep) ? Number(_upStep) : finalValue;
+        }
+    }else{
+        return _preValue;
+    }
+}
 
 
 

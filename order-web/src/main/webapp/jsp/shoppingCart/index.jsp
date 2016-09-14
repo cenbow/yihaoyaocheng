@@ -119,7 +119,8 @@
                                                             <a href="javascript:;" class="its-btn-reduce">-</a>
                                                             <a href="javascript:;" class="its-btn-add">+</a>
                                                             <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}"
-                                                                   saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}">
+                                                                   saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}"
+                                                                   productInventory="${shoppingCartDto.productInventory}">
                                                         </div>
                                                     </div>
                                                     <%--<div class="pt13 pl20 fl">瓶</div>--%>
@@ -133,6 +134,8 @@
                                                     </div>--%>
                                                     <%--<span class="color-gray9">${shoppingCartDto.upStep}递增</span>--%>
                                                     <span class="color-gray9">最小拆零包装:${shoppingCartDto.upStep}${shoppingCartDto.unit}</span>
+                                                    <br/>
+                                                    <span class="color-gray9"><c:choose><c:when test="${shoppingCartDto.productInventory > 500}">库存 > 500</c:when><c:otherwise>库存 : ${shoppingCartDto.productInventory}</c:otherwise></c:choose></span>
                                                 </c:if>
                                             </div>
                                         </li>

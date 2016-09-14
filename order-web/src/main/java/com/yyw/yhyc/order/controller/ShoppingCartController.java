@@ -195,10 +195,15 @@ public class ShoppingCartController extends BaseJsonController {
 				productInventory.setSupplyId(shoppingCartDto.getSupplyId());
 				productInventory.setSpuCode(shoppingCartDto.getSpuCode());
 				productInventory.setFrontInventory(shoppingCartDto.getProductCount());
+				logger.info("购物车页面-检查商品库存,请求参数productInventory=" + productInventory);
 				Map<String, Object> resultMap = productInventoryService.findInventoryNumber(productInventory);
+				logger.info("购物车页面-检查商品库存,响应参数resultMap=" + resultMap);
+
+				String frontInventory = resultMap.get("frontInventory") + "";
+				shoppingCartDto.setProductInventory(UtilHelper.isEmpty(frontInventory) ? 0 : Integer.valueOf(frontInventory));
+
 				String code = resultMap.get("code").toString();
 				if("0".equals(code) || "1".equals(code)){
-					logger.info("购物车页面-检查商品库存:商品(spuCode=" + shoppingCartDto.getSpuCode() + ")库存校验失败!msg=" + resultMap.get("msg").toString());
 					shoppingCartDto.setExistProductInventory(false);
 				}else{
 					shoppingCartDto.setExistProductInventory(true);

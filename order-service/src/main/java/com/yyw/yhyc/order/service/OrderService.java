@@ -787,30 +787,8 @@ public class OrderService {
 			return map;
 		}
 
-		/* 校验采购商状态、资质 */
-		UsermanageEnterprise buyer = enterpriseMapper.getByEnterpriseId(userDto.getCustId()+"");
-		if(UtilHelper.isEmpty(buyer)){
-			log.info("统一校验订单商品接口-buyer ：" + buyer);
-			map.put("result", false);
-			map.put("message", "采购商不存在");
-			map.put("goToShoppingCart", true);
-			return map;
-		}
-		orderDto.setCustId(Integer.valueOf(buyer.getEnterpriseId()));
-		orderDto.setCustName(buyer.getEnterpriseName());
-
-		/* 校验要供应商状态、资质 */
-		UsermanageEnterprise seller = enterpriseMapper.getByEnterpriseId(orderDto.getSupplyId() + "");
-		if(UtilHelper.isEmpty(seller)){
-			log.info("统一校验订单商品接口-seller ：" + seller);
-			map.put("result", false);
-			map.put("message", "供应商不存在");
-			map.put("goToShoppingCart", true);
-			return map;
-		}
-		orderDto.setSupplyName(seller.getEnterpriseName());
 		/* 校验要采购商与供应商是否相同 */
-		if (seller.getEnterpriseId().equals(userDto + "") ){
+		if (orderDto.getSupplyId().equals(userDto.getCustId()) ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
 			map.put("result", false);
 			map.put("message", "不能购买自己的商品");
@@ -970,7 +948,7 @@ public class OrderService {
 			}
 		}
 
-		if(productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
+		if(productPriceCount.compareTo(orderDto.getSeller().getOrderSamount()) < 0 ){
 			map.put("result", false);
 			map.put("message", "你有部分商品金额低于供货商的发货标准，此商品无法结算");
 			map.put("goToShoppingCart", true);

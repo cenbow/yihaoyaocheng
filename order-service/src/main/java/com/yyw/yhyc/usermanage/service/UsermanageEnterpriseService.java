@@ -140,4 +140,9 @@ public class UsermanageEnterpriseService {
 	{
 		return usermanageEnterpriseMapper.findByCount(usermanageEnterprise);
 	}
+
+
+	public  UsermanageEnterprise getByEnterpriseId (String enterpriseId)  {
+		return usermanageEnterpriseMapper.getByEnterpriseId(enterpriseId);
+	}
 }

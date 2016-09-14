@@ -34,6 +34,8 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
+import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
 import com.yyw.yhyc.utils.DateUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -79,6 +81,9 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
+
+	@Autowired
+	private UsermanageEnterpriseService enterpriseService;
 
     /**
      * 通过主键查询实体对象
@@ -149,10 +154,35 @@ public class OrderController extends BaseJsonController {
 		if(UtilHelper.isEmpty(orderCreateDto))throw new Exception("非法参数");
 		orderCreateDto.setUserDto(userDto);
 		if(UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()))throw new Exception("非法参数");
+		Map<String,Object> map = new HashMap<String, Object>();
 		for(OrderDto orderDto : orderCreateDto.getOrderDtoList()){
+			/* 校验采购商状态、资质 */
+			UsermanageEnterprise buyer = enterpriseService.getByEnterpriseId(userDto.getCustId()+"");
+			if(UtilHelper.isEmpty(buyer)){
+				logger.info("统一校验订单商品接口-buyer ：" + buyer);
+				map.put("result", false);
+				map.put("message", "采购商不存在");
+				map.put("goToShoppingCart", true);
+				return map;
+			}
+			orderDto.setBuyer(buyer);
+			orderDto.setCustId(Integer.valueOf(buyer.getEnterpriseId()));
+			orderDto.setCustName(buyer.getEnterpriseName());
 
-			/* 校验所购买商品的合法性 */
-			Map<String,Object> map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService);
+			/* 校验要供应商状态、资质 */
+			UsermanageEnterprise seller = enterpriseService.getByEnterpriseId(orderDto.getSupplyId() + "");
+			if(UtilHelper.isEmpty(seller)){
+				logger.info("统一校验订单商品接口-seller ：" + seller);
+				map.put("result", false);
+				map.put("message", "供应商不存在");
+				map.put("goToShoppingCart", true);
+				return map;
+			}
+			orderDto.setSeller(seller);
+			orderDto.setSupplyName(seller.getEnterpriseName());
+
+//			/* 校验所购买商品的合法性 */
+			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
@@ -173,7 +203,7 @@ public class OrderController extends BaseJsonController {
 				}
 			}
 		}
-		Map<String,Object> map = new HashMap<String,Object>();
+		map = new HashMap<String,Object>();
 		map.put("url","/order/createOrderSuccess?orderIds="+orderIdStr);
 
 		/* 生成账期订单后，调用接口更新资信可用额度 */
@@ -207,6 +237,8 @@ public class OrderController extends BaseJsonController {
 						order.setPayTime(systemDateService.getSystemDate());
 						update(order);
 						logger.info("创建订单接口-生成账期订单后，成功更新资信可用额度,更新订单信息，order=" + order);
+					}else{
+						logger.info("创建订单接口-生成账期订单后，更新资信可用额度失败..message" + (UtilHelper.isEmpty(creditDubboResult) ? "null" : creditDubboResult.getMessage()));
 					}
 				}catch (Exception e){
 					logger.error(e.getMessage());
