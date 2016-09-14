@@ -12,10 +12,7 @@ package com.yyw.yhyc.order.service;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
@@ -61,8 +58,6 @@ public class OrderDeliveryService {
 	private OrderExceptionMapper orderExceptionMapper;
 
 	private OrderReturnMapper orderReturnMapper;
-
-	private String FILE_TEMPLATE_PATH="include/excel/";
 
 	private OrderTraceMapper orderTraceMapper;
 
@@ -1096,7 +1091,7 @@ public class OrderDeliveryService {
 	 * @param manufacturerOrderList
 	 * @return
 	 */
-	public List<ManufacturerOrder> updateOrderDeliver(List<ManufacturerOrder> manufacturerOrderList) {
+	public List<ManufacturerOrder> updateOrderDeliver(List<ManufacturerOrder> manufacturerOrderList,String filePath) {
 		if (!UtilHelper.isEmpty(manufacturerOrderList)) {
 			String now = systemDateMapper.getSystemDate();
 			List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
@@ -1124,7 +1119,7 @@ public class OrderDeliveryService {
 						log.info("该订单" + manufacturerOrder.getFlowId() + "的商品信息为空");
 						continue;
 					}
-					String path = writeExcel(orderDetailList, order.getFlowId(), "/opt/deploy/order-web/include/excel/");
+					String path = writeExcel(orderDetailList, order.getFlowId(), filePath);
 					int i = 1;
 					for (OrderDetail orderDetail : orderDetailList) {
 						OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();

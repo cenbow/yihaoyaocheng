@@ -24,7 +24,6 @@
     <bean id="redisSessionManager" class="com.x.session.web.http.HttpSessionManager">
         <property name="storageClient" ref="redisStorageClient" />
         <property name="cookiePath" value="/"/>
-        <property name="cookieDomain" value="yaoex.com"/>
         <property name="maxInactiveInterval" value="1800"/>
         <property name="expirationUpdateInterval" value="1"/>
     </bean>

@@ -7,6 +7,7 @@ import com.yyw.yhyc.order.facade.ManufacturerOrderFacade;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.order.service.OrderIssuedService;
 import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,6 @@ public class ManufacturerOrderFacadeImpl implements ManufacturerOrderFacade {
 
     @Override
     public List<ManufacturerOrder> sendOrderDelivery(List<ManufacturerOrder> manufacturerOrderList) {
-        return orderDeliveryService.updateOrderDeliver(manufacturerOrderList);
+        return orderDeliveryService.updateOrderDeliver(manufacturerOrderList,MyConfigUtil.FILE_PATH);
     }
 }
