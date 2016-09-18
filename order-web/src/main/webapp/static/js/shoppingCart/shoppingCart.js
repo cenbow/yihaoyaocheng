@@ -259,6 +259,11 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                 if(_type == 'updateText'){
                     $(_this).parent().find('.its-buy-num').val(_value);
                     $(_this).parent().find('.its-buy-num').attr("preValue",_value);
+                    var productPrice = $(_this).parent().find('.its-buy-num').attr("productPrice");
+                    /* 商品小计 */
+                    var productTotalPrice = Number(productPrice) * Number(_value);
+                    $(_this).parents('.holder-list').find('.td-sum span').html(fmoney(productTotalPrice,2));
+                    $(_this).parents('.holder-list').find('.td-sum').find("input[name='productSettlementPrice']").val(productTotalPrice.toFixed(2));
                 }
             }
         },

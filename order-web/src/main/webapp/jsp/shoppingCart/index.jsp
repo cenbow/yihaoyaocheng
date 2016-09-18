@@ -120,7 +120,7 @@
                                                             <a href="javascript:;" class="its-btn-add">+</a>
                                                             <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}"
                                                                    saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}"
-                                                                   productInventory="${shoppingCartDto.productInventory}">
+                                                                   productInventory="${shoppingCartDto.productInventory}" productPrice="${shoppingCartDto.productPrice}">
                                                         </div>
                                                     </div>
                                                     <%--<div class="pt13 pl20 fl">瓶</div>--%>
