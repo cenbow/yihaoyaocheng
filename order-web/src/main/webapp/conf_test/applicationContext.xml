@@ -17,6 +17,6 @@
         </property>
     </bean>
 
-    <import resource="classpath*:spring-dataSource.xml"/>
+    <import resource="../spring-dataSource.xml"/>
     <import resource="WEB-INF/session-filter.xml"/>
 </beans>
