@@ -17,6 +17,11 @@
             <artifactId>order-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.yyw.yhyc</groupId>
+            <artifactId>base-pay</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>pay-chinapay</groupId>
