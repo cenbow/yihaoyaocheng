@@ -155,9 +155,7 @@ function doRefreshData(requestParam,requestUrl){
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
 			tipRemove();
-			alertModal("查询结算列表错误",function(){
-				closeAlert();
-			});
+			alertModal("查询结算列表错误");
 		}
 	});
 }
@@ -243,9 +241,7 @@ function bindOperateBtn() {
 			},
 			error : function(XMLHttpRequest, textStatus, errorThrown) {
 				tipRemove();
-				alertModal("退款详情信息错误",function(){
-					closeAlert();
-				});
+				alertModal("退款详情信息错误");
 			}
 		});
 	});
