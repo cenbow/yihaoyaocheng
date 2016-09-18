@@ -33,6 +33,9 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /*商品的本公司编码*/
     private String productCodeCompany;
 
+    /* 商品价格标记(公开价、渠道价) */
+    private String productPriceTag;
+
 
     public BigDecimal getProductPrice() {
         return productPrice;
@@ -90,6 +93,14 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.productCodeCompany = productCodeCompany;
     }
 
+    public String getProductPriceTag() {
+        return productPriceTag;
+    }
+
+    public void setProductPriceTag(String productPriceTag) {
+        this.productPriceTag = productPriceTag;
+    }
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
@@ -100,6 +111,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", periodProduct=" + periodProduct +
                 ", paymentTerm=" + paymentTerm +
                 ", productCodeCompany='" + productCodeCompany + '\'' +
-                '}';
+                ", productPriceTag='" + productPriceTag + '\'' +
+                "} " + super.toString();
     }
 }

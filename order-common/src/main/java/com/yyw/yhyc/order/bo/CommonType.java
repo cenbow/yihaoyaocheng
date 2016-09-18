@@ -26,4 +26,13 @@ public class CommonType {
     /*每次延期的天数*/
     public static final int POSTPONE_TIME = 3 ;
 
+    /* 商品公开价格 */
+    public static final String PUBLIC_PRICE = "publicPrice";
+
+    /* 商品客户组价格 */
+    public static final String GROUP_PRICE = "groupPrice";
+
+    /* 商品渠道价格(渠道内：优选选择客户组价格，若没有则取默认渠道价格，有疑问找产品) */
+    public static final String CHANNEL_PRICE = "channelPrice";
+
 }
