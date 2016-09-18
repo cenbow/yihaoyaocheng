@@ -115,7 +115,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].periodProduct" value="${shoppingCartDto.periodProduct}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].paymentTerm" value="${shoppingCartDto.paymentTerm}"/>
                                                     <tr>
-                                                        <td class="tl">
+                                                        <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                                             <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
                                                             <h3>
                                                                 <c:if test="${shoppingCartDto.isChannel == 1}">
