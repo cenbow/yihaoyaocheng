@@ -18,5 +18,5 @@
     </bean>
 
     <import resource="../spring-dataSource.xml"/>
-    <import resource="WEB-INF/session-filter.xml"/>
+    <import resource="../session-filter.xml"/>
 </beans>
