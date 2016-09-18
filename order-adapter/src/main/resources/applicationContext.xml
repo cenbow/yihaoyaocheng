@@ -31,5 +31,5 @@
         <constructor-arg index="4" value="${redis.password}"/>
     </bean>
 
-    <import resource="../spring-dataSource.xml"/>
+    <import resource="classpath*:spring-dataSource.xml"/>
 </beans>
