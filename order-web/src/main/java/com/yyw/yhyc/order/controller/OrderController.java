@@ -364,10 +364,9 @@ public class OrderController extends BaseJsonController {
 				try{
 					logger.info("检查订单页-查询商品信息,请求参数:" + mapQuery);
 					productList = productDubboManageService.selectProductBySPUCodeAndSellerCode(mapQuery);
-					logger.info("检查订单页-查询商品信息,响应参数:" + productList);
-					logger.info("统一校验订单商品接口-查询商品上下架状态,响应参数:" + JSONArray.fromObject(productList));
+					logger.info("检查订单页-查询商品信息,响应参数:" + JSONArray.fromObject(productList));
 					JSONObject productJson = JSONObject.fromObject(productList.get(0));
-					isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : (int) productJson.get("is_channel");
+					isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : Integer.valueOf(productJson.get("is_channel")+"");
 					shoppingCartDto.setIsChannel(isChannel);
 				}catch (Exception e){
 					logger.error("检查订单页-查询商品信息失败，message:"+e.getMessage(),e);

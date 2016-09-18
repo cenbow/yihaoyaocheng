@@ -878,8 +878,8 @@ public class OrderService {
 				JSONObject productJson = JSONObject.fromObject(productList.get(0));
 
 				//（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
-				putawayStatus = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : (int) productJson.get("putaway_status");
-				isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : (int) productJson.get("is_channel");
+				putawayStatus = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : Integer.valueOf(productJson.get("putaway_status")+"");
+				isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : Integer.valueOf(productJson.get("is_channel")+"");
 
 			}catch (Exception e){
 				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage());
