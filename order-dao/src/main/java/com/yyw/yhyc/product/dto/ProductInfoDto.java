@@ -33,6 +33,10 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /*商品的本公司编码*/
     private String productCodeCompany;
 
+    /*  是否渠道商品(0否，1是),  */
+    private Integer isChannel;
+
+
 
     public BigDecimal getProductPrice() {
         return productPrice;
@@ -90,6 +94,14 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.productCodeCompany = productCodeCompany;
     }
 
+    public Integer getIsChannel() {
+        return isChannel;
+    }
+
+    public void setIsChannel(Integer isChannel) {
+        this.isChannel = isChannel;
+    }
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
@@ -100,6 +112,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", periodProduct=" + periodProduct +
                 ", paymentTerm=" + paymentTerm +
                 ", productCodeCompany='" + productCodeCompany + '\'' +
-                '}';
+                ", isChannel='" + isChannel + '\'' +
+                "} " + super.toString();
     }
 }

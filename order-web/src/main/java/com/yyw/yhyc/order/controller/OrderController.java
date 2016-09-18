@@ -333,12 +333,47 @@ public class OrderController extends BaseJsonController {
 			/* 由于账期订单 这种神奇订单的存在，需要拆分出账期订单数据，并展示在页面*/
 			List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart);
 			allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList);
+			allShoppingCart = handlerProductInfo(allShoppingCart);
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
 
 		model.addObject("dataMap",dataMap);
 		model.setViewName("order/checkOrderPage");
 		return model;
+	}
+
+	/**
+	 * 处理商品信息
+	 * @param allShoppingCart
+	 * @return
+     */
+	private List<ShoppingCartListDto> handlerProductInfo(List<ShoppingCartListDto> allShoppingCart) {
+		if(UtilHelper.isEmpty(allShoppingCart)) return allShoppingCart;
+
+		Map mapQuery = new HashMap();
+		List productList = null;
+		Integer isChannel = 0;// 是否渠道商品(0否，1是),
+
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList())) continue;
+			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+				mapQuery.put("spu_code", shoppingCartDto.getSpuCode());
+				mapQuery.put("seller_code", shoppingCartDto.getSupplyId());
+
+				try{
+					logger.info("检查订单页-查询商品信息,请求参数:" + mapQuery);
+					productList = productDubboManageService.selectProductBySPUCodeAndSellerCode(mapQuery);
+					logger.info("检查订单页-查询商品信息,响应参数:" + JSONArray.fromObject(productList));
+					JSONObject productJson = JSONObject.fromObject(productList.get(0));
+					isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : Integer.valueOf(productJson.get("is_channel")+"");
+					shoppingCartDto.setIsChannel(isChannel);
+				}catch (Exception e){
+					logger.error("检查订单页-查询商品信息失败，message:"+e.getMessage(),e);
+				}
+			}
+		}
+		return allShoppingCart;
 	}
 
 	/**
