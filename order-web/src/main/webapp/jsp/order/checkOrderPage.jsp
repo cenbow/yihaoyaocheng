@@ -117,7 +117,12 @@
                                                     <tr>
                                                         <td class="tl">
                                                             <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
-                                                            <h3><span class="ct-lable">渠道</span>${shoppingCartDto.productName} ${shoppingCartDto.specification}</h3>
+                                                            <h3>
+                                                                <c:if test="${shoppingCartDto.isChannel == 1}">
+                                                                    <span class="ct-lable">渠道</span>
+                                                                </c:if>
+                                                                ${shoppingCartDto.productName} ${shoppingCartDto.specification}
+                                                            </h3>
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
                                                         <td>¥ <fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></td>

@@ -33,8 +33,9 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /*商品的本公司编码*/
     private String productCodeCompany;
 
-    /* 商品价格标记(公开价、渠道价) */
-    private String productPriceTag;
+    /*  是否渠道商品(0否，1是),  */
+    private Integer isChannel;
+
 
 
     public BigDecimal getProductPrice() {
@@ -93,12 +94,12 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.productCodeCompany = productCodeCompany;
     }
 
-    public String getProductPriceTag() {
-        return productPriceTag;
+    public Integer getIsChannel() {
+        return isChannel;
     }
 
-    public void setProductPriceTag(String productPriceTag) {
-        this.productPriceTag = productPriceTag;
+    public void setIsChannel(Integer isChannel) {
+        this.isChannel = isChannel;
     }
 
     @Override
@@ -111,7 +112,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", periodProduct=" + periodProduct +
                 ", paymentTerm=" + paymentTerm +
                 ", productCodeCompany='" + productCodeCompany + '\'' +
-                ", productPriceTag='" + productPriceTag + '\'' +
+                ", isChannel='" + isChannel + '\'' +
                 "} " + super.toString();
     }
 }

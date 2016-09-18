@@ -869,7 +869,8 @@ public class OrderService {
 			mapQuery.put("spu_code", productInfoDto.getSpuCode());
 			mapQuery.put("seller_code", orderDto.getSupplyId());
 			List productList = null;
-			Integer putawayStatus = 0;
+			Integer putawayStatus = 0;// 0未上架  1上架  2本次下架  3非本次下架
+			Integer isChannel = 0;// 是否渠道商品(0否，1是),
 			try{
 				log.info("统一校验订单商品接口-查询商品上下架状态,请求参数:" + mapQuery);
 				productList = productDubboManageService.selectProductBySPUCodeAndSellerCode(mapQuery);
@@ -878,24 +879,27 @@ public class OrderService {
 
 				//（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
 				putawayStatus = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : (int) productJson.get("putaway_status");
+				isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : (int) productJson.get("is_channel");
 
 			}catch (Exception e){
 				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage());
 			}
 
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
-				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ", 0未上架  1上架  2本次下架  3非本次下架");
+				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ",// 0未上架  1上架  2本次下架  3非本次下架");
 				map.put("result", false);
 				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 				map.put("goToShoppingCart", true);
 				return map;
 			}
+			productInfoDto.setIsChannel(isChannel);
 
 
 			/* 查询价格 */
 			String resultJsonString = "";
-			BigDecimal publicPrice = null; //公开价格
-			BigDecimal groupPrice = null ; //客户组价格
+
+			BigDecimal productPrice = null ;
+
 			try{
 				log.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId()
 						+ ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
@@ -903,12 +907,22 @@ public class OrderService {
 				log.info("统一校验订单商品接口,查询商品价格，响应参数：" + resultJsonString);
 
 				JSONObject jsonObject = JSONObject.fromObject(resultJsonString);
+				//客户组价格
 				if(!UtilHelper.isEmpty(jsonObject.get("group_price")+"")){
-					groupPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("group_price")+"") ? "0" : jsonObject.get("group_price")+"");
-				} else {
-					publicPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("channel_price")+"") ? "0" : jsonObject.get("channel_price")+"");
+					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("group_price")+"") ? "0" : jsonObject.get("group_price")+"");
+				//渠道价格
+				} else if(!UtilHelper.isEmpty(jsonObject.get("channel_price")+"")) {
+					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("channel_price")+"") ? "0" : jsonObject.get("channel_price")+"");
+				//公开价格
+				}else if(!UtilHelper.isEmpty(jsonObject.get("public_price")+"")){
+					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("public_price")+"") ? "0" : jsonObject.get("public_price")+"");
+				}else{
+					log.error("统一校验订单商品接口,查询商品价格，发生异常,");
+					map.put("result", false);
+					map.put("message", "查询商品价格失败");
+					map.put("goToShoppingCart", true);
 				}
-				log.info("统一校验订单商品接口,查询商品价格，公开价格publicPrice=" + publicPrice + ",客户组价格groupPrice=" + groupPrice + ",页面上显示的商品价格=" + productInfoDto.getProductPrice());
+				log.info("统一校验订单商品接口,查询商品价格=" + productPrice + ",页面上显示的商品价格=" + productInfoDto.getProductPrice());
 
 			}catch (Exception e){
 				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
@@ -917,32 +931,21 @@ public class OrderService {
 				map.put("goToShoppingCart", true);
 			}
 
-			if( !UtilHelper.isEmpty(groupPrice)){
-				if( groupPrice.compareTo(productInfoDto.getProductPrice()) == 0){
-					continue;
-				}else{
-					/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),groupPrice);
-					map.put("result", false);
-					map.put("message", "存在价格变化的商品，请返回进货单重新结算");
-					map.put("goToShoppingCart", true);
-					return map;
-				}
-			}else if(!UtilHelper.isEmpty(publicPrice)){
-				if( publicPrice.compareTo(productInfoDto.getProductPrice()) == 0){
-					continue;
-				}else{
-					/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),publicPrice);
-					map.put("result", false);
-					map.put("message", "存在价格变化的商品，请返回进货单重新结算");
-					map.put("goToShoppingCart", true);
-					return map;
-				}
-
-			}else{
+			if( UtilHelper.isEmpty(productPrice)){
 				map.put("result", false);
 				map.put("message", "查询商品价格服务异常");
+				map.put("goToShoppingCart", true);
+				return map;
+			}
+
+			/* 价格是否发生变化 */
+			if( productPrice.compareTo(productInfoDto.getProductPrice()) == 0){
+				continue;
+			}else{
+				/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
+				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+				map.put("result", false);
+				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
 				map.put("goToShoppingCart", true);
 				return map;
 			}
