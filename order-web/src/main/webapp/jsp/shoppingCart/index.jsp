@@ -84,12 +84,12 @@
                                 <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory ||  shoppingCartDto.putawayStatus != 1}"> no-stock </c:if> ">
                                     <ul>
                                         <li class="fl td-chk">
-
-                                            <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
-                                                 shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
-                                                <span class="inside-icon" >全选所有商品</span>
-                                            </div>
-
+                                            <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1}">
+                                                <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
+                                                     shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
+                                                    <span class="inside-icon" >全选所有商品</span>
+                                                </div>
+                                            </c:if>
                                         </li>
 
                                         <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
@@ -140,7 +140,9 @@
                                             </div>
                                         </li>
                                         <li class="fl td-sum">
-                                            <input type="hidden" name="productSettlementPrice" value="${shoppingCartDto.productSettlementPrice}">
+
+                                                <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1}">  value="${shoppingCartDto.productSettlementPrice}" </c:if>>
+
                                             ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="2"/></span>
                                         </li>
                                         <li class="fl td-op"><a href="javascript:deleteShoppingCart(${shoppingCartDto.shoppingCartId});" class="btn-delete">删除</a></li>

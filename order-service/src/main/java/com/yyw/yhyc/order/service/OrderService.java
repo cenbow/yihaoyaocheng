@@ -789,6 +789,15 @@ public class OrderService {
 			return map;
 		}
 
+		UsermanageEnterprise buyer = enterpriseMapper.getByEnterpriseId(orderDto.getCustId() + "");
+		UsermanageEnterprise seller = enterpriseMapper.getByEnterpriseId(orderDto.getSupplyId() + "");
+		if(UtilHelper.isEmpty(buyer) || UtilHelper.isEmpty(seller)){
+			map.put("result", false);
+			map.put("message", "非法参数");
+			map.put("goToShoppingCart", true);
+			return map;
+		}
+
 		/* 校验要采购商与供应商是否相同 */
 		if (orderDto.getSupplyId().equals(userDto.getCustId()) ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
@@ -953,7 +962,7 @@ public class OrderService {
 			}
 		}
 
-		if(productPriceCount.compareTo(orderDto.getSeller().getOrderSamount()) < 0 ){
+		if(!UtilHelper.isEmpty(seller.getOrderSamount()) && productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
 			map.put("result", false);
 			map.put("message", "你有部分商品金额低于供货商的发货标准，此商品无法结算");
 			map.put("goToShoppingCart", true);
