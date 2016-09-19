@@ -812,7 +812,7 @@ public class OrderService {
 			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
 			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
 		}catch (Exception e){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage());
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
 		}
 
 		String [] custGroupCode = null;
