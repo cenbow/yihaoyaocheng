@@ -298,8 +298,6 @@ public class ShoppingCartService {
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
-
-
 				/* 查询商品库存 */
 				ProductInventory productInventory = new ProductInventory();
 				productInventory.setSupplyId(shoppingCartDto.getSupplyId());
