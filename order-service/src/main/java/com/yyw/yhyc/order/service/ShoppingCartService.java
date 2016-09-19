@@ -15,12 +15,16 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -262,5 +266,106 @@ public class ShoppingCartService {
 		map.put("sumPrice", statisticsMap.get("sumPrice"));
 
 		return map;
+	}
+
+	/**
+	 * 购物车首页数据获取
+	 * @param userDto
+	 * @param iProductDubboManageService
+     * @return
+     */
+	public List<ShoppingCartListDto> index(UserDto userDto, IProductDubboManageService iProductDubboManageService){
+		if(UtilHelper.isEmpty(userDto)){
+			return null;
+		}
+
+		/* 获取购物车中的商品信息 */
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
+
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return allShoppingCart;
+		}
+
+		/* 处理商品信息： */
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
+			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) ||
+					UtilHelper.isEmpty(shoppingCartListDto.getSeller())){
+				continue;
+			}
+			BigDecimal productPriceCount = new BigDecimal(0);
+			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
+				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+
+				productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+
+				/* 查询商品库存 */
+				ProductInventory productInventory = new ProductInventory();
+				productInventory.setSupplyId(shoppingCartDto.getSupplyId());
+				productInventory.setSpuCode(shoppingCartDto.getSpuCode());
+				productInventory.setFrontInventory(shoppingCartDto.getProductCount());
+				logger.info("购物车页面-检查商品库存,请求参数productInventory=" + productInventory);
+				Map<String, Object> resultMap = productInventoryManage.findInventoryNumber(productInventory);
+				logger.info("购物车页面-检查商品库存,响应参数resultMap=" + resultMap);
+
+				String frontInventory = resultMap.get("frontInventory") + "";
+				shoppingCartDto.setProductInventory(UtilHelper.isEmpty(frontInventory) ? 0 : Integer.valueOf(frontInventory));
+				String code = resultMap.get("code").toString();
+				if("0".equals(code) || "1".equals(code)){
+					shoppingCartDto.setExistProductInventory(false);
+				}else{
+					shoppingCartDto.setExistProductInventory(true);
+				}
+
+				if(UtilHelper.isEmpty(iProductDubboManageService)){
+					logger.error("购物车页面-查询商品信息失败,iProductDubboManageService = " + iProductDubboManageService);
+					continue;
+				}
+
+				/* 最小起批量、最小拆零包装   */
+				Map map = new HashMap();
+				map.put("spu_code", shoppingCartDto.getSpuCode());
+				map.put("seller_code", shoppingCartDto.getSupplyId());
+
+				int minimumPacking = 1;
+				String unit = "";
+				Integer saleStart = 1;
+				List productList = null;
+				Integer putaway_status = null;
+				try{
+					logger.info("购物车页面-查询商品信息,请求参数:" + map);
+					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
+					logger.info("购物车页面-查询商品信息,响应参数:" + JSONArray.fromObject(productList));
+				}catch (Exception e){
+					logger.error("购物车页面-查询商品信息失败:" + e.getMessage());
+				}
+				if(UtilHelper.isEmpty(productList) || productList.size() != 1){
+					logger.error("购物车页面-查询的商品信息异常" );
+				}else{
+					JSONObject productJson = JSONObject.fromObject(productList.get(0));
+					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
+					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : Integer.valueOf(productJson.get("wholesale_num")+"") ;
+					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
+					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? null : Integer.valueOf( productJson.get("putaway_status")+"");
+				}
+
+				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
+				shoppingCartDto.setUnit(unit);//最小拆零包装单位
+				shoppingCartDto.setSaleStart(saleStart);//起售量
+				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
+				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
+			}
+
+			/* 计算是否符合订单起售金额 */
+			shoppingCartListDto.setProductPriceCount(productPriceCount);
+			if(productPriceCount.compareTo(shoppingCartListDto.getSeller().getOrderSamount()) > 0){
+				shoppingCartListDto.setNeedPrice(new BigDecimal(0));
+			}else{
+				BigDecimal needPrice = shoppingCartListDto.getSeller().getOrderSamount().subtract(productPriceCount);
+				shoppingCartListDto.setNeedPrice(needPrice);
+			}
+		}
+		return allShoppingCart;
 	}
 }

@@ -8,7 +8,13 @@
 
     String domainPath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
     request.setAttribute("domainPath", domainPath);
-    request.setAttribute("imgDomain", "http://p8.maiyaole.com");
+
+    /* 图片域名 */
+    request.setAttribute("imgDomain", MyConfigUtil.IMG_DOMAIN);
+
+    /* 店铺域名 */
+    request.setAttribute("mallDomain", MyConfigUtil.MALL_DOMAIN);
+
 %>
 <script type="text/javascript">
 
