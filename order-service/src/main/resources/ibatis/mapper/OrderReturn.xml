@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-8-9 10:03:38
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderReturnMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderReturnResultMapper" type="OrderReturn">
+		<result column="return_id" property="returnId"/>
+		<result column="exception_order_id" property="exceptionOrderId"/>
+		<result column="cust_id" property="custId"/>
+		<result column="order_id" property="orderId"/>
+		<result column="order_detail_id" property="orderDetailId"/>
+		<result column="return_count" property="returnCount"/>
+		<result column="return_pay" property="returnPay"/>
+		<result column="return_type" property="returnType"/>
+		<result column="return_status" property="returnStatus"/>
+		<result column="return_desc" property="returnDesc"/>
+		<result column="deal_person" property="dealPerson"/>
+		<result column="deal_result" property="dealResult"/>
+		<result column="return_time" property="returnTime"/>
+		<result column="remark" property="remark"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="order_delivery_detail_id" property="orderDeliveryDetailId"/>
+		<result column="batch_number" property="batchNumber"/>
+		<result column="product_code" property="productCode"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 return_id
+		, exception_order_id
+		, cust_id
+		, order_id
+		, order_detail_id
+		, return_count
+		, return_pay
+		, return_type
+		, return_status
+		, return_desc
+		, deal_person
+		, deal_result
+		, return_time
+		, remark
+		, flow_id
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, order_delivery_detail_id
+		, batch_number
+		, product_code
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 exception_order_id
+				, cust_id
+				, order_id
+				, order_detail_id
+				, return_count
+				, return_pay
+				, return_type
+				, return_status
+				, return_desc
+				, deal_person
+				, deal_result
+				, return_time
+				, remark
+				, flow_id
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+				, order_delivery_detail_id
+				, batch_number
+				,product_code
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 return_id
+		, exception_order_id
+		, cust_id
+		, order_id
+		, order_detail_id
+		, return_count
+		, return_pay
+		, return_type
+		, return_status
+		, return_desc
+		, deal_person
+		, deal_result
+		, date_format(return_time, '%Y-%m-%d %H:%i:%s') return_time
+		, remark
+		, flow_id
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, order_delivery_detail_id
+		, batch_number
+		,product_code
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="returnId!= null and returnId!= ''"> 
+			AND return_id=#{returnId}
+		</if>
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''"> 
+			AND exception_order_id=#{exceptionOrderId}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="orderId!= null and orderId!= ''"> 
+			AND order_id=#{orderId}
+		</if>
+		<if test="orderDetailId!= null and orderDetailId!= ''"> 
+			AND order_detail_id=#{orderDetailId}
+		</if>
+		<if test="returnCount!= null and returnCount!= ''"> 
+			AND return_count=#{returnCount}
+		</if>
+		<if test="returnPay!= null and returnPay!= ''"> 
+			AND return_pay=#{returnPay}
+		</if>
+		<if test="returnType!= null and returnType!= ''"> 
+			AND return_type=#{returnType}
+		</if>
+		<if test="returnStatus!= null and returnStatus!= ''"> 
+			AND return_status=#{returnStatus}
+		</if>
+		<if test="returnDesc!= null and returnDesc!= ''"> 
+			AND return_desc=#{returnDesc}
+		</if>
+		<if test="dealPerson!= null and dealPerson!= ''"> 
+			AND deal_person=#{dealPerson}
+		</if>
+		<if test="dealResult!= null and dealResult!= ''"> 
+			AND deal_result=#{dealResult}
+		</if>
+		<if test="returnTime!= null and returnTime!= ''"> 
+			AND return_time=str_to_date(#{returnTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="orderDeliveryDetailId!= null and orderDeliveryDetailId!= ''"> 
+			AND order_delivery_detail_id=#{orderDeliveryDetailId}
+		</if>
+		<if test="batchNumber!= null and batchNumber!= ''"> 
+			AND batch_number=#{batchNumber}
+		</if>
+
+		<if test="productCode!= null and productCode!= ''">
+			AND product_code=#{productCode}
+		</if>
+
+	</sql>
+	
+	<insert id="save" parameterType="OrderReturn">
+		<![CDATA[ INSERT INTO t_order_return ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{exceptionOrderId}
+				, #{custId}
+				, #{orderId}
+				, #{orderDetailId}
+				, #{returnCount}
+				, #{returnPay}
+				, #{returnType}
+				, #{returnStatus}
+				, #{returnDesc}
+				, #{dealPerson}
+				, #{dealResult}
+				, str_to_date(#{returnTime},'%Y-%m-%d %H:%i:%s')
+				, #{remark}
+				, #{flowId}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{orderDeliveryDetailId}
+				, #{batchNumber}
+				, #{productCode}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderReturn">
+		<![CDATA[ UPDATE t_order_return SET 
+			 return_id=#{returnId} 
+			, exception_order_id=#{exceptionOrderId} 
+			, cust_id=#{custId} 
+			, order_id=#{orderId} 
+			, order_detail_id=#{orderDetailId} 
+			, return_count=#{returnCount} 
+			, return_pay=#{returnPay} 
+			, return_type=#{returnType} 
+			, return_status=#{returnStatus} 
+			, return_desc=#{returnDesc} 
+			, deal_person=#{dealPerson} 
+			, deal_result=#{dealResult} 
+			, return_time=str_to_date(#{returnTime},'%Y-%m-%d %H:%i:%s')
+			, remark=#{remark} 
+			, flow_id=#{flowId} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, order_delivery_detail_id=#{orderDeliveryDetailId} 
+			, batch_number=#{batchNumber}
+			, product_code=#{productCode}
+		WHERE return_id = #{returnId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_return WHERE return_id = #{returnId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_return WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" return_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderReturn">
+		DELETE FROM t_order_return WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderReturnResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_return WHERE return_id = #{returnId}  
+	</select>
+	<select id="list" resultMap="OrderReturnResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_return
+	</select>
+	<select id="listByProperty" parameterType="OrderReturn" resultMap="OrderReturnResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_return WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderReturn" resultMap="OrderReturnResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_return WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderReturn" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_return WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+
+	<select id="getByExceptionOrderId"   resultType="com.yyw.yhyc.order.dto.OrderReturnDto">
+		SELECT T1.return_count as returnCount,T1.return_pay as returnPay,T1.batch_number as batchNumber,T2.product_id as productId,T2.product_name as productName,T2.specification,T2.manufactures,T2.product_price as productPrice
+		 ,T2.spu_code AS  spuCode,T2.short_name as shortName  from  t_order_return  T1
+		LEFT JOIN  t_order_detail  T2 ON T1.order_detail_id=T2.order_detail_id
+		WHERE  T1.exception_order_id=#{exceptionOrderId};
+	</select>
+
+	<insert id="saveBatch">
+		<![CDATA[ INSERT INTO t_order_return ( ]]>
+		<include refid="commonColumnsNotPK"/>
+		<![CDATA[ ) VALUES]]>
+			<foreach collection="list" item="item" index="index"
+														 separator=",">
+				(
+				#{item.exceptionOrderId}
+				, #{item.custId}
+				, #{item.orderId}
+				, #{item.orderDetailId}
+				, #{item.returnCount}
+				, #{item.returnPay}
+				, #{item.returnType}
+				, #{item.returnStatus}
+				, #{item.returnDesc}
+				, #{item.dealPerson}
+				, #{item.dealResult}
+				, str_to_date(#{item.returnTime},'%Y-%m-%d %H:%i:%s')
+				, #{item.remark}
+				, #{item.flowId}
+				, #{item.createUser}
+				, str_to_date(#{item.createTime},'%Y-%m-%d %H:%i:%s')
+				, #{item.updateUser}
+				, str_to_date(#{item.updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{item.orderDeliveryDetailId}
+				, #{item.batchNumber}
+				, #{item.productCode}
+				)
+			</foreach>
+
+	</insert>
+
+	<select id="getReturnByExceptionOrderId"   resultType="com.yyw.yhyc.order.dto.OrderReturnDto">
+	SELECT
+		T1.return_count AS returnCount,
+		T1.return_pay AS returnPay,
+		T1.batch_number AS batchNumber,
+		T2.product_id AS productId,
+		T2.product_name AS productName,
+		T2.short_name AS shortName,
+		T2.specification,
+		T2.manufactures,
+	    T2.form_of_drug AS formOfDrug,
+		T2.product_price AS productPrice,
+		T2.product_code AS productCode,
+		T3.order_line_no AS orderLineNo
+	FROM
+		t_order_return T1
+	LEFT JOIN t_order_detail T2 ON T1.order_detail_id = T2.order_detail_id
+	LEFT JOIN t_order_delivery_detail T3 ON T1.order_delivery_detail_id = T3.order_delivery_detail_id
+
+		WHERE  T1.exception_order_id=#{exceptionOrderId};
+	</select>
+</mapper>

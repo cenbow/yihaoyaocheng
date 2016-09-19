@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="producer" class="com.gangling.middleware.mq.ons.OnsProducer" init-method="start" destroy-method="shutdown">
+        <property name="properties">
+            <props>
+                <prop key="ConsumerId">${jms.mq.order.producerId}</prop>
+                <prop key="AccessKey">${jms.mq.order.accessKey}</prop>
+                <prop key="SecretKey">${jms.mq.order.secretKey}</prop>
+            </props>
+        </property>
+        <!-- 消费队列 -->
+        <property name="topic" value="${jms.mq.order.topic}"/>
+    </bean>
+</beans>

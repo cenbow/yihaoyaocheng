@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-8-29 11:24:18
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.product.mapper.ProductInventoryLogMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="ProductInventoryLogResultMapper" type="ProductInventoryLog">
+		<result column="id" property="id"/>
+		<result column="log_type" property="logType"/>
+		<result column="spu_code" property="spuCode"/>
+		<result column="product_name" property="productName"/>
+		<result column="product_count" property="productCount"/>
+		<result column="supply_type" property="supplyType"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 id
+		, log_type
+		, spu_code
+		, product_name
+		, product_count
+		, supply_type
+		, supply_id
+		, supply_name
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, remark
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 log_type
+				, spu_code
+				, product_name
+				, product_count
+				, supply_type
+				, supply_id
+				, supply_name
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+				, remark
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 id
+		, log_type
+		, spu_code
+		, product_name
+		, product_count
+		, supply_type
+		, supply_id
+		, supply_name
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, remark
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="id!= null and id!= ''"> 
+			AND id=#{id}
+		</if>
+		<if test="logType!= null and logType!= ''"> 
+			AND log_type=#{logType}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''"> 
+			AND spu_code=#{spuCode}
+		</if>
+		<if test="productName!= null and productName!= ''"> 
+			AND product_name=#{productName}
+		</if>
+		<if test="productCount!= null and productCount!= ''"> 
+			AND product_count=#{productCount}
+		</if>
+		<if test="supplyType!= null and supplyType!= ''"> 
+			AND supply_type=#{supplyType}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND supply_name=#{supplyName}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="ProductInventoryLog">
+		<![CDATA[ INSERT INTO t_product_inventory_log ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{logType}
+				, #{spuCode}
+				, #{productName}
+				, #{productCount}
+				, #{supplyType}
+				, #{supplyId}
+				, #{supplyName}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{remark}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="ProductInventoryLog">
+		<![CDATA[ UPDATE t_product_inventory_log SET 
+			 id=#{id} 
+			, log_type=#{logType} 
+			, spu_code=#{spuCode} 
+			, product_name=#{productName} 
+			, product_count=#{productCount} 
+			, supply_type=#{supplyType} 
+			, supply_id=#{supplyId} 
+			, supply_name=#{supplyName} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, remark=#{remark} 
+		WHERE id = #{id}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_product_inventory_log WHERE id = #{id}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_product_inventory_log WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="ProductInventoryLog">
+		DELETE FROM t_product_inventory_log WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductInventoryLogResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory_log WHERE id = #{id}  
+	</select>
+	<select id="list" resultMap="ProductInventoryLogResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_product_inventory_log
+	</select>
+	<select id="listByProperty" parameterType="ProductInventoryLog" resultMap="ProductInventoryLogResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory_log WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="ProductInventoryLog" resultMap="ProductInventoryLogResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_product_inventory_log WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="ProductInventoryLog" resultType="int">
+		SELECT count(1) AS totalcount FROM t_product_inventory_log WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

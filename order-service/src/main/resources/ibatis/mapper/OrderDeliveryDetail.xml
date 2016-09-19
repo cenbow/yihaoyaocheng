@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:55
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderDeliveryDetailResultMapper" type="OrderDeliveryDetail">
+		<result column="order_delivery_detail_id" property="orderDeliveryDetailId"/>
+		<result column="order_line_no" property="orderLineNo"/>
+		<result column="order_id" property="orderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="order_detail_id" property="orderDetailId"/>
+		<result column="batch_number" property="batchNumber"/>
+		<result column="delivery_product_count" property="deliveryProductCount"/>
+		<result column="delivery_status" property="deliveryStatus"/>
+		<result column="import_file_url" property="importFileUrl"/>
+		<result column="remark" property="remark"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="recieve_count" property="recieveCount"/>
+		<result column="can_return_count" property="canReturnCount"/>
+	</resultMap>
+
+	<resultMap type="OrderDeliveryDetailDto" id="OrderDeliveryDetailDtoResultMapper" extends="OrderDeliveryDetailResultMapper">
+		<result column="product_code" property="productCode"/>
+		<result column="product_name" property="productName"/>
+		<result column="brand_name" property="brandName"/>
+		<result column="specification" property="specification"/>
+		<result column="form_of_drug" property="formOfDrug"/>
+		<result column="manufactures" property="manufactures"/>
+		<result column="product_count" property="productCount"/>
+		<result column="short_name" property="shortName"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 order_delivery_detail_id
+		, order_line_no
+		, order_id
+		, flow_id
+		, order_detail_id
+		, batch_number
+		, delivery_product_count
+		, delivery_status
+		, import_file_url
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, recieve_count
+		, can_return_count
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 order_line_no
+				, order_id
+				, flow_id
+				, order_detail_id
+				, batch_number
+				, delivery_product_count
+				, delivery_status
+				, import_file_url
+				, remark
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+				, recieve_count
+				, can_return_count
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 order_delivery_detail_id
+		, order_line_no
+		, order_id
+		, flow_id
+		, order_detail_id
+		, batch_number
+		, delivery_product_count
+		, delivery_status
+		, import_file_url
+		, remark
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, recieve_count
+		, can_return_count
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="orderDeliveryDetailId!= null and orderDeliveryDetailId!= ''"> 
+			AND order_delivery_detail_id=#{orderDeliveryDetailId}
+		</if>
+		<if test="orderLineNo!= null and orderLineNo!= ''"> 
+			AND order_line_no=#{orderLineNo}
+		</if>
+		<if test="orderId!= null and orderId!= ''"> 
+			AND order_id=#{orderId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="orderDetailId!= null and orderDetailId!= ''"> 
+			AND order_detail_id=#{orderDetailId}
+		</if>
+		<if test="batchNumber!= null and batchNumber!= ''"> 
+			AND batch_number=#{batchNumber}
+		</if>
+		<if test="deliveryProductCount!= null and deliveryProductCount!= ''"> 
+			AND delivery_product_count=#{deliveryProductCount}
+		</if>
+		<if test="deliveryStatus!= null and deliveryStatus!= ''"> 
+			AND delivery_status=#{deliveryStatus}
+		</if>
+		<if test="importFileUrl!= null and importFileUrl!= ''"> 
+			AND import_file_url=#{importFileUrl}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="recieveCount!= null and recieveCount!= ''">
+			AND recieve_count=#{recieveCount}
+		</if>
+		<if test="canReturnCount!= null and canReturnCount!= ''">
+			AND can_return_count=#{canReturnCount}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderDeliveryDetail">
+		<![CDATA[ INSERT INTO t_order_delivery_detail ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{orderLineNo}
+				, #{orderId}
+				, #{flowId}
+				, #{orderDetailId}
+				, #{batchNumber}
+				, #{deliveryProductCount}
+				, #{deliveryStatus}
+				, #{importFileUrl}
+				, #{remark}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{recieveCount}
+				, #{canReturnCount}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderDeliveryDetail">
+		<![CDATA[ UPDATE t_order_delivery_detail SET 
+			 order_delivery_detail_id=#{orderDeliveryDetailId} 
+			, order_line_no=#{orderLineNo} 
+			, order_id=#{orderId} 
+			, flow_id=#{flowId} 
+			, order_detail_id=#{orderDetailId} 
+			, batch_number=#{batchNumber} 
+			, delivery_product_count=#{deliveryProductCount} 
+			, delivery_status=#{deliveryStatus} 
+			, import_file_url=#{importFileUrl} 
+			, remark=#{remark} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, recieve_count=#{recieveCount}
+			, can_return_count=#{canReturnCount}
+		WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_delivery_detail WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_delivery_detail WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" order_delivery_detail_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderDeliveryDetail">
+		DELETE FROM t_order_delivery_detail WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderDeliveryDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery_detail WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  
+	</select>
+	<select id="list" resultMap="OrderDeliveryDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_delivery_detail
+	</select>
+	<select id="listByProperty" parameterType="OrderDeliveryDetail" resultMap="OrderDeliveryDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery_detail WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+
+	<select id="listPaginationByProperty" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
+        LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id AND ODD.order_id=OD.order_id
+        LEFT JOIN t_order O ON O.flow_id=ODD.flow_id
+        WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		<if test="custId!= null and custId!= ''">
+	    	AND O.cust_id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND O.supply_id=#{supplyId}
+		</if>
+	</select>
+
+	<select id="listPaginationReturnByProperty" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.short_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,ODD.can_return_count from t_order_delivery_detail ODD
+		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id AND ODD.order_id=OD.order_id
+		LEFT JOIN t_order O ON O.flow_id=ODD.flow_id
+		WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		<if test="custId!= null and custId!= ''">
+			AND O.cust_id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND O.supply_id=#{supplyId}
+		</if>
+	</select>
+
+
+	<select id="findByCount" parameterType="OrderDeliveryDetail" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_delivery_detail WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+
+	<select id="listByIds" resultMap="OrderDeliveryDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_delivery_detail WHERE 1=1
+		AND order_delivery_detail_id IN
+		<foreach collection="list" item="id" index="index"
+				 open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="listPaginationReplenishment" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
+		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
+		LEFT JOIN t_order_exception O ON O.exception_order_id=ODD.flow_id
+		WHERE ODD.flow_id=#{flowId} AND O.cust_id=#{custId}  AND ODD.delivery_status=1
+	</select>
+
+
+	<select id="listPaginationOrderDeliveryDetailDto" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper">
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
+		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
+		LEFT JOIN t_order_exception O ON O.exception_order_id=ODD.flow_id
+		WHERE ODD.delivery_status=1
+		<if test="flowId!=null and flowId!=''">
+			AND ODD.flow_id=#{flowId}
+		</if>
+		<if test="custId!=null and custId!=''">
+			AND ODD.cust_id=#{custId}
+		</if>
+		<if test="supplyId!=null and supplyId!=''">
+			AND O.supply_id=#{supplyId}
+		</if>
+	</select>
+</mapper>

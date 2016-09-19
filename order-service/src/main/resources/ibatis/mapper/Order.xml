@@ -1,0 +1,1251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:55
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderResultMapper" type="Order">
+		<result column="order_id" property="orderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="cancel_result" property="cancelResult"/>
+		<result column="org_total" property="orgTotal"/>
+		<result column="freight" property="freight"/>
+		<result column="order_total" property="orderTotal"/>
+		<result column="final_pay" property="finalPay"/>
+		<result column="total_count" property="totalCount"/>
+		<result column="order_status" property="orderStatus"/>
+		<result column="remark" property="remark"/>
+		<result column="leave_message" property="leaveMessage"/>
+		<result column="order_combined_id" property="orderCombinedId"/>
+		<result column="confirm_settlement" property="confirmSettlement"/>
+		<result column="settlement_money" property="settlementMoney"/>
+		<result column="preferential_money" property="preferentialMoney"/>
+		<result column="preferential_remark" property="preferentialRemark"/>
+		<result column="pay_status" property="payStatus"/>
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="create_time" property="createTime"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="cancel_time" property="cancelTime"/>
+		<result column="deliver_time" property="deliverTime"/>
+		<result column="receive_time" property="receiveTime"/>
+		<result column="settlement_time" property="settlementTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="bill_type" property="billType"/>
+		<result column="Delay_log" property="delayLog"/>
+		<result column="receive_Type" property="receiveType"/>
+		<result column="payment_term_status" property="paymentTermStatus"/>
+		<result column="payment_term" property="paymentTerm"/>
+		<result column="delay_times" property="delayTimes"/>
+		<result column="pay_flag" property="payFlag"/>
+	</resultMap>
+
+	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
+		<result column="order_id" property="orderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="cancel_result" property="cancelResult"/>
+		<result column="org_total" property="orgTotal"/>
+		<result column="freight" property="freight"/>
+		<result column="order_total" property="orderTotal"/>
+		<result column="final_pay" property="finalPay"/>
+		<result column="total_count" property="totalCount"/>
+		<result column="order_status" property="orderStatus"/>
+		<result column="remark" property="remark"/>
+		<result column="leave_message" property="leaveMessage"/>
+		<result column="order_combined_id" property="orderCombinedId"/>
+		<result column="confirm_settlement" property="confirmSettlement"/>
+		<result column="settlement_money" property="settlementMoney"/>
+		<result column="preferential_money" property="preferentialMoney"/>
+		<result column="preferential_remark" property="preferentialRemark"/>
+		<result column="pay_status" property="payStatus"/>
+		<result column="pay_type_id" property="payTypeId"/>
+		<result column="create_time" property="createTime"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="cancel_time" property="cancelTime"/>
+		<result column="deliver_time" property="deliverTime"/>
+		<result column="receive_time" property="receiveTime"/>
+		<result column="settlement_time" property="settlementTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="bill_type" property="billType"/>
+		<result column="Delay_log" property="delayLog"/>
+		<result column="receive_Type" property="receiveType"/>
+		<result column="pay_type_name" property="payTypeName"/>
+		<result column="payment_term_status" property="paymentTermStatus"/>
+		<result column="pay_type" property="payType"/>
+		<result column="delay_times" property="delayTimes"/>
+		<result column="pay_flag" property="payFlag"/>
+		<association property="orderDelivery" column="flow_id"
+					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+		<association property="details" column="order_id"
+					 select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listOrderDetailInfoByOrderId"></association>
+	</resultMap>
+
+	<sql id="commonColumns">
+		 order_id
+		, flow_id
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, cancel_result
+		, org_total
+		, freight
+		, order_total
+		, final_pay
+		, total_count
+		, order_status
+		, remark
+		, leave_message
+		, order_combined_id
+		, confirm_settlement
+		, settlement_money
+		, preferential_money
+		, preferential_remark
+		, pay_status
+		, pay_type_id
+		, create_time
+		, pay_time
+		, cancel_time
+		, deliver_time
+		, receive_time
+		, settlement_time
+		, create_user
+		, update_time
+		, update_user
+		, bill_type
+		, Delay_log
+		, receive_Type
+		, payment_term_status
+		, payment_term
+		, delay_times
+		, pay_flag
+	</sql>
+    <sql id="commonColumnsNotPK">
+				 flow_id
+				, cust_name
+				, cust_id
+				, supply_name
+				, supply_id
+				, cancel_result
+				, org_total
+				, freight
+				, order_total
+				, final_pay
+				, total_count
+				, payment_term_status
+				, order_status
+				, remark
+				, leave_message
+				, order_combined_id
+				, confirm_settlement
+				, settlement_money
+				, preferential_money
+				, preferential_remark
+				, pay_status
+				, pay_type_id
+				, create_time
+				, pay_time
+				, cancel_time
+				, deliver_time
+				, receive_time
+				, settlement_time
+				, create_user
+				, update_time
+				, update_user
+				, bill_type
+				, Delay_log
+				, receive_Type
+				, payment_term
+				, delay_times
+				, pay_flag
+    </sql>
+
+	<sql id="commonProcessDateColumns">
+		 order_id
+		, flow_id
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, cancel_result
+		, org_total
+		, freight
+		, order_total
+		, final_pay
+		, total_count
+		, payment_term_status
+		, order_status
+		, remark
+		, leave_message
+		, order_combined_id
+		, confirm_settlement
+		, settlement_money
+		, preferential_money
+		, preferential_remark
+		, pay_status
+		, pay_type_id
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, date_format(cancel_time, '%Y-%m-%d %H:%i:%s') cancel_time
+		, date_format(deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
+		, date_format(receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(settlement_time, '%Y-%m-%d %H:%i:%s') settlement_time
+		, create_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, update_user
+		, bill_type
+		, Delay_log
+		, receive_Type
+		, payment_term
+		, delay_times
+		, pay_flag
+	</sql>
+
+	<sql id="T1commonProcessDateColumns">
+		T1.order_id
+		, T1.flow_id
+		, T1.cust_name
+		, T1.cust_id
+		, T1.supply_name
+		, T1.supply_id
+		, T1.cancel_result
+		, T1.org_total
+		, T1.freight
+		, T1.order_total
+		, T1.final_pay
+		, T1.total_count
+		, T1.order_status
+		, T1.remark
+		, T1.leave_message
+		, T1.order_combined_id
+		, T1.confirm_settlement
+		, T1.settlement_money
+		, T1.preferential_money
+		, T1.preferential_remark
+		, T1.pay_status
+		, T1.pay_type_id
+		, date_format(T1.create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(T1.pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, date_format(T1.cancel_time, '%Y-%m-%d %H:%i:%s') cancel_time
+		, date_format(T1.deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
+		, date_format(T1.receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(T1.settlement_time, '%Y-%m-%d %H:%i:%s') settlement_time
+		, T1.create_user
+		, date_format(T1.update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, T1.update_user
+		, T1.bill_type
+		, T1.Delay_log
+		, T1.delay_times
+		, T1.receive_Type
+		, T1.payment_term_status
+		, T1.payment_term
+		, T1.pay_flag
+	</sql>
+
+
+	<sql id="commonProcessDateOrderColumns">
+		o.order_id
+		, o.flow_id
+		, o.cust_name
+		, o.cust_id
+		, o.supply_name
+		, o.supply_id
+		, o.cancel_result
+		, o.org_total
+		, o.freight
+		, o.order_total
+		, o.final_pay
+		, o.total_count
+		, o.order_status
+		, o.remark
+		, o.leave_message
+		, o.order_combined_id
+		, o.confirm_settlement
+		, o.settlement_money
+		, o.preferential_money
+		, o.preferential_remark
+		, o.pay_status
+		, o.pay_type_id
+		, date_format(o.create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, date_format(o.pay_time, '%Y-%m-%d %H:%i:%s') pay_time
+		, date_format(o.cancel_time, '%Y-%m-%d %H:%i:%s') cancel_time
+		, date_format(o.deliver_time, '%Y-%m-%d %H:%i:%s') deliver_time
+		, date_format(o.receive_time, '%Y-%m-%d %H:%i:%s') receive_time
+		, date_format(o.settlement_time, '%Y-%m-%d %H:%i:%s') settlement_time
+		, o.create_user
+		, date_format(o.update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, o.update_user
+		, o.bill_type
+		, o.Delay_log
+		, o.delay_times
+		, o.receive_Type
+		, o.payment_term_status
+		, o.payment_term
+		, o.pay_flag
+	</sql>
+
+	<sql id="commonCondition">
+		<if test="orderId!= null and orderId!= ''">
+			AND order_id=#{orderId}
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND cust_name=#{custName}
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND supply_name=#{supplyName}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="cancelResult!= null and cancelResult!= ''">
+			AND cancel_result=#{cancelResult}
+		</if>
+		<if test="orgTotal!= null and orgTotal!= ''">
+			AND org_total=#{orgTotal}
+		</if>
+		<if test="freight!= null and freight!= ''">
+			AND freight=#{freight}
+		</if>
+		<if test="orderTotal!= null and orderTotal!= ''">
+			AND order_total=#{orderTotal}
+		</if>
+		<if test="finalPay!= null and finalPay!= ''">
+			AND final_pay=#{finalPay}
+		</if>
+		<if test="totalCount!= null and totalCount!= ''">
+			AND total_count=#{totalCount}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND order_status=#{orderStatus}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			AND remark=#{remark}
+		</if>
+		<if test="leaveMessage!= null and leaveMessage!= ''">
+			AND leave_message=#{leaveMessage}
+		</if>
+		<if test="orderCombinedId!= null and orderCombinedId!= ''">
+			AND order_combined_id=#{orderCombinedId}
+		</if>
+		<if test="confirmSettlement!= null and confirmSettlement!= ''">
+			AND confirm_settlement=#{confirmSettlement}
+		</if>
+		<if test="settlementMoney!= null and settlementMoney!= ''">
+			AND settlement_money=#{settlementMoney}
+		</if>
+		<if test="preferentialMoney!= null and preferentialMoney!= ''">
+			AND preferential_money=#{preferentialMoney}
+		</if>
+		<if test="preferentialRemark!= null and preferentialRemark!= ''">
+			AND preferential_remark=#{preferentialRemark}
+		</if>
+		<if test="payStatus!= null and payStatus!= ''">
+			AND pay_status=#{payStatus}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''">
+			AND pay_type_id=#{payTypeId}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="payTime!= null and payTime!= ''">
+			AND pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="cancelTime!= null and cancelTime!= ''">
+			AND cancel_time=str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="deliverTime!= null and deliverTime!= ''">
+			AND deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="receiveTime!= null and receiveTime!= ''">
+			AND receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="settlementTime!= null and settlementTime!= ''">
+			AND settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			AND create_user=#{createUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			AND update_user=#{updateUser}
+		</if>
+		<if test="billType!= null and billType!= ''">
+			AND bill_type=#{billType}
+		</if>
+		<if test="delayLog!= null and delayLog!= ''">
+			AND Delay_log=#{delayLog}
+		</if>
+		<if test="receiveType!= null and receiveType!= ''">
+			AND receive_Type=#{receiveType}
+		</if>
+		<if test="paymentTermStatus!= null and paymentTermStatus!= ''">
+			AND payment_term_status=#{paymentTermStatus}
+		</if>
+		<if test="paymentTerm!= null">
+			AND payment_term=#{paymentTerm}
+		</if>
+
+		<if test="payFlag!= null">
+			AND pay_flag=#{payFlag}
+		</if>
+	</sql>
+
+	<insert id="save" parameterType="Order">
+		<![CDATA[ INSERT INTO t_order ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES (
+				 #{flowId}
+				, #{custName}
+				, #{custId}
+				, #{supplyName}
+				, #{supplyId}
+				, #{cancelResult}
+				, #{orgTotal}
+				, #{freight}
+				, #{orderTotal}
+				, #{finalPay}
+				, #{totalCount}
+				, #{paymentTermStatus}
+				, #{orderStatus}
+				, #{remark}
+				, #{leaveMessage}
+				, #{orderCombinedId}
+				, #{confirmSettlement}
+				, #{settlementMoney}
+				, #{preferentialMoney}
+				, #{preferentialRemark}
+				, #{payStatus}
+				, #{payTypeId}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+				, str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
+				, #{createUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, #{billType}
+				, #{delayLog}
+				, #{receiveType}
+				, #{paymentTerm}
+				, #{delayTimes}
+				, #{payFlag}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="Order">
+		<![CDATA[ UPDATE t_order SET order_id=#{orderId}  ]]>
+		<if test="flowId!= null and flowId!= ''">
+			, flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			, cust_name=#{custName}
+		</if>
+		<if test="custId!= null and custId!= ''">
+			, cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			, supply_name=#{supplyName}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			, supply_id=#{supplyId}
+		</if>
+		<if test="cancelResult!= null and cancelResult!= ''">
+			, cancel_result=#{cancelResult}
+		</if>
+		<if test="orgTotal!= null and orgTotal!= ''">
+			, org_total=#{orgTotal}
+		</if>
+		<if test="freight!= null and freight!= ''">
+			, freight=#{freight}
+		</if>
+		<if test="orderTotal!= null and orderTotal!= ''">
+			, order_total=#{orderTotal}
+		</if>
+		<if test="finalPay!= null and finalPay!= ''">
+			, final_pay=#{finalPay}
+		</if>
+		<if test="totalCount!= null and totalCount!= ''">
+			, total_count=#{totalCount}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			, order_status=#{orderStatus}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			, remark=#{remark}
+		</if>
+		<if test="leaveMessage!= null and leaveMessage!= ''">
+			, leave_message=#{leaveMessage}
+		</if>
+		<if test="orderCombinedId!= null and orderCombinedId!= ''">
+			, order_combined_id=#{orderCombinedId}
+		</if>
+		<if test="confirmSettlement!= null and confirmSettlement!= ''">
+			, confirm_settlement=#{confirmSettlement}
+		</if>
+		<if test="settlementMoney!= null and settlementMoney!= ''">
+			, settlement_money=#{settlementMoney}
+		</if>
+		<if test="preferentialMoney!= null and preferentialMoney!= ''">
+			, preferential_money=#{preferentialMoney}
+		</if>
+		<if test="preferentialRemark!= null and preferentialRemark!= ''">
+			, preferential_remark=#{preferentialRemark}
+		</if>
+		<if test="payStatus!= null and payStatus!= ''">
+			, pay_status=#{payStatus}
+		</if>
+		<if test="payTypeId!= null and payTypeId!= ''">
+			, pay_type_id=#{payTypeId}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="payTime!= null and payTime!= ''">
+			, pay_time=str_to_date(#{payTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="cancelTime!= null and cancelTime!= ''">
+			, cancel_time=str_to_date(#{cancelTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="deliverTime!= null and deliverTime!= ''">
+			, deliver_time=str_to_date(#{deliverTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="receiveTime!= null and receiveTime!= ''">
+			, receive_time=str_to_date(#{receiveTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="settlementTime!= null and settlementTime!= ''">
+			, settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			, create_user=#{createUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			, update_user=#{updateUser}
+		</if>
+		<if test="billType!= null and billType!= ''">
+			, bill_type=#{billType}
+		</if>
+		<if test="delayLog!= null and delayLog!= ''">
+			, Delay_log=#{delayLog}
+		</if>
+		<if test="delayTimes!= null and delayTimes!= ''">
+			, delay_times=#{delayTimes}
+		</if>
+		<if test="receiveType!= null and receiveType!= ''">
+			, receive_Type=#{receiveType}
+		</if>
+		<if test="paymentTermStatus!= null">
+			, payment_term_status=#{paymentTermStatus}
+		</if>
+		<if test="paymentTerm!= null">
+			, payment_term=#{paymentTerm}
+		</if>
+		<if test="payFlag!= null">
+			,pay_flag=#{payFlag}
+		</if>
+		<![CDATA[  WHERE order_id = #{orderId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order WHERE order_id = #{orderId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" order_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="Order">
+		DELETE FROM t_order WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE order_id = #{orderId}
+	</select>
+	<select id="list" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order
+	</select>
+	<select id="listByProperty" parameterType="Order" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE 1=1
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="Order" resultMap="OrderResultMapper">
+		SELECT
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE 1=1
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="Order" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order WHERE 1=1
+		<include refid="commonCondition"/>
+	</select>
+
+
+	<select id="findOrderStatusCount" parameterType="OrderDto" resultType="OrderDto" useCache="false">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T4.PAY_TYPE AS payType
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		GROUP BY ORDERSTATUS,T4.PAY_TYPE
+	</select>
+
+	<resultMap id="buyerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
+		<result column="NOWTIME" property="nowTime"/>
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	<!--
+		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	-->
+	</resultMap>
+
+	<select id="listPaginationBuyerOrder" parameterType="OrderDto" resultMap="buyerOrderResultMap" useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,SYSDATE() AS NOWTIME,T4.PAY_TYPE,T4.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='payType == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
+
+	<select id="findBuyerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal" useCache="false">
+		SELECT
+		SUM(T1.ORG_TOTAL)
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='payType == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		AND T1.ORG_TOTAL IS NOT NULL
+	</select>
+
+
+	<select id="getOrderDetails" parameterType="Order"  resultMap="OrderDetailsResultMapper">
+		SELECT s.pay_type_name,s.pay_type,
+		<include refid="commonProcessDateOrderColumns"/>
+		from t_order o,t_system_pay_type s
+		WHERE o.pay_type_id=s.pay_type_id
+		AND  o.flow_Id=#{flowId}
+		<if test="custId!= null and custId!= ''">
+			AND o.cust_Id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND o.supply_id=#{supplyId}
+		</if>
+
+	</select>
+
+	<select id="getOrderbyFlowId" parameterType="java.lang.String" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE flow_id = #{flowId}
+	</select>
+
+	<select id="findSellerOrderStatusCount" parameterType="OrderDto" resultType="OrderDto" useCache="false">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T4.PAY_TYPE AS payType
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
+		WHERE
+		T1.SUPPLY_ID = #{supplyId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="province!= null and province!= ''">
+			AND T2.PROVINCE = #{province}
+		</if>
+		<if test="city!= null and city!= ''">
+			AND T2.CITY = #{city}
+		</if>
+		<if test="district!= null and district!= ''">
+			AND T2.DISTRICT = #{district}
+		</if>
+		GROUP BY ORDERSTATUS,T4.PAY_TYPE
+	</select>
+
+	<resultMap id="sellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+	<!--
+		<association property="orderDelivery" column="ORDER_ID"
+					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByOrderId"></association>
+		<collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	-->
+	</resultMap>
+
+	<select id="listPaginationSellerOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap" useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,T4.PAY_TYPE,T4.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
+		WHERE
+		T1.SUPPLY_ID = #{supplyId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='payType == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		<if test="province!= null and province!= ''">
+			AND T2.PROVINCE = #{province}
+		</if>
+		<if test="city!= null and city!= ''">
+			AND T2.CITY = #{city}
+		</if>
+		<if test="district!= null and district!= ''">
+			AND T2.DISTRICT = #{district}
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
+
+	<select id="findSellerOrderTotal" parameterType="OrderDto" resultType="java.math.BigDecimal" useCache="false">
+		SELECT
+		SUM(T1.ORG_TOTAL)
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
+		WHERE
+		T1.SUPPLY_ID = #{supplyId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='payType == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		<if test="province!= null and province!= ''">
+			AND T2.PROVINCE = #{province}
+		</if>
+		<if test="city!= null and city!= ''">
+			AND T2.CITY = #{city}
+		</if>
+		<if test="district!= null and district!= ''">
+			AND T2.DISTRICT = #{district}
+		</if>
+		AND T1.ORG_TOTAL IS NOT NULL
+	</select>
+
+	<resultMap id="exportSellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+            <association property="orderDelivery" column="FLOW_ID"
+                         select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
+            <collection property="orderDetailList" javaType="ArrayList" ofType="OrderDetail" column="{orderId=ORDER_ID}" select="com.yyw.yhyc.order.mapper.OrderDetailMapper.listPaginationByProperty" />
+	</resultMap>
+
+	<select id="listPaginationExportSellerOrder" parameterType="OrderDto" resultMap="exportSellerOrderResultMap">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,T4.PAY_TYPE,T4.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
+		WHERE
+		T1.SUPPLY_ID = #{supplyId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='payType == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		<if test="province!= null and province!= ''">
+			AND T2.PROVINCE = #{province}
+		</if>
+		<if test="city!= null and city!= ''">
+			AND T2.CITY = #{city}
+		</if>
+		<if test="district!= null and district!= ''">
+			AND T2.DISTRICT = #{district}
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
+
+
+	<update id="cancelOrderForNoPay">
+		update t_order  set order_status=4,cancel_time=sysdate(),cancel_result='系统自动取消'
+		      where (pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=1) and order_status=1
+		             and create_time <![CDATA[<]]> date_add(sysdate(), interval -1 day))
+		           or
+		             (pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=3) and order_status=1
+		             and create_time <![CDATA[<]]> date_add(sysdate(), interval -7 day))
+	</update>
+
+	<select id="listCancelOrderForNoPay"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE
+		(pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=1) and order_status=1
+		and create_time <![CDATA[<]]> date_add(sysdate(), interval -1 day))
+		or
+		(pay_type_id in(select pay_type_id from t_system_pay_type where pay_type=3) and order_status=1
+		and create_time <![CDATA[<]]> date_add(sysdate(), interval -7 day))
+	</select>
+
+	<select id="listOrderForNoDelivery"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE
+		order_status=5
+		and pay_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
+	</select>
+
+	<update id="cancelOrderForNoDelivery" parameterType="map">
+		update t_order  set order_status=4 WHERE
+		order_status=5 and
+		<foreach collection="list" index="index" item="id"
+				 open=" order_id in(" separator="," close=") ">
+			${id}
+		</foreach>
+	</update>
+
+	<select id="listOrderForDelivery"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order WHERE
+		order_status=6
+		and deliver_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
+	</select>
+
+	<update id="doneOrderForDelivery" parameterType="map">
+		update t_order  set order_status=11,receive_time=sysdate(),receive_Type=2 WHERE
+		order_status=6 and
+		<foreach collection="list" index="index" item="id"
+				 open=" order_id in(" separator="," close=") ">
+			${id}
+		</foreach>
+	</update>
+
+
+	<select id="listPaginationOperationsOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap" useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,T2.PAY_TYPE,T2.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T2 ON T1.PAY_TYPE_ID = T2.PAY_TYPE_ID
+		WHERE 1=1
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T2.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND T1.ORDER_STATUS = #{orderStatus}
+		</if>
+		<if test="payFlag!= null and payFlag!= ''">
+			<![CDATA[ AND T1.PAY_FLAG=#{payFlag} ]]>
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
+
+	<select id="listOrderByPayFlowId" parameterType="java.lang.String"  resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateOrderColumns"/>
+		FROM t_order o,t_order_combined c
+		WHERE o.order_combined_id=c.order_combined_id
+		AND c.pay_flow_id=#{payFlowId}
+	</select>
+
+	<delete id="updateOrderPayStatusByPk" parameterType="map">
+		UPDATE T_ORDER SET pay_status=#{payStatus} WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+				 open=" order_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+
+</mapper>
