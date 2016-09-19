@@ -583,7 +583,7 @@ public class OrderService {
 		insertOrderTrace(order);
 
 		/* 删除购物车中相关的商品 */
-//		deleteShoppingCart(orderDto);
+		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
@@ -817,7 +817,7 @@ public class OrderService {
 
 		String [] custGroupCode = null;
 		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage());
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
 			return returnFalse("查询商品价格失败");
 		}else{
 			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
