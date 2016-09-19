@@ -865,7 +865,8 @@ public class OrderService {
 				putawayStatus = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : Integer.valueOf(productJson.get("putaway_status")+"");
 				isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : Integer.valueOf(productJson.get("is_channel")+"");
 			}catch (Exception e){
-				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage());
+				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage(),e);
+				return returnFalse("查询商品状态失败");
 			}
 
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
