@@ -298,7 +298,7 @@ public class ShoppingCartService {
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
-				productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+
 
 				/* 查询商品库存 */
 				ProductInventory productInventory = new ProductInventory();
@@ -332,7 +332,7 @@ public class ShoppingCartService {
 				String unit = "";
 				Integer saleStart = 1;
 				List productList = null;
-				Integer putaway_status = null;
+				Integer putaway_status = 0;
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
 					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
@@ -355,6 +355,11 @@ public class ShoppingCartService {
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
+
+				/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
+				if( "2".equals(code) && 1 == putaway_status ){
+					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+				}
 			}
 
 			/* 计算是否符合订单起售金额 */
