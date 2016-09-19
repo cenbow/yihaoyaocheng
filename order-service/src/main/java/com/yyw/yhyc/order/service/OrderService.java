@@ -999,17 +999,22 @@ public class OrderService {
 		}
 	}
 
-
+	/**
+	 *
+	 * @param data  "[{group_code=61650851012264}, {group_code=61671525425650}]"
+	 * @return
+     */
 	private String[] getCustGroupCode(List<Map<String, Object>> data) {
 		if(UtilHelper.isEmpty(data)) return null;
 		List<String> list = new ArrayList();
 		for(Map map : data){
 			if(UtilHelper.isEmpty(map)) continue;
-			if(!UtilHelper.isEmpty(map.get("code")+"")){
-				list.add(map.get("code")+"");
+			if(!UtilHelper.isEmpty(map.get("group_code")+"")){
+				list.add(map.get("group_code")+"");
 			}
 		}
-		return (String[]) list.toArray();
+		String[] strings = new String[list.size()];
+		return list.toArray(strings);
 	}
 
 
