@@ -7,24 +7,24 @@ import java.math.BigDecimal;
  * Created by luweibin on 2016/9/6.
  */
 public class CartProductBean implements Serializable,Cloneable {
-    private long shoppingCartId;
-    private int quantity;
-    private int oldQuantity;
-    private boolean selectedProduct;
-    private long productId;
-    private String productPicUrl;
-    private String productName;
-    private String spec;
+    private long shoppingCartId;//购物车ID
+    private int quantity;//购买数量
+    private int oldQuantity;//
+    private boolean selectedProduct;//是否选中商品
+    private long productId;//商品Id
+    private String productPicUrl;//商品图片
+    private String productName;//商品名称
+    private String spec;//规格
     private String unit;
-    private BigDecimal productPrice;
-    private BigDecimal recommendPrice;
-    private int stockCount;
-    private int baseCount;
-    private int stepCount;
-    private int  statusDesc;
-    private String factoryName;
-    private long factoryId ;
-    private String vendorName;
+    private BigDecimal productPrice;//商品销售价格
+    private BigDecimal recommendPrice;//
+    private int stockCount;//商品库存
+    private int baseCount;  //起售量
+    private int stepCount;//递增数量
+    private int  statusDesc;//商品状态描述
+    private String factoryName;//生产厂商名称
+    private long factoryId ;//生产厂商Id
+    private String vendorName;//供应商名称
 
     public long getShoppingCartId() {
         return shoppingCartId;

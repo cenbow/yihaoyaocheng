@@ -200,12 +200,12 @@ function typeToOperate(order) {
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 1)//在线支付+买家已下单
         result += '<span id="order_' + order.orderId + '" ></span><br/>';
     if (order && order.orderStatus && order.payType && order.orderStatus == '1' && (order.payType == 1 )) {//买家已下单 + （在线支付）
-        result += '<a href=' + PAY_DOMAIN + '/pay-web/orderPay/confirmPay?orderId='+order.orderId+' class="btn btn-info btn-sm margin-r-10">付款</a>';
+        result += '<a href=' + PAY_DOMAIN + '/orderPay/confirmPay?orderId='+order.orderId+' class="btn btn-info btn-sm margin-r-10">付款</a>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
 
     if (order && order.orderStatus && order.payType && order.orderStatus == '1' && ( order.payType == 3)) {//买家已下单 + （线下转账）
-        result += '<a href=' + domainPath + '/order-web/order/accountPayInfo/getByCustId/' + order.supplyId + ' class="btn btn-info btn-sm margin-r-10">付款</a>';
+        result += '<a href=' + domainPath + '/order/accountPayInfo/getByCustId/' + order.supplyId + ' class="btn btn-info btn-sm margin-r-10">付款</a>';
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
     }
 

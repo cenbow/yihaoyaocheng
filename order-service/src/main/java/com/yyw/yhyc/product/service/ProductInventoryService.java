@@ -481,7 +481,7 @@ public class ProductInventoryService {
     /**
      * 根据供应商修改-保存、库存信息
      *
-     * @param productInventoryList
+     * @param productInventoryList（spuCode 为对接公司商品编码）
      * @throws Exception
      */
     public List<ProductInventory> updateSupplyIdInventory(List<ProductInventory> productInventoryList) throws Exception {
@@ -489,9 +489,15 @@ public class ProductInventoryService {
             List<ProductInventory> list = new ArrayList<ProductInventory>();
             String now = systemDateMapper.getSystemDate();
             for (ProductInventory productInventory : productInventoryList) {
-                if (!UtilHelper.isEmpty(productInventory.getSpuCode()) && !UtilHelper.isEmpty(productInventory.getSupplyId()) && !UtilHelper.isEmpty(productInventory.getCurrentInventory())) {
+                if (!UtilHelper.isEmpty(productInventory.getSpuCode()) && !UtilHelper.isEmpty(productInventory.getSupplyId()) && !UtilHelper.isEmpty(productInventory.getCurrentInventory()) && !UtilHelper.isEmpty(productInventory.getSupplyName())) {
+                    ProductAudit productAudit = productAuditMapper.getProductcodeCompany(productInventory.getSupplyId(), productInventory.getSpuCode());
+                    if (UtilHelper.isEmpty(productAudit)) {
+                        list.add(productInventory);
+                        continue;
+                    }
                     ProductInventoryLog productInventoryLog = new ProductInventoryLog();
-                    ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productInventory.getSpuCode());
+                    ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productAudit.getSpuCode());
+                    productInventory.setSpuCode(productAudit.getSpuCode());
                     productInventory.setUpdateTime(now);
                     productInventory.setUpdateUser(productInventory.getSupplyName());
                     if (UtilHelper.isEmpty(productInventory.getSupplyType())) {

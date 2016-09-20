@@ -57,9 +57,6 @@ public class ShoppingCartController extends BaseJsonController {
 	private OrderService orderService;
 
 	@Reference
-	private IProductDubboManageService productDubboManageService;
-
-	@Reference
 	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
 
 	/**

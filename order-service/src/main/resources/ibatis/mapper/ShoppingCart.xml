@@ -271,7 +271,7 @@
 			, product_settlement_price=#{productSettlementPrice}
 		</if>
 		<if test="productCount!= null and productCount!= ''">
-			, product_count= product_count + #{productCount}
+			, product_count= #{productCount}
 		</if>
 		<if test="remark!= null and remark!= ''">
 			, remark=#{remark}
