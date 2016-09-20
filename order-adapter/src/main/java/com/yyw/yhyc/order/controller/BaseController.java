@@ -45,18 +45,9 @@ public class BaseController {
     @ResponseBody
     public Map<String, Object> exceptionHandler(Exception ex, HttpServletRequest request, HttpServletResponse response) throws IOException {
         HashMap map = new HashMap();
+        map.put("statusCode", STATUS_CODE_SYSTEM_EXCEPTION);
         map.put("message", ex.getMessage());
-        logger.error(ex.getMessage(), ex);
-        StackTraceElement[] st = ex.getStackTrace();
-        String exclass = st[0].getClassName().toString();
-        if(exclass.startsWith("com.yyw.yhyc.")) {
-            map.put("statusCode", Integer.valueOf(100));
-        } else if(ex.getClass() == NoSuchRequestHandlingMethodException.class) {
-            map.put("statusCode", Integer.valueOf(400));
-        } else {
-            map.put("statusCode", Integer.valueOf(500));
-        }
-
+        map.put("data", "");
         return map;
     }
 
