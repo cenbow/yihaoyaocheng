@@ -1,11 +1,12 @@
 package com.yyw.yhyc.order.appdto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by huhaibing on 2016/9/8.
  */
-public class OrderBean {
+public class OrderBean implements Serializable{
 
     private String orderId;                     //订单Id
     private String orderStatus;                 //订单状态
