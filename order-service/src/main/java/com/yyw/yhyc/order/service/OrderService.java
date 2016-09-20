@@ -2543,6 +2543,60 @@ public class OrderService {
 	}
 
 	/**
+	 * APP 采购商取消订单
+	 * @param userDto
+	 * @param flowId
+	 */
+	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId){
+		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(flowId)){
+			throw new RuntimeException("参数错误");
+		}
+		Order order =  orderMapper.getOrderbyFlowId(flowId);
+		log.debug(order);
+		if(UtilHelper.isEmpty(order)){
+			log.error("can not find order ,orderId:"+flowId);
+			throw new RuntimeException("未找到订单");
+		}
+		//判断订单是否属于该买家
+		if(userDto.getCustId() == order.getCustId()){
+			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
+				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
+				String now = systemDateMapper.getSystemDate();
+				order.setUpdateUser(userDto.getUserName());
+				order.setUpdateTime(now);
+				order.setCancelTime(now);
+				order.setCancelResult("买家主动取消");
+				int count = orderMapper.update(order);
+				if(count == 0){
+					log.error("order info :"+order);
+					throw new RuntimeException("订单取消失败");
+				}
+				//插入日志表
+				OrderTrace orderTrace = new OrderTrace();
+				orderTrace.setOrderId(order.getOrderId());
+				orderTrace.setNodeName("买家取消订单");
+				orderTrace.setDealStaff(userDto.getUserName());
+				orderTrace.setRecordDate(now);
+				orderTrace.setRecordStaff(userDto.getUserName());
+				orderTrace.setOrderStatus(order.getOrderStatus());
+				orderTrace.setCreateTime(now);
+				orderTrace.setCreateUser(userDto.getUserName());
+				orderTraceMapper.save(orderTrace);
+
+				//释放冻结库存
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+
+			}else{
+				log.error("order status error ,orderStatus:"+order.getOrderStatus());
+				throw new RuntimeException("订单状态不正确");
+			}
+		}else{
+			log.error("db orderId not equals to request orderId ,orderId:"+flowId+",db orderId:"+order.getOrderId());
+			throw new RuntimeException("未找到订单");
+		}
+	}
+
+	/**
 	 * APP获取订单列表
 	 * @param pagination
 	 * @param orderStatus
@@ -2552,6 +2606,9 @@ public class OrderService {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		OrderDto orderDto = new OrderDto();
 		orderDto.setCustId(custId);
+		orderStatus = convertAppOrderStatus(orderStatus,1);
+		if(UtilHelper.isEmpty(orderStatus))
+			throw new RuntimeException("订单状态不正确");
 		orderDto.setOrderStatus(orderStatus);
 		//获取订单列表
 		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
@@ -2569,6 +2626,7 @@ public class OrderService {
 						od.setOrderStatusName(buyerorderstatusenum.getValue());
 					else
 						od.setOrderStatusName("未知类型");
+					od.setOrderStatus(buyerorderstatusenum.getType());
 				}
 				//获取支付剩余时间
 				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && SystemPayTypeEnum.PayOnline.getPayType() == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
@@ -2585,15 +2643,17 @@ public class OrderService {
 				}
 				temp = new HashMap<String,Object>();
 				temp.put("orderId",od.getFlowId());
-				temp.put("orderStatus",od.getOrderStatus());
+				temp.put("orderStatus",convertAppOrderStatus(od.getOrderStatus(),2));
 				temp.put("createTime",od.getCreateTime());
 				temp.put("supplyName",od.getSupplyName());
 				temp.put("orderTotal",od.getOrgTotal());
 				temp.put("finalPay",od.getOrgTotal());
-				temp.put("varietyNumber",null);//品种
+				temp.put("varietyNumber","2");//品种 // TODO: 2016/9/20 待获取
 				temp.put("productNumber",od.getTotalCount());//商品数量
 				temp.put("residualTime",time);//⽀付剩余时间 秒
-				temp.put("qq",null);
+				temp.put("delayTimes",od.getDelayTimes());
+				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
+				temp.put("qq","7777777");// TODO: 2016/9/20 待查询
 				temp.put("productList",od.getOrderDetailList());
 				orderList.add(temp);
 			}
@@ -2601,7 +2661,173 @@ public class OrderService {
 		resultMap.put("totalCount",pagination.getTotal());
 		resultMap.put("pageCount",pagination.getTotalPage());
 		resultMap.put("orderList",orderList);
-		return null;
+		return resultMap;
+	}
+
+	/**
+	 * APP订单状态和系统订单状态互换
+	 * @param orderStatus
+	 * @param type
+     * @return
+     */
+	private String  convertAppOrderStatus(String orderStatus,int type){
+		String status = null;
+		if(type == 1){//APP => this
+			//全部订单 0 待付款 1 待发货2 待收货3 已完成7
+			//全部
+			if("0".equals(orderStatus))
+				return "0";
+			//待付款
+			if("1".equals(orderStatus))
+				return "1";
+			//待发货
+			if("2".equals(orderStatus))
+				return "2";
+			//待收货
+			if("3".equals(orderStatus))
+				return "3";
+			//已完成
+			if("7".equals(orderStatus))
+				return "7";
+			//拒收中
+			if("800".equals(orderStatus))
+				return "4";
+			//补货中
+			if("900".equals(orderStatus))
+				return "5";
+			//已取消
+			if("10".equals(orderStatus))
+				return "6";
+		}else if(type == 2) {//this => APP
+			//待付款
+			if(BuyerOrderStatusEnum.PendingPayment.getType().equals(orderStatus))
+				return "1";
+			//待发货
+			if(BuyerOrderStatusEnum.BackOrder.getType().equals(orderStatus))
+				return "2";
+			//待收货
+			if(BuyerOrderStatusEnum.ReceiptOfGoods.getType().equals(orderStatus))
+				return "3";
+			//已完成
+			if(BuyerOrderStatusEnum.Finished.getType().equals(orderStatus))
+				return "7";
+			//拒收中
+			if(BuyerOrderStatusEnum.Rejecting.getType().equals(orderStatus))
+				return "800";
+			//补货中
+			if(BuyerOrderStatusEnum.Replenishing.getType().equals(orderStatus))
+				return "900";
+			//已取消
+			if(BuyerOrderStatusEnum.Canceled.getType().equals(orderStatus))
+				return "10";
+		}
+		return status;
+	}
+
+	/**
+	 * APP异常订单状态和系统订单状态互换
+	 * @param orderStatus
+	 * @param type 1 补货 ，2 拒收
+	 * @return
+	 */
+	private String  convertAppExceptionOrderStatus(String orderStatus,int type){
+		String status = null;
+		if(type == 1){//补货
+			//待确认
+			if(BuyerReplenishmentOrderStatusEnum.WaitingConfirmation.getType().equals(orderStatus))
+				return "901";
+			//待发货
+			if(BuyerReplenishmentOrderStatusEnum.WaitingDelivered.getType().equals(orderStatus))
+				return "902";
+			//待收货
+			if(BuyerReplenishmentOrderStatusEnum.WaitingReceived.getType().equals(orderStatus))
+				return "903";
+			//已关闭
+			if(BuyerReplenishmentOrderStatusEnum.Closed.getType().equals(orderStatus))
+				return "904";
+		}else if(type == 2) {//拒收
+			//待确认
+			if(BuyerOrderExceptionStatusEnum.WaitingConfirmation.getType().equals(orderStatus))
+				return "801";
+			//退款中
+			if(BuyerOrderExceptionStatusEnum.Refunding.getType().equals(orderStatus))
+				return "802";
+			//已关闭
+			if(BuyerOrderExceptionStatusEnum.Closed.getType().equals(orderStatus))
+				return "803";
+			//已完成
+			if(BuyerOrderExceptionStatusEnum.Refunded.getType().equals(orderStatus))
+				return "804";
+		}
+		return status;
+	}
+
+	/**
+	 * APP获取订单列表
+	 * @param pagination
+	 * @param orderStatus
+	 * @return
+	 */
+	public Map<String,Object> listBuyerExceptionOderForApp(Pagination<OrderDto> pagination,String orderStatus,int custId){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		OrderDto orderDto = new OrderDto();
+		orderDto.setCustId(custId);
+		orderStatus = convertAppOrderStatus(orderStatus,1);
+		if(UtilHelper.isEmpty(orderStatus))
+			throw new RuntimeException("订单状态不正确");
+		orderDto.setOrderStatus(orderStatus);
+		//获取订单列表
+		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
+		pagination.setResultList(buyerOrderList);
+		List<Map<String,Object>> orderList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> temp = null;
+		if(!UtilHelper.isEmpty(buyerOrderList)){
+			BuyerOrderStatusEnum buyerorderstatusenum;
+			long time = 0l;
+			for(OrderDto od : buyerOrderList){
+				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
+					//获取买家视角订单状态
+					buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
+					if(!UtilHelper.isEmpty(buyerorderstatusenum))
+						od.setOrderStatusName(buyerorderstatusenum.getValue());
+					else
+						od.setOrderStatusName("未知类型");
+					od.setOrderStatus(buyerorderstatusenum.getType());
+				}
+				//获取支付剩余时间
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && SystemPayTypeEnum.PayOnline.getPayType() == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
+					try {
+						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
+						//计算当前时间和支付剩余24小时的剩余秒数
+						time = time > 0 ? CommonType.PAY_TIME*60*60-time : time;
+						time = time < 0 ? 0l : time;
+						od.setResidualTime(time);
+					} catch (ParseException e) {
+						e.printStackTrace();
+						throw new RuntimeException("日期转换错误");
+					}
+				}
+				temp = new HashMap<String,Object>();
+				temp.put("orderId",od.getFlowId());
+				temp.put("orderStatus",convertAppOrderStatus(od.getOrderStatus(),2));
+				temp.put("createTime",od.getCreateTime());
+				temp.put("supplyName",od.getSupplyName());
+				temp.put("orderTotal",od.getOrgTotal());
+				temp.put("finalPay",od.getOrgTotal());
+				temp.put("varietyNumber","2");//品种 // TODO: 2016/9/20 待获取
+				temp.put("productNumber",od.getTotalCount());//商品数量
+				temp.put("residualTime",time);//⽀付剩余时间 秒
+				temp.put("delayTimes",od.getDelayTimes());
+				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
+				temp.put("qq","7777777");// TODO: 2016/9/20 待查询
+				temp.put("productList",od.getOrderDetailList());
+				orderList.add(temp);
+			}
+		}
+		resultMap.put("totalCount",pagination.getTotal());
+		resultMap.put("pageCount",pagination.getTotalPage());
+		resultMap.put("orderList",orderList);
+		return resultMap;
 	}
 
 }

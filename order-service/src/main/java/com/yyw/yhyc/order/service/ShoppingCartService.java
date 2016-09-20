@@ -243,7 +243,7 @@ public class ShoppingCartService {
 		}
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
 		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
-			shoppingCart.setProductCount(product.getFrontInventory()-countByid);
+			shoppingCart.setProductCount(product.getFrontInventory());
 		}else{
 			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
 		}
@@ -485,6 +485,7 @@ public class ShoppingCartService {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		resultMap.put("statusCode", "0");
 		resultMap.put("data",cartData);
+		resultMap.put("message", "成功");
 		return resultMap;
 	}
 }
