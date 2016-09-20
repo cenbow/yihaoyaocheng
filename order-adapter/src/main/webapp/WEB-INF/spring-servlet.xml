@@ -29,21 +29,6 @@
 		<!-- 指定所上传文件的总大小不能超过200000KB。注意maxUploadSize属性的限制不是针对单个文件，而是一次上传所有文件的容量之和 -->
 		<property name="maxUploadSize" value="20480000" />
 	</bean>
-<!--
-	&lt;!&ndash; mvc 拦截器 &ndash;&gt;
-	<mvc:interceptors>
-		&lt;!&ndash; 登录拦截 &ndash;&gt;
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
-		</mvc:interceptor>
-
-		&lt;!&ndash; 获取用户信息 &ndash;&gt;
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<bean class="com.yyw.yhyc.order.inteceptor.GetUserInteceptor"/>
-		</mvc:interceptor>
-	</mvc:interceptors>-->
 
 	<import resource="dubbo-consumer.xml"/>
 </beans>
