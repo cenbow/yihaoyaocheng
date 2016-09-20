@@ -371,7 +371,7 @@ public class OrderDeliveryDetailService {
 		order.setUpdateUser(user.getUserName());
 		orderMapper.update(order);
 
-		//生成结算信息当是账期支付时
+		//生成结算信息 (补货不产生结算)
 		saveOrderSettlement(order,moneyTotal);
 
 		//插入日志表
@@ -454,8 +454,14 @@ public class OrderDeliveryDetailService {
 		String now = systemDateMapper.getSystemDate();
 		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		OrderSettlement orderSettlement = new OrderSettlement();
+		if(SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())||
+				SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())){
+			//拒收 换货 会在审核，和买家确认收货时产生结算
+			return;
+		}
 		boolean saveFlag = true;
 		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			//非拒收账期产生结算，拒收账期在审核通过产生
 		    orderSettlement.setBusinessType(1);
 		    orderSettlement.setOrderId(order.getOrderId());
 		    orderSettlement.setFlowId(order.getFlowId());
@@ -489,23 +495,18 @@ public class OrderDeliveryDetailService {
 			orderSettlement.setOrderTime(order.getCreateTime());
 
 			//拒收的 结算金额需要减去拒收的金额
-			if(moneyTotal!=null&&SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())){
+			if(moneyTotal!=null){
 				orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(moneyTotal));
-				//拒收暂时不保存，在审核通过保存
-				saveFlag = false;
 			}else {
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 			}
 		}
 		log.info("HHJJ拒收:orderId:"+order.getOrderId());
 		log.info("HHJJ拒收支付类型systemPayType.getPayTypeId:"+systemPayType.getPayTypeId());
-		log.info("HHJJ拒收结算是否保存saveFlag:"+saveFlag);
 		log.info("HHJJ拒收结算moneyTotal:"+moneyTotal);
 		log.info("HHJJ拒收:order.getOrderStatus:"+order.getOrderStatus());
-		if(saveFlag){
-			orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
-			orderSettlementMapper.save(orderSettlement);
-		}
+		orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
+		orderSettlementMapper.save(orderSettlement);
 	}
 
 	/**
