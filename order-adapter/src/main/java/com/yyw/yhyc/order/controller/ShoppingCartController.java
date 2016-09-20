@@ -15,6 +15,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,5 +117,47 @@ public class ShoppingCartController extends BaseJsonController {
 	{
 		Integer custId = 6066;
 		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity);
+	}
+
+	/**
+	 * 获得进货单品种数量
+	 * @return
+     */
+	@RequestMapping(value = "/cartAccount", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> cartAccount(){
+		Integer custId = 6066;
+		Map<String,Object> result = new HashMap<>();
+
+		if(UtilHelper.isEmpty(custId)) {
+			result.put("statusCode", -1);
+			result.put("message", "参数custId不能为空！");
+			result.put("data", null);
+
+			return result;
+		}
+
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+		try {
+			int count = shoppingCartService.findByCount(shoppingCart);
+
+			result.put("statusCode", 0);
+			result.put("message", "成功");
+
+			Map<String, Integer> data = new HashMap<>();
+			data.put("count", count);
+			result.put("data", data);
+
+			return result;
+		}catch (Exception e){
+			logger.error(e.getMessage(), e);
+
+			result.put("statusCode", -3);
+			result.put("message", e.getMessage());
+			result.put("data", null);
+
+			return result;
+		}
 	}
 }
