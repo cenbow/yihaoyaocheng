@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-9-20 17:02:42
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.AppVersionMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="AppVersionResultMapper" type="AppVersion">
+		<result column="version_id" property="versionId"/>
+		<result column="version_code" property="versionCode"/>
+		<result column="version_type" property="versionType"/>
+		<result column="version_path" property="versionPath"/>
+		<result column="version_status" property="versionStatus"/>
+		<result column="update_fag" property="updateFag"/>
+		<result column="creator" property="creator"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 version_id
+		, version_code
+		, version_type
+		, version_path
+		, version_status
+		, update_fag
+		, creator
+		, create_time
+		, update_user
+		, update_time
+		, remark
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 version_code
+				, version_type
+				, version_path
+				, version_status
+				, update_fag
+				, creator
+				, create_time
+				, update_user
+				, update_time
+				, remark
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 version_id
+		, version_code
+		, version_type
+		, version_path
+		, version_status
+		, update_fag
+		, creator
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, remark
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="versionId!= null and versionId!= ''"> 
+			AND version_id=#{versionId}
+		</if>
+		<if test="versionCode!= null and versionCode!= ''"> 
+			AND version_code=#{versionCode}
+		</if>
+		<if test="versionType!= null and versionType!= ''"> 
+			AND version_type=#{versionType}
+		</if>
+		<if test="versionPath!= null and versionPath!= ''"> 
+			AND version_path=#{versionPath}
+		</if>
+		<if test="versionStatus!= null and versionStatus!= ''"> 
+			AND version_status=#{versionStatus}
+		</if>
+		<if test="updateFag!= null and updateFag!= ''"> 
+			AND update_fag=#{updateFag}
+		</if>
+		<if test="creator!= null and creator!= ''"> 
+			AND creator=#{creator}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="AppVersion">
+		<![CDATA[ INSERT INTO t_app_version ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{versionCode}
+				, #{versionType}
+				, #{versionPath}
+				, #{versionStatus}
+				, #{updateFag}
+				, #{creator}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{remark}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="AppVersion">
+		<![CDATA[ UPDATE t_app_version SET 
+			 version_id=#{versionId} 
+			, version_code=#{versionCode} 
+			, version_type=#{versionType} 
+			, version_path=#{versionPath} 
+			, version_status=#{versionStatus} 
+			, update_fag=#{updateFag} 
+			, creator=#{creator} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, remark=#{remark} 
+		WHERE version_id = #{versionId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_app_version WHERE version_id = #{versionId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_app_version WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" version_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="AppVersion">
+		DELETE FROM t_app_version WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="AppVersionResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_app_version WHERE version_id = #{versionId}  
+	</select>
+	<select id="list" resultMap="AppVersionResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_app_version
+	</select>
+	<select id="listByProperty" parameterType="AppVersion" resultMap="AppVersionResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_app_version WHERE 1=1 
+		<include refid="commonCondition"/>
+		ORDER BY version_id DESC
+	</select>
+	<select id="listPaginationByProperty" parameterType="AppVersion" resultMap="AppVersionResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_app_version WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="AppVersion" resultType="int">
+		SELECT count(1) AS totalcount FROM t_app_version WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>
