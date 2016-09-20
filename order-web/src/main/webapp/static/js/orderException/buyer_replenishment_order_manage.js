@@ -300,7 +300,7 @@ function fillTable(data) {
                 }else{
                     pasretFormData();
                     doRefreshData(params);
-                    alertModal("收货处理成功。");
+                    alertModal("收货处理成功");
                     $("#myModalConfirmReceipt").modal("hide");
                 }
             },
