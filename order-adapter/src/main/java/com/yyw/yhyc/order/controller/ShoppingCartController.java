@@ -31,12 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/cart")
+@RequestMapping(value = "/order/shoppingCart")
 public class ShoppingCartController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
@@ -105,11 +104,34 @@ public class ShoppingCartController extends BaseJsonController {
 	}
 
 	/**
+	 * 根据多条主键值删除记录
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteShopCart", method = RequestMethod.PUT)
+	public Map<String,Object> deleteShopCarts(List<Integer> shoppingCartIds) throws Exception
+	{
+		Integer custId = 6066;
+		return shoppingCartService.deleteShopCarts(custId,shoppingCartIds);
+	}
+
+	/**
+	 * 更新进货单数量
+	 * @return
+	 */
+	@RequestMapping(value = "/updateShopCart", method = RequestMethod.PUT)
+	public Map<String,Object> updateShopCart(Integer shoppingCartId,Integer quantity) throws Exception
+	{
+		Integer custId = 6066;
+		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity);
+	}
+
+
+	/**
 	 *
 	 * @param shoppingCart custId, supplyId,spuCode,productId,productCount,productPrice,ProductCodeCompany
 	 * @return
 	 * @throws Exception
-     */
+	 */
 	@RequestMapping(value = "/addShopCart", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws Exception {

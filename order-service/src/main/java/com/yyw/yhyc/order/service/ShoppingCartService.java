@@ -10,6 +10,7 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +18,9 @@ import java.util.Map;
 
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.CartData;
+import com.yyw.yhyc.order.appdto.CartGroupData;
+import com.yyw.yhyc.order.appdto.CartProductBean;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -370,5 +374,106 @@ public class ShoppingCartService {
 			}
 		}
 		return allShoppingCart;
+	}
+
+	/**
+	 * 将进货单DTO转换成APP对应实体
+	 * @param shoppingCartListDtos
+	 * @return
+	 */
+	private CartData changeShopCartDtosToApp(List<ShoppingCartListDto> shoppingCartListDtos){
+		CartData cartData = new CartData();
+		int totalCount = 0;
+		List<CartGroupData> shopCartList = new ArrayList<CartGroupData>();
+		for(ShoppingCartListDto scds : shoppingCartListDtos){
+			totalCount+=scds.getShoppingCartDtoList().size();
+			CartGroupData cartGroupData = new CartGroupData();
+			List<CartProductBean> products = new ArrayList<CartProductBean>();
+			cartGroupData.setSupplyId(Long.parseLong(scds.getSeller().getEnterpriseId()));
+			cartGroupData.setSupplyName(scds.getSeller().getEnterpriseName());
+			cartGroupData.setProductTotalPrice(scds.getProductPriceCount());
+			for (ShoppingCartDto scd : scds.getShoppingCartDtoList()){
+				CartProductBean cartProductBean = new CartProductBean();
+				cartProductBean.setShoppingCartId(scd.getShoppingCartId());
+				cartProductBean.setQuantity(scd.getProductCount());
+				cartProductBean.setProductId(scd.getProductId());
+				cartProductBean.setProductPicUrl(scd.getProductImageUrl());
+				cartProductBean.setProductName(scd.getProductName());
+				cartProductBean.setSpec(scd.getSpecification());
+				cartProductBean.setUnit(scd.getUnit());
+				cartProductBean.setProductPrice(scd.getProductPrice());
+				cartProductBean.setStockCount(scd.getProductInventory());
+				cartProductBean.setBaseCount(scd.getSaleStart());
+				cartProductBean.setStatusDesc(scd.getPutawayStatus());
+				cartProductBean.setFactoryName(scd.getManufactures());
+				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
+				products.add(cartProductBean);
+			}
+			cartGroupData.setProducts(products);
+			shopCartList.add(cartGroupData);
+		}
+		cartData.setShopCartList(shopCartList);
+		cartData.setTotalCount(totalCount);
+		return cartData;
+	}
+	/**
+	 * 删除进货单商品For App
+	 * @param custId
+	 * @param shoppingCartIds
+	 * @return
+	 */
+	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		try{
+			this.deleteByPKeys(shoppingCartIds);
+		}catch (Exception e){
+			resultMap.put("statusCode","-3");
+			resultMap.put("message","删除进货单失败!");
+			return resultMap;
+		}
+
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(shoppingCart);
+		if(UtilHelper.isEmpty(shoppingCartListDtos)){
+			resultMap.put("statusCode","0");
+			return resultMap;
+		}
+		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
+		resultMap.put("statusCode", "0");
+		resultMap.put("data",cartData);
+		return resultMap;
+	}
+	/**
+	 * 更新进货单商品For App
+	 * @param custId
+	 * @param
+	 * @return
+	 */
+	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setShoppingCartId(shoppingCartId);
+		shoppingCart.setProductCount(quantity);
+		UserDto userDto = new UserDto();
+		userDto.setCustId(custId);
+		try {
+			this.updateNum(shoppingCart,userDto);
+		}catch (Exception e){
+			resultMap.put("statusCode","-3");
+			resultMap.put("message","更新进货单失败!");
+			return resultMap;
+		}
+		ShoppingCart sc = new ShoppingCart();
+		sc.setCustId(custId);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(sc);
+		if(UtilHelper.isEmpty(shoppingCartListDtos)){
+			resultMap.put("statusCode","0");
+			return resultMap;
+		}
+		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
+		resultMap.put("statusCode", "0");
+		resultMap.put("data",cartData);
+		return resultMap;
 	}
 }
