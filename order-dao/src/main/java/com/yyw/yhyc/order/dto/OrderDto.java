@@ -4,6 +4,7 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class OrderDto extends Order {
 
     /*打款状态说明*/
     private String payFlagName;
+
+    private UsermanageEnterprise buyer;
+    private UsermanageEnterprise seller;
 
 
     public int getOrderCount() {
@@ -174,10 +178,25 @@ public class OrderDto extends Order {
         this.payFlagName = payFlagName;
     }
 
+    public UsermanageEnterprise getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(UsermanageEnterprise buyer) {
+        this.buyer = buyer;
+    }
+
+    public UsermanageEnterprise getSeller() {
+        return seller;
+    }
+
+    public void setSeller(UsermanageEnterprise seller) {
+        this.seller = seller;
+    }
+
     @Override
     public String toString() {
         return "OrderDto{" +
-                super.toString()+
                 "orderCount=" + orderCount +
                 ", payType=" + payType +
                 ", payTypeName='" + payTypeName + '\'' +
@@ -194,7 +213,9 @@ public class OrderDto extends Order {
                 ", productInfoDtoList=" + productInfoDtoList +
                 ", orderDelivery=" + orderDelivery +
                 ", accountAmount=" + accountAmount +
-                ". payFlagName="+payFlagName+
-                '}';
+                ", payFlagName='" + payFlagName + '\'' +
+                ", buyer=" + buyer +
+                ", seller=" + seller +
+                "} " + super.toString();
     }
 }

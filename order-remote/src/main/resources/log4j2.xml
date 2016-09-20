@@ -22,14 +22,15 @@
     </appenders>
 
     <loggers>
-        <root level="ERROR">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE" />
         </root>
 
         <logger name="org.springframework" level="INFO"/>
-        <logger name="com.yyw.yhyc.order" level="ERROR"/>
-        <logger name="com.yyw.yhyc.product" level="ERROR"/>
+        <logger name="org.apache.zookeeper" level="INFO"/>
+        <logger name="com.yyw.yhyc.order" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.product" level="DEBUG"/>
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
     </loggers>

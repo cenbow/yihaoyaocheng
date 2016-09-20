@@ -115,9 +115,14 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].periodProduct" value="${shoppingCartDto.periodProduct}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].paymentTerm" value="${shoppingCartDto.paymentTerm}"/>
                                                     <tr>
-                                                        <td class="tl">
+                                                        <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                                             <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
-                                                            <h3><span class="ct-lable">渠道</span>${shoppingCartDto.productName} ${shoppingCartDto.specification}</h3>
+                                                            <h3>
+                                                                <c:if test="${shoppingCartDto.isChannel == 1}">
+                                                                    <span class="ct-lable">渠道</span>
+                                                                </c:if>
+                                                                ${shoppingCartDto.productName} ${shoppingCartDto.specification}
+                                                            </h3>
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
                                                         <td>¥ <fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></td>

@@ -21,16 +21,12 @@ import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
-import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.service.ProductInventoryService;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +34,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,95 +120,16 @@ public class ShoppingCartController extends BaseJsonController {
 		shoppingCartService.update(shoppingCart);
 	}
 
+	/**
+	 * 进货单页面
+	 * @return
+	 * @throws Exception
+     */
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
 	public ModelAndView index() throws Exception {
 		ModelAndView model = new ModelAndView();
 		UserDto userDto = super.getLoginUser();
-
-		/* 获取购物车中的商品信息 */
-		ShoppingCart shoppingCart = new ShoppingCart();
-		shoppingCart.setCustId(userDto.getCustId());
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listAllShoppingCart(shoppingCart);
-
-		if(UtilHelper.isEmpty(allShoppingCart)){
-			model.addObject("allShoppingCart",allShoppingCart);
-			model.setViewName("shoppingCart/index");
-			return model;
-		}
-
-		/* 处理商品信息： */
-		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
-			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) ||
-					UtilHelper.isEmpty(shoppingCartListDto.getSeller())){
-				continue;
-			}
-			BigDecimal productPriceCount = new BigDecimal(0);
-			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
-				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
-
-				productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
-
-				if(UtilHelper.isEmpty(iProductDubboManageService)){
-					logger.error("购物车页面-查询商品信息失败,iProductDubboManageService = " + iProductDubboManageService);
-				}
-
-				/* 最小起批量、最小拆零包装   */
-				Map map = new HashMap();
-				map.put("spu_code", shoppingCartDto.getSpuCode());
-				map.put("seller_code", shoppingCartDto.getSupplyId());
-
-				int minimumPacking = 1;
-				String unit = "";
-				int saleStart = 1;
-				List productList = null;
-				Integer putaway_status = null;
-				try{
-					logger.info("购物车页面-查询商品信息,请求参数:" + map);
-					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
-					logger.info("购物车页面-查询商品信息,响应参数:" + JSONArray.fromObject(productList));
-				}catch (Exception e){
-					logger.error("购物车页面-查询商品信息失败:" + e.getMessage());
-				}
-				if(UtilHelper.isEmpty(productList) || productList.size() != 1){
-					logger.error("购物车页面-查询的商品信息异常" );
-				}else{
-					JSONObject productJson = JSONObject.fromObject(productList.get(0));
-					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
-					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : (int) productJson.get("wholesale_num");
-					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
-					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? null : (int) productJson.get("putaway_status");
-				}
-
-				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
-				shoppingCartDto.setUnit(unit);//最小拆零包装单位
-				shoppingCartDto.setSaleStart(saleStart);//起售量
-				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
-				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
-
-				/* 查询商品库存 */
-				ProductInventory productInventory = new ProductInventory();
-				productInventory.setSupplyId(shoppingCartDto.getSupplyId());
-				productInventory.setSpuCode(shoppingCartDto.getSpuCode());
-				productInventory.setFrontInventory(shoppingCartDto.getProductCount());
-				Map<String, Object> resultMap = productInventoryService.findInventoryNumber(productInventory);
-				String code = resultMap.get("code").toString();
-				if("0".equals(code) || "1".equals(code)){
-					logger.info("购物车页面-检查商品库存:商品(spuCode=" + shoppingCartDto.getSpuCode() + ")库存校验失败!msg=" + resultMap.get("msg").toString());
-					shoppingCartDto.setExistProductInventory(false);
-				}else{
-					shoppingCartDto.setExistProductInventory(true);
-				}
-			}
-
-			/* 计算是否符合订单起售金额 */
-			shoppingCartListDto.setProductPriceCount(productPriceCount);
-			if(productPriceCount.compareTo(shoppingCartListDto.getSeller().getOrderSamount()) > 0){
-				shoppingCartListDto.setNeedPrice(new BigDecimal(0));
-			}else{
-				BigDecimal needPrice = shoppingCartListDto.getSeller().getOrderSamount().subtract(productPriceCount);
-				shoppingCartListDto.setNeedPrice(needPrice);
-			}
-		}
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,iProductDubboManageService);
 		model.addObject("allShoppingCart",allShoppingCart);
 		model.setViewName("shoppingCart/index");
 		return model;
@@ -228,7 +144,7 @@ public class ShoppingCartController extends BaseJsonController {
 	@RequestMapping(value = "/updateNum", method = RequestMethod.POST)
 	public void updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		int resultCount = shoppingCartService.updateNum(shoppingCart,userDto);
+		shoppingCartService.updateNum(shoppingCart,userDto);
 	}
 
 

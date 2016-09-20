@@ -67,7 +67,7 @@
                     <div class="holder-top">
                         <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>" ><span class="inside-icon">全选所有商品</span></div>
                         <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
-                        <a class="lts-shop-icon f12" href="${domainPath}/front-web/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
+                        <a class="lts-shop-icon f12" href="${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
                         <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
                             <input type="hidden" name="orderSamount" supplyId="${shoppingCartListDto.seller.enterpriseId}" supplyName="${shoppingCartListDto.seller.enterpriseName}"
                                    value="${shoppingCartListDto.seller.orderSamount}" buyPrice="${shoppingCartListDto.productPriceCount}" needPrice="${shoppingCartListDto.needPrice}">
@@ -84,15 +84,15 @@
                                 <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory ||  shoppingCartDto.putawayStatus != 1}"> no-stock </c:if> ">
                                     <ul>
                                         <li class="fl td-chk">
-
-                                            <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
-                                                 shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
-                                                <span class="inside-icon" >全选所有商品</span>
-                                            </div>
-
+                                            <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1}">
+                                                <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
+                                                     shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
+                                                    <span class="inside-icon" >全选所有商品</span>
+                                                </div>
+                                            </c:if>
                                         </li>
 
-                                        <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                        <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                             <c:if test="${!shoppingCartDto.existProductInventory}">
                                                 <span class="inside-icon">缺货</span>
                                             </c:if>
@@ -103,7 +103,7 @@
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
-                                            <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${domainPath}/front-web/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                            <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
                                             </p>`
                                             <p>${shoppingCartDto.manufactures}</p>
@@ -119,7 +119,8 @@
                                                             <a href="javascript:;" class="its-btn-reduce">-</a>
                                                             <a href="javascript:;" class="its-btn-add">+</a>
                                                             <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}"
-                                                                   saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}">
+                                                                   saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}"
+                                                                   productInventory="${shoppingCartDto.productInventory}" productPrice="${shoppingCartDto.productPrice}">
                                                         </div>
                                                     </div>
                                                     <%--<div class="pt13 pl20 fl">瓶</div>--%>
@@ -133,11 +134,15 @@
                                                     </div>--%>
                                                     <%--<span class="color-gray9">${shoppingCartDto.upStep}递增</span>--%>
                                                     <span class="color-gray9">最小拆零包装:${shoppingCartDto.upStep}${shoppingCartDto.unit}</span>
+                                                    <br/>
+                                                    <span class="color-gray9"><c:choose><c:when test="${shoppingCartDto.productInventory > 500}">库存 > 500</c:when><c:otherwise>库存 : ${shoppingCartDto.productInventory}</c:otherwise></c:choose></span>
                                                 </c:if>
                                             </div>
                                         </li>
                                         <li class="fl td-sum">
-                                            <input type="hidden" name="productSettlementPrice" value="${shoppingCartDto.productSettlementPrice}">
+
+                                                <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1}">  value="${shoppingCartDto.productSettlementPrice}" </c:if>>
+
                                             ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="2"/></span>
                                         </li>
                                         <li class="fl td-op"><a href="javascript:deleteShoppingCart(${shoppingCartDto.shoppingCartId});" class="btn-delete">删除</a></li>
