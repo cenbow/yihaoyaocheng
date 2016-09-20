@@ -1519,6 +1519,8 @@ public class OrderExceptionService {
 					PayService payService = (PayService)SpringBeanHelper.getBean(systemPayType.getPayCode());
 					payService.handleRefund(userDto,3,orderException.getExceptionOrderId(),"买家补货确认收货");
 				}
+				//补货买家确认收货时候，产生结算信息
+				this.saveOrderSettlement(order);
 			} else {
 				log.info("订单状态不正确:" + orderException.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1636,7 +1638,74 @@ public class OrderExceptionService {
 			orderTrace1.setCreateTime(now);
 			orderTrace1.setCreateUser(userDto.getUserName());
 			orderTraceMapper.save(orderTrace);
+
+            try {//审核不通过直接生成结算信息，通过的结算信息在买家确认收货时产生
+                saveOrderSettlement(order);
+            }catch (Exception e){
+                throw new RuntimeException("补货订单审核结算失败");
+            }
 		}
+	}
+
+	/**
+	 * 卖家收货（账期支付，银联支付）,自动收货，手动收货，生成结算记录
+	 * @param order
+	 * @throws Exception
+	 */
+	public void saveOrderSettlement(Order order) throws Exception{
+		if(UtilHelper.isEmpty(order)){
+			throw new RuntimeException("未找到订单");
+		}
+		//当为账期支付时
+		String now = systemDateMapper.getSystemDate();
+		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
+		OrderSettlement orderSettlement = new OrderSettlement();
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())&&
+				!SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())){
+			//非拒收账期产生结算，拒收账期在审核通过产生
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setOrderId(order.getOrderId());
+			orderSettlement.setFlowId(order.getFlowId());
+			orderSettlement.setCustId(order.getCustId());
+			orderSettlement.setCustName(order.getCustName());
+			orderSettlement.setSupplyId(order.getSupplyId());
+			orderSettlement.setSupplyName(order.getSupplyName());
+			orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
+			orderSettlement.setPayTypeId(order.getPayTypeId());
+			orderSettlement.setSettlementTime(now);
+			orderSettlement.setCreateUser(order.getCustName());
+			orderSettlement.setCreateTime(now);
+			orderSettlement.setOrderTime(order.getCreateTime());
+			orderSettlement.setSettlementMoney(order.getOrgTotal());
+		}else if(SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())){//在线支付
+			if(OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+				//如果是招商支付则加上 买家id 银联支付不加
+				orderSettlement.setCustId(order.getCustId());
+			}
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setOrderId(order.getOrderId());
+			orderSettlement.setFlowId(order.getFlowId());
+			orderSettlement.setCustName(order.getCustName());
+			orderSettlement.setSupplyId(order.getSupplyId());
+			orderSettlement.setSupplyName(order.getSupplyName());
+			orderSettlement.setConfirmSettlement("0");//
+			orderSettlement.setPayTypeId(order.getPayTypeId());
+			orderSettlement.setSettlementTime(now);
+			orderSettlement.setCreateUser(order.getCustName());
+			orderSettlement.setCreateTime(now);
+			orderSettlement.setOrderTime(order.getCreateTime());
+
+			//补货的 结算金额全额
+
+			orderSettlement.setSettlementMoney(order.getOrgTotal());
+		}
+		log.info("BBHH补货:orderId:--------------------------->");
+		log.info("BBHH补货:orderId:"+order.getOrderId());
+		log.info("BBHH补货支付类型systemPayType.getPayTypeId:"+systemPayType.getPayTypeId());
+		log.info("BBHH补货结算moneyTotal:"+order.getOrderTotal());
+		log.info("BBHH补货:order.getOrderStatus:"+order.getOrderStatus());
+		orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
+		orderSettlementMapper.save(orderSettlement);
 	}
 
 	/**
