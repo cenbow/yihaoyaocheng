@@ -11,7 +11,7 @@ import java.util.List;
 public class CartGroupData implements Serializable,Cloneable{
     private long supplyId;
     private String supplyName;
-    private boolean checkGroup;
+    private boolean checkGroup;//是否选中该供应商所有商品
     private BigDecimal productTotalPrice;
     private List<CartProductBean> products;
 
