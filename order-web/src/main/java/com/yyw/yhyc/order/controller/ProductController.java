@@ -50,7 +50,7 @@ public class ProductController extends BaseJsonController {
             if (UtilHelper.isEmpty(filePath))
              return "";
         }catch (Exception e){
-            logger.error("查询图片接口:调用异常," + e.getMessage());
+            logger.error("查询图片接口:调用异常," + e.getMessage(),e);
         }
         return filePath;
     }

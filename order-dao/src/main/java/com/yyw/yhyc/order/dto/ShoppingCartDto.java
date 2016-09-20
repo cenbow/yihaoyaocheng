@@ -36,8 +36,14 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 是否还有商品库存 */
     private boolean existProductInventory;
 
+    /* 商品库存数量 */
+    private Integer productInventory;
+
     /* （客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）*/
     private Integer putawayStatus;
+
+    /*  是否渠道商品(0否，1是),  */
+    private Integer isChannel;
 
     public Integer getSaleStart() {
         return saleStart;
@@ -111,6 +117,22 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.putawayStatus = putawayStatus;
     }
 
+    public Integer getProductInventory() {
+        return productInventory;
+    }
+
+    public void setProductInventory(Integer productInventory) {
+        this.productInventory = productInventory;
+    }
+
+    public Integer getIsChannel() {
+        return isChannel;
+    }
+
+    public void setIsChannel(Integer isChannel) {
+        this.isChannel = isChannel;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -122,7 +144,9 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", saleStart=" + saleStart +
                 ", upStep=" + upStep +
                 ", existProductInventory=" + existProductInventory +
+                ", productInventory=" + productInventory +
                 ", putawayStatus=" + putawayStatus +
-                '}';
+                ", isChannel=" + isChannel +
+                "} " + super.toString();
     }
 }
