@@ -583,7 +583,7 @@ public class OrderService {
 		insertOrderTrace(order);
 
 		/* 删除购物车中相关的商品 */
-//		deleteShoppingCart(orderDto);
+		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
@@ -778,48 +778,32 @@ public class OrderService {
      */
 	public Map<String,Object> validateProducts(UserDto userDto, OrderDto orderDto,
 											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService){
-
 		Map<String,Object> map = new HashMap<String, Object>();
 
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList()) ){
 			log.info("统一校验订单商品接口-currentLoginCustId：" + userDto +",orderDto=" + orderDto);
-			map.put("result", false);
-			map.put("message", "非法参数");
-			map.put("goToShoppingCart", true);
-			return map;
+			return returnFalse("非法参数");
 		}
 
 		UsermanageEnterprise buyer = enterpriseMapper.getByEnterpriseId(orderDto.getCustId() + "");
 		UsermanageEnterprise seller = enterpriseMapper.getByEnterpriseId(orderDto.getSupplyId() + "");
 		if(UtilHelper.isEmpty(buyer) || UtilHelper.isEmpty(seller)){
-			map.put("result", false);
-			map.put("message", "非法参数");
-			map.put("goToShoppingCart", true);
-			return map;
+			return returnFalse("非法参数");
 		}
 
 		/* 校验要采购商与供应商是否相同 */
 		if (orderDto.getSupplyId().equals(userDto.getCustId()) ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
-			map.put("result", false);
-			map.put("message", "不能购买自己的商品");
-			map.put("goToShoppingCart", true);
-			return map;
+			return returnFalse("不能购买自己的商品");
 		}
 
 		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
 			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
-			map.put("result", false);
-			map.put("message", "请稍后再试");
-			map.put("goToShoppingCart", true);
-			return map;
+			return returnFalse("请稍后再试");
 		}
 		if(UtilHelper.isEmpty(productDubboManageService)){
 			log.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
-			map.put("result", false);
-			map.put("message", "请稍后再试");
-			map.put("goToShoppingCart", true);
-			return map;
+			return returnFalse("请稍后再试");
 		}
 
 		CustGroupDubboRet custGroupDubboRet = null;
@@ -828,16 +812,14 @@ public class OrderService {
 			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
 			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
 		}catch (Exception e){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage());
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+			return returnFalse("查询商品价格失败");
 		}
 
 		String [] custGroupCode = null;
 		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage());
-			map.put("result", false);
-			map.put("message", "查询商品价格失败");
-			map.put("goToShoppingCart", true);
-			return map;
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
+			return returnFalse("查询商品价格失败");
 		}else{
 			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
 		}
@@ -851,17 +833,11 @@ public class OrderService {
 		productInventory.setSupplyId(orderDto.getSupplyId());
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
-
-			productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
-
 			/* 检查库存 */
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
 			if(UtilHelper.isEmpty(productInfo )){
 				log.info("统一校验订单商品接口 ：商品(productId=" + productInfoDto.getId() + ")不存在!" );
-				map.put("result", false);
-				map.put("message", "商品不存在");
-				map.put("goToShoppingCart", true);
-				return map;
+				return returnFalse("商品不存在");
 			}
 			productInventory.setSpuCode(productInfo.getSpuCode());
 			productInventory.setFrontInventory(productInfoDto.getProductCount());
@@ -869,10 +845,7 @@ public class OrderService {
 			String code = m.get("code").toString();
 			if("0".equals(code) || "1".equals(code)){
 				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + m );
-				map.put("result", false);
-				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
-				map.put("goToShoppingCart", true);
-				return map;
+				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 			}
 
 			/* 查询商品上下架状态 */
@@ -891,29 +864,22 @@ public class OrderService {
 				//（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
 				putawayStatus = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : Integer.valueOf(productJson.get("putaway_status")+"");
 				isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : Integer.valueOf(productJson.get("is_channel")+"");
-
 			}catch (Exception e){
-				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage());
+				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage(),e);
+				return returnFalse("查询商品状态失败");
 			}
 
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
 				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ",// 0未上架  1上架  2本次下架  3非本次下架");
-				map.put("result", false);
-				map.put("message", "您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
-				map.put("goToShoppingCart", true);
-				return map;
+				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
 			}
 			productInfoDto.setIsChannel(isChannel);
 
-
 			/* 查询价格 */
 			String resultJsonString = "";
-
 			BigDecimal productPrice = null ;
-
 			try{
-				log.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId()
-						+ ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
+				log.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId() + ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
 				resultJsonString = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode(),custGroupCode);
 				log.info("统一校验订单商品接口,查询商品价格，响应参数：" + resultJsonString);
 
@@ -929,48 +895,41 @@ public class OrderService {
 					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("public_price")+"") ? "0" : jsonObject.get("public_price")+"");
 				}else{
 					log.error("统一校验订单商品接口,查询商品价格，发生异常,");
-					map.put("result", false);
-					map.put("message", "查询商品价格失败");
-					map.put("goToShoppingCart", true);
+					return returnFalse("查询商品价格失败");
 				}
 				log.info("统一校验订单商品接口,查询商品价格=" + productPrice + ",页面上显示的商品价格=" + productInfoDto.getProductPrice());
 
 			}catch (Exception e){
 				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
-				map.put("result", false);
-				map.put("message", "查询商品价格失败");
-				map.put("goToShoppingCart", true);
+				return returnFalse("查询商品价格失败");
 			}
 
-			if( UtilHelper.isEmpty(productPrice)){
-				map.put("result", false);
-				map.put("message", "查询商品价格服务异常");
-				map.put("goToShoppingCart", true);
-				return map;
-			}
-
-			/* 价格是否发生变化 */
-			if( productPrice.compareTo(productInfoDto.getProductPrice()) == 0){
-				continue;
-			}else{
-				/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
+			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
+			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
 				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				map.put("result", false);
-				map.put("message", "存在价格变化的商品，请返回进货单重新结算");
-				map.put("goToShoppingCart", true);
-				return map;
+				return returnFalse("存在价格变化的商品，请返回进货单重新结算");
+			}
+
+			/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus ){
+				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 		}
 
 		if(!UtilHelper.isEmpty(seller.getOrderSamount()) && productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
-			map.put("result", false);
-			map.put("message", "你有部分商品金额低于供货商的发货标准，此商品无法结算");
-			map.put("goToShoppingCart", true);
-			return map;
+			return returnFalse("你有部分商品金额低于供货商的发货标准，此商品无法结算");
 		}
 
 		log.info("统一校验订单商品接口 ：校验成功" );
 		map.put("result", true);
+		return map;
+	}
+
+	private Map<String,Object> returnFalse(String message){
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("result", false);
+		map.put("message", message);
+		map.put("goToShoppingCart", true);
 		return map;
 	}
 
@@ -1016,7 +975,6 @@ public class OrderService {
 		String[] strings = new String[list.size()];
 		return list.toArray(strings);
 	}
-
 
 	/**
 	 * 根据订单号查询订单详情

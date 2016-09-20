@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -40,6 +41,9 @@ public class ShoppingCartService {
 
 	private ShoppingCartMapper	shoppingCartMapper;
 	private ProductInventoryManage productInventoryManage;
+	@Autowired
+	private ProductInventoryMapper productInventoryMapper;
+
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
 		this.productInventoryManage = productInventoryManage;
@@ -228,6 +232,15 @@ public class ShoppingCartService {
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		int count = shoppingCartMapper.findByCount(condition);
+		//当加入的数量加上原有的数量大于可见库存 只能买当前最大库存
+		int countByid=0;
+		if(!UtilHelper.isEmpty(shoppingCarts)){
+			countByid=shoppingCarts.get(0).getProductCount();
+		}
+		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
+			shoppingCart.setProductCount(product.getFrontInventory()-countByid);
+		}
 		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
 			throw new Exception("进货单最多只能添加100个品种，请先下单。");
 
@@ -285,7 +298,7 @@ public class ShoppingCartService {
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
-				productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+
 
 				/* 查询商品库存 */
 				ProductInventory productInventory = new ProductInventory();
@@ -319,7 +332,7 @@ public class ShoppingCartService {
 				String unit = "";
 				Integer saleStart = 1;
 				List productList = null;
-				Integer putaway_status = null;
+				Integer putaway_status = 0;
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
 					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
@@ -342,6 +355,11 @@ public class ShoppingCartService {
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
+
+				/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
+				if( "2".equals(code) && 1 == putaway_status ){
+					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+				}
 			}
 
 			/* 计算是否符合订单起售金额 */
