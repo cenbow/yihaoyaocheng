@@ -273,12 +273,14 @@ public class OrderExceptionService {
 		orderSettlement.setOrderTime(order.getCreateTime());
 		orderSettlement.setSettlementMoney(orderException.getOrderMoney());
 		orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
+		log.info("account-yes:systemPayType.getPayType():"+systemPayType.getPayType());
 		if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())){
 			//如银联支付 只有买家看到
 			orderSettlement.setCustId(orderException.getCustId());
 			orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
 		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 			//账期支付
+			log.info("account-yescreate:systemPayType.getPayType():"+systemPayType.getPayType());
 			orderSettlement.setBusinessType(1);
 			orderSettlement.setCustId(orderException.getCustId());
 			orderSettlement.setSupplyId(orderException.getSupplyId());
@@ -644,6 +646,8 @@ public class OrderExceptionService {
 			throw new RuntimeException("原始订单更新失败");
 		}
         //拒收订单卖家审核通过生成结算记录
+		log.info("account:systemPayType.getPayType():"+systemPayType.getPayType());
+		log.info("account:SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()):"+SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()));
 		if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())){
 			this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
 		}else if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
@@ -657,6 +661,7 @@ public class OrderExceptionService {
 			//账期支付
 			OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(6,null,null,userDto.getUserName(),null,order);
 			orderSettlementMapper.save(orderSettlement);
+			log.info("account:create settlement账期审核不通过该生成结算");
 		}
 
 	}
