@@ -291,12 +291,14 @@ public class OrderExceptionService {
 			orderSettlement.setSupplyId(orderException.getSupplyId());
 		}else {
 			//招行支付 等 其他支付
+			log.info("account-yescreate-other:systemPayType.getPayType():"+systemPayType.getPayType());
 			orderSettlement.setBusinessType(1);
 			orderSettlement.setCustId(orderException.getCustId());
 			orderSettlement.setSupplyId(orderException.getSupplyId());
 			orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
 		}
 		//加上省市区
+		log.info("account-yes-create-done:systemPayType.getPayType():"+systemPayType.getPayType());
 		orderSettlementService.parseSettlementProvince(orderSettlement,orderException.getCustId()+"");
 		orderSettlementMapper.save(orderSettlement);
 		//银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
