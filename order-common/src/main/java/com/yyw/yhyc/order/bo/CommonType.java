@@ -26,4 +26,7 @@ public class CommonType {
     /*每次延期的天数*/
     public static final int POSTPONE_TIME = 3 ;
 
+    /*能延期次数*/
+    public static final int CAN_DELAY_TIME = 2;
+
 }

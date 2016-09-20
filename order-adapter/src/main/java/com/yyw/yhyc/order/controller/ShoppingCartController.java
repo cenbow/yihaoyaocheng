@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/order/shoppingCart")
+@RequestMapping(value = "/cart")
 public class ShoppingCartController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
@@ -126,7 +126,7 @@ public class ShoppingCartController extends BaseJsonController {
 	 * 获得进货单品种数量
 	 * @return
      */
-	@RequestMapping(value = "/cartAccount", method = RequestMethod.GET)
+	@RequestMapping(value = "/v{version}/cartAccount", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String,Object> cartAccount(){
 		Integer custId = 6066;
@@ -170,13 +170,13 @@ public class ShoppingCartController extends BaseJsonController {
 	 * 请求数据格式如下：
 
 	 {
-		 "custId": 6066,
-		 "supplyId": "6067",
-		 "spuCode": "010BAA3040006",
-		 "productId": "7",
-		 "productCount": 1,
-		 "productPrice": 12,
-		 "productCodeCompany": "3545451",
+		 "custId": 6066,                //采购商企业编号
+		 "supplyId": "6067",            //供应商企业编号
+		 "spuCode": "010BAA3040006",    // 商品SPU编码
+		 "productId": "7",             //商品id
+		 "productCount": 1,            //商品数量
+		 "productPrice": 12,           //商品单价
+		 "productCodeCompany": "3545451",  //商品的本公司编码
 	 }
 
 	 * @param shoppingCart
@@ -190,17 +190,24 @@ public class ShoppingCartController extends BaseJsonController {
 		if(UtilHelper.isEmpty(shoppingCart)){
 			map.put("statusCode", "-1");
 			map.put("message", "非法参数");
+			map.put("data","");
 			return map;
 		}
+
 		Map<String, Object> result = shoppingCartService.addShoppingCart(shoppingCart);
 		result.put("totalCount",result.get("productCount"));
+		result.put("result","成功");
 		if(!UtilHelper.isEmpty(result) && "S".equals(result.get("state")+"")){
 			map.put("statusCode", "0");
+			map.put("message", "成功");
 			map.put("data",result);
 		}else{
-			map.put("data","");
-			map.put("message", "进货单中没有商品");
+			result.put("totalCount",0);
+			result.put("result","服务器异常");
+			map.put("data",result);
+			map.put("message", "服务器异常");
 			map.put("statusCode", "0");
+
 		}
 		return map;
 	}
