@@ -126,7 +126,7 @@ public class ShoppingCartController extends BaseJsonController {
 	 * 获得进货单品种数量
 	 * @return
      */
-	@RequestMapping(value = "/cartAccount", method = RequestMethod.GET)
+	@RequestMapping(value = "/v{version}/cartAccount", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String,Object> cartAccount(){
 		Integer custId = 6066;
