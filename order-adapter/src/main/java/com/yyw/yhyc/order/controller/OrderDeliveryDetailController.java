@@ -128,7 +128,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"", "/confirmOrderDetail"}, method = RequestMethod.GET)
 	@ResponseBody
-	public Map<String,Object> listPgOrderDeliveryDetail(@PathVariable("orderId") String orderId) throws Exception
+	public Map<String,Object> listPgOrderDeliveryDetail(String orderId) throws Exception
 	{
 		String supplyName="";
 		Map<String,Object> map=new HashMap<String,Object>();
@@ -137,7 +137,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		pagination.setPaginationFlag(false);
 		OrderDeliveryDetailDto orderDeliveryDetailDto=new OrderDeliveryDetailDto();
 		orderDeliveryDetailDto.setFlowId(orderId);
-		orderDeliveryDetailDto.setCustId(123);
+		orderDeliveryDetailDto.setCustId(6066);
 		Pagination<OrderDeliveryDetailDto>  paginationList = orderDeliveryDetailService.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 		if(!UtilHelper.isEmpty(paginationList)&&paginationList.getResultList().size()>0){
 			UsermanageEnterprise usermanageEnterprise = usermanageEnterpriseService.getByEnterpriseId(paginationList.getResultList().get(0).getSupplyId().toString());

@@ -33,10 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -238,9 +235,9 @@ public class OrderController extends BaseJsonController {
 	 * 订单详情
 	 * @return
 	 */
-	@RequestMapping(value = "/orderDetail", method = RequestMethod.GET)
+	@RequestMapping(value = {"", "/getOrderDetail"}, method = RequestMethod.GET)
 	@ResponseBody
-	public OrderBean getBuyOrderDetails(@PathVariable("orderId") String orderId) throws Exception
+	public OrderBean getBuyOrderDetails(@RequestParam("orderId") String orderId) throws Exception
 	{
 
 		OrderBean orderBean=new OrderBean();
@@ -265,7 +262,7 @@ public class OrderController extends BaseJsonController {
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(orderDetailsDto.getFinalPay().toString()));
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay())?"0":orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
 		//地址对象
@@ -290,7 +287,6 @@ public class OrderController extends BaseJsonController {
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
 			ordeProductBean.setFactoryName(orderDetail.getManufactures());
-			ordeProductBean.setFactoryId(orderDetail.getManufacturesId().toString());
 			//批次信息
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
 			orderDeliveryDetail.setFlowId(orderId);
@@ -306,7 +302,9 @@ public class OrderController extends BaseJsonController {
 				batchList.add(batchBean);
 			}
 			ordeProductBean.setBatchList(batchList);
+			productList.add(ordeProductBean);
 		}
+		orderBean.setProductList(productList);
 		return orderBean;
 	}
 

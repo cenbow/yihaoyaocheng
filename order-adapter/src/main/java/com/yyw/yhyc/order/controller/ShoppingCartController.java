@@ -16,7 +16,6 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -33,7 +32,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/cart")
-public class ShoppingCartController extends BaseJsonController {
+public class ShoppingCartController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
 	@Autowired
@@ -133,34 +132,19 @@ public class ShoppingCartController extends BaseJsonController {
 		Map<String,Object> result = new HashMap<>();
 
 		if(UtilHelper.isEmpty(custId)) {
-			result.put("statusCode", -1);
-			result.put("message", "参数custId不能为空！");
-			result.put("data", null);
-
-			return result;
+			return error(STATUS_CODE_REQUEST_PARAM_ERROR,"参数custId不能为空！");
 		}
 
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
 		try {
 			int count = shoppingCartService.findByCount(shoppingCart);
-
-			result.put("statusCode", 0);
-			result.put("message", "成功");
-
-			Map<String, Integer> data = new HashMap<>();
+			Map<String, Object> data = new HashMap<>();
 			data.put("count", count);
-			result.put("data", data);
-
-			return result;
+			return ok(data);
 		}catch (Exception e){
 			logger.error(e.getMessage(), e);
-
-			result.put("statusCode", -3);
-			result.put("message", e.getMessage());
-			result.put("data", null);
-
-			return result;
+			return error(STATUS_CODE_SYSTEM_EXCEPTION,e.getMessage());
 		}
 	}
 
@@ -188,28 +172,26 @@ public class ShoppingCartController extends BaseJsonController {
 	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		if(UtilHelper.isEmpty(shoppingCart)){
-			map.put("statusCode", "-1");
-			map.put("message", "非法参数");
-			map.put("data","");
-			return map;
+			return error(STATUS_CODE_REQUEST_PARAM_ERROR,"非法参数");
+		}
+		Map<String, Object> result = null;
+		try{
+			result = shoppingCartService.addShoppingCart(shoppingCart);
+			result.put("totalCount",result.get("productCount"));
+			result.put("result","成功");
+		}catch (Exception e){
+			logger.error(e.getMessage(),e);
+			return  error(STATUS_CODE_SYSTEM_EXCEPTION,e.getMessage());
 		}
 
-		Map<String, Object> result = shoppingCartService.addShoppingCart(shoppingCart);
-		result.put("totalCount",result.get("productCount"));
-		result.put("result","成功");
 		if(!UtilHelper.isEmpty(result) && "S".equals(result.get("state")+"")){
-			map.put("statusCode", "0");
-			map.put("message", "成功");
-			map.put("data",result);
+			return ok(result);
 		}else{
+			result = new HashMap<>();
 			result.put("totalCount",0);
-			result.put("result","服务器异常");
-			map.put("data",result);
-			map.put("message", "服务器异常");
-			map.put("statusCode", "0");
-
+			result.put("result","添加商品到进货单失败");
+			return returnResult(STATUS_CODE_REQUEST_SUCCESS,"成功",result);
 		}
-		return map;
 	}
 
 	/**
@@ -220,7 +202,8 @@ public class ShoppingCartController extends BaseJsonController {
 	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> getShopCartList() throws Exception {
-		UserDto userDto = getLoginUser();
+		UserDto userDto = new UserDto();
+		userDto.setCustId(6066);
 		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
 	}
 

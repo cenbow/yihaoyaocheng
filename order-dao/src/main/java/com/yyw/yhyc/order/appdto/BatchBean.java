@@ -1,9 +1,11 @@
 package com.yyw.yhyc.order.appdto;
 
+import java.io.Serializable;
+
 /**
  * Created by huhaibing on 2016/9/8.
  */
-public class BatchBean {
+public class BatchBean implements Serializable {
 
     private String productId;           //商品ID
     private String batchId;             //批次号Id
