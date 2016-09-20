@@ -58,4 +58,6 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public void updateOrderPayStatusByPk(Map<String,Object> orders);
 
 	public List<Order> listCancelOrderForNoPay();
+
+	public List<OrderDto> listPaginationBuyerOrderForApp(Pagination<OrderDto> pagination, OrderDto orderDto);
 }

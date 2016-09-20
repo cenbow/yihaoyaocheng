@@ -2480,4 +2480,128 @@ public class OrderService {
 	}
 
 
+
+
+	/**
+	 * 	APP个人中心 查看待付款、待发货、待收货、拒收/补货 订单数量
+	 * @return
+     */
+	public Map<String,Integer> listBuyerOrderStatusCount(Integer custId){
+		if(UtilHelper.isEmpty(custId))
+			throw  new RuntimeException("用户id不能为空");
+		Map<String,Integer> statusMap = new HashMap<String,Integer>();
+		int unPayNumber = 0;   //待付款
+		int deliverNumber = 0; //待发货
+		int reciveNumber = 0;  //待收货
+		int unRejRep = 0;      //拒收/补货
+		OrderDto orderDto = new OrderDto();
+		orderDto.setCustId(custId);
+		List<OrderDto> orderCountList = orderMapper.findOrderStatusCount(orderDto);
+		if(!UtilHelper.isEmpty(orderCountList)){
+			BuyerOrderStatusEnum buyerorderstatusenum;
+			//统计订单状态
+			for(OrderDto od : orderCountList){
+				//获取买家视角订单状态
+				buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
+				if(UtilHelper.isEmpty(buyerorderstatusenum))
+					continue;
+				//待付款
+				if(BuyerOrderStatusEnum.PendingPayment.equals(buyerorderstatusenum))
+					unPayNumber ++;
+				//待发货
+				if(BuyerOrderStatusEnum.BackOrder.equals(buyerorderstatusenum))
+					deliverNumber ++;
+				//待收货
+				if(BuyerOrderStatusEnum.ReceiptOfGoods.equals(buyerorderstatusenum))
+					reciveNumber ++;
+				//拒收+补货
+				if(BuyerOrderStatusEnum.Rejecting.equals(buyerorderstatusenum) || BuyerOrderStatusEnum.Replenishing.equals(buyerorderstatusenum))
+					unRejRep ++;
+			}
+		}
+		statusMap.put("unPayNumber",unPayNumber);
+		statusMap.put("deliverNumber",deliverNumber);
+		statusMap.put("reciveNumber",reciveNumber);
+		statusMap.put("unRejRep",unRejRep);
+		return statusMap;
+	}
+
+	/**
+	 *  APP获取取消订单原因
+	 * @return
+     */
+	public Map<String,String> findOrderCancelInfo(String flowId,UserDto userDto){
+		Map<String,String> resultMap = new HashMap<String,String>();
+		if(UtilHelper.isEmpty(flowId))
+			throw  new RuntimeException("订单编号不能为空");
+		Order order = orderMapper.getOrderbyFlowId(flowId);
+		if(UtilHelper.isEmpty(order))
+			throw  new RuntimeException("未找到订单信息");
+		resultMap.put("cancelTime",order.getCancelTime());
+		resultMap.put("cancelResult",order.getCancelResult());
+		return resultMap;
+	}
+
+	/**
+	 * APP获取订单列表
+	 * @param pagination
+	 * @param orderStatus
+     * @return
+     */
+	public Map<String,Object> listBuyerOderForApp(Pagination<OrderDto> pagination,String orderStatus,int custId){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		OrderDto orderDto = new OrderDto();
+		orderDto.setCustId(custId);
+		orderDto.setOrderStatus(orderStatus);
+		//获取订单列表
+		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
+		pagination.setResultList(buyerOrderList);
+		List<Map<String,Object>> orderList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> temp = null;
+		if(!UtilHelper.isEmpty(buyerOrderList)){
+			BuyerOrderStatusEnum buyerorderstatusenum;
+			long time = 0l;
+			for(OrderDto od : buyerOrderList){
+				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
+					//获取买家视角订单状态
+					buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
+					if(!UtilHelper.isEmpty(buyerorderstatusenum))
+						od.setOrderStatusName(buyerorderstatusenum.getValue());
+					else
+						od.setOrderStatusName("未知类型");
+				}
+				//获取支付剩余时间
+				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && SystemPayTypeEnum.PayOnline.getPayType() == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
+					try {
+						time = DateUtils.getSeconds(od.getCreateTime(),od.getNowTime());
+						//计算当前时间和支付剩余24小时的剩余秒数
+						time = time > 0 ? CommonType.PAY_TIME*60*60-time : time;
+						time = time < 0 ? 0l : time;
+						od.setResidualTime(time);
+					} catch (ParseException e) {
+						e.printStackTrace();
+						throw new RuntimeException("日期转换错误");
+					}
+				}
+				temp = new HashMap<String,Object>();
+				temp.put("orderId",od.getFlowId());
+				temp.put("orderStatus",od.getOrderStatus());
+				temp.put("createTime",od.getCreateTime());
+				temp.put("supplyName",od.getSupplyName());
+				temp.put("orderTotal",od.getOrgTotal());
+				temp.put("finalPay",od.getOrgTotal());
+				temp.put("varietyNumber",null);//品种
+				temp.put("productNumber",od.getTotalCount());//商品数量
+				temp.put("residualTime",time);//⽀付剩余时间 秒
+				temp.put("qq",null);
+				temp.put("productList",od.getOrderDetailList());
+				orderList.add(temp);
+			}
+		}
+		resultMap.put("totalCount",pagination.getTotal());
+		resultMap.put("pageCount",pagination.getTotalPage());
+		resultMap.put("orderList",orderList);
+		return null;
+	}
+
 }
