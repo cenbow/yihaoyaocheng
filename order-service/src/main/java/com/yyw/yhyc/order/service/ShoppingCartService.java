@@ -485,6 +485,7 @@ public class ShoppingCartService {
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		resultMap.put("statusCode", "0");
 		resultMap.put("data",cartData);
+		resultMap.put("message", "成功");
 		return resultMap;
 	}
 }
