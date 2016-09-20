@@ -11,31 +11,36 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/order/shoppingCart")
+@RequestMapping(value = "/cart")
 public class ShoppingCartController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
 	@Autowired
 	private ShoppingCartService shoppingCartService;
+
+	@Reference
+	private IProductDubboManageService iProductDubboManageService;
 
 	/**
 	* 通过主键查询实体对象
@@ -116,4 +121,107 @@ public class ShoppingCartController extends BaseJsonController {
 		Integer custId = 6066;
 		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity);
 	}
+
+	/**
+	 * 获得进货单品种数量
+	 * @return
+     */
+	@RequestMapping(value = "/v{version}/cartAccount", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> cartAccount(){
+		Integer custId = 6066;
+		Map<String,Object> result = new HashMap<>();
+
+		if(UtilHelper.isEmpty(custId)) {
+			result.put("statusCode", -1);
+			result.put("message", "参数custId不能为空！");
+			result.put("data", null);
+
+			return result;
+		}
+
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+		try {
+			int count = shoppingCartService.findByCount(shoppingCart);
+
+			result.put("statusCode", 0);
+			result.put("message", "成功");
+
+			Map<String, Integer> data = new HashMap<>();
+			data.put("count", count);
+			result.put("data", data);
+
+			return result;
+		}catch (Exception e){
+			logger.error(e.getMessage(), e);
+
+			result.put("statusCode", -3);
+			result.put("message", e.getMessage());
+			result.put("data", null);
+
+			return result;
+		}
+	}
+
+
+	/**
+	 * 添加商品到进货单
+	 * 请求数据格式如下：
+
+	 {
+		 "custId": 6066,                //采购商企业编号
+		 "supplyId": "6067",            //供应商企业编号
+		 "spuCode": "010BAA3040006",    // 商品SPU编码
+		 "productId": "7",             //商品id
+		 "productCount": 1,            //商品数量
+		 "productPrice": 12,           //商品单价
+		 "productCodeCompany": "3545451",  //商品的本公司编码
+	 }
+
+	 * @param shoppingCart
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/addShopCart", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		if(UtilHelper.isEmpty(shoppingCart)){
+			map.put("statusCode", "-1");
+			map.put("message", "非法参数");
+			map.put("data","");
+			return map;
+		}
+
+		Map<String, Object> result = shoppingCartService.addShoppingCart(shoppingCart);
+		result.put("totalCount",result.get("productCount"));
+		result.put("result","成功");
+		if(!UtilHelper.isEmpty(result) && "S".equals(result.get("state")+"")){
+			map.put("statusCode", "0");
+			map.put("message", "成功");
+			map.put("data",result);
+		}else{
+			result.put("totalCount",0);
+			result.put("result","服务器异常");
+			map.put("data",result);
+			map.put("message", "服务器异常");
+			map.put("statusCode", "0");
+
+		}
+		return map;
+	}
+
+	/**
+	 * 进货单列表
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> getShopCartList() throws Exception {
+		UserDto userDto = getLoginUser();
+		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
+	}
+
 }
