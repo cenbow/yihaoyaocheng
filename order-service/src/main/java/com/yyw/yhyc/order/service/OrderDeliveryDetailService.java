@@ -252,12 +252,12 @@ public class OrderDeliveryDetailService {
 
 		//统计退款总金额
 		BigDecimal moneyTotal=new BigDecimal(0);
-		//根据类型生产异常订单号
-		if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
-			if (returnType.equals("4"))//拒收
-				exceptionOrderId="JS"+flowId;
-			else if (returnType.equals("3"))//补货
-				exceptionOrderId="BH"+flowId;
+
+
+		if (UtilHelper.isEmpty(flowId)){
+			returnMap.put("code","0");
+			returnMap.put("msg","订单编号不能为空");
+			return returnMap;
 		}
 
 		//如果收货异常根据异常类型更新订单状态
@@ -272,6 +272,14 @@ public class OrderDeliveryDetailService {
 			returnMap.put("code","0");
 			returnMap.put("msg","当前状态不可收货");
 			return returnMap;
+		}
+
+		//根据类型生产异常订单号
+		if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
+			if (returnType.equals("4"))//拒收
+				exceptionOrderId="JS"+flowId;
+			else if (returnType.equals("3"))//补货
+				exceptionOrderId="BH"+flowId;
 		}
 
 		//更新批次收货数量
@@ -295,20 +303,12 @@ public class OrderDeliveryDetailService {
 				return returnMap;
 			}
 
-			if (UtilHelper.isEmpty(dto.getFlowId())){
-				returnMap.put("code","0");
-				returnMap.put("msg","订单编号不能为空");
-				return returnMap;
-			}
-
-			if (dto.getRecieveCount().intValue()>dto.getProductCount().intValue()){
-				returnMap.put("code","0");
-				returnMap.put("msg","收货数量不能大于采购数量");
-				return returnMap;
-			}
-
-
 			OrderDeliveryDetail orderDeliveryDetail = orderDeliveryDetailMapper.getByPK(dto.getOrderDeliveryDetailId());
+			if (UtilHelper.isEmpty(orderDeliveryDetail)){
+				returnMap.put("code","0");
+				returnMap.put("msg","发货信息不存在");
+				return returnMap;
+			}
 			orderDeliveryDetail.setRecieveCount(dto.getRecieveCount());
 			orderDeliveryDetailMapper.update(orderDeliveryDetail);
 			if(!UtilHelper.isEmpty(returnType)&&!returnType.equals("")){
