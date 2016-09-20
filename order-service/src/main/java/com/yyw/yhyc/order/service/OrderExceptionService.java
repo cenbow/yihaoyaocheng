@@ -277,9 +277,22 @@ public class OrderExceptionService {
 			//如银联支付 只有买家看到
 			orderSettlement.setCustId(orderException.getCustId());
 			orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
-		}else {
+		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			//账期支付
+			orderSettlement.setBusinessType(1);
 			orderSettlement.setCustId(orderException.getCustId());
 			orderSettlement.setSupplyId(orderException.getSupplyId());
+			orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
+		}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
+			//线下支付
+			orderSettlement.setCustId(orderException.getCustId());
+			orderSettlement.setSupplyId(orderException.getSupplyId());
+		}else {
+			//招行支付 等 其他支付
+			orderSettlement.setBusinessType(1);
+			orderSettlement.setCustId(orderException.getCustId());
+			orderSettlement.setSupplyId(orderException.getSupplyId());
+			orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
 		}
 		//加上省市区
 		orderSettlementService.parseSettlementProvince(orderSettlement,orderException.getCustId()+"");
@@ -639,6 +652,10 @@ public class OrderExceptionService {
 			OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2,null,null,userDto.getUserName(),null,order);
 			//默认 为已结算
 			orderSettlement.setConfirmSettlement("1");
+			orderSettlementMapper.save(orderSettlement);
+		}else if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			//账期支付
+			OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(6,null,null,userDto.getUserName(),null,order);
 			orderSettlementMapper.save(orderSettlement);
 		}
 
@@ -1660,8 +1677,7 @@ public class OrderExceptionService {
 		String now = systemDateMapper.getSystemDate();
 		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		OrderSettlement orderSettlement = new OrderSettlement();
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())&&
-				!SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus())){
+		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 			//非拒收账期产生结算，拒收账期在审核通过产生
 			orderSettlement.setBusinessType(1);
 			orderSettlement.setOrderId(order.getOrderId());
