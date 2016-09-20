@@ -244,11 +244,13 @@ public class ShoppingCartService {
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
 		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
 			shoppingCart.setProductCount(product.getFrontInventory()-countByid);
+		}else{
+			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
 		}
 		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
 			throw new Exception("进货单最多只能添加100个品种，请先下单。");
 
-		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice());
+		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
 			if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
 				shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
@@ -472,6 +474,15 @@ public class ShoppingCartService {
 			return resultMap;
 		}
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
+		resultMap.put("statusCode", "0");
+		resultMap.put("data",cartData);
+		return resultMap;
+	}
+
+	public Map<String,Object> getShopCartList(UserDto userDto, IProductDubboManageService iProductDubboManageService) {
+		List<ShoppingCartListDto> allShoppingCart = this.index(userDto,iProductDubboManageService);
+		CartData cartData = changeShopCartDtosToApp(allShoppingCart);
+		Map<String,Object> resultMap = new HashMap<String,Object>();
 		resultMap.put("statusCode", "0");
 		resultMap.put("data",cartData);
 		return resultMap;
