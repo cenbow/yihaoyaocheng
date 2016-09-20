@@ -244,7 +244,7 @@ public class OrderExceptionService {
 		String now = systemDateMapper.getSystemDate();
 		SystemPayType systemPayType= systemPayTypeService.getByPK(order.getPayTypeId());
 		//当为账期支付时
-		if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+		/*if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 			//结算订单金额=原始订单金额-拒收订单金额
 			OrderSettlement byFlowid=new OrderSettlement();
 			byFlowid.setFlowId(order.getFlowId());
@@ -256,7 +256,7 @@ public class OrderExceptionService {
 				orderSettlementMapper.update(settlement);
 			}
 			return;
-		}
+		}*/
 
 		OrderSettlement orderSettlement = new OrderSettlement();
 		orderSettlement.setBusinessType(3);
