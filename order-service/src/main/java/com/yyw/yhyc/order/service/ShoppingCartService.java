@@ -243,7 +243,7 @@ public class ShoppingCartService {
 		}
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
 		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
-			shoppingCart.setProductCount(product.getFrontInventory()-countByid);
+			shoppingCart.setProductCount(product.getFrontInventory());
 		}else{
 			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
 		}
