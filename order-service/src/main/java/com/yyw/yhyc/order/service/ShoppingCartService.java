@@ -10,6 +10,7 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,11 +18,15 @@ import java.util.Map;
 
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.CartData;
+import com.yyw.yhyc.order.appdto.CartGroupData;
+import com.yyw.yhyc.order.appdto.CartProductBean;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -40,6 +45,9 @@ public class ShoppingCartService {
 
 	private ShoppingCartMapper	shoppingCartMapper;
 	private ProductInventoryManage productInventoryManage;
+	@Autowired
+	private ProductInventoryMapper productInventoryMapper;
+
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
 		this.productInventoryManage = productInventoryManage;
@@ -228,6 +236,15 @@ public class ShoppingCartService {
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		int count = shoppingCartMapper.findByCount(condition);
+		//当加入的数量加上原有的数量大于可见库存 只能买当前最大库存
+		int countByid=0;
+		if(!UtilHelper.isEmpty(shoppingCarts)){
+			countByid=shoppingCarts.get(0).getProductCount();
+		}
+		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
+			shoppingCart.setProductCount(product.getFrontInventory()-countByid);
+		}
 		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
 			throw new Exception("进货单最多只能添加100个品种，请先下单。");
 
@@ -285,7 +302,7 @@ public class ShoppingCartService {
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
-				productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+
 
 				/* 查询商品库存 */
 				ProductInventory productInventory = new ProductInventory();
@@ -319,7 +336,7 @@ public class ShoppingCartService {
 				String unit = "";
 				Integer saleStart = 1;
 				List productList = null;
-				Integer putaway_status = null;
+				Integer putaway_status = 0;
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
 					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
@@ -342,6 +359,11 @@ public class ShoppingCartService {
 				shoppingCartDto.setSaleStart(saleStart);//起售量
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
+
+				/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
+				if( "2".equals(code) && 1 == putaway_status ){
+					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
+				}
 			}
 
 			/* 计算是否符合订单起售金额 */
@@ -354,5 +376,106 @@ public class ShoppingCartService {
 			}
 		}
 		return allShoppingCart;
+	}
+
+	/**
+	 * 将进货单DTO转换成APP对应实体
+	 * @param shoppingCartListDtos
+	 * @return
+	 */
+	private CartData changeShopCartDtosToApp(List<ShoppingCartListDto> shoppingCartListDtos){
+		CartData cartData = new CartData();
+		int totalCount = 0;
+		List<CartGroupData> shopCartList = new ArrayList<CartGroupData>();
+		for(ShoppingCartListDto scds : shoppingCartListDtos){
+			totalCount+=scds.getShoppingCartDtoList().size();
+			CartGroupData cartGroupData = new CartGroupData();
+			List<CartProductBean> products = new ArrayList<CartProductBean>();
+			cartGroupData.setSupplyId(Long.parseLong(scds.getSeller().getEnterpriseId()));
+			cartGroupData.setSupplyName(scds.getSeller().getEnterpriseName());
+			cartGroupData.setProductTotalPrice(scds.getProductPriceCount());
+			for (ShoppingCartDto scd : scds.getShoppingCartDtoList()){
+				CartProductBean cartProductBean = new CartProductBean();
+				cartProductBean.setShoppingCartId(scd.getShoppingCartId());
+				cartProductBean.setQuantity(scd.getProductCount());
+				cartProductBean.setProductId(scd.getProductId());
+				cartProductBean.setProductPicUrl(scd.getProductImageUrl());
+				cartProductBean.setProductName(scd.getProductName());
+				cartProductBean.setSpec(scd.getSpecification());
+				cartProductBean.setUnit(scd.getUnit());
+				cartProductBean.setProductPrice(scd.getProductPrice());
+				cartProductBean.setStockCount(scd.getProductInventory());
+				cartProductBean.setBaseCount(scd.getSaleStart());
+				cartProductBean.setStatusDesc(scd.getPutawayStatus());
+				cartProductBean.setFactoryName(scd.getManufactures());
+				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
+				products.add(cartProductBean);
+			}
+			cartGroupData.setProducts(products);
+			shopCartList.add(cartGroupData);
+		}
+		cartData.setShopCartList(shopCartList);
+		cartData.setTotalCount(totalCount);
+		return cartData;
+	}
+	/**
+	 * 删除进货单商品For App
+	 * @param custId
+	 * @param shoppingCartIds
+	 * @return
+	 */
+	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		try{
+			this.deleteByPKeys(shoppingCartIds);
+		}catch (Exception e){
+			resultMap.put("statusCode","-3");
+			resultMap.put("message","删除进货单失败!");
+			return resultMap;
+		}
+
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(shoppingCart);
+		if(UtilHelper.isEmpty(shoppingCartListDtos)){
+			resultMap.put("statusCode","0");
+			return resultMap;
+		}
+		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
+		resultMap.put("statusCode", "0");
+		resultMap.put("data",cartData);
+		return resultMap;
+	}
+	/**
+	 * 更新进货单商品For App
+	 * @param custId
+	 * @param
+	 * @return
+	 */
+	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity){
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setShoppingCartId(shoppingCartId);
+		shoppingCart.setProductCount(quantity);
+		UserDto userDto = new UserDto();
+		userDto.setCustId(custId);
+		try {
+			this.updateNum(shoppingCart,userDto);
+		}catch (Exception e){
+			resultMap.put("statusCode","-3");
+			resultMap.put("message","更新进货单失败!");
+			return resultMap;
+		}
+		ShoppingCart sc = new ShoppingCart();
+		sc.setCustId(custId);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(sc);
+		if(UtilHelper.isEmpty(shoppingCartListDtos)){
+			resultMap.put("statusCode","0");
+			return resultMap;
+		}
+		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
+		resultMap.put("statusCode", "0");
+		resultMap.put("data",cartData);
+		return resultMap;
 	}
 }

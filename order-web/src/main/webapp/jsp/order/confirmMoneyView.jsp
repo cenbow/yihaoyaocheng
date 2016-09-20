@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -172,9 +172,11 @@
                                     <tr>
                                         <td>
                                             <div class="clearfix">
-                                                <div class="fl"><img src="images/img_03.jpg"/></div>
+                                                <div class="fl">
+                                                    <img alt="${details.shortName}" class="productImageUrl" spuCode="${details.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${details.productName}</p>
+                                                    <p class="title">${details.shortName}</p>
 
                                                     <p class="text">${details.manufactures}</p>
 
@@ -182,9 +184,9 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>￥ ${details.productPrice}</td>
+                                        <td>￥ <fmt:formatNumber value="${details.productPrice}" minFractionDigits="2"/></td>
                                         <td>x${details.productCount}</td>
-                                        <td>￥ ${details.productPrice * details.productCount}</td>
+                                        <td>￥  <fmt:formatNumber value="${details.productPrice * details.productCount}" minFractionDigits="2"/> </td>
                                     </tr>
                                 </c:forEach>
                             </c:when>
@@ -193,25 +195,19 @@
                         </tbody>
                     </table>
                     <div class="text-right">
-                        <p>商品金额：${orderDetailsDto.orderTotal}元
+                        <p>商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.productTotal}" minFractionDigits="2"/>元
 
                         <p>
 
-                        <p>确认收货商品金额：${orderDetailsDto.receiveTotal}元
+
+                        <p>优惠券：- 0.00元
 
                         <p>
 
-                        <p>优惠券：- 00.00元
+                        <p class="red">订单金额：￥<fmt:formatNumber value="${orderDetailsDto.orgTotal}" minFractionDigits="2"/>元
 
                         <p>
 
-                        <p class="red">订单金额：${orderDetailsDto.orgTotal}元
-
-                        <p>
-
-                        <p class="red">结算订单金额：${orderDetailsDto.receiveTotal}元
-
-                        <p>
                     </div>
                 </div>
             </div>
@@ -257,9 +253,10 @@
     </div>
 </div>
 </body>
+</html>
 <script type="text/javascript" src="${STATIC_URL}/static/js/jquery-1.12.1.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/b_common.js"></script>
-</html>
+<script type="text/javascript" src="${STATIC_URL}/static/js/common.js"></script>
 <script type="text/javascript" src="http://yhycstatic.yaoex.com/jsp/common/footer.js"></script>
 <script type="text/javascript" src="http://yhycstatic.yaoex.com/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="${STATIC_URL}/static/js/My97DatePicker/WdatePicker.js"></script>
