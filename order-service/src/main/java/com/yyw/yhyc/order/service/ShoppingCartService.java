@@ -424,8 +424,10 @@ public class ShoppingCartService {
 	 * @param shoppingCartIds
 	 * @return
 	 */
-	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds){
+	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds, IProductDubboManageService iProductDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
+		UserDto userDto = new UserDto();
+		userDto.setCustId(custId);
 		try{
 			this.deleteByPKeys(shoppingCartIds);
 		}catch (Exception e){
@@ -436,14 +438,14 @@ public class ShoppingCartService {
 
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(shoppingCart);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
 		if(UtilHelper.isEmpty(shoppingCartListDtos)){
 			resultMap.put("statusCode","0");
 			return resultMap;
 		}
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
 		resultMap.put("statusCode", "0");
-		resultMap.put("data",cartData);
+		resultMap.put("data", cartData);
 		return resultMap;
 	}
 	/**
@@ -452,7 +454,7 @@ public class ShoppingCartService {
 	 * @param
 	 * @return
 	 */
-	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity){
+	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity, IProductDubboManageService iProductDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setShoppingCartId(shoppingCartId);
@@ -460,7 +462,7 @@ public class ShoppingCartService {
 		UserDto userDto = new UserDto();
 		userDto.setCustId(custId);
 		try {
-			this.updateNum(shoppingCart,userDto);
+			this.updateNum(shoppingCart, userDto);
 		}catch (Exception e){
 			resultMap.put("statusCode","-3");
 			resultMap.put("message","更新进货单失败!");
@@ -468,7 +470,7 @@ public class ShoppingCartService {
 		}
 		ShoppingCart sc = new ShoppingCart();
 		sc.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(sc);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
 		if(UtilHelper.isEmpty(shoppingCartListDtos)){
 			resultMap.put("statusCode","0");
 			return resultMap;
