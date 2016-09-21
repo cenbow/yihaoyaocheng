@@ -1788,8 +1788,7 @@ public class OrderService {
 		if(UtilHelper.isEmpty(creditDubboService)){
 			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+orderException.toString());
 		}
-		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())
-				&& SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(orderException.getOrderStatus())) {
+		if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
 			CreditParams creditParams = new CreditParams();
 			creditParams.setSourceFlowId(orderException.getFlowId());//退货时，退货单对应的源订单单号
 			creditParams.setBuyerCode(orderException.getCustId() + "");
@@ -1801,7 +1800,6 @@ public class OrderService {
 			creditParams.setStatus("6");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
-				// TODO: 2016/8/25 暂时注释 不抛出异常
 				log.error("creditDubboResult error:" + (creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！"));
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}

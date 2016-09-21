@@ -734,13 +734,13 @@ public class OrderExceptionController extends BaseJsonController{
 							CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 							if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
 								logger.error("接口调用失败！");
-//								throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");   TODO: 2016/8/25 暂时注释 不抛出异常
+								throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
 							}
 						}
 					}
 				}catch (Exception e){
 					logger.error("接口调用失败！");
-//					throw new RuntimeException("未找到订单");    TODO: 2016/8/25 暂时注释 不抛出异常
+					throw new RuntimeException("接口调用失败！"+orderException.toString());
 				}
 			}
 	}
