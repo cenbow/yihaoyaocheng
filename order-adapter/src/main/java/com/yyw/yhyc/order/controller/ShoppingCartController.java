@@ -216,4 +216,17 @@ public class ShoppingCartController extends BaseController {
 		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
 	}
 
+	/**
+	 * 获取收获的采购商的地址列表
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/getDeliveryAddress", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> getDeliveryAddress() throws Exception {
+		UserDto userDto = new UserDto();
+		userDto.setCustId(6066);
+		Object data = shoppingCartService.getDeliveryAddress(userDto);
+		return ok(data);
+	}
 }
