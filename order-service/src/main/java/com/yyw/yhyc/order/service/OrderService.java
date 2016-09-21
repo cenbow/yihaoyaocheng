@@ -2679,7 +2679,7 @@ public class OrderService {
 				map.put("productName",od.getProductName());
 				map.put("spec",od.getSpecification());
 				map.put("unit","");
-				map.put("productPrice","");
+				map.put("productPrice","0");
 				map.put("factoryName","");
 				map.put("quantity",od.getProductCount());
 				resultList.add(map);
