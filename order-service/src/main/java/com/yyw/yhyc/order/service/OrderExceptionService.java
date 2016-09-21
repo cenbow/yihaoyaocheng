@@ -15,6 +15,8 @@ import java.util.*;
 
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yyw.yhyc.helper.SpringBeanHelper;
+import com.yyw.yhyc.order.appdto.OrderBean;
+import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
@@ -2127,7 +2129,7 @@ public class OrderExceptionService {
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
                 temp.put("qq", "7777777");// TODO: 2016/9/20 待查询
-                temp.put("productList", od.getOrderReturnList());
+                temp.put("productList", getProductList(od.getOrderReturnList()));
                 orderList.add(temp);
             }
         }
@@ -2137,6 +2139,11 @@ public class OrderExceptionService {
         return resultMap;
     }
 
+    /**
+     * 计算商品总数量
+     * @param orderReturnDtoList
+     * @return
+     */
     int sumProductNumber(List<OrderReturnDto> orderReturnDtoList){
         int sum = 0;
         if(!UtilHelper.isEmpty(orderReturnDtoList)){
@@ -2144,6 +2151,104 @@ public class OrderExceptionService {
                 sum +=  oed.getReturnCount();
         }
         return sum;
+    }
+
+    /**
+     * 转换商品列表详情
+     * @param orderReturnDtoList
+     * @return
+     */
+    List<Map<String,Object>> getProductList(List<OrderReturnDto> orderReturnDtoList){
+        List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+        Map<String,Object> map = null;
+        if(!UtilHelper.isEmpty(orderReturnDtoList)){
+            for(OrderReturnDto od : orderReturnDtoList){
+                map = new HashMap<String,Object>();
+                map.put("productId",od.getProductId());
+                map.put("productPicUrl","http://p4.maiyaole.com/img/50018/50018517/120_120.jpg?a=491206437");// TODO: 2016/9/21  需调用图片接口
+                map.put("productName",od.getProductName());
+                map.put("spec",od.getSpecification());
+                map.put("unit","");
+                map.put("productPrice",od.getProductPrice());
+                map.put("factoryName","");
+                map.put("quantity",od.getReturnCount());
+                resultList.add(map);
+            }
+        }
+
+        return resultList;
+    }
+
+    /**
+     * app异常订单详情
+     *
+     * @param orderExceptionDto
+     * @param orderStatus
+     * @return
+     * @throws Exception
+     */
+    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus) throws Exception {
+        if (orderStatus == 800) {  //拒收订单详情
+            orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+            if (UtilHelper.isEmpty(orderExceptionDto)) {
+                return null;
+            }
+        } else if (orderStatus == 900) {  //补货订单详情
+            orderExceptionDto = orderExceptionMapper.getReplenishmentDetails(orderExceptionDto);
+            if (UtilHelper.isEmpty(orderExceptionDto)) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+        OrderBean orderBean = new OrderBean();
+        if (orderStatus == 800) {
+            BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType());
+            orderBean.setOrderStatus(buyerOrderExceptionStatusEnum.getValue());
+        }
+        if (orderStatus == 900) {
+            BuyerReplenishmentOrderStatusEnum buyerReplenishmentOrderStatusEnum;
+            buyerReplenishmentOrderStatusEnum = getBuyerReplenishmentOrderStatus(orderExceptionDto.getOrderStatus());
+            if (!UtilHelper.isEmpty(buyerReplenishmentOrderStatusEnum))
+                orderExceptionDto.setOrderStatusName(buyerReplenishmentOrderStatusEnum.getValue());
+            else
+                orderExceptionDto.setOrderStatusName("未知状态");
+        }
+        orderBean.setOrderId(orderExceptionDto.getFlowId());
+        orderBean.setCreateTime(orderExceptionDto.getCreateTime());
+        orderBean.setApplyTime(orderExceptionDto.getCreateTime());
+        orderBean.setSupplyName(orderExceptionDto.getSupplyName());
+        orderBean.setLeaveMsg("");
+        orderBean.setQq("");
+        orderBean.setReturnDesc(orderExceptionDto.getReturnDesc());
+        orderBean.setMerchantDesc(orderExceptionDto.getRemark());
+        orderBean.setExceptionOrderId(orderExceptionDto.getExceptionOrderId());
+        orderBean.setOrderTotal(Double.parseDouble(orderExceptionDto.getOrderMoney().toString()));
+        orderBean.setFinalPay(Double.parseDouble(orderExceptionDto.getOrderMoney().toString()));
+
+		 /* 商品信息 */
+        if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
+            List<OrderProductBean> productList = new ArrayList<OrderProductBean>();
+            Integer productNumber = 0; //商品数量
+            for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
+                if (UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
+                OrderProductBean orderProductBean = new OrderProductBean();
+                orderProductBean.setProductId(orderReturnDto.getSpuCode());
+                orderProductBean.setProductPicUrl("");
+                orderProductBean.setProductName(orderReturnDto.getShortName());
+                orderProductBean.setSpec(orderReturnDto.getSpecification());
+                orderProductBean.setUnit("");
+                orderProductBean.setProductPrice(Double.parseDouble(orderReturnDto.getProductPrice().toString()));
+                orderProductBean.setFactoryName(orderReturnDto.getManufactures());
+                orderProductBean.setQuantity(orderReturnDto.getReturnCount());
+                orderProductBean.setBatchNumber(orderReturnDto.getBatchNumber());
+                productNumber += orderReturnDto.getReturnCount();
+                productList.add(orderProductBean);
+            }
+            orderBean.setVarietyNumber(orderExceptionDto.getOrderReturnList().size());
+            orderBean.setProductNumber(productNumber);
+        }
+        return orderBean;
     }
 
 }

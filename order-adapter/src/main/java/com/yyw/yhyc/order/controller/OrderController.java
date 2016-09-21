@@ -11,11 +11,10 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
-import com.yyw.yhyc.order.appdto.OrdeProductBean;
+import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.bo.Pagination;
@@ -34,13 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -172,7 +168,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
 	}
 
 	/**
@@ -189,7 +185,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
 	}
 
 
@@ -199,22 +195,27 @@ public class OrderController extends BaseController {
 	 */
 	@RequestMapping(value = {"", "/getOrderDetail"}, method = RequestMethod.GET)
 	@ResponseBody
-	public OrderBean getBuyOrderDetails(@RequestParam("orderId") String orderId) throws Exception
+	public Map<String,Object> getBuyOrderDetails(@RequestParam("orderId") String orderId,@RequestParam("orderStatus") String orderStatus) throws Exception
 	{
-
-		OrderBean orderBean=new OrderBean();
-
 		// 登录买家的id
 		UserDto user = super.getLoginUser();
+       if(!UtilHelper.isEmpty(orderStatus)){
+		   OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		   orderExceptionDto.setFlowId(orderId);
+		   orderExceptionDto.setCustId(user.getCustId());
+		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus)));
+	   }
+		OrderBean orderBean=new OrderBean();
+
 		Order order=new Order();
-		order.setCustId(user.getCustId());
+		order.setCustId(6066);
 		order.setFlowId(orderId);
 		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
 		if(UtilHelper.isEmpty(orderDetailsDto)){
 			return null;
 		}
 		//详情对象
-		orderBean.setOrderStatus(orderDetailsDto.getOrderStatus());
+		orderBean.setOrderStatus(orderService.convertAppOrderStatus(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
 		orderBean.setOrderId(orderDetailsDto.getFlowId());
 		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
 		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
@@ -224,9 +225,10 @@ public class OrderController extends BaseController {
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay())?"0":orderDetailsDto.getFinalPay().toString()));
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
+		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
 		//地址对象
 		AddressBean address=new AddressBean();
 		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());
@@ -238,14 +240,15 @@ public class OrderController extends BaseController {
 		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
 		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
 		orderBean.setAddress(address);
+		orderBean.setOrderStatusName(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getValue());
 		//商品列表
-		List<OrdeProductBean> productList=new ArrayList<OrdeProductBean>();
+		List<OrderProductBean> productList=new ArrayList<OrderProductBean>();
 		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
-			OrdeProductBean ordeProductBean=new OrdeProductBean();
+			OrderProductBean ordeProductBean=new OrderProductBean();
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
 			ordeProductBean.setProductId(orderDetail.getProductCode());
 			ordeProductBean.setProductPicUrl("");
-			ordeProductBean.setProductName(orderDetail.getProductName());
+			ordeProductBean.setProductName(orderDetail.getShortName());
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
 			ordeProductBean.setFactoryName(orderDetail.getManufactures());
@@ -267,7 +270,7 @@ public class OrderController extends BaseController {
 			productList.add(ordeProductBean);
 		}
 		orderBean.setProductList(productList);
-		return orderBean;
+		return ok(orderBean);
 	}
 
 	/**

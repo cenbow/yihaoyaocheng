@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Controller
@@ -134,7 +136,44 @@ public class OrderPayController extends BaseJsonController {
 		return modelAndView;
 	}
 
+	/**
+	 * 从创建订单页跳转后，组装好数据后，表单提交数据到(已选的)银行
+	 * @param flowIds 订单编号集合
+	 * @param payTypeId 支付方式id
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/accountPay", method = RequestMethod.GET)
+	public ModelAndView RepaymentOfAccountPay(@RequestParam("listStr") String listStr,@RequestParam("payTypeId") int payTypeId,@RequestParam("supplyId") String supplyId) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		if(userDto == null ){
+			throw new Exception("登陆超时");
+		}
+		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
+		if(UtilHelper.isEmpty(systemPayType)){
+			throw new Exception("登陆超时");
+		}
 
+		ModelAndView modelAndView = new ModelAndView();
+		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId() == payTypeId){
+			modelAndView.setViewName("orderPay/cmb_pay");
+		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId){
+			modelAndView.setViewName("orderPay/china_pay");
+		}else{
+			throw new Exception("非法参数");
+		}
+
+		/* 在线支付订单前，预处理订单数据 */
+		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
+		OrderPay orderPay = orderPayService.repaymentOfAccount(userDto, listStr, payTypeId, payFlowId, supplyId);
+		if(UtilHelper.isEmpty(orderPay)) throw new Exception("非法参数");
+
+		/* 在线支付订单前，组装订单数据 */
+		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType);
+		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
+		return modelAndView;
+	}
 
 
 	/**
