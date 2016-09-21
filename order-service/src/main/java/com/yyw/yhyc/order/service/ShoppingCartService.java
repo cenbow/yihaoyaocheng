@@ -192,6 +192,15 @@ public class ShoppingCartService {
 		return shoppingCartMapper.listDistinctCustIdAndSupplyId(shoppingCart);
 	}
 
+	public List<ShoppingCart>  listDistinctCustIdAndSupplyId(Integer custId){
+		if(UtilHelper.isEmpty(custId) || custId <= 0){
+			return null;
+		}
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+		return listDistinctCustIdAndSupplyId(shoppingCart);
+	}
+
 
 	/**
 	 *

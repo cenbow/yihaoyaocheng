@@ -6,14 +6,15 @@ import java.util.List;
 /**
  * Created by huhaibing on 2016/9/8.
  */
-public class OrdeProductBean extends Product implements Serializable {
+public class OrderProductBean extends Product implements Serializable {
 
-    public OrdeProductBean() {
+    public OrderProductBean() {
     }
     private Integer quantity;	//	购买数量
     private List<BatchBean> batchList;		//批次号列表
+    private String batchNumber; //发货批次
 
-    public OrdeProductBean(Integer quantity, List<BatchBean> batchList) {
+    public OrderProductBean(Integer quantity, List<BatchBean> batchList) {
         this.quantity = quantity;
         this.batchList = batchList;
     }
@@ -32,5 +33,13 @@ public class OrdeProductBean extends Product implements Serializable {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public String getBatchNumber() {
+        return batchNumber;
+    }
+
+    public void setBatchNumber(String batchNumber) {
+        this.batchNumber = batchNumber;
     }
 }

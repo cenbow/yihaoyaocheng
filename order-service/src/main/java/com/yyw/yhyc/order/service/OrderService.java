@@ -24,6 +24,10 @@ import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
+import com.yyw.yhyc.order.appdto.AddressBean;
+import com.yyw.yhyc.order.appdto.BatchBean;
+import com.yyw.yhyc.order.appdto.OrderBean;
+import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
@@ -530,13 +534,12 @@ public class OrderService {
 
 
 	private OrderDelivery handlerOrderDelivery(UsermanageEnterprise enterprise, OrderCreateDto orderCreateDto) throws Exception {
-		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())
-				|| !(orderCreateDto.getCustId() + "").equals(enterprise.getEnterpriseId()) ) {
+		if ( UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())) {
 			throw  new Exception("非法参数");
 		}
 		UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderCreateDto.getReceiveAddressId());
 		if(UtilHelper.isEmpty(receiverAddress) || UtilHelper.isEmpty(receiverAddress.getEnterpriseId()) || !receiverAddress.getEnterpriseId().equals(enterprise.getEnterpriseId())){
-			throw new Exception("非法参数");
+			throw new Exception("非法收货地址");
 		}
 		OrderDelivery  orderDelivery = new OrderDelivery();
 		orderDelivery.setReceivePerson(receiverAddress.getReceiverName());
@@ -1164,7 +1167,7 @@ public class OrderService {
      * @param payType
      * @return
      */
-    BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
+    public BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return BuyerOrderStatusEnum.BackOrder;//待发货
@@ -2653,7 +2656,7 @@ public class OrderService {
 				temp.put("delayTimes", UtilHelper.isEmpty(od.getDelayTimes()) ? 0 : od.getDelayTimes());
 				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
 				temp.put("qq","7777777");// TODO: 2016/9/20 待查询
-				temp.put("productList",od.getOrderDetailList());
+				temp.put("productList",getProductList(od.getOrderDetailList()));
 				orderList.add(temp);
 			}
 		}
@@ -2664,12 +2667,38 @@ public class OrderService {
 	}
 
 	/**
+	 * 转换商品列表详情
+	 * @param orderDetailList
+	 * @return
+     */
+	List<Map<String,Object>> getProductList(List<OrderDetail> orderDetailList){
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> map = null;
+		if(!UtilHelper.isEmpty(orderDetailList)){
+			for(OrderDetail od : orderDetailList){
+				map = new HashMap<String,Object>();
+				map.put("productId",od.getProductId());
+				map.put("productPicUrl","http://p4.maiyaole.com/img/50018/50018517/120_120.jpg?a=491206437");// TODO: 2016/9/21  需调用图片接口
+				map.put("productName",od.getProductName());
+				map.put("spec",od.getSpecification());
+				map.put("unit","");
+				map.put("productPrice","0");
+				map.put("factoryName","");
+				map.put("quantity",od.getProductCount());
+				resultList.add(map);
+			}
+		}
+
+		return resultList;
+	}
+
+	/**z`
 	 * APP订单状态和系统订单状态互换
 	 * @param orderStatus
 	 * @param type
      * @return
      */
-	private String  convertAppOrderStatus(String orderStatus,int type){
+	public String  convertAppOrderStatus(String orderStatus,int type){
 		String status = null;
 		if(type == 1){//APP => this
 			//全部订单 0 待付款 1 待发货2 待收货3 已完成7
@@ -2758,6 +2787,7 @@ public class OrderService {
 			try {
 				orderMapper.update(order);
 				resutlMap.put("statusCode", 0);
+				resutlMap.put("message","成功");
 			}catch (Exception e){
 				resutlMap.put("statusCode",-3);
 				resutlMap.put("message","延迟收货异常,请您稍后再试");
@@ -2767,5 +2797,73 @@ public class OrderService {
 			resutlMap.put("message","您好！距离确认收货截止日期前3天内才可以延期!");
 		}
 		return  resutlMap;
+	}
+
+	public OrderBean getOrderDetailResponseInfo(String orderId,Integer custId) throws Exception{
+		OrderBean orderBean=new OrderBean();
+		Order order=new Order();
+		order.setCustId(custId);
+		order.setFlowId(orderId);
+		OrderDetailsDto orderDetailsDto=this.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
+		//详情对象
+		orderBean.setOrderStatus(this.convertAppOrderStatus(this.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
+		orderBean.setOrderId(orderDetailsDto.getFlowId());
+		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
+		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
+		orderBean.setLeaveMsg(orderDetailsDto.getLeaveMessage());
+		orderBean.setQq("");
+		orderBean.setPayType(orderDetailsDto.getPayType());
+		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
+		orderBean.setBillType(orderDetailsDto.getBillType());
+		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
+		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
+		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
+		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
+		//地址对象
+		AddressBean address=new AddressBean();
+		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());
+		address.setDeliveryName(orderDetailsDto.getOrderDelivery().getReceivePerson());
+		address.setAddressType(0);
+		address.setAddressProvince(orderDetailsDto.getOrderDelivery().getReceiveProvince());
+		address.setAddressCity(orderDetailsDto.getOrderDelivery().getReceiveCity());
+		address.setAddressCounty(orderDetailsDto.getOrderDelivery().getReceiveRegion());
+		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
+		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
+		orderBean.setAddress(address);
+		orderBean.setOrderStatusName(this.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getValue());
+		//商品列表
+		List<OrderProductBean> productList=new ArrayList<OrderProductBean>();
+		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
+			OrderProductBean ordeProductBean=new OrderProductBean();
+			ordeProductBean.setQuantity(orderDetail.getProductCount());
+			ordeProductBean.setProductId(orderDetail.getProductCode());
+			ordeProductBean.setProductPicUrl("");
+			ordeProductBean.setProductName(orderDetail.getShortName());
+			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
+			ordeProductBean.setSpec(orderDetail.getSpecification());
+			ordeProductBean.setFactoryName(orderDetail.getManufactures());
+			//批次信息
+			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
+			orderDeliveryDetail.setFlowId(orderId);
+			orderDeliveryDetail.setOrderDetailId(orderDetail.getOrderDetailId());
+			orderDeliveryDetail.setDeliveryStatus(1);
+			List<OrderDeliveryDetail> deliveryList = orderDeliveryDetailService.listByProperty(orderDeliveryDetail);
+			List<BatchBean> batchList=new ArrayList<BatchBean>();
+			for (OrderDeliveryDetail detail : deliveryList){
+				BatchBean batchBean=new BatchBean();
+				batchBean.setBatchId(detail.getBatchNumber());
+				batchBean.setBuyNumber(detail.getDeliveryProductCount());
+				batchBean.setProductId(orderDetail.getProductCode());
+				batchList.add(batchBean);
+			}
+			ordeProductBean.setBatchList(batchList);
+			productList.add(ordeProductBean);
+		}
+		orderBean.setProductList(productList);
+		return orderBean;
 	}
 }
