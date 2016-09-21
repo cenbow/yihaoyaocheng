@@ -25,7 +25,7 @@
 
 <div class="wapper header">
     <h1 class="common-icon">
-        <a href="#">1号药城 — 方便.快捷.第一</a>
+        <a href="${mallDomain}">1号药城 — 方便.快捷.第一</a>
     </h1>
     <div class="stepflex">
         <dl class="done">
