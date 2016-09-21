@@ -353,6 +353,6 @@
 	</select>
 	
 	<select id="queryShoppingCartStatistics" parameterType="java.lang.Integer" resultType="java.util.HashMap">
-		SELECT SUM(1) productCount, SUM(product_count * product_settlement_price) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
+		SELECT SUM(1) productCount, SUM(product_settlement_price) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
 	</select>
 </mapper>

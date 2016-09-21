@@ -30,7 +30,7 @@
                     </c:choose>
                 </li>
                 <li><a href="${ctx}/order/buyerOrderManage">我的订单</a></li>
-                <li><a href=http://usermanage.yaoex.com/enterpriseInfo/enterpriseDoor">我的1号药城</a></li>
+                <li><a href="http://usermanage.yaoex.com/enterpriseInfo/enterpriseDoor">我的1号药城</a></li>
                 <li><a href="#">帮助</a></li>
                 <li class="last-li">
                     <i class="common-icon top-phone"></i>
