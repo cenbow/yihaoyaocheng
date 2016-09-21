@@ -24,6 +24,10 @@ import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
+import com.yyw.yhyc.order.appdto.AddressBean;
+import com.yyw.yhyc.order.appdto.BatchBean;
+import com.yyw.yhyc.order.appdto.OrderBean;
+import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
@@ -2793,5 +2797,73 @@ public class OrderService {
 			resutlMap.put("message","您好！距离确认收货截止日期前3天内才可以延期!");
 		}
 		return  resutlMap;
+	}
+
+	public OrderBean getOrderDetailResponseInfo(String orderId,Integer custId) throws Exception{
+		OrderBean orderBean=new OrderBean();
+		Order order=new Order();
+		order.setCustId(custId);
+		order.setFlowId(orderId);
+		OrderDetailsDto orderDetailsDto=this.getOrderDetails(order);
+		if(UtilHelper.isEmpty(orderDetailsDto)){
+			return null;
+		}
+		//详情对象
+		orderBean.setOrderStatus(this.convertAppOrderStatus(this.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
+		orderBean.setOrderId(orderDetailsDto.getFlowId());
+		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
+		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
+		orderBean.setLeaveMsg(orderDetailsDto.getLeaveMessage());
+		orderBean.setQq("");
+		orderBean.setPayType(orderDetailsDto.getPayType());
+		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
+		orderBean.setBillType(orderDetailsDto.getBillType());
+		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
+		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
+		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
+		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
+		//地址对象
+		AddressBean address=new AddressBean();
+		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());
+		address.setDeliveryName(orderDetailsDto.getOrderDelivery().getReceivePerson());
+		address.setAddressType(0);
+		address.setAddressProvince(orderDetailsDto.getOrderDelivery().getReceiveProvince());
+		address.setAddressCity(orderDetailsDto.getOrderDelivery().getReceiveCity());
+		address.setAddressCounty(orderDetailsDto.getOrderDelivery().getReceiveRegion());
+		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
+		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
+		orderBean.setAddress(address);
+		orderBean.setOrderStatusName(this.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getValue());
+		//商品列表
+		List<OrderProductBean> productList=new ArrayList<OrderProductBean>();
+		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
+			OrderProductBean ordeProductBean=new OrderProductBean();
+			ordeProductBean.setQuantity(orderDetail.getProductCount());
+			ordeProductBean.setProductId(orderDetail.getProductCode());
+			ordeProductBean.setProductPicUrl("");
+			ordeProductBean.setProductName(orderDetail.getShortName());
+			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
+			ordeProductBean.setSpec(orderDetail.getSpecification());
+			ordeProductBean.setFactoryName(orderDetail.getManufactures());
+			//批次信息
+			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
+			orderDeliveryDetail.setFlowId(orderId);
+			orderDeliveryDetail.setOrderDetailId(orderDetail.getOrderDetailId());
+			orderDeliveryDetail.setDeliveryStatus(1);
+			List<OrderDeliveryDetail> deliveryList = orderDeliveryDetailService.listByProperty(orderDeliveryDetail);
+			List<BatchBean> batchList=new ArrayList<BatchBean>();
+			for (OrderDeliveryDetail detail : deliveryList){
+				BatchBean batchBean=new BatchBean();
+				batchBean.setBatchId(detail.getBatchNumber());
+				batchBean.setBuyNumber(detail.getDeliveryProductCount());
+				batchBean.setProductId(orderDetail.getProductCode());
+				batchList.add(batchBean);
+			}
+			ordeProductBean.setBatchList(batchList);
+			productList.add(ordeProductBean);
+		}
+		orderBean.setProductList(productList);
+		return orderBean;
 	}
 }

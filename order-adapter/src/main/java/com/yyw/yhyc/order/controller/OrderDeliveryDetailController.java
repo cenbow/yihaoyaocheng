@@ -47,7 +47,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
-public class OrderDeliveryDetailController extends BaseJsonController {
+public class OrderDeliveryDetailController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryDetailController.class);
 
 	@Autowired
@@ -162,7 +162,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		map.put("supplyName",supplyName);
 		map.put("qq","");
 		map.put("productList",productList);
-		return map;
+		return ok(map);
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/refusedReplenishOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public void confirmReceipt(@RequestBody String listStr) throws Exception
+	public Map<String,Object> confirmReceipt(@RequestBody String listStr) throws Exception
 	{
 		String flowId="";
 		String returnType="";
@@ -217,7 +217,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 		if(map.get("code").equals("0")){
-			throw new RuntimeException(map.get("msg"));
+
 		}
 		//当没有异常流程订单结束的时候调用账期结算接口
 		if(null==returnType||"".equals(returnType)){
@@ -249,5 +249,6 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 				e.printStackTrace();
 			}
 		}
+		return ok(map);
 	}
 }
