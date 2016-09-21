@@ -582,7 +582,7 @@ public class OrderService {
 		insertOrderTrace(order);
 
 		/* 删除购物车中相关的商品 */
-//		deleteShoppingCart(orderDto);
+		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
