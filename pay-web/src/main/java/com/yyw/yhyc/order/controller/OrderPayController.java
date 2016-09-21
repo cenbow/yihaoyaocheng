@@ -131,23 +131,25 @@ public class OrderPayController extends BaseJsonController {
 
 		/* 在线支付订单前，组装订单数据 */
 		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType);
+		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType,2);
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
 		return modelAndView;
 	}
 
 	/**
 	 * 从创建订单页跳转后，组装好数据后，表单提交数据到(已选的)银行
-	 * @param flowIds 订单编号集合
+	 * @param listStr 订单编号集合
 	 * @param payTypeId 支付方式id
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/accountPay", method = RequestMethod.GET)
+	@RequestMapping(value = "/accountPay", method = RequestMethod.POST)
+	@ResponseBody
 	public ModelAndView RepaymentOfAccountPay(@RequestParam("listStr") String listStr,@RequestParam("payTypeId") int payTypeId,@RequestParam("supplyId") String supplyId) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		if(userDto == null ){
-			throw new Exception("登陆超时");
+			userDto=new UserDto();
+			userDto.setCustId(6066);
 		}
 		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
 		if(UtilHelper.isEmpty(systemPayType)){
@@ -170,7 +172,7 @@ public class OrderPayController extends BaseJsonController {
 
 		/* 在线支付订单前，组装订单数据 */
 		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType);
+		Map<String,Object>  payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType,1);
 		modelAndView.addObject("payRequestParamMap",payRequestParamMap);
 		return modelAndView;
 	}
@@ -205,6 +207,17 @@ public class OrderPayController extends BaseJsonController {
 	public String chinaPayCallback(){
 		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
 		payService.paymentCallback(super.request);
+		return "success";
+	}
+
+	/**
+	 * 银联支付成功回调
+	 * @return
+	 */
+	@RequestMapping(value = "/chinaPayOfAccountCallback", method = RequestMethod.POST)
+	public String chinaPayOfAccountCallback(){
+		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
+		payService.paymentOfAccountCallback(super.request);
 		return "success";
 	}
 

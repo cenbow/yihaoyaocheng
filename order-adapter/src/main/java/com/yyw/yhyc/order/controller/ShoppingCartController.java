@@ -255,7 +255,7 @@ public class ShoppingCartController extends BaseController {
 	 * 提交订单接口
 	   请求参数的数据格式如下：
 	 {
-		 "addressId": 12,
+		 "addressId": 1,
 		 "payType": 1,
 		 "billType": 1,
 		 "orderList": [
@@ -327,14 +327,16 @@ public class ShoppingCartController extends BaseController {
 		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
-		List<String> resultData = new ArrayList<>();
+		List<String> flowIdList = new ArrayList<>();
 		if(!UtilHelper.isEmpty(orderList)){
 			for(Order order : orderList){
 				if(UtilHelper.isEmpty(order)) continue;
-				resultData.add(order.getFlowId());
+				flowIdList.add(order.getFlowId());
 			}
 		}
-		return ok(resultData);
+		Map dataMap = new HashMap();
+		dataMap.put("orderIdList",flowIdList);
+		return ok(dataMap);
 	}
 
 	/**
@@ -357,7 +359,7 @@ public class ShoppingCartController extends BaseController {
 		if(orderCreateBean.getPayType() != 1){
 			throw new Exception("非法支付类型");
 		}
-		if(orderCreateBean.getBillType() != 1 || orderCreateBean.getBillType() != 2 ){
+		if(orderCreateBean.getBillType() != 1 && orderCreateBean.getBillType() != 2 ){
 			throw new Exception("非法发票类型");
 		}
 		if(UtilHelper.isEmpty(orderCreateBean.getOrderList())){
@@ -403,7 +405,7 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setCustId(userDto.getCustId());
 			orderDto.setSupplyId(orderBean.getSupplyId());
 			orderDto.setBillType(orderBean.getBillType());
-			orderDto.setPayType(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()); //App端是用的银联无卡支付方式
+			orderDto.setPayTypeId(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()); //App端是用的银联无卡支付方式
 			orderDto.setLeaveMessage(orderBean.getLeaveMsg());
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 			orderDtoList.add(orderDto);

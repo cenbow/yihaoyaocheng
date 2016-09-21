@@ -350,6 +350,8 @@ public class OrderPayService {
 		for(OrderAccount orderAccount : list){
 			if(UtilHelper.isEmpty(orderAccount)) continue;
 			order = orderMapper.getOrderbyFlowId(orderAccount.getFlowId().trim());
+			if(UtilHelper.isEmpty(order)) continue;
+			if(!order.getSupplyId().equals(supplyId)) continue;
 			BigDecimal money=new BigDecimal(Integer.parseInt(orderAccount.getMoney()));
 			OrderException orderException=new OrderException();
 			orderException.setFlowId(order.getFlowId());
@@ -360,13 +362,13 @@ public class OrderPayService {
 					throw new Exception("订单"+orderAccount.getFlowId()+"的金额不正确。");
 				}
 			}else{
-
+				if(money.compareTo(order.getOrderTotal())!=0){
+					throw new Exception("订单"+orderAccount.getFlowId()+"的金额不正确。");
+				}
 			}
-
-			if(UtilHelper.isEmpty(order)) continue;
-			orderTotal = orderTotal.add(order.getOrderTotal());
+			orderTotal = orderTotal.add(money);
 			freightTotal = freightTotal.add(order.getFreight());
-			needToPayTotal = needToPayTotal.add(order.getOrgTotal());
+			needToPayTotal = needToPayTotal.add(money);
 			orderCount++;
 			orderIdList.add(order.getOrderId());
 		}
@@ -380,11 +382,12 @@ public class OrderPayService {
 		orderCombined.setCustName(userDto.getCustName());
 		orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
 		orderCombined.setCopeTotal(orderTotal);       //应付总额
-		orderCombined.setPocketTotal(orderTotal); //实际支付总额
+		orderCombined.setPocketTotal(needToPayTotal); //实际支付总额
 		orderCombined.setFreightPrice(freightTotal);  //运费
 		orderCombined.setPayFlowId(payFlowId);        //支付流水号
 		orderCombined.setCreateUser(userDto.getUserName());
 		orderCombined.setCreateTime(systemDateMapper.getSystemDate());
+		orderCombined.setRemark("账期在线还款");
 		orderCombinedMapper.save(orderCombined);
 		log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
 
@@ -396,7 +399,6 @@ public class OrderPayService {
 			if(orderId <= 0) continue;
 			order = new Order();
 			order.setOrderId(orderId);
-			order.setPayTypeId(payTypeId);
 			order.setPayTime(systemDateMapper.getSystemDate());
 			order.setOrderCombinedId(orderCombined.getOrderCombinedId());
 			orderMapper.update(order);
