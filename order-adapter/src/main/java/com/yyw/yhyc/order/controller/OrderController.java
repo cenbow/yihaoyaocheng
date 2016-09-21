@@ -28,6 +28,7 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,9 @@ public class OrderController extends BaseController {
 
 	@Autowired
 	private OrderDeliveryDetailService orderDeliveryDetailService;
+
+	@Autowired
+	private OrderDeliveryService orderDeliveryService;
 
 	/**
 	* 通过主键查询实体对象
@@ -262,6 +266,27 @@ public class OrderController extends BaseController {
 		}
 		orderBean.setProductList(productList);
 		return orderBean;
+	}
+
+	/**
+	 * 订单延迟收货
+	 * @return
+	 */
+	@RequestMapping(value = "/delayDelivery", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> delayDelivery(@RequestParam("orderId") String orderId) throws Exception
+	{
+		return orderService.updateOrderDelayTimes(orderId);
+	}
+
+	/**
+	 * 订单物流信息
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> deliveryInfo(@RequestParam("orderId") String orderId) throws Exception{
+		return  orderDeliveryService.getOrderDeliveryByFlowId(orderId);
 	}
 
 }
