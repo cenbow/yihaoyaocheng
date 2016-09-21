@@ -2127,7 +2127,7 @@ public class OrderExceptionService {
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
                 temp.put("qq", "7777777");// TODO: 2016/9/20 待查询
-                temp.put("productList", od.getOrderReturnList());
+                temp.put("productList", getProductList(od.getOrderReturnList()));
                 orderList.add(temp);
             }
         }
@@ -2137,6 +2137,11 @@ public class OrderExceptionService {
         return resultMap;
     }
 
+    /**
+     * 计算商品总数量
+     * @param orderReturnDtoList
+     * @return
+     */
     int sumProductNumber(List<OrderReturnDto> orderReturnDtoList){
         int sum = 0;
         if(!UtilHelper.isEmpty(orderReturnDtoList)){
@@ -2144,6 +2149,32 @@ public class OrderExceptionService {
                 sum +=  oed.getReturnCount();
         }
         return sum;
+    }
+
+    /**
+     * 转换商品列表详情
+     * @param orderReturnDtoList
+     * @return
+     */
+    List<Map<String,Object>> getProductList(List<OrderReturnDto> orderReturnDtoList){
+        List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+        Map<String,Object> map = null;
+        if(!UtilHelper.isEmpty(orderReturnDtoList)){
+            for(OrderReturnDto od : orderReturnDtoList){
+                map = new HashMap<String,Object>();
+                map.put("productId",od.getProductId());
+                map.put("productPicUrl","http://p4.maiyaole.com/img/50018/50018517/120_120.jpg?a=491206437");// TODO: 2016/9/21  需调用图片接口
+                map.put("productName",od.getProductName());
+                map.put("spec",od.getSpecification());
+                map.put("unit","");
+                map.put("productPrice",od.getProductPrice());
+                map.put("factoryName","");
+                map.put("quantity",od.getReturnCount());
+                resultList.add(map);
+            }
+        }
+
+        return resultList;
     }
 
 }
