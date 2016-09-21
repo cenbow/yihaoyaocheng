@@ -217,7 +217,7 @@ public class OrderDeliveryDetailController extends BaseController {
 		UserDto user = super.getLoginUser();
 		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 		if(map.get("code").equals("0")){
-
+			return error(map.get("msg"));
 		}
 		//当没有异常流程订单结束的时候调用账期结算接口
 		if(null==returnType||"".equals(returnType)){
@@ -249,6 +249,6 @@ public class OrderDeliveryDetailController extends BaseController {
 				e.printStackTrace();
 			}
 		}
-		return ok(map);
+		return ok(flowId);
 	}
 }
