@@ -11,11 +11,10 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
-import com.yyw.yhyc.order.appdto.OrdeProductBean;
+import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.bo.Pagination;
@@ -34,13 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -199,13 +195,18 @@ public class OrderController extends BaseController {
 	 */
 	@RequestMapping(value = {"", "/getOrderDetail"}, method = RequestMethod.GET)
 	@ResponseBody
-	public Map<String,Object> getBuyOrderDetails(@RequestParam("orderId") String orderId) throws Exception
+	public Map<String,Object> getBuyOrderDetails(@RequestParam("orderId") String orderId,@RequestParam("orderStatus") String orderStatus) throws Exception
 	{
-
-		OrderBean orderBean=new OrderBean();
-
 		// 登录买家的id
 		UserDto user = super.getLoginUser();
+       if(!UtilHelper.isEmpty(orderStatus)){
+		   OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		   orderExceptionDto.setFlowId(orderId);
+		   orderExceptionDto.setCustId(user.getCustId());
+		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus)));
+	   }
+		OrderBean orderBean=new OrderBean();
+
 		Order order=new Order();
 		order.setCustId(6066);
 		order.setFlowId(orderId);
@@ -239,11 +240,11 @@ public class OrderController extends BaseController {
 		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
 		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
 		orderBean.setAddress(address);
-		orderBean.setOrderStatusName(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getValue());
+		orderBean.setOrderStatusName(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getValue());
 		//商品列表
-		List<OrdeProductBean> productList=new ArrayList<OrdeProductBean>();
+		List<OrderProductBean> productList=new ArrayList<OrderProductBean>();
 		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
-			OrdeProductBean ordeProductBean=new OrdeProductBean();
+			OrderProductBean ordeProductBean=new OrderProductBean();
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
 			ordeProductBean.setProductId(orderDetail.getProductCode());
 			ordeProductBean.setProductPicUrl("");

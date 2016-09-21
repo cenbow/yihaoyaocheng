@@ -14,7 +14,7 @@ public class OrderBean implements Serializable{
     private AddressBean address;                //地址对象
     private String supplyName;                  //供应商名称
     private String leaveMsg;                    //备注信息
-    private List<OrdeProductBean> productList;  //商品列表
+    private List<OrderProductBean> productList;  //商品列表
     private String qq;                          //联系方式
     private Integer payType;                    //支付方式
     private Integer deliveryMethod;             //配送方式(1是自有物流 2是第三方物流)
@@ -140,11 +140,11 @@ public class OrderBean implements Serializable{
         this.payType = payType;
     }
 
-    public List<OrdeProductBean> getProductList() {
+    public List<OrderProductBean> getProductList() {
         return productList;
     }
 
-    public void setProductList(List<OrdeProductBean> productList) {
+    public void setProductList(List<OrderProductBean> productList) {
         this.productList = productList;
     }
 
