@@ -205,7 +205,7 @@ public class OrderController extends BaseController {
 		   orderExceptionDto.setCustId(user.getCustId());
 		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus)));
 	   }else
-		   return ok(orderService.getOrderDetailResponseInfo(orderId,6066));
+		   return ok(orderService.getOrderDetailResponseInfo(orderId,user.getCustId()));
 	}
 
 	/**

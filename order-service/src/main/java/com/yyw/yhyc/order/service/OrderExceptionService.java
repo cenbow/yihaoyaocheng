@@ -2202,6 +2202,7 @@ public class OrderExceptionService {
             return null;
         }
         OrderBean orderBean = new OrderBean();
+        orderBean.setOrderStatus(convertAppExceptionOrderStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getReturnType()));
         if (orderStatus == 800) {
             BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType());
             orderBean.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
