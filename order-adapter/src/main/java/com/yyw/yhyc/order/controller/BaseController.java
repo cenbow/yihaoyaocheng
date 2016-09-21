@@ -72,6 +72,10 @@ public class BaseController {
         return returnResult(statusCode, message,null);
     }
 
+    public Map<String,Object> error(String message){
+        return returnResult(STATUS_CODE_SYSTEM_EXCEPTION, message,null);
+    }
+
     public Map<String,Object> error(Map<String, Object> data){
         return returnResult(STATUS_CODE_SYSTEM_EXCEPTION, "服务器异常",data);
     }
@@ -89,7 +93,7 @@ public class BaseController {
         if(UtilHelper.isEmpty(t))
             t = (T) request.getAttribute("loginUserDto");
 
-        // TODO: 2016/9/21 待确认怎么获取用户登录信息 
+        // TODO: 2016/9/21 待确认怎么获取用户登录信息
         if(UtilHelper.isEmpty(t)){
             UserDto userDto = new UserDto();
             userDto.setCustId(6066);
