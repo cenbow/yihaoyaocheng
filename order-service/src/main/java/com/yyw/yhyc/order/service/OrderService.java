@@ -2787,6 +2787,7 @@ public class OrderService {
 			try {
 				orderMapper.update(order);
 				resutlMap.put("statusCode", 0);
+				resutlMap.put("message","成功");
 			}catch (Exception e){
 				resutlMap.put("statusCode",-3);
 				resutlMap.put("message","延迟收货异常,请您稍后再试");
