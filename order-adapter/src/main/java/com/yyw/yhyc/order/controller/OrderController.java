@@ -11,11 +11,10 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
-import com.yyw.yhyc.order.appdto.OrdeProductBean;
+import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.bo.Pagination;
@@ -23,33 +22,27 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
-import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderExceptionService;
+import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
 @Controller
 @RequestMapping(value = "/order")
-public class OrderController extends BaseJsonController {
+public class OrderController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
 	@Autowired
@@ -57,6 +50,12 @@ public class OrderController extends BaseJsonController {
 
 	@Autowired
 	private OrderDeliveryDetailService orderDeliveryDetailService;
+
+	@Autowired
+	private OrderExceptionService orderExceptionService;
+
+	@Autowired
+	private OrderDeliveryService orderDeliveryService;
 
 	/**
 	* 通过主键查询实体对象
@@ -125,25 +124,8 @@ public class OrderController extends BaseJsonController {
 	public Map<String,Object> cancelOrder(String orderId) throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		Map<String,Object> map = new HashMap<String,Object>();
-		int statusCode ;
-		String message = "";
-		Object data = null;
-		int SUCCESS = 0,EXCEPTION = -3,DATA_EXCEPTION = -1,TOEKN_EXCEPTION= -2;
-		try{
-			statusCode = SUCCESS;
-			message = "成功";
-			orderService.updateOrderStatusForBuyer(userDto, orderId);
-		}catch (Exception e){
-			statusCode = EXCEPTION;
-			message = e.getMessage();
-		}
-		map.put("statusCode",statusCode);
-		map.put("message",message);
-		map.put("data",data);
-		return map;
+		orderService.updateOrderStatusForBuyer(userDto, orderId);
+		return ok(null);
 	}
 
 
@@ -156,9 +138,7 @@ public class OrderController extends BaseJsonController {
 	public Map<String,Object> cancelOrderInfo(String orderId) throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.findOrderCancelInfo(orderId, userDto));
+		return ok(orderService.findOrderCancelInfo(orderId, userDto));
 	}
 
 
@@ -171,9 +151,7 @@ public class OrderController extends BaseJsonController {
 	public Map<String,Object> cancelOrderInfo() throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.listBuyerOrderStatusCount(userDto.getCustId()));
+		return ok(orderService.listBuyerOrderStatusCount(userDto.getCustId()));
 	}
 
 	/**
@@ -190,9 +168,7 @@ public class OrderController extends BaseJsonController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
 	}
 
 	/**
@@ -203,59 +179,43 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,Object> exceptionOrder(@RequestBody RequestModel<Map<String,String>> requestModel) throws Exception
 	{
-		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
 	}
 
 
-	Map<String,Object> convert(Object object){
-		Map<String,Object> map = new HashMap<String,Object>();
-		int statusCode ;
-		String message = "";
-		Object data = null;
-		int SUCCESS = 0,EXCEPTION = -3,DATA_EXCEPTION = -1,TOEKN_EXCEPTION= -2;
-		try{
-			statusCode = SUCCESS;
-			message = "成功";
-			data = object;
-		}catch (Exception e){
-			statusCode = EXCEPTION;
-			message = e.getMessage();
-		}
-		map.put("statusCode",statusCode);
-		map.put("message",message);
-		map.put("data",data);
-		return map;
-	}
 	/**
 	 * 订单详情
 	 * @return
 	 */
-	@RequestMapping(value = "/orderDetail", method = RequestMethod.GET)
+	@RequestMapping(value = {"", "/getOrderDetail"}, method = RequestMethod.GET)
 	@ResponseBody
-	public OrderBean getBuyOrderDetails(@PathVariable("orderId") String orderId) throws Exception
+	public Map<String,Object> getBuyOrderDetails(@RequestParam("orderId") String orderId,@RequestParam("orderStatus") String orderStatus) throws Exception
 	{
-
-		OrderBean orderBean=new OrderBean();
-
 		// 登录买家的id
 		UserDto user = super.getLoginUser();
+       if(!UtilHelper.isEmpty(orderStatus)){
+		   OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+		   orderExceptionDto.setFlowId(orderId);
+		   orderExceptionDto.setCustId(user.getCustId());
+		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus)));
+	   }
+		OrderBean orderBean=new OrderBean();
+
 		Order order=new Order();
-		order.setCustId(user.getCustId());
+		order.setCustId(6066);
 		order.setFlowId(orderId);
 		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
 		if(UtilHelper.isEmpty(orderDetailsDto)){
 			return null;
 		}
 		//详情对象
-		orderBean.setOrderStatus(orderDetailsDto.getOrderStatus());
+		orderBean.setOrderStatus(orderService.convertAppOrderStatus(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
 		orderBean.setOrderId(orderDetailsDto.getFlowId());
 		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
 		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
@@ -265,9 +225,10 @@ public class OrderController extends BaseJsonController {
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(orderDetailsDto.getFinalPay().toString()));
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
+		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
 		//地址对象
 		AddressBean address=new AddressBean();
 		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());
@@ -279,18 +240,18 @@ public class OrderController extends BaseJsonController {
 		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
 		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
 		orderBean.setAddress(address);
+		orderBean.setOrderStatusName(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getValue());
 		//商品列表
-		List<OrdeProductBean> productList=new ArrayList<OrdeProductBean>();
+		List<OrderProductBean> productList=new ArrayList<OrderProductBean>();
 		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
-			OrdeProductBean ordeProductBean=new OrdeProductBean();
+			OrderProductBean ordeProductBean=new OrderProductBean();
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
 			ordeProductBean.setProductId(orderDetail.getProductCode());
 			ordeProductBean.setProductPicUrl("");
-			ordeProductBean.setProductName(orderDetail.getProductName());
+			ordeProductBean.setProductName(orderDetail.getShortName());
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
 			ordeProductBean.setFactoryName(orderDetail.getManufactures());
-			ordeProductBean.setFactoryId(orderDetail.getManufacturesId().toString());
 			//批次信息
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
 			orderDeliveryDetail.setFlowId(orderId);
@@ -306,8 +267,31 @@ public class OrderController extends BaseJsonController {
 				batchList.add(batchBean);
 			}
 			ordeProductBean.setBatchList(batchList);
+			productList.add(ordeProductBean);
 		}
-		return orderBean;
+		orderBean.setProductList(productList);
+		return ok(orderBean);
+	}
+
+	/**
+	 * 订单延迟收货
+	 * @return
+	 */
+	@RequestMapping(value = "/delayDelivery", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> delayDelivery(@RequestParam("orderId") String orderId) throws Exception
+	{
+		return orderService.updateOrderDelayTimes(orderId);
+	}
+
+	/**
+	 * 订单物流信息
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> deliveryInfo(@RequestParam("orderId") String orderId) throws Exception{
+		return  orderDeliveryService.getOrderDeliveryByFlowId(orderId);
 	}
 
 }

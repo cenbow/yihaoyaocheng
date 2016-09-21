@@ -1763,4 +1763,24 @@
 			AND order_status=#{orderStatus}
 		</if>
 	</select>
+
+
+	<resultMap id="orderExceptionSimpleDetailsResultMap" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+		<result column="PAY_TYPE" property="payType"/>
+		<result column="PAY_TYPE_NAME" property="payTypeName"/>
+		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
+	</resultMap>
+	<select id="listPaginationBuyerExceptionOrder" parameterType="OrderExceptionDto" resultMap="orderExceptionSimpleDetailsResultMap">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>, T3.PAY_TYPE,
+		T3.PAY_TYPE_NAME
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		T1.RETURN_TYPE = #{returnType}
+		AND	T1.CUST_ID = #{custId}
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
 </mapper>

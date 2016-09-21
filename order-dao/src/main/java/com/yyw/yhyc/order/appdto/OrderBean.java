@@ -1,11 +1,12 @@
 package com.yyw.yhyc.order.appdto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by huhaibing on 2016/9/8.
  */
-public class OrderBean {
+public class OrderBean implements Serializable{
 
     private String orderId;                     //订单Id
     private String orderStatus;                 //订单状态
@@ -13,7 +14,7 @@ public class OrderBean {
     private AddressBean address;                //地址对象
     private String supplyName;                  //供应商名称
     private String leaveMsg;                    //备注信息
-    private List<OrdeProductBean> productList;  //商品列表
+    private List<OrderProductBean> productList;  //商品列表
     private String qq;                          //联系方式
     private Integer payType;                    //支付方式
     private Integer deliveryMethod;             //配送方式(1是自有物流 2是第三方物流)
@@ -29,6 +30,17 @@ public class OrderBean {
     private long residualTime;                //支付剩余时间
     private Integer delayTimes;                 //第几次延期(延期次数)
     private Integer postponeTime;               //能延期次数
+    private String orderStatusName;            //状态枚举值
+    private Integer supplyId;                   //供应商id
+    private List<Integer> shopCartIdList;     //购物车id
+
+    public String getOrderStatusName() {
+        return orderStatusName;
+    }
+
+    public void setOrderStatusName(String orderStatusName) {
+        this.orderStatusName = orderStatusName;
+    }
 
     public String getApplyTime() {
         return applyTime;
@@ -126,11 +138,11 @@ public class OrderBean {
         this.payType = payType;
     }
 
-    public List<OrdeProductBean> getProductList() {
+    public List<OrderProductBean> getProductList() {
         return productList;
     }
 
-    public void setProductList(List<OrdeProductBean> productList) {
+    public void setProductList(List<OrderProductBean> productList) {
         this.productList = productList;
     }
 
@@ -205,5 +217,51 @@ public class OrderBean {
 
     public void setPostponeTime(Integer postponeTime) {
         this.postponeTime = postponeTime;
+    }
+
+    public Integer getSupplyId() {
+        return supplyId;
+    }
+
+    public void setSupplyId(Integer supplyId) {
+        this.supplyId = supplyId;
+    }
+
+    public List<Integer> getShopCartIdList() {
+        return shopCartIdList;
+    }
+
+    public void setShopCartIdList(List<Integer> shopCartIdList) {
+        this.shopCartIdList = shopCartIdList;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderBean{" +
+                "orderId='" + orderId + '\'' +
+                ", orderStatus='" + orderStatus + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", address=" + address +
+                ", supplyName='" + supplyName + '\'' +
+                ", leaveMsg='" + leaveMsg + '\'' +
+                ", productList=" + productList +
+                ", qq='" + qq + '\'' +
+                ", payType=" + payType +
+                ", deliveryMethod=" + deliveryMethod +
+                ", billType=" + billType +
+                ", orderTotal=" + orderTotal +
+                ", finalPay=" + finalPay +
+                ", exceptionOrderId='" + exceptionOrderId + '\'' +
+                ", applyTime='" + applyTime + '\'' +
+                ", returnDesc='" + returnDesc + '\'' +
+                ", merchantDesc='" + merchantDesc + '\'' +
+                ", varietyNumber=" + varietyNumber +
+                ", productNumber=" + productNumber +
+                ", residualTime=" + residualTime +
+                ", delayTimes=" + delayTimes +
+                ", postponeTime=" + postponeTime +
+                ", supplyId=" + supplyId +
+                ", shopCartIdList=" + shopCartIdList +
+                '}';
     }
 }

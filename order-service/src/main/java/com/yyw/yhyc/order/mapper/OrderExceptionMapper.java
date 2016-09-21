@@ -277,4 +277,12 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 */
 	public List<OrderException> listNodeliveryForChange(OrderException orderException);
 
+
+	/**
+	 * 获取买家异常订单列表
+	 * @param orderExceptionDto
+	 * @return
+     */
+	public List<OrderExceptionDto> listPaginationBuyerExceptionOrder(Pagination<OrderExceptionDto> pagination,OrderExceptionDto orderExceptionDto);
+
 }

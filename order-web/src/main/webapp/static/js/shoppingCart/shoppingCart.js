@@ -296,7 +296,8 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                 $(_this).parents('.holder-list').find('.td-sum span').html(fmoney(productTotalPrice,2));
                 $(_this).parents('.holder-list').find('.td-sum').find("input[name='productSettlementPrice']").val(productTotalPrice.toFixed(2));
                 changeOrderAmountPriceTip(_this);
-                showOrHideTip(_this)
+                showOrHideTip(_this);
+                totalSum();
             }
         },
         error:function(data){

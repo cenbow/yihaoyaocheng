@@ -18,6 +18,7 @@ import java.util.Map;
 
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.CartData;
 import com.yyw.yhyc.order.appdto.CartGroupData;
 import com.yyw.yhyc.order.appdto.CartProductBean;
@@ -27,6 +28,8 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -47,6 +50,9 @@ public class ShoppingCartService {
 	private ProductInventoryManage productInventoryManage;
 	@Autowired
 	private ProductInventoryMapper productInventoryMapper;
+
+	@Autowired
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
 
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
@@ -184,6 +190,15 @@ public class ShoppingCartService {
 			return null;
 		}
 		return shoppingCartMapper.listDistinctCustIdAndSupplyId(shoppingCart);
+	}
+
+	public List<ShoppingCart>  listDistinctCustIdAndSupplyId(Integer custId){
+		if(UtilHelper.isEmpty(custId) || custId <= 0){
+			return null;
+		}
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(custId);
+		return listDistinctCustIdAndSupplyId(shoppingCart);
 	}
 
 
@@ -424,8 +439,10 @@ public class ShoppingCartService {
 	 * @param shoppingCartIds
 	 * @return
 	 */
-	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds){
+	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds, IProductDubboManageService iProductDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
+		UserDto userDto = new UserDto();
+		userDto.setCustId(custId);
 		try{
 			this.deleteByPKeys(shoppingCartIds);
 		}catch (Exception e){
@@ -436,14 +453,14 @@ public class ShoppingCartService {
 
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(shoppingCart);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
 		if(UtilHelper.isEmpty(shoppingCartListDtos)){
 			resultMap.put("statusCode","0");
 			return resultMap;
 		}
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
 		resultMap.put("statusCode", "0");
-		resultMap.put("data",cartData);
+		resultMap.put("data", cartData);
 		return resultMap;
 	}
 	/**
@@ -452,7 +469,7 @@ public class ShoppingCartService {
 	 * @param
 	 * @return
 	 */
-	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity){
+	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity, IProductDubboManageService iProductDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setShoppingCartId(shoppingCartId);
@@ -460,7 +477,7 @@ public class ShoppingCartService {
 		UserDto userDto = new UserDto();
 		userDto.setCustId(custId);
 		try {
-			this.updateNum(shoppingCart,userDto);
+			this.updateNum(shoppingCart, userDto);
 		}catch (Exception e){
 			resultMap.put("statusCode","-3");
 			resultMap.put("message","更新进货单失败!");
@@ -468,7 +485,7 @@ public class ShoppingCartService {
 		}
 		ShoppingCart sc = new ShoppingCart();
 		sc.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.listAllShoppingCart(sc);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
 		if(UtilHelper.isEmpty(shoppingCartListDtos)){
 			resultMap.put("statusCode","0");
 			return resultMap;
@@ -488,4 +505,39 @@ public class ShoppingCartService {
 		resultMap.put("message", "成功");
 		return resultMap;
 	}
+
+	/**
+	 * 收货地址列表
+	 * @param userDto
+	 * @return
+     */
+	public Object getDeliveryAddress(UserDto userDto){
+		Integer custId = 6066;
+		UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
+		receiverAddress.setEnterpriseId(custId + "");
+		List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
+		return convertDataForApp(receiverAddressList);
+	}
+
+	private List<AddressBean> convertDataForApp(List<UsermanageReceiverAddress> receiverAddressList) {
+		if(UtilHelper.isEmpty(receiverAddressList)) return null;
+		List<AddressBean> addressBeanList = new ArrayList<>();
+		AddressBean addressBean = null;
+		for(UsermanageReceiverAddress address :receiverAddressList){
+			if (UtilHelper.isEmpty(address)) continue;
+			addressBean = new AddressBean();
+			addressBean.setAddressId(address.getId());
+			addressBean.setAddressType("1".equals(address.getDefaultAddress().toString()) ? 0 : 1);
+			addressBean.setAddressProvince(address.getProvinceName());
+			addressBean.setAddressCity(address.getCityName());
+			addressBean.setAddressCounty(address.getDistrictName());
+			addressBean.setAddressDetail(address.getAddress());
+			addressBean.setDeliveryName(address.getReceiverName());
+			addressBean.setDeliveryPhone(address.getContactPhone());
+			addressBeanList.add(addressBean);
+		}
+		return addressBeanList;
+	}
+
+
 }

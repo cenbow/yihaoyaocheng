@@ -325,7 +325,7 @@ public class OrderSettlementService {
             case 6:
                 orderSettlement.setBusinessType(1);//拒收退款
                 orderSettlement.setCustId(custId);
-                orderSettlement.setCustId(supplyId);
+                orderSettlement.setSupplyId(supplyId);
                 orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
 
                 orderSettlement.setSettlementMoney(order.getOrgTotal());

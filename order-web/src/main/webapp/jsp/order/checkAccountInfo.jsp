@@ -23,7 +23,7 @@
 <%@ include file="../head.jsp"%>
 
 <div class="wapper header">
-    <h1 class="common-icon"><a href="#">1号药城 — 方便.快捷.第一</a></h1>
+    <h1 class="common-icon"><a href="${mallDomain}">1号药城 — 方便.快捷.第一</a></h1>
 </div>
 <div class="wapper check-info">
     <p class="pt35 f14">请于24小时内完成汇款，汇款账户如下：</p>
