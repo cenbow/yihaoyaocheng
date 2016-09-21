@@ -72,6 +72,10 @@ public class BaseController {
         return returnResult(statusCode, message,null);
     }
 
+    public Map<String,Object> error(String message){
+        return returnResult(STATUS_CODE_SYSTEM_EXCEPTION, message,null);
+    }
+
     public Map<String,Object> error(Map<String, Object> data){
         return returnResult(STATUS_CODE_SYSTEM_EXCEPTION, "服务器异常",data);
     }
