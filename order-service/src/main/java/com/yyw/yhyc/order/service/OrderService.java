@@ -1164,7 +1164,7 @@ public class OrderService {
      * @param payType
      * @return
      */
-    BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
+    public BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return BuyerOrderStatusEnum.BackOrder;//待发货
@@ -2669,7 +2669,7 @@ public class OrderService {
 	 * @param type
      * @return
      */
-	private String  convertAppOrderStatus(String orderStatus,int type){
+	public String  convertAppOrderStatus(String orderStatus,int type){
 		String status = null;
 		if(type == 1){//APP => this
 			//全部订单 0 待付款 1 待发货2 待收货3 已完成7

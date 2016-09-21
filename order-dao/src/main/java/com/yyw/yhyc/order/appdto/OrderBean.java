@@ -30,6 +30,16 @@ public class OrderBean implements Serializable{
     private long residualTime;                //支付剩余时间
     private Integer delayTimes;                 //第几次延期(延期次数)
     private Integer postponeTime;               //能延期次数
+    private String orderStatusName;            //状态枚举值
+
+
+    public String getOrderStatusName() {
+        return orderStatusName;
+    }
+
+    public void setOrderStatusName(String orderStatusName) {
+        this.orderStatusName = orderStatusName;
+    }
 
     public String getApplyTime() {
         return applyTime;

@@ -172,7 +172,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
 	}
 
 
@@ -199,7 +199,7 @@ public class OrderController extends BaseController {
 	 */
 	@RequestMapping(value = {"", "/getOrderDetail"}, method = RequestMethod.GET)
 	@ResponseBody
-	public OrderBean getBuyOrderDetails(@RequestParam("orderId") String orderId) throws Exception
+	public Map<String,Object> getBuyOrderDetails(@RequestParam("orderId") String orderId) throws Exception
 	{
 
 		OrderBean orderBean=new OrderBean();
@@ -207,14 +207,14 @@ public class OrderController extends BaseController {
 		// 登录买家的id
 		UserDto user = super.getLoginUser();
 		Order order=new Order();
-		order.setCustId(user.getCustId());
+		order.setCustId(6066);
 		order.setFlowId(orderId);
 		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
 		if(UtilHelper.isEmpty(orderDetailsDto)){
 			return null;
 		}
 		//详情对象
-		orderBean.setOrderStatus(orderDetailsDto.getOrderStatus());
+		orderBean.setOrderStatus(orderService.convertAppOrderStatus(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
 		orderBean.setOrderId(orderDetailsDto.getFlowId());
 		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
 		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
@@ -224,9 +224,10 @@ public class OrderController extends BaseController {
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay())?"0":orderDetailsDto.getFinalPay().toString()));
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
+		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
 		//地址对象
 		AddressBean address=new AddressBean();
 		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());
@@ -238,6 +239,7 @@ public class OrderController extends BaseController {
 		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
 		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
 		orderBean.setAddress(address);
+		orderBean.setOrderStatusName(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getValue());
 		//商品列表
 		List<OrdeProductBean> productList=new ArrayList<OrdeProductBean>();
 		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
@@ -245,7 +247,7 @@ public class OrderController extends BaseController {
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
 			ordeProductBean.setProductId(orderDetail.getProductCode());
 			ordeProductBean.setProductPicUrl("");
-			ordeProductBean.setProductName(orderDetail.getProductName());
+			ordeProductBean.setProductName(orderDetail.getShortName());
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
 			ordeProductBean.setFactoryName(orderDetail.getManufactures());
@@ -267,7 +269,7 @@ public class OrderController extends BaseController {
 			productList.add(ordeProductBean);
 		}
 		orderBean.setProductList(productList);
-		return orderBean;
+		return ok(orderBean);
 	}
 
 	/**
