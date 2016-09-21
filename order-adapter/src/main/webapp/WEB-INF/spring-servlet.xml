@@ -35,13 +35,7 @@
 		<!-- 登录拦截 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
-			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
-		</mvc:interceptor>
-
-		<!-- 获取用户信息 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<bean class="com.yyw.yhyc.order.inteceptor.GetUserInteceptor"/>
+			<bean class="com.yyw.yhyc.order.inteceptor.LoginInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>
 

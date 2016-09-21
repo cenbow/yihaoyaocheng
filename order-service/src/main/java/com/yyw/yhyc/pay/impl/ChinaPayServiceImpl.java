@@ -95,7 +95,7 @@ public class ChinaPayServiceImpl implements PayService {
      * @throws Exception
      */
     @Override
-    public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType) throws Exception  {
+    public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType,int type) throws Exception  {
 
         if(UtilHelper.isEmpty(orderPay)){
             log.info("支付参数不能为空");
@@ -118,7 +118,11 @@ public class ChinaPayServiceImpl implements PayService {
             log.info("订单支付信息不存在");
             throw new RuntimeException("订单支付信息不存在");
         }
-        return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list);
+        if(type==1){
+             return findPayMapOfAccount(orderPay.getPayFlowId(),systemPayType,list);
+        }else {
+            return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list);
+        }
     }
 
 
@@ -194,6 +198,75 @@ public class ChinaPayServiceImpl implements PayService {
         log.info("发送银联支付请求之前，组装数据map=" + map);
         return map;
     }
+
+    //账期还款组装数据
+    private Map<String,Object> findPayMapOfAccount(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list) throws Exception{
+        Map<String,Object> map=new HashMap<String,Object>();
+
+        SimpleDateFormat datefomet=new SimpleDateFormat("yyyyMMdd,HHmmss");
+        Date date=new Date();
+        String fDate=datefomet.format(date);
+        String fromWhere="";
+
+        String receiveAccountNo="";
+        String receiveAccountName="";
+
+        //查询分账信息；
+        StringBuffer MerSplitMsg=new StringBuffer();
+        StringBuffer MerSpringCustomer=new StringBuffer("您的货款将在确认收货之后通过银联支付给 ");
+        //如果供应商中有一个商户号有问题，就不能进行支付
+        boolean isNoHaveMerId=false;
+
+        OrderPayDto orderPayDto=list.get(0);
+        receiveAccountNo=orderPayDto.getReceiveAccountNo();
+        receiveAccountName=orderPayDto.getReceiveAccountName();
+        if(!UtilHelper.isEmpty(orderPayDto)&&!UtilHelper.isEmpty(orderPayDto.getReceiveAccountNo())){
+                  MerSpringCustomer.append(orderPayDto.getReceiveAccountName());
+                    MerSplitMsg.append(orderPayDto.getReceiveAccountNo()+"^"+orderPayDto.getOrderMoney().multiply(new BigDecimal(100)).intValue());
+        }else{
+                isNoHaveMerId=true;
+        }
+
+
+        if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
+            fromWhere= ChinaPayUtil.B2C;
+        }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
+            fromWhere=ChinaPayUtil.NOCARD;
+        }else{
+            fromWhere=ChinaPayUtil.B2C;
+        }
+        //记录收款帐号
+        OrderPay orderPay=orderPayMapper.getByPayFlowId(payFlowId);
+        orderPay.setReceiveAccountNo(receiveAccountNo);
+        orderPay.setReceiveAccountName(receiveAccountName);
+        orderPayMapper.update(orderPay);
+
+        map.put("MerOrderNo", payFlowId);
+        map.put("TranDate",fDate.split(",")[0]);
+        map.put("TranTime", fDate.split(",")[1]);
+        String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
+        map.put("OrderAmt", OrderAmt);
+        map.put("MerPageUrl", PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+
+        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayOfAccountCallback");
+        log.info(PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
+        String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
+        log.info("CommodityMsg=" + CommodityMsg);
+        map.put("CommodityMsg", CommodityMsg);
+
+        if(isNoHaveMerId){
+            map.put("MerSplitMsg","");
+        }else{
+            map.put("MerSplitMsg",MerSplitMsg.toString());
+        }
+        map.put("fromWhere", fromWhere);
+        map=HttpRequestHandler.getSubmitFormMap(map);
+        map=HttpRequestHandler.getSignMap(map);
+        map.put("SplitType","0001");
+        log.info("发送银联支付请求之前，组装数据map=" + map);
+        return map;
+    }
+
     /**
      * 银联支付回调
      * @param request
@@ -647,5 +720,33 @@ public class ChinaPayServiceImpl implements PayService {
             map.put("OrderStatus",URLDecoder.decode(request.getParameter("&OrderStatus"), "utf-8"));
         }
         return map;
+    }
+
+    //账期还款回调
+    public String  paymentOfAccountCallback(HttpServletRequest request){
+        String flag="1";
+        try{
+            log.info("支付成功后回调开始。。。。。。。。");
+            printRequestParam("支付成功后回调",request);
+            Map<String,Object> map=new HashMap<String,Object>();
+            //解析参数转成map
+            map=getParameter(request);
+            //if(SignUtil.verify(map)){
+            if(true){
+                String orderStatus=map.get("OrderStatus").toString();
+                if(orderStatus.equals("0000")){
+                    map.put("flowPayId",map.get("MerOrderNo"));
+                    map.put("money", map.get("OrderAmt"));
+                    //回调更新信息
+                    orderPayManage.orderPayOfAccountReturn(map);
+                }
+            }
+        }catch (Exception e){
+            flag="0";
+            e.printStackTrace();
+            log.error("银联支付成功回调");
+        }
+
+        return flag;
     }
 }
