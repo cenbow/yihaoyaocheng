@@ -89,7 +89,7 @@ public class BaseController {
         if(UtilHelper.isEmpty(t))
             t = (T) request.getAttribute("loginUserDto");
 
-        // TODO: 2016/9/21 待确认怎么获取用户登录信息 
+        // TODO: 2016/9/21 待确认怎么获取用户登录信息
         if(UtilHelper.isEmpty(t)){
             UserDto userDto = new UserDto();
             userDto.setCustId(6066);

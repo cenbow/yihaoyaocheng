@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,22 +104,30 @@ public class ShoppingCartController extends BaseController {
 	 * 根据多条主键值删除记录
 	 * @return
 	 */
-	@RequestMapping(value = "/deleteShopCart", method = RequestMethod.PUT)
-	public Map<String,Object> deleteShopCarts(List<Integer> shoppingCartIds) throws Exception
+	@RequestMapping(value = "/deleteShopCarts", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception
 	{
+		HttpServletRequest req = this.request;
 		Integer custId = 6066;
-		return shoppingCartService.deleteShopCarts(custId,shoppingCartIds);
+		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService);
+//		return new HashMap<String,Object>();
 	}
 
 	/**
 	 * 更新进货单数量
 	 * @return
 	 */
-	@RequestMapping(value = "/updateShopCart", method = RequestMethod.PUT)
-	public Map<String,Object> updateShopCart(Integer shoppingCartId,Integer quantity) throws Exception
+	@RequestMapping(value = "/updateShopCart", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> updateShopCart(@RequestBody Map<String,Integer> shoppingCart) throws Exception
 	{
+		HttpServletRequest req = this.request;
 		Integer custId = 6066;
-		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity);
+		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
+		Integer quantity = shoppingCart.get("quantity");
+		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService);
+//		return new HashMap<String,Object>();
 	}
 
 	/**
@@ -207,4 +216,17 @@ public class ShoppingCartController extends BaseController {
 		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
 	}
 
+	/**
+	 * 获取收获的采购商的地址列表
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/getDeliveryAddress", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> getDeliveryAddress() throws Exception {
+		UserDto userDto = new UserDto();
+		userDto.setCustId(6066);
+		Object data = shoppingCartService.getDeliveryAddress(userDto);
+		return ok(data);
+	}
 }
