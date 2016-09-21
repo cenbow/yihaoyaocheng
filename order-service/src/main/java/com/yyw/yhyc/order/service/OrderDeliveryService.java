@@ -698,7 +698,7 @@ public class OrderDeliveryService {
 			}
 
 
-			map.put("code","1");
+			map.put("code", "1");
 			map.put("msg","发货成功。");
 			map.put("fileName",excelPath);
 		}
@@ -1205,5 +1205,33 @@ public class OrderDeliveryService {
 		}
 		String fileName = ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset, path);
 		return path + fileName;
+	}
+
+	/**
+	 *订单物流信息
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> getOrderDeliveryByFlowId(String flowId) throws Exception{
+		OrderDelivery orderDelivery=orderDeliveryMapper.getByFlowId(flowId);
+		Map<String,Object> resutlMap = new HashMap<String,Object>();
+		if(!UtilHelper.isEmpty(orderDelivery)){
+			Map<String,Object> orderDeliveryMap=new HashMap<String,Object>();
+			resutlMap.put("statusCode",0);
+			resutlMap.put("message","成功");
+			if(orderDelivery.getDeliveryMethod()==1){
+				orderDeliveryMap.put("deliveryDate",orderDelivery.getDeliveryDate());
+				orderDeliveryMap.put("deliveryPerson", orderDelivery.getDeliveryContactPerson());
+				orderDeliveryMap.put("deliveryContactPhone", orderDelivery.getDeliveryExpressNo());
+			}else{
+				orderDeliveryMap.put("deliveryContactPerson", orderDelivery.getDeliveryContactPerson());
+				orderDeliveryMap.put("deliveryExpressNo", orderDelivery.getDeliveryExpressNo());
+			}
+			resutlMap.put("data",orderDeliveryMap);
+			return  resutlMap;
+		}
+		resutlMap.put("statusCode",-3);
+		resutlMap.put("message","该订单的物流信息不存在");
+		return  resutlMap;
 	}
 }
