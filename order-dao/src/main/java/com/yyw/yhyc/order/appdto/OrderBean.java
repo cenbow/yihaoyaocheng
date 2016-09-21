@@ -41,6 +41,9 @@ public class OrderBean implements Serializable{
         this.orderStatusName = orderStatusName;
     }
 
+    private Integer supplyId;                   //供应商id
+    private List<Integer> shopCartIdList; //购物车id
+
     public String getApplyTime() {
         return applyTime;
     }
@@ -216,5 +219,51 @@ public class OrderBean implements Serializable{
 
     public void setPostponeTime(Integer postponeTime) {
         this.postponeTime = postponeTime;
+    }
+
+    public Integer getSupplyId() {
+        return supplyId;
+    }
+
+    public void setSupplyId(Integer supplyId) {
+        this.supplyId = supplyId;
+    }
+
+    public List<Integer> getShopCartIdList() {
+        return shopCartIdList;
+    }
+
+    public void setShopCartIdList(List<Integer> shopCartIdList) {
+        this.shopCartIdList = shopCartIdList;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderBean{" +
+                "orderId='" + orderId + '\'' +
+                ", orderStatus='" + orderStatus + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", address=" + address +
+                ", supplyName='" + supplyName + '\'' +
+                ", leaveMsg='" + leaveMsg + '\'' +
+                ", productList=" + productList +
+                ", qq='" + qq + '\'' +
+                ", payType=" + payType +
+                ", deliveryMethod=" + deliveryMethod +
+                ", billType=" + billType +
+                ", orderTotal=" + orderTotal +
+                ", finalPay=" + finalPay +
+                ", exceptionOrderId='" + exceptionOrderId + '\'' +
+                ", applyTime='" + applyTime + '\'' +
+                ", returnDesc='" + returnDesc + '\'' +
+                ", merchantDesc='" + merchantDesc + '\'' +
+                ", varietyNumber=" + varietyNumber +
+                ", productNumber=" + productNumber +
+                ", residualTime=" + residualTime +
+                ", delayTimes=" + delayTimes +
+                ", postponeTime=" + postponeTime +
+                ", supplyId=" + supplyId +
+                ", shopCartIdList=" + shopCartIdList +
+                '}';
     }
 }
