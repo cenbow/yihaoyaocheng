@@ -79,7 +79,7 @@ public class PayUtil {
 	public static String getValue(String key) {
 		try {
 			if(properties==null){
-			 InputStream is = PayUtil.class.getResourceAsStream("/com/chinapay/config/pay.properties");
+			 InputStream is = PayUtil.class.getResourceAsStream("pay.properties");
 			 properties = new Properties();
 			 properties.load(is);
 			}

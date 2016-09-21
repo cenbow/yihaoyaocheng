@@ -2830,4 +2830,48 @@ public class OrderService {
 		return resultMap;
 	}
 
+	/**
+	 * 延期收货
+	 * @param flowId
+	 */
+	public Map<String,Object> updateOrderDelayTimes(String flowId){
+		Map<String,Object> resutlMap = new HashMap<String,Object>();
+		Order order = orderMapper.getOrderbyFlowId(flowId);
+		if(UtilHelper.isEmpty(order)){
+			resutlMap.put("statusCode",-3);
+			resutlMap.put("message","未找到订单");
+			return  resutlMap;
+		}
+		Integer day =0;
+		if(!UtilHelper.isEmpty(order.getDelayTimes())){
+			if(order.getDelayTimes()>=2){
+				resutlMap.put("statusCode",-3);
+				resutlMap.put("message","当前订单已延期两次，不可延期");
+				return  resutlMap;
+			}
+			day += CommonType.POSTPONE_TIME*order.getDelayTimes();
+		}
+		day += CommonType.AUTO_RECEIVE_TIME; //自动加上七天
+		day +=DateUtils.getDaysBetweenStartAndEnd(systemDateMapper.getSystemDate(),order.getDeliverTime());
+		if(day<=3){
+			// 延期收货订单逻辑
+			Integer delayTimes = order.getDelayTimes()==null?0:order.getDelayTimes();
+			delayTimes++ ;
+			String nowTimeStr = systemDateMapper.getSystemDate();
+			order.setDelayTimes(delayTimes);
+			order.setUpdateTime(nowTimeStr);
+			order.setDelayLog((order.getDelayLog() == null ? "" : order.getDelayLog()) + nowTimeStr + ",当前第" + delayTimes + "次延期收货;");
+			try {
+				orderMapper.update(order);
+				resutlMap.put("statusCode", 0);
+			}catch (Exception e){
+				resutlMap.put("statusCode",-3);
+				resutlMap.put("message","延迟收货异常,请您稍后再试");
+			}
+		}else{
+			resutlMap.put("statusCode",-3);
+			resutlMap.put("message","您好！距离确认收货截止日期前3天内才可以延期!");
+		}
+		return  resutlMap;
+	}
 }

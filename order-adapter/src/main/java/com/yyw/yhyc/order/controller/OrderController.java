@@ -28,6 +28,7 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order")
-public class OrderController extends BaseJsonController {
+public class OrderController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
 	@Autowired
@@ -54,6 +55,9 @@ public class OrderController extends BaseJsonController {
 
 	@Autowired
 	private OrderDeliveryDetailService orderDeliveryDetailService;
+
+	@Autowired
+	private OrderDeliveryService orderDeliveryService;
 
 	/**
 	* 通过主键查询实体对象
@@ -122,25 +126,8 @@ public class OrderController extends BaseJsonController {
 	public Map<String,Object> cancelOrder(String orderId) throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		Map<String,Object> map = new HashMap<String,Object>();
-		int statusCode ;
-		String message = "";
-		Object data = null;
-		int SUCCESS = 0,EXCEPTION = -3,DATA_EXCEPTION = -1,TOEKN_EXCEPTION= -2;
-		try{
-			statusCode = SUCCESS;
-			message = "成功";
-			orderService.updateOrderStatusForBuyer(userDto, orderId);
-		}catch (Exception e){
-			statusCode = EXCEPTION;
-			message = e.getMessage();
-		}
-		map.put("statusCode",statusCode);
-		map.put("message",message);
-		map.put("data",data);
-		return map;
+		orderService.updateOrderStatusForBuyer(userDto, orderId);
+		return ok(null);
 	}
 
 
@@ -153,9 +140,7 @@ public class OrderController extends BaseJsonController {
 	public Map<String,Object> cancelOrderInfo(String orderId) throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.findOrderCancelInfo(orderId, userDto));
+		return ok(orderService.findOrderCancelInfo(orderId, userDto));
 	}
 
 
@@ -168,9 +153,7 @@ public class OrderController extends BaseJsonController {
 	public Map<String,Object> cancelOrderInfo() throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.listBuyerOrderStatusCount(userDto.getCustId()));
+		return ok(orderService.listBuyerOrderStatusCount(userDto.getCustId()));
 	}
 
 	/**
@@ -187,9 +170,7 @@ public class OrderController extends BaseJsonController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
 	}
 
 	/**
@@ -206,31 +187,10 @@ public class OrderController extends BaseJsonController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		if(UtilHelper.isEmpty(userDto))
-			userDto = new UserDto();userDto.setCustId(6066);
-		return convert(orderService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
 	}
 
 
-	Map<String,Object> convert(Object object){
-		Map<String,Object> map = new HashMap<String,Object>();
-		int statusCode ;
-		String message = "";
-		Object data = null;
-		int SUCCESS = 0,EXCEPTION = -3,DATA_EXCEPTION = -1,TOEKN_EXCEPTION= -2;
-		try{
-			statusCode = SUCCESS;
-			message = "成功";
-			data = object;
-		}catch (Exception e){
-			statusCode = EXCEPTION;
-			message = e.getMessage();
-		}
-		map.put("statusCode",statusCode);
-		map.put("message",message);
-		map.put("data",data);
-		return map;
-	}
 	/**
 	 * 订单详情
 	 * @return
@@ -306,6 +266,27 @@ public class OrderController extends BaseJsonController {
 		}
 		orderBean.setProductList(productList);
 		return orderBean;
+	}
+
+	/**
+	 * 订单延迟收货
+	 * @return
+	 */
+	@RequestMapping(value = "/delayDelivery", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> delayDelivery(@RequestParam("orderId") String orderId) throws Exception
+	{
+		return orderService.updateOrderDelayTimes(orderId);
+	}
+
+	/**
+	 * 订单物流信息
+	 * @return
+	 */
+	@RequestMapping(value = "/deliveryInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> deliveryInfo(@RequestParam("orderId") String orderId) throws Exception{
+		return  orderDeliveryService.getOrderDeliveryByFlowId(orderId);
 	}
 
 }

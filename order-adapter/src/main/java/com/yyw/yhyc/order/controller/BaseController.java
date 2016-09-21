@@ -1,5 +1,7 @@
 package com.yyw.yhyc.order.controller;
 
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.dto.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,11 +60,11 @@ public class BaseController {
         this.session = request.getSession();
     }
 
-    public Map<String,Object> ok(Map<String, Object> data ){
+    public Map<String,Object> ok(Object data ){
         return ok(data,"成功");
     }
 
-    public Map<String,Object> ok(Map<String, Object> data,String message ){
+    public Map<String,Object> ok(Object data,String message ){
         return returnResult(STATUS_CODE_REQUEST_SUCCESS,message,data);
     }
 
@@ -74,12 +76,27 @@ public class BaseController {
         return returnResult(STATUS_CODE_SYSTEM_EXCEPTION, "服务器异常",data);
     }
 
-    public Map<String,Object> returnResult(int statusCode,String message,Map<String, Object> data){
+    public Map<String,Object> returnResult(int statusCode,String message,Object data){
         Map<String, Object> result = new HashMap<>();
         result.put("statusCode", statusCode);
         result.put("message", message);
         result.put("data",data);
         return result;
+    }
+
+    protected <T> T getLoginUser(){
+        T t = (T) session.getAttribute("loginUserDto");
+        if(UtilHelper.isEmpty(t))
+            t = (T) request.getAttribute("loginUserDto");
+
+        // TODO: 2016/9/21 待确认怎么获取用户登录信息 
+        if(UtilHelper.isEmpty(t)){
+            UserDto userDto = new UserDto();
+            userDto.setCustId(6066);
+            userDto.setUserName("yihaodayaofang");
+            t = (T)userDto;
+        }
+        return t;
     }
 }
 
