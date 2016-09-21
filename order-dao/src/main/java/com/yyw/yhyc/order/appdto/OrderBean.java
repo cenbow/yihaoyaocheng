@@ -31,7 +31,8 @@ public class OrderBean implements Serializable{
     private Integer delayTimes;                 //第几次延期(延期次数)
     private Integer postponeTime;               //能延期次数
     private String orderStatusName;            //状态枚举值
-
+    private Integer supplyId;                   //供应商id
+    private List<Integer> shopCartIdList;     //购物车id
 
     public String getOrderStatusName() {
         return orderStatusName;
@@ -40,9 +41,6 @@ public class OrderBean implements Serializable{
     public void setOrderStatusName(String orderStatusName) {
         this.orderStatusName = orderStatusName;
     }
-
-    private Integer supplyId;                   //供应商id
-    private List<Integer> shopCartIdList; //购物车id
 
     public String getApplyTime() {
         return applyTime;
