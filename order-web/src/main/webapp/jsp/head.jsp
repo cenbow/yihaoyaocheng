@@ -6,6 +6,13 @@
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<script type="text/javascript">
+    var sysname = "front";
+    var backurl = "http://mall.yaoex.com/";
+    function logout(){
+        window.location.href = "http://passport.yaoex.com/passport/sso/logout?sysname="+ sysname + "&backurl=" + backurl;
+    }
+</script>
 <div class="top">
     <div class="wapper">
         <div class="top-side">
@@ -14,7 +21,7 @@
                     <c:choose>
                         <c:when test="${loginUserDto != null }">
                             <a href="#" class="pl25">您好，${loginUserDto != null ? loginUserDto.custName : ""}</a>
-                            <a href="#" style="padding-right: 10px">退出</a>
+                            <a href="javascript:logout()" style="padding-right: 10px">退出</a>
                         </c:when>
                         <c:otherwise>
                             您好，欢迎您来到1号药城药品信息网
@@ -23,7 +30,7 @@
                     </c:choose>
                 </li>
                 <li><a href="${ctx}/order/buyerOrderManage">我的订单</a></li>
-                <li><a href=${ctx}/order/buyerOrderManage">我的1号药城</a></li>
+                <li><a href=http://usermanage.yaoex.com/enterpriseInfo/enterpriseDoor">我的1号药城</a></li>
                 <li><a href="#">帮助</a></li>
                 <li class="last-li">
                     <i class="common-icon top-phone"></i>
