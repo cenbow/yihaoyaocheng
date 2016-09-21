@@ -18,6 +18,7 @@ import java.util.Map;
 
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.CartData;
 import com.yyw.yhyc.order.appdto.CartGroupData;
 import com.yyw.yhyc.order.appdto.CartProductBean;
@@ -27,6 +28,8 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -47,6 +50,9 @@ public class ShoppingCartService {
 	private ProductInventoryManage productInventoryManage;
 	@Autowired
 	private ProductInventoryMapper productInventoryMapper;
+
+	@Autowired
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
 
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
@@ -488,4 +494,39 @@ public class ShoppingCartService {
 		resultMap.put("message", "成功");
 		return resultMap;
 	}
+
+	/**
+	 * 收货地址列表
+	 * @param userDto
+	 * @return
+     */
+	public Object getDeliveryAddress(UserDto userDto){
+		Integer custId = 6066;
+		UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
+		receiverAddress.setEnterpriseId(custId + "");
+		List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
+		return convertDataForApp(receiverAddressList);
+	}
+
+	private List<AddressBean> convertDataForApp(List<UsermanageReceiverAddress> receiverAddressList) {
+		if(UtilHelper.isEmpty(receiverAddressList)) return null;
+		List<AddressBean> addressBeanList = new ArrayList<>();
+		AddressBean addressBean = null;
+		for(UsermanageReceiverAddress address :receiverAddressList){
+			if (UtilHelper.isEmpty(address)) continue;
+			addressBean = new AddressBean();
+			addressBean.setAddressId(address.getId());
+			addressBean.setAddressType("1".equals(address.getDefaultAddress().toString()) ? 0 : 1);
+			addressBean.setAddressProvince(address.getProvinceName());
+			addressBean.setAddressCity(address.getCityName());
+			addressBean.setAddressCounty(address.getDistrictName());
+			addressBean.setAddressDetail(address.getAddress());
+			addressBean.setDeliveryName(address.getReceiverName());
+			addressBean.setDeliveryPhone(address.getContactPhone());
+			addressBeanList.add(addressBean);
+		}
+		return addressBeanList;
+	}
+
+
 }
