@@ -23,11 +23,10 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
-import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +53,9 @@ public class OrderController extends BaseController {
 
 	@Autowired
 	private OrderDeliveryDetailService orderDeliveryDetailService;
+
+	@Autowired
+	private OrderExceptionService orderExceptionService;
 
 	/**
 	* 通过主键查询实体对象
@@ -177,13 +179,13 @@ public class OrderController extends BaseController {
 	@ResponseBody
 	public Map<String,Object> exceptionOrder(@RequestBody RequestModel<Map<String,String>> requestModel) throws Exception
 	{
-		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
+		Pagination<OrderExceptionDto> pagination = new Pagination<OrderExceptionDto>();
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
+		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"),userDto.getCustId()));
 	}
 
 
