@@ -530,13 +530,12 @@ public class OrderService {
 
 
 	private OrderDelivery handlerOrderDelivery(UsermanageEnterprise enterprise, OrderCreateDto orderCreateDto) throws Exception {
-		if (UtilHelper.isEmpty(orderCreateDto.getCustId()) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())
-				|| !(orderCreateDto.getCustId() + "").equals(enterprise.getEnterpriseId()) ) {
+		if ( UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId())) {
 			throw  new Exception("非法参数");
 		}
 		UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderCreateDto.getReceiveAddressId());
 		if(UtilHelper.isEmpty(receiverAddress) || UtilHelper.isEmpty(receiverAddress.getEnterpriseId()) || !receiverAddress.getEnterpriseId().equals(enterprise.getEnterpriseId())){
-			throw new Exception("非法参数");
+			throw new Exception("非法收货地址");
 		}
 		OrderDelivery  orderDelivery = new OrderDelivery();
 		orderDelivery.setReceivePerson(receiverAddress.getReceiverName());
@@ -583,7 +582,7 @@ public class OrderService {
 		insertOrderTrace(order);
 
 		/* 删除购物车中相关的商品 */
-		deleteShoppingCart(orderDto);
+//		deleteShoppingCart(orderDto);
 
 		/* TODO 短信、邮件等通知买家 */
 
