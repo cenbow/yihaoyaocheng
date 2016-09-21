@@ -1164,7 +1164,7 @@ public class OrderService {
      * @param payType
      * @return
      */
-    BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
+    public BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
             if (payType == 2) {
                 return BuyerOrderStatusEnum.BackOrder;//待发货
@@ -2653,7 +2653,7 @@ public class OrderService {
 				temp.put("delayTimes", UtilHelper.isEmpty(od.getDelayTimes()) ? 0 : od.getDelayTimes());
 				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
 				temp.put("qq","7777777");// TODO: 2016/9/20 待查询
-				temp.put("productList",od.getOrderDetailList());
+				temp.put("productList",getProductList(od.getOrderDetailList()));
 				orderList.add(temp);
 			}
 		}
@@ -2664,12 +2664,38 @@ public class OrderService {
 	}
 
 	/**
+	 * 转换商品列表详情
+	 * @param orderDetailList
+	 * @return
+     */
+	List<Map<String,Object>> getProductList(List<OrderDetail> orderDetailList){
+		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+		Map<String,Object> map = null;
+		if(!UtilHelper.isEmpty(orderDetailList)){
+			for(OrderDetail od : orderDetailList){
+				map = new HashMap<String,Object>();
+				map.put("productId",od.getProductId());
+				map.put("productPicUrl","http://p4.maiyaole.com/img/50018/50018517/120_120.jpg?a=491206437");// TODO: 2016/9/21  需调用图片接口
+				map.put("productName",od.getProductName());
+				map.put("spec",od.getSpecification());
+				map.put("unit","");
+				map.put("productPrice","");
+				map.put("factoryName","");
+				map.put("quantity",od.getProductCount());
+				resultList.add(map);
+			}
+		}
+
+		return resultList;
+	}
+
+	/**z`
 	 * APP订单状态和系统订单状态互换
 	 * @param orderStatus
 	 * @param type
      * @return
      */
-	private String  convertAppOrderStatus(String orderStatus,int type){
+	public String  convertAppOrderStatus(String orderStatus,int type){
 		String status = null;
 		if(type == 1){//APP => this
 			//全部订单 0 待付款 1 待发货2 待收货3 已完成7
