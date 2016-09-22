@@ -17,6 +17,7 @@ import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderCreateBean;
@@ -155,10 +156,12 @@ public class ShoppingCartController extends BaseController {
 	 * 获得进货单品种数量
 	 * @return
      */
-	@RequestMapping(value = "/v{version}/cartAccount", method = RequestMethod.GET)
+	@RequestMapping(value = "/cartAccount", method = RequestMethod.GET/*, headers = "api-version=1"*/)
 	@ResponseBody
 	public Map<String,Object> cartAccount(){
-		Integer custId = 6066;
+		UserDto userDto = super.getLoginUser();
+		int custId = userDto.getCustId();
+
 		Map<String,Object> result = new HashMap<>();
 
 		if(UtilHelper.isEmpty(custId)) {
