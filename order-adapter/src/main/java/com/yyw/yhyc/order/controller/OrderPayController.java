@@ -140,7 +140,7 @@ public class OrderPayController extends BaseController {
 
 		/* 在线支付订单前，组装订单数据 */
 		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-		Map<String,Object> payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType,2);
+		Map<String,Object> payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType,3);
 
 		if( null == payRequestParamMap || payRequestParamMap.size() == 0){
 			return error("非法参数");
