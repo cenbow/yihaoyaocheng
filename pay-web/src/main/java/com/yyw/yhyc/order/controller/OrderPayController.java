@@ -242,4 +242,13 @@ public class OrderPayController extends BaseJsonController {
 		//payService.redundCallBack(super.request);
 		return "success";
 	}
+
+	/**
+	 * App银联支付（同步响应的页面）
+	 * @return
+     */
+	@RequestMapping(value = "/chinaPayAppSubmitSuccess", method = RequestMethod.GET)
+	public ModelAndView chinaPayAppSubmitSuccess(){
+		return new ModelAndView("orderPay/chinaPayAppSubmitSuccess");
+	}
 }
