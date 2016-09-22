@@ -57,7 +57,7 @@ public class OrderPayController extends BaseJsonController {
 		this.systemPayTypeService = systemPayTypeService;
 	}
 
-	@Reference(timeout = 50000,version ="0.0.2")
+	@Reference(timeout = 50000)
 	private CreditDubboServiceInterface creditDubboService;
 
 	private OrderService orderService;
