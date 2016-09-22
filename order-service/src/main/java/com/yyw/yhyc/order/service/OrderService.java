@@ -2650,7 +2650,7 @@ public class OrderService {
 				temp.put("supplyName",od.getSupplyName());
 				temp.put("orderTotal",od.getOrgTotal());
 				temp.put("finalPay",od.getOrgTotal());
-				temp.put("varietyNumber","2");//品种 // TODO: 2016/9/20 待获取
+				temp.put("varietyNumber",UtilHelper.isEmpty(od.getOrderDetailList()) ? 0 : od.getOrderDetailList().size());//品种
 				temp.put("productNumber",od.getTotalCount());//商品数量
 				temp.put("residualTime",time);//⽀付剩余时间 秒
 				temp.put("delayTimes", UtilHelper.isEmpty(od.getDelayTimes()) ? 0 : od.getDelayTimes());
@@ -2787,6 +2787,7 @@ public class OrderService {
 			try {
 				orderMapper.update(order);
 				resutlMap.put("statusCode", 0);
+				resutlMap.put("message","成功");
 			}catch (Exception e){
 				resutlMap.put("statusCode",-3);
 				resutlMap.put("message","延迟收货异常,请您稍后再试");

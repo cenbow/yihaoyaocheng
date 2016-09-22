@@ -2128,7 +2128,7 @@ public class OrderExceptionService {
                 temp.put("finalPay", od.getOrderMoneyTotal());
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
-                temp.put("qq", "7777777");// TODO: 2016/9/20 待查询
+                temp.put("qq", "");// TODO: 2016/9/20 待查询
                 temp.put("productList", getProductList(od.getOrderReturnList()));
                 orderList.add(temp);
             }
@@ -2202,21 +2202,23 @@ public class OrderExceptionService {
             return null;
         }
         OrderBean orderBean = new OrderBean();
+        orderBean.setOrderStatus(convertAppExceptionOrderStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getReturnType()));
         if (orderStatus == 800) {
             BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType());
-            orderBean.setOrderStatus(buyerOrderExceptionStatusEnum.getValue());
+            orderBean.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
         }
         if (orderStatus == 900) {
             BuyerReplenishmentOrderStatusEnum buyerReplenishmentOrderStatusEnum;
             buyerReplenishmentOrderStatusEnum = getBuyerReplenishmentOrderStatus(orderExceptionDto.getOrderStatus());
             if (!UtilHelper.isEmpty(buyerReplenishmentOrderStatusEnum))
-                orderExceptionDto.setOrderStatusName(buyerReplenishmentOrderStatusEnum.getValue());
+                orderBean.setOrderStatusName(buyerReplenishmentOrderStatusEnum.getValue());
             else
-                orderExceptionDto.setOrderStatusName("未知状态");
+                orderBean.setOrderStatusName("未知状态");
         }
         orderBean.setOrderId(orderExceptionDto.getFlowId());
         orderBean.setCreateTime(orderExceptionDto.getCreateTime());
         orderBean.setApplyTime(orderExceptionDto.getCreateTime());
+        orderBean.setSupplyId(orderExceptionDto.getSupplyId());
         orderBean.setSupplyName(orderExceptionDto.getSupplyName());
         orderBean.setLeaveMsg("");
         orderBean.setQq("");
@@ -2245,6 +2247,7 @@ public class OrderExceptionService {
                 productNumber += orderReturnDto.getReturnCount();
                 productList.add(orderProductBean);
             }
+            orderBean.setProductList(productList);
             orderBean.setVarietyNumber(orderExceptionDto.getOrderReturnList().size());
             orderBean.setProductNumber(productNumber);
         }
