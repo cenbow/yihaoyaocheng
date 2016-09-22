@@ -20,7 +20,7 @@ public interface PayService {
      * @return
      * @throws Exception
      */
-    public Map<String,Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType) throws Exception ;
+    public Map<String,Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType,int type) throws Exception ;
 
 
     /**
@@ -29,6 +29,15 @@ public interface PayService {
      * @return
      */
     public String  paymentCallback(HttpServletRequest request) ;
+
+
+    /**
+     * 账期还款支付成功回调
+     * @param request
+     * @return
+     */
+    public String  paymentOfAccountCallback(HttpServletRequest request) ;
+
 
     /**
      * 分账成功回调

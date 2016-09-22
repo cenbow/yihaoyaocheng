@@ -163,7 +163,7 @@
 		SELECT count(1) AS totalcount FROM t_order_issued WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="findOrderIssuedListBySupplyId" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper">
+	<select id="findOrderIssuedListBySupplyId" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
 			O.FLOW_ID,
 			O.ORG_TOTAL,
@@ -184,11 +184,11 @@
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL);
 	</select>
-	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper">
+	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
 		SELECT OD.PRODUCT_ID ,OD.PRODUCT_COUNT,OD.PRODUCT_PRICE,OD.SUPPLY_ID,OD.SPU_CODE,OD.PRODUCT_CODE FROM T_ORDER_DETAIL OD
 		WHERE OD.ORDER_ID = #{orderId}
 	</select>
-	<select id="findByFlowId" parameterType="java.lang.String"  resultMap="OrderIssuedResultMapper">
+	<select id="findByFlowId" parameterType="java.lang.String"  resultMap="OrderIssuedResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_issued WHERE flow_id = #{flowId} limit 1

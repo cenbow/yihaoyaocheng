@@ -2,6 +2,8 @@
 <%@ page import="com.yyw.yhyc.helper.UtilHelper" %>
 <%@ page import="com.yyw.yhyc.utils.CacheUtil" %>
 <%@ page import="com.alibaba.fastjson.JSONObject" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <body>
@@ -19,6 +21,12 @@
     if(!UtilHelper.isEmpty(request.getParameter("custType"))){
         u.setValidate(true);
         CacheUtil.getSingleton().add("passport" + session.getId(), JSONObject.toJSONString(u), 60 * 60 * 4);
+
+        if(!UtilHelper.isEmpty(request.getParameter("custType"))){
+            Map<String, Object> commoninfo = new HashMap<String, Object>();
+            commoninfo.put("roleType", Integer.parseInt(request.getParameter("custType")));
+            CacheUtil.getSingleton().add("commoninfo" + session.getId(), JSONObject.toJSONString(commoninfo), 60 * 60 * 4);
+        }
     }
 %>
 
@@ -27,7 +35,7 @@
 <form action="<%=request.getContextPath().toString()%>/" method="post">
     *custId:<input type="text" name="custId" value="${custId}"/><br/>
     *userName:<input type="text" name="userName" value="${userName}"/><br/>
-    *custType:<input id="radio1" type="radio" name="custType" value="101"><label for="radio1">买家</label><input id="radio2" name="custType" type="radio" value="201"><label for="radio2">卖家</label><input id="radio3" name="custType" type="radio" value="301"><label for="radio3">买卖家</label><br/>
+    *custType:<input id="radio1" type="radio" name="custType" value="1"><label for="radio1">买家</label><input id="radio2" name="custType" type="radio" value="2"><label for="radio2">卖家</label><input id="radio3" name="custType" type="radio" value="3"><label for="radio3">买卖家</label><br/>
     <input type="submit" value="登录" />
 </form>
 </body>
