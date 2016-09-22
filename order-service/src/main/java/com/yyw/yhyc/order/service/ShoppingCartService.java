@@ -30,6 +30,7 @@ import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -342,6 +343,11 @@ public class ShoppingCartService {
 					continue;
 				}
 
+				/* 获取商品图片 */
+				String productImgUrl = getProductImgUrl(shoppingCartDto.getSpuCode(),iProductDubboManageService);
+				shoppingCartDto.setProductImageUrl(productImgUrl);
+
+
 				/* 最小起批量、最小拆零包装   */
 				Map map = new HashMap();
 				map.put("spu_code", shoppingCartDto.getSpuCode());
@@ -391,6 +397,36 @@ public class ShoppingCartService {
 			}
 		}
 		return allShoppingCart;
+	}
+
+	public String getProductImgUrl(String spuCode, IProductDubboManageService iProductDubboManageService) {
+		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		if(UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(iProductDubboManageService)){
+			return filePath;
+		}
+		Map map = new HashMap();
+		map.put("spu_code", spuCode);
+		map.put("type_id", "1");
+		List picUrlList = null;
+		try{
+			logger.info("查询图片接口:请求参数：map=" + map);
+			picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+			logger.info("查询图片接口:响应参数：picUrlList=" + picUrlList);
+		}catch (Exception e){
+			logger.error("查询图片接口:响应异常：" + e.getMessage(),e);
+			return filePath;
+		}
+		if(UtilHelper.isEmpty(picUrlList) ){
+			logger.error("调用图片接口：无响应");
+			return filePath;
+		}
+		JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+		String file_path = (String)productJson.get("file_path");
+		if (UtilHelper.isEmpty(file_path)){
+			return filePath;
+		}else{
+			return MyConfigUtil.IMG_DOMAIN + file_path;
+		}
 	}
 
 	/**

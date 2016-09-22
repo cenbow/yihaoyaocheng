@@ -2603,7 +2603,7 @@ public class OrderService {
 	 * @param orderStatus
      * @return
      */
-	public Map<String,Object> listBuyerOderForApp(Pagination<OrderDto> pagination,String orderStatus,int custId){
+	public Map<String,Object> listBuyerOderForApp(Pagination<OrderDto> pagination,String orderStatus,int custId,IProductDubboManageService iProductDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		OrderDto orderDto = new OrderDto();
 		orderDto.setCustId(custId);
@@ -2655,8 +2655,8 @@ public class OrderService {
 				temp.put("residualTime",time);//⽀付剩余时间 秒
 				temp.put("delayTimes", UtilHelper.isEmpty(od.getDelayTimes()) ? 0 : od.getDelayTimes());
 				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
-				temp.put("qq","7777777");// TODO: 2016/9/20 待查询
-				temp.put("productList",getProductList(od.getOrderDetailList()));
+				temp.put("qq","");
+				temp.put("productList",getProductList(od.getOrderDetailList(),iProductDubboManageService));
 				orderList.add(temp);
 			}
 		}
@@ -2671,14 +2671,14 @@ public class OrderService {
 	 * @param orderDetailList
 	 * @return
      */
-	List<Map<String,Object>> getProductList(List<OrderDetail> orderDetailList){
+	List<Map<String,Object>> getProductList(List<OrderDetail> orderDetailList,IProductDubboManageService iProductDubboManageService){
 		List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> map = null;
 		if(!UtilHelper.isEmpty(orderDetailList)){
 			for(OrderDetail od : orderDetailList){
 				map = new HashMap<String,Object>();
 				map.put("productId",od.getProductId());
-				map.put("productPicUrl","http://p4.maiyaole.com/img/50018/50018517/120_120.jpg?a=491206437");// TODO: 2016/9/21  需调用图片接口
+				map.put("productPicUrl",getProductImg(od.getSpuCode(),iProductDubboManageService));
 				map.put("productName",od.getProductName());
 				map.put("spec",od.getSpecification());
 				map.put("unit","");
@@ -2690,6 +2690,31 @@ public class OrderService {
 		}
 
 		return resultList;
+	}
+
+	/**
+	 * 获取商品图片链接
+	 * @param spuCode
+	 * @param iProductDubboManageService
+     * @return
+     */
+	private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
+		String filePath="";
+		Map map = new HashMap();
+		map.put("spu_code", spuCode);
+		map.put("type_id", "1");
+		try{
+			List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+			if(UtilHelper.isEmpty(picUrlList))
+				return "";
+			JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+			filePath = (String)productJson.get("file_path");
+			if (UtilHelper.isEmpty(filePath))
+				return "";
+		}catch (Exception e){
+			log.error("查询图片接口:调用异常," + e.getMessage(),e);
+		}
+		return filePath;
 	}
 
 	/**z`
