@@ -222,7 +222,7 @@ public class ChinaPayServiceImpl implements PayService {
         receiveAccountName=orderPayDto.getReceiveAccountName();
         if(!UtilHelper.isEmpty(orderPayDto)&&!UtilHelper.isEmpty(orderPayDto.getReceiveAccountNo())){
                   MerSpringCustomer.append(orderPayDto.getReceiveAccountName());
-                    MerSplitMsg.append(orderPayDto.getReceiveAccountNo()+"^"+orderPayDto.getOrderMoney().multiply(new BigDecimal(100)).intValue());
+                  MerSplitMsg.append(orderPayDto.getReceiveAccountNo()+"^"+orderPayDto.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         }else{
                 isNoHaveMerId=true;
         }
