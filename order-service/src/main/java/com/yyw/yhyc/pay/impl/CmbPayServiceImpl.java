@@ -470,8 +470,8 @@ public class CmbPayServiceImpl implements PayService{
 
 
     //账期还款回调
-    public String  paymentOfAccountCallback(HttpServletRequest request){
+    public Map<String,String>    paymentOfAccountCallback(HttpServletRequest request){
 
-        return "";
+        return null;
     }
 }

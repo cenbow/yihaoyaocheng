@@ -121,7 +121,7 @@ public class ChinaPayServiceImpl implements PayService {
         }
         Map<String,Object> paramMap = new HashMap<>();
         if(type==1){
-            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("tradeReturnHost") + "trade-web/credit/creditRefundList");
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayOfAccountCallback");
             return findPayMapOfAccount(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else if( 2 == type){
@@ -287,9 +287,9 @@ public class ChinaPayServiceImpl implements PayService {
             map.put("MerSplitMsg",MerSplitMsg.toString());
         }
         map.put("fromWhere", fromWhere);
+        map.put("SplitType","0001");
         map=HttpRequestHandler.getSubmitFormMap(map);
         map=HttpRequestHandler.getSignMap(map);
-        map.put("SplitType","0001");
         log.info("发送银联支付请求之前，组装数据map=" + map);
         return map;
     }
@@ -750,8 +750,8 @@ public class ChinaPayServiceImpl implements PayService {
     }
 
     //账期还款回调
-    public String  paymentOfAccountCallback(HttpServletRequest request){
-        String flag="1";
+    public Map<String,String>  paymentOfAccountCallback(HttpServletRequest request){
+        Map returnMap=new HashMap();
         try{
             log.info("支付成功后回调开始。。。。。。。。");
             printRequestParam("支付成功后回调",request);
@@ -759,21 +759,22 @@ public class ChinaPayServiceImpl implements PayService {
             //解析参数转成map
             map=getParameter(request);
             //if(SignUtil.verify(map)){
-            if(true){
                 String orderStatus=map.get("OrderStatus").toString();
                 if(orderStatus.equals("0000")){
                     map.put("flowPayId",map.get("MerOrderNo"));
                     map.put("money", map.get("OrderAmt"));
                     //回调更新信息
-                    orderPayManage.orderPayOfAccountReturn(map);
+                   returnMap=orderPayManage.orderPayOfAccountReturn(map);
+                }else{
+                    returnMap.put("isSuccess","0");
+                    returnMap.put("message",orderStatus);
                 }
-            }
         }catch (Exception e){
-            flag="0";
+            returnMap.put("isSuccess","0");
+            returnMap.put("message",e.getMessage());
             e.printStackTrace();
             log.error("银联支付成功回调");
         }
-
-        return flag;
+        return returnMap;
     }
 }
