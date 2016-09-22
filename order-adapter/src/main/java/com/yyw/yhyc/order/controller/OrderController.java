@@ -11,6 +11,8 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
@@ -44,6 +46,9 @@ import java.util.Map;
 @RequestMapping(value = "/order")
 public class OrderController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+	@Reference
+	private IProductDubboManageService iProductDubboManageService;
 
 	@Autowired
 	private OrderService orderService;
@@ -168,7 +173,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
+		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId(),iProductDubboManageService));
 	}
 
 	/**
@@ -185,7 +190,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
+		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId(),iProductDubboManageService));
 	}
 
 

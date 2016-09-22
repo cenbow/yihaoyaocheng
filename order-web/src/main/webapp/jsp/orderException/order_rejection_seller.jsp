@@ -18,7 +18,7 @@
             <div class="row no-margin">
                 <ol class="breadcrumb">
                     <li><a href="#"><i class="fa fa-map-marker fa-3"></i>首页</a></li>
-                    <li class="active">卖家拒收订单管理</li>
+                    <li class="active">拒收订单管理</li>
                 </ol>
             </div>
             <div class="row choseuser border-gray">

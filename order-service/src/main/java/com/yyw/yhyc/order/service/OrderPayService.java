@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.alibaba.druid.support.logging.Log;
 import com.alibaba.druid.support.logging.LogFactory;
@@ -74,31 +75,6 @@ public class OrderPayService {
 	@Autowired
 	public void setOrderCombinedMapper(OrderCombinedMapper orderCombinedMapper) {
 		this.orderCombinedMapper = orderCombinedMapper;
-	}
-
-	class OrderAccount{
-
-			private String flowId;
-			private String money;
-
-		public String getFlowId() {
-			return flowId;
-		}
-
-		public void setFlowId(String flowId) {
-			this.flowId = flowId;
-		}
-
-		public String getMoney() {
-			return money;
-		}
-
-		public void setMoney(String money) {
-			this.money = money;
-		}
-
-		public OrderAccount() {
-		}
 	}
 
 	/**
@@ -337,7 +313,7 @@ public class OrderPayService {
 		if(UtilHelper.isEmpty(payFlowId)) return null;
 		if(UtilHelper.isEmpty(supplyId)) return null;
 
-		List<OrderAccount> list = JsonHelper.fromList(listStr, OrderAccount.class);
+		List<Map> list = JsonHelper.fromList(listStr, Map.class);
 
 		/* 查询、校验、处理合法订单数据 */
 		Order order = null;
@@ -347,23 +323,25 @@ public class OrderPayService {
 		BigDecimal needToPayTotal = new BigDecimal(0);//需要支付的金额(实付)
 		List<Integer> orderIdList = new ArrayList<>();
 
-		for(OrderAccount orderAccount : list){
-			if(UtilHelper.isEmpty(orderAccount)) continue;
-			order = orderMapper.getOrderbyFlowId(orderAccount.getFlowId().trim());
+
+		for(Map<String,String> orderMap : list){
+			if(UtilHelper.isEmpty(orderMap)) continue;
+			order = orderMapper.getOrderbyFlowId(orderMap.get("flowId").trim());
 			if(UtilHelper.isEmpty(order)) continue;
-			if(!order.getSupplyId().equals(supplyId)) continue;
-			BigDecimal money=new BigDecimal(Integer.parseInt(orderAccount.getMoney()));
+			if(!order.getSupplyId().toString().equals(supplyId.trim())) continue;
+			BigDecimal money=new BigDecimal(orderMap.get("money").trim());
+			money=money.setScale(2, BigDecimal.ROUND_DOWN);
 			OrderException orderException=new OrderException();
 			orderException.setFlowId(order.getFlowId());
 			orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
 			List<OrderException> eList = orderExceptionMapper.listByProperty(orderException);
 			if(eList.size()>0){
 				if(money.compareTo(order.getOrderTotal().subtract(eList.get(0).getOrderMoney()))!=0){
-					throw new Exception("订单"+orderAccount.getFlowId()+"的金额不正确。");
+					throw new Exception("订单"+order.getFlowId()+"的金额不正确。");
 				}
 			}else{
 				if(money.compareTo(order.getOrderTotal())!=0){
-					throw new Exception("订单"+orderAccount.getFlowId()+"的金额不正确。");
+					throw new Exception("订单"+order.getFlowId()+"的金额不正确。");
 				}
 			}
 			orderTotal = orderTotal.add(money);
@@ -372,6 +350,7 @@ public class OrderPayService {
 			orderCount++;
 			orderIdList.add(order.getOrderId());
 		}
+
 
 		if(orderCount == 0 || orderIdList.size() == 0) return null;
 

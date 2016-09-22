@@ -43,6 +43,8 @@
 		<result column="cust_id" property="custId"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="org_total" property="orgTotal"/>
+		<result column="order_money" property="orderMoney"/>
+
 	</resultMap>
 
 	<sql id="commonColumns">
@@ -259,7 +261,7 @@
 
 
 	<select id="listOrderPayDtoByProperty" parameterType="OrderPay" resultMap="OrderPayDtoResultMapper">
-		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no FROM
+		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no,p.order_money FROM
 		t_order_pay p,t_order o,t_order_combined c,t_account_pay_info a
 		WHERE p.pay_flow_id=c.pay_flow_id AND c.order_combined_id=o.order_combined_id
 		AND o.supply_id=a.cust_id AND a.account_status=1
