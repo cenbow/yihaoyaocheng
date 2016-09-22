@@ -36,7 +36,7 @@ public interface PayService {
      * @param request
      * @return
      */
-    public String  paymentOfAccountCallback(HttpServletRequest request) ;
+    public Map<String,String> paymentOfAccountCallback(HttpServletRequest request) ;
 
 
     /**

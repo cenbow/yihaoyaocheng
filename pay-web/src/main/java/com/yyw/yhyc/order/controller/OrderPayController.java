@@ -11,6 +11,9 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yao.trade.interfaces.credit.model.RefundCallBack;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
@@ -53,6 +56,9 @@ public class OrderPayController extends BaseJsonController {
 	public void setSystemPayTypeService(SystemPayTypeService systemPayTypeService) {
 		this.systemPayTypeService = systemPayTypeService;
 	}
+
+	@Reference(timeout = 50000,version ="0.0.2")
+	private CreditDubboServiceInterface creditDubboService;
 
 	private OrderService orderService;
 	@Autowired
@@ -211,13 +217,22 @@ public class OrderPayController extends BaseJsonController {
 	}
 
 	/**
-	 * 银联支付成功回调
+	 * 账期还款银联支付成功回调
 	 * @return
 	 */
 	@RequestMapping(value = "/chinaPayOfAccountCallback", method = RequestMethod.POST)
 	public String chinaPayOfAccountCallback(){
 		PayService payService = (PayService) SpringBeanHelper.getBean("chinaPayService");
-		payService.paymentOfAccountCallback(super.request);
+		Map<String,String> map= payService.paymentOfAccountCallback(super.request);
+		RefundCallBack refundCallBack=new RefundCallBack();
+		refundCallBack.setIsSuccess(map.get("isSuccess"));
+		refundCallBack.setMessage(map.get("message"));
+		refundCallBack.setOrderCodes(map.get("orderCodes"));
+		if(UtilHelper.isEmpty(creditDubboService)){
+			logger.error("CreditDubboServiceInterface creditDubboService is null");
+		}else {
+			creditDubboService.updateBankInfoCallback(refundCallBack);
+		}
 		return "success";
 	}
 

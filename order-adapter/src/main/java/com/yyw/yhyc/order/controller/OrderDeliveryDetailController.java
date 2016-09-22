@@ -137,7 +137,7 @@ public class OrderDeliveryDetailController extends BaseController {
 		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
 		pagination.setPaginationFlag(false);
 		OrderDeliveryDetailDto orderDeliveryDetailDto=new OrderDeliveryDetailDto();
-		orderDeliveryDetailDto.setFlowId("ZXD20160907114336248");
+		orderDeliveryDetailDto.setFlowId(orderId);
 		orderDeliveryDetailDto.setCustId(6066);
 		Pagination<OrderDeliveryDetailDto>  paginationList = orderDeliveryDetailService.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 		if(!UtilHelper.isEmpty(paginationList)&&paginationList.getResultList().size()>0){
