@@ -1167,7 +1167,7 @@
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order WHERE
-		order_status=5 or (order_status=1 and pay_type_id=2)
+		(order_status=5 or (order_status=1 and pay_type_id=2))
 		and pay_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
 	</select>
 
