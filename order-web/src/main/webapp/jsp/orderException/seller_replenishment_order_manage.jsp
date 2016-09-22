@@ -26,7 +26,7 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>补货订单管理</a></li>
+                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>首页</a></li>
                     <li class="active">补货订单管理</li>
                 </ol>
             </div>
