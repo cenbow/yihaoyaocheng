@@ -53,6 +53,7 @@
 			<mvc:exclude-mapping path="/orderPay/chinaPayCallback"/>
 			<mvc:exclude-mapping path="/orderPay/chinaPaySpiltPaymentCallback"/>
 			<mvc:exclude-mapping path="/orderPay/chinaPayRedundCallBack"/>
+			<mvc:exclude-mapping path="/orderPay/chinaPayAppSubmitSuccess"/>
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
 		</mvc:interceptor>
 

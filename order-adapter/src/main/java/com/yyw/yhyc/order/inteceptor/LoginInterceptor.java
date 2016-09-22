@@ -32,7 +32,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String sid = request.getHeader(TOKEN);
-        if(!isApp(request))
+        if(UtilHelper.isEmpty(sid) && !isApp(request))
             sid = request.getSession().getId();
 
         return this.jump(request, response, handler, sid);
