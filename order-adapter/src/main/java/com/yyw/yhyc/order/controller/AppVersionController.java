@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/version", headers = "Accept=application/json;")
-public class AppVersionController {
+public class AppVersionController extends BaseController {
   
 	@Autowired
 	private AppVersionService appVersionService;
