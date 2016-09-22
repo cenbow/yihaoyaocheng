@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/order/version", headers = "Accept=application/json;")
+@RequestMapping(value = "/version", headers = "Accept=application/json;")
 public class AppVersionController {
   
 	@Autowired
@@ -23,7 +23,7 @@ public class AppVersionController {
 	private final static String SUCCESS_MESSAGE = "成功";
 
 	
-	@RequestMapping(value = "/v{version}/getAppNewVersion/{versionCode}")
+	@RequestMapping(value = "/getAppNewVersion/{versionCode}")
 	public Map<String, Object> getAppNewVersion(@PathVariable("versionCode") int  versionCode, HttpServletRequest request){
 		Map<String, Object> restultMap = new HashMap<String, Object>();
 		restultMap.put("statusCode", "0");
