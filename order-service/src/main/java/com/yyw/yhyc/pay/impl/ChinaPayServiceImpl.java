@@ -121,7 +121,7 @@ public class ChinaPayServiceImpl implements PayService {
         }
         Map<String,Object> paramMap = new HashMap<>();
         if(type==1){
-            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("tradeReturnHost") + "trade-web/credit/creditRefundList");
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayOfAccountCallback");
             return findPayMapOfAccount(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else if( 2 == type){
@@ -287,9 +287,9 @@ public class ChinaPayServiceImpl implements PayService {
             map.put("MerSplitMsg",MerSplitMsg.toString());
         }
         map.put("fromWhere", fromWhere);
+        map.put("SplitType","0001");
         map=HttpRequestHandler.getSubmitFormMap(map);
         map=HttpRequestHandler.getSignMap(map);
-        map.put("SplitType","0001");
         log.info("发送银联支付请求之前，组装数据map=" + map);
         return map;
     }
