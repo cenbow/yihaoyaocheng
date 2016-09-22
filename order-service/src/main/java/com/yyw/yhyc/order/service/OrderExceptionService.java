@@ -2128,7 +2128,7 @@ public class OrderExceptionService {
                 temp.put("finalPay", od.getOrderMoneyTotal());
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
-                temp.put("qq", "7777777");// TODO: 2016/9/20 待查询
+                temp.put("qq", "");// TODO: 2016/9/20 待查询
                 temp.put("productList", getProductList(od.getOrderReturnList()));
                 orderList.add(temp);
             }
