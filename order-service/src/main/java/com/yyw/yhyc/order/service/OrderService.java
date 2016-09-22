@@ -1803,8 +1803,9 @@ public class OrderService {
 			creditParams.setStatus("6");
 			log.info("******************：调用资信接口开始");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-			log.info("******************：调用资信接口结束");
+			log.info("******************：调用资信接口结束,返回结果为："+creditDubboResult);
 			if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
+				log.info("******************：调用资信接口结束,返回结果为："+creditDubboResult.getIsSuccessful());
 				log.error("creditDubboResult error:" + (creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！"));
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
