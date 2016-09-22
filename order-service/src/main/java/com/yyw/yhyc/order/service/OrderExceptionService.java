@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.*;
 
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderProductBean;
@@ -27,6 +28,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.utils.DateUtils;
+import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hpsf.Util;
@@ -2080,7 +2082,7 @@ public class OrderExceptionService {
      * @param orderStatus
      * @return
      */
-    public Map<String, Object> listBuyerExceptionOderForApp(Pagination<OrderExceptionDto> pagination, String orderStatus, int custId) {
+    public Map<String, Object> listBuyerExceptionOderForApp(Pagination<OrderExceptionDto> pagination, String orderStatus, int custId,IProductDubboManageService iProductDubboManageService) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
         orderExceptionDto.setCustId(custId);
@@ -2128,8 +2130,8 @@ public class OrderExceptionService {
                 temp.put("finalPay", od.getOrderMoneyTotal());
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
-                temp.put("qq", "");// TODO: 2016/9/20 待查询
-                temp.put("productList", getProductList(od.getOrderReturnList()));
+                temp.put("qq", "");
+                temp.put("productList", getProductList(od.getOrderReturnList(),iProductDubboManageService));
                 orderList.add(temp);
             }
         }
@@ -2158,14 +2160,14 @@ public class OrderExceptionService {
      * @param orderReturnDtoList
      * @return
      */
-    List<Map<String,Object>> getProductList(List<OrderReturnDto> orderReturnDtoList){
+    List<Map<String,Object>> getProductList(List<OrderReturnDto> orderReturnDtoList,IProductDubboManageService iProductDubboManageService){
         List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
         Map<String,Object> map = null;
         if(!UtilHelper.isEmpty(orderReturnDtoList)){
             for(OrderReturnDto od : orderReturnDtoList){
                 map = new HashMap<String,Object>();
                 map.put("productId",od.getProductId());
-                map.put("productPicUrl","http://p4.maiyaole.com/img/50018/50018517/120_120.jpg?a=491206437");// TODO: 2016/9/21  需调用图片接口
+                map.put("productPicUrl",getProductImg(od.getSpuCode(),iProductDubboManageService));
                 map.put("productName",od.getProductName());
                 map.put("spec",od.getSpecification());
                 map.put("unit","");
@@ -2177,6 +2179,31 @@ public class OrderExceptionService {
         }
 
         return resultList;
+    }
+
+    /**
+     * 获取商品图片链接
+     * @param spuCode
+     * @param iProductDubboManageService
+     * @return
+     */
+    private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
+        String filePath="";
+        Map map = new HashMap();
+        map.put("spu_code", spuCode);
+        map.put("type_id", "1");
+        try{
+            List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+            if(UtilHelper.isEmpty(picUrlList))
+                return "";
+            JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+            filePath = (String)productJson.get("file_path");
+            if (UtilHelper.isEmpty(filePath))
+                return "";
+        }catch (Exception e){
+            log.error("查询图片接口:调用异常," + e.getMessage(),e);
+        }
+        return filePath;
     }
 
     /**

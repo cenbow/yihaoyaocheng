@@ -91,6 +91,7 @@ public class ChinaPayServiceImpl implements PayService {
      * 在发送支付请求之前，组装数据
      * @param orderPay
      * @param systemPayType
+     * @param type 1 表示：账期还款  2 表示PC在线支付 3 表示APP在线支付
      * @return
      * @throws Exception
      */
@@ -118,16 +119,36 @@ public class ChinaPayServiceImpl implements PayService {
             log.info("订单支付信息不存在");
             throw new RuntimeException("订单支付信息不存在");
         }
+        Map<String,Object> paramMap = new HashMap<>();
         if(type==1){
-             return findPayMapOfAccount(orderPay.getPayFlowId(),systemPayType,list);
-        }else {
-            return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list);
+            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+            paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayOfAccountCallback");
+            return findPayMapOfAccount(orderPay.getPayFlowId(),systemPayType,list,paramMap);
+        }else if( 2 == type){
+            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+            paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
+            return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list,paramMap);
+        }else if( 3 == type){
+            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayAppSubmitSuccess");
+            paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
+            return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list,paramMap);
+        }else{
+            log.error("非法Type参数：type=" + type);
+            throw new RuntimeException("非法Type参数");
         }
     }
 
 
-    //组装数据
-    private Map<String,Object> findPayMapByPayFlowId(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list) throws Exception{
+    /**
+     * 组装数据
+     * @param payFlowId
+     * @param systemPayType
+     * @param list
+     * @param paramMap  有差异化的参数
+     * @return
+     * @throws Exception
+     */
+    private Map<String,Object> findPayMapByPayFlowId(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list,Map<String,Object> paramMap) throws Exception{
         Map<String,Object> map=new HashMap<String,Object>();
 
         SimpleDateFormat datefomet=new SimpleDateFormat("yyyyMMdd,HHmmss");
@@ -179,10 +200,9 @@ public class ChinaPayServiceImpl implements PayService {
         map.put("TranTime", fDate.split(",")[1]);
         String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         map.put("OrderAmt", OrderAmt);
-        map.put("MerPageUrl", PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+        map.put("MerPageUrl", paramMap.get(RETURN_RESPONSE_URL));
+        map.put("MerBgUrl", paramMap.get(ASYNC_CALL_BACK_URL));
 
-        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
-        log.info(PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
         String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
         log.info("CommodityMsg=" + CommodityMsg);
         map.put("CommodityMsg", CommodityMsg);
@@ -199,8 +219,16 @@ public class ChinaPayServiceImpl implements PayService {
         return map;
     }
 
-    //账期还款组装数据
-    private Map<String,Object> findPayMapOfAccount(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list) throws Exception{
+    /**
+     * 账期还款组装数据
+     * @param payFlowId
+     * @param systemPayType
+     * @param list
+     * @param paramMap 有差异化的参数
+     * @return
+     * @throws Exception
+     */
+    private Map<String,Object> findPayMapOfAccount(String payFlowId,SystemPayType systemPayType,List<OrderPayDto> list,Map<String,Object> paramMap) throws Exception{
         Map<String,Object> map=new HashMap<String,Object>();
 
         SimpleDateFormat datefomet=new SimpleDateFormat("yyyyMMdd,HHmmss");
@@ -246,10 +274,9 @@ public class ChinaPayServiceImpl implements PayService {
         map.put("TranTime", fDate.split(",")[1]);
         String OrderAmt=String.valueOf(orderPay.getOrderMoney().multiply(new BigDecimal(100)).intValue());
         map.put("OrderAmt", OrderAmt);
-        map.put("MerPageUrl", PayUtil.getValue("orderReturnHost") + "order/buyerOrderManage");
+        map.put("MerPageUrl", paramMap.get(RETURN_RESPONSE_URL));
+        map.put("MerBgUrl", paramMap.get(ASYNC_CALL_BACK_URL));
 
-        map.put("MerBgUrl", PayUtil.getValue("payReturnHost") + "orderPay/chinaPayOfAccountCallback");
-        log.info(PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
         String CommodityMsg= HttpRequestHandler.bSubstring(MerSpringCustomer.toString(), 80);
         log.info("CommodityMsg=" + CommodityMsg);
         map.put("CommodityMsg", CommodityMsg);
