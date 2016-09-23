@@ -358,7 +358,7 @@ public class ShoppingCartService {
 				String unit = "";
 				Integer saleStart = 1;
 				List productList = null;
-				Integer putaway_status = 0;
+				Integer putaway_status = 0; //（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
 					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
@@ -373,7 +373,7 @@ public class ShoppingCartService {
 					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")+"") ? 1 : (int) productJson.get("minimum_packing");
 					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")+"") ? 1 : Integer.valueOf(productJson.get("wholesale_num")+"") ;
 					unit = UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
-					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? null : Integer.valueOf( productJson.get("putaway_status")+"");
+					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : Integer.valueOf( productJson.get("putaway_status")+"");
 				}
 
 				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
