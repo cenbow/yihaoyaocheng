@@ -154,9 +154,9 @@ public class OrderPayController extends BaseJsonController {
 	public ModelAndView RepaymentOfAccountPay(@RequestParam("listStr") String listStr,@RequestParam("payTypeId") int payTypeId,@RequestParam("supplyId") String supplyId) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		if(userDto == null ){
-			userDto=new UserDto();
-			userDto.setCustId(6066);
+			throw new Exception("登陆超时");
 		}
+		logger.info("账期还款订单："+listStr+"payTypeId:"+payTypeId+"supplyId:"+supplyId);
 		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
 		if(UtilHelper.isEmpty(systemPayType)){
 			throw new Exception("登陆超时");
