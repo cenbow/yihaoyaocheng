@@ -32,7 +32,11 @@ public class SignUtil {
 			pPc.setProperty("verify.file", path + pPc.getProperty("verify.file"));
 			pPc.setProperty("sign.file", path + pPc.getProperty("sign.file"));
 			System.out.println(path);
-			if(!new File(pPc.getProperty("sign.file")).exists()){
+			File f= new File(pPc.getProperty("sign.file"));
+			if(!f.exists()){
+				createSignFile(pPc,path);
+			}else{
+				f.delete();
 				createSignFile(pPc,path);
 			}
 		 } catch (IOException e) {
@@ -50,7 +54,11 @@ public class SignUtil {
 				pApp.setProperty("verify.file", path + pApp.getProperty("verify.file"));
 				pApp.setProperty("sign.file", path + pApp.getProperty("sign.file"));
 				System.out.println(path);
-				if(!new File(pApp.getProperty("sign.file")).exists()){
+				File f= new File(pApp.getProperty("sign.file"));
+				if(!f.exists()){
+					createSignAppFile(pApp,path);
+				}else{
+					f.delete();
 					createSignAppFile(pApp,path);
 				}
 			 } catch (IOException e) {
@@ -68,9 +76,14 @@ public class SignUtil {
 				pB2b.setProperty("verify.file", path + pB2b.getProperty("verify.file"));
 				pB2b.setProperty("sign.file", path + pB2b.getProperty("sign.file"));
 				System.out.println(path);
-				if(!new File(pB2b.getProperty("sign.file")).exists()){
+				 File f=new File(pB2b.getProperty("sign.file"));
+				if(!f.exists()){
+					createSignB2bFile(pB2b,path);
+				}else{
+					f.delete();
 					createSignB2bFile(pB2b,path);
 				}
+
 			 } catch (IOException e) {
 				e.printStackTrace();
 			 }
