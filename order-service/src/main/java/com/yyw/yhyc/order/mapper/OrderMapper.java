@@ -33,7 +33,7 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 
 	public List<OrderDto> findSellerOrderStatusCount(OrderDto orderDto);
 
-	public void cancelOrderForNoPay();
+	public int cancelOrderForNoPay();
 
 	public List<Order> listOrderForNoDelivery();
 
