@@ -2105,19 +2105,22 @@ public class OrderExceptionService {
                     //获取买家视角订单状态
                     if (OrderExceptionTypeEnum.REPLENISHMENT.getType().equals(od.getReturnType())) {//补货
                         BuyerReplenishmentOrderStatusEnum buyerorderstatusenum = getBuyerReplenishmentOrderStatus(od.getOrderStatus());
-                        if (!UtilHelper.isEmpty(buyerorderstatusenum))
+                        if (!UtilHelper.isEmpty(buyerorderstatusenum)){
                             od.setOrderStatusName(buyerorderstatusenum.getValue());
+                            od.setOrderStatus(buyerorderstatusenum.getType());
+                        }
                         else
                             od.setOrderStatusName("未知类型");
-                        od.setOrderStatus(buyerorderstatusenum.getType());
                     }
                     if (OrderExceptionTypeEnum.REJECT.getType().equals(od.getReturnType())) {//拒收
                         BuyerOrderExceptionStatusEnum buyerorderstatusenum = getBuyerOrderExceptionStatus(od.getOrderStatus(),od.getPayType());
-                        if (!UtilHelper.isEmpty(buyerorderstatusenum))
+                        if (!UtilHelper.isEmpty(buyerorderstatusenum)){
                             od.setOrderStatusName(buyerorderstatusenum.getValue());
+                            od.setOrderStatus(buyerorderstatusenum.getType());
+                        }
                         else
                             od.setOrderStatusName("未知类型");
-                        od.setOrderStatus(buyerorderstatusenum.getType());
+
                     }
                 }
 
