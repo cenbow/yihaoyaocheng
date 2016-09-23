@@ -105,7 +105,7 @@
                                         <li class="fl td-item">
                                             <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
-                                            </p>`
+                                            </p>
                                             <p>${shoppingCartDto.manufactures}</p>
                                         </li>
                                         <li class="fl td-price">

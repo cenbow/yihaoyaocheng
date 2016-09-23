@@ -2630,11 +2630,12 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//获取买家视角订单状态
 					buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
-					if(!UtilHelper.isEmpty(buyerorderstatusenum))
+					if(!UtilHelper.isEmpty(buyerorderstatusenum)){
+						od.setOrderStatus(buyerorderstatusenum.getType());
 						od.setOrderStatusName(buyerorderstatusenum.getValue());
+					}
 					else
 						od.setOrderStatusName("未知类型");
-					od.setOrderStatus(buyerorderstatusenum.getType());
 				}
 				//获取支付剩余时间
 				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && SystemPayTypeEnum.PayOnline.getPayType() == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
