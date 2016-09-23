@@ -9,6 +9,7 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -317,11 +318,13 @@ public class OrderSettlementService {
                 //退款 暂时不做调整
                 break;
             case 5:
+                BigDecimal zero = new BigDecimal(0);
                 orderSettlement.setBusinessType(4);
                 orderSettlement.setCustId(order.getCustId());
                 orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
 
-                orderSettlement.setSettlementMoney(order.getOrgTotal());
+                orderSettlement.setSettlementMoney(zero.subtract(order.getOrgTotal()));
+                break;
             case 6:
                 orderSettlement.setBusinessType(1);//拒收退款
                 orderSettlement.setCustId(custId);
@@ -329,6 +332,7 @@ public class OrderSettlementService {
                 orderSettlement.setConfirmSettlement("0");//生成结算信息时都是未结算
 
                 orderSettlement.setSettlementMoney(order.getOrgTotal());
+                break;
             default:
                 break;
         }

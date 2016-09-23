@@ -1620,7 +1620,7 @@ public class OrderService {
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
 			String now = systemDateMapper.getSystemDate();
-			log.info("订单7个自然日未发货系统自动取消="+od.toString());
+			log.info("订单7个自然日未发货系统自动取消=" + od.toString());
 			od.setCancelTime(now);
 			od.setCancelResult("系统自动取消");
 			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoCanceled.getType());
@@ -1645,7 +1645,7 @@ public class OrderService {
 				sendCredit(od,creditDubboService,"5");
 			}
 			//库存
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(), od.getSupplyName(), "admin");
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -1709,7 +1709,7 @@ public class OrderService {
 		List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
 		for(OrderException o:le){
 			//异常订单收货
-			log.info("退货异常订单自动确认="+o.toString());
+			log.info("退货异常订单自动确认=" + o.toString());
 			Order order = orderMapper.getByPK(o.getOrderId());
 			SystemPayType systemPayType= systemPayTypeMapper.getByPK(order.getPayTypeId());
 			o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
@@ -1717,7 +1717,7 @@ public class OrderService {
 			orderExceptionMapper.update(o);
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
 			//调用资信接口
-			sendReundCredit(creditDubboService,systemPayType,o);
+			sendReundCredit(creditDubboService, systemPayType, o);
 		}
 	}
 
@@ -2174,6 +2174,23 @@ public class OrderService {
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
+				orderSettlementMapper.save(orderSettlement);
+			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
+				BigDecimal zero = new BigDecimal(0);
+				OrderSettlement orderSettlement = new OrderSettlement();
+				orderSettlement.setOrderId(order.getOrderId());
+				orderSettlement.setFlowId(order.getFlowId());
+				orderSettlement.setCustName(order.getCustName());
+				orderSettlement.setSupplyName(order.getSupplyName());
+				orderSettlement.setCreateTime(now);
+				orderSettlement.setOrderTime(order.getCreateTime());
+				orderSettlement.setSettlementTime(now);
+				orderSettlement.setPayTypeId(order.getPayTypeId());
+				orderSettlement.setCreateUser("systemManage");
+				orderSettlement.setBusinessType(4);
+				orderSettlement.setCustId(order.getCustId());
+				orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
+				orderSettlement.setSettlementMoney(zero.subtract(order.getOrgTotal()));
 				orderSettlementMapper.save(orderSettlement);
 			}
 
