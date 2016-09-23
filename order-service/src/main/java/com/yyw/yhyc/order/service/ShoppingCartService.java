@@ -252,6 +252,9 @@ public class ShoppingCartService {
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		int count = shoppingCartMapper.findByCount(condition);
+		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
+			throw new Exception("进货单最多只能添加100个品种，请先下单。");
+
 		//当加入的数量加上原有的数量大于可见库存 只能买当前最大库存
 		int countByid=0;
 		if(!UtilHelper.isEmpty(shoppingCarts)){
@@ -263,8 +266,6 @@ public class ShoppingCartService {
 		}else{
 			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
 		}
-		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
-			throw new Exception("进货单最多只能添加100个品种，请先下单。");
 
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
