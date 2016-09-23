@@ -1779,6 +1779,7 @@ public class OrderExceptionService {
      */
     public String editConfirmReceiptReturn(String exceptionOrderId, UserDto userDto, CreditDubboServiceInterface creditDubboService) throws Exception {
         String msg = "false";
+        log.info("******************：进入退货订单确认收货，ID"+exceptionOrderId);
         OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
         if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
             log.info("订单不存在，编号为：" + exceptionOrderId);
@@ -1817,8 +1818,9 @@ public class OrderExceptionService {
                 throw new RuntimeException("未找到订单");
             }
             OrderService orderService = (OrderService) SpringBeanHelper.getBean("orderService");
+            log.info("******************：调用资信接口，参数：{creditDubboService:"+creditDubboService+"**systemPayType:"+systemPayType+",orderException:"+orderException);
             orderService.sendReundCredit(creditDubboService, systemPayType, orderException);
-
+            log.info("******************：调用资信接口,在OrderExceptionService中结束");
             msg = "true";
             saveReturnOrderSettlement(orderException);
         } else {

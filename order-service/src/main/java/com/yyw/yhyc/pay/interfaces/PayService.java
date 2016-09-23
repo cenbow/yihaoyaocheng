@@ -12,6 +12,11 @@ import java.util.Map;
  */
 public interface PayService {
 
+    /* 同步响应url */
+    public static final String RETURN_RESPONSE_URL = "returnResponseUrl";
+
+    /* 异步通知回调url */
+    public static final String ASYNC_CALL_BACK_URL = "asyncCallBackUrl";
 
     /**
      *  在发送支付请求之前，组装数据
@@ -36,7 +41,7 @@ public interface PayService {
      * @param request
      * @return
      */
-    public String  paymentOfAccountCallback(HttpServletRequest request) ;
+    public Map<String,String> paymentOfAccountCallback(HttpServletRequest request) ;
 
 
     /**

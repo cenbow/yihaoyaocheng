@@ -325,10 +325,13 @@ public class OrderPayService {
 
 
 		for(Map<String,String> orderMap : list){
-			if(UtilHelper.isEmpty(orderMap)) continue;
+			if(UtilHelper.isEmpty(orderMap))
+				throw new Exception("参数不能为空");
 			order = orderMapper.getOrderbyFlowId(orderMap.get("flowId").trim());
-			if(UtilHelper.isEmpty(order)) continue;
-			if(!order.getSupplyId().toString().equals(supplyId.trim())) continue;
+			if(UtilHelper.isEmpty(order))
+				throw new Exception("订单"+orderMap.get("flowId")+"不存在。");
+			if(!order.getSupplyId().toString().equals(supplyId.trim()))
+				throw new Exception("供应商与订单供应商不相同。");;
 			BigDecimal money=new BigDecimal(orderMap.get("money").trim());
 			money=money.setScale(2, BigDecimal.ROUND_DOWN);
 			OrderException orderException=new OrderException();

@@ -4,8 +4,8 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.AppVersion;
 import com.yyw.yhyc.order.service.AppVersionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/order/version", headers = "Accept=application/json;")
-public class AppVersionController {
+@RequestMapping(value = "/version", headers = "Accept=application/json;")
+public class AppVersionController extends BaseController {
   
 	@Autowired
 	private AppVersionService appVersionService;
@@ -23,8 +23,8 @@ public class AppVersionController {
 	private final static String SUCCESS_MESSAGE = "成功";
 
 	
-	@RequestMapping(value = "/v{version}/getAppNewVersion/{versionCode}")
-	public Map<String, Object> getAppNewVersion(@PathVariable("versionCode") int  versionCode, HttpServletRequest request){
+	@RequestMapping(value = "/getAppNewVersion")
+	public Map<String, Object> getAppNewVersion(@RequestParam("versionCode") int  versionCode, HttpServletRequest request){
 		Map<String, Object> restultMap = new HashMap<String, Object>();
 		restultMap.put("statusCode", "0");
 	    restultMap.put("message", SUCCESS_MESSAGE);

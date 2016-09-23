@@ -1787,7 +1787,7 @@ public class OrderService {
 	 */
 	public void sendReundCredit(CreditDubboServiceInterface creditDubboService,
 								 SystemPayType systemPayType,OrderException orderException) {
-
+		log.info("******************：调用资信接口,sendReundCredit开始");
 		if(UtilHelper.isEmpty(creditDubboService)){
 			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+orderException.toString());
 		}
@@ -1801,8 +1801,11 @@ public class OrderService {
             creditParams.setOrderTotal(orderException.getOrderMoney());//订单金额
 			creditParams.setFlowId(orderException.getExceptionOrderId());//订单编码
 			creditParams.setStatus("6");
+			log.info("******************：调用资信接口开始");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+			log.info("******************：调用资信接口结束,返回结果为："+creditDubboResult);
 			if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
+				log.info("******************：调用资信接口结束,返回结果为："+creditDubboResult.getIsSuccessful());
 				log.error("creditDubboResult error:" + (creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！"));
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
