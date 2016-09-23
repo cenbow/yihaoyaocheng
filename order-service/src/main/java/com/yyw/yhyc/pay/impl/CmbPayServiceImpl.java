@@ -129,7 +129,7 @@ public class CmbPayServiceImpl implements PayService{
             log.error("支付流水号校验失败!");
             return false;
         }
-        return sendPostToCmbBank(orderPay,ORDER_RECEIVED_ACTION);
+        return sendPostToCmbBank(orderPay, ORDER_RECEIVED_ACTION);
     }
 
     /**
@@ -209,7 +209,7 @@ public class CmbPayServiceImpl implements PayService{
      * @return
      */
     @Override
-    public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType) throws Exception {
+    public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType,int type) throws Exception {
         if(UtilHelper.isEmpty(orderPay) || UtilHelper.isEmpty(orderPay.getPayFlowId())){
             return null;
         }
@@ -468,4 +468,10 @@ public class CmbPayServiceImpl implements PayService{
      return "";
     }
 
+
+    //账期还款回调
+    public Map<String,String>    paymentOfAccountCallback(HttpServletRequest request){
+
+        return null;
+    }
 }

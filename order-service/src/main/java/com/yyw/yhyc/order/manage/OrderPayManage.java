@@ -98,6 +98,63 @@ public class OrderPayManage {
         updateOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
     }
 
+
+    // 账期支付支付完成
+    public Map<String,String> orderPayOfAccountReturn(Map<String, Object> map) throws Exception {
+        log.info("----收到三方支付返回的订单后台通知------" + map);
+        String flowPayId = map.get("flowPayId").toString();
+        String money = map.get("money").toString();
+        log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
+       return updateOfAccountOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
+    }
+
+
+    // 账期支付更新信息
+    public Map<String,String> updateOfAccountOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
+            throws Exception {
+        log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
+        Map<String,String> map=new HashMap<String,String>();
+        synchronized(payFlowId){
+            String now = systemDateMapper.getSystemDate();
+            OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+            StringBuffer flowIds=new StringBuffer();
+            if (!UtilHelper.isEmpty(orderPay)&& (orderPay.getPayStatus().equals(OrderPayStatusEnum.UN_PAYED.getPayStatus()))) {//未支付
+
+                List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
+
+                if (UtilHelper.isEmpty(listOrder)||listOrder.size()==0) {
+                    // 商户数据异常
+                    log.info("根据订单流水号查询订单不存在");
+                    throw new Exception("支付信息异常！");
+                }
+                // 更新订单支付信息
+                orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
+                orderPay.setPayTime(now);
+                orderPay.setPaymentPlatforReturn(parameter);
+                orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+                orderPayMapper.update(orderPay);
+
+                for (Order order : listOrder) {
+                        flowIds.append(order.getFlowId()+",");
+                        // 更新订单信息
+                        order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+                        order.setPaymentTermStatus(1);
+                        order.setUpdateTime(now);
+                        order.setPayTime(now);
+                        orderMapper.update(order);
+                        // 保存订单操作记录
+                        createOrderTrace(order, "账期银联回调", now, 2, "账期买家还款.");
+                }
+                log.info(payFlowId + "-----支付成功后更新信息   update orderInfo end ----");
+                if (flowIds.length()>0)
+                    map.put("orderCodes",flowIds.substring(0, flowIds.length() - 1));;
+                map.put("isSuccess","1");
+                map.put("message","成功");
+            }
+        }
+        return map;
+    }
+
     // 支付完成更新信息
     public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
             throws Exception {

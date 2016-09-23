@@ -22,7 +22,7 @@
         <div class="qy_basenews">
             <div class="row no-margin">
                 <ol class="breadcrumb">
-                    <li><a href="${ctx}/order/sellerOrderManage"><i class="fa fa-map-marker fa-3"></i>销售订单管理</a></li>
+                    <li><a href="#"><i class="fa fa-map-marker fa-3"></i>首页</a></li>
                     <li><a href="${ctx}/orderException/sellerChangeGoodsOrderManage"><i class="fa fa-map-marker fa-3"></i>换货订单管理</a></li>
                     <li class="active">订单详情</li>
                 </ol>

@@ -33,6 +33,7 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
-public class OrderDeliveryDetailController extends BaseJsonController {
+public class OrderDeliveryDetailController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryDetailController.class);
 
 	@Autowired
@@ -162,7 +163,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		map.put("supplyName",supplyName);
 		map.put("qq","");
 		map.put("productList",productList);
-		return map;
+		return ok(map);
 	}
 
 	/**
@@ -172,44 +173,25 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/refusedReplenishOrder", method = RequestMethod.POST)
 	@ResponseBody
-	public void confirmReceipt(@RequestBody String listStr) throws Exception
+	public Map<String,Object> confirmReceipt(@RequestBody String listStr) throws Exception
 	{
 		String flowId="";
 		String returnType="";
 		List<OrderDeliveryDetailDto> list = new ArrayList<OrderDeliveryDetailDto>();
 		//解析json字符串转换成dto
 		JSONObject jsonObject = JSONObject.fromObject(listStr);
-		Map<String, Object> mapJson = JSONObject.fromObject(jsonObject);
-		for(Map.Entry<String,Object> entry : mapJson.entrySet()){
-			OrderDeliveryDetailDto orderDeliveryDetailDto=new OrderDeliveryDetailDto();
-			System.out.println("KEY:" + entry.getKey() + "  -->  Value:" + entry.getValue() + "\n");
-			if(entry.getKey().equals("orderId")){
-				orderDeliveryDetailDto.setFlowId(entry.getValue().toString());
-			}
-			if(entry.getKey().equals("applyType")){
-				orderDeliveryDetailDto.setReturnType(entry.getValue().toString());
-			}
-			if(entry.getKey().equals("applyCause")){
-				orderDeliveryDetailDto.setReturnDesc(entry.getValue().toString());
-			}
-			if(entry.getKey().equals("productList")) {
-				OrderDeliveryDetailDto dto=orderDeliveryDetailDto;
-				JSONObject jsonObjectStrval = JSONObject.fromObject(entry.getKey());
-				Map<String, Integer> mapJsonObject = JSONObject.fromObject(jsonObjectStrval);
-				for(Map.Entry<String, Integer> entryobj:mapJsonObject.entrySet()){
-					if (entryobj.getKey().equals("buyNumber")){
-						dto.setRecieveCount(entryobj.getValue());
-					}
-					if (entryobj.getKey().equals("orderDetailId")){
-						dto.setOrderDetailId(entryobj.getValue());
-					}
-					if (entryobj.getKey().equals("batchId")){
-						dto.setOrderDeliveryDetailId(entryobj.getValue());
-					}
+				JSONArray  jsonArray = JSONArray.fromObject(jsonObject.opt("productList"));
+				List<Map> jsonList=jsonArray.toList(jsonArray, Map.class);
+				for(Map<String, Object> map: jsonList){
+					OrderDeliveryDetailDto dto=new OrderDeliveryDetailDto();
+					dto.setFlowId(jsonObject.optString("orderId"));
+					dto.setReturnType(jsonObject.optString("applyType"));
+					dto.setReturnDesc(jsonObject.optString("applyCause"));
+					dto.setRecieveCount(Integer.parseInt(map.get("buyNumber").toString()));
+					dto.setOrderDetailId(Integer.parseInt(map.get("orderDetailId").toString()));
+					dto.setOrderDeliveryDetailId(Integer.parseInt(map.get("batchId").toString()));
 					list.add(dto);
 				}
-			}
-		}
 		if(list.size()>0){
 			flowId=list.get(0).getFlowId();
 			returnType=list.get(0).getReturnType();
@@ -217,7 +199,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 		if(map.get("code").equals("0")){
-			throw new RuntimeException(map.get("msg"));
+			return error(map.get("msg"));
 		}
 		//当没有异常流程订单结束的时候调用账期结算接口
 		if(null==returnType||"".equals(returnType)){
@@ -249,5 +231,6 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 				e.printStackTrace();
 			}
 		}
+		return ok(flowId);
 	}
 }

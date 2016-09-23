@@ -11,6 +11,8 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
@@ -44,6 +46,9 @@ import java.util.Map;
 @RequestMapping(value = "/order")
 public class OrderController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+	@Reference
+	private IProductDubboManageService iProductDubboManageService;
 
 	@Autowired
 	private OrderService orderService;
@@ -168,7 +173,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
+		return ok(orderService.listBuyerOderForApp(pagination, param.get("orderStatus"), userDto.getCustId(),iProductDubboManageService));
 	}
 
 	/**
@@ -185,7 +190,7 @@ public class OrderController extends BaseController {
 		pagination.setPageSize(requestModel.getPageSize());
 		Map<String,String> param = requestModel.getParam();
 		UserDto userDto = super.getLoginUser();
-		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId()));
+		return ok(orderExceptionService.listBuyerExceptionOderForApp(pagination, param.get("orderStatus"), userDto.getCustId(),iProductDubboManageService));
 	}
 
 
@@ -204,73 +209,8 @@ public class OrderController extends BaseController {
 		   orderExceptionDto.setFlowId(orderId);
 		   orderExceptionDto.setCustId(user.getCustId());
 		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus)));
-	   }
-		OrderBean orderBean=new OrderBean();
-
-		Order order=new Order();
-		order.setCustId(6066);
-		order.setFlowId(orderId);
-		OrderDetailsDto orderDetailsDto=orderService.getOrderDetails(order);
-		if(UtilHelper.isEmpty(orderDetailsDto)){
-			return null;
-		}
-		//详情对象
-		orderBean.setOrderStatus(orderService.convertAppOrderStatus(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
-		orderBean.setOrderId(orderDetailsDto.getFlowId());
-		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
-		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
-		orderBean.setLeaveMsg(orderDetailsDto.getLeaveMessage());
-		orderBean.setQq("");
-		orderBean.setPayType(orderDetailsDto.getPayType());
-		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
-		orderBean.setBillType(orderDetailsDto.getBillType());
-		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
-		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
-		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
-		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
-		//地址对象
-		AddressBean address=new AddressBean();
-		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());
-		address.setDeliveryName(orderDetailsDto.getOrderDelivery().getReceivePerson());
-		address.setAddressType(0);
-		address.setAddressProvince(orderDetailsDto.getOrderDelivery().getReceiveProvince());
-		address.setAddressCity(orderDetailsDto.getOrderDelivery().getReceiveCity());
-		address.setAddressCounty(orderDetailsDto.getOrderDelivery().getReceiveRegion());
-		address.setAddressDetail(orderDetailsDto.getOrderDelivery().getReceiveAddress());
-		address.setAddressId(orderDetailsDto.getOrderDelivery().getDeliveryId());
-		orderBean.setAddress(address);
-		orderBean.setOrderStatusName(orderService.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getValue());
-		//商品列表
-		List<OrderProductBean> productList=new ArrayList<OrderProductBean>();
-		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
-			OrderProductBean ordeProductBean=new OrderProductBean();
-			ordeProductBean.setQuantity(orderDetail.getProductCount());
-			ordeProductBean.setProductId(orderDetail.getProductCode());
-			ordeProductBean.setProductPicUrl("");
-			ordeProductBean.setProductName(orderDetail.getShortName());
-			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
-			ordeProductBean.setSpec(orderDetail.getSpecification());
-			ordeProductBean.setFactoryName(orderDetail.getManufactures());
-			//批次信息
-			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
-			orderDeliveryDetail.setFlowId(orderId);
-			orderDeliveryDetail.setOrderDetailId(orderDetail.getOrderDetailId());
-			orderDeliveryDetail.setDeliveryStatus(1);
-			List<OrderDeliveryDetail> deliveryList = orderDeliveryDetailService.listByProperty(orderDeliveryDetail);
-			List<BatchBean> batchList=new ArrayList<BatchBean>();
-			for (OrderDeliveryDetail detail : deliveryList){
-				BatchBean batchBean=new BatchBean();
-				batchBean.setBatchId(detail.getBatchNumber());
-				batchBean.setBuyNumber(detail.getDeliveryProductCount());
-				batchBean.setProductId(orderDetail.getProductCode());
-				batchList.add(batchBean);
-			}
-			ordeProductBean.setBatchList(batchList);
-			productList.add(ordeProductBean);
-		}
-		orderBean.setProductList(productList);
-		return ok(orderBean);
+	   }else
+		   return ok(orderService.getOrderDetailResponseInfo(orderId,user.getCustId()));
 	}
 
 	/**
