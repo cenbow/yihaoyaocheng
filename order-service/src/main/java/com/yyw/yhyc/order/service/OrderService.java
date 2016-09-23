@@ -1603,11 +1603,15 @@ public class OrderService {
 	 * @return
 	 */
 	public void updateCancelOrderForNoPay(){
+		log.debug("开始准备系统自动取消未支付订单");
 		List<Order> lo=orderMapper.listCancelOrderForNoPay();
+		log.debug("要自动取消订单结果集是【" + Arrays.toString(lo.toArray()) + "】。");
+
 		for(Order od:lo){
 			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 		}
-		orderMapper.cancelOrderForNoPay();
+		int count = orderMapper.cancelOrderForNoPay();
+		log.debug("成功取消未支付订单【" + count + "】条。");
 	}
 
 	/**
@@ -1620,21 +1624,21 @@ public class OrderService {
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
 			String now = systemDateMapper.getSystemDate();
-			log.info("订单7个自然日未发货系统自动取消=" + od.toString());
+			log.debug("订单7个自然日未发货系统自动取消="+od.toString());
 			od.setCancelTime(now);
 			od.setCancelResult("系统自动取消");
 			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoCanceled.getType());
 			orderMapper.update(od);
+			Integer payTypeId=od.getPayTypeId();
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
-					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
-					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
+			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
+					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
 				orderSettlement.setConfirmSettlement("1");
 				orderSettlementMapper.save(orderSettlement);
-				Integer payTypeId=od.getPayTypeId();
 				if(!UtilHelper.isEmpty(payTypeId)){
-					SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
@@ -1642,10 +1646,12 @@ public class OrderService {
 					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 				}
 			}else{
-				sendCredit(od,creditDubboService,"5");
+				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
+					sendCredit(od,creditDubboService,"5");
+				}
 			}
 			//库存
-			productInventoryManage.releaseInventory(od.getOrderId(), od.getSupplyName(), "admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -1669,14 +1675,14 @@ public class OrderService {
 			//账期结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
 			//根据订单来源进行自动分账 三期 对接
-			log.info("订单发货后7个自然日后系统自动确认收货="+od.toString());
+			log.debug("订单发货后7个自然日后系统自动确认收货="+od.toString());
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
 
 				OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
 				if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
-					SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
@@ -1684,7 +1690,10 @@ public class OrderService {
 					cal.add(od.getOrderId());
 				}
 			}else{
-				sendCredit(od,creditDubboService,"2");
+				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
+					sendCredit(od,creditDubboService,"2");
+				}
+
 			}
 		}
         //退货异常订单自动确认
@@ -1709,7 +1718,7 @@ public class OrderService {
 		List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
 		for(OrderException o:le){
 			//异常订单收货
-			log.info("退货异常订单自动确认=" + o.toString());
+			log.debug("退货异常订单自动确认="+o.toString());
 			Order order = orderMapper.getByPK(o.getOrderId());
 			SystemPayType systemPayType= systemPayTypeMapper.getByPK(order.getPayTypeId());
 			o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
@@ -1717,7 +1726,7 @@ public class OrderService {
 			orderExceptionMapper.update(o);
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
 			//调用资信接口
-			sendReundCredit(creditDubboService, systemPayType, o);
+			sendReundCredit(creditDubboService,systemPayType,o);
 		}
 	}
 
@@ -1739,21 +1748,24 @@ public class OrderService {
 			orderMapper.update(od);
 			//生成结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
-			log.info("补货异常订单自动确认="+o.toString()+";"+od.toString());
+			log.debug("补货异常订单自动确认="+o.toString()+";"+od.toString());
+			Integer payTypeId=od.getPayTypeId();
+			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 			if(!UtilHelper.isEmpty(od)){
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
-						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
-						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
+				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
 					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
-					Integer payTypeId=od.getPayTypeId();
-					SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
 					payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
 					cal.add(od.getOrderId());
 				}else{
-					sendCredit(od,creditDubboService,"2");
+					if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
+						sendCredit(od,creditDubboService,"2");
+					}
+
 				}
 
 			}
@@ -1775,7 +1787,7 @@ public class OrderService {
 		List<OrderException> le2=orderExceptionMapper.listNodeliveryForChange(orderException2);
 		for(OrderException o:le2){
 			//异常订单收货
-			log.info("换货异常订单自动确认="+o.toString());
+			log.debug("换货异常订单自动确认="+o.toString());
 			o.setOrderStatus(SystemChangeGoodsOrderStatusEnum.AutoFinished.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
@@ -1787,7 +1799,7 @@ public class OrderService {
 	 */
 	public void sendReundCredit(CreditDubboServiceInterface creditDubboService,
 								 SystemPayType systemPayType,OrderException orderException) {
-		log.info("******************：调用资信接口,sendReundCredit开始");
+		log.debug("******************：调用资信接口,sendReundCredit开始");
 		if(UtilHelper.isEmpty(creditDubboService)){
 			throw new RuntimeException("接口调用失败,creditDubboService 服务为空"+orderException.toString());
 		}
@@ -1801,11 +1813,11 @@ public class OrderService {
             creditParams.setOrderTotal(orderException.getOrderMoney());//订单金额
 			creditParams.setFlowId(orderException.getExceptionOrderId());//订单编码
 			creditParams.setStatus("6");
-			log.info("******************：调用资信接口开始");
+			log.debug("******************：调用资信接口开始");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-			log.info("******************：调用资信接口结束,返回结果为："+creditDubboResult);
+			log.debug("******************：调用资信接口结束,返回结果为："+creditDubboResult);
 			if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
-				log.info("******************：调用资信接口结束,返回结果为："+creditDubboResult.getIsSuccessful());
+				log.debug("******************：调用资信接口结束,返回结果为："+creditDubboResult.getIsSuccessful());
 				log.error("creditDubboResult error:" + (creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！"));
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
@@ -2643,11 +2655,12 @@ public class OrderService {
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//获取买家视角订单状态
 					buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
-					if(!UtilHelper.isEmpty(buyerorderstatusenum))
+					if(!UtilHelper.isEmpty(buyerorderstatusenum)){
+						od.setOrderStatus(buyerorderstatusenum.getType());
 						od.setOrderStatusName(buyerorderstatusenum.getValue());
+					}
 					else
 						od.setOrderStatusName("未知类型");
-					od.setOrderStatus(buyerorderstatusenum.getType());
 				}
 				//获取支付剩余时间
 				if(!UtilHelper.isEmpty(od.getNowTime()) && !UtilHelper.isEmpty(od.getCreateTime()) && SystemPayTypeEnum.PayOnline.getPayType() == od.getPayType() && SystemOrderStatusEnum.BuyerOrdered.getType().equals(od.getOrderStatus())){
