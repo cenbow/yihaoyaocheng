@@ -460,6 +460,7 @@ public class ShoppingCartService {
 				cartProductBean.setBaseCount(scd.getSaleStart());
 				cartProductBean.setStatusDesc(scd.getPutawayStatus());
 				cartProductBean.setFactoryName(scd.getManufactures());
+				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
 				products.add(cartProductBean);
 			}
