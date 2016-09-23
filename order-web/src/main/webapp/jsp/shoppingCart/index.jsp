@@ -99,13 +99,13 @@
                                             <c:if test="${ shoppingCartDto.putawayStatus != 1}">
                                                 <span class="inside-icon">下架</span>
                                             </c:if>
-                                            <img class="productImageUrl" spuCode="${shoppingCartDto.spuCode}" src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
+                                            <img  src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
                                             <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
-                                            </p>`
+                                            </p>
                                             <p>${shoppingCartDto.manufactures}</p>
                                         </li>
                                         <li class="fl td-price">

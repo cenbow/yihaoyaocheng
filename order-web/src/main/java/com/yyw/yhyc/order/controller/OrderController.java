@@ -233,7 +233,6 @@ public class OrderController extends BaseJsonController {
 
 					/* 账期订单信息发送成功后，更新该订单的支付状态与支付时间 */
 					if(!UtilHelper.isEmpty(creditDubboResult) && "1".equals(creditDubboResult.getIsSuccessful())){
-						order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
 						order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
 						order.setPayTime(systemDateService.getSystemDate());
 						update(order);

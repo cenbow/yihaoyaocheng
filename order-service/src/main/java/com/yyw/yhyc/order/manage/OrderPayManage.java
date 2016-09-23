@@ -100,25 +100,24 @@ public class OrderPayManage {
 
 
     // 账期支付支付完成
-    public void orderPayOfAccountReturn(Map<String, Object> map) throws Exception {
+    public Map<String,String> orderPayOfAccountReturn(Map<String, Object> map) throws Exception {
         log.info("----收到三方支付返回的订单后台通知------" + map);
         String flowPayId = map.get("flowPayId").toString();
         String money = map.get("money").toString();
-        String MerId = map.get("MerId").toString();
         log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
-        updateOfAccountOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
+       return updateOfAccountOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
     }
 
 
     // 账期支付更新信息
-    public void updateOfAccountOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
+    public Map<String,String> updateOfAccountOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
             throws Exception {
         log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
-
+        Map<String,String> map=new HashMap<String,String>();
         synchronized(payFlowId){
             String now = systemDateMapper.getSystemDate();
             OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
-
+            StringBuffer flowIds=new StringBuffer();
             if (!UtilHelper.isEmpty(orderPay)&& (orderPay.getPayStatus().equals(OrderPayStatusEnum.UN_PAYED.getPayStatus()))) {//未支付
 
                 List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
@@ -136,6 +135,7 @@ public class OrderPayManage {
                 orderPayMapper.update(orderPay);
 
                 for (Order order : listOrder) {
+                        flowIds.append(order.getFlowId()+",");
                         // 更新订单信息
                         order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                         order.setPaymentTermStatus(1);
@@ -146,8 +146,13 @@ public class OrderPayManage {
                         createOrderTrace(order, "账期银联回调", now, 2, "账期买家还款.");
                 }
                 log.info(payFlowId + "-----支付成功后更新信息   update orderInfo end ----");
+                if (flowIds.length()>0)
+                    map.put("orderCodes",flowIds.substring(0, flowIds.length() - 1));;
+                map.put("isSuccess","1");
+                map.put("message","成功");
             }
         }
+        return map;
     }
 
     // 支付完成更新信息

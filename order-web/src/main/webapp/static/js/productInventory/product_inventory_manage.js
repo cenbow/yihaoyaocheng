@@ -58,6 +58,7 @@ function fillPagerUtil(data, requestParam) {
 
 function doRefreshData(requestParam) {
     var requestUrl = ctx+"/product/productInventory/listPg";
+    tipLoad();
     $.ajax({
         url: requestUrl,
         data: JSON.stringify(requestParam),
@@ -65,6 +66,7 @@ function doRefreshData(requestParam) {
         dataType: 'json',
         contentType: "application/json;charset=UTF-8",
         success: function (data) {
+            tipRemove();
             if(data.statusCode || data.message){
                 alertModal(data.message);
                 return;
@@ -87,14 +89,17 @@ function doRefreshData(requestParam) {
                 asyn: 1,
                 contentType: 'application/json;charset=UTF-8',
                 callback: function (data, index) {
+                    tipLoad();
                     console.info(data);
                     var nowpage = data.page;
                     $("#nowpageedit").val(nowpage);
-                    fillTableJson(data.resultList);
+                    fillTableJson(data);
+                    tipRemove();
                 }
             });
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModal("数据获取失败");
         }
     });
