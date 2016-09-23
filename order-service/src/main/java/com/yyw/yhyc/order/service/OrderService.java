@@ -1603,11 +1603,15 @@ public class OrderService {
 	 * @return
 	 */
 	public void updateCancelOrderForNoPay(){
+		log.debug("开始准备系统自动取消未支付订单");
 		List<Order> lo=orderMapper.listCancelOrderForNoPay();
+		log.debug("要自动取消订单结果集是【" + Arrays.toString(lo.toArray()) + "】。");
+
 		for(Order od:lo){
 			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
 		}
-		orderMapper.cancelOrderForNoPay();
+		int count = orderMapper.cancelOrderForNoPay();
+		log.debug("成功取消未支付订单【" + count + "】条。");
 	}
 
 	/**
