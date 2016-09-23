@@ -2187,6 +2187,23 @@ public class OrderService {
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
+			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
+				BigDecimal zero = new BigDecimal(0);
+				OrderSettlement orderSettlement = new OrderSettlement();
+				orderSettlement.setOrderId(order.getOrderId());
+				orderSettlement.setFlowId(order.getFlowId());
+				orderSettlement.setCustName(order.getCustName());
+				orderSettlement.setSupplyName(order.getSupplyName());
+				orderSettlement.setCreateTime(now);
+				orderSettlement.setOrderTime(order.getCreateTime());
+				orderSettlement.setSettlementTime(now);
+				orderSettlement.setPayTypeId(order.getPayTypeId());
+				orderSettlement.setCreateUser("systemManage");
+				orderSettlement.setBusinessType(4);
+				orderSettlement.setCustId(order.getCustId());
+				orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
+				orderSettlement.setSettlementMoney(zero.subtract(order.getOrgTotal()));
+				orderSettlementMapper.save(orderSettlement);
 			}
 
 			//释放冻结库存
