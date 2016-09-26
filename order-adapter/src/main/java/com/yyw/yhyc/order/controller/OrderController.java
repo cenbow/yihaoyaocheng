@@ -210,7 +210,7 @@ public class OrderController extends BaseController {
 		   orderExceptionDto.setCustId(user.getCustId());
 		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus),iProductDubboManageService));
 	   }else
-		   return ok(orderService.getOrderDetailResponseInfo(orderId,user.getCustId()));
+		   return ok(orderService.getOrderDetailResponseInfo(orderId,user.getCustId(),iProductDubboManageService));
 	}
 
 	/**

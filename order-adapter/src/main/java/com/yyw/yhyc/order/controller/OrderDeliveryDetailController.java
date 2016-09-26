@@ -15,6 +15,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.JsonHelper;
@@ -62,6 +63,9 @@ public class OrderDeliveryDetailController extends BaseController {
 
 	@Autowired
 	private SystemPayTypeService systemPayTypeService;
+
+	@Reference
+	private IProductDubboManageService iProductDubboManageService;
 
 	@Autowired
 	private OrderService orderService;
@@ -132,13 +136,14 @@ public class OrderDeliveryDetailController extends BaseController {
 	public Map<String,Object> listPgOrderDeliveryDetail(String orderId) throws Exception
 	{
 		String supplyName="";
+		UserDto userDto = super.getLoginUser();
 		Map<String,Object> map=new HashMap<String,Object>();
 		List<Map<String,Object>> productList= new ArrayList<Map<String,Object>>();
 		Pagination<OrderDeliveryDetailDto> pagination = new Pagination<OrderDeliveryDetailDto>();
 		pagination.setPaginationFlag(false);
 		OrderDeliveryDetailDto orderDeliveryDetailDto=new OrderDeliveryDetailDto();
 		orderDeliveryDetailDto.setFlowId(orderId);
-		orderDeliveryDetailDto.setCustId(6066);
+		orderDeliveryDetailDto.setCustId(userDto.getCustId());
 		Pagination<OrderDeliveryDetailDto>  paginationList = orderDeliveryDetailService.listPaginationByProperty(pagination, orderDeliveryDetailDto);
 		if(!UtilHelper.isEmpty(paginationList)&&paginationList.getResultList().size()>0){
 			UsermanageEnterprise usermanageEnterprise = usermanageEnterpriseService.getByEnterpriseId(paginationList.getResultList().get(0).getSupplyId().toString());
@@ -148,9 +153,22 @@ public class OrderDeliveryDetailController extends BaseController {
 		}
 		//转换为APP命名数据。
 		for(OrderDeliveryDetailDto dto : paginationList.getResultList()){
+			String productPicUrl="";
+			try{
+				List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+				if(!UtilHelper.isEmpty(picUrlList)) {
+					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+					productPicUrl = (String) productJson.get("file_path");
+					if (UtilHelper.isEmpty(productPicUrl))
+						productPicUrl = "";
+				}
+			}catch (Exception e){
+				logger.error("查询图片接口:调用异常," + e.getMessage(),e);
+			}
+
 			Map<String,Object> productMap=new HashMap<String,Object>();
 			productMap.put("productId",dto.getProductCode());
-			productMap.put("productPicUrl","");
+			productMap.put("productPicUrl",productPicUrl);
 			productMap.put("productName",dto.getShortName());
 			productMap.put("spec",dto.getSpecification());
 			productMap.put("factoryName",dto.getManufactures());
