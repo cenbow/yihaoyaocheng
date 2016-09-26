@@ -318,12 +318,11 @@ public class OrderSettlementService {
                 //退款 暂时不做调整
                 break;
             case 5:
-                BigDecimal zero = new BigDecimal(0);
                 orderSettlement.setBusinessType(4);
                 orderSettlement.setCustId(order.getCustId());
                 orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
 
-                orderSettlement.setSettlementMoney(zero.subtract(order.getOrgTotal()));
+                orderSettlement.setSettlementMoney(order.getOrgTotal());
                 break;
             case 6:
                 orderSettlement.setBusinessType(1);//拒收退款

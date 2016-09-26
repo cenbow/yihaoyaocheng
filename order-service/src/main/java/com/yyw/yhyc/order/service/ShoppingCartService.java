@@ -465,6 +465,7 @@ public class ShoppingCartService {
 				cartProductBean.setFactoryName(scd.getManufactures());
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
+				cartProductBean.setSpuCode(scd.getSpuCode());
 				products.add(cartProductBean);
 			}
 			cartGroupData.setProducts(products);
