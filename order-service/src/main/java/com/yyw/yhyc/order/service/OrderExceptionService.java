@@ -95,8 +95,6 @@ public class OrderExceptionService {
     @Autowired
     private OrderSettlementService orderSettlementService;
 
-    @Reference
-    private IProductDubboManageService iProductDubboManageService;
 
     /**
      * 通过主键查询实体对象
@@ -2224,7 +2222,7 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus) throws Exception {
+    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus,IProductDubboManageService iProductDubboManageService) throws Exception {
         if (orderStatus == 800) {  //拒收订单详情
             orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
             if (UtilHelper.isEmpty(orderExceptionDto)) {
@@ -2273,7 +2271,7 @@ public class OrderExceptionService {
                 if (UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
                 OrderProductBean orderProductBean = new OrderProductBean();
                 orderProductBean.setProductId(orderReturnDto.getSpuCode());
-                orderProductBean.setProductPicUrl(getProductImgUrl(orderReturnDto.getSpuCode(),iProductDubboManageService));
+                orderProductBean.setProductPicUrl(getProductImg(orderReturnDto.getSpuCode(), iProductDubboManageService));
                 orderProductBean.setProductName(orderReturnDto.getShortName());
                 orderProductBean.setSpec(orderReturnDto.getSpecification());
                 orderProductBean.setUnit("");
@@ -2290,36 +2288,5 @@ public class OrderExceptionService {
         }
         return orderBean;
     }
-
-    public String getProductImgUrl(String spuCode, IProductDubboManageService iProductDubboManageService) {
-        String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
-        if(UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(iProductDubboManageService)){
-            return filePath;
-        }
-        Map map = new HashMap();
-        map.put("spu_code", spuCode);
-        map.put("type_id", "1");
-        List picUrlList = null;
-        try{
-            log.info("查询图片接口:请求参数：map=" + map);
-            picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
-            log.info("查询图片接口:响应参数：picUrlList=" + picUrlList);
-        }catch (Exception e){
-            log.error("查询图片接口:响应异常：" + e.getMessage(),e);
-            return filePath;
-        }
-        if(UtilHelper.isEmpty(picUrlList) ){
-            log.error("调用图片接口：无响应");
-            return filePath;
-        }
-        JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
-        String file_path = (String)productJson.get("file_path");
-        if (UtilHelper.isEmpty(file_path)){
-            return filePath;
-        }else{
-            return MyConfigUtil.IMG_DOMAIN + file_path;
-        }
-    }
-
 
 }
