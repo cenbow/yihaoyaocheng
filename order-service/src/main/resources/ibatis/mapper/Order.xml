@@ -704,10 +704,10 @@
 						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
 					</when>
 					<when test='payType == 2'><!--账期支付-->
-						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
-						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
 					</when>
 					<otherwise>
 						AND FALSE
@@ -779,10 +779,10 @@
 						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
 					</when>
 					<when test='payType == 2'><!--账期支付-->
-						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
-						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
 					</when>
 					<otherwise>
 						AND FALSE
@@ -923,10 +923,10 @@
 						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
 					</when>
 					<when test='payType == 2'><!--账期支付-->
-						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
-						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
 					</when>
 					<otherwise>
 						AND FALSE
@@ -1009,10 +1009,10 @@
 						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
 					</when>
 					<when test='payType == 2'><!--账期支付-->
-						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
-						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
 					</when>
 					<otherwise>
 						AND FALSE
@@ -1103,10 +1103,10 @@
 						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
 					</when>
 					<when test='payType == 2'><!--账期支付-->
-						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
-						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
 					</when>
 					<otherwise>
 						AND FALSE
@@ -1167,8 +1167,7 @@
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order WHERE
-		(order_status=5 or (order_status=1 and pay_type_id=2))
-		and pay_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
+		order_status=5 and pay_time <![CDATA[<]]> date_add(sysdate(), interval -7 day)
 	</select>
 
 	<update id="cancelOrderForNoDelivery" parameterType="map">
@@ -1302,10 +1301,10 @@
 						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
 					</when>
 					<when test='payType == 2'><!--账期支付-->
-						AND T1.ORDER_STATUS = '1'<!--买家已下单-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
 					</when>
 					<when test="payType== null || payType== ''"><!--未选择支付类型-->
-						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '1' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
 					</when>
 					<otherwise>
 						AND FALSE

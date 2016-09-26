@@ -66,7 +66,7 @@ public class OrderService {
 	private OrderMapper	orderMapper;
 	private SystemPayTypeMapper systemPayTypeMapper;
 	private SystemDateMapper systemDateMapper;
-	private OrderDetailService orderDetailService;
+	private OrderDetailMapper orderDetailMapper;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 	private OrderDeliveryMapper orderDeliveryMapper;
 	private OrderTraceMapper orderTraceMapper;
@@ -122,8 +122,8 @@ public class OrderService {
 	}
 
 	@Autowired
-	public void setOrderDetailService(OrderDetailService orderDetailService) {
-		this.orderDetailService = orderDetailService;
+	public void setOrderDetailMapper(OrderDetailMapper orderDetailMapper) {
+		this.orderDetailMapper = orderDetailMapper;
 	}
 
 	@Autowired
@@ -762,7 +762,7 @@ public class OrderService {
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
-			orderDetailService.save(orderDetail);
+			orderDetailMapper.save(orderDetail);
 			orderDetailList.add(orderDetail);
 		}
 		orderDto.setOrderDetailList(orderDetailList);
@@ -1169,11 +1169,7 @@ public class OrderService {
      */
     public BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
-            if (payType == 2) {
-                return BuyerOrderStatusEnum.BackOrder;//待发货
-            } else if(payType == 1 || payType == 3){
-                return BuyerOrderStatusEnum.PendingPayment;//待付款
-            }
+			return BuyerOrderStatusEnum.PendingPayment;//待付款
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAlreadyPaid.getType())) {//买家已付款
             return BuyerOrderStatusEnum.BackOrder;//待发货
@@ -1211,11 +1207,7 @@ public class OrderService {
      */
     SellerOrderStatusEnum getSellerOrderStatus(String systemOrderStatus, int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
-            if (payType == 2) {
-                return SellerOrderStatusEnum.BackOrder;//待发货
-            } else if(payType == 1 || payType == 3) {
-                return SellerOrderStatusEnum.PendingPayment;//待付款
-            }
+			return SellerOrderStatusEnum.PendingPayment;//待付款
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAlreadyPaid.getType())) {//买家已付款
             return SellerOrderStatusEnum.BackOrder;//待发货
@@ -2188,7 +2180,6 @@ public class OrderService {
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
-				BigDecimal zero = new BigDecimal(0);
 				OrderSettlement orderSettlement = new OrderSettlement();
 				orderSettlement.setOrderId(order.getOrderId());
 				orderSettlement.setFlowId(order.getFlowId());
@@ -2202,7 +2193,7 @@ public class OrderService {
 				orderSettlement.setBusinessType(4);
 				orderSettlement.setCustId(order.getCustId());
 				orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
-				orderSettlement.setSettlementMoney(zero.subtract(order.getOrgTotal()));
+				orderSettlement.setSettlementMoney(order.getOrgTotal());
 				orderSettlementMapper.save(orderSettlement);
 			}
 
