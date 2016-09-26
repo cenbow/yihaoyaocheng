@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.SpringBeanHelper;
@@ -28,6 +29,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.utils.DateUtils;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,6 +94,7 @@ public class OrderExceptionService {
 
     @Autowired
     private OrderSettlementService orderSettlementService;
+
 
     /**
      * 通过主键查询实体对象
@@ -2219,7 +2222,7 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus) throws Exception {
+    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus,IProductDubboManageService iProductDubboManageService) throws Exception {
         if (orderStatus == 800) {  //拒收订单详情
             orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
             if (UtilHelper.isEmpty(orderExceptionDto)) {
@@ -2268,7 +2271,7 @@ public class OrderExceptionService {
                 if (UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
                 OrderProductBean orderProductBean = new OrderProductBean();
                 orderProductBean.setProductId(orderReturnDto.getSpuCode());
-                orderProductBean.setProductPicUrl("");
+                orderProductBean.setProductPicUrl(getProductImg(orderReturnDto.getSpuCode(), iProductDubboManageService));
                 orderProductBean.setProductName(orderReturnDto.getShortName());
                 orderProductBean.setSpec(orderReturnDto.getSpecification());
                 orderProductBean.setUnit("");

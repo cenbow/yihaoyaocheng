@@ -261,6 +261,9 @@ public class ShoppingCartService {
 			countByid=shoppingCarts.get(0).getProductCount();
 		}
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
+			throw new Exception("商品没有库存");
+		}
 		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
 			shoppingCart.setProductCount(product.getFrontInventory());
 		}else{
@@ -358,7 +361,7 @@ public class ShoppingCartService {
 				String unit = "";
 				Integer saleStart = 1;
 				List productList = null;
-				Integer putaway_status = 0;
+				Integer putaway_status = 0; //（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
 				try{
 					logger.info("购物车页面-查询商品信息,请求参数:" + map);
 					productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
@@ -370,10 +373,10 @@ public class ShoppingCartService {
 					logger.error("购物车页面-查询的商品信息异常" );
 				}else{
 					JSONObject productJson = JSONObject.fromObject(productList.get(0));
-					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")) ? 1 : (int) productJson.get("minimum_packing");
-					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")) ? 1 : Integer.valueOf(productJson.get("wholesale_num")+"") ;
-					unit = UtilHelper.isEmpty(productJson.get("unit")) ? "" : UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
-					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? null : Integer.valueOf( productJson.get("putaway_status")+"");
+					minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")+"") ? 1 : (int) productJson.get("minimum_packing");
+					saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")+"") ? 1 : Integer.valueOf(productJson.get("wholesale_num")+"") ;
+					unit = UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
+					putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : Integer.valueOf( productJson.get("putaway_status")+"");
 				}
 
 				shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
@@ -462,6 +465,7 @@ public class ShoppingCartService {
 				cartProductBean.setFactoryName(scd.getManufactures());
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
+				cartProductBean.setSpuCode(scd.getSpuCode());
 				products.add(cartProductBean);
 			}
 			cartGroupData.setProducts(products);

@@ -4,9 +4,16 @@ package com.yyw.yhyc.product.service;
  * Created by lizhou on 2016/8/1
  */
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.helper.UtilHelper;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +23,8 @@ import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 
 @Service("productInfoService")
 public class ProductInfoService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductInfoService.class);
 
     private ProductInfoMapper	productInfoMapper;
 
@@ -134,5 +143,35 @@ public class ProductInfoService {
     public int findByCount(ProductInfo productInfo) throws Exception
     {
         return productInfoMapper.findByCount(productInfo);
+    }
+
+    /**
+     * 获取商品图片
+     * @param spuCode
+     * @param iProductDubboManageService
+     * @return
+     */
+    public String getProductImg(String spuCode, IProductDubboManageService iProductDubboManageService) {
+        String filePath="";
+        Map map = new HashMap();
+        map.put("spu_code", spuCode);
+        map.put("type_id", "1");
+        try{
+            logger.info("查询图片接口:请求参数：map=" + map);
+            List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+            logger.info("查询图片接口:响应参数：picUrlList=" + picUrlList);
+            if(UtilHelper.isEmpty(picUrlList)){
+                logger.error("调用图片接口：无响应");
+                return "";
+            }
+            JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+            filePath = (String)productJson.get("file_path");
+            if (UtilHelper.isEmpty(filePath))
+                return "";
+        }catch (Exception e){
+            logger.error("查询图片接口:调用异常," + e.getMessage(),e);
+        }
+        return filePath;
+
     }
 }

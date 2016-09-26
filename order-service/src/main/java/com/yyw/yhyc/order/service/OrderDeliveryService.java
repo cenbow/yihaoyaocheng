@@ -449,9 +449,11 @@ public class OrderDeliveryService {
             updateOrderDelivery(errorList, orderDeliveryDto, map, excelPath, now, filePath);
 
         } catch (Exception e) {
+            log.info("发货异常：");
+            log.error(e);
+            log.error(e.getMessage());
             map.put("code", "0");
             map.put("msg", "Excel读取出错");
-            log.info(e.getMessage());
         }
         return map;
     }
