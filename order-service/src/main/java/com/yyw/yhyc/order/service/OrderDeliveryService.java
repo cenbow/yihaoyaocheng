@@ -450,9 +450,8 @@ public class OrderDeliveryService {
 
         } catch (Exception e) {
             log.info("发货异常：");
-            log.info(e.getMessage());
+            log.error(e);
             log.error(e.getMessage());
-            log.debug(e.getMessage());
             map.put("code", "0");
             map.put("msg", "Excel读取出错");
         }
