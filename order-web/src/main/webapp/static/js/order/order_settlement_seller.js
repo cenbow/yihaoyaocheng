@@ -167,7 +167,7 @@ function fillTableJson(data) {
 //类型 转换成操作
 function typeToOperate(businessType,confirm,settlementId,payType) {
 	var result = '';
-	if((businessType==2||businessType==3)&& payType!=2){//只有退款有操作 并且不是账期支付
+	if(((businessType==2||businessType==3)&& payType!=2) || (businessType==4 && payType == 3)){//只有退款有操作 并且不是账期支付
 		if(confirm ==0){
 			result = '<button type="button" class="btn btn-info btn-sm editbtn back-opreate" data-stmid = "'+settlementId+'">退款结算</button>';
 		}else  if(confirm ==1){

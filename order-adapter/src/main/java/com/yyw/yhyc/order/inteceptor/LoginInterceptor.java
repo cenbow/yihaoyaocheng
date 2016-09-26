@@ -32,79 +32,75 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String sid = request.getHeader(TOKEN);
-//        if(UtilHelper.isEmpty(sid) && !isApp(request))
-//            sid = request.getSession().getId();
+        if(UtilHelper.isEmpty(sid) && !isApp(request))
+            sid = request.getSession().getId();
 
         return this.jump(request, response, handler, sid);
     }
 
     private boolean jump(HttpServletRequest request, HttpServletResponse response, Object handler, String sid) throws Exception {
-//        Map<String, Object> user  = UtilHelper.isEmpty(sid) ? null : this.getInfo(PASSPORT, sid);
-//        if(!UtilHelper.isEmpty(user) && !UtilHelper.isEmpty(user.get("validate")) && Boolean.valueOf(user.get("validate").toString())) {
-//            request.setAttribute("loginUser", user);
-//
-//            Map<String, Object> commonMap = getInfo(COMMON_INFO, sid);
-//
-//            logger.info("user-->" + user);
-//            logger.info("commonInfo-->" + commonMap);
+        Map<String, Object> user  = UtilHelper.isEmpty(sid) ? null : this.getInfo(PASSPORT, sid);
+        if(!UtilHelper.isEmpty(user) && !UtilHelper.isEmpty(user.get("validate")) && Boolean.valueOf(user.get("validate").toString())) {
+            request.setAttribute("loginUser", user);
+
+            Map<String, Object> commonMap = getInfo(COMMON_INFO, sid);
+
+            logger.info("user-->" + user);
+            logger.info("commonInfo-->" + commonMap);
 
             UserDto userDto = new UserDto();
-//            userDto.setUserName(getString(user, "username"));
-//            userDto.setCustId(getInt(user, "enterprise_id"));
-//            userDto.setUser(user);
-
-            userDto.setUserName("测试买家企业");
-            userDto.setCustId(6066);
-
+            userDto.setUserName(getString(user, "username"));
+            userDto.setCustId(getInt(user, "enterprise_id"));
+            userDto.setUser(user);
 
 
             //企业信息
-//            if(!UtilHelper.isEmpty(commonMap)){
-//                userDto.setCustName(this.getString(commonMap, "enterpriseName"));
-//                userDto.setProvince(this.getString(commonMap, "province"));
-//                userDto.setProvinceName(this.getString(commonMap, "provinceName"));
-//                userDto.setCity(this.getString(commonMap, "city"));
-//                userDto.setCityName(this.getString(commonMap, "cityName"));
-//                userDto.setDistrict(this.getString(commonMap, "district"));
-//                userDto.setDistrictName(this.getString(commonMap, "districtName"));
-//                userDto.setRegisteredAddress(this.getString(commonMap, "registeredAddress"));
-//
-//                logger.debug("+++++++++++++++++++++++++++++++++++++++++++");
-//                logger.debug(commonMap.toString());
-//                logger.debug(this.getString(commonMap, "roleType").getClass().getName());
-//                logger.debug(this.getString(commonMap, "roleType"));
-//
-//                String roleType = this.getString(commonMap, "roleType");
-//                if(!UtilHelper.isEmpty(roleType)){
+            if(!UtilHelper.isEmpty(commonMap)){
+                userDto.setCustName(this.getString(commonMap, "enterpriseName"));
+                userDto.setProvince(this.getString(commonMap, "province"));
+                userDto.setProvinceName(this.getString(commonMap, "provinceName"));
+                userDto.setCity(this.getString(commonMap, "city"));
+                userDto.setCityName(this.getString(commonMap, "cityName"));
+                userDto.setDistrict(this.getString(commonMap, "district"));
+                userDto.setDistrictName(this.getString(commonMap, "districtName"));
+                userDto.setRegisteredAddress(this.getString(commonMap, "registeredAddress"));
+
+                logger.debug("+++++++++++++++++++++++++++++++++++++++++++");
+                logger.debug(commonMap.toString());
+                logger.debug(this.getString(commonMap, "roleType").getClass().getName());
+                logger.debug(this.getString(commonMap, "roleType"));
+
+                String roleType = this.getString(commonMap, "roleType");
+                if(!UtilHelper.isEmpty(roleType)){
                     CustTypeEnum custTypeEnum = null;
-//                    switch (roleType){
-//                        case "1":
+                    switch (roleType){
+                        case "1":
                             custTypeEnum = CustTypeEnum.buyer;
-//                            break;
-//                        case "2":
-//                            custTypeEnum = CustTypeEnum.seller;
-//                            break;
-//                        case "3":
-//                            custTypeEnum = CustTypeEnum.buyerAndSeller;
-//                            break;
-//                        default:
-//                            custTypeEnum = CustTypeEnum.other;
-//                            break;
-//                    }
-//                    userDto.setCustType(custTypeEnum);
-//                }
-//            }
+                            break;
+                        case "2":
+                            custTypeEnum = CustTypeEnum.seller;
+                            break;
+                        case "3":
+                            custTypeEnum = CustTypeEnum.buyerAndSeller;
+                            break;
+                        default:
+                            custTypeEnum = CustTypeEnum.other;
+                            break;
+                    }
+                    userDto.setCustType(custTypeEnum);
+                }
+            }
 
             request.setAttribute(UserDto.REQUEST_KEY, userDto);
 
             logger.info("userDto-->" + userDto.toString());
 
             return true;
-//        } else {
-//            responseOutWithJson(response, "-2", "【" + request.getRequestURI() + "】接口未登录不可访问！");
-//
-//            return false;
-//        }
+        } else {
+            responseOutWithJson(response, "-2", "【" + request.getRequestURI() + "】接口未登录不可访问！");
+
+            return false;
+        }
     }
 
     private Map<String, Object> getInfo(String key, String sid) {
