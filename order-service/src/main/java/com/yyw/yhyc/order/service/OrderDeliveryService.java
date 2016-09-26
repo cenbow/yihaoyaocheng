@@ -651,12 +651,12 @@ public class OrderDeliveryService {
                 orderDelivery.setUpdateTime(now);
                 orderDelivery.setCreateTime(now);
                 orderDeliveryMapper.update(orderDelivery);
-                //发货调用扣减冻结库存
+               /* //发货调用扣减冻结库存
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrderId(order.getOrderId());
                 orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
                 List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
-                productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
+                productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());*/
             } else {
                 //更新异常订单
                 OrderException orderException = orderExceptionMapper.getByExceptionOrderId(orderDeliveryDto.getFlowId());
