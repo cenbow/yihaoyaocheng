@@ -1169,11 +1169,7 @@ public class OrderService {
      */
     public BuyerOrderStatusEnum getBuyerOrderStatus(String systemOrderStatus,int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
-            if (payType == 2) {
-                return BuyerOrderStatusEnum.BackOrder;//待发货
-            } else if(payType == 1 || payType == 3){
-                return BuyerOrderStatusEnum.PendingPayment;//待付款
-            }
+			return BuyerOrderStatusEnum.PendingPayment;//待付款
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAlreadyPaid.getType())) {//买家已付款
             return BuyerOrderStatusEnum.BackOrder;//待发货
@@ -1211,11 +1207,7 @@ public class OrderService {
      */
     SellerOrderStatusEnum getSellerOrderStatus(String systemOrderStatus, int payType){
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerOrdered.getType())) {//买家已下单
-            if (payType == 2) {
-                return SellerOrderStatusEnum.BackOrder;//待发货
-            } else if(payType == 1 || payType == 3) {
-                return SellerOrderStatusEnum.PendingPayment;//待付款
-            }
+			return SellerOrderStatusEnum.PendingPayment;//待付款
         }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerAlreadyPaid.getType())) {//买家已付款
             return SellerOrderStatusEnum.BackOrder;//待发货
