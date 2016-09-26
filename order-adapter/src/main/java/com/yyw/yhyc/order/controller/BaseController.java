@@ -46,6 +46,7 @@ public class BaseController {
     @ExceptionHandler({Exception.class})
     @ResponseBody
     public Map<String, Object> exceptionHandler(Exception ex, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.error(ex.getMessage(),ex);
         HashMap map = new HashMap();
         map.put("statusCode", STATUS_CODE_SYSTEM_EXCEPTION);
         map.put("message", ex.getMessage());
@@ -89,9 +90,9 @@ public class BaseController {
     }
 
     protected <T> T getLoginUser(){
-        T t = (T) session.getAttribute("loginUserDto");
+        T t = (T) session.getAttribute(UserDto.REQUEST_KEY);
         if(UtilHelper.isEmpty(t))
-            t = (T) request.getAttribute("loginUserDto");
+            t = (T) request.getAttribute(UserDto.REQUEST_KEY);
         return t;
     }
 }
