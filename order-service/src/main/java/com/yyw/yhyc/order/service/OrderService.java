@@ -66,7 +66,7 @@ public class OrderService {
 	private OrderMapper	orderMapper;
 	private SystemPayTypeMapper systemPayTypeMapper;
 	private SystemDateMapper systemDateMapper;
-	private OrderDetailService orderDetailService;
+	private OrderDetailMapper orderDetailMapper;
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 	private OrderDeliveryMapper orderDeliveryMapper;
 	private OrderTraceMapper orderTraceMapper;
@@ -122,8 +122,8 @@ public class OrderService {
 	}
 
 	@Autowired
-	public void setOrderDetailService(OrderDetailService orderDetailService) {
-		this.orderDetailService = orderDetailService;
+	public void setOrderDetailMapper(OrderDetailMapper orderDetailMapper) {
+		this.orderDetailMapper = orderDetailMapper;
 	}
 
 	@Autowired
@@ -762,7 +762,7 @@ public class OrderService {
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
-			orderDetailService.save(orderDetail);
+			orderDetailMapper.save(orderDetail);
 			orderDetailList.add(orderDetail);
 		}
 		orderDto.setOrderDetailList(orderDetailList);
