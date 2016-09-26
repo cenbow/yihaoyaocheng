@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yyw.yhyc.helper.SpringBeanHelper;
@@ -28,6 +29,7 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.utils.DateUtils;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,6 +94,9 @@ public class OrderExceptionService {
 
     @Autowired
     private OrderSettlementService orderSettlementService;
+
+    @Reference
+    private IProductDubboManageService iProductDubboManageService;
 
     /**
      * 通过主键查询实体对象
@@ -2268,7 +2273,7 @@ public class OrderExceptionService {
                 if (UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
                 OrderProductBean orderProductBean = new OrderProductBean();
                 orderProductBean.setProductId(orderReturnDto.getSpuCode());
-                orderProductBean.setProductPicUrl("");
+                orderProductBean.setProductPicUrl(getProductImgUrl(orderReturnDto.getSpuCode(),iProductDubboManageService));
                 orderProductBean.setProductName(orderReturnDto.getShortName());
                 orderProductBean.setSpec(orderReturnDto.getSpecification());
                 orderProductBean.setUnit("");
@@ -2285,5 +2290,36 @@ public class OrderExceptionService {
         }
         return orderBean;
     }
+
+    public String getProductImgUrl(String spuCode, IProductDubboManageService iProductDubboManageService) {
+        String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+        if(UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(iProductDubboManageService)){
+            return filePath;
+        }
+        Map map = new HashMap();
+        map.put("spu_code", spuCode);
+        map.put("type_id", "1");
+        List picUrlList = null;
+        try{
+            log.info("查询图片接口:请求参数：map=" + map);
+            picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+            log.info("查询图片接口:响应参数：picUrlList=" + picUrlList);
+        }catch (Exception e){
+            log.error("查询图片接口:响应异常：" + e.getMessage(),e);
+            return filePath;
+        }
+        if(UtilHelper.isEmpty(picUrlList) ){
+            log.error("调用图片接口：无响应");
+            return filePath;
+        }
+        JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
+        String file_path = (String)productJson.get("file_path");
+        if (UtilHelper.isEmpty(file_path)){
+            return filePath;
+        }else{
+            return MyConfigUtil.IMG_DOMAIN + file_path;
+        }
+    }
+
 
 }
