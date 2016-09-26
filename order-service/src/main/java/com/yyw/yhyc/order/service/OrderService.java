@@ -2192,6 +2192,8 @@ public class OrderService {
 				orderSettlement.setCreateUser("systemManage");
 				orderSettlement.setBusinessType(4);
 				orderSettlement.setCustId(order.getCustId());
+				orderSettlement.setSupplyId(order.getSupplyId());
+				orderSettlement.setRemark(cancelResult);
 				orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 				orderSettlementMapper.save(orderSettlement);
