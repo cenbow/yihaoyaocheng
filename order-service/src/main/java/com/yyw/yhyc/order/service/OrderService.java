@@ -1616,7 +1616,7 @@ public class OrderService {
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
 			String now = systemDateMapper.getSystemDate();
-			log.debug("订单7个自然日未发货系统自动取消="+od.toString());
+			log.debug("订单7个自然日未发货系统自动取消=" + od.toString());
 			od.setCancelTime(now);
 			od.setCancelResult("系统自动取消");
 			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoCanceled.getType());
@@ -1667,7 +1667,7 @@ public class OrderService {
 			//账期结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
 			//根据订单来源进行自动分账 三期 对接
-			log.debug("订单发货后7个自然日后系统自动确认收货="+od.toString());
+			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
@@ -1710,7 +1710,7 @@ public class OrderService {
 		List<OrderException> le=orderExceptionMapper.listNodeliveryForReturn(orderException);
 		for(OrderException o:le){
 			//异常订单收货
-			log.debug("退货异常订单自动确认="+o.toString());
+			log.debug("退货异常订单自动确认=" + o.toString());
 			Order order = orderMapper.getByPK(o.getOrderId());
 			SystemPayType systemPayType= systemPayTypeMapper.getByPK(order.getPayTypeId());
 			o.setOrderStatus(SystemRefundOrderStatusEnum.SystemAutoConfirmReceipt.getType());
@@ -1740,7 +1740,7 @@ public class OrderService {
 			orderMapper.update(od);
 			//生成结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
-			log.debug("补货异常订单自动确认="+o.toString()+";"+od.toString());
+			log.debug("补货异常订单自动确认=" + o.toString() + ";" + od.toString());
 			Integer payTypeId=od.getPayTypeId();
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 			if(!UtilHelper.isEmpty(od)){
@@ -1779,7 +1779,7 @@ public class OrderService {
 		List<OrderException> le2=orderExceptionMapper.listNodeliveryForChange(orderException2);
 		for(OrderException o:le2){
 			//异常订单收货
-			log.debug("换货异常订单自动确认="+o.toString());
+			log.debug("换货异常订单自动确认=" + o.toString());
 			o.setOrderStatus(SystemChangeGoodsOrderStatusEnum.AutoFinished.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
@@ -1807,9 +1807,9 @@ public class OrderService {
 			creditParams.setStatus("6");
 			log.debug("******************：调用资信接口开始");
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-			log.debug("******************：调用资信接口结束,返回结果为："+creditDubboResult);
+			log.debug("******************：调用资信接口结束,返回结果为：" + creditDubboResult);
 			if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
-				log.debug("******************：调用资信接口结束,返回结果为："+creditDubboResult.getIsSuccessful());
+				log.debug("******************：调用资信接口结束,返回结果为：" + creditDubboResult.getIsSuccessful());
 				log.error("creditDubboResult error:" + (creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！"));
 				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
@@ -2848,7 +2848,7 @@ public class OrderService {
 		return  resutlMap;
 	}
 
-	public OrderBean getOrderDetailResponseInfo(String orderId,Integer custId) throws Exception{
+	public OrderBean getOrderDetailResponseInfo(String orderId,Integer custId,IProductDubboManageService iProductDubboManageService) throws Exception{
 		OrderBean orderBean=new OrderBean();
 		Order order=new Order();
 		order.setCustId(custId);
@@ -2890,7 +2890,7 @@ public class OrderService {
 			OrderProductBean ordeProductBean=new OrderProductBean();
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
 			ordeProductBean.setProductId(orderDetail.getProductCode());
-			ordeProductBean.setProductPicUrl("");
+			ordeProductBean.setProductPicUrl(getProductImg(orderDetail.getSpuCode(),iProductDubboManageService));
 			ordeProductBean.setProductName(orderDetail.getShortName());
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
