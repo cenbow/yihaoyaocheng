@@ -293,7 +293,7 @@ public class ProductInventoryService {
             }
             ProductAudit productAudit = productAuditMapper.getProductcodeCompany(supplyId, productcodeCompany);
             if (UtilHelper.isEmpty(productAudit)) {
-                map.put("7", "产品编码不存在或者商品没有审核通过");
+                map.put("7", "该商品编码不存在或者商品没有审核通过");
                 list.add(map);
                 continue;
             }
@@ -301,7 +301,7 @@ public class ProductInventoryService {
             try {
                 product = productInventoryMapper.findBySupplyIdSpuCode(supplyId, productAudit.getSpuCode());
             } catch (Exception e) {
-                map.put("7", "产品编码库存数据存在多条");
+                map.put("7", "该商品编码库存信息存在多条");
                 list.add(map);
                 continue;
             }
@@ -492,11 +492,19 @@ public class ProductInventoryService {
                 if (!UtilHelper.isEmpty(productInventory.getSpuCode()) && !UtilHelper.isEmpty(productInventory.getSupplyId()) && !UtilHelper.isEmpty(productInventory.getCurrentInventory()) && !UtilHelper.isEmpty(productInventory.getSupplyName())) {
                     ProductAudit productAudit = productAuditMapper.getProductcodeCompany(productInventory.getSupplyId(), productInventory.getSpuCode());
                     if (UtilHelper.isEmpty(productAudit)) {
+                        productInventory.setRemark("该商品编码不存在或者商品没有审核通过");
                         list.add(productInventory);
                         continue;
                     }
                     ProductInventoryLog productInventoryLog = new ProductInventoryLog();
-                    ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productAudit.getSpuCode());
+                    ProductInventory product = null;
+                    try {
+                          product = productInventoryMapper.findBySupplyIdSpuCode(productInventory.getSupplyId(), productAudit.getSpuCode());
+                    }catch (Exception e){
+                        productInventory.setRemark("该商品编码库存信息存在多条");
+                        list.add(productInventory);
+                        continue;
+                    }
                     productInventory.setSpuCode(productAudit.getSpuCode());
                     productInventory.setUpdateTime(now);
                     productInventory.setUpdateUser(productInventory.getSupplyName());
@@ -530,6 +538,7 @@ public class ProductInventoryService {
                     productInventoryLog.setUpdateTime(now);
                     productInventoryLogMapper.save(productInventoryLog);
                 } else {
+                    productInventory.setRemark("参数错误");
                     list.add(productInventory);
                 }
             }
