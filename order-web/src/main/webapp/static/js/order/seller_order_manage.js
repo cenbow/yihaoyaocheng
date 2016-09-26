@@ -250,22 +250,24 @@ function typeToOperate(order) {
     //result = '<span id="order_' + order.orderId + '" ></span>';
 
     //<button type="button" class="btn btn-info btn-sm margin-r-10">取消订单</button>
-    if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 2) {//账期支付+买家已下单
-        result += '<a href="javascript:sendDelivery(\''+ order.flowId + '\')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
-        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
-    }
-    if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 1) {//在线支付+买家已付款
+    // if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 2) {//账期支付+买家已下单
+    //     result += '<a href="javascript:sendDelivery(\''+ order.flowId + '\')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
+    //     result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+    // }
+    if (order && order.orderStatus && order.orderStatus == '5' ) {// 买家已付款
         result += '<a href="javascript:sendDelivery(\'' + order.flowId + '\')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
-        result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
+        if( order.payType && (order.payType == 1 || order.payType == 2)){ //在线支付、账期支付
+            result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';    
+        }else{
+            //线下支付+买家已付款 没有取消按钮
+        }
     }
 
     if (order && order.orderStatus && order.orderStatus == '1' && order.payType && order.payType == 3) {//线下支付+买家已下单
         result += '<a href="javascript:cancleOrder(' + order.orderId + ')" class="btn btn-info btn-sm margin-r-10">取消</a>';
         result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">收款确认</a>';
     }
-    if (order && order.orderStatus && order.orderStatus == '5' && order.payType && order.payType == 3) {//线下支付+买家已付款
-        result += '<a href="javascript:sendDelivery(\'' + order.flowId + '\')"  class="btn btn-info btn-sm margin-r-10">发货</a>';
-    }
+
     if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
         result += '<a href="'+ctx+'/orderException/getDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }

@@ -261,6 +261,9 @@ public class ShoppingCartService {
 			countByid=shoppingCarts.get(0).getProductCount();
 		}
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
+			throw new Exception("商品没有库存");
+		}
 		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
 			shoppingCart.setProductCount(product.getFrontInventory());
 		}else{
@@ -462,6 +465,7 @@ public class ShoppingCartService {
 				cartProductBean.setFactoryName(scd.getManufactures());
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
+				cartProductBean.setSpuCode(scd.getSpuCode());
 				products.add(cartProductBean);
 			}
 			cartGroupData.setProducts(products);

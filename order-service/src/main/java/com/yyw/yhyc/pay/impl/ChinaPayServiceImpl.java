@@ -121,7 +121,7 @@ public class ChinaPayServiceImpl implements PayService {
         }
         Map<String,Object> paramMap = new HashMap<>();
         if(type==1){
-            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("tradeReturnHost") + "trade-web/credit/creditRefundList");
+            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("tradeReturnHost") + "credit/buyerCreditList");
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayOfAccountCallback");
             return findPayMapOfAccount(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else if( 2 == type){
