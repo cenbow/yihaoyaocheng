@@ -321,7 +321,7 @@ public class OrderSettlementService {
                 orderSettlement.setBusinessType(4);
                 orderSettlement.setCustId(order.getCustId());
                 orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
-                orderSettlement.setSupplyId(order.getSupplyId());
+
                 orderSettlement.setSettlementMoney(order.getOrgTotal());
                 break;
             case 6:
