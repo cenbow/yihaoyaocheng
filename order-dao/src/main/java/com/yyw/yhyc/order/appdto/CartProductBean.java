@@ -26,6 +26,7 @@ public class CartProductBean implements Serializable,Cloneable {
     private long factoryId ;//生产厂商Id
     private String vendorName;//供应商名称
     private Integer vendorId;//供应商id
+    private String spuCode;//商品SPU编码
 
     public long getShoppingCartId() {
         return shoppingCartId;
@@ -179,6 +180,14 @@ public class CartProductBean implements Serializable,Cloneable {
         this.vendorId = vendorId;
     }
 
+    public String getSpuCode() {
+        return spuCode;
+    }
+
+    public void setSpuCode(String spuCode) {
+        this.spuCode = spuCode;
+    }
+
     @Override
     public String toString() {
         return "CartProductBean{" +
@@ -200,7 +209,8 @@ public class CartProductBean implements Serializable,Cloneable {
                 ", factoryName='" + factoryName + '\'' +
                 ", factoryId=" + factoryId +
                 ", vendorName='" + vendorName + '\'' +
-                ", vendorId='" + vendorId+ '\'' +
+                ", vendorId=" + vendorId +
+                ", spuCode='" + spuCode + '\'' +
                 '}';
     }
 }

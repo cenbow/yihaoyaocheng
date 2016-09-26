@@ -2180,7 +2180,6 @@ public class OrderService {
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
-				BigDecimal zero = new BigDecimal(0);
 				OrderSettlement orderSettlement = new OrderSettlement();
 				orderSettlement.setOrderId(order.getOrderId());
 				orderSettlement.setFlowId(order.getFlowId());
@@ -2194,7 +2193,7 @@ public class OrderService {
 				orderSettlement.setBusinessType(4);
 				orderSettlement.setCustId(order.getCustId());
 				orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
-				orderSettlement.setSettlementMoney(zero.subtract(order.getOrgTotal()));
+				orderSettlement.setSettlementMoney(order.getOrgTotal());
 				orderSettlementMapper.save(orderSettlement);
 			}
 
