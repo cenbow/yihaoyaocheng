@@ -128,12 +128,10 @@ public class ShoppingCartController extends BaseController {
 	 */
 	@RequestMapping(value = "/deleteShopCarts", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception
-	{
-		HttpServletRequest req = this.request;
-		Integer custId = 6066;
+	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		int custId = userDto.getCustId();
 		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService);
-//		return new HashMap<String,Object>();
 	}
 
 	/**
@@ -142,14 +140,12 @@ public class ShoppingCartController extends BaseController {
 	 */
 	@RequestMapping(value = "/updateShopCart", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> updateShopCart(@RequestBody Map<String,Integer> shoppingCart) throws Exception
-	{
-		HttpServletRequest req = this.request;
-		Integer custId = 6066;
+	public Map<String,Object> updateShopCart(@RequestBody Map<String,Integer> shoppingCart) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		int custId = userDto.getCustId();
 		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
 		Integer quantity = shoppingCart.get("quantity");
 		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService);
-//		return new HashMap<String,Object>();
 	}
 
 	/**
@@ -203,12 +199,17 @@ public class ShoppingCartController extends BaseController {
 	@RequestMapping(value = "/addShopCart", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
+
+		/* 获取登陆用户的企业信息 */
+		UserDto userDto = super.getLoginUser();
+
 		Map<String, Object> map = new HashMap<>();
 		if(UtilHelper.isEmpty(shoppingCart)){
 			return error(STATUS_CODE_REQUEST_PARAM_ERROR,"非法参数");
 		}
 		Map<String, Object> result = null;
 		try{
+			shoppingCart.setCustId(userDto.getCustId());
 			result = shoppingCartService.addShoppingCart(shoppingCart);
 			result.put("totalCount",result.get("productCount"));
 			result.put("result","成功");
@@ -235,8 +236,8 @@ public class ShoppingCartController extends BaseController {
 	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> getShopCartList() throws Exception {
-		UserDto userDto = new UserDto();
-		userDto.setCustId(6066);
+		/* 获取登陆用户的企业信息 */
+		UserDto userDto = super.getLoginUser();
 		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
 	}
 
@@ -248,8 +249,10 @@ public class ShoppingCartController extends BaseController {
 	@RequestMapping(value = "/getDeliveryAddress", method = RequestMethod.GET)
 	@ResponseBody
 	public Map<String, Object> getDeliveryAddress() throws Exception {
-		UserDto userDto = new UserDto();
-		userDto.setCustId(6066);
+
+		/* 获取登陆用户的企业信息 */
+		UserDto userDto = super.getLoginUser();
+
 		Object data = shoppingCartService.getDeliveryAddress(userDto);
 		return ok(data);
 	}
@@ -283,11 +286,9 @@ public class ShoppingCartController extends BaseController {
 	@RequestMapping(value = "/submitShopCart", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean) throws Exception {
-		/* TODO 获取登陆用户的企业信息 */
-		UserDto userDto = new UserDto();
-		userDto.setCustId(6066);
-		userDto.setUserName("ceshi");
-		userDto.setCustName("上海采供商测试企业");
+
+		/* 获取登陆用户的企业信息 */
+		UserDto userDto = super.getLoginUser();
 
 		/* 把APP端的数据格式，转成与PC通用的数据格式 */
 		OrderCreateDto orderCreateDto = convertDataForApp(userDto,orderCreateBean);
