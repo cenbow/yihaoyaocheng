@@ -61,7 +61,7 @@ public class RandomUtil {
      * @return
      */
     public static String createOrderPayFlowId(String listStr){;
-        return "PF"+Md5(listStr);
+        return CommonType.ORDER_PAY_FLOW_ID_PREFIX+Md5(listStr);
     }
 
     public static String createRoundNum(Integer roundNum,Integer length){
@@ -103,7 +103,6 @@ public class RandomUtil {
                     buf.append("0");
                 buf.append(Integer.toHexString(i));
             }
-            result = buf.toString();  //md5 32bit
             result = buf.toString().substring(8, 24); //md5 16bit
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
