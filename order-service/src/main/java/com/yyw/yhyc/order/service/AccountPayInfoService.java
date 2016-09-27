@@ -234,8 +234,10 @@ public class AccountPayInfoService {
                     ap.setReceiveAccountName(usermanageEnterprise.getEnterpriseName());
                     accountPayInfoMapper.save(ap);
                 } else {//修改
+                    UsermanageEnterprise usermanageEnterprise=usermanageEnterpriseMapper.getByEnterpriseId(ap.getCustId().toString());
                     ap.setUpdateTime(now);
                     ap.setUpdateUser(accountPayInfo.getCreateUser());
+                    ap.setReceiveAccountName(usermanageEnterprise.getEnterpriseName());
                     accountPayInfoMapper.update(ap);
                 }
             }
