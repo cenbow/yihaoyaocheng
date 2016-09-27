@@ -449,6 +449,7 @@ public class ShoppingCartService {
 			cartGroupData.setSupplyId(Long.parseLong(scds.getSeller().getEnterpriseId()));
 			cartGroupData.setSupplyName(scds.getSeller().getEnterpriseName());
 			cartGroupData.setProductTotalPrice(scds.getProductPriceCount());
+			cartGroupData.setMinSalePrice(scds.getSeller().getOrderSamount());
 			for (ShoppingCartDto scd : scds.getShoppingCartDtoList()){
 				CartProductBean cartProductBean = new CartProductBean();
 				cartProductBean.setShoppingCartId(scd.getShoppingCartId());
