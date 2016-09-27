@@ -2533,16 +2533,16 @@ public class OrderService {
 					continue;
 				//待付款
 				if(BuyerOrderStatusEnum.PendingPayment.equals(buyerorderstatusenum))
-					unPayNumber ++;
+					unPayNumber=unPayNumber + od.getOrderCount();
 				//待发货
 				if(BuyerOrderStatusEnum.BackOrder.equals(buyerorderstatusenum))
-					deliverNumber ++;
+					deliverNumber = deliverNumber + od.getOrderCount();
 				//待收货
 				if(BuyerOrderStatusEnum.ReceiptOfGoods.equals(buyerorderstatusenum))
-					reciveNumber ++;
+					reciveNumber = reciveNumber + od.getOrderCount();
 				//拒收+补货
 				if(BuyerOrderStatusEnum.Rejecting.equals(buyerorderstatusenum) || BuyerOrderStatusEnum.Replenishing.equals(buyerorderstatusenum))
-					unRejRep ++;
+					unRejRep  = unRejRep + od.getOrderCount();
 			}
 		}
 		statusMap.put("unPayNumber",unPayNumber);
