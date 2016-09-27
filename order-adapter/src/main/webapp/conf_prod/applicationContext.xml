@@ -32,5 +32,5 @@
         <constructor-arg index="4" value="${redis.common.key}"/>
     </bean>
 
-    <import resource="../spring-dataSource.xml"/>
+    <import resource="spring-dataSource.xml"/>
 </beans>
