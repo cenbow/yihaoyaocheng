@@ -172,7 +172,7 @@ public class OrderPayController extends BaseJsonController {
 		}
 
 		/* 在线支付订单前，预处理订单数据 */
-		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
+		String payFlowId = RandomUtil.createOrderPayFlowId(listStr);
 		OrderPay orderPay = orderPayService.repaymentOfAccount(userDto, listStr, payTypeId, payFlowId, supplyId);
 		if(UtilHelper.isEmpty(orderPay)) throw new Exception("非法参数");
 
