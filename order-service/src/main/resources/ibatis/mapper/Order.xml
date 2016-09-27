@@ -1330,4 +1330,13 @@
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
+    <!--获取在线支付的订单-->
+	<select id="getOnlinePaymentOrderbyFlowId" parameterType="java.lang.String" resultMap="OrderResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="T1commonProcessDateColumns"/>
+		FROM t_order T1
+		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON T1.pay_type_id=TP.PAY_TYPE_ID
+		WHERE flow_id = #{flowId} AND TP.pay_type=1
+	</select>
+
 </mapper>

@@ -14,6 +14,7 @@ public class CartGroupData implements Serializable,Cloneable{
     private boolean checkGroup;//是否选中该供应商所有商品
     private BigDecimal productTotalPrice;
     private List<CartProductBean> products;
+    private BigDecimal minSalePrice;//订单起售金额
 
     public long getSupplyId() {
         return supplyId;
@@ -55,6 +56,14 @@ public class CartGroupData implements Serializable,Cloneable{
         this.products = products;
     }
 
+    public BigDecimal getMinSalePrice() {
+        return minSalePrice;
+    }
+
+    public void setMinSalePrice(BigDecimal minSalePrice) {
+        this.minSalePrice = minSalePrice;
+    }
+
     @Override
     public String toString() {
         return "CartGroupData{" +
@@ -63,6 +72,7 @@ public class CartGroupData implements Serializable,Cloneable{
                 ", checkGroup=" + checkGroup +
                 ", productTotalPrice=" + productTotalPrice +
                 ", products=" + products +
+                ", minSalePrice=" + minSalePrice +
                 '}';
     }
 }
