@@ -20,6 +20,8 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
+import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.functions.Now;
@@ -37,6 +39,8 @@ public class AccountPayInfoService {
     private AccountPayInfoMapper accountPayInfoMapper;
     private SystemPayTypeMapper systemPayTypeMapper;
     private SystemDateMapper systemDateMapper;
+    @Autowired
+    private UsermanageEnterpriseMapper usermanageEnterpriseMapper;
 
     @Autowired
     public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
@@ -223,9 +227,11 @@ public class AccountPayInfoService {
                     ap.setCityName(accountPayInfo.getCityName());
                 }
                 if (UtilHelper.isEmpty(accountPayInfos)) {//新增
+                    UsermanageEnterprise usermanageEnterprise=usermanageEnterpriseMapper.getByEnterpriseId(ap.getCustId().toString());
                     ap.setAccountStatus("1");
                     ap.setCreateTime(now);
                     ap.setCreateUser(accountPayInfo.getCreateUser());
+                    ap.setReceiveAccountName(usermanageEnterprise.getEnterpriseName());
                     accountPayInfoMapper.save(ap);
                 } else {//修改
                     ap.setUpdateTime(now);
