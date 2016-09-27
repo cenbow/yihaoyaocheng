@@ -4,6 +4,8 @@ import com.yyw.yhyc.helper.JsonHelper;
 import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.helper.UtilHelper;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
@@ -59,11 +61,7 @@ public class RandomUtil {
      * @return
      */
     public static String createOrderPayFlowId(String listStr){;
-        List<Map> list = JsonHelper.fromList(listStr, Map.class);
-        for(Map<String,String> orderMap : list){
-           return  "PF"+orderMap.get("flowId").trim();
-        }
-        return null;
+        return CommonType.ORDER_PAY_FLOW_ID_PREFIX+Md5(listStr);
     }
 
     public static String createRoundNum(Integer roundNum,Integer length){
@@ -87,5 +85,28 @@ public class RandomUtil {
     public static void main(String[] args) {
         System.out.println(createRoundNum(26,2));
         System.out.println(createRoundNum(27,2));
+    }
+
+    private static String Md5(String plainText) {
+        String result = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("md5");
+            md.update(plainText.getBytes());
+            byte b[] = md.digest();
+            int i;
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            result = buf.toString().substring(8, 24); //md5 16bit
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

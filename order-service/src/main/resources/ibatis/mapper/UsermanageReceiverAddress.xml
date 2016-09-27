@@ -208,7 +208,7 @@
 			 <include refid="commonProcessDateColumns"/>
  		FROM t_usermanage_receiver_address
 	</select>
-	<select id="listByProperty" parameterType="UsermanageReceiverAddress" resultMap="UsermanageReceiverAddressResultMapper">
+	<select id="listByProperty" parameterType="UsermanageReceiverAddress" resultMap="UsermanageReceiverAddressResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 			<include refid="commonProcessDateColumns"/>
 		FROM t_usermanage_receiver_address WHERE 1=1 
