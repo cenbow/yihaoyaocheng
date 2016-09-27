@@ -206,6 +206,7 @@ public class AccountPayInfoService {
                 return resultMap;
             }
             String now = systemDateMapper.getSystemDate();
+            String receiveAccountName="";
             for (AccountPayInfo accountPayInfo : payInfoList) {
                 /*数据校验*/
                 this.checkAccountPayInfo(accountPayInfo, resultMap);
@@ -221,23 +222,22 @@ public class AccountPayInfoService {
                 ap.setReceiveAccountNo(accountPayInfo.getReceiveAccountNo());
                 /*招行*/
                 if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
+                    receiveAccountName=accountPayInfo.getReceiveAccountName();
                     ap.setReceiveAccountName(accountPayInfo.getReceiveAccountName());
                     ap.setSubbankName(accountPayInfo.getSubbankName());
                     ap.setProvinceName(accountPayInfo.getProvinceName());
                     ap.setCityName(accountPayInfo.getCityName());
                 }
                 if (UtilHelper.isEmpty(accountPayInfos)) {//新增
-                    UsermanageEnterprise usermanageEnterprise=usermanageEnterpriseMapper.getByEnterpriseId(ap.getCustId().toString());
                     ap.setAccountStatus("1");
                     ap.setCreateTime(now);
                     ap.setCreateUser(accountPayInfo.getCreateUser());
-                    ap.setReceiveAccountName(usermanageEnterprise.getEnterpriseName());
+                    ap.setReceiveAccountName(receiveAccountName);
                     accountPayInfoMapper.save(ap);
                 } else {//修改
-                    UsermanageEnterprise usermanageEnterprise=usermanageEnterpriseMapper.getByEnterpriseId(ap.getCustId().toString());
                     ap.setUpdateTime(now);
                     ap.setUpdateUser(accountPayInfo.getCreateUser());
-                    ap.setReceiveAccountName(usermanageEnterprise.getEnterpriseName());
+                    ap.setReceiveAccountName(receiveAccountName);
                     accountPayInfoMapper.update(ap);
                 }
             }
