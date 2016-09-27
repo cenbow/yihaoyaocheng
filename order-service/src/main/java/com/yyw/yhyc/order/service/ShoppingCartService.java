@@ -569,7 +569,19 @@ public class ShoppingCartService {
 			if (UtilHelper.isEmpty(address)) continue;
 			addressBean = new AddressBean();
 			addressBean.setAddressId(address.getId());
-			addressBean.setAddressType("1".equals(address.getDefaultAddress().toString()) ? 0 : 1);
+
+//			app接口定义的addressType: 0是默认收货地址，1 其他地址
+//			数据库中使用的addresssType: 0非默认地址；1:默认地址，
+			Integer addressType = null;
+			if(UtilHelper.isEmpty(address.getDefaultAddress()+"")){
+				addressType = 1;
+			}else if("1".equals(address.getDefaultAddress()+"")){
+				addressType = 0;
+			}else{
+				addressType = 1;
+			}
+
+			addressBean.setAddressType(addressType);
 			addressBean.setAddressProvince(address.getProvinceName());
 			addressBean.setAddressCity(address.getCityName());
 			addressBean.setAddressCounty(address.getDistrictName());
