@@ -1,7 +1,13 @@
 package com.yyw.yhyc.order.utils;
 
+import com.yyw.yhyc.helper.JsonHelper;
 import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.helper.UtilHelper;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by lizhou on 2016/7/29
@@ -49,6 +55,15 @@ public class RandomUtil {
         return flowId.toString();
     }
 
+    /**
+     * 创建订单支付流水编号
+     * @param listStr
+     * @return
+     */
+    public static String createOrderPayFlowId(String listStr){;
+        return CommonType.ORDER_PAY_FLOW_ID_PREFIX+Md5(listStr);
+    }
+
     public static String createRoundNum(Integer roundNum,Integer length){
         return createRoundNum(roundNum.toString(),length);
     }
@@ -70,5 +85,28 @@ public class RandomUtil {
     public static void main(String[] args) {
         System.out.println(createRoundNum(26,2));
         System.out.println(createRoundNum(27,2));
+    }
+
+    private static String Md5(String plainText) {
+        String result = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("md5");
+            md.update(plainText.getBytes());
+            byte b[] = md.digest();
+            int i;
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            result = buf.toString().substring(8, 24); //md5 16bit
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

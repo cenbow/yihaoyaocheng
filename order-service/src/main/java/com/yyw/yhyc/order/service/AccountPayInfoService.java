@@ -20,6 +20,8 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
+import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.record.formula.functions.Now;
@@ -37,6 +39,8 @@ public class AccountPayInfoService {
     private AccountPayInfoMapper accountPayInfoMapper;
     private SystemPayTypeMapper systemPayTypeMapper;
     private SystemDateMapper systemDateMapper;
+    @Autowired
+    private UsermanageEnterpriseMapper usermanageEnterpriseMapper;
 
     @Autowired
     public void setSystemPayTypeMapper(SystemPayTypeMapper systemPayTypeMapper) {
@@ -202,6 +206,7 @@ public class AccountPayInfoService {
                 return resultMap;
             }
             String now = systemDateMapper.getSystemDate();
+            String receiveAccountName="";
             for (AccountPayInfo accountPayInfo : payInfoList) {
                 /*数据校验*/
                 this.checkAccountPayInfo(accountPayInfo, resultMap);
@@ -217,6 +222,7 @@ public class AccountPayInfoService {
                 ap.setReceiveAccountNo(accountPayInfo.getReceiveAccountNo());
                 /*招行*/
                 if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
+                    receiveAccountName=accountPayInfo.getReceiveAccountName();
                     ap.setReceiveAccountName(accountPayInfo.getReceiveAccountName());
                     ap.setSubbankName(accountPayInfo.getSubbankName());
                     ap.setProvinceName(accountPayInfo.getProvinceName());
@@ -226,10 +232,12 @@ public class AccountPayInfoService {
                     ap.setAccountStatus("1");
                     ap.setCreateTime(now);
                     ap.setCreateUser(accountPayInfo.getCreateUser());
+                    ap.setReceiveAccountName(receiveAccountName);
                     accountPayInfoMapper.save(ap);
                 } else {//修改
                     ap.setUpdateTime(now);
                     ap.setUpdateUser(accountPayInfo.getCreateUser());
+                    ap.setReceiveAccountName(receiveAccountName);
                     accountPayInfoMapper.update(ap);
                 }
             }

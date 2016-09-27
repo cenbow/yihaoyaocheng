@@ -84,7 +84,19 @@
                     <div id="myTabContent" class="tab-content">
                         <div class="tab-pane fade in active" id="home">
                             <div class="clearfix padding-tb-20">
-                                <div class="fr padding-t-10"><span class="margin-r-20">订单数：<span id="orderCount"></span></span><span class="red">订单金额：<span id="orderTotalMoney"></span></span></div>
+                                <div class="fr padding-t-10">
+                                    <span class="margin-r-20" >
+                                        <a href="http://his.fangkuaiyi.com" title="老平台订单查询">
+                                            <span style="color: #fe5d51;font-weight: bold;text-decoration: underline">老平台订单查询</span>
+                                        </a>
+                                    </span>
+                                    <span class="margin-r-20">
+                                        订单数：<span id="orderCount"></span>
+                                    </span>
+                                    <span class="red">
+                                        订单金额：<span id="orderTotalMoney"></span>
+                                    </span>
+                                </div>
                             </div>
                             <table class="table table-box">
                                 <colgroup>
