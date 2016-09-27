@@ -554,7 +554,7 @@ public class ShoppingCartService {
 	 * @return
      */
 	public Object getDeliveryAddress(UserDto userDto){
-		Integer custId = 6066;
+		Integer custId = userDto.getCustId();
 		UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
 		receiverAddress.setEnterpriseId(custId + "");
 		List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
