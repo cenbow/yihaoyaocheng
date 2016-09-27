@@ -178,11 +178,14 @@
 			INNER JOIN T_PASSPORT_USER_OUT PUO
 			ON O.CUST_ID = PUO.USERID
 			AND O.SUPPLY_ID = ENTERPRISE_ID
+			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
+			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
 			O.SUPPLY_ID = #{supplyId}
 		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
-		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL);
+		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
+		AND SPT.PAY_TYPE = 1
 	</select>
 	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
 		SELECT OD.PRODUCT_ID ,OD.PRODUCT_COUNT,OD.PRODUCT_PRICE,OD.SUPPLY_ID,OD.SPU_CODE,OD.PRODUCT_CODE FROM T_ORDER_DETAIL OD
@@ -198,13 +201,11 @@
 	</select>-->
 
 	<select id="getManufacturerOrder" parameterType="java.lang.Integer"  resultMap="OrderIssuedResultMapper">
-		SELECT
-		OI.FLOW_ID
-		FROM
-		T_ORDER_ISSUED OI LEFT JOIN  T_ORDER O
-		ON O.FLOW_ID =OI.FLOW_ID
+		SELECT OI.FLOW_ID FROM T_ORDER_ISSUED OI
+		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
+		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON O.pay_type_id=TP.PAY_TYPE_ID
 		WHERE
-		OI.SUPPLY_ID=#{supplyId} AND issued_status='1'
+		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1' AND TP.pay_type=1
 		AND O.ORDER_STATUS = '5'
 	</select>
 </mapper>
