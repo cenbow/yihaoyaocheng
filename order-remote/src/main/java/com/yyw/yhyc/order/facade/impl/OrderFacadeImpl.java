@@ -160,7 +160,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @throws Exception
 	 */
 	public Map<String,Object> validateProducts(UserDto userDto,OrderDto orderDto) throws Exception {
-		return orderService.validateProducts(userDto,orderDto,null,null);
+		return orderService.validateProducts(userDto,orderDto,null,null, null);
 	}
 	/**
 	 * 查采购商订单查询

@@ -52,6 +52,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -777,10 +778,11 @@ public class OrderService {
 	 * @param orderDto 要提交订单的商品数据
 	 * @param iCustgroupmanageDubbo
 	 * @param productDubboManageService
+	 * @param productSearchInterface
 	 * @return
      */
 	public Map<String,Object> validateProducts(UserDto userDto, OrderDto orderDto,
-											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService){
+											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService, ProductSearchInterface productSearchInterface){
 		Map<String,Object> map = new HashMap<String, Object>();
 
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList()) ){
@@ -800,32 +802,13 @@ public class OrderService {
 			return returnFalse("不能购买自己的商品");
 		}
 
-		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
-			return returnFalse("请稍后再试");
-		}
+
 		if(UtilHelper.isEmpty(productDubboManageService)){
 			log.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
 			return returnFalse("请稍后再试");
 		}
 
-		CustGroupDubboRet custGroupDubboRet = null;
-		try{
-			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
-			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
-			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
-		}catch (Exception e){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
-			return returnFalse("查询商品价格失败");
-		}
 
-		String [] custGroupCode = null;
-		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
-			return returnFalse("查询商品价格失败");
-		}else{
-			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
-		}
 
 		/* 该供应商下所有商品的总金额（用于判断是否符合供应商的订单起售金额） */
 		BigDecimal productPriceCount = new BigDecimal(0);
@@ -879,34 +862,17 @@ public class OrderService {
 			productInfoDto.setIsChannel(isChannel);
 
 			/* 查询价格 */
-			String resultJsonString = "";
-			BigDecimal productPrice = null ;
+			BigDecimal productPrice = null;
 			try{
-				log.info("统一校验订单商品接口,查询商品价格，请求参数:\n supply_id=" + orderDto.getSupplyId() + ",spuCode=" + productInfoDto.getSpuCode()+",custGroupName="+custGroupCode);
-				resultJsonString = productDubboManageService.getProductPriceByUserIdAndSPU(orderDto.getSupplyId() + "",productInfoDto.getSpuCode(),custGroupCode);
-				log.info("统一校验订单商品接口,查询商品价格，响应参数：" + resultJsonString);
-
-				JSONObject jsonObject = JSONObject.fromObject(resultJsonString);
-				//客户组价格
-				if(!UtilHelper.isEmpty(jsonObject.get("group_price")+"")){
-					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("group_price")+"") ? "0" : jsonObject.get("group_price")+"");
-				//渠道价格
-				} else if(!UtilHelper.isEmpty(jsonObject.get("channel_price")+"")) {
-					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("channel_price")+"") ? "0" : jsonObject.get("channel_price")+"");
-				//公开价格
-				}else if(!UtilHelper.isEmpty(jsonObject.get("public_price")+"")){
-					productPrice = new BigDecimal(UtilHelper.isEmpty(jsonObject.get("public_price")+"") ? "0" : jsonObject.get("public_price")+"");
-				}else{
-					log.error("统一校验订单商品接口,查询商品价格，发生异常,");
-					return returnFalse("查询商品价格失败");
-				}
-				log.info("统一校验订单商品接口,查询商品价格=" + productPrice + ",页面上显示的商品价格=" + productInfoDto.getProductPrice());
-
+				productPrice = getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface) ;
 			}catch (Exception e){
-				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage());
+				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage(),e);
 				return returnFalse("查询商品价格失败");
 			}
-
+			log.info("统一校验订单商品接口,查询商品价格:productPrice=" + productPrice);
+			if(UtilHelper.isEmpty(productPrice)){
+				return returnFalse("查询商品价格失败");
+			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
 			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
 				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
@@ -934,6 +900,60 @@ public class OrderService {
 		map.put("message", message);
 		map.put("goToShoppingCart", true);
 		return map;
+	}
+
+	/**
+	 * 调用接口查询商品价格
+	 * @param spuCode               商品spu编码
+	 * @param buyerEnterprizeId    买家企业id
+	 * @param sellerEnterprizeId   商家企业id
+     * @param productSearchInterface
+	 * @return
+     */
+	private BigDecimal getProductPrice(String spuCode, Integer buyerEnterprizeId, Integer sellerEnterprizeId,
+									   ICustgroupmanageDubbo iCustgroupmanageDubbo, UserDto userDto, ProductSearchInterface productSearchInterface){
+		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
+			return null;
+		}
+		CustGroupDubboRet custGroupDubboRet = null;
+		try{
+			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
+			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
+			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
+		}catch (Exception e){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+			return null;
+		}
+
+		String custGroupCode = null;//客户组编码
+		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
+			return null;
+		}else{
+			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
+		}
+
+		log.info("统一校验订单商品接口,查询商品价格(调用搜索接口 productSearchInterface= "+ productSearchInterface +")");
+		if(UtilHelper.isEmpty(productSearchInterface)){
+			return null;
+		}
+
+		//调用搜索的接口
+		Double productPrice = null;
+		try{
+			log.info("统一校验订单商品接口,查询商品价格，请求参数:\n buyerEnterprizeId=" + buyerEnterprizeId +
+					",sellerEnterprizeId=" + sellerEnterprizeId +",custGroupName="+custGroupCode +",spuCode="+spuCode);
+			productPrice = productSearchInterface.findProductShowPrice(buyerEnterprizeId+"",sellerEnterprizeId+"",spuCode,custGroupCode);
+			log.info("统一校验订单商品接口,查询商品价格，响应参数：" + productPrice );
+		}catch (Exception e){
+			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+			return null;
+		}
+		if(UtilHelper.isEmpty(productPrice)){
+			return null;
+		}
+		return new BigDecimal(productPrice + "");
 	}
 
 	/**
@@ -966,17 +986,20 @@ public class OrderService {
 	 * @param data  "[{group_code=61650851012264}, {group_code=61671525425650}]"
 	 * @return
      */
-	private String[] getCustGroupCode(List<Map<String, Object>> data) {
-		if(UtilHelper.isEmpty(data)) return null;
-		List<String> list = new ArrayList();
+	private String getCustGroupCode(List<Map<String, Object>> data) {
+		if(UtilHelper.isEmpty(data)) return "";
+		String result = "";
 		for(Map map : data){
 			if(UtilHelper.isEmpty(map)) continue;
 			if(!UtilHelper.isEmpty(map.get("group_code")+"")){
-				list.add(map.get("group_code")+"");
+				if(UtilHelper.isEmpty(result)){
+					result += map.get("group_code")+"";
+				}else{
+					result += "," + map.get("group_code")+"";
+				}
 			}
 		}
-		String[] strings = new String[list.size()];
-		return list.toArray(strings);
+		return result;
 	}
 
 	/**
@@ -2872,6 +2895,7 @@ public class OrderService {
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
 		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
+		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
 		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
 		//地址对象
