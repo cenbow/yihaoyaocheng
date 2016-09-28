@@ -2872,6 +2872,7 @@ public class OrderService {
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
 		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
+		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
 		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
 		//地址对象
