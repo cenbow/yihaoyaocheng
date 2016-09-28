@@ -286,6 +286,7 @@ public class OrderPayService {
 			log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
 		}else{
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			orderPay.setPayTypeId(payTypeId);
 			orderPayMapper.update(orderPay);
 		}
 		return orderPay;
@@ -409,6 +410,7 @@ public class OrderPayService {
 			log.info("在线账期还款订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
 		}else{
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			orderPay.setPayTypeId(payTypeId);
 			orderPayMapper.update(orderPay);
 		}
 		return orderPay;
