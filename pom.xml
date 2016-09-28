@@ -43,7 +43,10 @@
         <zookeeper.version>3.4.8</zookeeper.version>
         <netty.version>3.7.0.Final</netty.version>
         <zkclient.version>0.7</zkclient.version>
-        <javassist.version>3.17.1-GA</javassist.version>
+        <!--<javassist.version>3.17.1-GA</javassist.version>-->
+        <javassist.version>3.15.0-GA</javassist.version>
+
+
         <mybatis.version>3.2.2</mybatis.version>
         <mybatis.spring.version>1.2.0</mybatis.spring.version>
         <mysql.version>5.1.18</mysql.version>
