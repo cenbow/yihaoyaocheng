@@ -950,7 +950,10 @@ public class OrderService {
 			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
 			return null;
 		}
-		return new BigDecimal(productPrice);
+		if(UtilHelper.isEmpty(productPrice)){
+			return null;
+		}
+		return new BigDecimal(productPrice + "");
 	}
 
 	/**
@@ -2892,6 +2895,7 @@ public class OrderService {
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
 		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
+		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
 		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
 		//地址对象
