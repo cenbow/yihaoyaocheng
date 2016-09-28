@@ -336,7 +336,7 @@ public class OrderPayService {
 				throw new Exception("供应商与订单供应商不相同。");;
 			BigDecimal money=new BigDecimal(orderMap.get("money").trim());
 			money=money.setScale(2, BigDecimal.ROUND_DOWN);
-			OrderException orderException=new OrderException();
+			/*OrderException orderException=new OrderException();
 			orderException.setFlowId(order.getFlowId());
 			orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
 			List<OrderException> eList = orderExceptionMapper.listByProperty(orderException);
@@ -348,6 +348,9 @@ public class OrderPayService {
 				if(money.compareTo(order.getOrderTotal())!=0){
 					throw new Exception("订单"+order.getFlowId()+"的金额不正确。");
 				}
+			}*/
+			if(money.compareTo(order.getOrderTotal())==1){
+				throw new Exception("订单"+order.getFlowId()+"的金额不正确。");
 			}
 			orderTotal = orderTotal.add(money);
 			freightTotal = freightTotal.add(order.getFreight());
