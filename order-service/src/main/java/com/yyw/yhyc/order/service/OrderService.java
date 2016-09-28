@@ -936,7 +936,7 @@ public class OrderService {
 
 		log.info("统一校验订单商品接口,查询商品价格(调用搜索接口 productSearchInterface= "+ productSearchInterface +")");
 		if(UtilHelper.isEmpty(productSearchInterface)){
-			log.error("统一校验订单商品接口,查询商品价格(调用搜索接口 productSearchInterface= "+ productSearchInterface +")");
+			return null;
 		}
 
 		//调用搜索的接口
