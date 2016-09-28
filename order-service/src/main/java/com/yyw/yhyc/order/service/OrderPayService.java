@@ -241,50 +241,53 @@ public class OrderPayService {
 
 		if(orderCount == 0 || orderIdList.size() == 0) return null;
 
-		/* 插入 orderCombine表*/
-		OrderCombined orderCombined = new OrderCombined();
-		orderCombined.setPayTypeId(payTypeId);        //支付方式id
-		orderCombined.setCustId(userDto.getCustId());
-		orderCombined.setCustName(userDto.getCustName());
-		orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
-		orderCombined.setCopeTotal(orderTotal);       //应付总额
-		orderCombined.setPocketTotal(needToPayTotal); //实际支付总额
-		orderCombined.setFreightPrice(freightTotal);  //运费
-		orderCombined.setPayFlowId(payFlowId);        //支付流水号
-		orderCombined.setCreateUser(userDto.getUserName());
-		orderCombined.setCreateTime(systemDateMapper.getSystemDate());
-		orderCombinedMapper.save(orderCombined);
-		log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
+		OrderPay orderPay =orderPayMapper.getByPayFlowId(payFlowId);
+		if(UtilHelper.isEmpty(orderPay)){
+			OrderCombined orderCombined = new OrderCombined();
+			orderCombined.setPayTypeId(payTypeId);        //支付方式id
+			orderCombined.setCustId(userDto.getCustId());
+			orderCombined.setCustName(userDto.getCustName());
+			orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
+			orderCombined.setCopeTotal(orderTotal);       //应付总额
+			orderCombined.setPocketTotal(needToPayTotal); //实际支付总额
+			orderCombined.setFreightPrice(freightTotal);  //运费
+			orderCombined.setPayFlowId(payFlowId);        //支付流水号
+			orderCombined.setCreateUser(userDto.getUserName());
+			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
+			orderCombined.setRemark("账期在线还款");
+			orderCombinedMapper.save(orderCombined);
+			log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
 
 		/* 回写order_combine_id到order表  */
-		List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
-		if(UtilHelper.isEmpty(orderCombinedList) || orderCombinedList.size() != 1) throw new Exception("服务器异常!");
-		orderCombined = orderCombinedList.get(0);
-		for(Integer orderId : orderIdList){
-			if(orderId <= 0) continue;
-			order = new Order();
-			order.setOrderId(orderId);
-			order.setPayTypeId(payTypeId);
-			order.setPayTime(systemDateMapper.getSystemDate());
-			order.setOrderCombinedId(orderCombined.getOrderCombinedId());
-			orderMapper.update(order);
-		}
+			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
+			if(UtilHelper.isEmpty(orderCombinedList) || orderCombinedList.size() != 1) throw new Exception("服务器异常!");
+			orderCombined = orderCombinedList.get(0);
+			for(Integer orderId : orderIdList){
+				if(orderId <= 0) continue;
+				order = new Order();
+				order.setOrderId(orderId);
+				order.setPayTime(systemDateMapper.getSystemDate());
+				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+				orderMapper.update(order);
+			}
 
 		/* 插入 orderPay */
-		OrderPay orderPay = new OrderPay();
-		orderPay.setPayFlowId(payFlowId);
-		orderPay.setPayTypeId(payTypeId);
-		orderPay.setOrderMoney(needToPayTotal);//（实际上需要支付的）订单金额
-		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
-		orderPay.setCreateUser(userDto.getUserName());
-		orderPay.setCreateTime(systemDateMapper.getSystemDate());
-		orderPay.setPayTime(systemDateMapper.getSystemDate());
-		log.info("在线支付订单前，预处理订单数据:插入orderPay数据=" + orderPay);
-		orderPayMapper.save(orderPay);
-		List<OrderPay> orderPayList = orderPayMapper.listByProperty(orderPay);
-		if(UtilHelper.isEmpty(orderPayList) || orderPayList.size() != 1) throw new Exception("服务器异常!");
-		orderPay = orderPayList.get(0);
-		log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
+			orderPay = new OrderPay();
+			orderPay.setPayFlowId(payFlowId);
+			orderPay.setPayTypeId(payTypeId);
+			orderPay.setOrderMoney(orderTotal);//（实际上需要支付的）订单金额
+			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
+			orderPay.setCreateUser(userDto.getUserName());
+			orderPay.setCreateTime(systemDateMapper.getSystemDate());
+			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			log.info("在线支付订单前，预处理订单数据:插入orderPay数据=" + orderPay);
+			orderPayMapper.save(orderPay);
+			orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+			log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
+		}else{
+			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			orderPayMapper.update(orderPay);
+		}
 		return orderPay;
 	}
 
@@ -305,7 +308,6 @@ public class OrderPayService {
 	public OrderPay repaymentOfAccount(UserDto userDto, String listStr, int payTypeId, String payFlowId,String supplyId) throws Exception {
 
 		log.info("在线支付订单前，预处理订单数据:userDto=" + userDto + ",flowIds=" + ",payTypeId=" + payTypeId + ",payFlowId="+payFlowId);
-
 		/* 过滤非法订单参数 */
 		if(UtilHelper.isEmpty(userDto)) return null;
 		if(UtilHelper.isEmpty(listStr)) return null;
@@ -334,7 +336,7 @@ public class OrderPayService {
 				throw new Exception("供应商与订单供应商不相同。");;
 			BigDecimal money=new BigDecimal(orderMap.get("money").trim());
 			money=money.setScale(2, BigDecimal.ROUND_DOWN);
-			OrderException orderException=new OrderException();
+			/*OrderException orderException=new OrderException();
 			orderException.setFlowId(order.getFlowId());
 			orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
 			List<OrderException> eList = orderExceptionMapper.listByProperty(orderException);
@@ -346,6 +348,9 @@ public class OrderPayService {
 				if(money.compareTo(order.getOrderTotal())!=0){
 					throw new Exception("订单"+order.getFlowId()+"的金额不正确。");
 				}
+			}*/
+			if(money.compareTo(order.getOrderTotal())==1){
+				throw new Exception("订单"+order.getFlowId()+"的金额不正确。");
 			}
 			orderTotal = orderTotal.add(money);
 			freightTotal = freightTotal.add(order.getFreight());
@@ -358,49 +363,54 @@ public class OrderPayService {
 		if(orderCount == 0 || orderIdList.size() == 0) return null;
 
 		/* 插入 orderCombine表*/
-		OrderCombined orderCombined = new OrderCombined();
-		orderCombined.setPayTypeId(payTypeId);        //支付方式id
-		orderCombined.setCustId(userDto.getCustId());
-		orderCombined.setCustName(userDto.getCustName());
-		orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
-		orderCombined.setCopeTotal(orderTotal);       //应付总额
-		orderCombined.setPocketTotal(needToPayTotal); //实际支付总额
-		orderCombined.setFreightPrice(freightTotal);  //运费
-		orderCombined.setPayFlowId(payFlowId);        //支付流水号
-		orderCombined.setCreateUser(userDto.getUserName());
-		orderCombined.setCreateTime(systemDateMapper.getSystemDate());
-		orderCombined.setRemark("账期在线还款");
-		orderCombinedMapper.save(orderCombined);
-		log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
+
+		OrderPay orderPay =orderPayMapper.getByPayFlowId(payFlowId);
+		if(UtilHelper.isEmpty(orderPay)){
+			OrderCombined orderCombined = new OrderCombined();
+			orderCombined.setPayTypeId(payTypeId);        //支付方式id
+			orderCombined.setCustId(userDto.getCustId());
+			orderCombined.setCustName(userDto.getCustName());
+			orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
+			orderCombined.setCopeTotal(orderTotal);       //应付总额
+			orderCombined.setPocketTotal(needToPayTotal); //实际支付总额
+			orderCombined.setFreightPrice(freightTotal);  //运费
+			orderCombined.setPayFlowId(payFlowId);        //支付流水号
+			orderCombined.setCreateUser(userDto.getUserName());
+			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
+			orderCombined.setRemark("账期在线还款");
+			orderCombinedMapper.save(orderCombined);
+			log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
 
 		/* 回写order_combine_id到order表  */
-		List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
-		if(UtilHelper.isEmpty(orderCombinedList) || orderCombinedList.size() != 1) throw new Exception("服务器异常!");
-		orderCombined = orderCombinedList.get(0);
-		for(Integer orderId : orderIdList){
-			if(orderId <= 0) continue;
-			order = new Order();
-			order.setOrderId(orderId);
-			order.setPayTime(systemDateMapper.getSystemDate());
-			order.setOrderCombinedId(orderCombined.getOrderCombinedId());
-			orderMapper.update(order);
-		}
+			List<OrderCombined> orderCombinedList = orderCombinedMapper.listByProperty(orderCombined);
+			if(UtilHelper.isEmpty(orderCombinedList) || orderCombinedList.size() != 1) throw new Exception("服务器异常!");
+			orderCombined = orderCombinedList.get(0);
+			for(Integer orderId : orderIdList){
+				if(orderId <= 0) continue;
+				order = new Order();
+				order.setOrderId(orderId);
+				order.setPayTime(systemDateMapper.getSystemDate());
+				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+				orderMapper.update(order);
+			}
 
 		/* 插入 orderPay */
-		OrderPay orderPay = new OrderPay();
-		orderPay.setPayFlowId(payFlowId);
-		orderPay.setPayTypeId(payTypeId);
-		orderPay.setOrderMoney(orderTotal);//（实际上需要支付的）订单金额
-		orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
-		orderPay.setCreateUser(userDto.getUserName());
-		orderPay.setCreateTime(systemDateMapper.getSystemDate());
-		orderPay.setPayTime(systemDateMapper.getSystemDate());
-		log.info("在线账期还款订单前，预处理订单数据:插入orderPay数据=" + orderPay);
-		orderPayMapper.save(orderPay);
-		List<OrderPay> orderPayList = orderPayMapper.listByProperty(orderPay);
-		if(UtilHelper.isEmpty(orderPayList) || orderPayList.size() != 1) throw new Exception("服务器异常!");
-		orderPay = orderPayList.get(0);
-		log.info("在线账期还款订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
+			orderPay = new OrderPay();
+			orderPay.setPayFlowId(payFlowId);
+			orderPay.setPayTypeId(payTypeId);
+			orderPay.setOrderMoney(orderTotal);//（实际上需要支付的）订单金额
+			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
+			orderPay.setCreateUser(userDto.getUserName());
+			orderPay.setCreateTime(systemDateMapper.getSystemDate());
+			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			log.info("在线账期还款订单前，预处理订单数据:插入orderPay数据=" + orderPay);
+			orderPayMapper.save(orderPay);
+			orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+			log.info("在线账期还款订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
+		}else{
+			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			orderPayMapper.update(orderPay);
+		}
 		return orderPay;
 	}
 
