@@ -368,7 +368,7 @@ public class OrderPayService {
 		OrderPay orderPay =orderPayMapper.getByPayFlowId(payFlowId);
 		if(UtilHelper.isEmpty(orderPay)){
 			OrderCombined orderCombined = new OrderCombined();
-			orderCombined.setPayTypeId(payTypeId);        //支付方式id
+			orderCombined.setPayTypeId(payTypeId);       //支付方式id
 			orderCombined.setCustId(userDto.getCustId());
 			orderCombined.setCustName(userDto.getCustName());
 			orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
