@@ -950,7 +950,10 @@ public class OrderService {
 			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
 			return null;
 		}
-		return new BigDecimal(productPrice);
+		if(UtilHelper.isEmpty(productPrice)){
+			return null;
+		}
+		return new BigDecimal(productPrice + "");
 	}
 
 	/**
