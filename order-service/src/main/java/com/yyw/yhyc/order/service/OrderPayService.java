@@ -286,6 +286,7 @@ public class OrderPayService {
 			log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
 		}else{
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			orderPay.setPayTypeId(payTypeId);
 			orderPayMapper.update(orderPay);
 		}
 		return orderPay;
@@ -367,7 +368,7 @@ public class OrderPayService {
 		OrderPay orderPay =orderPayMapper.getByPayFlowId(payFlowId);
 		if(UtilHelper.isEmpty(orderPay)){
 			OrderCombined orderCombined = new OrderCombined();
-			orderCombined.setPayTypeId(payTypeId);        //支付方式id
+			orderCombined.setPayTypeId(payTypeId);       //支付方式id
 			orderCombined.setCustId(userDto.getCustId());
 			orderCombined.setCustName(userDto.getCustName());
 			orderCombined.setCombinedNumber(orderCount);  //合并支付的订单数量
@@ -409,6 +410,7 @@ public class OrderPayService {
 			log.info("在线账期还款订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
 		}else{
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
+			orderPay.setPayTypeId(payTypeId);
 			orderPayMapper.update(orderPay);
 		}
 		return orderPay;
