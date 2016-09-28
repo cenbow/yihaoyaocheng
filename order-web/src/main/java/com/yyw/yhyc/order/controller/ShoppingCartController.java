@@ -27,6 +27,7 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.service.ProductInventoryService;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,10 @@ public class ShoppingCartController extends BaseJsonController {
 
 	@Reference
 	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
+
+	@Reference
+	private ProductSearchInterface productSearchInterface;
+
 
 	/**
 	* 通过主键查询实体对象
@@ -199,7 +204,7 @@ public class ShoppingCartController extends BaseJsonController {
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService);
+			resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface);
 			boolean result = (boolean) resultMap.get("result");
 			if(!result){
 				return resultMap;

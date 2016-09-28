@@ -40,6 +40,7 @@ import com.yyw.yhyc.utils.DateUtils;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections.map.HashedMap;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,9 @@ public class OrderController extends BaseJsonController {
 
 	@Autowired
 	private UsermanageEnterpriseService enterpriseService;
+
+	@Reference
+	private ProductSearchInterface productSearchInterface;
 
     /**
      * 通过主键查询实体对象
@@ -182,7 +186,7 @@ public class OrderController extends BaseJsonController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService);
+			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,productSearchInterface);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
