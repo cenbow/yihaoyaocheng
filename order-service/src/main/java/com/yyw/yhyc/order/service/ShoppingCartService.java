@@ -439,6 +439,7 @@ public class ShoppingCartService {
 	 * @return
 	 */
 	private CartData changeShopCartDtosToApp(List<ShoppingCartListDto> shoppingCartListDtos){
+		if(UtilHelper.isEmpty(shoppingCartListDtos)) return null;
 		CartData cartData = new CartData();
 		int totalCount = 0;
 		List<CartGroupData> shopCartList = new ArrayList<CartGroupData>();
@@ -498,10 +499,6 @@ public class ShoppingCartService {
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
 		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
-		if(UtilHelper.isEmpty(shoppingCartListDtos)){
-			resultMap.put("statusCode","0");
-			return resultMap;
-		}
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
 		resultMap.put("statusCode", "0");
 		resultMap.put("data", cartData);
