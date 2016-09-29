@@ -31,7 +31,7 @@ public class OrderIssuedService {
 
 	private OrderIssuedMapper	orderIssuedMapper;
 	private SystemDateMapper systemDateMapper;
-	private Log log = LogFactory.getLog(OrderDeliveryService.class);
+	private Log log = LogFactory.getLog(OrderIssuedService.class);
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
 		this.systemDateMapper = systemDateMapper;
