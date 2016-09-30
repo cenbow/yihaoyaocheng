@@ -1101,7 +1101,7 @@ public class OrderDeliveryService {
             String now = systemDateMapper.getSystemDate();
             List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
             for (ManufacturerOrder manufacturerOrder : manufacturerOrderList) {
-                if (!UtilHelper.isEmpty(manufacturerOrder.getSupplyId()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliverTime()) && !UtilHelper.isEmpty(manufacturerOrder.getOrderStatus()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliveryMethod())) {
+                if (!UtilHelper.isEmpty(manufacturerOrder.getFlowId()) && !UtilHelper.isEmpty(manufacturerOrder.getSupplyId()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliverTime()) && !UtilHelper.isEmpty(manufacturerOrder.getOrderStatus()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliveryMethod())) {
                     Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
                     if (UtilHelper.isEmpty(order)) {
                         list.add(manufacturerOrder);

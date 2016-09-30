@@ -17,6 +17,8 @@ import java.util.Map;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.OrderIssuedDto;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ public class OrderIssuedService {
 
 	private OrderIssuedMapper	orderIssuedMapper;
 	private SystemDateMapper systemDateMapper;
+	private Log log = LogFactory.getLog(OrderIssuedService.class);
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
 		this.systemDateMapper = systemDateMapper;
@@ -216,6 +219,7 @@ public class OrderIssuedService {
 	}
 
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId){
+		log.info("供应商编码："+supplyId+"订单编码集合：" + orderIssuedMapper.getManufacturerOrder(supplyId));
 		return orderIssuedMapper.getManufacturerOrder(supplyId);
 	}
 }

@@ -600,10 +600,12 @@ public class OrderService {
 		if(null == orderDto || null == orderDto.getProductInfoDtoList()) return null;
 
 		BigDecimal orderTotal = new BigDecimal(0);
-
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(null == productInfoDto) continue;
 			orderTotal = orderTotal.add(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
+		}
+		if(!UtilHelper.isEmpty(orderTotal)){
+			orderTotal = orderTotal.setScale(2,BigDecimal.ROUND_HALF_UP);
 		}
 		/* 计算订单相关的金额 */
 		orderDto.setOrderTotal(orderTotal);//订单总金额
@@ -753,6 +755,7 @@ public class OrderService {
 			//TODO 商品信息
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
 			orderDetail.setProductCount(productInfoDto.getProductCount());
+			orderDetail.setProductSettlementPrice(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
 			orderDetail.setProductId(productInfo.getId());
 			orderDetail.setProductName(productInfo.getProductName());//商品名称
 			orderDetail.setProductCode(productInfoDto.getProductCodeCompany());//存的是本公司商品编码
@@ -1544,6 +1547,9 @@ public class OrderService {
 		}
 
 		resultMap.put("allShoppingCart",allShoppingCart);
+		if(!UtilHelper.isEmpty(orderPriceCount)){
+			orderPriceCount = orderPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
+		}
 		resultMap.put("orderPriceCount",orderPriceCount);
 		return resultMap;
 	}
