@@ -72,12 +72,15 @@
                                     <%--<i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-cmb"></i><br><span>--%>
                                 <%--<i class="common-icon radio-tip"></i>需开通招商银行企业网银</span>--%>
                                 <%--</label>--%>
-                                <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()%>">
-                                    <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span>银联卡支付</span>
-                                </label>
-                                <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()%>">
-                                    <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付</span>
-                                </label>
+                                    <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()%>">
+                                        <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span>银联卡支付</span>
+                                    </label>
+                                    <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()%>">
+                                        <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付-B2C</span>
+                                    </label>
+                                    <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2B.getPayTypeId()%>">
+                                        <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付-B2B</span>
+                                    </label>
                                 <input type="hidden" id="payTypeId">
                             </div>
                         </div>
