@@ -124,7 +124,7 @@ public class OrderPayController extends BaseJsonController {
 		ModelAndView modelAndView = new ModelAndView();
 		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId() == payTypeId){
 			modelAndView.setViewName("orderPay/cmb_pay");
-		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId){
+		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId() == payTypeId){
 			modelAndView.setViewName("orderPay/china_pay");
 		}else{
 			throw new Exception("非法参数");
@@ -165,7 +165,7 @@ public class OrderPayController extends BaseJsonController {
 		ModelAndView modelAndView = new ModelAndView();
 		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId() == payTypeId){
 			modelAndView.setViewName("orderPay/cmb_pay");
-		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId){
+		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId() == payTypeId){
 			modelAndView.setViewName("orderPay/china_pay");
 		}else{
 			throw new Exception("非法参数");

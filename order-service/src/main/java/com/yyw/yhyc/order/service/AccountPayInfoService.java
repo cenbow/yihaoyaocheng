@@ -272,12 +272,13 @@ public class AccountPayInfoService {
             if (!OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                    && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     )
                 throw new RuntimeException("payTypeId不正确");
 			/*银联b2c 或 银联无卡*/
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
-                    ) {
+                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) ) {
                 if (!UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo()))
                     list.add(accountPayInfo);
             }
