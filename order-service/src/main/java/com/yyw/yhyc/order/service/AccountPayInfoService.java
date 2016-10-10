@@ -220,9 +220,9 @@ public class AccountPayInfoService {
                 if(!UtilHelper.isEmpty(accountPayInfos))
                     ap = accountPayInfos.get(0);
                 ap.setReceiveAccountNo(accountPayInfo.getReceiveAccountNo());
+                receiveAccountName=accountPayInfo.getReceiveAccountName();
                 /*招行*/
                 if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
-                    receiveAccountName=accountPayInfo.getReceiveAccountName();
                     ap.setReceiveAccountName(accountPayInfo.getReceiveAccountName());
                     ap.setSubbankName(accountPayInfo.getSubbankName());
                     ap.setProvinceName(accountPayInfo.getProvinceName());
