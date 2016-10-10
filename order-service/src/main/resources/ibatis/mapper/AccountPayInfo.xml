@@ -221,10 +221,10 @@
 		<if test="payAccountName!= null and payAccountName!= ''">
 			, pay_account_name=#{payAccountName}
 		</if>
-		<if test="receiveAccountNo!= null and receiveAccountNo!= ''">
+		<if test="receiveAccountNo!= null">
 			, receive_account_no=#{receiveAccountNo}
 		</if>
-		<if test="receiveAccountName!= null and receiveAccountName!= ''">
+		<if test="receiveAccountName!= null">
 			, receive_account_name=#{receiveAccountName}
 		</if>
 		<if test="accountStatus!= null and accountStatus!= ''">
