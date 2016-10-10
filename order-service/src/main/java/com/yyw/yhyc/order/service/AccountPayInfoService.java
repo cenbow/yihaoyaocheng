@@ -309,11 +309,6 @@ public class AccountPayInfoService {
             resultMap.put("msg", "custId不能为空");
             return;
         }
-        if (!"1".equals(accountPayInfo.getAccountStatus())) {
-            resultMap.put("code", "1111");
-            resultMap.put("msg", "accountStatus不正确");
-            return;
-        }
         if (UtilHelper.isEmpty(accountPayInfo.getCreateUser())) {
             resultMap.put("code", "1111");
             resultMap.put("msg", "createUser不能为空");
