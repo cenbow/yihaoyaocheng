@@ -279,12 +279,12 @@ public class AccountPayInfoService {
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) ) {
-                if (!UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo()))
+                if (null!=accountPayInfo.getReceiveAccountNo())
                     list.add(accountPayInfo);
             }
 			/*招行*/
             if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
-                if (!UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo())
+                if (null!=accountPayInfo.getReceiveAccountNo()
                         || !UtilHelper.isEmpty(accountPayInfo.getReceiveAccountName())
                         || !UtilHelper.isEmpty(accountPayInfo.getSubbankName())
                         || !UtilHelper.isEmpty(accountPayInfo.getProvinceName())
@@ -333,7 +333,7 @@ public class AccountPayInfoService {
                 || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {
-            if (UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo())) {
+            if (null==accountPayInfo.getReceiveAccountNo()) {
                 resultMap.put("code", "1111");
                 resultMap.put("msg", "receiveAccountNo不能为空");
                 return;
@@ -341,7 +341,7 @@ public class AccountPayInfoService {
         }
 			/*招行*/
         if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
-            if (UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo())
+            if (null==accountPayInfo.getReceiveAccountNo()
                     || UtilHelper.isEmpty(accountPayInfo.getReceiveAccountName())
                     || UtilHelper.isEmpty(accountPayInfo.getSubbankName())
                     || UtilHelper.isEmpty(accountPayInfo.getProvinceName())
