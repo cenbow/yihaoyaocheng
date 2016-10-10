@@ -30,6 +30,7 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
@@ -69,6 +70,9 @@ public class OrderDeliveryDetailController extends BaseController {
 
 	@Autowired
 	private OrderService orderService;
+
+	@Autowired
+	private OrderExceptionService orderExceptionService;
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -251,4 +255,18 @@ public class OrderDeliveryDetailController extends BaseController {
 		}
 		return ok(flowId);
 	}
+
+	/**
+	 * 确认收货
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/refusedExceptionReplenishOrder", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> updateRepConfirmReceipt(String exceptionOrderId) throws Exception {
+		UserDto user = super.getLoginUser();
+		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, user);
+		return ok(exceptionOrderId);
+	}
+
 }
