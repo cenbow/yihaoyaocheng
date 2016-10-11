@@ -221,6 +221,7 @@ public class AccountPayInfoService {
                     ap = accountPayInfos.get(0);
                 ap.setReceiveAccountNo(accountPayInfo.getReceiveAccountNo());
                 receiveAccountName=accountPayInfo.getReceiveAccountName();
+                ap.setAccountStatus(accountPayInfo.getAccountStatus());
                 /*招行*/
                 if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
                     ap.setReceiveAccountName(accountPayInfo.getReceiveAccountName());
@@ -229,7 +230,6 @@ public class AccountPayInfoService {
                     ap.setCityName(accountPayInfo.getCityName());
                 }
                 if (UtilHelper.isEmpty(accountPayInfos)) {//新增
-                    ap.setAccountStatus("1");
                     ap.setCreateTime(now);
                     ap.setCreateUser(accountPayInfo.getCreateUser());
                     ap.setReceiveAccountName(receiveAccountName);
