@@ -2921,7 +2921,7 @@ public class OrderService {
 		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
 			OrderProductBean ordeProductBean=new OrderProductBean();
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
-			ordeProductBean.setProductId(orderDetail.getProductCode());
+			ordeProductBean.setProductId(orderDetail.getSpuCode());
 			ordeProductBean.setProductPicUrl(getProductImg(orderDetail.getSpuCode(),iProductDubboManageService));
 			ordeProductBean.setProductName(orderDetail.getShortName());
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
