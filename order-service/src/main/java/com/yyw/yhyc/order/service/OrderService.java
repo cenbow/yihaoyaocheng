@@ -1434,7 +1434,7 @@ public class OrderService {
 
 				}
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
 					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
 					orderSettlementMapper.save(orderSettlement);
 				}
@@ -1655,7 +1655,8 @@ public class OrderService {
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
-					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
+					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
 				orderSettlement.setConfirmSettlement("1");
 				orderSettlementMapper.save(orderSettlement);
@@ -2205,7 +2206,7 @@ public class OrderService {
 			}
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
