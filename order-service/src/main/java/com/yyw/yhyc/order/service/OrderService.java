@@ -2593,10 +2593,12 @@ public class OrderService {
 				if(BuyerOrderStatusEnum.ReceiptOfGoods.equals(buyerorderstatusenum))
 					reciveNumber = reciveNumber + od.getOrderCount();
 				//拒收+补货
-				if(BuyerOrderStatusEnum.Rejecting.equals(buyerorderstatusenum) || BuyerOrderStatusEnum.Replenishing.equals(buyerorderstatusenum))
-					unRejRep  = unRejRep + od.getOrderCount();
+				//这里的注释掉了，补货中和拒收中状态的订单不能表示所有补货/拒收订单 LiuY 2016-10-12
+//				if(BuyerOrderStatusEnum.Rejecting.equals(buyerorderstatusenum) || BuyerOrderStatusEnum.Replenishing.equals(buyerorderstatusenum))
+//					unRejRep  = unRejRep + od.getOrderCount();
 			}
 		}
+		unRejRep = orderExceptionMapper.findExceptionCountApp(custId);
 		statusMap.put("unPayNumber",unPayNumber);
 		statusMap.put("deliverNumber",deliverNumber);
 		statusMap.put("reciveNumber",reciveNumber);
