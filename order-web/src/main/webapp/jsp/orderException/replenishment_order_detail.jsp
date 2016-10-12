@@ -155,7 +155,7 @@
                 </div>
             </div>
 
-            <c:if test="${orderExceptionDto.userType==2}">
+            <c:if test="${orderExceptionDto.userType==2&&orderExceptionDto.importFileUrl!=null&&orderExceptionDto.importFileUrl!=''}">
                 <div class="row choseuser margin-t-20 border-gray">
                      <h2 class="row">批号信息</h2>
                      <div class="form-horizontal padding-t-26">
