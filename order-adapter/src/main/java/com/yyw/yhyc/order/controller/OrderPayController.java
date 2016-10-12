@@ -132,7 +132,7 @@ public class OrderPayController extends BaseController {
 		}
 
 		/* 在线支付订单前，预处理订单数据 */
-		String payFlowId = RandomUtil.createOrderPayFlowId(systemDateService.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
+		String payFlowId = RandomUtil.createOrderPayFlowId(orderIds);
 		OrderPay orderPay = orderPayService.preHandler(userDto, orderIds, payTypeId, payFlowId);
 		if(UtilHelper.isEmpty(orderPay)){
 			throw new Exception("非法参数");
