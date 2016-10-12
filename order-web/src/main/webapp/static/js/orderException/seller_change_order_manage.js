@@ -346,10 +346,6 @@ function sendDeliverysubmit(){
     var delivery = $("input[type=radio][name=delivery]:checked");
     var ownw = $("input[type=radio][name=ownw]:checked");
 
-    if($("#excelFile").val()==null||$("#excelFile").val()==""){
-        alertModal("请上传文件")
-        return;
-    }
 
     if(delivery.val()==null||delivery.val()==""){
         alertModal("发货仓库不能为空")
@@ -389,8 +385,11 @@ function sendDeliverysubmit(){
                 $("#msgDiv").html("");
                 var div = "";
                 if(obj.code==1){
-                    div += " <p class='font-size-20 red'><b>发货成功</b></p><p>可在订单详情中查看批号的导入详情!</p> "
+                    div += " <p class='font-size-20 red'><b>发货成功</b></p>";
                     $("#myModalSendDelivery").modal("hide");
+                    if($("#excelFile").val()!=null&&$("#excelFile").val()!=""){
+                        div += "<p>可在订单详情中查看批号的导入详情!</p>";
+                    }
                     pasretFormData();
                     doRefreshData(params);
                 }else{
