@@ -533,11 +533,24 @@ public class OrderDeliveryService {
                     orderDeliveryDetail.setUpdateTime(now);
                     orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
                     orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
-                    if (orderDeliveryDto.getOrderType() == 2)
+                    if (orderDeliveryDto.getOrderType() == 2) {
+                        //补货发货把确认收货直接写入
                         orderDeliveryDetail.setRecieveCount(orderDeliveryDetail.getDeliveryProductCount());
-                    orderDeliveryDetailMapper.save(orderDeliveryDetail);
+                        //补货发货把新的批次号更新进去
+                        OrderReturn orderReturn = new OrderReturn();
+                        orderReturn.setOrderDetailId(orderDeliveryDetail.getOrderDetailId());
+                        orderReturn.setReturnType("3");
+                        List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
+                        for (OrderReturn oReturn : returnList) {
+                            oReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
+                            oReturn.setBatchNumber(orderDeliveryDetail.getBatchNumber());
+                            orderReturnMapper.update(oReturn);
+                        }
+                    }
                     i++;
+                    orderDeliveryDetailMapper.save(orderDeliveryDetail);
                 }
+
             }else {
                 if(orderDeliveryDto.getOrderType()==2){//补货异常无批号发货
                     OrderReturn orderReturn = new OrderReturn();
@@ -561,6 +574,8 @@ public class OrderDeliveryService {
                         orderDeliveryDetail.setRecieveCount(oReturn.getReturnCount());
                         orderDeliveryDetailMapper.save(orderDeliveryDetail);
                         i++;
+                        oReturn.setBatchNumber("");
+                        orderReturnMapper.update(oReturn);
                     }
                 }else {
                         List<OrderDetail> orderDetails = orderDetailMapper.listOrderDetailInfoByOrderId(orderDeliveryDto.getOrderId());
