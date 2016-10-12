@@ -709,7 +709,19 @@ public class OrderService {
 		order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 		order.setCreateTime(systemDateMapper.getSystemDate());
 		order.setCreateUser(userDto.getUserName());
-		order.setTotalCount( orderDto.getProductInfoDtoList().size());
+
+		int totalCount = 0;
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()) {
+			if (UtilHelper.isEmpty(productInfoDto)) {
+				continue;
+			}
+			if ( UtilHelper.isEmpty(productInfoDto.getProductCount()) || productInfoDto.getProductCount() <= 0 ) {
+				continue;
+			}
+			totalCount += productInfoDto.getProductCount();
+		}
+		order.setTotalCount(totalCount);//订单商品总数量
+		order.setProductSortCount(orderDto.getProductInfoDtoList().size());//订单商品种类数量
 
 		/* 订单金额相关 */
 		order.setOrderTotal(orderDto.getOrderTotal());//订单总金额
@@ -752,7 +764,7 @@ public class OrderService {
 			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
 			orderDetail.setCreateUser(userDto.getUserName());
 
-			//TODO 商品信息
+			//商品信息
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
 			orderDetail.setProductCount(productInfoDto.getProductCount());
 			orderDetail.setProductSettlementPrice(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
@@ -762,7 +774,17 @@ public class OrderService {
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
 //			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
-			orderDetail.setManufactures(productInfo.getFactoryName());//生产厂家
+
+			//生产厂家
+			int manufacturesId = 0;
+			try{
+				manufacturesId = Integer.valueOf(productInfo.getFactoryName());
+			}catch (Exception e){
+				log.error("生产厂家id(" + productInfo.getFactoryName() + ")获取失败：" + e.getMessage(),e);
+			}
+			orderDetail.setManufacturesId(manufacturesId);//厂家id
+			orderDetail.setManufactures(productInfoDto.getManufactures());//厂家名称
+
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);

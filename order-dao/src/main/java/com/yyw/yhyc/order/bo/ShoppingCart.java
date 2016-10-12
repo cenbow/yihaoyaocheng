@@ -110,6 +110,9 @@ public class ShoppingCart extends Model{
 	  */
 	private java.lang.String updateTime;
 
+	/* 来源表示字段（空值[默认是空值]：来自进货单，1：来自极速下单) */
+	private int fromWhere;
+
 	/**
 	  *	
 	  */
@@ -382,7 +385,15 @@ public class ShoppingCart extends Model{
 	{
 		this.updateTime = updateTime;
 	}
-	
+
+	public int getFromWhere() {
+		return fromWhere;
+	}
+
+	public void setFromWhere(int fromWhere) {
+		this.fromWhere = fromWhere;
+	}
+
 	public String toString()
 	{
 		return "ShoppingCart [" + 
@@ -403,7 +414,8 @@ public class ShoppingCart extends Model{
 					", createUser=" + createUser + 
 					", createTime=" + createTime + 
 					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime + 
+					", updateTime=" + updateTime +
+					", fromWhere=" + fromWhere +
 				"]";
 	}
 }
