@@ -111,19 +111,20 @@ public class OrderDeliveryController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,@RequestParam("excelFile") MultipartFile excelFile) throws Exception
+	public Map<String,String> sendOrderDelivery(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,MultipartFile excelFile) throws Exception
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
-
 		//验证通过生成发货信息并上传文件
 		if(!UtilHelper.isEmpty(excelFile)){
+			orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
 			String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
 			SaveFileFromInputStream(excelFile.getInputStream(), orderDeliveryDto.getPath(), fileName);
 			orderDeliveryDto.setFileName(fileName);
-		}else
-			return null;
+		}else {
+			orderDeliveryDto.setFileName("");
+			orderDeliveryDto.setPath("");
+		}
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 	/**
@@ -173,7 +174,7 @@ public class OrderDeliveryController extends BaseJsonController {
      */
     @RequestMapping(value = "/sendOrderDeliveryReturn", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,String> sendOrderDeliveryReturn(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,@RequestParam("excelFile") MultipartFile excelFile) throws Exception
+    public Map<String,String> sendOrderDeliveryReturn(OrderDeliveryDto orderDeliveryDto,HttpServletRequest request,MultipartFile excelFile) throws Exception
     {
         UserDto user = super.getLoginUser();
         if(user==null){
@@ -181,14 +182,16 @@ public class OrderDeliveryController extends BaseJsonController {
             user.setCustId(123456);
         }
         orderDeliveryDto.setUserDto(user);
-        orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
         //验证通过生成发货信息并上传文件
         if(!UtilHelper.isEmpty(excelFile)){
+			orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
             String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis()) + "发货批号导入信息" + ".xls";
             SaveFileFromInputStream(excelFile.getInputStream(), orderDeliveryDto.getPath(), fileName);
             orderDeliveryDto.setFileName(fileName);
-        }else
-            return null;
+        }else{
+			orderDeliveryDto.setPath("");
+			orderDeliveryDto.setFileName("");
+		}
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 
