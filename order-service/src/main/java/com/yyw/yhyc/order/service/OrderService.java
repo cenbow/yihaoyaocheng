@@ -709,7 +709,19 @@ public class OrderService {
 		order.setOrderStatus(SystemOrderStatusEnum.BuyerOrdered.getType());
 		order.setCreateTime(systemDateMapper.getSystemDate());
 		order.setCreateUser(userDto.getUserName());
-		order.setTotalCount( orderDto.getProductInfoDtoList().size());
+
+		int totalCount = 0;
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()) {
+			if (UtilHelper.isEmpty(productInfoDto)) {
+				continue;
+			}
+			if ( UtilHelper.isEmpty(productInfoDto.getProductCount()) || productInfoDto.getProductCount() <= 0 ) {
+				continue;
+			}
+			totalCount += productInfoDto.getProductCount();
+		}
+		order.setTotalCount(totalCount);//订单商品总数量
+		order.setProductSortCount(orderDto.getProductInfoDtoList().size());//订单商品种类数量
 
 		/* 订单金额相关 */
 		order.setOrderTotal(orderDto.getOrderTotal());//订单总金额
@@ -752,7 +764,7 @@ public class OrderService {
 			orderDetail.setCreateTime(systemDateMapper.getSystemDate());
 			orderDetail.setCreateUser(userDto.getUserName());
 
-			//TODO 商品信息
+			//商品信息
 			orderDetail.setProductPrice(productInfoDto.getProductPrice());
 			orderDetail.setProductCount(productInfoDto.getProductCount());
 			orderDetail.setProductSettlementPrice(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
@@ -762,7 +774,17 @@ public class OrderService {
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
 //			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
-			orderDetail.setManufactures(productInfo.getFactoryName());//生产厂家
+
+			//生产厂家
+			int manufacturesId = 0;
+			try{
+				manufacturesId = Integer.valueOf(productInfo.getFactoryName());
+			}catch (Exception e){
+				log.error("生产厂家id(" + productInfo.getFactoryName() + ")获取失败：" + e.getMessage(),e);
+			}
+			orderDetail.setManufacturesId(manufacturesId);//厂家id
+			orderDetail.setManufactures(productInfoDto.getManufactures());//厂家名称
+
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
@@ -1434,7 +1456,7 @@ public class OrderService {
 
 				}
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
 					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
 					orderSettlementMapper.save(orderSettlement);
 				}
@@ -1580,7 +1602,7 @@ public class OrderService {
 			Double productTotal=0d;
 			for (OrderDetail orderDetail : order.getOrderDetailList()) {
 				BigDecimal totalPrice = orderDetail.getProductPrice().multiply(new BigDecimal(orderDetail.getProductCount() + ""));
-				dataset.add(new Object[]{orderDetail.getProductCode(),orderDetail.getProductName(),orderDetail.getSpecification(),orderDetail.getManufactures(),orderDetail.getProductPrice(),orderDetail.getProductCount(),totalPrice.doubleValue(),""});
+				dataset.add(new Object[]{orderDetail.getSpuCode(),orderDetail.getShortName(),orderDetail.getSpecification(),orderDetail.getManufactures(),orderDetail.getProductPrice(),orderDetail.getProductCount(),totalPrice.doubleValue(),""});
 				productTotal+=totalPrice.doubleValue();
 			}
 			dataset.add(new Object[]{"商品金额（元）styleColor", productTotal, "优惠券（元）styleColor", order.getPreferentialMoney(), "订单金额（元）styleColor", order.getOrderTotal(), "", ""});
@@ -1655,7 +1677,8 @@ public class OrderService {
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
-					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
+					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
 				orderSettlement.setConfirmSettlement("1");
 				orderSettlementMapper.save(orderSettlement);
@@ -2205,7 +2228,7 @@ public class OrderService {
 			}
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ){
+			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
@@ -2921,7 +2944,7 @@ public class OrderService {
 		for(OrderDetail orderDetail:orderDetailsDto.getDetails()){
 			OrderProductBean ordeProductBean=new OrderProductBean();
 			ordeProductBean.setQuantity(orderDetail.getProductCount());
-			ordeProductBean.setProductId(orderDetail.getProductCode());
+			ordeProductBean.setProductId(orderDetail.getSpuCode());
 			ordeProductBean.setProductPicUrl(getProductImg(orderDetail.getSpuCode(),iProductDubboManageService));
 			ordeProductBean.setProductName(orderDetail.getShortName());
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));

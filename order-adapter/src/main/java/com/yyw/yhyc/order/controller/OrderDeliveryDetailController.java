@@ -25,11 +25,13 @@ import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
@@ -69,6 +71,9 @@ public class OrderDeliveryDetailController extends BaseController {
 
 	@Autowired
 	private OrderService orderService;
+
+	@Autowired
+	private OrderExceptionService orderExceptionService;
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -251,4 +256,42 @@ public class OrderDeliveryDetailController extends BaseController {
 		}
 		return ok(flowId);
 	}
+
+	/**
+	 * 确认收货
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/refusedExceptionReplenishOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> updateRepConfirmReceipt(String exceptionOrderId) throws Exception {
+		UserDto user = super.getLoginUser();
+		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, user);
+		if (UtilHelper.isEmpty(creditDubboService))
+			logger.error("CreditDubboServiceInterface creditDubboService is null");
+		else {
+			OrderException oe = orderExceptionService.getByExceptionOrderId(exceptionOrderId);
+			Order order = orderService.getByPK(oe.getOrderId());
+			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+			if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+				logger.info("补货确认收货调用资讯接口");
+				CreditParams creditParams = new CreditParams();
+				//creditParams.setSourceFlowId(oe.getFlowId());源订单单号
+				creditParams.setBuyerCode(oe.getCustId() + "");
+				creditParams.setSellerCode(oe.getSupplyId() + "");
+				creditParams.setBuyerName(oe.getCustName());
+				creditParams.setSellerName(oe.getSupplyName());
+				creditParams.setOrderTotal(order.getOrgTotal());//订单金额
+				creditParams.setFlowId(order.getFlowId());//订单编码
+				creditParams.setStatus("2");
+				creditParams.setReceiveTime(DateHelper.parseTime(oe.getReceiveTime()));
+				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
+					throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
+				}
+			}
+		}
+		return ok(exceptionOrderId);
+	}
+
 }

@@ -55,6 +55,7 @@
 		<result column="payment_term" property="paymentTerm"/>
 		<result column="delay_times" property="delayTimes"/>
 		<result column="pay_flag" property="payFlag"/>
+		<result column="product_sort_count" property="productSortCount"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -97,6 +98,7 @@
 		<result column="pay_type" property="payType"/>
 		<result column="delay_times" property="delayTimes"/>
 		<result column="pay_flag" property="payFlag"/>
+		<result column="product_sort_count" property="productSortCount"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -142,6 +144,7 @@
 		, payment_term
 		, delay_times
 		, pay_flag
+		, product_sort_count
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -181,6 +184,7 @@
 				, payment_term
 				, delay_times
 				, pay_flag
+				, product_sort_count
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -222,6 +226,7 @@
 		, payment_term
 		, delay_times
 		, pay_flag
+		, product_sort_count
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -263,6 +268,7 @@
 		, T1.payment_term_status
 		, T1.payment_term
 		, T1.pay_flag
+		, T1.product_sort_count
 	</sql>
 
 
@@ -305,6 +311,7 @@
 		, o.payment_term_status
 		, o.payment_term
 		, o.pay_flag
+		, o.product_sort_count
 	</sql>
 
 	<sql id="commonCondition">
@@ -464,6 +471,7 @@
 				, #{paymentTerm}
 				, #{delayTimes}
 				, #{payFlag}
+				, #{productSortCount}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -578,6 +586,9 @@
 		</if>
 		<if test="payFlag!= null">
 			,pay_flag=#{payFlag}
+		</if>
+		<if test="productSortCount!= null">
+			,product_sort_count=#{productSortCount}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>

@@ -365,31 +365,31 @@
                         </div>
                     </c:if>
                 </div>
-
-                <div class="form-horizontal padding-t-26">
-                    <div class="form-group">
-                        <label class="col-xs-12 color999 padding-l-40 font-size-16">批号信息</label>
+                <c:if test="${orderDetailsDto.orderDeliveryDetail.importFileUrl!=null && orderDetailsDto.orderDeliveryDetail.importFileUrl !=''}">
+                    <div class="form-horizontal padding-t-26">
+                        <div class="form-group">
+                            <label class="col-xs-12 color999 padding-l-40 font-size-16">批号信息</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">导入状态:</label>
+                            <c:if test="${orderDetailsDto.orderDeliveryDetail.deliveryStatus!=null&&orderDetailsDto.orderDeliveryDetail.deliveryStatus == 1}">
+                                <div class="col-xs-3 control-label text-left">导入成功</div>
+                                <label for="scope" class="col-xs-2 control-label">批号列表</label>
+                                <div class="col-xs-3 control-label text-left"><p><a class='m-l-10 eyesee' href='${ctx}/order/orderDetail/downLoad?filePath=${orderDetailsDto.orderDeliveryDetail.importFileUrl}&fileName=发货批号导入信息'><i class='fa fa-download'></i>下载批号列表</a></p></div>
+                            </c:if>
+                            <c:if test="${orderDetailsDto.orderDeliveryDetail.deliveryStatus!=null&&orderDetailsDto.orderDeliveryDetail.deliveryStatus == 0}">
+                                <div class="col-xs-3 control-label text-left">导入失败</div>
+                                <label for="scope" class="col-xs-2 control-label">批号列表</label>
+                                <div class="col-xs-3 control-label text-left"><p><a class='m-l-10 eyesee' href='${ctx}/order/orderDetail/downLoad?filePath=${orderDetailsDto.orderDeliveryDetail.importFileUrl}&fileName=发货批号导入信息'><i class='fa fa-download'></i>下载失败原因</a></p></div>
+                            </c:if>
+                            <c:if test="${orderDetailsDto.orderDeliveryDetail.deliveryStatus==null}">
+                                <div class="col-xs-3 control-label text-left"></div>
+                                <label for="scope" class="col-xs-2 control-label">批号列表</label>
+                                <div class="col-xs-3 control-label text-left"></div>
+                            </c:if>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="scope" class="col-xs-2 control-label">导入状态:</label>
-                        <c:if test="${orderDetailsDto.orderDeliveryDetail.deliveryStatus!=null&&orderDetailsDto.orderDeliveryDetail.deliveryStatus == 1}">
-                            <div class="col-xs-3 control-label text-left">导入成功</div>
-                            <label for="scope" class="col-xs-2 control-label">批号列表</label>
-                            <div class="col-xs-3 control-label text-left"><p><a class='m-l-10 eyesee' href='${ctx}/order/orderDetail/downLoad?filePath=${orderDetailsDto.orderDeliveryDetail.importFileUrl}&fileName=发货批号导入信息'><i class='fa fa-download'></i>下载批号列表</a></p></div>
-                        </c:if>
-                        <c:if test="${orderDetailsDto.orderDeliveryDetail.deliveryStatus!=null&&orderDetailsDto.orderDeliveryDetail.deliveryStatus == 0}">
-                            <div class="col-xs-3 control-label text-left">导入失败</div>
-                            <label for="scope" class="col-xs-2 control-label">批号列表</label>
-                            <div class="col-xs-3 control-label text-left"><p><a class='m-l-10 eyesee' href='${ctx}/order/orderDetail/downLoad?filePath=${orderDetailsDto.orderDeliveryDetail.importFileUrl}&fileName=发货批号导入信息'><i class='fa fa-download'></i>下载失败原因</a></p></div>
-                        </c:if>
-                        <c:if test="${orderDetailsDto.orderDeliveryDetail.deliveryStatus==null}">
-                            <div class="col-xs-3 control-label text-left"></div>
-                            <label for="scope" class="col-xs-2 control-label">批号列表</label>
-                            <div class="col-xs-3 control-label text-left"></div>
-                        </c:if>
-                    </div>
-                </div>
-
+                </c:if>
                 <div class="form-horizontal padding-t-26">
                     <div class="form-group">
                         <label class="col-xs-12 color999 padding-l-40 font-size-16">支付信息</label>

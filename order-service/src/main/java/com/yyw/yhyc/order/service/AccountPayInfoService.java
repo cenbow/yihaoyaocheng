@@ -220,16 +220,16 @@ public class AccountPayInfoService {
                 if(!UtilHelper.isEmpty(accountPayInfos))
                     ap = accountPayInfos.get(0);
                 ap.setReceiveAccountNo(accountPayInfo.getReceiveAccountNo());
+                receiveAccountName=accountPayInfo.getReceiveAccountName();
+                ap.setAccountStatus(accountPayInfo.getAccountStatus());
                 /*招行*/
                 if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
-                    receiveAccountName=accountPayInfo.getReceiveAccountName();
                     ap.setReceiveAccountName(accountPayInfo.getReceiveAccountName());
                     ap.setSubbankName(accountPayInfo.getSubbankName());
                     ap.setProvinceName(accountPayInfo.getProvinceName());
                     ap.setCityName(accountPayInfo.getCityName());
                 }
                 if (UtilHelper.isEmpty(accountPayInfos)) {//新增
-                    ap.setAccountStatus("1");
                     ap.setCreateTime(now);
                     ap.setCreateUser(accountPayInfo.getCreateUser());
                     ap.setReceiveAccountName(receiveAccountName);
@@ -272,18 +272,19 @@ public class AccountPayInfoService {
             if (!OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                    && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     )
                 throw new RuntimeException("payTypeId不正确");
 			/*银联b2c 或 银联无卡*/
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
-                    ) {
-                if (!UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo()))
+                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) ) {
+                if (null!=accountPayInfo.getReceiveAccountNo())
                     list.add(accountPayInfo);
             }
 			/*招行*/
             if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
-                if (!UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo())
+                if (null!=accountPayInfo.getReceiveAccountNo()
                         || !UtilHelper.isEmpty(accountPayInfo.getReceiveAccountName())
                         || !UtilHelper.isEmpty(accountPayInfo.getSubbankName())
                         || !UtilHelper.isEmpty(accountPayInfo.getProvinceName())
@@ -308,11 +309,6 @@ public class AccountPayInfoService {
             resultMap.put("msg", "custId不能为空");
             return;
         }
-        if (!"1".equals(accountPayInfo.getAccountStatus())) {
-            resultMap.put("code", "1111");
-            resultMap.put("msg", "accountStatus不正确");
-            return;
-        }
         if (UtilHelper.isEmpty(accountPayInfo.getCreateUser())) {
             resultMap.put("code", "1111");
             resultMap.put("msg", "createUser不能为空");
@@ -321,6 +317,7 @@ public class AccountPayInfoService {
         if (!OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {
             resultMap.put("code", "1111");
             resultMap.put("msg", "payTypeId不正确");
@@ -329,8 +326,9 @@ public class AccountPayInfoService {
             /*银联b2c 或 银联无卡*/
         if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {
-            if (UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo())) {
+            if (null==accountPayInfo.getReceiveAccountNo()) {
                 resultMap.put("code", "1111");
                 resultMap.put("msg", "receiveAccountNo不能为空");
                 return;
@@ -338,7 +336,7 @@ public class AccountPayInfoService {
         }
 			/*招行*/
         if (OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())) {
-            if (UtilHelper.isEmpty(accountPayInfo.getReceiveAccountNo())
+            if (null==accountPayInfo.getReceiveAccountNo()
                     || UtilHelper.isEmpty(accountPayInfo.getReceiveAccountName())
                     || UtilHelper.isEmpty(accountPayInfo.getSubbankName())
                     || UtilHelper.isEmpty(accountPayInfo.getProvinceName())

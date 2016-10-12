@@ -254,7 +254,7 @@ public class OrderPayService {
 			orderCombined.setPayFlowId(payFlowId);        //支付流水号
 			orderCombined.setCreateUser(userDto.getUserName());
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
-			orderCombined.setRemark("账期在线还款");
+			orderCombined.setRemark("在线支付");
 			orderCombinedMapper.save(orderCombined);
 			log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
 
@@ -266,6 +266,7 @@ public class OrderPayService {
 				if(orderId <= 0) continue;
 				order = new Order();
 				order.setOrderId(orderId);
+				order.setPayTypeId(payTypeId);
 				order.setPayTime(systemDateMapper.getSystemDate());
 				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
 				orderMapper.update(order);
@@ -284,10 +285,20 @@ public class OrderPayService {
 			orderPayMapper.save(orderPay);
 			orderPay = orderPayMapper.getByPayFlowId(payFlowId);
 			log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
-		}else{
+		} else {
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
 			orderPay.setPayTypeId(payTypeId);
 			orderPayMapper.update(orderPay);
+			OrderCombined orderCombined=orderCombinedMapper.findByPayFlowId(payFlowId);
+			for(Integer orderId : orderIdList){
+				if(orderId <= 0) continue;
+				order = new Order();
+				order.setOrderId(orderId);
+				order.setPayTypeId(payTypeId);
+				order.setPayTime(systemDateMapper.getSystemDate());
+				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+				orderMapper.update(order);
+			}
 		}
 		return orderPay;
 	}
@@ -389,6 +400,7 @@ public class OrderPayService {
 			for(Integer orderId : orderIdList){
 				if(orderId <= 0) continue;
 				order = new Order();
+				order.setPayTypeId(payTypeId);
 				order.setOrderId(orderId);
 				order.setPayTime(systemDateMapper.getSystemDate());
 				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
@@ -411,6 +423,16 @@ public class OrderPayService {
 		}else{
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
 			orderPay.setPayTypeId(payTypeId);
+			OrderCombined orderCombined=orderCombinedMapper.findByPayFlowId(payFlowId);
+			for(Integer orderId : orderIdList){
+				if(orderId <= 0) continue;
+				order = new Order();
+				order.setOrderId(orderId);
+				order.setPayTypeId(payTypeId);
+				order.setPayTime(systemDateMapper.getSystemDate());
+				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+				orderMapper.update(order);
+			}
 			orderPayMapper.update(orderPay);
 		}
 		return orderPay;
