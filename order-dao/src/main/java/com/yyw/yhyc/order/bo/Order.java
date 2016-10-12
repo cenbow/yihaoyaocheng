@@ -210,6 +210,9 @@ public class Order extends Model{
 	 */
 	private int payFlag;
 
+	/* 订单商品种类数量 */
+	private int productSortCount;
+
 
 	public Integer getPayFlag() {
 		return payFlag;
@@ -789,6 +792,14 @@ public class Order extends Model{
 		this.delayTimes = delayTimes;
 	}
 
+	public int getProductSortCount() {
+		return productSortCount;
+	}
+
+	public void setProductSortCount(int productSortCount) {
+		this.productSortCount = productSortCount;
+	}
+
 	@Override
 	public String toString() {
 		return "Order{" +
@@ -830,6 +841,7 @@ public class Order extends Model{
 				", paymentTerm=" + paymentTerm +
 				", delayTimes=" + delayTimes +
 				", payFlag=" + payFlag +
+				", productSortCount=" + productSortCount +
 				'}';
 	}
 }
