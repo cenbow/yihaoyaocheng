@@ -261,10 +261,10 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
         });
         return;
     }
-    if(_value > 999999999){
+    if(_value > 9999999){
         new Dialog({
             title:'提示',
-            content:'<p class="mt60 f14">购买数量不能大于999999999 ！</p>',
+            content:'<p class="mt60 f14">购买数量不能大于9999999 ！</p>',
             cancel:'取消',
             ok:'确定'
         });
