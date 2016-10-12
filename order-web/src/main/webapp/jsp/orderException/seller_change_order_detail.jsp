@@ -30,7 +30,7 @@
             <div class="border-gray">
                 <div class="form-horizontal padding-t-26">
                     <div class="form-group">
-                        <label class="col-xs-2 control-label">补货订单号</label>
+                        <label class="col-xs-2 control-label">换货订单号</label>
                         <div class="col-xs-2 control-label text-left">${orderExceptionDto.exceptionOrderId}</div>
                         <label class="col-xs-2 control-label">订单状态</label>
                         <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
@@ -157,7 +157,7 @@
                 </c:forEach>
             </c:if>
 
-            <c:if test="${orderExceptionDto.userType==2}">
+            <c:if test="${orderExceptionDto.userType==2&&orderExceptionDto.importFileUrl!=null&&orderExceptionDto.importFileUrl!=''}">
                 <div class="row choseuser margin-t-20 border-gray">
                      <h2 class="row">批号信息</h2>
                      <div class="form-horizontal padding-t-26">

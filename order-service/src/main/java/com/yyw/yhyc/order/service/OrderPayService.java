@@ -254,7 +254,7 @@ public class OrderPayService {
 			orderCombined.setPayFlowId(payFlowId);        //支付流水号
 			orderCombined.setCreateUser(userDto.getUserName());
 			orderCombined.setCreateTime(systemDateMapper.getSystemDate());
-			orderCombined.setRemark("账期在线还款");
+			orderCombined.setRemark("在线支付");
 			orderCombinedMapper.save(orderCombined);
 			log.info("在线支付订单前，预处理订单数据:插入orderCombine数据=" + orderCombined);
 
