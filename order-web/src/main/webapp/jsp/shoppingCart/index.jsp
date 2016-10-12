@@ -192,7 +192,7 @@
         </div>
         <div class="btn">
             <a class="os-btn-pay tc" href="javascript:void(0);">立即结算</a>
-            <a class="os-btn-order tc" href="index.html">继续采购</a>
+            <a class="os-btn-order tc" href="${mallDomain}">继续采购</a>
         </div>
     </div>
 
