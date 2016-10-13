@@ -454,7 +454,7 @@ public class OrderDeliveryService {
             log.error(e);
             log.error(e.getMessage(), e);
             map.put("code", "0");
-            map.put("msg", "Excel读取出错");
+            map.put("msg", "发货失败");
         }
         return map;
     }
@@ -1185,7 +1185,7 @@ public class OrderDeliveryService {
 
         } catch (Exception e) {
             map.put("code", "0");
-            map.put("msg", "Excel读取出错");
+            map.put("msg", "发货失败");
             log.info(e.getMessage());
         }
         return map;

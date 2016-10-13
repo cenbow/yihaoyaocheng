@@ -285,4 +285,11 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
      */
 	public List<OrderExceptionDto> listPaginationBuyerExceptionOrder(Pagination<OrderExceptionDto> pagination,OrderExceptionDto orderExceptionDto);
 
+	/**
+	 * 获取买家拒收/补货数量
+	 * @param custId
+	 * @return
+	 */
+	public int findExceptionCountApp(Integer custId);
+
 }
