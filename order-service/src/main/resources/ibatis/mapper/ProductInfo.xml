@@ -49,6 +49,11 @@
         <result column="update_staff" property="updateStaff"/>
     </resultMap>
 
+    <resultMap id="ProductInfoDtoResultMapper" extends="ProductInfoResultMapper" type="ProductInfoDto">
+        <result column="manufactures" property="manufactures"/>
+        <result column="manufacture_id" property="manufactureId"/>
+    </resultMap>
+
     <sql id="commonColumns">
         id
         , spu_code
@@ -349,5 +354,9 @@
     <select id="findByCount" parameterType="ProductInfo" resultType="int">
         SELECT count(1) AS totalcount FROM t_product_info WHERE 1=1
         <include refid="commonCondition"/>
+    </select>
+
+    <select id="getFactory" parameterType="java.lang.Integer" resultMap="ProductInfoDtoResultMapper">
+        select id as manufacture_id ,factory_name as manufactures from t_product_factory where id = #{manufacturesId}
     </select>
 </mapper>
