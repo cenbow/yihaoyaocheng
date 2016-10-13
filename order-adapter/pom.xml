@@ -115,5 +115,11 @@
             <scope>test</scope>
         </dependency>
         <!-- test end -->
+        <dependency>
+            <groupId>com.gangling</groupId>
+            <artifactId>healthcheck</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>
