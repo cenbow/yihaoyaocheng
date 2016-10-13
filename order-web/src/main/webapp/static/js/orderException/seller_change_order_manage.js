@@ -352,6 +352,7 @@ function sendDeliverysubmit(){
         return;
     }
 
+    var  regNo = /^[0-9a-zA-Z]{1,50}$/;
     var reg = /^0?1[3|4|5|8|7][0-9]\d{8}$/;
     $("#receiverAddressId").val(delivery.val())
     $("#deliveryMethod").val(ownw.val())
@@ -366,6 +367,12 @@ function sendDeliverysubmit(){
         $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
     }else{
+        if($("#deliveryExpressNo2").val()!=null&&$("#deliveryExpressNo2").val()!=""){
+            if (!regNo.test($("#deliveryExpressNo2").val())) {
+                alertModal("请输入正确的物流单号")
+                return;
+            };
+        }
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
