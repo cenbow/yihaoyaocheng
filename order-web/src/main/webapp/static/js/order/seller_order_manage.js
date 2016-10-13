@@ -394,7 +394,7 @@ function sendDeliverysubmit(){
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
     tipLoad();
-    /*$("#sendform").ajaxSubmit({
+    $("#sendform").ajaxSubmit({
         url :ctx+'/order/orderDelivery/sendOrderDelivery',
         dataType: 'text',
         type: 'POST',
@@ -424,7 +424,7 @@ function sendDeliverysubmit(){
                 }
             }
     });
-*/
+
 }
 
 function totab(tab){

@@ -178,7 +178,7 @@
                                         <div class="form-group">
                                             <label for="scope" class="col-xs-3 control-label">物流单号</label>
                                             <div class="col-xs-8">
-                                                <input type="text" class="form-control" id="deliveryExpressNo2" />
+                                                <input type="text" class="form-control" id="deliveryExpressNo2" maxlength="50" />
                                             </div>
                                         </div>
                                     </div>
