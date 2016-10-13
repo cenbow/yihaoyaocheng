@@ -783,7 +783,15 @@ public class OrderService {
 				log.error("生产厂家id(" + productInfo.getFactoryName() + ")获取失败：" + e.getMessage(),e);
 			}
 			orderDetail.setManufacturesId(manufacturesId);//厂家id
-			orderDetail.setManufactures(productInfoDto.getManufactures());//厂家名称
+			if(UtilHelper.isEmpty(productInfoDto.getManufactures())){
+				ProductInfoDto p = productInfoMapper.getFactory(manufacturesId);
+				if( !UtilHelper.isEmpty(p) ){
+					orderDetail.setManufactures(p.getManufactures());//厂家名称
+				}
+			}else{
+				orderDetail.setManufactures(productInfoDto.getManufactures());//厂家名称
+			}
+
 
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());
