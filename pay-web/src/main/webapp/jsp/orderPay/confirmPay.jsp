@@ -42,10 +42,10 @@
                     </label>
                     <label payTypeId="<%=OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()%>">
                         <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付-B2C</span>
-                    </label><%--
+                    </label>
                 <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2B.getPayTypeId()%>">
                     <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付-B2B</span>
-                </label>--%>
+                </label>
                 <input type="hidden" id="payTypeId">
                 <input type="hidden" name="flowId" value="${order.flowId}">
             </div>
