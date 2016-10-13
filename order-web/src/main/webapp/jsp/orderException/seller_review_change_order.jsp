@@ -44,7 +44,7 @@
                             <input type="hidden" value="${orderExceptionDto.exceptionId}" id="exceptionId"/>
                             <div class="form-group">
                                 <label class="col-xs-2 control-label">买家换货说明:</label>
-                                <div class="col-xs-9 control-label text-left">货物已损坏，双方沟通同意补货</div>
+                                <div class="col-xs-9 control-label text-left">${orderExceptionDto.returnDesc}</div>
                             </div>
                             <div class="form-group">
                                 <label  class="col-xs-2 control-label">审核说明：</label>
