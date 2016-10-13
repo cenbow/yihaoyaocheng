@@ -1783,4 +1783,8 @@
 		AND	T1.CUST_ID = #{custId}
 		ORDER BY T1.EXCEPTION_ID DESC
 	</select>
+
+	<select id="findExceptionCountApp" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(1) from t_order_exception oe where oe.return_type in (3,4) and oe.cust_id =  #{custId}
+	</select>
 </mapper>
