@@ -2941,7 +2941,21 @@ public class OrderService {
 			return null;
 		}
 		//详情对象
-		orderBean.setOrderStatus(this.convertAppOrderStatus(this.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(),orderDetailsDto.getPayType()).getType(),2));
+		String hideOrderStatus = this.convertAppOrderStatus(this.getBuyerOrderStatus(orderDetailsDto.getOrderStatus(), orderDetailsDto.getPayType()).getType(), 2);
+		if(BuyerOrderStatusEnum.Finished.getType().equals(hideOrderStatus)){
+			OrderExceptionDto oed = new OrderExceptionDto();
+			oed.setFlowId(orderDetailsDto.getFlowId());
+			oed.setCustId(custId);
+			List<OrderExceptionDto> oedRejectList =orderExceptionMapper.findBuyerRejectOrderStatusCount(oed);
+			if(!UtilHelper.isEmpty(oedRejectList)&& oedRejectList.size()>0){
+				hideOrderStatus ="804";
+			}
+			List<OrderExceptionDto> oedReplenisList = orderExceptionMapper.findBuyerReplenishmentStatusCount(oed);
+			if(!UtilHelper.isEmpty(oedReplenisList)&& oedReplenisList.size()>0){
+				hideOrderStatus ="905";
+			}
+		}
+		orderBean.setOrderStatus(hideOrderStatus);
 		orderBean.setOrderId(orderDetailsDto.getFlowId());
 		orderBean.setCreateTime(orderDetailsDto.getCreateTime());
 		orderBean.setSupplyName(orderDetailsDto.getSupplyName());
