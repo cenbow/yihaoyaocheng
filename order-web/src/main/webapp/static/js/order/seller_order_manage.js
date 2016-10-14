@@ -438,8 +438,14 @@ function totab(tab){
 }
 
 function doCancle() {
+
+
     var orderId = $("#orderId").val().trim();
     var cancelResult = $("#cancelResult").val().trim();
+    if(cancelResult==""){
+        alertModal("取消原因不能为空")
+        return;
+    }
     var data = {orderId:orderId,cancelResult:cancelResult};
     tipLoad();
     $.ajax({
