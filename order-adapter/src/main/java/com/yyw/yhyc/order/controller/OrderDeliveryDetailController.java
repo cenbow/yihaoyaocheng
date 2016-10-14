@@ -36,6 +36,7 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -165,7 +166,9 @@ public class OrderDeliveryDetailController extends BaseController {
 					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
 					productPicUrl = (String) productJson.get("file_path");
 					if (UtilHelper.isEmpty(productPicUrl))
-						productPicUrl = "";
+						productPicUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+					else
+						productPicUrl = MyConfigUtil.IMG_DOMAIN + productPicUrl;
 				}
 			}catch (Exception e){
 				logger.error("查询图片接口:调用异常," + e.getMessage(),e);
