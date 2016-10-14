@@ -441,7 +441,11 @@
                                        <td>￥ <fmt:formatNumber value="${details.productPrice}" minFractionDigits="2"/></td>
                                        <td>x${details.productCount}</td>
                                        <td>￥  <fmt:formatNumber value="${details.productPrice * details.productCount}" minFractionDigits="2"/> </td>
-                                       <td>x ${details.recieveCount}</td>
+                                       <td>
+                                        <c:if test="${details.recieveCount!=null}">
+                                            x
+                                        </c:if>
+                                       ${details.recieveCount}</td>
                                        <td>￥  <fmt:formatNumber value="${details.productPrice * details.recieveCount}" minFractionDigits="2"/></td>
                                     </tr>
                                 </c:forEach>
