@@ -48,6 +48,7 @@ import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 
 import com.yyw.yhyc.utils.ExcelUtil;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
@@ -2625,7 +2626,7 @@ public class OrderService {
 		Order order = orderMapper.getOrderbyFlowId(flowId);
 		if(UtilHelper.isEmpty(order))
 			throw  new RuntimeException("未找到订单信息");
-		resultMap.put("cancelTime",order.getCancelTime());
+		resultMap.put("cancelTime", order.getCancelTime());
 		resultMap.put("cancelResult",order.getCancelResult());
 		return resultMap;
 	}
@@ -2732,7 +2733,21 @@ public class OrderService {
 				}
 				temp = new HashMap<String,Object>();
 				temp.put("orderId",od.getFlowId());
-				temp.put("orderStatus",convertAppOrderStatus(od.getOrderStatus(),2));
+				String hideOrderStatus = convertAppOrderStatus(od.getOrderStatus(), 2);
+				if(BuyerOrderStatusEnum.Finished.getType().equals(hideOrderStatus)){
+					OrderExceptionDto oed = new OrderExceptionDto();
+					oed.setFlowId(od.getFlowId());
+					oed.setCustId(custId);
+					List<OrderExceptionDto> oedRejectList =orderExceptionMapper.findBuyerRejectOrderStatusCount(oed);
+					if(!UtilHelper.isEmpty(oedRejectList)&& oedRejectList.size()>0){
+						hideOrderStatus ="804";
+					}
+					List<OrderExceptionDto> oedReplenisList = orderExceptionMapper.findBuyerReplenishmentStatusCount(oed);
+					if(!UtilHelper.isEmpty(oedReplenisList)&& oedReplenisList.size()>0){
+						hideOrderStatus ="905";
+					}
+				}
+				temp.put("orderStatus",hideOrderStatus);
 				temp.put("orderStatusName",od.getOrderStatusName());
 				temp.put("createTime",od.getCreateTime());
 				temp.put("supplyName",od.getSupplyName());
@@ -2749,7 +2764,7 @@ public class OrderService {
 			}
 		}
 		resultMap.put("totalCount",pagination.getTotal());
-		resultMap.put("pageCount",pagination.getTotalPage());
+		resultMap.put("pageCount", pagination.getTotalPage());
 		resultMap.put("orderList",orderList);
 		return resultMap;
 	}
@@ -2787,22 +2802,26 @@ public class OrderService {
      * @return
      */
 	private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
-		String filePath="";
+		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		String file_path ="";
 		Map map = new HashMap();
 		map.put("spu_code", spuCode);
 		map.put("type_id", "1");
 		try{
 			List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
 			if(UtilHelper.isEmpty(picUrlList))
-				return "";
+				return filePath;
 			JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
-			filePath = (String)productJson.get("file_path");
-			if (UtilHelper.isEmpty(filePath))
-				return "";
+			file_path = (String)productJson.get("file_path");
 		}catch (Exception e){
 			log.error("查询图片接口:调用异常," + e.getMessage(),e);
 		}
-		return filePath;
+
+		if (UtilHelper.isEmpty(file_path)){
+			return filePath;
+		}else{
+			return MyConfigUtil.IMG_DOMAIN + file_path;
+		}
 	}
 
 	/**z`
