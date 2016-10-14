@@ -186,6 +186,8 @@ public class ChinaPayServiceImpl implements PayService {
             fromWhere= ChinaPayUtil.B2C;
         }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
             fromWhere=ChinaPayUtil.NOCARD;
+        }else if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
+            fromWhere=ChinaPayUtil.B2B;
         }else{
             fromWhere=ChinaPayUtil.B2C;
         }
@@ -260,6 +262,8 @@ public class ChinaPayServiceImpl implements PayService {
             fromWhere= ChinaPayUtil.B2C;
         }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
             fromWhere=ChinaPayUtil.NOCARD;
+        }else if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
+            fromWhere=ChinaPayUtil.B2B;
         }else{
             fromWhere=ChinaPayUtil.B2C;
         }
@@ -512,6 +516,8 @@ public class ChinaPayServiceImpl implements PayService {
                 fromWhere=ChinaPayUtil.B2C;
             }else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().intValue()==systemPayType.getPayTypeId().intValue()){
                 fromWhere=ChinaPayUtil.NOCARD;
+            }else if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
+                fromWhere=ChinaPayUtil.B2B;
             }else{
                 fromWhere=ChinaPayUtil.B2C;
             }

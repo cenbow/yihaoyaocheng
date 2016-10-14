@@ -36,6 +36,12 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /*  是否渠道商品(0否，1是),  */
     private Integer isChannel;
 
+    /*  厂家名称  */
+    private String manufactures;
+
+    /*  厂家id  */
+    private String manufactureId;
+
 
 
     public BigDecimal getProductPrice() {
@@ -102,6 +108,22 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.isChannel = isChannel;
     }
 
+    public String getManufactures() {
+        return manufactures;
+    }
+
+    public void setManufactures(String manufactures) {
+        this.manufactures = manufactures;
+    }
+
+    public String getManufactureId() {
+        return manufactureId;
+    }
+
+    public void setManufactureId(String manufactureId) {
+        this.manufactureId = manufactureId;
+    }
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
@@ -113,6 +135,8 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", paymentTerm=" + paymentTerm +
                 ", productCodeCompany='" + productCodeCompany + '\'' +
                 ", isChannel='" + isChannel + '\'' +
+                ", manufactures='" + manufactures + '\'' +
+                ", manufactureId='" + manufactureId + '\'' +
                 "} " + super.toString();
     }
 }

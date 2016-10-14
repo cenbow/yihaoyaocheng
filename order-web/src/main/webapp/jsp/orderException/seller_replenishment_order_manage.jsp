@@ -174,7 +174,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-xs-2 control-label"><em>*</em>批号导入</label>
+                            <label class="col-xs-2 control-label">批号导入</label>
                             <div class="col-xs-7">
                                 <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
                                 <p class="padding-t-10"><a class="m-l-10 eyesee" href='${ctx}/static/include/excel/excelTemplate.xls'><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
@@ -202,7 +202,7 @@
                                         <div class="form-group">
                                             <label for="scope" class="col-xs-3 control-label">联系人</label>
                                             <div class="col-xs-8">
-                                                <input type="text" class="form-control" id="deliveryContactPerson1"/>
+                                                <input type="text" class="form-control" id="deliveryContactPerson1" maxlength="20"  />
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -216,13 +216,13 @@
                                         <div class="form-group">
                                             <label for="scope" class="col-xs-3 control-label">运输公司</label>
                                             <div class="col-xs-8">
-                                                <input type="text" class="form-control" id="deliveryContactPerson2" />
+                                                <input type="text" class="form-control" id="deliveryContactPerson2" maxlength="25"  />
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="scope" class="col-xs-3 control-label">物流单号</label>
                                             <div class="col-xs-8">
-                                                <input type="text" class="form-control" id="deliveryExpressNo2" />
+                                                <input type="text" class="form-control" id="deliveryExpressNo2" maxlength="50" />
                                             </div>
                                         </div>
                                     </div>

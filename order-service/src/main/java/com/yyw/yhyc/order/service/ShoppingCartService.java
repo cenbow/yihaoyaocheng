@@ -216,6 +216,12 @@ public class ShoppingCartService {
 		if(UtilHelper.isEmpty(oldShoppingCart)){
 			return 0;
 		}
+
+		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
+			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
+			throw  new Exception("购买数量不能大于9999999");
+		}
+
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(oldShoppingCart.getSupplyId());//设置供应商Id
 		productInventory.setSpuCode(oldShoppingCart.getSpuCode());//设置SPUCODE
@@ -254,6 +260,11 @@ public class ShoppingCartService {
 		int count = shoppingCartMapper.findByCount(condition);
 		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
 			throw new Exception("进货单最多只能添加100个品种，请先下单。");
+
+		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
+			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
+			throw  new Exception("购买数量不能大于9999999");
+		}
 
 		//当加入的数量加上原有的数量大于可见库存 只能买当前最大库存
 		int countByid=0;
@@ -439,6 +450,7 @@ public class ShoppingCartService {
 	 * @return
 	 */
 	private CartData changeShopCartDtosToApp(List<ShoppingCartListDto> shoppingCartListDtos){
+		if(UtilHelper.isEmpty(shoppingCartListDtos)) return null;
 		CartData cartData = new CartData();
 		int totalCount = 0;
 		List<CartGroupData> shopCartList = new ArrayList<CartGroupData>();
@@ -498,10 +510,6 @@ public class ShoppingCartService {
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
 		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
-		if(UtilHelper.isEmpty(shoppingCartListDtos)){
-			resultMap.put("statusCode","0");
-			return resultMap;
-		}
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
 		resultMap.put("statusCode", "0");
 		resultMap.put("data", cartData);

@@ -35,6 +35,24 @@
     </context-param>
     <!-- Spring 配置结束 -->
 
+    <servlet>
+        <servlet-name>glhealthcheck</servlet-name>
+        <servlet-class>com.gangling.healthcheck.servlet.HealthCheck</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>glhealthcheck</servlet-name>
+        <url-pattern>/glhealthcheck/*</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <filter-name>healthcheckFilter</filter-name>
+        <filter-class>com.gangling.healthcheck.filter.HealthCheckFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>healthcheckFilter</filter-name>
+        <url-pattern>/glhealthcheck/*</url-pattern>
+    </filter-mapping>
+
     <!-- Spring MVC配置开始 -->
     <servlet>
         <servlet-name>spring</servlet-name>

@@ -170,9 +170,6 @@ public class HttpRequestHandler {
 			 if(busiType.equals("9908")||busiType.equals("0401")){
 			    sendMap.remove("BankInstNo");
 			 }
-			/* if(busiType.equals("0001")){
-				 sendMap.put("MerPageUrl", PayUtil.getValue("payReturnHost") + "/thirdpay/app_submit_success.html");
-			  }*/
 			 sendMap.remove("fromWhere");
 			 signature = SignUtil.signForApp(sendMap);
 		 }else{

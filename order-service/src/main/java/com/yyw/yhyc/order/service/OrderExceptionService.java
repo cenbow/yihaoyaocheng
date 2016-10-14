@@ -2237,19 +2237,25 @@ public class OrderExceptionService {
             return null;
         }
         OrderBean orderBean = new OrderBean();
-        orderBean.setOrderStatus(convertAppExceptionOrderStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getReturnType()));
         if (orderStatus == 800) {
-            BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType());
-            orderBean.setOrderStatusName(buyerOrderExceptionStatusEnum.getValue());
+            BuyerOrderExceptionStatusEnum buyerorderstatusenum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+            if (!UtilHelper.isEmpty(buyerorderstatusenum)){
+                orderBean.setOrderStatusName(buyerorderstatusenum.getValue());
+                orderBean.setOrderStatus(buyerorderstatusenum.getType());
+            }
+            else
+                orderBean.setOrderStatusName("未知类型");
         }
         if (orderStatus == 900) {
-            BuyerReplenishmentOrderStatusEnum buyerReplenishmentOrderStatusEnum;
-            buyerReplenishmentOrderStatusEnum = getBuyerReplenishmentOrderStatus(orderExceptionDto.getOrderStatus());
-            if (!UtilHelper.isEmpty(buyerReplenishmentOrderStatusEnum))
-                orderBean.setOrderStatusName(buyerReplenishmentOrderStatusEnum.getValue());
+            BuyerReplenishmentOrderStatusEnum buyerorderstatusenum = getBuyerReplenishmentOrderStatus(orderExceptionDto.getOrderStatus());
+            if (!UtilHelper.isEmpty(buyerorderstatusenum)){
+                orderBean.setOrderStatusName(buyerorderstatusenum.getValue());
+                orderBean.setOrderStatus(buyerorderstatusenum.getType());
+            }
             else
-                orderBean.setOrderStatusName("未知状态");
+                orderBean.setOrderStatusName("未知类型");
         }
+        orderBean.setOrderStatus(convertAppExceptionOrderStatus(orderBean.getOrderStatus(), orderExceptionDto.getReturnType()));
         orderBean.setOrderId(orderExceptionDto.getFlowId());
         orderBean.setCreateTime(orderExceptionDto.getCreateTime());
         orderBean.setApplyTime(orderExceptionDto.getCreateTime());
