@@ -45,7 +45,7 @@ public class AppVersionController extends BaseController {
 			condition.setVersionType(versionType);
 			List<AppVersion> list = appVersionService.listByProperty(condition);
 			if(!UtilHelper.isEmpty(list)){
-				AppVersion appVersion = list.get(list.size()-1);
+				AppVersion appVersion = list.get(0);
 				String code = appVersion.getVersionCode();
 				String updateFag = appVersion.getUpdateFag();
 				String remark   = appVersion.getRemark();
