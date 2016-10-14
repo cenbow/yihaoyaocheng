@@ -2196,23 +2196,28 @@ public class OrderExceptionService {
      * @return
      */
     private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
-        String filePath="";
+        String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+        String file_path ="";
         Map map = new HashMap();
         map.put("spu_code", spuCode);
         map.put("type_id", "1");
         try{
             List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
             if(UtilHelper.isEmpty(picUrlList))
-                return "";
+                return filePath;
             JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
-            filePath = (String)productJson.get("file_path");
-            if (UtilHelper.isEmpty(filePath))
-                return "";
+            file_path = (String)productJson.get("file_path");
         }catch (Exception e){
             log.error("查询图片接口:调用异常," + e.getMessage(),e);
         }
-        return filePath;
+
+        if (UtilHelper.isEmpty(file_path)){
+            return filePath;
+        }else{
+            return MyConfigUtil.IMG_DOMAIN + file_path;
+        }
     }
+
 
     /**
      * app异常订单详情
