@@ -321,6 +321,7 @@ public class ShoppingCartService {
      */
 	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, IProductDubboManageService iProductDubboManageService, int fromWhere) {
 		if(UtilHelper.isEmpty(userDto)){
+			logger.info("当前登陆人的信息,userDto=" + userDto);
 			return null;
 		}
 
@@ -329,6 +330,7 @@ public class ShoppingCartService {
 		shoppingCart.setCustId(userDto.getCustId());
 		shoppingCart.setFromWhere(fromWhere);
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
+		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
 
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;

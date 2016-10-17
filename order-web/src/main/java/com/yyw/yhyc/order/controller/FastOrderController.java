@@ -81,6 +81,7 @@ public class FastOrderController extends BaseJsonController {
     public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		/* 获取登陆用户的企业信息 */
         UserDto userDto = super.getLoginUser();
+        logger.info("当前登陆的用户信息userDto=" + userDto);
 
         if(UtilHelper.isEmpty(shoppingCart)){
             throw  new Exception("非法参数");
@@ -150,6 +151,7 @@ public class FastOrderController extends BaseJsonController {
     @ResponseBody
     public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
         UserDto userDto = super.getLoginUser();
+        logger.info("当前登陆的用户信息userDto=" + userDto);
         if(!UtilHelper.isEmpty(shoppingCart)){
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
         }
@@ -165,7 +167,9 @@ public class FastOrderController extends BaseJsonController {
     @ResponseBody
     public Map<String,Object> list() throws Exception {
         UserDto userDto = super.getLoginUser();
+        logger.info("当前登陆的用户信息userDto=" + userDto);
         List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+        logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
         String message = UtilHelper.isEmpty(allShoppingCart) || allShoppingCart.size() == 0 ? "请添加商品" : "";
         return ok(message,allShoppingCart);
     }
@@ -187,6 +191,7 @@ public class FastOrderController extends BaseJsonController {
     @ResponseBody
     public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
         UserDto userDto = super.getLoginUser();
+        logger.info("当前登陆的用户信息userDto=" + userDto);
 
         Map<String,Object> resultMap = new HashMap<>();
         if(UtilHelper.isEmpty(shoppingCartList)){
