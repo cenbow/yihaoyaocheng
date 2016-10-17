@@ -1578,6 +1578,7 @@ public class OrderService {
 					shoppingCartDto.setProductPrice(temp.getProductPrice());
 					shoppingCartDto.setProductSettlementPrice(temp.getProductSettlementPrice());
 					shoppingCartDto.setProductCodeCompany(temp.getProductCodeCompany());
+					shoppingCartDto.setFromWhere(temp.getFromWhere());
 					shoppingCartDtoList.add(shoppingCartDto);
 
 					productPriceCount = productPriceCount.add(temp.getProductPrice().multiply(new BigDecimal(temp.getProductCount())));
