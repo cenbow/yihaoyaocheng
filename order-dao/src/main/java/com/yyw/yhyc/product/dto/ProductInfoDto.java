@@ -42,6 +42,9 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /*  厂家id  */
     private String manufactureId;
 
+    /* 商品来源表示字段（空值[默认是空值]：来自进货单，1：来自极速下单) */
+    private Integer fromWhere;
+
 
 
     public BigDecimal getProductPrice() {
@@ -124,6 +127,15 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.manufactureId = manufactureId;
     }
 
+    public Integer getFromWhere() {
+        return fromWhere;
+    }
+
+    public void setFromWhere(Integer fromWhere) {
+        this.fromWhere = fromWhere;
+    }
+
+
     @Override
     public String toString() {
         return "ProductInfoDto{" +
@@ -137,6 +149,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", isChannel='" + isChannel + '\'' +
                 ", manufactures='" + manufactures + '\'' +
                 ", manufactureId='" + manufactureId + '\'' +
+                ", fromWhere='" + fromWhere + '\'' +
                 "} " + super.toString();
     }
 }
