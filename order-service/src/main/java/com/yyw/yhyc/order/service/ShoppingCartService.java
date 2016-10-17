@@ -231,7 +231,7 @@ public class ShoppingCartService {
 		String code = map.get("code").toString();
 		if("0".equals(code) || "1".equals(code)){
 			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
-			throw  new Exception(map.get("msg").toString());
+			throw  new Exception("修改商品数量失败!");
 		}
 		ShoppingCart newShoppingCart = new ShoppingCart();
 		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
@@ -321,6 +321,7 @@ public class ShoppingCartService {
      */
 	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, IProductDubboManageService iProductDubboManageService, int fromWhere) {
 		if(UtilHelper.isEmpty(userDto)){
+			logger.info("当前登陆人的信息,userDto=" + userDto);
 			return null;
 		}
 
@@ -329,6 +330,7 @@ public class ShoppingCartService {
 		shoppingCart.setCustId(userDto.getCustId());
 		shoppingCart.setFromWhere(fromWhere);
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
+		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
 
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;

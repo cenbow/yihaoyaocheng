@@ -851,8 +851,14 @@ public class OrderService {
 		//校验库存数量，是否可以购买
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(orderDto.getSupplyId());
+		String productFromWhere = "进货单";
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
+
+			if(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere() == productInfoDto.getFromWhere()){
+				productFromWhere = "极速下单页";
+			}
+
 			/* 检查库存 */
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
 			if(UtilHelper.isEmpty(productInfo )){
@@ -865,7 +871,7 @@ public class OrderService {
 			String code = m.get("code").toString();
 			if("0".equals(code) || "1".equals(code)){
 				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + m );
-				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
+				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看");
 			}
 
 			/* 查询商品上下架状态 */
@@ -891,7 +897,7 @@ public class OrderService {
 
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
 				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ",// 0未上架  1上架  2本次下架  3非本次下架");
-				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回进货单查看");
+				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看");
 			}
 			productInfoDto.setIsChannel(isChannel);
 
@@ -907,10 +913,15 @@ public class OrderService {
 			if(UtilHelper.isEmpty(productPrice)){
 				return returnFalse("查询商品价格失败");
 			}
+
+			/* 若商品的最新价格 小于等于0，则提示该商品无法够买 */
+			if(productPrice.compareTo(new BigDecimal(0)) <= 0){
+				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看");
+			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
 			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
 				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("存在价格变化的商品，请返回进货单重新结算");
+				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算");
 			}
 
 			/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
