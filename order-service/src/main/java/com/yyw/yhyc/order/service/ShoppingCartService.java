@@ -25,6 +25,7 @@ import com.yyw.yhyc.order.appdto.CartProductBean;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
@@ -249,6 +250,9 @@ public class ShoppingCartService {
 	 * @throws Exception
 	 */
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws Exception{
+		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
+			shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
+		}
 		//加入进货单信息
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
