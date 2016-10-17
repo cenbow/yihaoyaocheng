@@ -88,7 +88,7 @@ public class FastOrderController extends BaseJsonController {
     @ResponseBody
     public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		/* 获取登陆用户的企业信息 */
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
 
         if(UtilHelper.isEmpty(shoppingCart)){
@@ -158,7 +158,7 @@ public class FastOrderController extends BaseJsonController {
     @RequestMapping(value = "/updateNum", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
         if(!UtilHelper.isEmpty(shoppingCart)){
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
@@ -198,7 +198,7 @@ public class FastOrderController extends BaseJsonController {
     @RequestMapping(value = "/check", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
 
         Map<String,Object> resultMap = new HashMap<>();
