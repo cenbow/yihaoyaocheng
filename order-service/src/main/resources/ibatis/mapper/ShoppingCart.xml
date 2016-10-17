@@ -178,13 +178,9 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="fromWhere!= null and fromWhere!= ''">
+		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
 		</if>
-		<if test="fromWhere == null ">
-			and  from_where is null
-		</if>
-
 	</sql>
 	
 	<insert id="save" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
@@ -264,15 +260,12 @@
 			, update_user=#{updateUser}
 		</if>
 			, update_time= sysdate()
-		<if test="fromWhere!= null and fromWhere!= ''">
+		<if test="fromWhere!= null">
 			, from_where = #{fromWhere}
 		</if>
 		<![CDATA[ WHERE shopping_cart_id = #{shoppingCartId}  ]]>
-		<if test="fromWhere!= null and fromWhere!= ''">
+		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
-		</if>
-		<if test="fromWhere == null ">
-			and  from_where is null
 		</if>
 	</update>
 
@@ -308,7 +301,7 @@
 		<if test="updateUser!= null and updateUser!= ''">
 			, update_user=#{updateUser}
 		</if>
-		<if test="fromWhere!= null and fromWhere!= ''">
+		<if test="fromWhere!= null">
 			, from_where = #{fromWhere}
 		</if>
 		<![CDATA[ , update_time=NOW() WHERE cust_id=#{custId} AND  product_id=#{productId} ]]>
@@ -355,7 +348,7 @@
 	</select>
 
 	<select id="listAllShoppingCart" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartListDtoResultMapper" useCache="false">
-		SELECT	DISTINCT  CUST_ID,SUPPLY_ID ,FROM_WHERE FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId } and SC.from_where is null
+		SELECT	DISTINCT  CUST_ID,SUPPLY_ID ,FROM_WHERE FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId } and SC.from_where = 0
 	</select>
 
 	<select id="listDistinctCustIdAndSupplyId" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper" useCache="false">
@@ -380,7 +373,7 @@
 		, sc.product_code_company
 		, sc.from_where
 		FROM t_shopping_cart sc
-		WHERE from_where is null
+		WHERE from_where = 0
 		<if test="shoppingCartId!= null and shoppingCartId!= ''">
 			AND shopping_cart_id=#{shoppingCartId}
 		</if>
@@ -431,19 +424,14 @@
 
 	<select id="queryShoppingCartStatistics" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="java.util.HashMap">
 		SELECT SUM(1) productCount, SUM(product_settlement_price) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
-		<if test="fromWhere!= null and fromWhere!= ''">
+		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
-		</if>
-		<if test="fromWhere == null ">
-			and  from_where is null
 		</if>
 	</select>
 
 
 	<select id="listForFastOrder" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartListDtoResultMapperForFastOrder" useCache="false">
 		SELECT	DISTINCT  CUST_ID,SUPPLY_ID,FROM_WHERE  FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
-		<if test="fromWhere!= null and fromWhere!= ''">
-			and SC.from_where = #{fromWhere}
-		</if>
+		and SC.from_where = 1
 	</select>
 </mapper>

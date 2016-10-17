@@ -5,6 +5,7 @@ package com.yyw.yhyc.order.enmu;
  */
 public enum ShoppingCartFromWhereEnum {
 
+    SHOPPING_CART(0,"进货单"),
     FAST_ORDER(1,"极速下单");
 
 

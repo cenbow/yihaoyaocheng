@@ -1,6 +1,7 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSONObject;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -14,6 +15,7 @@ import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
+import com.yyw.yhyc.utils.CacheUtil;
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.yyw.yhyc.order.inteceptor.GetUserInteceptor.CACHE_PREFIX;
 
 /**
  * Created by lizhou on 2016/10/12
@@ -55,6 +60,9 @@ public class FastOrderController extends BaseJsonController {
     @Reference
     private ProductSearchInterface productSearchInterface;
 
+    @Autowired
+    private HttpServletRequest request;
+
     /**
      * 添加商品到进货单
      * 请求数据格式如下：
@@ -80,7 +88,7 @@ public class FastOrderController extends BaseJsonController {
     @ResponseBody
     public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		/* 获取登陆用户的企业信息 */
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
 
         if(UtilHelper.isEmpty(shoppingCart)){
@@ -150,7 +158,7 @@ public class FastOrderController extends BaseJsonController {
     @RequestMapping(value = "/updateNum", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
         if(!UtilHelper.isEmpty(shoppingCart)){
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
@@ -163,10 +171,10 @@ public class FastOrderController extends BaseJsonController {
      * 列表查询
      * @return
      */
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> list() throws Exception {
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
         List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
         logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
@@ -190,7 +198,7 @@ public class FastOrderController extends BaseJsonController {
     @RequestMapping(value = "/check", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
-        UserDto userDto = super.getLoginUser();
+        UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
 
         Map<String,Object> resultMap = new HashMap<>();
@@ -274,4 +282,26 @@ public class FastOrderController extends BaseJsonController {
         return  result;
     }
 
+
+    /**
+     * 获取当前登陆的用户信息
+     * @param request
+     * @return
+     */
+    private UserDto getUserDto(HttpServletRequest request){
+        logger.info("request.getHeader(\"mySessionId\")=" + request.getHeader("mySessionId"));
+        String sessionId = request.getHeader("mySessionId");
+        String user = CacheUtil.getSingleton().get(CACHE_PREFIX + sessionId);
+        logger.info("user-->" + user);
+        //用户信息
+        if(!UtilHelper.isEmpty(user)) {
+            Map userMap = JSONObject.parseObject(user, HashMap.class);
+            UserDto userDto = new UserDto();
+            userDto.setUser(userMap);
+            userDto.setUserName(userMap.get("username")+"");
+            userDto.setCustId(Integer.valueOf(userMap.get("enterprise_id")+""));
+            return userDto;
+        }
+        return null;
+    }
 }
