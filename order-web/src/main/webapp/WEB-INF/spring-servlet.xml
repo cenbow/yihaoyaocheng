@@ -48,6 +48,7 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<mvc:exclude-mapping path="/static/**"/>
+			<mvc:exclude-mapping path="/fastOrder/*"/>
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
 		</mvc:interceptor>
 
