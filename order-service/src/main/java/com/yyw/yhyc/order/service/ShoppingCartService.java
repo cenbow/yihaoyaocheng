@@ -231,7 +231,7 @@ public class ShoppingCartService {
 		String code = map.get("code").toString();
 		if("0".equals(code) || "1".equals(code)){
 			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
-			throw  new Exception(map.get("msg").toString());
+			throw  new Exception("修改商品数量失败!");
 		}
 		ShoppingCart newShoppingCart = new ShoppingCart();
 		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
