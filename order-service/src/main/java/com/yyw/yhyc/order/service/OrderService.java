@@ -855,7 +855,7 @@ public class OrderService {
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(UtilHelper.isEmpty(productInfoDto)) continue;
 
-			if(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere() == productInfoDto.getFromWhere()){
+			if(productInfoDto.getFromWhere() != null && ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere() == productInfoDto.getFromWhere()){
 				productFromWhere = "极速下单页";
 			}
 
