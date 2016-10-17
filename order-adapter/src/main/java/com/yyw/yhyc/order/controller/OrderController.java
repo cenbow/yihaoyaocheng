@@ -180,7 +180,7 @@ public class OrderController extends BaseController {
 	 * 采购商获取异常订单列表
 	 * @return
 	 */
-	@RequestMapping(value = "/exceptionOrder", method = RequestMethod.POST)
+	@RequestMapping(value = "/api/exceptionOrder", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> exceptionOrder(@RequestBody RequestModel<Map<String,String>> requestModel) throws Exception
 	{

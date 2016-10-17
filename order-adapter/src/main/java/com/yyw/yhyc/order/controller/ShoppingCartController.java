@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/cart")
+@RequestMapping(value = "/api/cart")
 public class ShoppingCartController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 

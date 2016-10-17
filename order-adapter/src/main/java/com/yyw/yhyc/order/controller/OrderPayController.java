@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/orderPay")
+@RequestMapping(value = "/api/orderPay")
 public class OrderPayController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderPayController.class);
 
