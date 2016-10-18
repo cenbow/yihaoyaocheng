@@ -22,4 +22,6 @@ public interface ProductAuditMapper extends GenericIBatisMapper<ProductAudit, In
 	public List<ProductAudit> listPaginationByProperty(Pagination<ProductAudit> pagination, ProductAudit productAudit);
 
     public ProductAudit getProductcodeCompany(@Param("sellerCode") Integer sellerCode,@Param("productcodeCompany") String productcodeCompany);
+    
+    public ProductAudit getProductAudit(@Param("sellerCode") Integer sellerCode,@Param("spuCode") String spuCode);
 }

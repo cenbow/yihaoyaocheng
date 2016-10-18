@@ -29,10 +29,10 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 
 	/**
 	 * 查询商品数量和进化单金额
-	 * @param custId
+	 * @param ShoppingCart
 	 * @return
      */
-	Map<String, java.math.BigDecimal> queryShoppingCartStatistics(@Param("custId") Integer custId);
+	Map<String, java.math.BigDecimal> queryShoppingCartStatistics(ShoppingCart shoppingCart);
 
 	/**
 	 * 更新商品数量 （product_count= product_count + #{productCount}）
@@ -42,4 +42,6 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 	int updateProductCount(ShoppingCart shoppingCart);
 
 	List<ShoppingCart> listDistinctCustIdAndSupplyId(ShoppingCart shoppingCart);
+
+	List<ShoppingCartListDto> listForFastOrder(ShoppingCart shoppingCart);
 }

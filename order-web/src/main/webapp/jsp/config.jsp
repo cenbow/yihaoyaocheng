@@ -24,5 +24,6 @@
     var domainPath = "<%=domainPath%>";
     var PAY_DOMAIN = "${PAY_DOMAIN}";
     var imgDomain = "${imgDomain}";
+    var mallDomain = "${mallDomain}"
 
 </script>

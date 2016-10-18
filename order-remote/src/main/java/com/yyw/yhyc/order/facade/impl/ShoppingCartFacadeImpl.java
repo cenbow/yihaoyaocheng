@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,7 +156,8 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		if(UtilHelper.isEmpty(custId)) return 0;
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
-
+		shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
+		logger.info("查询进货单商品数量,查询条件：shoppingCart=" + shoppingCart);
 		try {
 			return shoppingCartService.findByCount(shoppingCart);
 		}catch (Exception e){

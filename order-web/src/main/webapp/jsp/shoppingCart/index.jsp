@@ -93,12 +93,11 @@
                                         </li>
 
                                         <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
-                                            <c:if test="${!shoppingCartDto.existProductInventory}">
-                                                <span class="inside-icon">缺货</span>
-                                            </c:if>
-                                            <c:if test="${ shoppingCartDto.putawayStatus != 1}">
-                                                <span class="inside-icon">下架</span>
-                                            </c:if>
+                                            <c:choose>
+                                                <c:when test="${shoppingCartDto.productPrice <= 0}"><span class="inside-icon">失效</span></c:when>
+                                                <c:when test="${!shoppingCartDto.existProductInventory}"><span class="inside-icon">缺货</span></c:when>
+                                                <c:when test="${ shoppingCartDto.putawayStatus != 1}"><span class="inside-icon">下架</span></c:when>
+                                            </c:choose>
                                             <img  src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
@@ -109,7 +108,9 @@
                                             <p>${shoppingCartDto.manufactures}</p>
                                         </li>
                                         <li class="fl td-price">
-                                            ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></span>
+                                            <div style="${shoppingCartDto.productPrice > 0 ? "display: block" : "display: none"} ">
+                                                ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></span>
+                                            </div>
                                         </li>
                                         <li class="fl td-amount">
                                             <div class="it-sort-col5 clearfix pr" style="width: 120px;">
@@ -140,10 +141,10 @@
                                             </div>
                                         </li>
                                         <li class="fl td-sum">
-
-                                                <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1}">  value="${shoppingCartDto.productSettlementPrice}" </c:if>>
-
-                                            ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="2"/></span>
+                                                <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1}">  value="${shoppingCartDto.productSettlementPrice}" </c:if> >
+                                                <div style="${shoppingCartDto.productPrice > 0 ? "display: block" : "display: none"} ">
+                                                    ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="2"/></span>
+                                                </div>
                                         </li>
                                         <li class="fl td-op"><a href="javascript:deleteShoppingCart(${shoppingCartDto.shoppingCartId});" class="btn-delete">删除</a></li>
                                     </ul>

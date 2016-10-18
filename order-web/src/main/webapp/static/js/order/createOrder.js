@@ -84,6 +84,7 @@ function createOrder(){
     $("#createOrderForm").ajaxSubmit(function(_resultJsonObj) {
 
         var goToShoppingCartUrl = _resultJsonObj.goToShoppingCart == true ? "/shoppingCart/index" : "";
+        var goToFastOrderUrl = _resultJsonObj.goToFastOrder == true ? mallDomain + "/fastOrder/goList" : "";
 
         if(_resultJsonObj.message != null && _resultJsonObj.message != ""){
             console.info(_resultJsonObj.message );
@@ -94,6 +95,15 @@ function createOrder(){
                     ok:'返回进货单',
                     afterOk:function(){
                         window.location.href = ctx + goToShoppingCartUrl;
+                    }
+                });
+            }else if(goToFastOrderUrl != ""){
+                new Dialog({
+                    title:'提示',
+                    content:'<p class="mt60 f14">' + _resultJsonObj.message + '</p>',
+                    ok:'返回极速下单',
+                    afterOk:function(){
+                        window.location.href = goToFastOrderUrl;
                     }
                 });
             }else{

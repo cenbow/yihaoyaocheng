@@ -474,6 +474,7 @@ public class ProductInventoryService {
         }
         resultMap.put("isSuccessful", 1);
         resultMap.put("frontInventory", product.getFrontInventory());
+        resultMap.put("currentInventory", product.getCurrentInventory());
         resultMap.put("message", "库存正常");
         return resultMap;
     }
@@ -490,7 +491,7 @@ public class ProductInventoryService {
             String now = systemDateMapper.getSystemDate();
             for (ProductInventory productInventory : productInventoryList) {
                 if (!UtilHelper.isEmpty(productInventory.getSpuCode()) && !UtilHelper.isEmpty(productInventory.getSupplyId()) && !UtilHelper.isEmpty(productInventory.getCurrentInventory()) && !UtilHelper.isEmpty(productInventory.getSupplyName())) {
-                    ProductAudit productAudit = productAuditMapper.getProductcodeCompany(productInventory.getSupplyId(), productInventory.getSpuCode());
+                	ProductAudit productAudit = productAuditMapper.getProductAudit(productInventory.getSupplyId(), productInventory.getSpuCode());
                     if (UtilHelper.isEmpty(productAudit)) {
                         productInventory.setRemark("该商品编码不存在或者商品没有审核通过");
                         list.add(productInventory);

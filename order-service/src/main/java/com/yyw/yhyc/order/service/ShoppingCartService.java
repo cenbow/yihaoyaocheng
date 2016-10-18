@@ -25,6 +25,7 @@ import com.yyw.yhyc.order.appdto.CartProductBean;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
@@ -231,13 +232,14 @@ public class ShoppingCartService {
 		String code = map.get("code").toString();
 		if("0".equals(code) || "1".equals(code)){
 			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
-			throw  new Exception(map.get("msg").toString());
+			throw  new Exception("修改商品数量失败!");
 		}
 		ShoppingCart newShoppingCart = new ShoppingCart();
 		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
 		newShoppingCart.setProductCount(shoppingCart.getProductCount());
 		newShoppingCart.setProductSettlementPrice( oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 		newShoppingCart.setUpdateUser(userDto.getUserName());
+		newShoppingCart.setFromWhere(shoppingCart.getFromWhere());
 		return shoppingCartMapper.update(newShoppingCart);
 	}
 
@@ -248,18 +250,23 @@ public class ShoppingCartService {
 	 * @throws Exception
 	 */
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws Exception{
+		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
+			shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
+		}
 		//加入进货单信息
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		condition.setSpuCode(shoppingCart.getSpuCode());
 		condition.setSupplyId(shoppingCart.getSupplyId());
+		condition.setFromWhere(shoppingCart.getFromWhere());
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
 
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
+		condition.setFromWhere(shoppingCart.getFromWhere());
 		int count = shoppingCartMapper.findByCount(condition);
 		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
-			throw new Exception("进货单最多只能添加100个品种，请先下单。");
+			throw new Exception("最多只能添加100个品种，请先下单。");
 
 		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
 			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
@@ -294,7 +301,10 @@ public class ShoppingCartService {
 
 
 		//查询商品数量和进化单金额
-		Map<String, java.math.BigDecimal>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(shoppingCart.getCustId());
+		ShoppingCart query = new ShoppingCart();
+		query.setCustId(shoppingCart.getCustId());
+		query.setFromWhere(shoppingCart.getFromWhere());
+		Map<String, java.math.BigDecimal>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(query);
 
 		//封装返回信息
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -305,8 +315,37 @@ public class ShoppingCartService {
 		return map;
 	}
 
+
 	/**
-	 * 购物车首页数据获取
+	 * 极速下单 获取商品列表
+	 * @param userDto
+	 * @param iProductDubboManageService
+	 * @param fromWhere
+     * @return
+     */
+	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, IProductDubboManageService iProductDubboManageService, int fromWhere) {
+		if(UtilHelper.isEmpty(userDto)){
+			logger.info("当前登陆人的信息,userDto=" + userDto);
+			return null;
+		}
+
+		/* 获取极速下单中的商品信息 */
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+		shoppingCart.setFromWhere(fromWhere);
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
+		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
+
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return allShoppingCart;
+		}
+
+		/* 处理商品信息： */
+		return handleProductInfo(allShoppingCart,iProductDubboManageService);
+	}
+
+	/**
+	 * 购物车首页数据获取(PC端、App端通用逻辑)
 	 * @param userDto
 	 * @param iProductDubboManageService
      * @return
@@ -326,6 +365,19 @@ public class ShoppingCartService {
 		}
 
 		/* 处理商品信息： */
+		return handleProductInfo(allShoppingCart,iProductDubboManageService);
+	}
+
+	/**
+	 * 处理商品信息
+	 * @param allShoppingCart
+	 * @param iProductDubboManageService
+     * @return
+     */
+	private List<ShoppingCartListDto> handleProductInfo(List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService iProductDubboManageService) {
+		if(UtilHelper.isEmpty(allShoppingCart)){
+			return allShoppingCart;
+		}
 		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
 			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) ||
 					UtilHelper.isEmpty(shoppingCartListDto.getSeller())){
@@ -602,6 +654,7 @@ public class ShoppingCartService {
 		}
 		return addressBeanList;
 	}
+
 
 
 }

@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/order/orderDeliveryDetail")
+@RequestMapping(value = "/api/order/orderDeliveryDetail")
 public class OrderDeliveryDetailController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryDetailController.class);
 
