@@ -259,7 +259,9 @@ public class ShoppingCartService {
 		condition.setSpuCode(shoppingCart.getSpuCode());
 		condition.setSupplyId(shoppingCart.getSupplyId());
 		condition.setFromWhere(shoppingCart.getFromWhere());
+		logger.info("加入进货单：查询商品是否存在，查询条件condition=" + condition);
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
+		logger.info("加入进货单：查询商品是否存在，查询结果shoppingCarts=" + shoppingCarts);
 
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
