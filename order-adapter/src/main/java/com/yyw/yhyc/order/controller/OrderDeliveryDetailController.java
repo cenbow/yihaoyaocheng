@@ -45,6 +45,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -165,10 +167,19 @@ public class OrderDeliveryDetailController extends BaseController {
 				if(!UtilHelper.isEmpty(picUrlList)) {
 					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
 					productPicUrl = (String) productJson.get("file_path");
-					if (UtilHelper.isEmpty(productPicUrl))
+					if (UtilHelper.isEmpty(productPicUrl)) {
 						productPicUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
-					else
-						productPicUrl = MyConfigUtil.IMG_DOMAIN + productPicUrl;
+					}else{
+						/* 图片中文处理，只针对特定部位URL编码 */
+						String head =  productPicUrl.substring(0,productPicUrl.lastIndexOf("/")+1);
+						String body =  productPicUrl.substring(productPicUrl.lastIndexOf("/")+1,productPicUrl.lastIndexOf("."));
+						String foot =  productPicUrl.substring(productPicUrl.lastIndexOf("."),productPicUrl.length());
+						try {
+							productPicUrl =  MyConfigUtil.IMG_DOMAIN + head + URLEncoder.encode(body,"UTF-8") + foot;
+						} catch (UnsupportedEncodingException e) {
+							logger.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+						}
+					}
 				}
 			}catch (Exception e){
 				logger.error("查询图片接口:调用异常," + e.getMessage(),e);

@@ -10,6 +10,8 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.math.BigDecimal;
@@ -259,7 +261,9 @@ public class ShoppingCartService {
 		condition.setSpuCode(shoppingCart.getSpuCode());
 		condition.setSupplyId(shoppingCart.getSupplyId());
 		condition.setFromWhere(shoppingCart.getFromWhere());
+		logger.info("加入进货单：查询商品是否存在，查询条件condition=" + condition);
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
+		logger.info("加入进货单：查询商品是否存在，查询结果shoppingCarts=" + shoppingCarts);
 
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
@@ -491,9 +495,21 @@ public class ShoppingCartService {
 		String file_path = (String)productJson.get("file_path");
 		if (UtilHelper.isEmpty(file_path)){
 			return filePath;
-		}else{
-			return MyConfigUtil.IMG_DOMAIN + file_path;
 		}
+
+		/* 图片中文处理，只针对特定部位URL编码 */
+		String head =  file_path.substring(0,file_path.lastIndexOf("/")+1);
+		String body =  file_path.substring(file_path.lastIndexOf("/")+1,file_path.lastIndexOf("."));
+		String foot =  file_path.substring(file_path.lastIndexOf("."),file_path.length());
+		try {
+			file_path =  head + URLEncoder.encode(body,"UTF-8") + foot;
+		} catch (UnsupportedEncodingException e) {
+			logger.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+			return filePath;
+		}
+		return  MyConfigUtil.IMG_DOMAIN + file_path;
+
+
 	}
 
 	/**
