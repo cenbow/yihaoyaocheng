@@ -130,4 +130,15 @@
     <session-config>
         <session-timeout>1800</session-timeout>
     </session-config>
+
+    <!-- 极速下单业务(前后端分离)需要允许跨域请求 -->
+    <filter>
+        <filter-name>cors</filter-name>
+        <filter-class>com.yyw.yhyc.order.filter.CORSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>cors</filter-name>
+        <url-pattern>/fastOrder/*</url-pattern>
+    </filter-mapping>
+    <!-- 极速下单业务(前后端分离)需要允许跨域请求 -->
 </web-app>

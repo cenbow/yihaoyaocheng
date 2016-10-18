@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping(value = "/order/accountPayInfo")
+@RequestMapping(value = "/api/order/accountPayInfo")
 public class AccountPayInfoController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(AccountPayInfoController.class);
 

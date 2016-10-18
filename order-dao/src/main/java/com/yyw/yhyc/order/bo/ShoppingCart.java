@@ -110,8 +110,8 @@ public class ShoppingCart extends Model{
 	  */
 	private java.lang.String updateTime;
 
-	/* 来源表示字段（空值[默认是空值]：来自进货单，1：来自极速下单) */
-	private int fromWhere;
+	/* 来源表示字段（0：来自进货单，1：来自极速下单) */
+	private Integer fromWhere;
 
 	/**
 	  *	
@@ -386,11 +386,11 @@ public class ShoppingCart extends Model{
 		this.updateTime = updateTime;
 	}
 
-	public int getFromWhere() {
+	public Integer getFromWhere() {
 		return fromWhere;
 	}
 
-	public void setFromWhere(int fromWhere) {
+	public void setFromWhere(Integer fromWhere) {
 		this.fromWhere = fromWhere;
 	}
 

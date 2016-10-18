@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/version", headers = "Accept=application/json;")
+@RequestMapping(value = "/api/version", headers = "Accept=application/json;")
 public class AppVersionController extends BaseController {
   
 	@Autowired
@@ -45,7 +45,7 @@ public class AppVersionController extends BaseController {
 			condition.setVersionType(versionType);
 			List<AppVersion> list = appVersionService.listByProperty(condition);
 			if(!UtilHelper.isEmpty(list)){
-				AppVersion appVersion = list.get(list.size()-1);
+				AppVersion appVersion = list.get(0);
 				String code = appVersion.getVersionCode();
 				String updateFag = appVersion.getUpdateFag();
 				String remark   = appVersion.getRemark();

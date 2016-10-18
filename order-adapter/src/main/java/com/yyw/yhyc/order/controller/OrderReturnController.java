@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping(value = "/order/orderReturn")
+@RequestMapping(value = "/api/order/orderReturn")
 public class OrderReturnController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderReturnController.class);
 

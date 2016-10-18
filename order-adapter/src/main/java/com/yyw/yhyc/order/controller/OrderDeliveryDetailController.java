@@ -36,6 +36,7 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -44,13 +45,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/order/orderDeliveryDetail")
+@RequestMapping(value = "/api/order/orderDeliveryDetail")
 public class OrderDeliveryDetailController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryDetailController.class);
 
@@ -165,7 +168,13 @@ public class OrderDeliveryDetailController extends BaseController {
 					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
 					productPicUrl = (String) productJson.get("file_path");
 					if (UtilHelper.isEmpty(productPicUrl))
-						productPicUrl = "";
+						productPicUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+					else
+						try {
+							productPicUrl =  URLEncoder.encode(MyConfigUtil.IMG_DOMAIN + productPicUrl, "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							logger.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+						}
 				}
 			}catch (Exception e){
 				logger.error("查询图片接口:调用异常," + e.getMessage(),e);

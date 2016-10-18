@@ -43,7 +43,7 @@ import java.util.Map;
 
 
 @Controller
-@RequestMapping(value = "/order")
+@RequestMapping(value = "/api/order")
 public class OrderController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
