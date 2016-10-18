@@ -9,7 +9,9 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
@@ -2214,7 +2216,12 @@ public class OrderExceptionService {
         if (UtilHelper.isEmpty(file_path)){
             return filePath;
         }else{
-            return MyConfigUtil.IMG_DOMAIN + file_path;
+            try {
+                return  URLEncoder.encode(MyConfigUtil.IMG_DOMAIN + file_path, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                log.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+                return filePath;
+            }
         }
     }
 
