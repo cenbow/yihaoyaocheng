@@ -129,7 +129,7 @@ public class ChinaPayServiceImpl implements PayService {
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
             return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else if( 3 == type){
-            paramMap.put(RETURN_RESPONSE_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayAppSubmitSuccess");
+            paramMap.put(RETURN_RESPONSE_URL,"http://tpay.yaoex.com/orderPay/chinaPayAppSubmitSuccess");
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
             return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else{

@@ -45,6 +45,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,7 +170,11 @@ public class OrderDeliveryDetailController extends BaseController {
 					if (UtilHelper.isEmpty(productPicUrl))
 						productPicUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
 					else
-						productPicUrl = MyConfigUtil.IMG_DOMAIN + productPicUrl;
+						try {
+							productPicUrl =  URLEncoder.encode(MyConfigUtil.IMG_DOMAIN + productPicUrl, "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							logger.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+						}
 				}
 			}catch (Exception e){
 				logger.error("查询图片接口:调用异常," + e.getMessage(),e);
