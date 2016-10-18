@@ -342,7 +342,7 @@
 		FROM t_shopping_cart WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="findByCount" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="int">
+	<select id="findByCount" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="int" useCache="false">
 		SELECT count(1) AS totalcount FROM t_shopping_cart WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>

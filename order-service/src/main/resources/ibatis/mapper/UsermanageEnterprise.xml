@@ -342,7 +342,7 @@
 		<include refid="commonCondition"/>
 	</select>
 
-	<select id="getByEnterpriseId" parameterType="java.lang.String" resultMap="UsermanageEnterpriseResultMapper">
+	<select id="getByEnterpriseId" parameterType="java.lang.String" resultMap="UsermanageEnterpriseResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_usermanage_enterprise WHERE enterprise_id=#{enterpriseId}
