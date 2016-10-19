@@ -1787,4 +1787,60 @@
 	<select id="findExceptionCountApp" parameterType="java.lang.Integer" resultType="java.lang.Integer">
 		select count(1) from t_order_exception oe where oe.return_type in (3,4) and oe.cust_id =  #{custId}
 	</select>
+
+	<resultMap id="listPaginationOrderExceptionResultMapper" type="OrderExceptionDto" extends="OrderExceptionResultMapper">
+
+	</resultMap>
+
+	<!-- 后台异常订单列表-->
+	<select id="listPaginationOrderException" parameterType="OrderExceptionDto"  resultMap="listPaginationOrderExceptionResultMapper">
+		SELECT e.exception_id
+		,  e.return_type
+		,  e.exception_order_id
+		,  e.order_id
+		,  e.flow_id
+		,  e.order_status
+		,  e.cust_name
+		, e.cust_id
+		, e.supply_name
+		, e.supply_id
+		, e.remark
+		, e.order_money_total
+		, e.order_money
+		, e.create_user
+		, DATE_FORMAT(e.create_time, '%Y-%m-%d %H:%i:%s') AS create_time
+		, e.update_user
+		, e.update_time
+		, DATE_FORMAT(e.order_create_time, '%Y-%m-%d %H:%i:%s') AS  order_create_time
+		, e.return_desc
+		, e.deliver_time
+		, e.receive_time
+		, e.buyer_deliver_time
+		, e.seller_receive_time
+		, e.review_time FROM t_order_exception  e
+		WHERE e.return_type =#{returnType}
+		<if test="flowId !=null and flowId !=''">
+			AND e.flow_id = #{flowId}
+		</if>
+		<if test="exceptionOrderId !=null and exceptionOrderId !=''">
+			AND e.exception_order_id = #{exceptionOrderId}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			AND e.order_status = #{orderStatus}
+		</if>
+		<if test="custName !=null and custName !=''">
+			AND e.cust_name LIKE CONCAT('%',#{custName},'%')
+		</if>
+		<if test="supplyName !=null and supplyName !=''">
+			AND e.supply_name LIKE CONCAT('%',#{supplyName},'%')
+		</if>
+		<if test="startTime !=null and startTime!=''">
+			AND e.order_create_time > #{startTime}
+		</if>
+		<if test="endTime !=null and endTime!=''">
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > e.order_create_time
+		</if>
+
+		ORDER  BY  e.exception_id DESC
+	</select>
 </mapper>

@@ -143,7 +143,7 @@ public class OrderExceptionFacadeImpl implements OrderExceptionFacade {
 
 	public Map<String,Object> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception{
 
-		return orderExceptionService.listPaginationSellerByProperty(pagination,orderExceptionDto);
+		return orderExceptionService.listPaginationSellerByProperty(pagination, orderExceptionDto);
 	}
 
 	/**
@@ -154,4 +154,57 @@ public class OrderExceptionFacadeImpl implements OrderExceptionFacade {
 		return orderExceptionService.getOrderExceptionDetails(orderExceptionDto);
 	}
 
+	/**
+	 * 后台异常订单列表
+	 * @param pagination
+	 * @param OrderExceptionDto
+	 * @return
+	 */
+	public Pagination<OrderExceptionDto> listPaginationOrderException(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto) throws Exception{
+		return orderExceptionService.listPaginationOrderException(pagination, OrderExceptionDto);
+	}
+
+	/**
+	 * 后台拒收订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getRejectionOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+		return orderExceptionService.getRejectionOrderDetails(orderExceptionDto);
+	}
+
+	/**
+	 * 后台补货订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getReplenishmentOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+		return orderExceptionService.getReplenishmentOrderDetails(orderExceptionDto);
+	}
+
+	/**
+	 * 后台退货订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getRefundOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		return orderExceptionService.getRefundOrderDetails(orderExceptionDto);
+	}
+
+	/**
+	 * 后台换货订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getExchangeOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception{
+		return  orderExceptionService.getExchangeOrderDetails(orderExceptionDto);
+	}
 }

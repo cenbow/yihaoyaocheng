@@ -1887,7 +1887,7 @@ public class OrderExceptionService {
             String now = systemDateMapper.getSystemDate();
             orderException.setUpdateUser(userDto.getUserName());
             orderException.setUpdateTime(now);
-            orderException.setReceiveTime(now);
+            orderException.setSellerReceiveTime(now);
             int count = orderExceptionMapper.update(orderException);
             if (count == 0) {
                 log.info("orderException info :" + orderException);
@@ -2310,6 +2310,145 @@ public class OrderExceptionService {
             orderBean.setProductNumber(productNumber);
         }
         return orderBean;
+    }
+
+    /**
+     * 后台异常订单列表
+     * @param pagination
+     * @param orderExceptionDto
+     * @return
+     * @throws Exception
+     */
+    public Pagination<OrderExceptionDto> listPaginationOrderException(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception {
+        List<OrderExceptionDto> list = orderExceptionMapper.listPaginationOrderException(pagination, orderExceptionDto);
+        if (!UtilHelper.isEmpty(list)) {
+            if (OrderExceptionTypeEnum.RETURN.getType().equals(orderExceptionDto.getReturnType())) {  //退货
+                for (OrderExceptionDto order : list) {
+                    order.setOrderStatusName(SystemRefundOrderStatusEnum.getName(order.getOrderStatus()));
+                }
+            } else if (OrderExceptionTypeEnum.CHANGE.getType().equals(orderExceptionDto.getReturnType())) {  //换货
+                for (OrderExceptionDto order : list) {
+                    order.setOrderStatusName(SystemChangeGoodsOrderStatusEnum.getName(order.getOrderStatus()));
+                }
+            } else if (OrderExceptionTypeEnum.REPLENISHMENT.getType().equals(orderExceptionDto.getReturnType())) {  //补货
+                for (OrderExceptionDto order : list) {
+                    order.setOrderStatusName(SystemReplenishmentOrderStatusEnum.getName(order.getOrderStatus()));
+                }
+            } else if (OrderExceptionTypeEnum.REJECT.getType().equals(orderExceptionDto.getReturnType())) {  //拒收
+                for (OrderExceptionDto order : list) {
+                    order.setOrderStatusName(SystemOrderExceptionStatusEnum.getName(order.getOrderStatus()));
+                }
+            }
+        }
+        pagination.setResultList(list);
+        return pagination;
+    }
+
+    /**
+     * 后台拒收订单详情
+     *
+     * @param orderExceptionDto
+     * @return
+     * @throws Exception
+     */
+    public OrderExceptionDto getRejectionOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+        orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
+        if (UtilHelper.isEmpty(orderExceptionDto)) {
+            return orderExceptionDto;
+        }
+        /* 计算商品总额 */
+        if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
+            BigDecimal productPriceCount = new BigDecimal(0);
+            for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
+                if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
+                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+            }
+            orderExceptionDto.setProductPriceCount(productPriceCount);
+        }
+        orderExceptionDto.setOrderStatusName(SystemOrderExceptionStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+        return orderExceptionDto;
+    }
+
+    /**
+     * 后台补货订单详情
+     *
+     * @param orderExceptionDto
+     * @return
+     * @throws Exception
+     */
+    public OrderExceptionDto getReplenishmentOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+        orderExceptionDto = orderExceptionMapper.getReplenishmentDetails(orderExceptionDto);
+        if (UtilHelper.isEmpty(orderExceptionDto)) {
+            return orderExceptionDto;
+        }
+        orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+		/* 计算商品总额 */
+        if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
+            BigDecimal productPriceCount = new BigDecimal(0);
+            for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
+                if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+                    continue;
+                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+            }
+            orderExceptionDto.setProductPriceCount(productPriceCount);
+        }
+        orderExceptionDto.setOrderStatusName(SystemReplenishmentOrderStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+        return orderExceptionDto;
+    }
+
+    /**
+     * 后台退货订单详情
+     *
+     * @param orderExceptionDto
+     * @return
+     * @throws Exception
+     */
+    public OrderExceptionDto getRefundOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+        orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReturn(orderExceptionDto);
+        if (UtilHelper.isEmpty(orderExceptionDto)) {
+            return orderExceptionDto;
+        }
+        orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getOrder().getBillType()));
+		/* 计算商品总额 */
+        if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
+            BigDecimal productPriceCount = new BigDecimal(0);
+            for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
+                if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+                    continue;
+                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+            }
+            orderExceptionDto.setProductPriceCount(productPriceCount);
+        }
+        orderExceptionDto.setOrderStatusName(SystemRefundOrderStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+        return orderExceptionDto;
+    }
+
+    /**
+     * 后台换货订单详情
+     *
+     * @param orderExceptionDto
+     * @return
+     * @throws Exception
+     */
+    public OrderExceptionDto getExchangeOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+        orderExceptionDto = orderExceptionMapper.getChangeGoodsOrderDetails(orderExceptionDto);
+        if (UtilHelper.isEmpty(orderExceptionDto)) {
+            return orderExceptionDto;
+        }
+        orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
+
+		/* 计算商品总额 */
+        if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
+            BigDecimal productPriceCount = new BigDecimal(0);
+            for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
+                if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
+                    continue;
+                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+            }
+            orderExceptionDto.setProductPriceCount(productPriceCount);
+        }
+        orderExceptionDto.setOrderStatusName(SystemChangeGoodsOrderStatusEnum.getName(orderExceptionDto.getOrderStatus()));
+        return orderExceptionDto;
     }
 
 }
