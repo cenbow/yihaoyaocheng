@@ -35,7 +35,7 @@
                         <label class="col-xs-2 control-label">订单状态</label>
                         <div class="col-xs-2 control-label text-left"><span class="red margin-r-10">${orderExceptionDto.orderStatusName}</span> </div>
                         <label class="col-xs-2 control-label">原订单号</label>
-                        <div class="col-xs-2 control-label text-left"><a href="#">${orderExceptionDto.flowId}</a></div>
+                        <div class="col-xs-2 control-label text-left"><a class="undeline" target="_blank" href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a></div>
                     </div>
                 </div>
             </div>
