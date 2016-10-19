@@ -163,7 +163,11 @@ public class OrderDeliveryDetailController extends BaseController {
 		for(OrderDeliveryDetailDto dto : paginationList.getResultList()){
 			String productPicUrl="";
 			try{
-				List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
+
+				Map<String,Object> imgMap=new HashMap<String,Object>();
+				imgMap.put("spu_code", dto.getSpuCode());
+				imgMap.put("type_id", "1");
+				List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(imgMap);
 				if(!UtilHelper.isEmpty(picUrlList)) {
 					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
 					productPicUrl = (String) productJson.get("file_path");
