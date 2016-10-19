@@ -2136,8 +2136,8 @@ public class OrderExceptionService {
                 temp.put("orderStatusName", od.getOrderStatusName());
                 temp.put("createTime", od.getCreateTime());
                 temp.put("supplyName", od.getSupplyName());
-                temp.put("orderTotal", od.getOrderMoneyTotal());
-                temp.put("finalPay", od.getOrderMoneyTotal());
+                temp.put("orderTotal", od.getOrderMoney());
+                temp.put("finalPay", od.getOrderMoney());
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
                 temp.put("qq", "");
