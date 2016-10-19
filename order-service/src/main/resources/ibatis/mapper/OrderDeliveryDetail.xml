@@ -272,7 +272,7 @@
 	</select>
 
 	<select id="listPaginationReplenishment" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name,OD.spu_code from t_order_delivery_detail ODD
 		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
 		LEFT JOIN t_order_exception O ON O.exception_order_id=ODD.flow_id
 		WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
