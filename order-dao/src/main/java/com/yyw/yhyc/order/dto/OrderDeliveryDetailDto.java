@@ -20,7 +20,15 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private String returnDesc;   //退换货说明
     private String userType;     //1、采购商2、供应商
     private String shortName;   //通用名
+    private String spuCode; //spuCode
 
+    public String getSpuCode() {
+        return spuCode;
+    }
+
+    public void setSpuCode(String spuCode) {
+        this.spuCode = spuCode;
+    }
     public String getReturnType() {
         return returnType;
     }
