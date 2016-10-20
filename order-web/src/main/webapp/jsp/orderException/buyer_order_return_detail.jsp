@@ -104,7 +104,7 @@
 
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">卖家确认/关闭时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.updateTime}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.reviewTime}</div>
                             <label for="scope" class="col-xs-2 control-label">确认/关闭说明：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
                         </div>
