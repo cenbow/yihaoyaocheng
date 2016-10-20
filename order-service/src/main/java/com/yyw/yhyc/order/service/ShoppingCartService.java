@@ -363,6 +363,7 @@ public class ShoppingCartService {
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
+		logger.info("购物车页面-从数据库中取的数据，allShoppingCart=" + allShoppingCart);
 
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
