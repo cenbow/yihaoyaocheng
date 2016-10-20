@@ -10,7 +10,9 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
@@ -818,29 +820,42 @@ public class OrderService {
      */
 	public Map<String,Object> validateProducts(UserDto userDto, OrderDto orderDto,
 											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService, ProductSearchInterface productSearchInterface){
+
+		/* 区分是来自进货单的商品还是极速下单的商品 */
+		int productFromFastOrderCount = 0;
+		if( ! UtilHelper.isEmpty(orderDto) &&  !UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+			for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()) {
+				if (UtilHelper.isEmpty(productInfoDto)) continue;
+				if (productInfoDto.getFromWhere() != null && ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere() == productInfoDto.getFromWhere()) {
+					productFromFastOrderCount ++;
+				}
+			}
+		}
+		log.info("统一校验订单商品接口：区分是来自进货单的商品还是极速下单的商品，productFromFastOrderCount=" + productFromFastOrderCount );
+
 		Map<String,Object> map = new HashMap<String, Object>();
 
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList()) ){
 			log.info("统一校验订单商品接口-currentLoginCustId：" + userDto +",orderDto=" + orderDto);
-			return returnFalse("非法参数");
+			return returnFalse("非法参数",productFromFastOrderCount);
 		}
 
 		UsermanageEnterprise buyer = enterpriseMapper.getByEnterpriseId(orderDto.getCustId() + "");
 		UsermanageEnterprise seller = enterpriseMapper.getByEnterpriseId(orderDto.getSupplyId() + "");
 		if(UtilHelper.isEmpty(buyer) || UtilHelper.isEmpty(seller)){
-			return returnFalse("非法参数");
+			return returnFalse("非法参数",productFromFastOrderCount);
 		}
 
 		/* 校验要采购商与供应商是否相同 */
 		if (orderDto.getSupplyId().equals(userDto.getCustId()) ){
 			log.info("统一校验订单商品接口 ：不能购买自己的商品" );
-			return returnFalse("不能购买自己的商品");
+			return returnFalse("不能购买自己的商品",productFromFastOrderCount);
 		}
 
 
 		if(UtilHelper.isEmpty(productDubboManageService)){
 			log.error("统一校验订单商品接口,查询商品价格，productDubboManageService = " + productDubboManageService);
-			return returnFalse("请稍后再试");
+			return returnFalse("请稍后再试",productFromFastOrderCount);
 		}
 
 
@@ -864,7 +879,7 @@ public class OrderService {
 			productInfo =  productInfoMapper.getByPK(productInfoDto.getId());
 			if(UtilHelper.isEmpty(productInfo )){
 				log.info("统一校验订单商品接口 ：商品(productId=" + productInfoDto.getId() + ")不存在!" );
-				return returnFalse("商品不存在");
+				return returnFalse("商品不存在",productFromFastOrderCount);
 			}
 			productInventory.setSpuCode(productInfo.getSpuCode());
 			productInventory.setFrontInventory(productInfoDto.getProductCount());
@@ -872,7 +887,7 @@ public class OrderService {
 			String code = m.get("code").toString();
 			if("0".equals(code) || "1".equals(code)){
 				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败!resultMap=" + m );
-				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看");
+				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 
 			/* 查询商品上下架状态 */
@@ -893,12 +908,12 @@ public class OrderService {
 				isChannel = UtilHelper.isEmpty(productJson.get("is_channel")+"") ? 0 : Integer.valueOf(productJson.get("is_channel")+"");
 			}catch (Exception e){
 				log.error("统一校验订单商品接口-查询商品上下架状态信息失败:" + e.getMessage(),e);
-				return returnFalse("查询商品状态失败");
+				return returnFalse("查询商品状态失败",productFromFastOrderCount);
 			}
 
 			if(UtilHelper.isEmpty(putawayStatus) || putawayStatus != 1){
 				log.info("统一校验订单商品接口-查询商品上下架状态,putawayStatus:" + putawayStatus + ",// 0未上架  1上架  2本次下架  3非本次下架");
-				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看");
+				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			productInfoDto.setIsChannel(isChannel);
 
@@ -908,31 +923,33 @@ public class OrderService {
 				productPrice = getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface) ;
 			}catch (Exception e){
 				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage(),e);
-				return returnFalse("查询商品价格失败");
+				return returnFalse("查询商品价格失败",productFromFastOrderCount);
 			}
 			log.info("统一校验订单商品接口,查询商品价格:productPrice=" + productPrice);
 			if(UtilHelper.isEmpty(productPrice)){
-				return returnFalse("查询商品价格失败");
+				return returnFalse("查询商品价格失败",productFromFastOrderCount);
 			}
 
 			/* 若商品的最新价格 小于等于0，则提示该商品无法够买 */
 			if(productPrice.compareTo(new BigDecimal(0)) <= 0){
-				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看");
+				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
 			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
 				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算");
+				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
 			}
 
-			/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
-			if( "2".equals(code) && 1 == putawayStatus ){
+			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 		}
+		log.info("统一校验订单商品接口:供应商[" + seller.getEnterpriseName() + "]("+seller.getEnterpriseId()+")的订单起售金额=" + seller.getOrderSamount() + ",在该供应商下购买的商品总额=" + productPriceCount);
 
 		if(!UtilHelper.isEmpty(seller.getOrderSamount()) && productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
-			return returnFalse("你有部分商品金额低于供货商的发货标准，此商品无法结算");
+			return returnFalse("你有部分商品金额低于供货商的发货标准，此商品无法结算",productFromFastOrderCount);
 		}
 
 		log.info("统一校验订单商品接口 ：校验成功" );
@@ -940,11 +957,17 @@ public class OrderService {
 		return map;
 	}
 
-	private Map<String,Object> returnFalse(String message){
+	private Map<String,Object> returnFalse(String message,Integer productFromFastOrderCount){
 		Map<String,Object> map = new HashMap<String, Object>();
 		map.put("result", false);
 		map.put("message", message);
-		map.put("goToShoppingCart", true);
+		if(UtilHelper.isEmpty(productFromFastOrderCount) || productFromFastOrderCount <= 0){
+			/* 跳转到进货单 */
+			map.put("goToShoppingCart", true);
+		}else{
+			/* 跳转到极速下单 */
+			map.put("goToFastOrder", true);
+		}
 		return map;
 	}
 
@@ -1578,6 +1601,7 @@ public class OrderService {
 					shoppingCartDto.setProductPrice(temp.getProductPrice());
 					shoppingCartDto.setProductSettlementPrice(temp.getProductSettlementPrice());
 					shoppingCartDto.setProductCodeCompany(temp.getProductCodeCompany());
+					shoppingCartDto.setFromWhere(temp.getFromWhere());
 					shoppingCartDtoList.add(shoppingCartDto);
 
 					productPriceCount = productPriceCount.add(temp.getProductPrice().multiply(new BigDecimal(temp.getProductCount())));
@@ -2832,7 +2856,18 @@ public class OrderService {
 		if (UtilHelper.isEmpty(file_path)){
 			return filePath;
 		}else{
-			return MyConfigUtil.IMG_DOMAIN + file_path;
+
+			/* 图片中文处理，只针对特定部位URL编码 */
+			String head =  file_path.substring(0,file_path.lastIndexOf("/")+1);
+			String body =  file_path.substring(file_path.lastIndexOf("/")+1,file_path.lastIndexOf("."));
+			String foot =  file_path.substring(file_path.lastIndexOf("."),file_path.length());
+			try {
+				file_path =  head + URLEncoder.encode(body,"UTF-8") + foot;
+			} catch (UnsupportedEncodingException e) {
+				log.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+				return filePath;
+			}
+			return  MyConfigUtil.IMG_DOMAIN + file_path;
 		}
 	}
 

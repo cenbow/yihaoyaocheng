@@ -111,5 +111,49 @@ public interface OrderExceptionFacade {
 	 */
 	public Map<String,Object> listPaginationSellerByProperty(Pagination<OrderExceptionDto> pagination, OrderExceptionDto orderExceptionDto) throws Exception;
 
+	/**
+	 * 后台异常订单列表
+	 * @param pagination
+	 * @param OrderExceptionDto
+	 * @return
+	 */
+	public Pagination<OrderExceptionDto> listPaginationOrderException(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto) throws Exception;
+
+	/**
+	 * 后台拒收订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getRejectionOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception;
+
+	/**
+	 * 后台补货订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getReplenishmentOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception;
+
+	/**
+	 * 后台退货订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getRefundOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception;
+
+	/**
+	 * 后台换货订单详情
+	 *
+	 * @param orderExceptionDto
+	 * @return
+	 * @throws Exception
+	 */
+	public OrderExceptionDto getExchangeOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception;
+
 
 }

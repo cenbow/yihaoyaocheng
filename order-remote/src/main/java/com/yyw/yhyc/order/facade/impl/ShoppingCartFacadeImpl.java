@@ -157,7 +157,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
 		shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
-
+		logger.info("查询进货单商品数量,查询条件：shoppingCart=" + shoppingCart);
 		try {
 			return shoppingCartService.findByCount(shoppingCart);
 		}catch (Exception e){

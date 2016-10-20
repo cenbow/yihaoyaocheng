@@ -149,6 +149,17 @@ public class OrderDeliveryDetailFacadeImpl implements OrderDeliveryDetailFacade 
 	 */
 	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception
 	{
-		return orderDeliveryDetailService.updateConfirmReceipt(list,user);
+		return orderDeliveryDetailService.updateConfirmReceipt(list, user);
+	}
+
+	/**
+	 * 补货、换货订单发货、収货商品列表
+	 * @param pagination
+	 * @param orderDeliveryDetailDto
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderDeliveryDetailDto> listPaginationOrderDeliveryDetail(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception{
+	     return orderDeliveryDetailService.listPaginationReplenishment(pagination, orderDeliveryDetailDto);
 	}
 }
