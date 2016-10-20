@@ -13,9 +13,6 @@
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yyw.yhyc.product.mapper.ProductInfoMapper">
-    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
-           flushInterval="86400000" size="1024000">
-    </cache>
     <resultMap id="ProductInfoResultMapper" type="ProductInfo">
         <result column="id" property="id"/>
         <result column="spu_code" property="spuCode"/>
@@ -329,7 +326,7 @@
         DELETE FROM t_product_info WHERE 1 = 1
         <include refid="commonCondition"/>
     </delete>
-    <select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductInfoResultMapper">
+    <select id="getByPK" parameterType="java.lang.Integer" resultMap="ProductInfoResultMapper" useCache="false">
         <![CDATA[ SELECT ]]>
         <include refid="commonProcessDateColumns"/>
         FROM t_product_info WHERE id = #{id}
@@ -356,7 +353,7 @@
         <include refid="commonCondition"/>
     </select>
 
-    <select id="getFactory" parameterType="java.lang.Integer" resultMap="ProductInfoDtoResultMapper">
+    <select id="getFactory" parameterType="java.lang.Integer" resultMap="ProductInfoDtoResultMapper" useCache="false">
         select id as manufacture_id ,factory_name as manufactures from t_product_factory where id = #{manufacturesId}
     </select>
 </mapper>
