@@ -452,15 +452,17 @@ public class ShoppingCartService {
 				shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 				shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
 
-				/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
-				if( "2".equals(code) && 1 == putaway_status ){
+				/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
+				if( "2".equals(code) && 1 == putaway_status && shoppingCartDto.getProductPrice().compareTo(new BigDecimal(0)) > 0){
 					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 				}
 			}
 
 			/* 计算是否符合订单起售金额 */
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
-			if(productPriceCount.compareTo(shoppingCartListDto.getSeller().getOrderSamount()) > 0){
+			logger.info("购物车页面-计算是否符合订单起售金额:供应商[" + shoppingCartListDto.getSeller().getEnterpriseName() + "]("+shoppingCartListDto.getSeller().getEnterpriseId()+")的订单起售金额="
+					+ shoppingCartListDto.getSeller().getOrderSamount() + ",在该供应商下购买的商品总额=" + productPriceCount);
+			if(UtilHelper.isEmpty(shoppingCartListDto.getSeller().getOrderSamount()) || productPriceCount.compareTo(shoppingCartListDto.getSeller().getOrderSamount()) > 0){
 				shoppingCartListDto.setNeedPrice(new BigDecimal(0));
 			}else{
 				BigDecimal needPrice = shoppingCartListDto.getSeller().getOrderSamount().subtract(productPriceCount);
