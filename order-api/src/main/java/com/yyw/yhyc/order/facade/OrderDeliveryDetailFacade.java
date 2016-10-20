@@ -103,4 +103,14 @@ public interface OrderDeliveryDetailFacade {
 	 * @throws Exception
 	 */
 	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception;
+
+	/**
+	 * 补货、换货订单发货、収货商品列表
+	 * @param pagination
+	 * @param orderDeliveryDetailDto
+	 * @return
+	 * @throws Exception
+	 */
+	public Pagination<OrderDeliveryDetailDto> listPaginationOrderDeliveryDetail(Pagination<OrderDeliveryDetailDto> pagination, OrderDeliveryDetailDto orderDeliveryDetailDto) throws Exception;
+
 }

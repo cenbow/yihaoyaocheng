@@ -941,11 +941,12 @@ public class OrderService {
 				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
 			}
 
-			/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
-			if( "2".equals(code) && 1 == putawayStatus ){
+			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 		}
+		log.info("统一校验订单商品接口:供应商[" + seller.getEnterpriseName() + "]("+seller.getEnterpriseId()+")的订单起售金额=" + seller.getOrderSamount() + ",在该供应商下购买的商品总额=" + productPriceCount);
 
 		if(!UtilHelper.isEmpty(seller.getOrderSamount()) && productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
 			return returnFalse("你有部分商品金额低于供货商的发货标准，此商品无法结算",productFromFastOrderCount);

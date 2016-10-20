@@ -45,6 +45,7 @@
 		<result column="product_count" property="productCount"/>
 		<result column="short_name" property="shortName"/>
 		<result column="supply_id" property="supplyId"/>
+		<result column="spu_code" property="spuCode"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -228,7 +229,7 @@
 	</select>
 
 	<select id="listPaginationByProperty" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name,O.supply_id from t_order_delivery_detail ODD
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name,O.supply_id,OD.spu_code from t_order_delivery_detail ODD
         LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id AND ODD.order_id=OD.order_id
         LEFT JOIN t_order O ON O.flow_id=ODD.flow_id
         WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
@@ -271,10 +272,13 @@
 	</select>
 
 	<select id="listPaginationReplenishment" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
+		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name,OD.spu_code from t_order_delivery_detail ODD
 		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
 		LEFT JOIN t_order_exception O ON O.exception_order_id=ODD.flow_id
-		WHERE ODD.flow_id=#{flowId} AND O.cust_id=#{custId}  AND ODD.delivery_status=1
+		WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		<if test="custId!=null and custId!=''">
+			AND O.cust_id=#{custId}
+		</if>
 	</select>
 
 
