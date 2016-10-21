@@ -309,7 +309,7 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findBySupplyIdSpuCode" parameterType="java.util.HashMap" resultMap="ProductInventoryResultMapper">
+    <select id="findBySupplyIdSpuCode" parameterType="java.util.HashMap" resultMap="ProductInventoryResultMapper" useCache="false">
         <![CDATA[ SELECT ]]>
         <include refid="commonProcessDateColumns"/>
         FROM t_product_inventory WHERE supply_id=#{supplyId} AND spu_code=#{spuCode}
