@@ -189,7 +189,7 @@
 		<include refid="commonCondition"/>
 	</select>
 
-	<select id="getProductcodeCompany" parameterType="java.util.HashMap" resultMap="ProductAuditResultMapper">
+	<select id="getProductcodeCompany" parameterType="java.util.HashMap" resultMap="ProductAuditResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_product_audit WHERE  seller_code=#{sellerCode} and productcode_company=#{productcodeCompany} and audit_status='1'
