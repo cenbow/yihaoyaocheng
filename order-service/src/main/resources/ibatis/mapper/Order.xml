@@ -185,6 +185,7 @@
 				, delay_times
 				, pay_flag
 				, product_sort_count
+				, source
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -472,6 +473,7 @@
 				, #{delayTimes}
 				, #{payFlag}
 				, #{productSortCount}
+				, #{source}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">

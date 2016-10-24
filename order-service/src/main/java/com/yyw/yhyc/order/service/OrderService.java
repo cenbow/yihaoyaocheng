@@ -341,7 +341,10 @@ public class OrderService {
 					continue;
 				}
 			}
-
+            // pc 订单来源设置
+			if(orderDto.getSource()==0){
+				orderDto.setSource(orderCreateDto.getSource());
+			};
 			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 
@@ -734,7 +737,7 @@ public class OrderService {
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
 		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
-
+		order.setSource(orderDto.getSource());//订单来源
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
 		List<Order> orders = orderMapper.listByProperty(order);

@@ -192,7 +192,8 @@ public class OrderController extends BaseJsonController {
 				return map;
 			}
 		}
-
+		//订单来源 限用pc
+		orderCreateDto.setSource(1);
 		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
