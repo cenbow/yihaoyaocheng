@@ -1,4 +1,4 @@
-package com.alipay.config;
+package com.yyw.yhyc.pay.alipay.config;
 
 /* *
  *类名：AlipayConfig

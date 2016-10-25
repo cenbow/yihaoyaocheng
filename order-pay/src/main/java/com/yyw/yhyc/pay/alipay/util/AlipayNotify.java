@@ -1,13 +1,13 @@
 package com.yyw.yhyc.pay.alipay.util;
 
+import com.yyw.yhyc.pay.alipay.sign.RSA;
+import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
-
-import com.alipay.config.AlipayConfig;
-import com.alipay.sign.RSA;
 
 /* *
  *类名：AlipayNotify

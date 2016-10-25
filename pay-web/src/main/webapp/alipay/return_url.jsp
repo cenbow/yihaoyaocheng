@@ -18,8 +18,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.util.Map"%>
-<%@ page import="com.alipay.util.*"%>
-<%@ page import="com.alipay.config.*"%>
+<%@ page import="com.yyw.yhyc.pay.alipay.util.*"%>
+
 <html>
   <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -44,10 +44,12 @@
 	}
 	
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以下仅供参考)//
-	//商户订单号
+	//商户订单号
+
 	String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"),"UTF-8");
 
-	//支付宝交易号
+	//支付宝交易号
+
 	String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"),"UTF-8");
 
 	//交易状态

@@ -17,8 +17,7 @@
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*"%>
-<%@ page import="com.alipay.util.*"%>
-<%@ page import="com.alipay.config.*"%>
+<%@ page import="com.yyw.yhyc.pay.alipay.util.*"%>
 <%
 	//获取支付宝POST过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
