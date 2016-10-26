@@ -289,10 +289,17 @@ public class ShoppingCartController extends BaseController {
      */
 	@RequestMapping(value = "/submitShopCart", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean) throws Exception {
+	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean,@RequestHeader("os") String os) throws Exception {
 
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
+
+		//订单来源
+		if(UtilHelper.isEmpty(os)&&os.equals("os")){
+			orderCreateBean.setSource(3);
+		}else if(UtilHelper.isEmpty(os)&&os.equals("android")){
+			orderCreateBean.setSource(2);
+		}
 
 		/* 把APP端的数据格式，转成与PC通用的数据格式 */
 		OrderCreateDto orderCreateDto = convertDataForApp(userDto,orderCreateBean);
@@ -416,6 +423,7 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setPayTypeId(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()); //App端是用的银联无卡支付方式
 			orderDto.setLeaveMessage(orderBean.getLeaveMsg());
 			orderDto.setProductInfoDtoList(productInfoDtoList);
+			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
 			orderDtoList.add(orderDto);
 		}
 		orderCreateDto.setOrderDtoList(orderDtoList);

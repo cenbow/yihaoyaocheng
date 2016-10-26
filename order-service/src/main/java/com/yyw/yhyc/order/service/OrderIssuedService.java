@@ -17,6 +17,7 @@ import java.util.Map;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.OrderIssuedDto;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,5 +222,17 @@ public class OrderIssuedService {
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId){
 		log.info("供应商编码："+supplyId+"订单编码集合：" + orderIssuedMapper.getManufacturerOrder(supplyId));
 		return orderIssuedMapper.getManufacturerOrder(supplyId);
+	}
+	
+	/**
+	 * 
+	 * 查询没有对码的订单记录
+	 */
+	public List<Map<String,String>> findOrderIssuedNoRelationshipList(){
+		return orderIssuedMapper.findOrderIssuedNoRelationshipList();
+	}
+	//根据flowId给更新
+	public int updateBySelective(OrderIssued orderIssued) {
+		return orderIssuedMapper.updateBySelective(orderIssued);
 	}
 }

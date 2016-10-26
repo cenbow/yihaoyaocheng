@@ -29,6 +29,8 @@ public class OrderCreateDto implements Serializable {
     /* 当前登陆人的信息 */
     private UserDto userDto;
 
+    private int source;//订单来源
+
 
     public Integer getCustId() {
         return custId;
@@ -78,6 +80,15 @@ public class OrderCreateDto implements Serializable {
                 ", orderDtoList=" + orderDtoList +
                 ", billType=" + billType +
                 ", userDto=" + userDto +
+                ", source=" + source +
                 '}';
+    }
+
+    public int getSource() {
+        return source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
     }
 }

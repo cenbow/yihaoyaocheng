@@ -10,6 +10,8 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
+    //导出
+    bindExportBtn();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -25,7 +27,7 @@ function pasretFormData() {
 }
 //绑定搜索按钮事件
 function bindSearchBtn() {
-    $("form .btn-info").on("click", function () {
+    $("#search").on("click", function () {
         $("input[name='orderStatus']").val('');
         $($("#myTab").children()[0]).addClass('active');
         $($("#myTab").children()[0]).siblings().removeClass('active');
@@ -33,6 +35,15 @@ function bindSearchBtn() {
         pasretFormData();
         doRefreshData(params);
     })
+}
+//导出
+function bindExportBtn(){
+	$("#export").on("click", function () {
+		 pasretFormData();
+		 $("#exportForm").attr("action", ctx+"/order/exportBuyerOrder");
+		 $("#condition").val(JSON.stringify(params));
+		 $("#exportForm").submit();
+	});
 }
 
 /**
