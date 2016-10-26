@@ -31,60 +31,15 @@ public class OrderIssuedExceptionJobServiceImpl extends AbstractJob implements O
 
 	private static final Logger logger = LoggerFactory.getLogger(OrderIssuedExceptionJobServiceImpl.class);
 	@Autowired
-	private OrderIssuedService orderIssuedService;
-	@Autowired
-	private OrderService orderService;
-	@Autowired
-	private OrderDeliveryService orderDliveryService;
-	@Autowired
-	private SystemPayTypeService systemPayTypeService;
-	@Autowired
 	private OrderIssuedExceptionService orderIssuedExceptionService;
-	@Autowired
-	private SystemDateMapper systemDateMapper;
-	@Autowired
-	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
-		this.systemDateMapper = systemDateMapper;
-	}
+	
 	@Override
 	protected ExecResult doTask(JobExecContext jobExecContext) {
 		logger.info("*****************收集下发表中失败状态的记录插入到Exception表任务开始*****************");
 		 try {
 			 
-			 OrderIssued orderIssued = new OrderIssued();
-			 //orderIssued.setIssuedCount(3);
-			 orderIssued.setIssuedStatus("0");
-			 List<OrderIssued> listOrderIssued = orderIssuedService.listByProperty(orderIssued);
-			 for(OrderIssued one : listOrderIssued){
-				 OrderIssuedException orderIssuedException = new OrderIssuedException();
-				 Order order = orderService.getOrderbyFlowId(one.getFlowId());
-				 OrderDelivery orderDelivery = (OrderDelivery) orderDliveryService.getOrderDeliveryByFlowId(one.getFlowId());
-				 PropertyUtils.copyProperties(orderIssuedException, order);
-				 PropertyUtils.copyProperties(orderIssuedException, orderDelivery);
+			 orderIssuedExceptionService.exceptionJob();
 				 
-				 SystemPayType sysPayType = systemPayTypeService.getByPK(order.getPayTypeId());
-				 orderIssuedException.setOrderCreateTime(order.getCreateTime());
-				 orderIssuedException.setPayType(sysPayType.getPayType());
-				 orderIssuedException.setPayTypeName(sysPayType.getPayTypeName());
-				 
-				 orderIssuedException.setDealStatus(1);  //待处理
-				 if(orderIssued.getCusRelationship() == 1 && orderIssued.getIssuedCount() == 3)
-					 orderIssuedException.setExceptionType(3) ;//下发失败
-				 else if(orderIssued.getCusRelationship() == 1 && orderIssued.getIssuedCount() != 3)
-					 orderIssuedException.setExceptionType(2);//下发返回错误
-				 else if(orderIssued.getCusRelationship() == 0)
-					 orderIssuedException.setExceptionType(1);//无关联企业用户
-				 
-				 orderIssuedException.setOperator("system");
-				 orderIssuedException.setOperateTime(systemDateMapper.getSystemDate());
-				 try{
-					 orderIssuedExceptionService.save(orderIssuedException);
-				 }catch  (Exception ex){//这种情况很少，所以用这种方式，避免每次去做一次查询
-					 logger.error("插入失败，异常表有此flowId", ex);
-					 orderIssuedExceptionService.updateBySelective(orderIssuedException);
-				 }
-				 
-			 }
 			 return new ExecResult(0, "succeed!");
 	        }catch (Exception ex){
 	            logger.error(ex.getMessage(), ex);
