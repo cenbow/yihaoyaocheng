@@ -33,18 +33,8 @@ import com.yyw.yhyc.order.service.OrderIssuedService;
 public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacade {
 
 	 private static final Logger logger = LoggerFactory.getLogger(OrderIssuedExceptionFacadeImpl.class);
-
 	 
 	private OrderIssuedExceptionService orderIssuedExceptionService;
-	@Autowired
-	private OrderIssuedService orderIssuedService;
-	
-	private SystemDateMapper systemDateMapper;
-
-	@Autowired
-	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
-		this.systemDateMapper = systemDateMapper;
-	}
 	 
 	@Autowired
 	public void setOrderIssuedExceptionService(OrderIssuedExceptionService orderIssuedExceptionService)
@@ -163,73 +153,13 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 	@Override
 	public Map<String, String> orderIssued(String flowId,String operator) {
 		logger.info("****************调用订单下发接口*******************");
-		Map<String, String> result = new HashMap<String, String>(); 
-		result.put("statusCode", "1");
-		result.put("message", "更新成功");
-		
-		OrderIssued orderIssued = new OrderIssued();
-		orderIssued.setFlowId(flowId);
-		orderIssued.setIssuedCount(0);
-		orderIssued.setIsScan(0);//如果还是下发失败，会再次扫到异常表
-		orderIssued.setUpdateTime(systemDateMapper.getSystemDate());
-		try {
-			orderIssuedService.updateBySelective(orderIssued);
-		} catch (Exception e) {
-			logger.error("*********更新下发订单状态出错***********", e);
-			e.printStackTrace();
-			result.put("statusCode", "0");
-			result.put("message", "更新下发订单状态出错");
-		}
-		OrderIssuedException orderIssuedException = new OrderIssuedException();
-		orderIssuedException.setFlowId(flowId);
-		orderIssuedException.setDealStatus(2); 
-		orderIssuedException.setOperateTime(systemDateMapper.getSystemDate());
-		orderIssuedException.setOperator(operator);
-		try {
-			orderIssuedExceptionService.updateBySelective(orderIssuedException);
-		} catch (Exception e) {
-			logger.error("*********更改下发订单异常状态为已完成时出错***********", e);
-			e.printStackTrace();
-			result.put("statusCode", "0");
-			result.put("message", "更改下发订单异常状态为已完成时出错");
-		}
-		return result;
+		return orderIssuedExceptionService.orderIssued(flowId,operator);
 	}
 
 	@Override
 	public Map<String, String> orderMark(String flowId,String operator) {
 		logger.info("****************调用订单标记接口*******************");
-		Map<String, String> result = new HashMap<String, String>(); 
-		result.put("statusCode", "1");
-		result.put("message", "标记下发订单异常状态为已处理");
-		
-		OrderIssuedException orderIssuedException = new OrderIssuedException();
-		orderIssuedException.setFlowId(flowId);
-		orderIssuedException.setDealStatus(2);
-		orderIssuedException.setOperateTime(systemDateMapper.getSystemDate());
-		orderIssuedException.setOperator(operator);
-		try {
-			orderIssuedExceptionService.updateBySelective(orderIssuedException);
-		} catch (Exception e) {
-			logger.error("*********标记下发订单异常状态出错***********", e);
-			e.printStackTrace();
-			result.put("statusCode", "0");
-			result.put("message", "标记下发订单异常状态出错");
-		}
-		
-		OrderIssued orderIssued = new OrderIssued();
-		orderIssued.setFlowId(flowId);
-		orderIssued.setIssuedStatus("1");//标记为成功
-		orderIssued.setUpdateTime(systemDateMapper.getSystemDate());
-		try {
-			orderIssuedService.updateBySelective(orderIssued);
-		} catch (Exception e) {
-			logger.error("*********更新下发订单状态出错***********", e);
-			e.printStackTrace();
-			result.put("statusCode", "0");
-			result.put("message", "更新下发订单状态出错");
-		}
-		return result;
+		return orderIssuedExceptionService.orderMark(flowId,operator);
 	}
 
 	@Override
@@ -238,6 +168,5 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 			OrderIssuedExceptionDto orderIssuedExceptionDto) throws Exception {
 		logger.info("****************调用异常订单查询接口*******************");
 		return orderIssuedExceptionService.listPaginationByPropertyEx(pagination, orderIssuedExceptionDto);
-		  
 	}
 }
