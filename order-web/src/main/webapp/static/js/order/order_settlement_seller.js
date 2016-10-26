@@ -147,13 +147,17 @@ function fillTableJson(data) {
 			var orderSettlemnt = list[i];
 			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId,orderSettlemnt.payType);
 			var tr = "<tr>";
+			tr += "<td>" + orderSettlemnt.orgFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + typeToPayFlowId(orderSettlemnt.businessType,orderSettlemnt.payType,orderSettlemnt.payFlowId) + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.payName + "</td>";
 			tr += "<td>" + orderSettlemnt.custName + "</td>";
 			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
 			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
 			tr += "<td>" +typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
+			tr += "<td>" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.refunSettlementMoney) + "</td>";
 			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
@@ -176,8 +180,18 @@ function typeToOperate(businessType,confirm,settlementId,payType) {
 	}
 	return result;
 }
-
+function typeToPayFlowId(businessType,payType,payFlowId){
+	//只有 采购业务，且线上支付、账期支付，才有支付流水号。退货、拒收、取消订单业务都没有支付流水号
+	if( payFlowId!=null && businessType==1 && (payType==1||payType==2) ){
+		return payFlowId;
+	}else{
+		return "";
+	}
+}
 function typeToshowMoney(businessType,money) {
+	if(money==null){
+		return "";
+	}
 	if(businessType==2||businessType==3||businessType==4){
 		return "-"+money;
 	}
