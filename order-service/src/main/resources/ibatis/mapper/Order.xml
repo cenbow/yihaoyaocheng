@@ -878,6 +878,44 @@
 		</if>
 		GROUP BY ORDERSTATUS,T4.PAY_TYPE
 	</select>
+	
+	<select id="getOrderDetailForExport" parameterType="OrderDto" resultType="map" useCache="false">
+		SELECT  
+		<include refid="commonProcessDateOrderColumns"/>,d.receive_person,d.receive_address,d.receive_contact_phone,
+		d.delivery_address,d.delivery_person,d.delivery_contact_phone,t2.detail,t4.pay_type
+		from t_order o 
+		LEFT JOIN t_order_delivery d ON d.flow_id = o.flow_id
+		LEFT JOIN (SELECT group_concat(concat(t2.product_code,',',t2.product_name,',',t2.specification,',',
+		t2.manufactures,',',t2.product_price,',',t2.product_count,',',t2.product_settlement_price) separator ';') as detail,t2.order_id FROM
+        t_order_detail t2 GROUP BY t2.order_id) t2 ON t2.order_id = o.order_id
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON o.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE 1=1
+		<if test="flowId!= null and flowId!= ''">
+			AND o.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND o.cust_id = #{custId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND o.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND o.supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND o.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND o.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND o.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND o.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		GROUP BY o.order_id desc
+	</select>
 
 	<resultMap id="sellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
 		<result column="PAY_TYPE" property="payType"/>
@@ -1240,6 +1278,9 @@
 		</if>
 		<if test="payFlag!= null and payFlag!= ''">
 			<![CDATA[ AND T1.PAY_FLAG=#{payFlag} ]]>
+		</if>
+		<if test="source!= null and source!= ''">
+			<![CDATA[ AND T1.source=#{source} ]]>
 		</if>
 		ORDER BY T1.ORDER_ID DESC
 	</select>
