@@ -148,15 +148,7 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 	{
 		return orderIssuedExceptionService.update(orderIssuedException);
 	}
-	/**
-	 * 更新记录
-	 * @param orderIssuedException
-	 * @return
-	 * @throws Exception
-	 */
-	public int updateBySelective(OrderIssuedException orderIssuedException) throws Exception{
-		return orderIssuedExceptionService.updateBySelective(orderIssuedException);
-	}
+	 
 	/**
 	 * 根据条件查询记录条数
 	 * @param orderIssuedException
@@ -178,6 +170,7 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 		OrderIssued orderIssued = new OrderIssued();
 		orderIssued.setFlowId(flowId);
 		orderIssued.setIssuedCount(0);
+		orderIssued.setIsScan(0);//如果还是下发失败，会再次扫到异常表
 		orderIssued.setUpdateTime(systemDateMapper.getSystemDate());
 		try {
 			orderIssuedService.updateBySelective(orderIssued);
@@ -193,7 +186,7 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 		orderIssuedException.setOperateTime(systemDateMapper.getSystemDate());
 		orderIssuedException.setOperator(operator);
 		try {
-			this.updateBySelective(orderIssuedException);
+			orderIssuedExceptionService.updateBySelective(orderIssuedException);
 		} catch (Exception e) {
 			logger.error("*********更改下发订单异常状态为已完成时出错***********", e);
 			e.printStackTrace();
@@ -216,7 +209,7 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 		orderIssuedException.setOperateTime(systemDateMapper.getSystemDate());
 		orderIssuedException.setOperator(operator);
 		try {
-			this.updateBySelective(orderIssuedException);
+			orderIssuedExceptionService.updateBySelective(orderIssuedException);
 		} catch (Exception e) {
 			logger.error("*********标记下发订单异常状态出错***********", e);
 			e.printStackTrace();

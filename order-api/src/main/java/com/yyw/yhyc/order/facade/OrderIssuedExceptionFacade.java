@@ -95,15 +95,7 @@ public interface OrderIssuedExceptionFacade {
 	 * @throws Exception
 	 */
 	public Pagination<OrderIssuedException> listPaginationByProperty(Pagination<OrderIssuedException> pagination, OrderIssuedException orderIssuedException) throws Exception;
-
-	/**
-	 * 更新记录,根据flowId给更新
-	 * @param orderIssuedException
-	 * @return
-	 * @throws Exception
-	 */
-	public int updateBySelective(OrderIssuedException orderIssuedException) throws Exception;
-	
+ 
 	/**
 	 * 订单下发接口，调用此接口更改下发表中issued_count为0
 	 * @param flowId

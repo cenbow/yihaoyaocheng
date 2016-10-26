@@ -54,6 +54,7 @@
 		<result column="deal_status_name" property="dealStatusName"/>
 		<result column="exception_type" property="exceptionType"/>
 		<result column="exception_type_name" property="exceptionTypeName"/>
+		<result column="is_relationship" property="isRelationship"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -317,7 +318,7 @@
 				, supply_name
 				, supply_id
 				, order_status
-				, case order_status 
+				,( case order_status 
 				when 1 then '买家已下单' 
 				when 2 then '买家已取消' 
 				when 3 then '卖家已取消' 
@@ -331,7 +332,7 @@
 				when 11 then '系统自动确认收货' 
 				when 12 then '买家延期收货' 
 				when 13 then '打款异常' 
-				when 14 then '买家部分收货' 
+				when 14 then '买家部分收货' END)
 				as order_status_name
 				, pay_type
 				, pay_type_name
@@ -340,9 +341,9 @@
 				, receive_address
 				, receive_contact_phone
 				, deal_status
-				, case deal_status when 1 then '待处理' when 2 then '已完成' as  deal_status_name
+				, (case deal_status when 1 then '待处理' when 2 then '已完成' END ) as  deal_status_name 
 				, exception_type
-				, case exception_type  when 1 then '无关联企业用户' when 2 then '下发返回错误' when 3 then '下发失败' as exception_type_name
+				, (case exception_type  when 1 then '无关联企业用户' when 2 then '下发返回错误' when 3 then '下发失败' end) as exception_type_name
 		FROM t_order_issued_exception WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>

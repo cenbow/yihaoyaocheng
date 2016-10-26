@@ -83,6 +83,10 @@ public class OrderIssuedExceptionDto implements Serializable{
 	  *	异常类型（0下发超时未返回，1无关联企业用户，2下发返回错误，3下发失败）
 	  */
 	private java.lang.String exceptionTypeName;
+	/**
+	 * 是否有客户关联关系，0否1是
+	 */
+	private java.lang.Integer isRelationship;
 	public java.lang.String getFlowId() {
 		return flowId;
 	}
@@ -268,6 +272,18 @@ public class OrderIssuedExceptionDto implements Serializable{
 	 */
 	public void setOrderStatus(java.lang.String orderStatus) {
 		this.orderStatus = orderStatus;
+	}
+	/**
+	 * @return the isRelationship
+	 */
+	public java.lang.Integer getIsRelationship() {
+		return isRelationship;
+	}
+	/**
+	 * @param isRelationship the isRelationship to set
+	 */
+	public void setIsRelationship(java.lang.Integer isRelationship) {
+		this.isRelationship = isRelationship;
 	}
  
 
