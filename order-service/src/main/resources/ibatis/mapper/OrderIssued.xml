@@ -219,13 +219,13 @@
 			O.CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.OUT_USERID AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
-			INNER JOIN T_PASSPORT_USER_OUT PUO
-			ON O.CUST_ID = PUO.USERID
-			AND O.SUPPLY_ID = ENTERPRISE_ID
+			INNER JOIN t_cust_erp_relation  PUO
+			ON O.CUST_ID = PUO.cust_code_yc
+			AND O.SUPPLY_ID = seller_code
 			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
 			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
@@ -269,7 +269,7 @@
 		WHERE
 		   O.ORDER_STATUS = '5'
 		AND SPT.PAY_TYPE = 1  
-		AND (O.cust_id NOT in (SELECT USERID from T_PASSPORT_USER_OUT)
-		and O.SUPPLY_ID NOT in (SELECT ENTERPRISE_ID from T_PASSPORT_USER_OUT))
+		AND (O.cust_id NOT in (SELECT cust_code_yc from t_cust_erp_relation )
+		and O.SUPPLY_ID NOT in (SELECT seller_code from t_cust_erp_relation ))
 	</select>
 </mapper>
