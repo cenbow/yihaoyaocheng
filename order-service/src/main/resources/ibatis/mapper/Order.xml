@@ -906,7 +906,7 @@
 			AND o.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
 		</if>
 		<if test="payType!= null and payType!= ''">
-			<![CDATA[ AND o.PAY_TYPE=#{payType} ]]>
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
 		<if test="createBeginTime!= null and createBeginTime!= ''">
 			<![CDATA[ AND o.CREATE_TIME >= #{createBeginTime} ]]>

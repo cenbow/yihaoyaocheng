@@ -25,7 +25,7 @@
 		<result column="supply_id" property="supplyId"/>
 		<result column="order_status" property="orderStatus"/>
 		<result column="pay_type" property="payType"/>
-		<result column="pay_type_name" property="pay_typeName"/>
+		<result column="pay_type_name" property="payTypeName"/>
 		<result column="order_create_time" property="orderCreateTime"/>
 		<result column="receive_person" property="receivePerson"/>
 		<result column="receive_address" property="receiveAddress"/>
@@ -45,7 +45,7 @@
 		<result column="order_status" property="orderStatus"/>
 		<result column="order_status_name" property="orderStatusName"/>
 		<result column="pay_type" property="payType"/>
-		<result column="pay_type_name" property="pay_typeName"/>
+		<result column="pay_type_name" property="payTypeName"/>
 		<result column="order_create_time" property="orderCreateTime"/>
 		<result column="receive_person" property="receivePerson"/>
 		<result column="receive_address" property="receiveAddress"/>
@@ -172,7 +172,47 @@
 			AND operator=#{operator}
 		</if>
 	</sql>
-	
+	<sql id="commonConditionDto">
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''"> 
+			AND cust_name=#{custName}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND supply_name=#{supplyName}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''"> 
+			AND order_status=#{orderStatus}
+		</if>
+		<if test="payType!= null and payType!= ''"> 
+			AND pay_type=#{payType}
+		</if>
+		<if test="payTypeName!= null and payTypeName!= ''"> 
+			AND pay_type_name=#{payTypeName}
+		</if>
+		<if test="receivePerson!= null and receivePerson!= ''"> 
+			AND receive_person=#{receivePerson}
+		</if>
+		<if test="receiveAddress!= null and receiveAddress!= ''"> 
+			AND receive_address=#{receiveAddress}
+		</if>
+		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
+			AND receive_contact_phone=#{receiveContactPhone}
+		</if>
+		<if test="dealStatus!= null and dealStatus!= ''"> 
+			AND deal_status=#{dealStatus}
+		</if>
+		<if test="exceptionType!= null and exceptionType!= ''"> 
+			AND exception_type=#{exceptionType}
+		</if>
+	</sql>
 	<insert id="save" parameterType="OrderIssuedException">
 		<![CDATA[ INSERT INTO t_order_issued_exception ( ]]>
 			<include refid="commonColumnsNotPK"/>
@@ -347,6 +387,6 @@
 				,(case b.userid WHEN IFNULL(b.userid,0)   THEN 1 ELSE  0 END ) as is_relationship
 		FROM t_order_issued_exception a LEFT JOIN T_PASSPORT_USER_OUT b on a.cust_id = b.userid
 		WHERE 1=1 
-		<include refid="commonCondition"/>
+		<include refid="commonConditionDto"/>
 	</select>
 </mapper>

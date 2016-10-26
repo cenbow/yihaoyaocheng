@@ -42,6 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
@@ -661,19 +662,19 @@ public class OrderController extends BaseJsonController {
      * 采购订单导出
      * @return
      */
-    @RequestMapping("/exportBuyerOrder")
-    public void exportBuyerOrder(){
+    @RequestMapping("/exportSaleOrder")
+    public void exportSaleOrder(){
     	String condition = request.getParameter("condition");
-    	Map map = new HashMap();
+    	JSONObject paramJSON = new JSONObject();
 		if(StringUtils.isNotBlank(condition)){
-			map = JSON.parseObject(condition, Map.class);
+			paramJSON = JSON.parseObject(condition).getJSONObject("param");
 		}
     	OrderDto orderDto = new OrderDto();
-    	orderDto.setCreateBeginTime((String)map.get("createBeginTime"));
-    	orderDto.setCreateEndTime((String)map.get("createEndTime"));
-    	orderDto.setFlowId((String)map.get("flowId"));
-    	orderDto.setSupplyName((String)map.get("supplyName"));
-    	String payType = (String)map.get("payType");
+    	orderDto.setCreateBeginTime((String)paramJSON.get("createBeginTime"));
+    	orderDto.setCreateEndTime((String)paramJSON.get("createEndTime"));
+    	orderDto.setFlowId((String)paramJSON.get("flowId"));
+    	orderDto.setSupplyName((String)paramJSON.get("supplyName"));
+    	String payType = (String)paramJSON.get("payType");
     	if(StringUtils.isNotBlank(payType)){
     		orderDto.setPayType(Integer.parseInt(payType));
     	}
