@@ -10,6 +10,8 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
+    //导出
+    bindExportBtn();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -33,6 +35,16 @@ function bindSearchBtn() {
         pasretFormData();
         doRefreshData(params);
     })
+}
+
+//导出
+function bindExportBtn(){
+	$("#export").on("click", function () {
+		 pasretFormData();
+		 $("#exportForm").attr("action", ctx+"/orderException/exportRelenishOrder");
+		 $("#condition").val(JSON.stringify(params));
+		 $("#exportForm").submit();
+	});
 }
 
 /**
@@ -175,7 +187,6 @@ function fillTableJson(data) {
         tr += "</tr>";
         trs += tr;
     }
-    console.info(trs);
     $(".table-box tbody").append(trs);
     changeColor();
 }
