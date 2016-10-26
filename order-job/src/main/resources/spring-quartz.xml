@@ -23,6 +23,14 @@
                         <constructor-arg ref="orderDoneForDeliveryJobService"/>
                         <constructor-arg value="0 */1 * * * ?"/>
                     </bean>
+                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
+                        <constructor-arg ref="orderIssuedNoRelationshipJobService"/>
+                        <constructor-arg value="0 */3 * * * ?"/>
+                    </bean>
+                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
+                        <constructor-arg ref="orderIssuedExceptionJobService"/>
+                        <constructor-arg value="0 */3 * * * ?"/>
+                    </bean>
                 </list>
             </property>
         </bean>
