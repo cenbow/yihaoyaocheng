@@ -376,7 +376,7 @@
 				as order_status_name
 				, pay_type
 				, pay_type_name
-				, order_create_time
+				,  date_format(order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
 				, receive_person
 				, receive_address
 				, receive_contact_phone

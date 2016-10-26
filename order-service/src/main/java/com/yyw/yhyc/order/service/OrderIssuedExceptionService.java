@@ -14,29 +14,49 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderIssued;
 import com.yyw.yhyc.order.bo.OrderIssuedException;
+import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderIssuedExceptionDto;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.mapper.OrderIssuedExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderIssuedMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderIssuedExceptionService")
 public class OrderIssuedExceptionService {
 	 private static final Logger logger = LoggerFactory.getLogger(OrderIssuedExceptionService.class);
 
+	 
+	@Autowired
+	private OrderService orderService;
+	@Autowired
+	private OrderDeliveryService orderDliveryService;
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
+		 
 	private SystemDateMapper systemDateMapper;
 
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
 		this.systemDateMapper = systemDateMapper;
 	}
-	
+	private OrderIssuedMapper	orderIssuedMapper;
+	@Autowired
+	public void setOrderIssuedMapper(OrderIssuedMapper orderIssuedMapper)
+	{
+		this.orderIssuedMapper = orderIssuedMapper;
+	}
 	private OrderIssuedExceptionMapper	orderIssuedExceptionMapper;
 
 	@Autowired
@@ -256,5 +276,57 @@ public class OrderIssuedExceptionService {
 			result.put("message", "更新下发订单状态出错");
 		}
 		return result;
+	}
+
+	public void exceptionJob() throws Exception {
+		OrderIssued orderIssued = new OrderIssued();
+		 //orderIssued.setIssuedCount(3);
+		 orderIssued.setIssuedStatus("0");
+		 List<OrderIssued> listOrderIssued = orderIssuedService.listByProperty(orderIssued);
+		 for(OrderIssued one : listOrderIssued){
+			 OrderIssuedException orderIssuedException = new OrderIssuedException();
+			 Order order = orderService.getOrderbyFlowId(one.getFlowId());
+			 OrderDelivery orderDelivery = (OrderDelivery) orderDliveryService.getOrderDeliveryByFlowId(one.getFlowId());
+			 PropertyUtils.copyProperties(orderIssuedException, order);
+			 PropertyUtils.copyProperties(orderIssuedException, orderDelivery);
+			 
+			 SystemPayType sysPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+			 orderIssuedException.setOrderCreateTime(order.getCreateTime());
+			 orderIssuedException.setPayType(sysPayType.getPayType());
+			 orderIssuedException.setPayTypeName(sysPayType.getPayTypeName());
+			 
+			 orderIssuedException.setDealStatus(1);  //待处理
+			 if(orderIssued.getCusRelationship() == 1 && orderIssued.getIssuedCount() == 3)
+				 orderIssuedException.setExceptionType(3) ;//下发失败
+			 else if(orderIssued.getCusRelationship() == 1 && orderIssued.getIssuedCount() != 3)
+				 orderIssuedException.setExceptionType(2);//下发返回错误
+			 else if(orderIssued.getCusRelationship() == 0)
+				 orderIssuedException.setExceptionType(1);//无关联企业用户
+			 
+			 orderIssuedException.setOperator("system");
+			 orderIssuedException.setOperateTime(systemDateMapper.getSystemDate());
+			 try{
+				 this.save(orderIssuedException);
+			 }catch  (Exception ex){//这种情况很少，所以用这种方式，避免每次去做一次查询
+				 logger.error("插入失败，异常表有此flowId", ex);
+				 this.updateBySelective(orderIssuedException);
+			 }
+		 }
+	}
+
+	public void noRelationshipJob() {
+		List<Map<String,String>>  list = orderIssuedService.findOrderIssuedNoRelationshipList();
+		
+		for(Map<String,String> param : list){
+			OrderIssued orderIssued = new OrderIssued();
+			orderIssued.setFlowId(param.get("FLOW_ID"));//设置订单编号
+			orderIssued.setSupplyId(Integer.valueOf(param.get("SUPPLY_ID")));
+			orderIssued.setCreateTime(systemDateMapper.getSystemDate());
+			//这样订单下发时不会扫描出来这些没对码的数据
+			orderIssued.setIssuedStatus("0");//设置下发状态，默认为失败
+			orderIssued.setIssuedCount(3);//设置调用次数，初始化为3
+			orderIssued.setCusRelationship(0);//无客户关联关系
+			orderIssuedMapper.save(orderIssued);
+		}
 	}
 }
