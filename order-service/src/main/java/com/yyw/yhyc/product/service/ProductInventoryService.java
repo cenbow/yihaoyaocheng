@@ -482,7 +482,7 @@ public class ProductInventoryService {
     /**
      * 根据供应商修改-保存、库存信息
      *
-     * @param productInventoryList（spuCode 为对接公司商品编码）
+     * @param productInventoryList（spuCode 为 productcodeCompany 本公司商品编码、对接公司商品编码）
      * @throws Exception
      */
     public List<ProductInventory> updateSupplyIdInventory(List<ProductInventory> productInventoryList) throws Exception {
@@ -491,7 +491,8 @@ public class ProductInventoryService {
             String now = systemDateMapper.getSystemDate();
             for (ProductInventory productInventory : productInventoryList) {
                 if (!UtilHelper.isEmpty(productInventory.getSpuCode()) && !UtilHelper.isEmpty(productInventory.getSupplyId()) && !UtilHelper.isEmpty(productInventory.getCurrentInventory()) && !UtilHelper.isEmpty(productInventory.getSupplyName())) {
-                	ProductAudit productAudit = productAuditMapper.getProductAudit(productInventory.getSupplyId(), productInventory.getSpuCode());
+                    ProductAudit productAudit = productAuditMapper.getProductcodeCompany(productInventory.getSupplyId(), productInventory.getSpuCode());    //erp 需要的方法
+//                	ProductAudit productAudit = productAuditMapper.getProductAudit(productInventory.getSupplyId(), productInventory.getSpuCode());  备注 库存需要的代码
                     if (UtilHelper.isEmpty(productAudit)) {
                         productInventory.setRemark("该商品编码不存在或者商品没有审核通过");
                         list.add(productInventory);

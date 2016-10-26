@@ -820,7 +820,7 @@
 	</select>
 
 
-	<select id="getOrderDetails" parameterType="Order"  resultMap="OrderDetailsResultMapper">
+	<select id="getOrderDetails" parameterType="Order"  resultMap="OrderDetailsResultMapper" useCache="false">
 		SELECT s.pay_type_name,s.pay_type,
 		<include refid="commonProcessDateOrderColumns"/>
 		from t_order o,t_system_pay_type s
