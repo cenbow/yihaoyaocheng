@@ -14,18 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.dto.OrderIssuedDto;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yyw.yhyc.order.bo.OrderIssued;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.OrderIssued;
+import com.yyw.yhyc.order.bo.OrderIssuedException;
+import com.yyw.yhyc.order.dto.OrderIssuedDto;
+import com.yyw.yhyc.order.mapper.OrderIssuedExceptionMapper;
 import com.yyw.yhyc.order.mapper.OrderIssuedMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderIssuedService")
 public class OrderIssuedService {
@@ -43,7 +44,8 @@ public class OrderIssuedService {
 	{
 		this.orderIssuedMapper = orderIssuedMapper;
 	}
-	
+	@Autowired
+	private OrderIssuedExceptionMapper orderIssuedExceptionMapper;
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -186,7 +188,24 @@ public class OrderIssuedService {
 					orderIssued.setSupplyId(supplyId);
 					orderIssued.setCreateTime(now);
 					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
-					orderIssuedMapper.save(orderIssued);
+					
+					try{
+						orderIssuedMapper.save(orderIssued);
+					}catch(Exception e){
+						log.info("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********");
+						orderIssued.setCusRelationship(1);
+						orderIssued.setIsScan(0);
+						orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
+						orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+						orderIssued.setUpdateTime(now);
+						orderIssuedMapper.updateBySelective(orderIssued);
+						
+						OrderIssuedException orderIssuedException = new OrderIssuedException();
+						orderIssuedException.setFlowId(flowId);
+						orderIssuedException.setDealStatus(2);
+						orderIssuedExceptionMapper.updateBySelective(orderIssuedException );
+					}
+					
 				}
 			}
 		}
@@ -228,7 +247,7 @@ public class OrderIssuedService {
 	 * 
 	 * 查询没有对码的订单记录
 	 */
-	public List<Map<String,String>> findOrderIssuedNoRelationshipList(){
+	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(){
 		return orderIssuedMapper.findOrderIssuedNoRelationshipList();
 	}
 	//根据flowId给更新

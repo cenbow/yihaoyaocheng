@@ -10,7 +10,6 @@
  **/
 package com.yyw.yhyc.order.facade.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,14 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.job.order.service.impl.OrderCancelForNoDeliveryJobServiceImpl;
-import com.yyw.yhyc.order.bo.OrderIssued;
 import com.yyw.yhyc.order.bo.OrderIssuedException;
 import com.yyw.yhyc.order.dto.OrderIssuedExceptionDto;
 import com.yyw.yhyc.order.facade.OrderIssuedExceptionFacade;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.order.service.OrderIssuedExceptionService;
-import com.yyw.yhyc.order.service.OrderIssuedService;
 
 @Service("orderIssuedExceptionFacade")
 public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacade {
@@ -151,15 +146,15 @@ public class OrderIssuedExceptionFacadeImpl implements OrderIssuedExceptionFacad
 	}
 
 	@Override
-	public Map<String, String> orderIssued(String flowId,String operator) {
+	public Map<String, String> updateOrderIssued(String flowId,String operator) {
 		logger.info("****************调用订单下发接口*******************");
-		return orderIssuedExceptionService.orderIssued(flowId,operator);
+		return orderIssuedExceptionService.updateOrderIssued(flowId,operator);
 	}
 
 	@Override
-	public Map<String, String> orderMark(String flowId,String operator) {
+	public Map<String, String> updateOrderMark(String flowId,String operator) {
 		logger.info("****************调用订单标记接口*******************");
-		return orderIssuedExceptionService.orderMark(flowId,operator);
+		return orderIssuedExceptionService.updateOrderMark(flowId,operator);
 	}
 
 	@Override

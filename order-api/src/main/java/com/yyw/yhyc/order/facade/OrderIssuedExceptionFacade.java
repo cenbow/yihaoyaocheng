@@ -101,13 +101,13 @@ public interface OrderIssuedExceptionFacade {
 	 * @param flowId
 	 * @return
 	 */
-	public Map<String,String> orderIssued(String flowId,String operator);
+	public Map<String,String> updateOrderIssued(String flowId,String operator);
 	/**
 	 * 订单标记接口，会出现实际下发成功，超时返回或相关问题，或顾客通过其他方式将订单录入到其ERP系统。此处增加一个手工标记成功的机制，标记后则状态变为已完成。仅针对非关联问题的异常订单。
 	 * @param flowId
 	 * @return
 	 */
-	public Map<String,String> orderMark(String flowId,String operator);
+	public Map<String,String> updateOrderMark(String flowId,String operator);
 
 	/**
 	 * 根据查询条件查询分页记录

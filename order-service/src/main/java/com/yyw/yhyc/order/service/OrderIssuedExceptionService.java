@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +27,10 @@ import com.yyw.yhyc.order.bo.OrderIssuedException;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderIssuedExceptionDto;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.mapper.OrderIssuedExceptionMapper;
 import com.yyw.yhyc.order.mapper.OrderIssuedMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderIssuedExceptionService")
@@ -39,11 +39,11 @@ public class OrderIssuedExceptionService {
 
 	 
 	@Autowired
-	private OrderService orderService;
+	private OrderMapper orderMapper;
 	@Autowired
-	private OrderDeliveryService orderDliveryService;
+	private OrderDeliveryService orderDliveryMapper;
 	@Autowired
-	private SystemPayTypeService systemPayTypeService;
+	private SystemPayTypeService systemPayTypeMapper;
 		 
 	private SystemDateMapper systemDateMapper;
 
@@ -206,7 +206,7 @@ public class OrderIssuedExceptionService {
 	 * @param flowId
 	 * @return
 	 */
-	public Map<String, String> orderIssued(String flowId, String operator) {
+	public Map<String, String> updateOrderIssued(String flowId, String operator) {
 		Map<String, String> result = new HashMap<String, String>(); 
 		result.put("statusCode", "1");
 		result.put("message", "更新成功");
@@ -217,7 +217,7 @@ public class OrderIssuedExceptionService {
 		orderIssued.setIsScan(0);//如果还是下发失败，会再次扫到异常表
 		orderIssued.setUpdateTime(systemDateMapper.getSystemDate());
 		try {
-			orderIssuedService.updateBySelective(orderIssued);
+			orderIssuedMapper.updateBySelective(orderIssued);
 		} catch (Exception e) {
 			logger.error("*********更新下发订单状态出错***********", e);
 			e.printStackTrace();
@@ -244,7 +244,7 @@ public class OrderIssuedExceptionService {
 	 * @param flowId
 	 * @return
 	 */
-	public Map<String, String> orderMark(String flowId, String operator) {
+	public Map<String, String> updateOrderMark(String flowId, String operator) {
 		Map<String, String> result = new HashMap<String, String>(); 
 		result.put("statusCode", "1");
 		result.put("message", "标记下发订单异常状态为已处理");
@@ -268,7 +268,7 @@ public class OrderIssuedExceptionService {
 		orderIssued.setIssuedStatus("1");//标记为成功
 		orderIssued.setUpdateTime(systemDateMapper.getSystemDate());
 		try {
-			orderIssuedService.updateBySelective(orderIssued);
+			orderIssuedMapper.updateBySelective(orderIssued);
 		} catch (Exception e) {
 			logger.error("*********更新下发订单状态出错***********", e);
 			e.printStackTrace();
@@ -278,29 +278,39 @@ public class OrderIssuedExceptionService {
 		return result;
 	}
 
-	public void exceptionJob() throws Exception {
+	/**
+	 * *****************收集下发表中失败状态的记录插入到Exception表任务开始*****************
+	 * @throws Exception
+	 */
+	public void downExceptionJob() throws Exception {
 		OrderIssued orderIssued = new OrderIssued();
-		 //orderIssued.setIssuedCount(3);
+		 orderIssued.setIssuedCount(3);
 		 orderIssued.setIssuedStatus("0");
-		 List<OrderIssued> listOrderIssued = orderIssuedService.listByProperty(orderIssued);
+		 orderIssued.setIsScan(0);
+		 List<OrderIssued> listOrderIssued = orderIssuedMapper.listByProperty(orderIssued);
 		 for(OrderIssued one : listOrderIssued){
 			 OrderIssuedException orderIssuedException = new OrderIssuedException();
-			 Order order = orderService.getOrderbyFlowId(one.getFlowId());
-			 OrderDelivery orderDelivery = (OrderDelivery) orderDliveryService.getOrderDeliveryByFlowId(one.getFlowId());
+			 Order order = orderMapper.getOrderbyFlowId(one.getFlowId());
 			 PropertyUtils.copyProperties(orderIssuedException, order);
-			 PropertyUtils.copyProperties(orderIssuedException, orderDelivery);
-			 
-			 SystemPayType sysPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 			 orderIssuedException.setOrderCreateTime(order.getCreateTime());
+			 
+			 OrderDelivery orderDelivery = new OrderDelivery();
+			 orderDelivery.setFlowId(one.getFlowId());
+			 orderDelivery =  orderDliveryMapper.listByProperty(orderDelivery).get(0);
+			 orderIssuedException.setReceivePerson(orderDelivery.getReceivePerson());
+			 orderIssuedException.setReceiveContactPhone(orderDelivery.getReceiveContactPhone());
+			 orderIssuedException.setReceiveAddress(orderDelivery.getReceiveAddress());
+			 
+			 SystemPayType sysPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
 			 orderIssuedException.setPayType(sysPayType.getPayType());
 			 orderIssuedException.setPayTypeName(sysPayType.getPayTypeName());
 			 
 			 orderIssuedException.setDealStatus(1);  //待处理
-			 if(orderIssued.getCusRelationship() == 1 && orderIssued.getIssuedCount() == 3)
+			 if(one.getCusRelationship() == 1 && one.getIssuedCount() == 3)
 				 orderIssuedException.setExceptionType(3) ;//下发失败
-			 else if(orderIssued.getCusRelationship() == 1 && orderIssued.getIssuedCount() != 3)
+			 else if(one.getCusRelationship() == 1 && one.getIssuedCount() != 3)
 				 orderIssuedException.setExceptionType(2);//下发返回错误
-			 else if(orderIssued.getCusRelationship() == 0)
+			 else if(one.getCusRelationship() == 0)
 				 orderIssuedException.setExceptionType(1);//无关联企业用户
 			 
 			 orderIssuedException.setOperator("system");
@@ -311,22 +321,36 @@ public class OrderIssuedExceptionService {
 				 logger.error("插入失败，异常表有此flowId", ex);
 				 this.updateBySelective(orderIssuedException);
 			 }
+			 
+			 //将扫描标志设置为 已扫描
+			 one.setIsScan(1);
+			 one.setUpdateTime(systemDateMapper.getSystemDate());
+			 orderIssuedMapper.updateBySelective(one);
 		 }
 	}
 
-	public void noRelationshipJob() {
-		List<Map<String,String>>  list = orderIssuedService.findOrderIssuedNoRelationshipList();
+	/**
+	 * *****************收集没有对码的订单记录插入到issued下发表任务开始****************
+	 * @throws Exception
+	 */
+	public void downNoRelationshipJob() throws Exception{
+		List<Map<String,Object>>  list = orderIssuedService.findOrderIssuedNoRelationshipList();
 		
-		for(Map<String,String> param : list){
+		for(Map<String,Object> param : list){
 			OrderIssued orderIssued = new OrderIssued();
-			orderIssued.setFlowId(param.get("FLOW_ID"));//设置订单编号
-			orderIssued.setSupplyId(Integer.valueOf(param.get("SUPPLY_ID")));
-			orderIssued.setCreateTime(systemDateMapper.getSystemDate());
-			//这样订单下发时不会扫描出来这些没对码的数据
-			orderIssued.setIssuedStatus("0");//设置下发状态，默认为失败
-			orderIssued.setIssuedCount(3);//设置调用次数，初始化为3
-			orderIssued.setCusRelationship(0);//无客户关联关系
-			orderIssuedMapper.save(orderIssued);
+			
+			orderIssued = orderIssuedMapper.findByFlowId((String) param.get("FLOW_ID"));
+			if(UtilHelper.isEmpty(orderIssued)){
+				orderIssued = new OrderIssued();
+				orderIssued.setFlowId((String) param.get("FLOW_ID"));//设置订单编号
+				orderIssued.setSupplyId((Integer) param.get("SUPPLY_ID"));
+				orderIssued.setCreateTime(systemDateMapper.getSystemDate());
+				//这样订单下发时不会扫描出来这些没对码的数据
+				orderIssued.setIssuedStatus("0");//设置下发状态，默认为失败
+				orderIssued.setIssuedCount(3);//设置调用次数，初始化为3
+				orderIssued.setCusRelationship(0);//无客户关联关系
+				orderIssuedMapper.save(orderIssued);
+			}
 		}
 	}
 }

@@ -41,7 +41,7 @@ function bindSearchBtn() {
 function bindExportBtn(){
 	$("#export").on("click", function () {
 		 pasretFormData();
-		 $("#exportForm").attr("action", ctx+"/orderException/exportRelenishOrder");
+		 $("#exportForm").attr("action", ctx+"/orderException/exportExceptionOrder");
 		 $("#condition").val(JSON.stringify(params));
 		 $("#exportForm").submit();
 	});
