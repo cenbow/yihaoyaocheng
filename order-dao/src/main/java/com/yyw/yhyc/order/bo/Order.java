@@ -213,6 +213,7 @@ public class Order extends Model{
 	/* 订单商品种类数量 */
 	private int productSortCount;
 
+	private int source;//订单来源
 
 	public Integer getPayFlag() {
 		return payFlag;
@@ -842,7 +843,16 @@ public class Order extends Model{
 				", delayTimes=" + delayTimes +
 				", payFlag=" + payFlag +
 				", productSortCount=" + productSortCount +
+				", source=" + source +
 				'}';
+	}
+
+	public int getSource() {
+		return source;
+	}
+
+	public void setSource(int source) {
+		this.source = source;
 	}
 }
 

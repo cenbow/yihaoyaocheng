@@ -20,6 +20,7 @@ public interface AccountPayInfoFacade {
 
 	/**
 	 * 通过主键查询实体对象
+	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception

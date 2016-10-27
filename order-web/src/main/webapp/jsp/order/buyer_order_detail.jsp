@@ -427,11 +427,13 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
+                                                	<a href='http://mall.yaoex.com/product/productDetail/${details.spuCode}/${details.supplyId}'>
                                                     <img alt="${details.shortName}" class="productImageUrl" spuCode="${details.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                               	    </a>
                                                 </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${details.shortName}</p>
-
+                                                    <p class="title"><a href='http://mall.yaoex.com/product/productDetail/${details.spuCode}/${details.supplyId}'>
+                                                             ${details.shortName}</a></p>
                                                     <p class="text">${details.manufactures}</p>
 
                                                     <p class="text">${details.specification}</p>
@@ -528,7 +530,8 @@
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 5%;">
+                        <col style="width: 5%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -545,6 +548,7 @@
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>
