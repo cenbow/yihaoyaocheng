@@ -167,40 +167,40 @@
 	</sql>
 	<sql id="commonConditionDto">
 		<if test="flowId!= null and flowId!= ''"> 
-			AND flow_id=#{flowId}
+			AND a.flow_id=#{flowId}
 		</if>
 		<if test="custName!= null and custName!= ''"> 
-			AND cust_name like CONCAT('%',#{custName},'%' )
+			AND a.cust_name like CONCAT('%',#{custName},'%' )
 		</if>
 		<if test="custId!= null and custId!= ''"> 
-			AND cust_id=#{custId}
+			AND a.cust_id=#{custId}
 		</if>
 		<if test="supplyName!= null and supplyName!= ''"> 
-			AND supply_name like CONCAT('%',#{supplyName},'%' )
+			AND a.supply_name like CONCAT('%',#{supplyName},'%' )
 		</if>
 		<if test="supplyId!= null and supplyId!= ''"> 
-			AND supply_id=#{supplyId}
+			AND a.supply_id=#{supplyId}
 		</if>
 		<if test="payType!= null and payType!= ''"> 
-			AND pay_type=#{payType}
+			AND a.pay_type=#{payType}
 		</if>
 		<if test="payTypeName!= null and payTypeName!= ''"> 
-			AND pay_type_name=#{payTypeName}
+			AND a.pay_type_name=#{payTypeName}
 		</if>
 		<if test="receivePerson!= null and receivePerson!= ''"> 
-			AND receive_person=#{receivePerson}
+			AND a.receive_person=#{receivePerson}
 		</if>
 		<if test="receiveAddress!= null and receiveAddress!= ''"> 
-			AND receive_address=#{receiveAddress}
+			AND a.receive_address=#{receiveAddress}
 		</if>
 		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
-			AND receive_contact_phone=#{receiveContactPhone}
+			AND a.receive_contact_phone=#{receiveContactPhone}
 		</if>
 		<if test="dealStatus!= null and dealStatus!= ''"> 
-			AND deal_status=#{dealStatus}
+			AND a.deal_status=#{dealStatus}
 		</if>
 		<if test="exceptionType!= null and exceptionType!= ''"> 
-			AND exception_type=#{exceptionType}
+			AND a.exception_type=#{exceptionType}
 		</if>
 	</sql>
 	<insert id="save" parameterType="OrderIssuedException">
