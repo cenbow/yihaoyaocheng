@@ -108,7 +108,7 @@
 		<if test="cusRelationship!= null and cusRelationship!= ''"> 
 			AND cus_relationship= #{cusRelationship} 
 		</if>
-		<if test="isScan!= null and isScan!= ''"> 
+		<if test="isScan!= null"> 
 			AND is_scan= #{isScan} 
 		</if>
 	</sql>
@@ -137,6 +137,8 @@
 			, issued_count=#{issuedCount} 
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, cus_relationship=#{cusRelationship} 
+			, is_scan=#{isScan} 
 		WHERE order_issued_id = #{orderIssuedId}  ]]>
 	</update>
 	

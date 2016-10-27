@@ -183,6 +183,8 @@ public class OrderIssued extends Model{
 					", issuedCount=" + issuedCount + 
 					", createTime=" + createTime + 
 					", updateTime=" + updateTime + 
+					", cusRelationship=" + cusRelationship + 
+					", isScan=" + isScan + 
 				"]";
 	}
 

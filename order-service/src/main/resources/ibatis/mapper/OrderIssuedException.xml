@@ -36,7 +36,7 @@
 		<result column="operator" property="operator"/>
 	</resultMap>
 	
-	<resultMap id="OrderIssuedExceptionDtoMapper" type="OrderIssuedExceptionDto">
+	<resultMap id="OrderIssuedExceptionDtoMapper" type="com.yyw.yhyc.order.dto.OrderIssuedExceptionDto">
 		<result column="flow_id" property="flowId"/>
 		<result column="cust_name" property="custName"/>
 		<result column="cust_id" property="custId"/>
