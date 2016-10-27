@@ -203,6 +203,7 @@
 			AND a.exception_type=#{exceptionType}
 		</if>
 	</sql>
+	
 	<insert id="save" parameterType="OrderIssuedException">
 		<![CDATA[ INSERT INTO t_order_issued_exception ( ]]>
 			<include refid="commonColumnsNotPK"/>
