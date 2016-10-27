@@ -115,6 +115,7 @@
 </div>
 <form action="" id="exportForm" method="post">
 	<input type="hidden" name="condition" id="condition">
+	<input type="hidden" name="returnType" id="returnType" value="3">
 </form>
 <div class="modal fade" id="myModalConfirmReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width: 1000px;">

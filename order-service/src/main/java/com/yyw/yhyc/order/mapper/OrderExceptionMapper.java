@@ -302,9 +302,16 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	public List<OrderExceptionDto> listPaginationOrderException(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto);
 
 	/**
-	 * 补货订单导出
+	 * 异常订单导出
 	 * @param orderExceptionDto
 	 * @return
 	 */
-	public List<Map<String,Object>> getExportReplenishmentOrder(OrderExceptionDto orderExceptionDto);
+	public List<Map<String,Object>> getExportExceptionOrder(OrderExceptionDto orderExceptionDto);
+	
+	/**
+	 * 换货订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto);
 }
