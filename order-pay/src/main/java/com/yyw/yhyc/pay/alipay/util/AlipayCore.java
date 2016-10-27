@@ -74,6 +74,33 @@ public class AlipayCore {
         return prestr;
     }
 
+
+    /**
+     * 把数组所有元素排序，并按照“参数值”的模式用“#”字符拼接成字符串
+     * @param params
+     * @return
+     */
+    public static String createLinkStringByrefund(Map<Integer, String> params) {
+
+        List<Integer> keys = new ArrayList<Integer>(params.keySet());
+        Collections.sort(keys);
+
+        String prestr = "";
+
+        for (int i = 0; i < keys.size(); i++) {
+            Integer key = keys.get(i);
+            String value = params.get(key);
+
+            if (i == keys.size() - 1) {//拼接时，不包括最后一个&字符
+                prestr = prestr  + "=" + value;
+            } else {
+                prestr = prestr + "=" + value + "#";
+            }
+        }
+
+        return prestr;
+    }
+
     /** 
      * 写日志，方便测试（看网站需求，也可以改成把记录存入数据库）
      * @param sWord 要写入日志里的文本内容

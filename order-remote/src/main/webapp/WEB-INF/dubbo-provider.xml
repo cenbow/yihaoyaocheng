@@ -26,6 +26,7 @@
     <dubbo:service interface="com.yyw.yhyc.product.facade.ProductInventoryFacade" ref="productInventoryFacade"/>
     <dubbo:service interface="com.yyw.yhyc.order.facade.OrderIssuedFacade" ref="orderIssuedFacade"/>
     <dubbo:service interface="com.yyw.yhyc.order.facade.ManufacturerOrderFacade" ref="manufacturerOrderFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.pay.facade.AlipayFacade" ref="alipayFacade"/>
 
     <!-- job任务接口 -->
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoPayJobService" ref="orderCancelForNoPayJobService"/>

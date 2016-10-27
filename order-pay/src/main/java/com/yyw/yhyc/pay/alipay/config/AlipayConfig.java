@@ -11,12 +11,14 @@ package com.yyw.yhyc.pay.alipay.config;
  *该代码仅供学习和研究支付宝接口使用，只是提供一个参考。
  */
 
+import com.yyw.yhyc.pay.alipay.util.UtilDate;
+
 public class AlipayConfig {
 	
 //↓↓↓↓↓↓↓↓↓↓请在这里配置您的基本信息↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
 	// 合作身份者ID，签约账号，以2088开头由16位纯数字组成的字符串，查看地址：https://b.alipay.com/order/pidAndKey.htm
-	public static String partner = "2088002093084611";
+	public static String partner = "2088521120786400";
 	
 	// 收款支付宝账号，以2088开头由16位纯数字组成的字符串，一般情况下收款账号就是签约账号
 	public static String seller_id = partner;
@@ -47,6 +49,13 @@ public class AlipayConfig {
 		
 	// 调用的接口名，无需修改
 	public static String service = "create_direct_pay_by_user";
+
+	//退款日期 时间格式 yyyy-MM-dd HH:mm:ss
+	public static String refund_date = UtilDate.getDateFormatter();
+
+	// 调用的接口名，无需修改
+	public static String servicerefund = "refund_fastpay_by_platform_pwd";
+
 
 
 //↑↑↑↑↑↑↑↑↑↑请在这里配置您的基本信息↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑

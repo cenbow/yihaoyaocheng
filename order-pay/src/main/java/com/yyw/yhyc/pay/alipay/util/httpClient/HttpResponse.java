@@ -1,8 +1,9 @@
 package com.yyw.yhyc.pay.alipay.util.httpClient;
 
-import com.alipay.config.AlipayConfig;
 
+import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
 import org.apache.commons.httpclient.Header;
+
 import java.io.UnsupportedEncodingException;
 
 /* *

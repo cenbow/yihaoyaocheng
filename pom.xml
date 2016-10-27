@@ -393,6 +393,12 @@
                 <version>${json.lib.version}</version>
                 <classifier>jdk15</classifier>
             </dependency>
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>pay-chinapay</groupId>
