@@ -547,12 +547,13 @@
             <div class="modal-body">
                 <table class="table table-box2">
                     <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -569,6 +570,7 @@
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>
