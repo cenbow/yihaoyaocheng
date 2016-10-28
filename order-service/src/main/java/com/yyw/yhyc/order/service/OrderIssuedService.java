@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.yyw.yhyc.order.bo.OrderIssuedLog;
+import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ public class OrderIssuedService {
 
 	private OrderIssuedMapper	orderIssuedMapper;
 	private SystemDateMapper systemDateMapper;
+	private OrderIssuedLogMapper orderIssuedLogMapper;
 	private Log log = LogFactory.getLog(OrderIssuedService.class);
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
@@ -46,6 +49,12 @@ public class OrderIssuedService {
 	}
 	@Autowired
 	private OrderIssuedExceptionMapper orderIssuedExceptionMapper;
+
+	@Autowired
+	public void setOrderIssuedLogMapper(OrderIssuedLogMapper orderIssuedLogMapper) {
+		this.orderIssuedLogMapper = orderIssuedLogMapper;
+	}
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -207,6 +216,13 @@ public class OrderIssuedService {
 					}
 					
 				}
+				//下发日志
+				OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
+				orderIssuedLog.setFlowId(orderIssuedDto.getOrderCode());
+				orderIssuedLog.setOperateName("下发");
+				orderIssuedLog.setOperator("system");
+				orderIssuedLog.setOperateTime(now);
+				orderIssuedLogMapper.save(orderIssuedLog);
 			}
 		}
 		resultMap.put("code","1");
@@ -233,6 +249,14 @@ public class OrderIssuedService {
 			orderIssued.setIssuedStatus("0");//设置下发状态，为失败
 			orderIssued.setUpdateTime(now);
 			orderIssuedMapper.update(orderIssued);
+
+			//下发日志
+			OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
+			orderIssuedLog.setFlowId(flowId);
+			orderIssuedLog.setOperateName("下发失败");
+			orderIssuedLog.setOperator("system");
+			orderIssuedLog.setOperateTime(now);
+			orderIssuedLogMapper.save(orderIssuedLog);
 		}
 		resultMap.put("code","1");
 		return resultMap;
