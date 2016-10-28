@@ -184,6 +184,7 @@ public class OrderIssued extends Model{
 					"orderIssuedId=" + orderIssuedId + 
 					", flowId=" + flowId + 
 					", supplyId=" + supplyId + 
+					", supplyName=" + supplyName + 
 					", issuedStatus=" + issuedStatus + 
 					", issuedCount=" + issuedCount + 
 					", createTime=" + createTime + 
