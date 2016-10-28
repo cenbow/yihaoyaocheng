@@ -1,5 +1,8 @@
 package com.yyw.yhyc.order.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.usermanage.interfaces.erp.ICustErpRelationServiceDubbo;
+import com.yaoex.usermanage.model.erp.CustErpRelation;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
@@ -38,6 +41,9 @@ public class OrderIssuedExceptionController extends BaseJsonController {
     @Autowired
     private OrderIssuedExceptionService orderIssuedExceptionService;
 
+    @Reference(timeout = 50000)
+    private ICustErpRelationServiceDubbo iCustErpRelationServiceDubbo;
+
 
     /**
      * 异常订单管理页
@@ -61,7 +67,7 @@ public class OrderIssuedExceptionController extends BaseJsonController {
     public Pagination<OrderIssuedExceptionDto> listPgOrderIssuedLog(@RequestBody RequestModel<OrderIssuedExceptionDto> requestModel) throws Exception {
         OrderIssuedExceptionDto orderIssuedExceptionDto = requestModel.getParam();
         UserDto userDto = super.getLoginUser();
-        orderIssuedExceptionDto.setSupplyId(32494);
+        orderIssuedExceptionDto.setSupplyId(userDto.getCustId());
 
         Pagination<OrderIssuedExceptionDto> pagination = new Pagination<OrderIssuedExceptionDto>();
 
@@ -118,11 +124,17 @@ public class OrderIssuedExceptionController extends BaseJsonController {
      */
     @RequestMapping(value = "/relatedCustomers", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> relatedCustomers(@RequestBody OrderIssuedExceptionDto orderIssuedExceptionDto) throws Exception {
-            Map<String, String> result = new HashMap<String, String>();
-            result.put("statusCode", "0");
-            result.put("message", "订单编码不能为空");
+    public Map<String, Object> relatedCustomers(@RequestBody CustErpRelation custErpRelation) throws Exception {
+        UserDto userDto = super.getLoginUser();
+        custErpRelation.setSeller_code(userDto.getCustId()+"");
+        if (!UtilHelper.isEmpty(iCustErpRelationServiceDubbo)){
+            return   iCustErpRelationServiceDubbo.createOrUpdateCustRelation(custErpRelation,userDto.getCustName());
+        }else {
+            Map<String, Object> result = new HashMap<String, Object>();
+            result.put("status", "error");
+            result.put("msg", "调用DubboService服务失败");
             return result;
+        }
 
     }
 
@@ -134,7 +146,7 @@ public class OrderIssuedExceptionController extends BaseJsonController {
     @ResponseBody
     public void export(OrderIssuedExceptionDto orderIssuedExceptionDto) {
         UserDto userDto = super.getLoginUser();
-        orderIssuedExceptionDto.setSupplyId(32494);
+        orderIssuedExceptionDto.setSupplyId(userDto.getCustId());
 
         Pagination<OrderIssuedExceptionDto> pagination = new Pagination<OrderIssuedExceptionDto>();
         pagination.setPaginationFlag(false);
