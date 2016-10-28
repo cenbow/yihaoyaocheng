@@ -10,6 +10,8 @@
 package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +19,6 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
-
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
@@ -27,6 +28,7 @@ import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
+
 import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -371,4 +373,28 @@ public class OrderSettlementService {
             log.info("更新结算信息->未找到有效订单:"+flowId);
         }
     }
+    public void updateSettlementByCheckFile(String flowId,Integer type) {
+   	 log.info("订单:"+flowId+",类型为 "+type);
+   	 Map<String,Object> condition = new HashedMap();
+   	 OrderSettlement orderSettlement = null;
+   	 if (type == 1) {
+   		    condition.put("flowId",flowId);
+   	        condition.put("businessType",1);
+   	        orderSettlement = orderSettlementMapper.getByProperty(condition);
+   	 } else {
+   		   condition.put("flowId",flowId);
+   		   orderSettlement = orderSettlementMapper.getByPropertyByReturnCheckFile(condition);
+   	 }
+   	
+        if(orderSettlement!=null){
+            orderSettlement.setConfirmSettlement("1");
+    		 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            orderSettlement.setUpdateTime(sdf.format(new Date()));
+            orderSettlementMapper.update(orderSettlement);
+        }else {
+            log.info("更新结算信息->未找到有效订单:"+flowId);
+        }
+   	 
+   	 
+   }
 }

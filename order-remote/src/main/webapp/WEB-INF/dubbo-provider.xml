@@ -31,4 +31,5 @@
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoPayJobService" ref="orderCancelForNoPayJobService"/>
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoDeliveryJobService" ref="orderCancelForNoDeliveryJobService"/>
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService" ref="orderDoneForDeliveryJobService"/>
+        <dubbo:service interface="com.yyw.yhyc.job.order.service.CheckFileJobService" ref="checkFileJobService"/>
 </beans>

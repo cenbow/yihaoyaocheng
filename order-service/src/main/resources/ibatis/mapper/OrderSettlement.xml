@@ -382,5 +382,11 @@
 		<include refid="commonCondition"/>
 		<![CDATA[ limit 1 ]]>
 	</select>
-
+    <select id="getByPropertyByReturnCheckFile" parameterType="Map" resultMap="OrderSettlementResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_settlement WHERE 1=1
+		and business_type in (2,3,4)
+		<![CDATA[ limit 1 ]]>
+	</select>
 </mapper>

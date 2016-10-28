@@ -12,6 +12,11 @@
     <artifactId>order-common</artifactId>
 
     <dependencies>
+         <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>3.5</version>
+        </dependency>
         <dependency>
             <groupId>com.yyw.yhyc</groupId>
             <artifactId>base-common</artifactId>
