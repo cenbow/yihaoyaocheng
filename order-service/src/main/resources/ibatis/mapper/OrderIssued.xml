@@ -20,6 +20,7 @@
 		<result column="order_issued_id" property="orderIssuedId"/>
 		<result column="flow_id" property="flowId"/>
 		<result column="supply_id" property="supplyId"/>
+		<result column="supply_name" property="supplyName"/>
 		<result column="issued_status" property="issuedStatus"/>
 		<result column="issued_count" property="issuedCount"/>
 		<result column="create_time" property="createTime"/>
@@ -38,6 +39,7 @@
 	<resultMap id="OrderIssuedDtoResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedDto">
 		<result column="flow_id" property="orderCode"/>
 		<result column="org_total" property="orderAmount"/>
+		<result column="supply_name" property="supplyName"/>
 		<result column="create_time" property="createTime"/>
 		<result column="leave_message" property="leaveMessage"/>
 		<result column="order_id" property="orderId"/>
@@ -52,6 +54,7 @@
 		 order_issued_id
 		, flow_id
 		, supply_id
+		, supply_name
 		, issued_status
 		, issued_count
 		, create_time
@@ -63,6 +66,7 @@
     <sql id="commonColumnsNotPK">
 				 flow_id
 				, supply_id
+				, supply_name
 				, issued_status
 				, issued_count
 				, create_time
@@ -75,6 +79,7 @@
 		 order_issued_id
 		, flow_id
 		, supply_id
+		, supply_name
 		, issued_status
 		, issued_count
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
@@ -92,6 +97,9 @@
 		</if>
 		<if test="supplyId!= null and supplyId!= ''"> 
 			AND supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND supply_name=#{supplyName}
 		</if>
 		<if test="issuedStatus!= null and issuedStatus!= ''"> 
 			AND issued_status=#{issuedStatus}
@@ -120,6 +128,7 @@
 			) VALUES ( 
 				 #{flowId}
 				, #{supplyId}
+				, #{supplyName}
 				, #{issuedStatus}
 				, #{issuedCount}
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
@@ -133,6 +142,7 @@
 			 order_issued_id=#{orderIssuedId} 
 			, flow_id=#{flowId} 
 			, supply_id=#{supplyId} 
+			, supply_name=#{supplyName}
 			, issued_status=#{issuedStatus} 
 			, issued_count=#{issuedCount} 
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
@@ -150,6 +160,9 @@
 			</if>
 			<if test="supplyId!= null "> 
 				supply_id=#{supplyId},
+			</if>
+			<if test="supplyName!= null "> 
+				supply_name=#{supplyName},
 			</if>
 			<if test="issuedStatus!= null "> 
 				issued_status=#{issuedStatus},
@@ -218,6 +231,7 @@
 			O.FLOW_ID,
 			O.ORG_TOTAL,
 			O.SUPPLY_ID,
+			O.SUPPLY_NAME,
 			O.CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
@@ -263,6 +277,7 @@
 		SELECT
 		   O.FLOW_ID,
 		   O.SUPPLY_ID,
+		   O.SUPPLY_NAME,
 		  date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') create_time ,
 		   O.cust_id
 		FROM

@@ -481,7 +481,7 @@
                         <%--遍历该供应商的商品信息  结束--%>
                         </tbody>
                     </table>
-                    <div><a class="undeline" onclick="listPg()">查看收货商品清单</a></div>
+                    <div><a class="undeline" onclick="listPg()">查看收发货商品清单</a></div>
                     <div class="text-right">
                         <p>商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.productTotal}" minFractionDigits="2"/>元
 
@@ -547,12 +547,13 @@
             <div class="modal-body">
                 <table class="table table-box2">
                     <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -569,6 +570,7 @@
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>
