@@ -112,7 +112,7 @@ function fillTableJson(data) {
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
-        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
+        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
         tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
         tr += "<td>" + recieveCount + "</td>";
         tr += "</tr>";

@@ -23,7 +23,6 @@
 		<result column="cust_id" property="custId"/>
 		<result column="supply_name" property="supplyName"/>
 		<result column="supply_id" property="supplyId"/>
-		<result column="order_status" property="orderStatus"/>
 		<result column="pay_type" property="payType"/>
 		<result column="pay_type_name" property="payTypeName"/>
 		<result column="order_create_time" property="orderCreateTime"/>
@@ -64,7 +63,6 @@
 		, cust_id
 		, supply_name
 		, supply_id
-		, order_status
 		, pay_type
 		, pay_type_name
 		, order_create_time
@@ -83,7 +81,6 @@
 				, cust_id
 				, supply_name
 				, supply_id
-				, order_status
 				, pay_type
 				, pay_type_name
 				, order_create_time
@@ -103,7 +100,6 @@
 		, cust_id
 		, supply_name
 		, supply_id
-		, order_status
 		, pay_type
 		, pay_type_name
 		, date_format(order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
@@ -124,19 +120,16 @@
 			AND flow_id=#{flowId}
 		</if>
 		<if test="custName!= null and custName!= ''"> 
-			AND cust_name=#{custName}
+			AND cust_name like CONCAT('%',#{custName},'%' )
 		</if>
 		<if test="custId!= null and custId!= ''"> 
 			AND cust_id=#{custId}
 		</if>
 		<if test="supplyName!= null and supplyName!= ''"> 
-			AND supply_name=#{supplyName}
+			AND supply_name like CONCAT('%',#{supplyName},'%' )
 		</if>
 		<if test="supplyId!= null and supplyId!= ''"> 
 			AND supply_id=#{supplyId}
-		</if>
-		<if test="orderStatus!= null and orderStatus!= ''"> 
-			AND order_status=#{orderStatus}
 		</if>
 		<if test="payType!= null and payType!= ''"> 
 			AND pay_type=#{payType}
@@ -174,45 +167,43 @@
 	</sql>
 	<sql id="commonConditionDto">
 		<if test="flowId!= null and flowId!= ''"> 
-			AND flow_id=#{flowId}
+			AND a.flow_id=#{flowId}
 		</if>
 		<if test="custName!= null and custName!= ''"> 
-			AND cust_name=#{custName}
+			AND a.cust_name like CONCAT('%',#{custName},'%' )
 		</if>
 		<if test="custId!= null and custId!= ''"> 
-			AND cust_id=#{custId}
+			AND a.cust_id=#{custId}
 		</if>
 		<if test="supplyName!= null and supplyName!= ''"> 
-			AND supply_name=#{supplyName}
+			AND a.supply_name like CONCAT('%',#{supplyName},'%' )
 		</if>
 		<if test="supplyId!= null and supplyId!= ''"> 
-			AND supply_id=#{supplyId}
-		</if>
-		<if test="orderStatus!= null and orderStatus!= ''"> 
-			AND order_status=#{orderStatus}
+			AND a.supply_id=#{supplyId}
 		</if>
 		<if test="payType!= null and payType!= ''"> 
-			AND pay_type=#{payType}
+			AND a.pay_type=#{payType}
 		</if>
 		<if test="payTypeName!= null and payTypeName!= ''"> 
-			AND pay_type_name=#{payTypeName}
+			AND a.pay_type_name=#{payTypeName}
 		</if>
 		<if test="receivePerson!= null and receivePerson!= ''"> 
-			AND receive_person=#{receivePerson}
+			AND a.receive_person=#{receivePerson}
 		</if>
 		<if test="receiveAddress!= null and receiveAddress!= ''"> 
-			AND receive_address=#{receiveAddress}
+			AND a.receive_address=#{receiveAddress}
 		</if>
 		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
-			AND receive_contact_phone=#{receiveContactPhone}
+			AND a.receive_contact_phone=#{receiveContactPhone}
 		</if>
 		<if test="dealStatus!= null and dealStatus!= ''"> 
-			AND deal_status=#{dealStatus}
+			AND a.deal_status=#{dealStatus}
 		</if>
 		<if test="exceptionType!= null and exceptionType!= ''"> 
-			AND exception_type=#{exceptionType}
+			AND a.exception_type=#{exceptionType}
 		</if>
 	</sql>
+	
 	<insert id="save" parameterType="OrderIssuedException">
 		<![CDATA[ INSERT INTO t_order_issued_exception ( ]]>
 			<include refid="commonColumnsNotPK"/>
@@ -223,7 +214,6 @@
 				, #{custId}
 				, #{supplyName}
 				, #{supplyId}
-				, #{orderStatus}
 				, #{payType}
 				, #{payTypeName}
 				, str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
@@ -244,7 +234,6 @@
 			, cust_id=#{custId} 
 			, supply_name=#{supplyName} 
 			, supply_id=#{supplyId} 
-			, order_status=#{orderStatus} 
 			, pay_type=#{payType}
 			, pay_type_name=#{payTypeName}
 			, order_create_time=str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
@@ -275,9 +264,6 @@
 		</if>
 		<if test="supplyId!= null "> 
 			supply_id=#{supplyId},
-		</if>
-		<if test="orderStatus!= null"> 
-			order_status=#{orderStatus},
 		</if>
 		<if test="payType!= null"> 
 			pay_type=#{payType},
@@ -352,30 +338,40 @@
 	
 	<select id="listPaginationByPropertyEx" parameterType="OrderIssuedExceptionDto" resultMap="OrderIssuedExceptionDtoMapper">
 		SELECT 
-				  flow_id
-				, cust_name
-				, cust_id
-				, supply_name
-				, supply_id
-				, order_status
-				,( case order_status 
-				when 1 then '买家已下单' 
-				when 2 then '买家已取消' 
-				when 3 then '卖家已取消' 
-				when 4 then '系统自动取消' 
-				when 5 then '买家已付款' 
-				when 6 then '卖家已发货' 
-				when 7 then '后台取消' 
-				when 8 then '买家全部收货' 
-				when 9 then '拒收中' 
-				when 10 then '补货中' 
-				when 11 then '系统自动确认收货' 
-				when 12 then '买家延期收货' 
-				when 13 then '打款异常' 
-				when 14 then '买家部分收货' END)
+				 a.flow_id
+				, a.cust_name
+				, a.cust_id
+				, a.supply_name
+				, a.supply_id
+				, c.order_status
+				,( case c.order_status 				
+					WHEN 3 THEN
+						'卖家已取消'
+					WHEN 4 THEN
+						'系统自动取消'
+					WHEN 5 THEN
+						'买家已付款'
+					WHEN 6 THEN
+						'卖家已发货'
+					WHEN 7 THEN
+						'后台取消'
+					WHEN 8 THEN
+						'买家全部收货'
+					WHEN 9 THEN
+						'拒收中'
+					WHEN 10 THEN
+						'补货中'
+					WHEN 11 THEN
+						'系统自动确认收货'
+					WHEN 12 THEN
+						'买家延期收货'
+					WHEN 13 THEN
+						'打款异常'
+					WHEN 14 THEN
+						'买家部分收货' END)
 				as order_status_name
-				, pay_type
-				, pay_type_name
+				, a.pay_type
+				, a.pay_type_name
 				,  date_format(order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
 				, receive_person
 				, receive_address
@@ -384,9 +380,11 @@
 				, (case deal_status when 1 then '待处理' when 2 then '已完成' END ) as  deal_status_name 
 				, exception_type
 				, (case exception_type  when 1 then '无关联企业用户' when 2 then '下发返回错误' when 3 then '下发失败' end) as exception_type_name
-				,(case b.userid WHEN IFNULL(b.userid,0)   THEN 1 ELSE  0 END ) as is_relationship
-		FROM t_order_issued_exception a LEFT JOIN T_PASSPORT_USER_OUT b on a.cust_id = b.userid
-		WHERE 1=1 
+				,(case b.cust_code_yc WHEN IFNULL(b.cust_code_yc,0)   THEN 1 ELSE  0 END ) as is_relationship
+		FROM t_order_issued_exception a LEFT JOIN t_cust_erp_relation b on a.cust_id = b.cust_code_yc AND a.SUPPLY_ID = b.seller_code LEFT JOIN t_order c ON a.flow_id = c.flow_id
+		WHERE 1=1 and a.order_create_time >  date_sub(curdate(), interval 1 month)
+		AND c.order_status not in ('3','4','7')
 		<include refid="commonConditionDto"/>
+		order by a.order_create_time desc
 	</select>
 </mapper>

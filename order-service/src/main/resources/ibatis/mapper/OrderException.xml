@@ -336,7 +336,7 @@
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
-	<select id="getOrderExceptionDetails" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsResultMap">
+	<select id="getOrderExceptionDetails" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
 		FROM
@@ -1411,7 +1411,7 @@
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
-	<select id="getReplenishmentDetails" parameterType="OrderExceptionDto"  resultMap="replenishmentDetailsResultMap">
+	<select id="getReplenishmentDetails" parameterType="OrderExceptionDto"  resultMap="replenishmentDetailsResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
 		FROM
@@ -1605,7 +1605,7 @@
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
-	<select id="getOrderExceptionDetailsForReturn" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsReturnResultMap">
+	<select id="getOrderExceptionDetailsForReturn" parameterType="OrderExceptionDto"  resultMap="OrderExceptionDetailsReturnResultMap" useCache="false">
 		SELECT
 		T1.exception_id
 		, T1.return_type
@@ -1845,7 +1845,7 @@
 		<collection property="orderReturnList" column="exception_order_id" select="com.yyw.yhyc.order.mapper.OrderReturnMapper.getByExceptionOrderId"/>
 	</resultMap>
 
-	<select id="getChangeGoodsOrderDetails" parameterType="OrderExceptionDto"  resultMap="changeGoodsOrderDetailsResultMap">
+	<select id="getChangeGoodsOrderDetails" parameterType="OrderExceptionDto"  resultMap="changeGoodsOrderDetailsResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,T2.bill_type,T3.PAY_TYPE,T3.PAY_TYPE_NAME
 		FROM
@@ -1938,7 +1938,7 @@
 	</resultMap>
 
 	<!-- 后台异常订单列表-->
-	<select id="listPaginationOrderException" parameterType="OrderExceptionDto"  resultMap="listPaginationOrderExceptionResultMapper">
+	<select id="listPaginationOrderException" parameterType="OrderExceptionDto"  resultMap="listPaginationOrderExceptionResultMapper" useCache="false">
 		SELECT e.exception_id
 		,  e.return_type
 		,  e.exception_order_id

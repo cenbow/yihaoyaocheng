@@ -50,10 +50,6 @@ public class OrderIssuedException extends Model{
 	private java.lang.Integer supplyId;
 
 	/**
-	  *	订单状态
-	  */
-	private java.lang.String orderStatus;
-	/**
 	 * 支付类型 
 	 */
 	private java.lang.Integer payType;
@@ -198,22 +194,6 @@ public class OrderIssuedException extends Model{
 	}
 	
 	/**
-	  *	订单状态
-	  */
-	public java.lang.String getOrderStatus() 
-	{
-		return orderStatus;
-	}
-	
-	/**
-	  *	订单状态
-	  */
-	public void setOrderStatus(java.lang.String orderStatus) 
-	{
-		this.orderStatus = orderStatus;
-	}
-	
-	/**
 	  *	订单生成时间
 	  */
 	public java.lang.String getOrderCreateTime() 
@@ -350,7 +330,6 @@ public class OrderIssuedException extends Model{
 					", custId=" + custId + 
 					", supplyName=" + supplyName + 
 					", supplyId=" + supplyId + 
-					", orderStatus=" + orderStatus + 
 					", orderCreateTime=" + orderCreateTime + 
 					", receivePerson=" + receivePerson + 
 					", receiveAddress=" + receiveAddress + 
