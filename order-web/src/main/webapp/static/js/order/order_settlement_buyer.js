@@ -11,6 +11,8 @@ $(function(){
 	doRefreshData(params);
 	//绑定 搜索的click事件
 	bindSearchBtn();
+	//绑定导出事件
+	bindExportBtn();
 })
 
 
@@ -42,10 +44,16 @@ function pasretFormData(){
 }
 //绑定搜索按钮事件
 function bindSearchBtn(){
-	$("form .btn-info").on("click",function () {
+	$("#searchForm .btn-search").on("click",function () {
 		params.pageNo = 1;
 		pasretFormData();
 		doRefreshData(params);
+	})
+}
+//绑定导出事件
+function bindExportBtn(){
+	$("#searchForm .btn-export").on("click",function () {
+		$("#searchForm").submit();
 	})
 }
 
@@ -103,7 +111,7 @@ function doRefreshData(requestParam){
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
 			tipRemove();
-			alertModal("查询结算列表错误");
+			alertModalb("查询结算列表错误");
 		}
 	});
 }

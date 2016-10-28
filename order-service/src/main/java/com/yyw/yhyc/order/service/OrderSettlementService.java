@@ -128,9 +128,20 @@ public class OrderSettlementService {
 
                 if(osd.getConfirmSettlement()!=null&&osd.getConfirmSettlement().equals("1")){
                     osd.setConfirmSettlementName("已结算");
+                }else if(osd.getConfirmSettlement()!=null&&osd.getConfirmSettlement().equals("2")){
+                    osd.setConfirmSettlementName("结算中");
                 }else{
                     osd.setConfirmSettlementName("未结算");
                 }
+                
+            	//只有 采购业务，且线上支付、账期支付，才有支付流水号。退货、拒收、取消订单业务都没有支付流水号
+            	if( osd.getPayFlowId()!=null 
+            		&& osd.getBusinessType()==1 
+            		&& (Integer.parseInt(osd.getPayType())==1||Integer.parseInt(osd.getPayType())==2) ){
+            		//do nothing
+            	}else{
+            		osd.setPayFlowId("");
+            	}
 
             }
         }
