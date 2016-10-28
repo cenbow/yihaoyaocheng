@@ -255,7 +255,7 @@ public class OrderIssuedService {
 			OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
 			orderIssuedLog.setFlowId(flowId);
 			orderIssuedLog.setOperateName("下发失败");
-			orderIssuedLog.setOperator("system");
+			orderIssuedLog.setOperator(orderIssued.getSupplyName());
 			orderIssuedLog.setOperateTime(now);
 			orderIssuedLogMapper.save(orderIssuedLog);
 		}
