@@ -35,6 +35,11 @@ public class OrderIssued extends Model{
 	private java.lang.Integer supplyId;
 
 	/**
+	  *	供应商名称
+	  */
+	private java.lang.String supplyName;
+	
+	/**
 	  *	下发状态 0：失败；1：成功
 	  */
 	private java.lang.String issuedStatus;
@@ -214,6 +219,20 @@ public class OrderIssued extends Model{
 	 */
 	public void setIsScan(java.lang.Integer isScan) {
 		this.isScan = isScan;
+	}
+
+	/**
+	 * @return the supplyName
+	 */
+	public java.lang.String getSupplyName() {
+		return supplyName;
+	}
+
+	/**
+	 * @param supplyName the supplyName to set
+	 */
+	public void setSupplyName(java.lang.String supplyName) {
+		this.supplyName = supplyName;
 	}
 }
 

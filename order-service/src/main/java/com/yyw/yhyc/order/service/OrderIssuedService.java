@@ -195,6 +195,7 @@ public class OrderIssuedService {
 					orderIssued.setFlowId(orderIssuedDto.getOrderCode());//设置订单编号
 					orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
 					orderIssued.setSupplyId(supplyId);
+					orderIssued.setSupplyName(orderIssuedDto.getSupplyName());
 					orderIssued.setCreateTime(now);
 					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
 					
@@ -220,7 +221,7 @@ public class OrderIssuedService {
 				OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
 				orderIssuedLog.setFlowId(orderIssuedDto.getOrderCode());
 				orderIssuedLog.setOperateName("下发");
-				orderIssuedLog.setOperator("system");
+				orderIssuedLog.setOperator(orderIssuedDto.getSupplyName());
 				orderIssuedLog.setOperateTime(now);
 				orderIssuedLogMapper.save(orderIssuedLog);
 			}
