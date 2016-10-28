@@ -207,17 +207,20 @@ public class ShoppingCartService {
 
 
 	/**
-	 *
+	 *	修改进货单中商品的数量(公用、核心逻辑)
 	 * @param shoppingCart
 	 * @param userDto
      */
-	public int updateNum(ShoppingCart shoppingCart, UserDto userDto) throws Exception{
+	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto) throws Exception{
+		Map<String,Object> resultMap = new HashMap<>();
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId())){
-			return 0 ;
+			resultMap.put("resultCount",0);
+			return resultMap ;
 		}
 		ShoppingCart oldShoppingCart =  shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
 		if(UtilHelper.isEmpty(oldShoppingCart)){
-			return 0;
+			resultMap.put("resultCount",0);
+			return resultMap ;
 		}
 
 		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
@@ -225,37 +228,55 @@ public class ShoppingCartService {
 			throw  new Exception("购买数量不能大于9999999");
 		}
 
+
+		/* 检查该商品库存数量 */
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(oldShoppingCart.getSupplyId());//设置供应商Id
 		productInventory.setSpuCode(oldShoppingCart.getSpuCode());//设置SPUCODE
 		productInventory.setFrontInventory(shoppingCart.getProductCount());//获取当前数量
-		//检查购物车库存数量
 		Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
 		String code = map.get("code").toString();
 		if("0".equals(code) || "1".equals(code)){
 			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
 			throw  new Exception("修改商品数量失败!");
 		}
-		ShoppingCart newShoppingCart = new ShoppingCart();
-		newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
-		newShoppingCart.setProductCount(shoppingCart.getProductCount());
-		newShoppingCart.setProductSettlementPrice( oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-		newShoppingCart.setUpdateUser(userDto.getUserName());
-		newShoppingCart.setFromWhere(shoppingCart.getFromWhere());
-		return shoppingCartMapper.update(newShoppingCart);
+
+		/* 活动商品修改商品数量逻辑 */
+		if(true){
+			oldShoppingCart.setProductCount(shoppingCart.getProductCount());
+			oldShoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+			ShoppingCart normalProductShoppingCart = handleActivityProduct(oldShoppingCart);
+			resultMap.put("resultCount",2);
+			resultMap.put("normalProductShoppingCart",normalProductShoppingCart);
+
+		/* 普通商品修改商品数量逻辑 */
+		}else{
+			ShoppingCart newShoppingCart = new ShoppingCart();
+			newShoppingCart.setShoppingCartId(shoppingCart.getShoppingCartId());
+			newShoppingCart.setProductCount(shoppingCart.getProductCount());
+			newShoppingCart.setProductSettlementPrice( oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+			newShoppingCart.setUpdateUser(userDto.getUserName());
+			newShoppingCart.setFromWhere(shoppingCart.getFromWhere());
+			int  resultCount = shoppingCartMapper.update(newShoppingCart);
+			resultMap.put("resultCount",resultCount);
+		}
+		return resultMap ;
 	}
 
 	/**
-	 * 加入进货单
+	 * 加入进货单(公用、核心逻辑)
 	 * @param shoppingCart 进货单对象
 	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
 	 * @throws Exception
 	 */
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws Exception{
+
+		/* 默认添加商品的来源是进货单 */
 		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
 			shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
 		}
-		//加入进货单信息
+
+		/* 加入进货单：查询商品是否存在 */
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		condition.setSpuCode(shoppingCart.getSpuCode());
@@ -265,6 +286,7 @@ public class ShoppingCartService {
 		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
 		logger.info("加入进货单：查询商品是否存在，查询结果shoppingCarts=" + shoppingCarts);
 
+		/* 查询已添加商品的品种总数 */
 		condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		condition.setFromWhere(shoppingCart.getFromWhere());
@@ -272,12 +294,14 @@ public class ShoppingCartService {
 		if(count>=100 && UtilHelper.isEmpty(shoppingCarts))
 			throw new Exception("最多只能添加100个品种，请先下单。");
 
+		/* 单个商品的最大数量限制 */
 		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
 			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
 			throw  new Exception("购买数量不能大于9999999");
 		}
 
-		//当加入的数量加上原有的数量大于可见库存 只能买当前最大库存
+		/* 校验商品库存 */
+		/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
 		int countByid=0;
 		if(!UtilHelper.isEmpty(shoppingCarts)){
 			countByid=shoppingCarts.get(0).getProductCount();
@@ -291,31 +315,44 @@ public class ShoppingCartService {
 		}else{
 			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
 		}
-
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-		if(UtilHelper.isEmpty(shoppingCarts)){//新增商品
-			if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
-				shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
+
+
+		ShoppingCart newNormalProductShoppingCart = null;
+		/* TODO 判断该商品是否是活动商品 */
+		if(true){
+			/* 处理活动商品 */
+			newNormalProductShoppingCart = handleActivityProduct(shoppingCart);
+		}else{
+			/* 处理普通商品(原来的逻辑，代码不变) */
+			/* 新添加商品  或 添加已存在的商品逻辑 */
+			if(UtilHelper.isEmpty(shoppingCarts)){
+				if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
+					shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
+				}
+				shoppingCartMapper.save(shoppingCart);
+			}else {//已经存在商品
+				shoppingCart.setUpdateUser(shoppingCart.getCreateUser());
+				shoppingCartMapper.updateProductCount(shoppingCart);
 			}
-			shoppingCartMapper.save(shoppingCart);
-		}else {//已经存在商品
-			shoppingCart.setUpdateUser(shoppingCart.getCreateUser());
-			shoppingCartMapper.updateProductCount(shoppingCart);
 		}
 
 
-		//查询商品数量和进化单金额
+		/* 统计已加入商品的品种总数 和 进货单的商品总额 */
 		ShoppingCart query = new ShoppingCart();
 		query.setCustId(shoppingCart.getCustId());
 		query.setFromWhere(shoppingCart.getFromWhere());
 		Map<String, java.math.BigDecimal>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(query);
+
 
 		//封装返回信息
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("state", "S");
 		map.put("productCount", statisticsMap.get("productCount") != null ? statisticsMap.get("productCount").intValue() : 0);
 		map.put("sumPrice", statisticsMap.get("sumPrice"));
-
+		if(!UtilHelper.isEmpty(newNormalProductShoppingCart)){
+			map.put("newNormalProductShoppingCart",newNormalProductShoppingCart);
+		}
 		return map;
 	}
 
@@ -672,6 +709,77 @@ public class ShoppingCartService {
 			addressBeanList.add(addressBean);
 		}
 		return addressBeanList;
+	}
+
+	/**
+	 * 功能描述：处理活动商品的相关逻辑(包括校验、增加一条记录等)
+	 * 使用场景：添加进货单、修改进货单时
+	 * @param shoppingCart 原始数据
+	 * @return  超出活动商品限购数量后，进货单中新增的普通商品数据
+     */
+	private ShoppingCart handleActivityProduct(ShoppingCart shoppingCart){
+
+		if(UtilHelper.isEmpty(shoppingCart)) return null;
+
+		/* 该商品是否是活动商品 */
+		if(false){
+			return null;
+		}
+
+		Map<String,ShoppingCart> exceedActivityLimitedNumMap = null;
+		//表示添加商品到购物车
+		if(UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || shoppingCart.getShoppingCartId() <= 0){
+			/* 校验是否超过活动商品限购数量 */
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart);
+
+			ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
+			if(!UtilHelper.isEmpty(activityProductShoppingCart)){
+				shoppingCartMapper.save(activityProductShoppingCart);
+			}
+
+		//表示修改购物车中商品的数量
+		}else{
+			ShoppingCart shoppingCartOrigin = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+			shoppingCartOrigin.setProductCount(shoppingCart.getProductCount());
+			shoppingCartOrigin.setProductPrice(shoppingCart.getProductPrice());
+			shoppingCartOrigin.setProductSettlementPrice(shoppingCart.getProductSettlementPrice());
+			/* 校验是否超过活动商品限购数量 */
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCartOrigin);
+			ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
+			if(!UtilHelper.isEmpty(activityProductShoppingCart)){
+				shoppingCartMapper.update(activityProductShoppingCart);
+			}
+		}
+
+		/* 若超出活动商品限购数量，则新增一条普通商品数据到进货单 */
+		ShoppingCart normalProductShoppingCart = exceedActivityLimitedNumMap.get("normalProduct");
+		if(!UtilHelper.isEmpty(normalProductShoppingCart)){
+			//TODO normalProductShoppingCart 移除活动相关信息
+			shoppingCartMapper.save(normalProductShoppingCart);
+			List<ShoppingCart> newShoppingCartList = shoppingCartMapper.listByProperty(normalProductShoppingCart);
+			if(newShoppingCartList != null && newShoppingCartList.size() == 1){
+				normalProductShoppingCart = newShoppingCartList.get(0);
+			}
+		}
+
+		return normalProductShoppingCart;
+	}
+
+	/**
+	 * 判断是否若超出活动商品限购数量
+	 * @param shoppingCart 要检查的数据
+	 * @return 活动商品的数据、普通商品的数据
+     */
+	private Map<String,ShoppingCart> isExceedActivityLimitedNum(ShoppingCart shoppingCart){
+		Map<String,ShoppingCart> resultMap = new HashMap<>();
+		//TODO 需要接入何家兵的获取活动商品信息的接口,区分出是否超出活动限购数量
+
+
+		//原活动商品的信息
+		resultMap.put("activityProduct",new ShoppingCart());
+		//超出活动限购数量后，需要新增的普通商品信息
+		resultMap.put("normalProduct",new ShoppingCart());
+		return null;
 	}
 
 
