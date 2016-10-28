@@ -481,7 +481,7 @@
                         <%--遍历该供应商的商品信息  结束--%>
                         </tbody>
                     </table>
-                    <div><a class="undeline" onclick="listPg()">查看收货商品清单</a></div>
+                    <div><a class="undeline" onclick="listPg()">查看收发货商品清单</a></div>
                     <div class="text-right">
                         <p>商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.productTotal}" minFractionDigits="2"/>元
 

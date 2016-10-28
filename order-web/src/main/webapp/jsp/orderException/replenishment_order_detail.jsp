@@ -243,7 +243,7 @@
                 </table>
                 <c:if test="${orderExceptionDto.userType==1}">
                     <c:if test="${orderExceptionDto.orderStatus==5 || orderExceptionDto.orderStatus==6}">
-                        <div><a class="undeline" onclick="listReplenishment()">查看收货商品清单</a></div>
+                        <div><a class="undeline" onclick="listReplenishment()">查看收发货商品清单</a></div>
                     </c:if>
                 </c:if>
                 <div class="text-right">
