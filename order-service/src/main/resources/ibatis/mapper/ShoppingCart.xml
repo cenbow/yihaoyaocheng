@@ -36,6 +36,8 @@
 		<result column="update_user" property="updateUser"/>
 		<result column="update_time" property="updateTime"/>
 		<result column="from_where" property="fromWhere"/>
+		<result column="promotion_id" property="promotionId"/>
+		<result column="promotion_name" property="promotionName"/>
 	</resultMap>
 	<resultMap id="ShoppingCartDtoResultMapper" extends="ShoppingCartResultMapper" type="com.yyw.yhyc.order.dto.ShoppingCartDto">
 		<result column="product_image_url" property="productImageUrl"/>
@@ -78,6 +80,8 @@
 		, update_user
 		, update_time
 		, from_where
+		, promotion_id
+		, promotion_name
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -99,6 +103,8 @@
 				, update_user
 				, update_time
 				, from_where
+				, promotion_id
+				, promotion_name
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -121,6 +127,8 @@
 		, update_user
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, from_where
+		, promotion_id
+		, promotion_name
 	</sql>
 	
 	<sql id="commonCondition">
@@ -181,6 +189,12 @@
 		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
 		</if>
+		<if test="promotionId!= null and promotionId !=''">
+			AND promotion_id = #{promotionId}
+		</if>
+		<if test="promotionName!= null and promotionName !=''">
+			AND promotion_name = #{promotionName}
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
@@ -206,6 +220,8 @@
 				, NULL
 				, NULL
 				, #{fromWhere}
+				, #{promotionId}
+				, #{promotionName}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
@@ -262,6 +278,12 @@
 			, update_time= sysdate()
 		<if test="fromWhere!= null">
 			, from_where = #{fromWhere}
+		</if>
+		<if test="promotionId!= null and promotionId !=''">
+			, promotion_id = #{promotionId}
+		</if>
+		<if test="promotionName!= null and promotionName !=''">
+			, promotion_name = #{promotionName}
 		</if>
 		<![CDATA[ WHERE shopping_cart_id = #{shoppingCartId}  ]]>
 		<if test="fromWhere!= null">
@@ -372,6 +394,8 @@
 		, sc.product_count
 		, sc.product_code_company
 		, sc.from_where
+		, sc.promotion_id
+		, sc.promotion_name
 		FROM t_shopping_cart sc
 		WHERE from_where = 0
 		<if test="shoppingCartId!= null and shoppingCartId!= ''">
@@ -406,6 +430,8 @@
 		, sc.product_count
 		, sc.product_code_company
 		, sc.from_where
+		, sc.promotion_id
+		, sc.promotion_name
 		FROM t_shopping_cart sc
 		WHERE from_where = 1
 		<if test="shoppingCartId!= null and shoppingCartId!= ''">
