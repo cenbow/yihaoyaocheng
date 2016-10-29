@@ -144,9 +144,10 @@ public class ShoppingCartController extends BaseJsonController {
 	 * @throws Exception
      */
 	@RequestMapping(value = "/updateNum", method = RequestMethod.POST)
-	public void updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
+	@ResponseBody
+	public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		shoppingCartService.updateNum(shoppingCart,userDto);
+		return shoppingCartService.updateNum(shoppingCart,userDto);
 	}
 
 

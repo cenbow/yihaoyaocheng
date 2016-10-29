@@ -279,6 +279,13 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
         contentType :"application/json",   //请求参数类型
         async:false,
         success:function(data){
+
+            //影响的结果集条数
+            var resultCount = data.resultCount;
+
+            //若是活动商品，且超出活动商品限购数量，则新增一个普通商品到购物车，页面上要动态的新增一条商品数据
+            var normalProductShoppingCart = data.normalProductShoppingCart;
+
             if(data.statusCode || data.message){
                 // console.info("更新数量失败" );
                 new Dialog({
@@ -287,19 +294,22 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                     cancel:'取消',
                     ok:'确定'
                 });
-            }else{
-                // console.info("更新数量成功" );
-                $(_this).parent().find('.its-buy-num').val(_value);
-                $(_this).parent().find('.its-buy-num').attr("preValue",_value);
-                var productPrice = $(_this).parent().find('.its-buy-num').attr("productPrice");
-                /* 商品小计 */
-                var productTotalPrice = Number(productPrice) * Number(_value);
-                $(_this).parents('.holder-list').find('.td-sum span').html(fmoney(productTotalPrice,3));
-                $(_this).parents('.holder-list').find('.td-sum').find("input[name='productSettlementPrice']").val(productTotalPrice.toFixed(3));
-                changeOrderAmountPriceTip(_this);
-                showOrHideTip(_this);
-                totalSum();
+            }else if(null != normalProductShoppingCart){
+                //TODO
+                addNewNormalProduct(null,null);
             }
+            // console.info("更新数量成功" );
+            $(_this).parent().find('.its-buy-num').val(_value);
+            $(_this).parent().find('.its-buy-num').attr("preValue",_value);
+            var productPrice = $(_this).parent().find('.its-buy-num').attr("productPrice");
+            /* 商品小计 */
+            var productTotalPrice = Number(productPrice) * Number(_value);
+            $(_this).parents('.holder-list').find('.td-sum span').html(fmoney(productTotalPrice,3));
+            $(_this).parents('.holder-list').find('.td-sum').find("input[name='productSettlementPrice']").val(productTotalPrice.toFixed(3));
+            changeOrderAmountPriceTip(_this);
+            showOrHideTip(_this);
+            totalSum();
+
         },
         error:function(data){
             var a = data;
@@ -314,6 +324,70 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
             priceNeed();
         }
     });
+}
+
+/**
+ * 在原活动商品下新增一个普通商品的商品节点
+ * @param _obj 需要新增的普通商品数据
+ * @param _this 原活动商品节点
+ */
+function addNewNormalProduct(_obj,_this){
+    // var htmlStr = "" +
+        // "<div class='holder-list'>" +
+        //     "<ul>" +
+        //         "<li class='fl td-chk'>" +
+        //             "<div class='cart-checkbox' shoppingcartid='6017' supplyid='33092'>" +
+        //                 "<span class='inside-icon'>全选所有商品</span> " +
+        //             "</div>"+
+        //         "</li>" +
+        //
+        //         "<li class='fl td-pic' style='cursor: pointer'" + "onclick='javascript:window.location.href='" + "http://mall.yaoex.com/product/productDetail/142AFAZ120002/33092'"> " +
+        //             "<img src="http://oms.yaoex.com/static/images/product_default_img.jpg" title="川贝雪梨膏 150g" alt="川贝雪梨膏 150g">" +
+        //         "</li>" +
+        //
+        //         <li class="fl td-item">
+        //             <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='http://mall.yaoex.com/product/productDetail/142AFAZ120002/33092'">
+        //                 川贝雪梨膏 150g
+        //             </p>
+        //             <p>葵花药业集团(襄阳)隆中有限公司</p>
+        //         </li>
+        //
+        //         <li class="fl td-price">
+        //             <div style="display: block ">
+        //                 ¥<span>41.74</span>
+        //             </div>
+        //         </li>
+        //
+        //         <li class="fl td-amount">
+        //             <div class="it-sort-col5 clearfix pr" style="width: 120px;">
+        //                 <div class="clearfix" style="padding-left: 20px;">
+        //                     <div class="its-choose-amount fl">
+        //                         <div class="its-input">
+        //                             <a href="javascript:;" class="its-btn-reduce">-</a>
+        //                             <a href="javascript:;" class="its-btn-add">+</a>
+        //                             <input value="1" class="its-buy-num" shoppingcartid="6017" salestart="1" upstep="1" prevalue="1" productinventory="9999" productprice="41.740">
+        //                         </div>
+        //                     </div>
+        //                 </div>
+        //
+        //                 <span class="color-gray9">最小拆零包装:1盒</span>
+        //                 <br>
+        //                 <span class="color-gray9">库存 &gt; 500</span>
+        //             </div>
+        //         </li>
+        //
+        //         <li class="fl td-sum">
+        //             <input type="hidden" name="productSettlementPrice" value="41.740"/>
+        //             <div style="display: block ">
+        //                 ¥<span>41.74</span>
+        //             </div>
+        //         </li>
+        //
+        //         <li class="fl td-op"><a href="javascript:deleteShoppingCart(6017);" class="btn-delete">删除</a></li>
+        //
+        //     </ul>
+        // </div>
+
 }
 
 
