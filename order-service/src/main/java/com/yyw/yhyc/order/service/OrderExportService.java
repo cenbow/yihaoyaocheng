@@ -914,15 +914,15 @@ public class OrderExportService {
 				cell5.setCellStyle(contentStyle);
 
 				HSSFCell cell6 = row2.createCell(3);
-				cell6.setCellValue((String) tempMap.get("exception_receive_address"));
+				cell6.setCellValue((String) tempMap.get("former_receive_address"));
 				cell6.setCellStyle(contentStyle);
 
 				HSSFCell cell7 = row2.createCell(5);
-				cell7.setCellValue((String) tempMap.get("exception_receive_person"));
+				cell7.setCellValue((String) tempMap.get("former_receive_person"));
 				cell7.setCellStyle(contentStyle);
 
 				HSSFCell cell8 = row2.createCell(7);
-				cell8.setCellValue((String) tempMap.get("exception_receive_contact_phone"));
+				cell8.setCellValue((String) tempMap.get("former_receive_contact_phone"));
 				cell8.setCellStyle(contentStyle);
 
 				// 订单的第三行
