@@ -93,7 +93,7 @@ public class OrderPayManage {
         if("0000".equals(orderStatus)){
             orderRefundStatus = true;
         }
-        updateRedundOrderInfos(flowPayId, orderRefundStatus, map.toString());
+        updateRedundOrderInfos(flowPayId, orderRefundStatus, map);
     }
 
 
@@ -104,7 +104,7 @@ public class OrderPayManage {
         String money = map.get("money").toString();
         String MerId = map.get("MerId").toString();
        log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
-        updateOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
+        updateOrderpayInfos(flowPayId, new BigDecimal(money), map);
     }
 
 
@@ -173,7 +173,7 @@ public class OrderPayManage {
      * @param parameter 支付平台返回的信息
      * @throws Exception
      */
-    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
+    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,Map parameter)
             throws Exception {
         log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
 
@@ -193,7 +193,7 @@ public class OrderPayManage {
                 // 更新订单支付信息
                 orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
                 orderPay.setPayTime(now);
-                orderPay.setPaymentPlatforReturn(parameter);
+                orderPay.setPaymentPlatforReturn(parameter.toString());
                 orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                 orderPayMapper.update(orderPay);
 
@@ -274,7 +274,7 @@ public class OrderPayManage {
      * @param parameter           支付平台返回的信息
      * @throws Exception
      */
-    public void updateRedundOrderInfos(String payFlowId, boolean orderRefundStatus, String parameter)
+    public void updateRedundOrderInfos(String payFlowId, boolean orderRefundStatus, Map parameter)
             throws Exception {
         log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----");
 
@@ -288,7 +288,7 @@ public class OrderPayManage {
         for (Order o : listOrder) {
             OrderRefund orderRefund = orderRefundMapper.getOrderRefundByOrderId(o.getOrderId());
             if (!UtilHelper.isEmpty(orderRefund)) {
-                orderRefund.setRemark(parameter);
+                orderRefund.setRemark(parameter.toString());
                 if (orderRefundStatus) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);

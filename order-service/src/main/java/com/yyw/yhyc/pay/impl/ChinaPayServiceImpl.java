@@ -478,10 +478,10 @@ public class ChinaPayServiceImpl implements PayService {
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
                         // //退款成功记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay.get("respMsg"));
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay);
                     }else{
                         //退款失败记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay.get("respMsg"));
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay);
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
