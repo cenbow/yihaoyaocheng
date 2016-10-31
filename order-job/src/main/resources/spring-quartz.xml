@@ -6,13 +6,13 @@
         <bean id="orderCancelForNoDeliveryJobService" class="com.yyw.yhyc.job.order.service.impl.OrderCancelForNoDeliveryJobServiceImpl"/>
         <bean id="orderCancelForNoPayJobService" class="com.yyw.yhyc.job.order.service.impl.OrderCancelForNoPayJobServiceImpl"/>
         <bean id="orderDoneForDeliveryJobService" class="com.yyw.yhyc.job.order.service.impl.OrderDoneForDeliveryJobServiceImpl"/>
-  		<bean id="orderIssuedNoRelationshipJobService" class="com.yyw.yhyc.job.order.service.impl.OrderIssuedNoRelationshipJobServiceImpl"/>
-        <bean id="orderIssuedExceptionJobService" class="com.yyw.yhyc.job.order.service.impl.OrderIssuedExceptionJobServiceImpl"/>
 
+            <bean id="checkFileJobService" class="com.yyw.yhyc.job.order.service.impl.CheckFileJobServiceImpl"/>
         <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
             <!-- 添加触发器 -->
             <property name="triggers">
                 <list>
+           
                  <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
                         <constructor-arg ref="orderCancelForNoDeliveryJobService"/>
                         <constructor-arg value="0 */1 * * * ?"/>
@@ -25,13 +25,9 @@
                         <constructor-arg ref="orderDoneForDeliveryJobService"/>
                         <constructor-arg value="0 */1 * * * ?"/>
                     </bean>  
-                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
-                        <constructor-arg ref="orderIssuedNoRelationshipJobService"/>
-                        <constructor-arg value="0 */1 * * * ?"/>
-                    </bean>
-                    <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
-                        <constructor-arg ref="orderIssuedExceptionJobService"/>
-                        <constructor-arg value="0 */1 * * * ?"/>
+                      <bean class="com.yyw.yhyc.job.order.support.CronTriggerFactoryBean">
+                        <constructor-arg ref="checkFileJobService"/>
+                        <constructor-arg value="0 30 23 * * ?"/>
                     </bean>
                 </list>
             </property>

@@ -1,4 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,7 +25,7 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form id="searchForm">
+                <form id="searchForm" method="POST" action="${ctx}/export/exportOrderSettlement/t1">
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">采购商区域</label>
@@ -38,11 +41,16 @@
                                     <option value="-1">区/县</option>
                                 </select>
                             </div>
-                            <label for="scope" class="col-xs-2 control-label">采购商 </label>
+                        </div>
+                        <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">采购商 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="carnum" name="custName" placeholder="">
                             </div>
-                            <div class="col-xs-2"></div>
+                            <label for="scope" class="col-xs-2 control-label">原订单号</label>
+                            <div class="col-xs-3">
+                                <input type="text" class="form-control" name="orgFlowId"/>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">业务类型</label>
@@ -55,27 +63,33 @@
                                         <option value="4">取消订单退款</option>
                                 </select>
                             </div>
-                            <label for="scope" class="col-xs-2 control-label">订单号</label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" name="flowId"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">支付方式</label>
-                            <div class="col-xs-3">
-                                <select class="form-control" name="payType">
-                                    <option value="-1">全部</option>
-                                    <option value="1">线上支付</option>
-                                    <option value="2">账期支付</option>
-                                    <option value="3">线下转账</option>
-                                </select>
-                            </div>
                             <label for="scope" class="col-xs-2 control-label">结算状态</label>
                             <div class="col-xs-3">
                                 <select class="form-control" name="confirmSettlement">
                                     <option value="-1">全部</option>
                                     <option value="0">未结算</option>
+                                    <option value="2">结算中</option>
                                     <option value="1">已结算</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                        	<label for="scope" class="col-xs-2 control-label">支付方式</label>
+                            <div class="col-xs-3">
+                                <select class="form-control" name="payType">
+                                    <option value="-1">全部</option>
+                                    <c:forEach var="item" items="${payTypeName }" varStatus="itemStatus" >
+                                    	<option value="${item.payType }">${item.payTypeName }</option>
+							  		</c:forEach>
+                                </select>
+                            </div>
+                            <label for="scope" class="col-xs-2 control-label">支付平台</label>
+                            <div class="col-xs-3">
+                            	<select class="form-control" name="payTypeId">
+                                    <option value="-1">全部</option>
+                                    <c:forEach var="item" items="${payName }" varStatus="itemStatus" >
+                                    	<option value="${item.payTypeId }">${item.payName }</option>
+							  		</c:forEach>
                                 </select>
                             </div>
                         </div>
@@ -89,8 +103,9 @@
                                 </div>
                                 <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1月</a> ]</p>
                             </div>
-                            <div class="col-xs-5 text-right">
-                                <input type="button" class="btn btn-info" value="搜索">
+                            <div class="col-xs-5 text-left">
+                                <input type="button" class="btn btn-info btn-search" value="搜索">
+                                <input type="button" class="btn btn-info btn-export" value="导出">
                             </div>
                         </div>
                     </div>
@@ -106,22 +121,30 @@
                                         <col style="width: 10%;" />
                                         <col style="width: 10%;" />
                                         <col style="width: 10%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
+                                        <col style="width: 6%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 12%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
                                         <col style="width: 5%;" />
                                         <col style="width: 5%;" />
                                     </colgroup>
                                     <thead>
                                     <tr>
-                                        <th>订单号</th>
-                                        <th>支付方式</th>
+                                        <th>原订单号</th>
+                                        <th>异常流程订单号</th>
+                                        <th>结算流水号</th>
                                         <th>业务类型</th>
+                                        <th>支付方式</th>
+                                        <th>支付平台</th>
                                         <th>采购商</th>
                                         <th>下单时间</th>
                                         <th>结算时间</th>
-                                        <th>结算订单金额(元)</th>
+                                        <th>应结算金额(元)</th>
+                                        <th>实际结算金额(元)</th>
                                         <th>结算状态</th>
                                         <th>操作</th>
                                     </tr>
