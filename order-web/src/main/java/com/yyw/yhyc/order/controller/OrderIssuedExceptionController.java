@@ -50,7 +50,7 @@ public class OrderIssuedExceptionController extends BaseJsonController {
      *
      * @return
      */
-    @RequestMapping("/orderIssuedExceptionManage")
+    @RequestMapping("/sellerOrderIssuedExceptionManage")
     public ModelAndView orderIssuedExceptionManage() {
         ModelAndView view = new ModelAndView("orderIssuedException/order_issued_exception_manage");
         return view;
