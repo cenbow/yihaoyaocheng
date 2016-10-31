@@ -459,10 +459,14 @@ public class ChinaPayServiceImpl implements PayService {
                 String paydate=StringUtil.getRelevantDate(DateUtils.getDateFromString(orderPay.getPayTime()));
 
                 //赂银联发起分账请求
-                donePay=this.doneOrderToChianPay(orderPay, date, time, paydate,
-                        cancelMoney, multiple, MerSplitMsg, fromWhere);
+                donePay=this.doneOrderToChianPay(orderPay, date, time, paydate, cancelMoney, multiple, MerSplitMsg, fromWhere);
+
                 //分账后进行相关操作
-                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), donePay.get("respCode"));
+                boolean orderSettlementStatus = false;
+                if("0000".equals(donePay.get("respCode"))){
+                    orderSettlementStatus = true;
+                }
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus);
 
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
@@ -474,10 +478,10 @@ public class ChinaPayServiceImpl implements PayService {
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
                         // //退款成功记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0000",cancelPay.get("respMsg"));
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay.get("respMsg"));
                     }else{
                         //退款失败记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),"0001",cancelPay.get("respMsg"));
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay.get("respMsg"));
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
