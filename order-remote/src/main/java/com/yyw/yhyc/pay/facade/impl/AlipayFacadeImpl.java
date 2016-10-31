@@ -2,7 +2,6 @@ package com.yyw.yhyc.pay.facade.impl;
 
 import com.yyw.yhyc.pay.facade.AlipayFacade;
 import com.yyw.yhyc.pay.impl.AlipayServiceImpl;
-import com.yyw.yhyc.pay.interfaces.PayService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +38,8 @@ public class AlipayFacadeImpl implements AlipayFacade {
         return alipayService.alipayrefundFastpayByMap(batch_num,refundMap);
     }
 
+
+    //测试
     public static void main(String[] args) {
         AlipayFacadeImpl af = new AlipayFacadeImpl();
         af.alipayCommit("test20161029174446","test商品123","0.01","即时到账测试");

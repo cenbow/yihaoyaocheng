@@ -48,6 +48,11 @@ public class AlipayCore {
         return result;
     }
 
+    /**
+     * 除去数组中的空值和签名参数
+     * @param sArray 签名参数组
+     * @return 去掉空值与签名参数后的新签名参数组
+     */
     public static Map<String, String> paraFilterAndUrl(Map<String, String> sArray) {
 
         Map<String, String> result = new HashMap<String, String>();
@@ -62,7 +67,7 @@ public class AlipayCore {
                     || key.equalsIgnoreCase("sign_type")) {
                 continue;
             }
-
+            //参数转码
             result.put(key, URLEncoder.encode(value));
 
 
@@ -127,7 +132,7 @@ public class AlipayCore {
     }
 
     /** 
-     * 写日志，方便测试（看网站需求，也可以改成把记录存入数据库）
+     * 写日志，方便测试
      * @param sWord 要写入日志里的文本内容
      */
     public static void logResult(String sWord) {
@@ -147,6 +152,7 @@ public class AlipayCore {
             }
         }
     }
+
 
     /** 
      * 生成文件摘要

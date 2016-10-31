@@ -16,9 +16,11 @@
  * */
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*"%>
-<%@ page import="com.alipay.util.*"%>
-<%@ page import="com.alipay.config.*"%>
+<%@ page import="com.yyw.yhyc.order.manage.OrderPayManage"%>
+<%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify"%>
+<%@ page import="java.util.HashMap"%>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.Map" %>
 <%
 	//获取支付宝POST过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
@@ -55,7 +57,12 @@
 		//请在这里加上商户的业务逻辑程序代码
 
 		//——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
-		
+		OrderPayManage orderPayManage = new OrderPayManage();
+		try {
+			orderPayManage.updateRedundOrderInfos(batch_no,true,params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		//判断是否在商户网站中已经做过了这次通知返回的处理
 			//如果没有做过处理，那么执行商户的业务程序
 			//如果有做过处理，那么不执行商户的业务程序
