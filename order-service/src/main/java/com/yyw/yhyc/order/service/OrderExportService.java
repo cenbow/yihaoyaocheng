@@ -756,17 +756,25 @@ public class OrderExportService {
 				cell5.setCellValue((String) tempMap.get("supply_name"));
 				cell5.setCellStyle(contentStyle);
 
+				String returnType = orderDto.getReturnType();
 				HSSFCell cell6 = row2.createCell(3);
-				cell6.setCellValue((String) tempMap.get("former_delivery_address"));
 				cell6.setCellStyle(contentStyle);
-
+				
 				HSSFCell cell7 = row2.createCell(5);
-				cell7.setCellValue((String) tempMap.get("former_delivery_person"));
 				cell7.setCellStyle(contentStyle);
-
+				
 				HSSFCell cell8 = row2.createCell(7);
-				cell8.setCellValue((String) tempMap.get("former_delivery_contact_phone"));
 				cell8.setCellStyle(contentStyle);
+				//补货的发货地址
+				if("3".equals(returnType)){
+					cell6.setCellValue((String) tempMap.get("exception_delivery_address"));
+					cell7.setCellValue((String) tempMap.get("exception_delivery_person"));
+					cell8.setCellValue((String) tempMap.get("exception_delivery_contact_phone"));
+				}else{
+					cell6.setCellValue((String) tempMap.get("former_delivery_address"));
+					cell7.setCellValue((String) tempMap.get("former_delivery_person"));
+					cell8.setCellValue((String) tempMap.get("former_delivery_contact_phone"));
+				}
 
 				// 订单的第三行
 				HSSFRow row3 = sheet.getRow(rownum - 1);
