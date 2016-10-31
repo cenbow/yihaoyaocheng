@@ -474,4 +474,14 @@ public class CmbPayServiceImpl implements PayService{
 
         return null;
     }
+
+    @Override
+    public String alipayCommit(String out_trade_no, String subject, String total_fee, String body) {
+        return null;
+    }
+
+    @Override
+    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
+        return null;
+    }
 }
