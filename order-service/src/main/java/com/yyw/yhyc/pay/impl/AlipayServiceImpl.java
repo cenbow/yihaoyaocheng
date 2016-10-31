@@ -70,6 +70,18 @@ public class AlipayServiceImpl  implements PayService {
     @Override
     public String alipayCommit(String out_trade_no, String subject, String total_fee, String body) {
 
+        if(StringUtils.isEmpty(out_trade_no)){
+            log.info("支付订单号不能为空");
+            throw new RuntimeException("支付订单号不能为空");
+        }
+        if(StringUtils.isEmpty(subject)){
+            log.info("订单名称不能为空");
+            throw new RuntimeException("订单名称不能为空");
+        }
+        if(StringUtils.isEmpty(total_fee)){
+            log.info("付款金额不能为空");
+            throw new RuntimeException("付款金额不能为空");
+        }
 
         Map<String, String> sParaTemp = new HashMap<String, String>();
         sParaTemp.put("service", AlipayConfig.service);
@@ -96,6 +108,16 @@ public class AlipayServiceImpl  implements PayService {
 
     @Override
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
+
+        if(refundMap.size()<0){
+            log.info("退款参数不能为空");
+            throw new RuntimeException("退款参数不能为空");
+        }
+        if(refundMap.size()-batch_num !=0){
+            log.info("退款总笔数跟参数集数量不一致");
+            throw new RuntimeException("退款总笔数跟参数集数量不一致");
+        }
+
 
         //把请求参数打包成数组
         Map<String, String> sParaTemp = new HashMap<String, String>();
