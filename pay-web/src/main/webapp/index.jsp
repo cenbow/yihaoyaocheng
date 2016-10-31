@@ -6,6 +6,8 @@
 <html>
 <body>
 <h2>Hello World!</h2>
+
+<% if (request.getRemoteAddr().indexOf(",") < 0) {%>
 <p>session id --> <%=session.getId()%></p>
 <%
     User u = new User();
@@ -30,5 +32,7 @@
     *custType:<input id="radio1" type="radio" name="custType" value="101"><label for="radio1">买家</label><input id="radio2" name="custType" type="radio" value="201"><label for="radio2">卖家</label><input id="radio3" name="custType" type="radio" value="301"><label for="radio3">买卖家</label><br/>
     <input type="submit" value="登录" />
 </form>
+<% } %>
+
 </body>
 </html>

@@ -20,10 +20,13 @@
 		<result column="order_issued_id" property="orderIssuedId"/>
 		<result column="flow_id" property="flowId"/>
 		<result column="supply_id" property="supplyId"/>
+		<result column="supply_name" property="supplyName"/>
 		<result column="issued_status" property="issuedStatus"/>
 		<result column="issued_count" property="issuedCount"/>
 		<result column="create_time" property="createTime"/>
 		<result column="update_time" property="updateTime"/>
+		<result column="cus_relationship" property="cusRelationship"/>
+		<result column="is_scan" property="isScan"/>
 	</resultMap>
 	<resultMap id="OrderIssuedItemsResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedItemDto">
 		<result column="product_id" property="productId"/>
@@ -36,6 +39,7 @@
 	<resultMap id="OrderIssuedDtoResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedDto">
 		<result column="flow_id" property="orderCode"/>
 		<result column="org_total" property="orderAmount"/>
+		<result column="supply_name" property="supplyName"/>
 		<result column="create_time" property="createTime"/>
 		<result column="leave_message" property="leaveMessage"/>
 		<result column="order_id" property="orderId"/>
@@ -50,29 +54,38 @@
 		 order_issued_id
 		, flow_id
 		, supply_id
+		, supply_name
 		, issued_status
 		, issued_count
 		, create_time
 		, update_time
+		, cus_relationship
+		, is_scan
 	</sql>
 
     <sql id="commonColumnsNotPK">
 				 flow_id
 				, supply_id
+				, supply_name
 				, issued_status
 				, issued_count
 				, create_time
 				, update_time
+				, cus_relationship
+				, is_scan
     </sql>
 	
 	<sql id="commonProcessDateColumns">
 		 order_issued_id
 		, flow_id
 		, supply_id
+		, supply_name
 		, issued_status
 		, issued_count
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, cus_relationship
+		, is_scan
 	</sql>
 	
 	<sql id="commonCondition">
@@ -84,6 +97,9 @@
 		</if>
 		<if test="supplyId!= null and supplyId!= ''"> 
 			AND supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND supply_name=#{supplyName}
 		</if>
 		<if test="issuedStatus!= null and issuedStatus!= ''"> 
 			AND issued_status=#{issuedStatus}
@@ -97,6 +113,12 @@
 		<if test="updateTime!= null and updateTime!= ''"> 
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
+		<if test="cusRelationship!= null and cusRelationship!= ''"> 
+			AND cus_relationship= #{cusRelationship} 
+		</if>
+		<if test="isScan!= null"> 
+			AND is_scan= #{isScan} 
+		</if>
 	</sql>
 	
 	<insert id="save" parameterType="OrderIssued">
@@ -106,10 +128,13 @@
 			) VALUES ( 
 				 #{flowId}
 				, #{supplyId}
+				, #{supplyName}
 				, #{issuedStatus}
 				, #{issuedCount}
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{cusRelationship} 
+				, #{isScan} 
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderIssued">
@@ -117,12 +142,50 @@
 			 order_issued_id=#{orderIssuedId} 
 			, flow_id=#{flowId} 
 			, supply_id=#{supplyId} 
+			, supply_name=#{supplyName}
 			, issued_status=#{issuedStatus} 
 			, issued_count=#{issuedCount} 
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, cus_relationship=#{cusRelationship} 
+			, is_scan=#{isScan} 
 		WHERE order_issued_id = #{orderIssuedId}  ]]>
 	</update>
+	
+	<update id="updateBySelective" parameterType="OrderIssued">
+		 UPDATE t_order_issued 
+		 <set>		 
+			<if test="flowId!= null  "> 
+				flow_id=#{flowId},
+			</if>
+			<if test="supplyId!= null "> 
+				supply_id=#{supplyId},
+			</if>
+			<if test="supplyName!= null "> 
+				supply_name=#{supplyName},
+			</if>
+			<if test="issuedStatus!= null "> 
+				issued_status=#{issuedStatus},
+			</if>
+			<if test="issuedCount!= null "> 
+				issued_count=#{issuedCount},
+			</if>
+			<if test="createTime!= null "> 
+				create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s'),
+			</if>
+			<if test="updateTime!= null  "> 
+				update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s'),
+			</if>
+			<if test="cusRelationship!= null "> 
+				cus_relationship= #{cusRelationship} ,
+			</if>
+			<if test="isScan!= null  "> 
+				is_scan= #{isScan} 
+			</if>
+		 </set> 
+		WHERE flow_id =#{flowId}
+	</update>
+	
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
 		<![CDATA[ DELETE FROM t_order_issued WHERE order_issued_id = #{orderIssuedId}  ]]>
 	</delete>
@@ -168,16 +231,17 @@
 			O.FLOW_ID,
 			O.ORG_TOTAL,
 			O.SUPPLY_ID,
+			O.SUPPLY_NAME,
 			O.CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.OUT_USERID AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
-			INNER JOIN T_PASSPORT_USER_OUT PUO
-			ON O.CUST_ID = PUO.USERID
-			AND O.SUPPLY_ID = ENTERPRISE_ID
+			INNER JOIN t_cust_erp_relation  PUO
+			ON O.CUST_ID = PUO.cust_code_yc
+			AND O.SUPPLY_ID = seller_code
 			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
 			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
@@ -207,5 +271,22 @@
 		WHERE
 		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1' AND TP.pay_type=1
 		AND O.ORDER_STATUS = '5'
+	</select>
+	
+	<select id="findOrderIssuedNoRelationshipList" resultType="java.util.Map" useCache="false">
+		SELECT
+		   O.FLOW_ID,
+		   O.SUPPLY_ID,
+		   O.SUPPLY_NAME,
+		  date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') create_time ,
+		   O.cust_id
+		FROM
+		   T_ORDER O  LEFT JOIN T_SYSTEM_PAY_TYPE SPT
+		   ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
+		WHERE
+		   O.ORDER_STATUS = '5'
+		AND SPT.PAY_TYPE = 1  
+		AND (O.cust_id NOT in (SELECT cust_code_yc from t_cust_erp_relation )
+		and O.SUPPLY_ID NOT in (SELECT seller_code from t_cust_erp_relation ))
 	</select>
 </mapper>

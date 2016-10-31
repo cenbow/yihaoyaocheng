@@ -341,7 +341,10 @@ public class OrderService {
 					continue;
 				}
 			}
-
+            // pc 订单来源设置
+			if(orderDto.getSource()==0){
+				orderDto.setSource(orderCreateDto.getSource());
+			};
 			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 
@@ -734,7 +737,7 @@ public class OrderService {
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
 		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
-
+		order.setSource(orderDto.getSource());//订单来源
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
 		List<Order> orders = orderMapper.listByProperty(order);
@@ -941,11 +944,12 @@ public class OrderService {
 				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
 			}
 
-			/* 如果该商品没有缺货且没有下架，则统计该供应商下的已买商品总额 */
-			if( "2".equals(code) && 1 == putawayStatus ){
+			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 		}
+		log.info("统一校验订单商品接口:供应商[" + seller.getEnterpriseName() + "]("+seller.getEnterpriseId()+")的订单起售金额=" + seller.getOrderSamount() + ",在该供应商下购买的商品总额=" + productPriceCount);
 
 		if(!UtilHelper.isEmpty(seller.getOrderSamount()) && productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
 			return returnFalse("你有部分商品金额低于供货商的发货标准，此商品无法结算",productFromFastOrderCount);
@@ -2091,6 +2095,7 @@ public class OrderService {
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
 		orderDto.setPayFlag(Integer.valueOf((data.get("payFlag")==null || "".equals(data.get("payFlag"))) ?  "0":data.get("payFlag")));
+		orderDto.setSource(Integer.valueOf((data.get("source")==null || "".equals(data.get("source"))) ?  "0":data.get("source")));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
@@ -3058,5 +3063,9 @@ public class OrderService {
 		}
 		orderBean.setProductList(productList);
 		return orderBean;
+	}
+	
+	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
+		return orderMapper.getOrderDetailForExport(orderDto);
 	}
 }

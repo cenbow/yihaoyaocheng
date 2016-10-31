@@ -104,7 +104,7 @@
 
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">卖家确认/关闭时间：</label>
-                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.updateTime}</div>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.reviewTime}</div>
                             <label for="scope" class="col-xs-2 control-label">确认/关闭说明：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.remark}</div>
                         </div>
@@ -209,10 +209,13 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
+                                                	<a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
                                                     <img alt="${orderReturnDto.productName}" class="productImageUrl" spuCode="${orderReturnDto.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                               		</a>
                                                 </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${orderReturnDto.productName}</p>
+                                                    <p class="title"><a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                      ${orderReturnDto.productName}</a></p>
                                                     <p class="text">${orderReturnDto.manufactures}</p>
                                                     <p class="text">${orderReturnDto.specification}</p>
                                                 </div>

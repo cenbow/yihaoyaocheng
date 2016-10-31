@@ -60,7 +60,8 @@
                                         class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
                             <div class="col-xs-2 text-left">
-                                <input type="button" class="btn btn-info" value="搜索">
+                                <input type="button" class="btn btn-info" value="搜索">&nbsp;&nbsp;&nbsp;
+                                <input type="button" class="btn btn-info" value="订单导出" id="export">
                             </div>
                         </div>
                     </div>
@@ -115,6 +116,10 @@
         </div>
     </div>
 </div>
+<form action="" id="exportForm" method="post">
+	<input type="hidden" name="condition" id="condition">
+	<input type="hidden" name="returnType" id="returnType" value="2">
+</form>
 <div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -140,10 +145,10 @@
                             <label for="scope" class="col-xs-2 control-label"><em>*</em>配送方式</label>
                             <div class="col-xs-9 border-gray no-padding">
                                 <div class="border-bottom padding-b-10">
-                                    <label class="radio-inline margin-l-10" href="#one1" onclick="totab(1)" data-toggle="tab">
+                                    <label class="radio-inline margin-l-10" href="#one1" onclick="totab(1)">
                                         <input type="radio" checked="true"  name="ownw" id="ownw1" value="1">自有物流
                                     </label>
-                                    <label class="radio-inline no-margin"  href="#one2" onclick="totab(2)" data-toggle="tab">
+                                    <label class="radio-inline no-margin"  href="#one2" onclick="totab(2)">
                                         <input type="radio" name="ownw"  value="2" id="ownw2">第三方运输公司
                                     </label>
                                 </div>

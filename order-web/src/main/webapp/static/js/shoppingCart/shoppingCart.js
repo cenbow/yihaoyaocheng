@@ -91,6 +91,7 @@ function totalSub(e){
     orderSamountObject.attr("buyPrice",buyedOrderAmount.toFixed(2));
 
     var orderSamount = orderSamountObject.val();
+    console.info("Number(orderSamount)=" + Number(orderSamount)+",Number( buyedOrderAmount)=" + Number( buyedOrderAmount));
     /* 如果在该供应商下购买的商品总额 超过 订单起售金额 ，则隐藏提示语。否则要提示用户 */
     if(Number(orderSamount) <= Number( buyedOrderAmount)){
         orderSamountObject.attr("needPrice",Number(0));

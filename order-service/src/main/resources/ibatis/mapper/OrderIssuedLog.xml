@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-10-25 10:38:15
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderIssuedLogMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderIssuedLogResultMapper" type="OrderIssuedLog">
+		<result column="id" property="id"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="operate_name" property="operateName"/>
+		<result column="operator" property="operator"/>
+		<result column="operate_time" property="operateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 id
+		, flow_id
+		, operate_name
+		, operator
+		, operate_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 flow_id
+				, operate_name
+				, operator
+				, operate_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 id
+		, flow_id
+		, operate_name
+		, operator
+		, date_format(operate_time, '%Y-%m-%d %H:%i:%s') operate_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="id!= null and id!= ''"> 
+			AND id=#{id}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="operateName!= null and operateName!= ''"> 
+			AND operate_name=#{operateName}
+		</if>
+		<if test="operator!= null and operator!= ''"> 
+			AND operator=#{operator}
+		</if>
+		<if test="operateTime!= null and operateTime!= ''"> 
+			AND operate_time=str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderIssuedLog">
+		<![CDATA[ INSERT INTO t_order_issued_log ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{flowId}
+				, #{operateName}
+				, #{operator}
+				, str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderIssuedLog">
+		<![CDATA[ UPDATE t_order_issued_log SET 
+			 id=#{id} 
+			, flow_id=#{flowId} 
+			, operate_name=#{operateName} 
+			, operator=#{operator} 
+			, operate_time=str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE id = #{id}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_issued_log WHERE id = #{id}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_issued_log WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderIssuedLog">
+		DELETE FROM t_order_issued_log WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderIssuedLogResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_issued_log WHERE id = #{id}  
+	</select>
+	<select id="list" resultMap="OrderIssuedLogResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_issued_log
+	</select>
+	<select id="listByProperty" parameterType="OrderIssuedLog" resultMap="OrderIssuedLogResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued_log WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderIssuedLog" resultMap="OrderIssuedLogResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued_log WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderIssuedLog" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_issued_log WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

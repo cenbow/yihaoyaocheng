@@ -62,7 +62,8 @@
                                         class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
                             <div class="col-xs-2 text-left">
-                                <input type="button" class="btn btn-info" value="搜索">
+                                <input type="button" class="btn btn-info" value="搜索" id="search">&nbsp;&nbsp;&nbsp;
+                                <input type="button" class="btn btn-info" value="订单导出" id="export">
                             </div>
                         </div>
                     </div>
@@ -128,6 +129,9 @@
         </div>
     </div>
 </div>
+<form action="" id="exportForm" method="post">
+	<input type="hidden" name="condition" id="condition">
+</form>
 <div class="modal fade" id="myModalConfirmReceipt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width: 1000px;">
         <div class="modal-content">
