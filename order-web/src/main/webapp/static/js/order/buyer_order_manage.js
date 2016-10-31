@@ -410,7 +410,7 @@ function fillTable(data) {
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
         tr += "<td><input type='hidden' name='list.productCount' value='"+orderDeliveryDetail.deliveryProductCount+"' >" + orderDeliveryDetail.deliveryProductCount + "</td>";
-        tr += "<td><input class='form-control' type='text' name='list.recieveCount'  /></td>";
+        tr += "<td><input class='form-control' type='text' name='list.recieveCount' value='"+orderDeliveryDetail.deliveryProductCount+"' /></td>";
         tr += "</tr>";
         trs += tr;
     }
