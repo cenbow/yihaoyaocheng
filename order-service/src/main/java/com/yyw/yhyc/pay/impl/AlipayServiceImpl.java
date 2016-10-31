@@ -1,8 +1,11 @@
 package com.yyw.yhyc.pay.impl;
 
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
 import com.yyw.yhyc.pay.alipay.util.AlipayCore;
 import com.yyw.yhyc.pay.alipay.util.AlipaySubmit;
@@ -11,10 +14,12 @@ import com.yyw.yhyc.pay.interfaces.PayService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,11 +30,34 @@ public class AlipayServiceImpl  implements PayService {
 
     private static final Logger log = LoggerFactory.getLogger(AlipayServiceImpl.class);
 
+    @Autowired
+    private OrderMapper orderMapper;
+
     @Override
     public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType, int type) throws Exception {
-        //TODO 处理请求支付的参数，返回请求支付的url/已经签名过的数据，方便后续直接发起请求
+        Map<String,Object>  payRequestParamMap = new HashMap<>();
+        if(UtilHelper.isEmpty(orderPay) || UtilHelper.isEmpty(orderPay.getPayTypeId())){
+            return payRequestParamMap;
+        }
+        List<Order> orderList = orderMapper.listOrderByPayFlowId(orderPay.getPayFlowId());
+        if(UtilHelper.isEmpty(orderList)){
+            return payRequestParamMap;
+        }
+        String flowIds = "";
+        for(Order order: orderList){
+            if(UtilHelper.isEmpty(order)) continue;
+            if(UtilHelper.isEmpty(flowIds)){
+                flowIds +=  order.getFlowId();
+            }else{
+                flowIds += "," + order.getFlowId();
+            }
+        }
 
-        return null;
+        //处理请求支付的参数，返回请求支付的url/已经签名过的数据，方便后续直接发起请求
+        String payRequestUrl= this.alipayCommit(orderPay.getPayFlowId(),"订单编号：" + flowIds , orderPay.getOrderMoney()+"","");
+
+        payRequestParamMap.put("payRequestUrl",payRequestUrl);
+        return payRequestParamMap;
     }
 
     @Override
@@ -67,7 +95,14 @@ public class AlipayServiceImpl  implements PayService {
         return false;
     }
 
-    @Override
+    /**
+     * 封装请求支付的url、参数、数据
+     * @param out_trade_no
+     * @param subject
+     * @param total_fee
+     * @param body
+     * @return
+     */
     public String alipayCommit(String out_trade_no, String subject, String total_fee, String body) {
 
         if(StringUtils.isEmpty(out_trade_no)){
@@ -106,7 +141,13 @@ public class AlipayServiceImpl  implements PayService {
 
     }
 
-    @Override
+
+    /**
+     * 封装退款的url、参数、数据
+     * @param batch_num
+     * @param refundMap
+     * @return
+     */
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
 
         if(refundMap.size()<0){

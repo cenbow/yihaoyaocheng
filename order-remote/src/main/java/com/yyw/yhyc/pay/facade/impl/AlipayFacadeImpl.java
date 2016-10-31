@@ -1,6 +1,7 @@
 package com.yyw.yhyc.pay.facade.impl;
 
 import com.yyw.yhyc.pay.facade.AlipayFacade;
+import com.yyw.yhyc.pay.impl.AlipayServiceImpl;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,11 +19,11 @@ public class AlipayFacadeImpl implements AlipayFacade {
     private static final Logger logger = LoggerFactory.getLogger(AlipayFacadeImpl.class);
 
     @Autowired
-    PayService payService;
+    private AlipayServiceImpl alipayService;
 
     @Override
     public String alipayCommit(String out_trade_no, String subject, String total_fee, String body) {
-      return payService.alipayCommit(out_trade_no,subject,total_fee,body);
+      return alipayService.alipayCommit(out_trade_no,subject,total_fee,body);
 
     }
 
@@ -35,7 +36,7 @@ public class AlipayFacadeImpl implements AlipayFacade {
 
     @Override
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-        return payService.alipayrefundFastpayByMap(batch_num,refundMap);
+        return alipayService.alipayrefundFastpayByMap(batch_num,refundMap);
     }
 
     public static void main(String[] args) {
