@@ -88,7 +88,7 @@ public class OrderIssuedExceptionController extends BaseJsonController {
     public Map<String, String> issued(@RequestBody OrderIssuedExceptionDto orderIssuedExceptionDto) throws Exception {
         UserDto userDto = super.getLoginUser();
         if (!UtilHelper.isEmpty(orderIssuedExceptionDto)) {
-            return orderIssuedExceptionService.updateOrderIssued(orderIssuedExceptionDto.getFlowId(), "system");
+            return orderIssuedExceptionService.updateOrderIssued(orderIssuedExceptionDto.getFlowId(), userDto.getCustName());
         } else {
             Map<String, String> result = new HashMap<String, String>();
             result.put("statusCode", "0");
@@ -107,7 +107,7 @@ public class OrderIssuedExceptionController extends BaseJsonController {
     public Map<String, String> orderMark(@RequestBody OrderIssuedExceptionDto orderIssuedExceptionDto) throws Exception {
         UserDto userDto = super.getLoginUser();
         if (!UtilHelper.isEmpty(orderIssuedExceptionDto)) {
-            return orderIssuedExceptionService.updateOrderMark(orderIssuedExceptionDto.getFlowId(), "system");
+            return orderIssuedExceptionService.updateOrderMark(orderIssuedExceptionDto.getFlowId(), userDto.getCustName());
         } else {
             Map<String, String> result = new HashMap<String, String>();
             result.put("statusCode", "0");
