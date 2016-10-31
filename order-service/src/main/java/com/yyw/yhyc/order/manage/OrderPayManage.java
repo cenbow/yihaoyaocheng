@@ -168,9 +168,9 @@ public class OrderPayManage {
 
     /**
      * 在线支付成功后，更新支付状态等信息（公用业务逻辑）
-     * @param payFlowId
-     * @param finalPay
-     * @param parameter
+     * @param payFlowId  系统内部的支付流水号
+     * @param finalPay   用户实际支付的金额
+     * @param parameter 支付平台返回的信息
      * @throws Exception
      */
     public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
@@ -223,7 +223,7 @@ public class OrderPayManage {
 
     /**
      * 确认收货回调(结算)成功后，更新相关表的等信息（公用业务逻辑）
-     * @param payFlowId
+     * @param payFlowId               系统内部的支付流水号
      * @param orderSettlementStatus 订单是否结算
      * @throws Exception
      */
@@ -269,9 +269,9 @@ public class OrderPayManage {
 
     /**
      * 退款成功后，更新退款表、订单表等信息
-     * @param payFlowId
+     * @param payFlowId          系统内部的支付流水号
      * @param orderRefundStatus 退款状态
-     * @param parameter
+     * @param parameter           支付平台返回的信息
      * @throws Exception
      */
     public void updateRedundOrderInfos(String payFlowId, boolean orderRefundStatus, String parameter)
