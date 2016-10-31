@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -126,6 +127,8 @@ public class OrderPayController extends BaseJsonController {
 			modelAndView.setViewName("orderPay/cmb_pay");
 		}else if(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId()== payTypeId || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId() == payTypeId){
 			modelAndView.setViewName("orderPay/china_pay");
+		}else if(OnlinePayTypeEnum.AlipayWeb.getPayTypeId() == payTypeId){
+			modelAndView.setViewName("orderPay/alipay_web");
 		}else{
 			throw new Exception("非法参数");
 		}
