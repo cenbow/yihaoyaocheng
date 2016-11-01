@@ -212,6 +212,7 @@ function issued(flowId) {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModalb("下发失败！");
         }
     });
@@ -239,6 +240,7 @@ function orderMark(flowId) {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModalb("标记完成失败！");
         }
     });
@@ -282,7 +284,7 @@ function relatedCustomers() {
     }
     var payTypeErp = "";
     $.each(chk_value, function (n, value) {
-        payTypeErp += value + "|";
+        payTypeErp += value + ",";
     });
     var payType = payTypeErp.substring(0, payTypeErp.length - 1);
 
@@ -309,6 +311,7 @@ function relatedCustomers() {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            tipRemove();
             alertModalb("关联客户失败！");
         }
     });
