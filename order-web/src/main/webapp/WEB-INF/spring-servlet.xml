@@ -43,29 +43,29 @@
 	<mvc:resources mapping="/static/**" location="/static/"/>
 
 	<!-- mvc 拦截器 -->
-	<mvc:interceptors>
-		<!-- 登录拦截 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<mvc:exclude-mapping path="/static/**"/>
-			<mvc:exclude-mapping path="/fastOrder/**"/>
-			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
-		</mvc:interceptor>
+	<!--<mvc:interceptors>-->
+		<!--&lt;!&ndash; 登录拦截 &ndash;&gt;-->
+		<!--<mvc:interceptor>-->
+			<!--<mvc:mapping path="/*/**" />-->
+			<!--<mvc:exclude-mapping path="/static/**"/>-->
+			<!--<mvc:exclude-mapping path="/fastOrder/**"/>-->
+			<!--<bean class="com.yhyc.auth.LoginInterceptor" > </bean>-->
+		<!--</mvc:interceptor>-->
 
-		<!-- 获取用户信息 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/*/**" />
-			<mvc:exclude-mapping path="/static/**"/>
-			<bean class="com.yyw.yhyc.order.inteceptor.GetUserInteceptor"/>
-		</mvc:interceptor>
+		<!--&lt;!&ndash; 获取用户信息 &ndash;&gt;-->
+		<!--<mvc:interceptor>-->
+			<!--<mvc:mapping path="/*/**" />-->
+			<!--<mvc:exclude-mapping path="/static/**"/>-->
+			<!--<bean class="com.yyw.yhyc.order.inteceptor.GetUserInteceptor"/>-->
+		<!--</mvc:interceptor>-->
 
-		<!-- 配置Token拦截器，防止用户重复提交数据 -->
-		<mvc:interceptor>
-			<mvc:mapping path="/**"/>
-			<mvc:exclude-mapping path="/static/**"/>
-			<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>
-		</mvc:interceptor>
-	</mvc:interceptors>
+		<!--&lt;!&ndash; 配置Token拦截器，防止用户重复提交数据 &ndash;&gt;-->
+		<!--<mvc:interceptor>-->
+			<!--<mvc:mapping path="/**"/>-->
+			<!--<mvc:exclude-mapping path="/static/**"/>-->
+			<!--<bean class="com.yyw.yhyc.order.inteceptor.TokenInterceptor"/>-->
+		<!--</mvc:interceptor>-->
+	<!--</mvc:interceptors>-->
 
 	<import resource="dubbo-consumer.xml"/>
 </beans>
