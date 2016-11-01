@@ -214,6 +214,27 @@ public class Order extends Model{
 	private int productSortCount;
 
 	private int source;//订单来源
+	
+	/**
+	 * 销售顾问编码
+	 */
+	private String adviserCode;
+	
+	/**
+	 * 销售顾问姓名
+	 */
+	private String adviserName;
+	
+	/**
+	 * 销售顾问手机号码
+	 */
+	private int adviserPhoneNumber; 
+	
+	/**
+	 * 销售顾问备注
+	 */
+	private String adviserRemark;
+	
 
 	public Integer getPayFlag() {
 		return payFlag;
@@ -844,6 +865,10 @@ public class Order extends Model{
 				", payFlag=" + payFlag +
 				", productSortCount=" + productSortCount +
 				", source=" + source +
+				", adviserCode=" + adviserCode +
+				", adviserName=" + adviserName +
+				", adviserPhoneNumber=" + adviserPhoneNumber +
+				", adviserRemark=" + adviserRemark +
 				'}';
 	}
 
@@ -853,6 +878,38 @@ public class Order extends Model{
 
 	public void setSource(int source) {
 		this.source = source;
+	}
+
+	public String getAdviserCode() {
+		return adviserCode;
+	}
+
+	public void setAdviserCode(String adviserCode) {
+		this.adviserCode = adviserCode;
+	}
+
+	public String getAdviserName() {
+		return adviserName;
+	}
+
+	public void setAdviserName(String adviserName) {
+		this.adviserName = adviserName;
+	}
+
+	public int getAdviserPhoneNumber() {
+		return adviserPhoneNumber;
+	}
+
+	public void setAdviserPhoneNumber(int adviserPhoneNumber) {
+		this.adviserPhoneNumber = adviserPhoneNumber;
+	}
+
+	public String getAdviserRemark() {
+		return adviserRemark;
+	}
+
+	public void setAdviserRemark(String adviserRemark) {
+		this.adviserRemark = adviserRemark;
 	}
 }
 
