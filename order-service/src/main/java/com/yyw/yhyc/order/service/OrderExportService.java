@@ -1098,8 +1098,14 @@ public class OrderExportService {
 					sellerDeliveryPerson = secondArray[1].split(",")[0];
 					sellerDeliveryAddress = secondArray[1].split(",")[1];
 					sellerDeliveryContact = secondArray[1].split(",")[2];
+				}else{
+					sellerReceivePerson= (String) tempMap.get("former_delivery_person");
+					sellerReceiveAddress = (String) tempMap.get("former_delivery_address");
+					sellerReceiveContact =  (String) tempMap.get("former_delivery_contact_phone");
 					
-					
+					buyerReceivePerson= (String) tempMap.get("former_receive_person");
+					buyerReceiveAddress = (String) tempMap.get("former_receive_address");
+					buyerReceiveContact =  (String) tempMap.get("former_receive_contact_phone");
 				}
 				
 				HSSFCell cell6 = row2.createCell(3);
