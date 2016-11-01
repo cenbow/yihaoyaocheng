@@ -26,8 +26,10 @@
     <dubbo:service interface="com.yyw.yhyc.product.facade.ProductInventoryFacade" ref="productInventoryFacade"/>
     <dubbo:service interface="com.yyw.yhyc.order.facade.OrderIssuedFacade" ref="orderIssuedFacade"/>
     <dubbo:service interface="com.yyw.yhyc.order.facade.ManufacturerOrderFacade" ref="manufacturerOrderFacade"/>
-	<dubbo:service interface="com.yyw.yhyc.pay.facade.AlipayFacade" ref="alipayFacade"/>	<dubbo:service interface="com.yyw.yhyc.order.facade.OrderIssuedExceptionFacade" ref="orderIssuedExceptionFacade"/>
-    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderIssuedLogFacade" ref="orderIssuedLogFacade"/>    <!-- job任务接口 -->
+	<dubbo:service interface="com.yyw.yhyc.pay.facade.AlipayFacade" ref="alipayFacade"/>	
+	<dubbo:service interface="com.yyw.yhyc.order.facade.OrderIssuedExceptionFacade" ref="orderIssuedExceptionFacade"/>
+    <dubbo:service interface="com.yyw.yhyc.order.facade.OrderIssuedLogFacade" ref="orderIssuedLogFacade"/>    
+	<!-- job任务接口 -->
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoPayJobService" ref="orderCancelForNoPayJobService"/>
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoDeliveryJobService" ref="orderCancelForNoDeliveryJobService"/>
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService" ref="orderDoneForDeliveryJobService"/>
