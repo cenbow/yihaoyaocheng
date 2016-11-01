@@ -957,7 +957,11 @@
 	<select id="getExportChangeOrder" parameterType="OrderExceptionDto" resultType="map"  useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>, d.delivery,
-		t4.detail,T2.bill_type,t2.preferential_money,t2.order_total
+		t4.detail,T2.bill_type,t2.preferential_money,t2.order_total,
+		v.receive_person as former_receive_person,
+		v.receive_address as former_receive_address,v.receive_contact_phone as former_receive_contact_phone,
+		v.delivery_address as former_delivery_address,v.delivery_person as former_delivery_person,
+		v.delivery_contact_phone as former_delivery_contact_phone
 		FROM
 		T_ORDER_EXCEPTION T1
 		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
@@ -974,6 +978,7 @@
 			delivery_person,',',delivery_address,',',delivery_contact_phone) separator ';') as delivery,flow_id 
 			from t_order_delivery GROUP BY flow_id ORDER BY delivery_id
 		)d ON d.flow_id = t1.exception_order_id
+		LEFT JOIN t_order_delivery v on v.flow_id = t1.flow_id
 		WHERE
 		T1.RETURN_TYPE = #{returnType}
 		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
