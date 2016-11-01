@@ -312,7 +312,7 @@
     <select id="findBySupplyIdSpuCode" parameterType="java.util.HashMap" resultMap="ProductInventoryResultMapper">
         <![CDATA[ SELECT ]]>
         <include refid="commonProcessDateColumns"/>
-        FROM t_product_inventory WHERE supply_id=#{supplyId} AND spu_code=#{spuCode}
+        FROM t_product_inventory WHERE supply_id=#{supplyId} AND spu_code=#{spuCode} limit 1
     </select>
 
     <!--冻结库存-->

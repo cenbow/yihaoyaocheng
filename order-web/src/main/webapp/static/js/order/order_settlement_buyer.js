@@ -135,19 +135,23 @@ function fillTableJson(data) {
 	var list = data.resultList;
 	$(".table-box tbody").html("");
 	var trs = "";
-	if(list &&　list.length>0){
+	if(list && list.length>0){
 
 		for (var i = 0; i < list.length; i++) {
 			var orderSettlemnt = list[i];
 			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId);
 			var tr = "<tr>";
+			tr += "<td>" + orderSettlemnt.orgFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + typeToPayFlowId(orderSettlemnt.businessType,orderSettlemnt.payType,orderSettlemnt.payFlowId) + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.payName + "</td>";
 			tr += "<td>" + orderSettlemnt.supplyName + "</td>";
 			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
 			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
 			tr += "<td>" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
+			tr += "<td>" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.refunSettlementMoney) + "</td>";
 			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
@@ -168,7 +172,17 @@ function typeToOperate(businessType,confirm,settlementId) {
 	}
 	return result;
 }
+function typeToPayFlowId(businessType,payType,payFlowId){
+	if( payFlowId!=null && businessType==1 && (payType==1||payType==2) ){
+		return payFlowId;
+	}else{
+		return "";
+	}
+}
 function typeToshowMoney(businessType,money) {
+	if(money==null){
+		return "";
+	}
 	if(businessType==2||businessType==3||businessType==4){
 		return "-"+money;
 	}

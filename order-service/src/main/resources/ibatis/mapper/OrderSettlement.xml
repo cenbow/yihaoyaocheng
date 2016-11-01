@@ -272,67 +272,98 @@
 		<result column="order_settlement_id" property="orderSettlementId"/>
 		<result column="cust_name" property="custName"/>
         <result column="business_type" property="businessType"/>
+        <result column="org_flow_id" property="orgFlowId"/>
         <result column="flow_id" property="flowId"/>
+        <result column="pay_flow_id" property="payFlowId"/>
         <result column="supply_name" property="supplyName"/>
         <result column="confirm_settlement" property="confirmSettlement"/>
         <result column="settlement_money" property="settlementMoney"/>
-        <result column="pay_name" property="payTypeName"/>
+        <result column="refun_settlement_money" property="refunSettlementMoney"/>
         <result column="order_time" property="orderTime"/>
 		<result column="settlement_time" property="settlementTime"></result>
+		<result column="pay_type_id" property="payTypeId"></result>
 		<result column="pay_type" property="payType"></result>
+		<result column="pay_type_name" property="payTypeName"/>
+		<result column="pay_name" property="payName"/>
 	</resultMap>
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
-			SELECT s.order_settlement_id AS order_settlement_id, s.flow_id AS flow_id ,t.pay_name AS  pay_name,t.pay_type AS  pay_type,
-			s.business_type AS business_type,s.cust_name AS cust_name,s.supply_name AS supply_name,
-			DATE_FORMAT(s.order_time, '%Y-%m-%d %H:%i:%s') AS order_time,
-			DATE_FORMAT(s.settlement_time, '%Y-%m-%d %H:%i:%s') AS settlement_time,
-			s.settlement_money AS settlement_money ,s.confirm_settlement AS confirm_settlement
+		SELECT 
+			t1.order_settlement_id ,t1.org_flow_id ,t1.flow_id ,t3.pay_flow_id , 
+ 			t1.pay_type, t1.pay_type_name, t1.pay_name,t1.business_type, t1.cust_name, t1.supply_name,
+ 			DATE_FORMAT(t1.order_time, '%Y-%m-%d %H:%i:%s') AS order_time,
+ 			DATE_FORMAT(t1.settlement_time, '%Y-%m-%d %H:%i:%s') AS settlement_time,
+ 			t1.settlement_money , t1.refun_settlement_money ,t1.confirm_settlement 
+			FROM 
+			(
+			SELECT s.order_settlement_id AS order_settlement_id, 
+			CASE business_type 
+				WHEN 1 THEN s.flow_id
+				WHEN 4 THEN s.flow_id
+				ELSE e.flow_id
+				END  AS org_flow_id ,
+			CASE business_type 
+				WHEN 1 THEN ""
+				WHEN 4 THEN ""
+				ELSE s.flow_id
+				END  AS flow_id ,
+			t.pay_type_id, t.pay_type, t.pay_type_name, t.pay_name, t.pay_states, 
+			s.business_type, s.cust_id, s.cust_name, s.supply_id, s.supply_name,
+			s.order_time,s.settlement_time, s.settlement_money ,s.refun_settlement_money , 
+			s.confirm_settlement, s.province, s.city, s.area
 			FROM t_order_settlement s
+			LEFT JOIN t_order_exception e ON e.exception_order_id = s.flow_id
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
+			) t1 
+			LEFT JOIN t_order t2 ON t2.flow_id = t1.org_flow_id
+			LEFT JOIN t_order_combined t3 ON t3.order_combined_id = t2.order_combined_id 
 		]]>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="custId !=null and custId !=''">
-			AND s.cust_id = #{custId}
+			AND t1.cust_id = #{custId}
 		</if>
 		<if test="supplyId !=null and supplyId !=''">
-			AND s.supply_id = #{supplyId}
+			AND t1.supply_id = #{supplyId}
 		</if>
-		<if test="flowId !=null and flowId !=''">
-			AND s.flow_id = #{flowId}
+		<if test="orgFlowId !=null and orgFlowId !=''">
+			AND t1.org_flow_id = #{orgFlowId}
 		</if>
 		<if test="businessType !=null and businessType !='' and businessType !='-1'">
-			AND s.business_type = #{businessType}
+			AND t1.business_type = #{businessType}
 		</if>
 		<if test="custName !=null and custName !=''">
-			AND s.cust_name LIKE CONCAT('%',#{custName},'%')
+			AND t1.cust_name LIKE CONCAT('%',#{custName},'%')
 		</if>
 		<if test="supplyName !=null and supplyName !=''">
-			AND s.supply_name LIKE CONCAT('%',#{supplyName},'%')
+			AND t1.supply_name LIKE CONCAT('%',#{supplyName},'%')
 		</if>
 		<if test="confirmSettlement !=null and confirmSettlement !='' and confirmSettlement !='-1'">
-			AND s.confirm_settlement = #{confirmSettlement}
+			AND t1.confirm_settlement = #{confirmSettlement}
 		</if>
 		<if test="payType !=null and payType !='' and payType !='-1'">
-			AND t.pay_states = 1
-			AND t.pay_type = #{payType}
+			AND t1.pay_states = 1
+			AND t1.pay_type = #{payType}
+		</if>
+		<if test="payTypeId !=null and payTypeId !='' and payTypeId !='-1'">
+			AND t1.pay_states = 1
+			AND t1.pay_type_id = #{payTypeId}
 		</if>
 		<if test="startTime !=null and startTime!=''">
-			AND s.order_time > #{startTime}
+			AND t1.order_time > #{startTime}
 		</if>
 		<if test="endTime !=null and endTime!=''">
-			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > s.order_time
+			AND date_add(DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s'),interval 1 day)  > t1.order_time
 		</if>
 		<if test="province !=null and province != '' and province != '-1' ">
-			AND s.province = #{province}
+			AND t1.province = #{province}
 		</if>
 		<if test="city !=null and city != '' and city != '-1'">
-			AND s.city = #{city}
+			AND t1.city = #{city}
 		</if>
 		<if test="area !=null and area != '' and area !='-1'">
-			AND s.area = #{area}
+			AND t1.area = #{area}
 		</if>
-		ORDER BY s.order_settlement_id DESC
+		ORDER BY t1.order_settlement_id DESC
 	</select>
 	<select id="listPaginationByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper">
 		SELECT
