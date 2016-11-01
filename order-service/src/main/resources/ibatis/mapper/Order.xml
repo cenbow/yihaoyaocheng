@@ -56,6 +56,10 @@
 		<result column="delay_times" property="delayTimes"/>
 		<result column="pay_flag" property="payFlag"/>
 		<result column="product_sort_count" property="productSortCount"/>
+		<result column="adviser_code" property="adviserCode"/>
+		<result column="adviser_name" property="adviserName"/>
+		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
+		<result column="adviser_remark" property="adviserRemark"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -99,6 +103,10 @@
 		<result column="delay_times" property="delayTimes"/>
 		<result column="pay_flag" property="payFlag"/>
 		<result column="product_sort_count" property="productSortCount"/>
+		<result column="adviser_code" property="adviserCode"/>
+		<result column="adviser_name" property="adviserName"/>
+		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
+		<result column="adviser_remark" property="adviserRemark"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -145,6 +153,10 @@
 		, delay_times
 		, pay_flag
 		, product_sort_count
+		,adviser_code
+		,adviser_name
+		,adviser_phone_number
+		,adviser_remark
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -186,6 +198,10 @@
 				, pay_flag
 				, product_sort_count
 				, source
+				,adviser_code
+				,adviser_name
+				,adviser_phone_number
+				,adviser_remark
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -228,6 +244,10 @@
 		, delay_times
 		, pay_flag
 		, product_sort_count
+		,adviser_code
+		,adviser_name
+		,adviser_phone_number
+		,adviser_remark
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -270,6 +290,10 @@
 		, T1.payment_term
 		, T1.pay_flag
 		, T1.product_sort_count
+		, T1.adviser_code
+		, T1.adviser_name
+		, T1.adviser_phone_number
+		, T1.adviser_remark
 	</sql>
 
 
@@ -313,6 +337,10 @@
 		, o.payment_term
 		, o.pay_flag
 		, o.product_sort_count
+		, o.adviser_code
+		, o.adviser_name
+		, o.adviser_phone_number
+		, o.adviser_remark
 	</sql>
 
 	<sql id="commonCondition">
@@ -474,6 +502,10 @@
 				, #{payFlag}
 				, #{productSortCount}
 				, #{source}
+				, #{adviserCode}
+				, #{adviserName}
+				, #{adviserPhoneNumber}
+				, #{adviserRemark}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -591,6 +623,18 @@
 		</if>
 		<if test="productSortCount!= null">
 			,product_sort_count=#{productSortCount}
+		</if>
+		<if test="adviserCode!= null">
+			,adviser_code=#{adviserCode}
+		</if>
+		<if test="adviserName!= null">
+			,adviser_name=#{adviserName}
+		</if>
+		<if test="adviserPhoneNumber!= null">
+			,adviser_phone_number=#{adviserPhoneNumber}
+		</if>
+		<if test="adviserRemark!= null">
+			,adviser_remark=#{adviserRemark}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
