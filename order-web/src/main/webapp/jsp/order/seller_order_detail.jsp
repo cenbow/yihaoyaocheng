@@ -226,6 +226,25 @@
             <h2 class="row">订单信息</h2>
 
             <div class="modify">
+            	<c:if test="${orderDetailsDto.adviserCode !=null && orderDetailsDto.adviserCode!=''}">
+            		   <div class="form-horizontal padding-t-26">
+	                    <div class="form-group">
+	                        <label class="col-xs-12 color999 padding-l-40 font-size-16">销售顾问信息</label>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">销售顾问编号</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserCode}</div>
+	                        <label for="scope" class="col-xs-2 control-label">姓名</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserName}</div>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">电话</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserPhoneNumber}</div>
+	                        <label for="scope" class="col-xs-2 control-label">备注</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserRemark}</div>
+	                    </div>
+	                </div>
+            	</c:if>
                 <div class="form-horizontal padding-t-26">
                     <div class="form-group">
                         <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人信息</label>
