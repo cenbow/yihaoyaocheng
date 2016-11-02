@@ -64,11 +64,11 @@ import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.BillTypeEnum;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo; 
 import com.yyw.yhyc.order.service.OrderExportService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
@@ -92,6 +92,9 @@ public class OrderController extends BaseJsonController {
 	@Reference
 	private CreditDubboServiceInterface creditDubboService;
 
+	@Reference
+	private IAdviserManageDubbo iAdviserManageDubbo;
+	
 	@Autowired
 	private SystemPayTypeService systemPayTypeService;
 
@@ -215,6 +218,13 @@ public class OrderController extends BaseJsonController {
 			if(!result){
 				return map;
 			}
+			
+			/**销售顾问信息**/
+			String [] adviserInfo = orderDto.getAdviserName().split(";");
+			orderDto.setAdviserCode(adviserInfo[0]);
+			orderDto.setAdviserName(adviserInfo[1]);
+			orderDto.setAdviserPhoneNumber(Integer.valueOf(adviserInfo[2]));
+			orderDto.setAdviserRemark(adviserInfo[3]);
 		}
 		//订单来源 限用pc
 		orderCreateDto.setSource(1);
@@ -356,7 +366,7 @@ public class OrderController extends BaseJsonController {
 			shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
 		}
 
-		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList);
+		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList,iAdviserManageDubbo);
 
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */

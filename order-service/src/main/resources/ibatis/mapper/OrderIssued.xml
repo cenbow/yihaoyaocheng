@@ -241,7 +241,8 @@
 			ON O.FLOW_ID =OI.FLOW_ID
 			INNER JOIN t_cust_erp_relation  PUO
 			ON O.CUST_ID = PUO.cust_code_yc
-			AND O.SUPPLY_ID = seller_code
+			AND O.SUPPLY_ID = PUO.seller_code
+			and PUO.relation_status='2'
 			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
 			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
@@ -285,8 +286,7 @@
 		   ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
 		   O.ORDER_STATUS = '5'
-		AND SPT.PAY_TYPE = 1  
-		AND (O.cust_id NOT in (SELECT cust_code_yc from t_cust_erp_relation )
-		and O.SUPPLY_ID NOT in (SELECT seller_code from t_cust_erp_relation ))
+			AND SPT.PAY_TYPE = 1  
+			AND (concat(O.cust_id ,',',O.SUPPLY_ID)NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation ) WHERE relation_status='2' )
 	</select>
 </mapper>
