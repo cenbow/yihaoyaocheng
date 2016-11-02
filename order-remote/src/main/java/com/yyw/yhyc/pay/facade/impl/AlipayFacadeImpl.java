@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 /**
  * Created by bigwing on 2016/10/26.
  */
+@Service("alipayFacade")
 public class AlipayFacadeImpl implements AlipayFacade {
 
     private static final Logger logger = LoggerFactory.getLogger(AlipayFacadeImpl.class);
