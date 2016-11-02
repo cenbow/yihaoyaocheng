@@ -54,7 +54,7 @@ public class OrderPayManage {
         this.orderTraceMapper = orderTraceMapper;
     }
 
-    @Autowired(required = true)
+    @Autowired
     public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
         this.systemDateMapper = systemDateMapper;
     }

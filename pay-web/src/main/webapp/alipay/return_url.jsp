@@ -45,11 +45,18 @@
 			  document.getElementById('ShowDiv').innerHTML = '将在'+num+'秒后自动跳转' ;
 			  if(num == 0) { window.location.href=URL; }
 		  }
-		  Load("/order/buyerOrderManage");
+		  Load("http://oms.yaoex.com/order/buyerOrderManage");
 	  </script>
   </head>
   <body>
 <%
+
+	OrderPayManage orderPayManage1 = (OrderPayManage)SpringBeanHelper.getBean("OrderPayManage");
+	try {
+		orderPayManage1.updateOrderpayInfos("123",new BigDecimal(0.02),null);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
 	//获取支付宝GET过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
