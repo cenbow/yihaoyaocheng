@@ -286,6 +286,9 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
             //若是活动商品，且超出活动商品限购数量，则新增一个普通商品到购物车，页面上要动态的新增一条商品数据
             var normalProductShoppingCart = data.normalProductShoppingCart;
 
+            console.info("若是活动商品，且超出活动商品限购数量，则新增一个普通商品到购物车，页面上要动态的新增一条商品数据");
+            console.info( "normalProductShoppingCart= " + normalProductShoppingCart);
+
             if(data.statusCode || data.message){
                 // console.info("更新数量失败" );
                 new Dialog({
@@ -295,20 +298,21 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                     ok:'确定'
                 });
             }else if(null != normalProductShoppingCart){
-                //TODO
-                addNewNormalProduct(null,null);
+                // addNewNormalProduct(normalProductShoppingCart,_this);
+                window.location.reload();
+            }else{
+                // console.info("更新数量成功" );
+                $(_this).parent().find('.its-buy-num').val(_value);
+                $(_this).parent().find('.its-buy-num').attr("preValue",_value);
+                var productPrice = $(_this).parent().find('.its-buy-num').attr("productPrice");
+                /* 商品小计 */
+                var productTotalPrice = Number(productPrice) * Number(_value);
+                $(_this).parents('.holder-list').find('.td-sum span').html(fmoney(productTotalPrice,3));
+                $(_this).parents('.holder-list').find('.td-sum').find("input[name='productSettlementPrice']").val(productTotalPrice.toFixed(3));
+                changeOrderAmountPriceTip(_this);
+                showOrHideTip(_this);
+                totalSum();
             }
-            // console.info("更新数量成功" );
-            $(_this).parent().find('.its-buy-num').val(_value);
-            $(_this).parent().find('.its-buy-num').attr("preValue",_value);
-            var productPrice = $(_this).parent().find('.its-buy-num').attr("productPrice");
-            /* 商品小计 */
-            var productTotalPrice = Number(productPrice) * Number(_value);
-            $(_this).parents('.holder-list').find('.td-sum span').html(fmoney(productTotalPrice,3));
-            $(_this).parents('.holder-list').find('.td-sum').find("input[name='productSettlementPrice']").val(productTotalPrice.toFixed(3));
-            changeOrderAmountPriceTip(_this);
-            showOrHideTip(_this);
-            totalSum();
 
         },
         error:function(data){
@@ -332,62 +336,95 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
  * @param _this 原活动商品节点
  */
 function addNewNormalProduct(_obj,_this){
-    // var htmlStr = "" +
-        // "<div class='holder-list'>" +
-        //     "<ul>" +
-        //         "<li class='fl td-chk'>" +
-        //             "<div class='cart-checkbox' shoppingcartid='6017' supplyid='33092'>" +
-        //                 "<span class='inside-icon'>全选所有商品</span> " +
-        //             "</div>"+
-        //         "</li>" +
-        //
-        //         "<li class='fl td-pic' style='cursor: pointer'" + "onclick='javascript:window.location.href='" + "http://mall.yaoex.com/product/productDetail/142AFAZ120002/33092'"> " +
-        //             "<img src="http://oms.yaoex.com/static/images/product_default_img.jpg" title="川贝雪梨膏 150g" alt="川贝雪梨膏 150g">" +
-        //         "</li>" +
-        //
-        //         <li class="fl td-item">
-        //             <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='http://mall.yaoex.com/product/productDetail/142AFAZ120002/33092'">
-        //                 川贝雪梨膏 150g
-        //             </p>
-        //             <p>葵花药业集团(襄阳)隆中有限公司</p>
-        //         </li>
-        //
-        //         <li class="fl td-price">
-        //             <div style="display: block ">
-        //                 ¥<span>41.74</span>
-        //             </div>
-        //         </li>
-        //
-        //         <li class="fl td-amount">
-        //             <div class="it-sort-col5 clearfix pr" style="width: 120px;">
-        //                 <div class="clearfix" style="padding-left: 20px;">
-        //                     <div class="its-choose-amount fl">
-        //                         <div class="its-input">
-        //                             <a href="javascript:;" class="its-btn-reduce">-</a>
-        //                             <a href="javascript:;" class="its-btn-add">+</a>
-        //                             <input value="1" class="its-buy-num" shoppingcartid="6017" salestart="1" upstep="1" prevalue="1" productinventory="9999" productprice="41.740">
-        //                         </div>
-        //                     </div>
-        //                 </div>
-        //
-        //                 <span class="color-gray9">最小拆零包装:1盒</span>
-        //                 <br>
-        //                 <span class="color-gray9">库存 &gt; 500</span>
-        //             </div>
-        //         </li>
-        //
-        //         <li class="fl td-sum">
-        //             <input type="hidden" name="productSettlementPrice" value="41.740"/>
-        //             <div style="display: block ">
-        //                 ¥<span>41.74</span>
-        //             </div>
-        //         </li>
-        //
-        //         <li class="fl td-op"><a href="javascript:deleteShoppingCart(6017);" class="btn-delete">删除</a></li>
-        //
-        //     </ul>
-        // </div>
+    
+    var spuCode = "142AFAZ120002" ;
+    var supplyId = "33092";
+    var productImgUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+    var shoppingCartId = null;
+    var specification = null;
+    var productName = null;
+    var manufactures = null;
+    var productPrice = null;
+    var productCount = null;
+    var productSettlementPrice = null;
+    var saleStart = null;
+    var upStep = null;
+    var productInventory = null;
+    var unit = null;
+    if(_obj != null){
+        shoppingCartId = _obj.shoppingCartId;
+        spuCode = _obj.spuCode ;
+        supplyId = _obj.supplyId ;
+        productImgUrl = _obj.productImageUrl;
+        specification = _obj.specification;
+        productName = _obj.productName;
+        manufactures = _obj.manufactures;
+        productPrice = _obj.productPrice;
+        productCount = _obj.productCount;
+        productSettlementPrice = _obj.productSettlementPrice;
+        saleStart = _obj.saleStart;
+        upStep = _obj.upStep;
+        productInventory = _obj.productInventory;
+        unit = _obj.unit;
+    }
+    
+    var htmlStr = "" +
+        "<div class='holder-list'>" +
+            "<ul>" +
+                "<li class='fl td-chk'>" +
+                    "<div class='cart-checkbox' shoppingCartId='"+ shoppingCartId +"' supplyId='"+ supplyId+"'>" +
+                        "<span class='inside-icon'>全选所有商品</span> " +
+                    "</div>"+
+                "</li>" +
 
+                "<li class='fl td-pic' style='cursor: pointer'" + 'onclick="gotoProductDetail(\''+ spuCode + '\',\''+ supplyId +'\')"'  +">" +
+                    "<img src='" + productImgUrl + "'" +  "title='"+productName +" " + specification  +"' alt='"+productName +" " + specification  +"' />" +
+                "</li>" +
+
+                "<li class='fl td-item'>" +
+                    "<p class='item-title' style='cursor: pointer'" + 'onclick="gotoProductDetail(\''+ spuCode + '\',\''+ supplyId +'\')"'  +">" +
+                        productName +" "+ specification+
+                    "</p>"+
+                    "<p>"+ manufactures +"</p>"+
+                "</li>"+
+
+                "<li class='fl td-price'>"+
+                    "<div style='display: block '>"+
+                        "¥<span>41.74</span>"+
+                    "</div>"+
+                "</li>"+
+
+                "<li class='fl td-amount'>"+
+                    "<div class='it-sort-col5 clearfix pr' style='width: 120px;'>"+
+                        "<div class='clearfix' style='" + "padding-left: 20px;" + "'>"+
+                            "<div class='its-choose-amount fl'>"+
+                                "<div class='its-input'>"+
+                                    "<a href='javascript:;' class='its-btn-reduce'>-</a>"+
+                                    "<a href='javascript:;' class='its-btn-add'>+</a>"+
+                                    "<input value='1' class='its-buy-num'shoppingCartId='"+ shoppingCartId +"'  saleStart='" + saleStart + "' upStep='"+upStep+"' preValue='"+productCount+"' productInventory='"+productInventory+"' productPrice='"+fmoney(productPrice,3)+"'>"+
+                                "</div>"+
+                            "</div>"+
+                        "</div>"+
+
+                        "<span class='color-gray9'>最小拆零包装:"+upStep + unit +"</span>"+
+                        "<br>"+
+                        "<span class='color-gray9'>库存 : " + productInventory + "</span>"+
+                    "</div>"+
+                "</li>"+
+
+                "<li class='fl td-sum'>"+
+                    "<input type='hidden' name='productSettlementPrice' value='"+fmoney(productSettlementPrice,3)+"'/>"+
+                    "<div style='display: block '>"+
+                        "¥<span>" + fmoney(productSettlementPrice,3) + "</span>"+
+                    "</div>"+
+                "</li>"+
+
+                "<li class='fl td-op'>"+ '<a href="javascript:deleteShoppingCart(\''+ shoppingCartId +'\');" class="btn-delete">删除</a>'+"</li>"+
+            "</ul>"+
+        "</div>";
+
+    $(_this).parents('.order-holder').append(htmlStr);
+    
 }
 
 
@@ -833,4 +870,9 @@ function submitCheckOrderPage(){
 
         }
     });
+}
+
+
+function gotoProductDetail(_spuCode,_supplyId){
+    window.open(mallDomain + "/product/productDetail/" + _spuCode + "/" + _supplyId) ;
 }

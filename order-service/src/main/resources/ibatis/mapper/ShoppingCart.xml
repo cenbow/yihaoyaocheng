@@ -460,4 +460,25 @@
 		SELECT	DISTINCT  CUST_ID,SUPPLY_ID,FROM_WHERE  FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
 		and SC.from_where = 1
 	</select>
+
+	<select id="countBuyedNumInHistory" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="int" useCache="false">
+		SELECT count(1) AS totalcount
+		FROM t_order o,t_order_detail od
+		WHERE o.order_id = od.order_id
+		<if test="custId!= null and custId!= ''">
+			AND o.cust_id=#{custId}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND o.supply_id=#{supplyId}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''">
+			AND od.spu_code=#{spuCode}
+		</if>
+		<if test="productId!= null and productId!= ''">
+			AND od.product_id=#{productId}
+		</if>
+		<if test="promotionId!= null and promotionId!= ''">
+			AND od.promotion_id=#{promotionId}
+		</if>
+	</select>
 </mapper>

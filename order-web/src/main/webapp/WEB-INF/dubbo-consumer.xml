@@ -8,4 +8,5 @@
        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <dubbo:annotation package="com.yyw.yhyc.order.controller"/>
+    <dubbo:annotation package="com.yyw.yhyc.order.service"/>
 </beans>

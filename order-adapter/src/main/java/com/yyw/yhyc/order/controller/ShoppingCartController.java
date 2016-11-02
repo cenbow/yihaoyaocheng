@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -66,6 +67,9 @@ public class ShoppingCartController extends BaseController {
 
 	@Reference
 	private ProductSearchInterface productSearchInterface;
+
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 
 	/**
 	* 通过主键查询实体对象
@@ -214,6 +218,7 @@ public class ShoppingCartController extends BaseController {
 		Map<String, Object> result = null;
 		try{
 			shoppingCart.setCustId(userDto.getCustId());
+			shoppingCart.setCreateUser(userDto.getUserName());
 			result = shoppingCartService.addShoppingCart(shoppingCart);
 			result.put("totalCount",result.get("productCount"));
 			result.put("result","成功");
@@ -323,7 +328,7 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface);
+			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			String message = (String) map.get("message");
 			if(!result){
