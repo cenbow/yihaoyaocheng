@@ -48,7 +48,7 @@
 </div>
 <div class="wapper store-page clearfix">
     <div class="pay_error">
-        <p><img src="images/pay_error.jpg" /></p>
+        <p><img src="static/images/pay_error.jpg" /></p>
         <p class="text">支付服务异常，请您稍后重试！</p>
         <p><button>返回</button></p>
     </div>
@@ -195,9 +195,9 @@
                     </div>
                     <div class="common-icon sbc-barcode">
                         <div class="common-icon sbc-b-details none">
-                            <p><img src="images/main_barcode.gif"></p>
+                            <p><img src="static/images/main_barcode.gif"></p>
                             <p>1号药城APP</p>
-                            <p><img src="images/main_barcode_wx.gif"></p>
+                            <p><img src="static/images/main_barcode_wx.gif"></p>
                             <p>1号药城 微信公众号</p>
                         </div>
                     </div>
