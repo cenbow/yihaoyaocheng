@@ -223,7 +223,7 @@ public class OrderController extends BaseJsonController {
 			String [] adviserInfo = orderDto.getAdviserName().split(";");
 			orderDto.setAdviserCode(adviserInfo[0]);
 			orderDto.setAdviserName(adviserInfo[1]);
-			orderDto.setAdviserPhoneNumber(Integer.valueOf(adviserInfo[2]));
+			orderDto.setAdviserPhoneNumber(adviserInfo[2]);
 			orderDto.setAdviserRemark(adviserInfo[3]);
 		}
 		//订单来源 限用pc

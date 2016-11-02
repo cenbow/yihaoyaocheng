@@ -228,7 +228,7 @@ public class Order extends Model{
 	/**
 	 * 销售顾问手机号码
 	 */
-	private int adviserPhoneNumber; 
+	private String adviserPhoneNumber; 
 	
 	/**
 	 * 销售顾问备注
@@ -896,11 +896,11 @@ public class Order extends Model{
 		this.adviserName = adviserName;
 	}
 
-	public int getAdviserPhoneNumber() {
+	public String getAdviserPhoneNumber() {
 		return adviserPhoneNumber;
 	}
 
-	public void setAdviserPhoneNumber(int adviserPhoneNumber) {
+	public void setAdviserPhoneNumber(String adviserPhoneNumber) {
 		this.adviserPhoneNumber = adviserPhoneNumber;
 	}
 
