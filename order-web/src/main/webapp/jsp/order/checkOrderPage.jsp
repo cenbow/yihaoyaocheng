@@ -187,7 +187,22 @@
                                 </div>
                                 <div class="fr f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
                             </div>
-                            <p class="pt30">给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" ></p>
+                            <p class="pt30">
+						                            给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" >
+						       
+						         <c:choose>
+					                <c:when test="${shoppingCart.adviserList != null && fn:length(shoppingCart.adviserList) gt 0 }">
+					                 	  销售顾问：<select  class="goi-input"  id="adviserName" name="orderDtoList[${shoppingCartVarStatus.index}].adviserName">
+					                    <c:forEach var="adviserInfo"  items="${shoppingCart.adviserList}">
+					                        <option name="orderDtoList[${shoppingCartVarStatus.index}].adviserName" value="${adviserInfo.adviserCode};${adviserInfo.adviserName};${adviserInfo.adviserPhoneNumber};${adviserInfo.adviserRemark}">${adviserInfo.adviserName}</option>
+					                    </c:forEach>
+					                    </select>
+                              		   	<input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].adviserPhoneNumber" value=0 />
+					                </c:when>
+					                <c:otherwise>
+					                </c:otherwise>
+					            </c:choose>
+                            </p>
                             <%--遍历每个供应商的信息  结束--%>
                         </div>
                     </c:forEach>
