@@ -224,8 +224,8 @@
 
                         <div class="col-xs-8">
                             <label class="checkbox-inline"><input name="payTypeErp" type="checkbox" value="1">在线支付</label>
-                            <label class="checkbox-inline"><input name="payTypeErp" type="checkbox" value="2">线下支付</label>
-                            <label class="checkbox-inline"><input name="payTypeErp" type="checkbox" value="3">账期支付</label>
+                            <label class="checkbox-inline"><input name="payTypeErp" type="checkbox" value="2">账期支付</label>
+                            <label class="checkbox-inline"><input name="payTypeErp" type="checkbox" value="3">线下支付</label>
                         </div>
                     </div>
                 </div>
