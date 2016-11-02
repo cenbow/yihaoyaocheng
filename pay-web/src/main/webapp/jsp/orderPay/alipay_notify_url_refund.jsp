@@ -57,7 +57,7 @@
 		//请在这里加上商户的业务逻辑程序代码
 
 		//——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
-		OrderPayManage orderPayManage = new OrderPayManage();
+		OrderPayManage orderPayManage = (OrderPayManage)SpringBeanHelper.getBean("orderPayMamage");
 		try {
 			orderPayManage.updateRedundOrderInfos(batch_no,true,params);
 		} catch (Exception e) {

@@ -29,27 +29,10 @@
   <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>支付宝页面跳转同步通知页面</title>
-	  <script type="text/javascript">
-
-		  var secs =5; //倒计时的秒数
-		  var URL;
-		  function Load(url){
-			  URL =url;
-			  for(var i=secs;i>=0;i--)
-			  {
-				  window.setTimeout('doUpdate(' + i + ')', (secs-i) * 1000);
-			  }
-		  }
-		  function doUpdate(num)
-		  {
-			  document.getElementById('ShowDiv').innerHTML = '将在'+num+'秒后自动跳转' ;
-			  if(num == 0) { window.location.href=URL; }
-		  }
-		  Load("/order/buyerOrderManage");
-	  </script>
   </head>
   <body>
 <%
+
 	//获取支付宝GET过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
@@ -65,33 +48,29 @@
 		valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
 		params.put(name, valueStr);
 	}
-	
+
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以下仅供参考)//
 	//商户订单号
 
 	String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"),"UTF-8");
-	System.out.println("out_trade_no|PayFlowId=="+out_trade_no);
 	//支付宝交易号
 
 	String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"),"UTF-8");
-	System.out.println(trade_no);
 	//交易状态
 	String trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"),"UTF-8");
 
-
 	String total_fee = new String(request.getParameter("total_fee").getBytes("ISO-8859-1"),"UTF-8");
 
-	System.out.println(total_fee);
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
-	
+
 	//计算得出通知验证结果
 	boolean verify_result = AlipayNotify.verify(params);
-	
+
 	if(verify_result){//验证成功
 		//////////////////////////////////////////////////////////////////////////////////////////
 		//请在这里加上商户的业务逻辑程序代码
 
-		OrderPayManage orderPayManage = (OrderPayManage)SpringBeanHelper.getBean("OrderPayManage");
+		OrderPayManage orderPayManage = (OrderPayManage)SpringBeanHelper.getBean("orderPayMamage");
 		try {
 			orderPayManage.updateOrderpayInfos(out_trade_no,new BigDecimal(total_fee),params);
 		} catch (Exception e) {
@@ -103,9 +82,9 @@
 				//如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
 				//如果有做过处理，不执行商户的业务程序
 		}
-		
+
 		//该页面可做页面美工编辑
-		out.println("<div id='ShowDiv'></div>");
+		out.println("<script>window.location.href ='http://oms.yaoex.com/order/buyerOrderManage'</script>");
 		//——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
 
 		//////////////////////////////////////////////////////////////////////////////////////////

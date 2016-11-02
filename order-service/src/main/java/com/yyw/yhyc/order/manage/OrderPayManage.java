@@ -54,7 +54,7 @@ public class OrderPayManage {
         this.orderTraceMapper = orderTraceMapper;
     }
 
-    @Autowired(required = true)
+    @Autowired
     public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
         this.systemDateMapper = systemDateMapper;
     }
@@ -178,10 +178,7 @@ public class OrderPayManage {
         log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
 
         synchronized(payFlowId){
-            if(systemDateMapper == null)
-            {
-                System.out.println("is nulllllllllllllllllllllllllllllll");
-            }
+
             String now = systemDateMapper.getSystemDate();
             OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
 

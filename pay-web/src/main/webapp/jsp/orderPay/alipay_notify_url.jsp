@@ -16,8 +16,9 @@
  * */
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.yyw.yhyc.helper.SpringBeanHelper"%>
 <%@ page import="com.yyw.yhyc.order.manage.OrderPayManage"%>
-<%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify"%>
+<%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify" %>
 <%@ page import="java.math.BigDecimal" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
@@ -66,7 +67,7 @@
 				//请务必判断请求时的total_fee、seller_id与通知时获取的total_fee、seller_id为一致的
 				//如果有做过处理，不执行商户的业务程序
 			//更新数据库状态
-			OrderPayManage orderPayManage = new OrderPayManage();
+			OrderPayManage orderPayManage = (OrderPayManage) SpringBeanHelper.getBean("orderPayMamage");
 			try {
 				orderPayManage.updateOrderpayInfos(out_trade_no,new BigDecimal(money),params);
 			} catch (Exception e) {
