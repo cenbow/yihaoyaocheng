@@ -8,6 +8,7 @@ import org.apache.commons.httpclient.methods.multipart.PartSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /* *
@@ -44,9 +45,38 @@ public class AlipayCore {
             }
             result.put(key, value);
         }
-
         return result;
     }
+
+    /**
+     * 除去数组中的空值和签名参数
+     * @param sArray 签名参数组
+     * @return 去掉空值与签名参数后的新签名参数组
+     */
+    public static Map<String, String> paraFilterAndUrl(Map<String, String> sArray) {
+
+        Map<String, String> result = new HashMap<String, String>();
+
+        if (sArray == null || sArray.size() <= 0) {
+            return result;
+        }
+
+        for (String key : sArray.keySet()) {
+            String value = sArray.get(key);
+            if (value == null || value.equals("") || key.equalsIgnoreCase("sign")
+                    || key.equalsIgnoreCase("sign_type")) {
+                continue;
+            }
+            //参数转码
+            result.put(key, URLEncoder.encode(value));
+
+
+        }
+        System.out.println(result);
+        return result;
+    }
+
+
 
     /** 
      * 把数组所有元素排序，并按照“参数=参数值”的模式用“&”字符拼接成字符串
@@ -91,10 +121,10 @@ public class AlipayCore {
             Integer key = keys.get(i);
             String value = params.get(key);
 
-            if (i == keys.size() - 1) {//拼接时，不包括最后一个&字符
-                prestr = prestr  + "=" + value;
+            if (i == keys.size() - 1) {//拼接时，不包括最后一个#字符
+                prestr = prestr  + value;
             } else {
-                prestr = prestr + "=" + value + "#";
+                prestr = prestr + value + "#";
             }
         }
 
@@ -102,7 +132,7 @@ public class AlipayCore {
     }
 
     /** 
-     * 写日志，方便测试（看网站需求，也可以改成把记录存入数据库）
+     * 写日志，方便测试
      * @param sWord 要写入日志里的文本内容
      */
     public static void logResult(String sWord) {
@@ -122,6 +152,7 @@ public class AlipayCore {
             }
         }
     }
+
 
     /** 
      * 生成文件摘要

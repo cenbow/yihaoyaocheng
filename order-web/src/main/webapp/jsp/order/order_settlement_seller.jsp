@@ -106,22 +106,30 @@
                                         <col style="width: 10%;" />
                                         <col style="width: 10%;" />
                                         <col style="width: 10%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
-                                        <col style="width: 15%;" />
+                                        <col style="width: 6%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 12%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
+                                        <col style="width: 7%;" />
                                         <col style="width: 5%;" />
                                         <col style="width: 5%;" />
                                     </colgroup>
                                     <thead>
                                     <tr>
-                                        <th>订单号</th>
-                                        <th>支付方式</th>
+                                        <th>原订单号</th>
+                                        <th>异常流程订单号</th>
+                                        <th>结算流水号</th>
                                         <th>业务类型</th>
+                                        <th>支付方式</th>
+                                        <th>支付平台</th>
                                         <th>采购商</th>
                                         <th>下单时间</th>
                                         <th>结算时间</th>
-                                        <th>结算订单金额(元)</th>
+                                        <th>应结算金额(元)</th>
+                                        <th>实际结算金额(元)</th>
                                         <th>结算状态</th>
                                         <th>操作</th>
                                     </tr>

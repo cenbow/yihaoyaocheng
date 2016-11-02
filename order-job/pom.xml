@@ -19,8 +19,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.gangling.scheduler</groupId>
-            <artifactId>scheduler-interface</artifactId>
+            <groupId>com.gangling.arch</groupId>
+            <artifactId>arch-scheduler-job</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

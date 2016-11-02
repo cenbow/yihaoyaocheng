@@ -10,6 +10,7 @@ import org.dom4j.io.SAXReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,6 @@ public class AlipaySubmit {
         //待请求参数数组
         Map<String, String> sPara = buildRequestPara(sParaTemp);
         List<String> keys = new ArrayList<String>(sPara.keySet());
-
         StringBuffer sbHtml = new StringBuffer();
 
         sbHtml.append("<form id=\"alipaysubmit\" name=\"alipaysubmit\" action=\"" + ALIPAY_GATEWAY_NEW
@@ -96,8 +96,22 @@ public class AlipaySubmit {
 
         return sbHtml.toString();
     }
-    
- 
+
+    public static String buildRequestUrl(Map<String, String> sParaTemp){
+        //除去数组中的空值和签名参数
+        Map<String, String> sPara = AlipayCore.paraFilter(sParaTemp);
+        //生成签名结果
+        String mysign = buildRequestMysign(sPara);
+
+        Map<String, String> sParaEncoder = AlipayCore.paraFilterAndUrl(sParaTemp);
+
+        //签名结果与签名方式加入请求提交参数组中
+        sParaEncoder.put("sign", URLEncoder.encode(mysign));
+        sParaEncoder.put("sign_type", AlipayConfig.sign_type);
+
+        return ALIPAY_GATEWAY_NEW+AlipayCore.createLinkString(sParaEncoder);
+    }
+
     
     /**
      * 用于防钓鱼，调用接口query_timestamp来获取时间戳的处理函数

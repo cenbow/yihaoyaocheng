@@ -12,6 +12,7 @@ package com.yyw.yhyc.pay.alipay.config;
  */
 
 import com.yyw.yhyc.pay.alipay.util.UtilDate;
+import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
 
 public class AlipayConfig {
 	
@@ -24,22 +25,26 @@ public class AlipayConfig {
 	public static String seller_id = partner;
 
 	//商户的私钥,需要PKCS8格式，RSA公私钥生成：https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.nBDxfy&treeId=58&articleId=103242&docType=1
-	public static String private_key = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMgnjASX2hyDIZ5w3dL2Nqh71inRwiZrQWLRONP5cClvRstNEDS1jx7E6y8S/R15l3Ss3jhAFEjSxXePq9vWP+8U/jA55u4XK9l63ubYnjhMjkJBdeS4ovycCyB0ysfyW6CcfahC75zGMvDb3j4XOh8P+vumxXwCGAKkbo2XIcY/AgMBAAECgYEAwCAV6yLIHq5QywGULDhi5v9X5/SM5Mv3i59BaVf6Lgu+bM+gSrgslWB4UEtt46kflMOK23vG/NA09DtYwEC8RFOq2RhgrRpBUarCK9kKzK8qXoQXyKYJol21h29yJ0pQmGIM8fuFpxBjyoOo83UL3+WbBBc40HSxuO5gwOlqsMECQQDoqKpB5BJjTh2AAc13M0TVViz7RNqjrhCLByl6kT4rhB8rqbQQ7tLyumKdpfy+eGmkwHOQbjm8A/MqwpIy6My3AkEA3DwT/saG4jcdnQ5Delxb8ctXSWOP/cztFA9Sa/vAxv0g99SB16FsQNiAR2s5dcyDZC9PL/2q4ndMmQg7F/7auQJAOPplh/GFF1DgJKNMYG7r4ptSNM8uBHvyjTnZzKyZXyriP102PhdfDhbbY+Rsu3Dd3n1LUAnOld8ZxFUWXOVqjQJAbNsBIxfriZqmd3+aWLuX8p6IKU0d2dvVfunH2nnYIkLxba3K89Lk1/RrC2HzR8drVjSQFm9ybHd9E9LeqpCceQJBALJjf1cFtSuLLCXCtvuWV0MiNloH+06SQaI+IPirj6g2TqX3ZHKN9IIumc0JamwmoJAy5lICOt1LPueKBHDiEFw=";
+	public static String private_key = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKIGcOPTpKDOgn/8BxsiqObR0ZPPwFCeCOOTuPo6ljdtJHUYwW6i+OS8SSLNfGwGaHAvtkmA3cLP7iMgMkPiN2q6fNqEqW/Nu8LNEycvAsO0qX6obMbhTF+jkj/6DpSCC0s3MP755XomugBcWWiajXIB+XsdD/o9wl/1N/dImTdlAgMBAAECgYBJECB+DCVTwmwErLDDosiJdZpNTkTJ1cnqXeXvKNYuXlAvYZ9wdZtJAkL0p7bwu58C3/ESikL2I2+edVlVVUBpb5S/ZvTmFBCd8yfZ2mkcfcK1Qzr4WRxUP/BxyIbDOxQ2Pz0Rrok1AMEv27oMq/lkPg/4w6JF10hHDuPdi9jzYQJBANWptpGVXhoL6Ap8RTEofQVwgsl5ZxWJu9w0Dk5FgkFHOZZffDtLH1ywqr+s0u9MG8E/aizxekeraeeeAwcpLukCQQDCIVhBdAW0bQYifhl9RuLcK4okitt35wKT6nmy/OIb1ZBoQAsuScxcv/wLI07e9ecgqlhsbJ84FmdfjGKQrU8dAkEAj2ppZ3MRRP509ITRlNuOf5Yz07Svot9ev8IZUCSL9/EtEGhrZQlZtcfH9Py2YXV+s8ozJJO59l1yqst/UNEt8QJAEbCgLja4Xlyg9nuvLu9KtO1yxSmyHhb68Seot1q77/ViF13epvUqnjkQaqNpCIA3844SSK8NQzsnaFmOkch5MQJAXX1ZclqGcOF1Ad51GIA0tegPDof7cU6DTyL8zwjLhdU05sIcdLWVcJsKAoaGbB2Nuzu1AyHHta2RvrbYKKFySA==";
 	
 	// 支付宝的公钥,查看地址：https://b.alipay.com/order/pidAndKey.htm
 	public static String alipay_public_key  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnxj/9qwVfgoUh/y2W89L6BkRAFljhNhgPdyPuBV64bfQNN1PjbCzkIM6qRdKBoLPXmKKMiFYnkd6rAoprih3/PrQEB/VsW8OoM8fxn67UDYuyBTqA23MML9q1+ilIZwBC2AQ2UBVOrFXfFl75p6/B5KsiNG9zpgmLCUYuLkxpLQIDAQAB";
 
 	// 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-	public static String notify_url = "http://localhost:8080/create_direct_pay_by_user-JAVA-UTF-8/notify_url.jsp";
-
+//	public static String notify_url = "http://tpay.yaoex.com/alipay/notify_url.jsp";
+	public static String notify_url = PayUtil.getValue("alipay_notify_url");
+	// 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
+//	public static String notify_url_refund = "http://tpay.yaoex.com/alipay/notify_url_refund.jsp";
+	public static String notify_url_refund = PayUtil.getValue("alipay_notify_url_refund");
 	// 页面跳转同步通知页面路径 需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-	public static String return_url = "http://localhost:8080/create_direct_pay_by_user-JAVA-UTF-8/return_url.jsp";
+//	public static String return_url = "http://tpay.yaoex.com/alipay/return_url.jsp";
+	public static String return_url = PayUtil.getValue("alipay_return_url");
 
 	// 签名方式
 	public static String sign_type = "RSA";
 	
 	// 调试用，创建TXT日志文件夹路径，见AlipayCore.java类中的logResult(String sWord)打印方法。
-	public static String log_path = "C:\\";
+	public static String log_path = "D:\\";
 		
 	// 字符编码格式 目前支持 gbk 或 utf-8
 	public static String input_charset = "utf-8";
