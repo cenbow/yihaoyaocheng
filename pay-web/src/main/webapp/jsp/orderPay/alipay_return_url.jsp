@@ -29,24 +29,6 @@
   <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>支付宝页面跳转同步通知页面</title>
-	  <script type="text/javascript">
-
-		  var secs =5; //倒计时的秒数
-		  var URL;
-		  function Load(url){
-			  URL =url;
-			  for(var i=secs;i>=0;i--)
-			  {
-				  window.setTimeout('doUpdate(' + i + ')', (secs-i) * 1000);
-			  }
-		  }
-		  function doUpdate(num)
-		  {
-			  document.getElementById('ShowDiv').innerHTML = '将在'+num+'秒后自动跳转' ;
-			  if(num == 0) { window.location.href=URL; }
-		  }
-		  Load("/order/buyerOrderManage");
-	  </script>
   </head>
   <body>
 <%
@@ -102,7 +84,7 @@
 		}
 
 		//该页面可做页面美工编辑
-		out.println("<div id='ShowDiv'></div>");
+		out.println("<script>window.location.href ='http://oms.yaoex.com/order/buyerOrderManage'</script>");
 		//——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
 
 		//////////////////////////////////////////////////////////////////////////////////////////
