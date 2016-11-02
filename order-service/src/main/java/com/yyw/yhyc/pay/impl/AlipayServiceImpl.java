@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Created by lizhou on 2016/10/29.
  */
-@Service("alipayService")
+@Service("aliPayService")
 public class AlipayServiceImpl  implements PayService {
 
     private static final Logger log = LoggerFactory.getLogger(AlipayServiceImpl.class);
