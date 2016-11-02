@@ -416,6 +416,7 @@ public class OrderIssuedExceptionService {
 				orderIssued.setIssuedStatus("0");// 设置下发状态，默认为失败
 				orderIssued.setIssuedCount(3);// 设置调用次数，初始化为3
 				orderIssued.setCusRelationship(0);// 无客户关联关系
+				orderIssued.setIsScan(0);
 				orderIssuedMapper.save(orderIssued);
 			}
 		}
