@@ -45,7 +45,7 @@
 			  document.getElementById('ShowDiv').innerHTML = '将在'+num+'秒后自动跳转' ;
 			  if(num == 0) { window.location.href=URL; }
 		  }
-		  Load("/order/buyerOrderManage");
+		  Load("http://oms.yaoex.com/order/buyerOrderManage");
 	  </script>
   </head>
   <body>
