@@ -22,7 +22,7 @@ public class AdviserDto implements Serializable{
 	/**
 	 * 销售顾问手机号码
 	 */
-	private int adviserPhoneNumber; 
+	private String adviserPhoneNumber; 
 	
 	/**
 	 * 销售顾问备注
@@ -60,14 +60,14 @@ public class AdviserDto implements Serializable{
 	/**
 	 * @return the adviserPhoneNumber
 	 */
-	public int getAdviserPhoneNumber() {
+	public String getAdviserPhoneNumber() {
 		return adviserPhoneNumber;
 	}
 
 	/**
 	 * @param adviserPhoneNumber the adviserPhoneNumber to set
 	 */
-	public void setAdviserPhoneNumber(int adviserPhoneNumber) {
+	public void setAdviserPhoneNumber(String adviserPhoneNumber) {
 		this.adviserPhoneNumber = adviserPhoneNumber;
 	}
 
