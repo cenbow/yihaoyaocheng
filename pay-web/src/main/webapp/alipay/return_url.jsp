@@ -16,9 +16,12 @@
  * */
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*"%>
-<%@ page import="java.util.Map"%>
-<%@ page import="com.yyw.yhyc.pay.alipay.util.*"%>
+<%@ page import="com.yyw.yhyc.order.manage.OrderPayManage"%>
+<%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify"%>
+<%@ page import="java.math.BigDecimal"%>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.Map" %>
 
 <html>
   <head>
@@ -47,14 +50,18 @@
 	//商户订单号
 
 	String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"),"UTF-8");
-
+	System.out.println("out_trade_no|PayFlowId=="+out_trade_no);
 	//支付宝交易号
 
 	String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"),"UTF-8");
-
+	System.out.println(trade_no);
 	//交易状态
 	String trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"),"UTF-8");
 
+
+	String total_fee = new String(request.getParameter("total_fee").getBytes("ISO-8859-1"),"UTF-8");
+
+	System.out.println(total_fee);
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
 	
 	//计算得出通知验证结果
@@ -64,6 +71,12 @@
 		//////////////////////////////////////////////////////////////////////////////////////////
 		//请在这里加上商户的业务逻辑程序代码
 
+		OrderPayManage orderPayManage = new OrderPayManage();
+		try {
+			orderPayManage.updateOrderpayInfos(out_trade_no,new BigDecimal(total_fee),params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		//——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
 		if(trade_status.equals("TRADE_FINISHED") || trade_status.equals("TRADE_SUCCESS")){
 			//判断该笔订单是否在商户网站中已经做过处理
