@@ -12,6 +12,7 @@ package com.yyw.yhyc.pay.alipay.config;
  */
 
 import com.yyw.yhyc.pay.alipay.util.UtilDate;
+import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
 
 public class AlipayConfig {
 	
@@ -30,13 +31,14 @@ public class AlipayConfig {
 	public static String alipay_public_key  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnxj/9qwVfgoUh/y2W89L6BkRAFljhNhgPdyPuBV64bfQNN1PjbCzkIM6qRdKBoLPXmKKMiFYnkd6rAoprih3/PrQEB/VsW8OoM8fxn67UDYuyBTqA23MML9q1+ilIZwBC2AQ2UBVOrFXfFl75p6/B5KsiNG9zpgmLCUYuLkxpLQIDAQAB";
 
 	// 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-	public static String notify_url = "http://tpay.yaoex.com/alipay/notify_url.jsp";
-
+//	public static String notify_url = "http://tpay.yaoex.com/alipay/notify_url.jsp";
+	public static String notify_url = PayUtil.getValue("alipay_notify_url");
 	// 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-	public static String notify_url_refund = "http://tpay.yaoex.com/alipay/notify_url_refund.jsp";
-
+//	public static String notify_url_refund = "http://tpay.yaoex.com/alipay/notify_url_refund.jsp";
+	public static String notify_url_refund = PayUtil.getValue("alipay_notify_url_refund");
 	// 页面跳转同步通知页面路径 需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-	public static String return_url = "http://tpay.yaoex.com/alipay/return_url.jsp";
+//	public static String return_url = "http://tpay.yaoex.com/alipay/return_url.jsp";
+	public static String return_url = PayUtil.getValue("alipay_return_url");
 
 	// 签名方式
 	public static String sign_type = "RSA";
