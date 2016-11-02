@@ -293,7 +293,7 @@ public class OrderExceptionService {
             //如银联支付 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
-        } else if (OnlinePayTypeEnum.Alipay.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+        } else if (OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
@@ -324,7 +324,7 @@ public class OrderExceptionService {
         //银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
         if ((OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||
-                OnlinePayTypeEnum.Alipay.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId()))
                 && orderException.getOrderMoney() != null) {
             orderSettlement.setOrderSettlementId(null);
@@ -685,7 +685,7 @@ public class OrderExceptionService {
             this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
         } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
-                || OnlinePayTypeEnum.Alipay.getPayTypeId().equals(systemPayType.getPayTypeId())
+                || OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
                 || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //银联支付 拒收审核未通过，生成卖家结算信息，金额为全部订单金额
             OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2, null, null, userDto.getUserName(), null, order);
