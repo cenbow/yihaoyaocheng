@@ -211,7 +211,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	}
 
 	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
-		return orderService.checkOrderPage(userDto,null);
+		return orderService.checkOrderPage(userDto,null,null);
 	}
 	
 	/**
