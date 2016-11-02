@@ -129,7 +129,8 @@ public class ShoppingCartListDto implements Serializable{
                 ", periodProductPriceCount=" + periodProductPriceCount +
                 ", nonPeriodProductPriceCount=" + nonPeriodProductPriceCount +
                 ", paymentTermCus=" + paymentTermCus +
-                ", accountAmount=" + accountAmount +
+                ", accountAmount=" + accountAmount +  
+                ", adviserList=" + adviserList +
                 '}';
     }
 
