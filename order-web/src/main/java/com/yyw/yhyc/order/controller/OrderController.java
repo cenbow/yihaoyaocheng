@@ -47,6 +47,7 @@ import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -220,11 +221,13 @@ public class OrderController extends BaseJsonController {
 			}
 			
 			/**销售顾问信息**/
-			String [] adviserInfo = orderDto.getAdviserName().split(";");
-			orderDto.setAdviserCode(adviserInfo[0]);
-			orderDto.setAdviserName(adviserInfo[1]);
-			orderDto.setAdviserPhoneNumber(adviserInfo[2]);
-			orderDto.setAdviserRemark(adviserInfo[3]);
+			if(StringUtil.isNotEmpty(orderDto.getAdviserName())){
+				String [] adviserInfo = orderDto.getAdviserName().split(";");
+				orderDto.setAdviserCode(adviserInfo[0]);
+				orderDto.setAdviserName(adviserInfo[1]);
+				orderDto.setAdviserPhoneNumber(adviserInfo[2]);
+				orderDto.setAdviserRemark(adviserInfo[3]);
+			}
 		}
 		//订单来源 限用pc
 		orderCreateDto.setSource(1);
