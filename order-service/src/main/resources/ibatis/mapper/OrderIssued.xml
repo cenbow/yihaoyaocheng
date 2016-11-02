@@ -287,6 +287,6 @@
 		WHERE
 		   O.ORDER_STATUS = '5'
 			AND SPT.PAY_TYPE = 1  
-			AND (concat(O.cust_id ,',',O.SUPPLY_ID)NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation ) WHERE relation_status='2' )
+			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
 </mapper>
