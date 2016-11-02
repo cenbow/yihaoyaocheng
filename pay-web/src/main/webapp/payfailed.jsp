@@ -5,13 +5,13 @@
   Time: 10:48
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html>
 <head>
     <head>
         <meta charset="utf-8">
         <%@ include file="jsp/config.jsp"%>
-        <title>在线支付点击付款页面-1号药城</title>
+        <title>在线支付异常</title>
         <meta name="Keywords" content="">
         <meta name="description" content="">
         <link rel="stylesheet" href="static/css/store.css">
