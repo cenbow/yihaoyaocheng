@@ -22,11 +22,31 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="com.yyw.yhyc.order.mapper.SystemDateMapper" %>
+<%@ page import="com.yyw.yhyc.helper.SpringBeanHelper" %>
 
 <html>
   <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>支付宝页面跳转同步通知页面</title>
+	  <script type="text/javascript">
+
+		  var secs =5; //倒计时的秒数
+		  var URL;
+		  function Load(url){
+			  URL =url;
+			  for(var i=secs;i>=0;i--)
+			  {
+				  window.setTimeout('doUpdate(' + i + ')', (secs-i) * 1000);
+			  }
+		  }
+		  function doUpdate(num)
+		  {
+			  document.getElementById('ShowDiv').innerHTML = '将在'+num+'秒后自动跳转' ;
+			  if(num == 0) { window.location.href=URL; }
+		  }
+		  Load("/order/buyerOrderManage");
+	  </script>
   </head>
   <body>
 <%
@@ -45,7 +65,7 @@
 		valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
 		params.put(name, valueStr);
 	}
-	
+
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以下仅供参考)//
 	//商户订单号
 
@@ -63,15 +83,15 @@
 
 	System.out.println(total_fee);
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
-	
+
 	//计算得出通知验证结果
 	boolean verify_result = AlipayNotify.verify(params);
-	
+
 	if(verify_result){//验证成功
 		//////////////////////////////////////////////////////////////////////////////////////////
 		//请在这里加上商户的业务逻辑程序代码
 
-		OrderPayManage orderPayManage = new OrderPayManage();
+		OrderPayManage orderPayManage = (OrderPayManage)SpringBeanHelper.getBean("OrderPayManage");
 		try {
 			orderPayManage.updateOrderpayInfos(out_trade_no,new BigDecimal(total_fee),params);
 		} catch (Exception e) {
@@ -83,9 +103,10 @@
 				//如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
 				//如果有做过处理，不执行商户的业务程序
 		}
-		
+
 		//该页面可做页面美工编辑
-		out.println("验证成功<br />");
+//		out.println("验证成功,等待页面跳转<br />");
+		out.println("<div id='ShowDiv'></div>");
 		//——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
 
 		//////////////////////////////////////////////////////////////////////////////////////////
