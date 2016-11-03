@@ -1089,7 +1089,7 @@ public class OrderExportService {
 					buyerDeliveryPerson = firstArray[1].split(",")[0];
 					buyerDeliveryAddress = firstArray[1].split(",")[1];
 					buyerDeliveryContact = firstArray[1].split(",")[2];
-					
+					//换货已完成
 					if (tempArray.length == 2) {
 						String[] secondArray = tempArray[1].split("split");
 						
@@ -1100,6 +1100,10 @@ public class OrderExportService {
 						sellerDeliveryPerson = secondArray[1].split(",")[0];
 						sellerDeliveryAddress = secondArray[1].split(",")[1];
 						sellerDeliveryContact = secondArray[1].split(",")[2];
+					}else{//换货单卖家未收货
+						buyerReceivePerson= (String) tempMap.get("former_receive_person");
+						buyerReceiveAddress = (String) tempMap.get("former_receive_address");
+						buyerReceiveContact =  (String) tempMap.get("former_receive_contact_phone");
 					}
 					
 				}else{
