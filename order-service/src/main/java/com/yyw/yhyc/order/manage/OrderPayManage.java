@@ -75,7 +75,11 @@ public class OrderPayManage {
 
         String flowPayId = map.get("flowPayId").toString();
         String orderStatus = map.get("orderStatus").toString();
-        updateTakeConfirmOrderInfos(flowPayId, orderStatus);
+        boolean orderSettlementStatus = false;
+        if("0000".equals(orderStatus)){
+            orderSettlementStatus = true;
+        }
+        updateTakeConfirmOrderInfos(flowPayId, orderSettlementStatus);
     }
 
     // 收到订单退款通知
@@ -84,7 +88,12 @@ public class OrderPayManage {
 
         String flowPayId = map.get("flowPayId").toString();
         String orderStatus = map.get("orderStatus").toString();
-        updateRedundOrderInfos(flowPayId, orderStatus, map.toString());
+
+        boolean orderRefundStatus = false;
+        if("0000".equals(orderStatus)){
+            orderRefundStatus = true;
+        }
+        updateRedundOrderInfos(flowPayId, orderRefundStatus, map);
     }
 
 
@@ -95,7 +104,7 @@ public class OrderPayManage {
         String money = map.get("money").toString();
         String MerId = map.get("MerId").toString();
        log.info(flowPayId+"支付成功后回调" + StringUtil.paserMaptoStr(map));
-        updateOrderpayInfos(flowPayId, new BigDecimal(money), map.toString());
+        updateOrderpayInfos(flowPayId, new BigDecimal(money), map);
     }
 
 
@@ -155,12 +164,21 @@ public class OrderPayManage {
         return map;
     }
 
-    // 支付完成更新信息
-    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,String parameter)
+
+
+    /**
+     * 在线支付成功后，更新支付状态等信息（公用业务逻辑）
+     * @param payFlowId  系统内部的支付流水号
+     * @param finalPay   用户实际支付的金额
+     * @param parameter 支付平台返回的信息
+     * @throws Exception
+     */
+    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,Map parameter)
             throws Exception {
         log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
 
         synchronized(payFlowId){
+
             String now = systemDateMapper.getSystemDate();
             OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
 
@@ -176,7 +194,7 @@ public class OrderPayManage {
                 // 更新订单支付信息
                 orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
                 orderPay.setPayTime(now);
-                orderPay.setPaymentPlatforReturn(parameter);
+                orderPay.setPaymentPlatforReturn(parameter.toString());
                 orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                 orderPayMapper.update(orderPay);
 
@@ -190,15 +208,12 @@ public class OrderPayManage {
                         orderMapper.update(order);
                         /*orderManager.sendSMS(order, null, order.getSupplyId(), MessageTemplate.BUYER_PAY_ORDER_INFO_CODE);*/
                         // 保存订单操作记录
-                        createOrderTrace(order, "银联回调", now, 2, "买家已付款.");
+                        createOrderTrace(order, OnlinePayTypeEnum.getPayName(orderPay.getPayTypeId()), now, 2, "买家已付款.");
 
                         //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
 
-                        //银联支付成功 生成结算信息
-                        if(!OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(order.getPayTypeId()) ){
-                            OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
-                            orderSettlementService.save(orderSettlement);
-                        }
+                        OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
+                        orderSettlementService.save(orderSettlement);
                     }
                 }
                log.info(payFlowId + "-----支付成功后更新信息   update orderInfo end ----");
@@ -207,8 +222,13 @@ public class OrderPayManage {
     }
 
 
-    // 确认收货更新信息
-    public void updateTakeConfirmOrderInfos(String payFlowId, String orderStatus) throws Exception {
+    /**
+     * 确认收货回调(结算)成功后，更新相关表的等信息（公用业务逻辑）
+     * @param payFlowId               系统内部的支付流水号
+     * @param orderSettlementStatus 订单是否结算
+     * @throws Exception
+     */
+    public void updateTakeConfirmOrderInfos(String payFlowId, boolean orderSettlementStatus) throws Exception {
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo start ----");
 
         List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
@@ -219,7 +239,8 @@ public class OrderPayManage {
             throw new Exception("支付信息异常！");
         }
         String now = systemDateMapper.getSystemDate();
-        if (orderStatus.equals("0000")) {// 打款成功
+        // 打款成功
+        if (orderSettlementStatus) {
             for (Order order : listOrder) {
                // if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())) {
                     //更新订单支付标记
@@ -247,8 +268,14 @@ public class OrderPayManage {
     }
 
 
-    // 退款更新信息
-    public void updateRedundOrderInfos(String payFlowId, String orderStatus, String parameter)
+    /**
+     * 退款成功后，更新退款表、订单表等信息
+     * @param payFlowId          系统内部的支付流水号
+     * @param orderRefundStatus 退款状态
+     * @param parameter           支付平台返回的信息
+     * @throws Exception
+     */
+    public void updateRedundOrderInfos(String payFlowId, boolean orderRefundStatus, Map parameter)
             throws Exception {
         log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----");
 
@@ -262,8 +289,8 @@ public class OrderPayManage {
         for (Order o : listOrder) {
             OrderRefund orderRefund = orderRefundMapper.getOrderRefundByOrderId(o.getOrderId());
             if (!UtilHelper.isEmpty(orderRefund)) {
-                orderRefund.setRemark(parameter);
-                if (orderStatus.equals("0000")) {
+                orderRefund.setRemark(parameter.toString());
+                if (orderRefundStatus) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
                     //更新取消订单退款为已结算
