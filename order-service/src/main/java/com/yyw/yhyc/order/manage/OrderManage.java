@@ -65,7 +65,7 @@ public class OrderManage {
 //			params.put("sellerCode", "11905");
 			logger.info("查询商品参加活动的信息,请求参数params：" + params);
 			long startTime = System.currentTimeMillis();
-			map = iPromotionDubboManageService.getProductGroupBySpuCodeAndSellerCode(spuCode,sellerEnterpriseId,promotionId);
+			map = iPromotionDubboManageService.getProductGroupBySpuCodeAndSellerCode(params);
 			long endTime = System.currentTimeMillis();
 			logger.info("查询商品参加活动的信息,耗时" + (endTime - startTime) + "毫秒，响应参数：map=" + map);
 		}catch (Exception e){
