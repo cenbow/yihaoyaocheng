@@ -15,6 +15,10 @@ import com.yyw.yhyc.bo.Model;
 import java.math.BigDecimal;
 
 public class OrderSettlement extends Model{
+	
+	public static final String confirm_settlement_not_do="0";	//未结算
+	public static final String confirm_settlement_doing="2";	//结算中
+	public static final String confirm_settlement_done="1";		//已结算
 
 	/**
 	 * 
@@ -131,6 +135,10 @@ public class OrderSettlement extends Model{
 	 * 区域
      */
 	private java.lang.String area;
+	/**
+	 * 结算流水号
+	 */
+	private java.lang.String settleFlowId;
 	/**
 	  *	订单ID主键
 	  */
@@ -459,33 +467,26 @@ public class OrderSettlement extends Model{
 		this.area = area;
 	}
 
+	public java.lang.String getSettleFlowId() {
+		return settleFlowId;
+	}
+
+	public void setSettleFlowId(java.lang.String settleFlowId) {
+		this.settleFlowId = settleFlowId;
+	}
+
 	@Override
 	public String toString() {
-		return "OrderSettlement{" +
-				"orderSettlementId=" + orderSettlementId +
-				", businessType=" + businessType +
-				", orderId=" + orderId +
-				", flowId='" + flowId + '\'' +
-				", custId=" + custId +
-				", custName='" + custName + '\'' +
-				", supplyId=" + supplyId +
-				", supplyName='" + supplyName + '\'' +
-				", confirmSettlement='" + confirmSettlement + '\'' +
-				", settlementMoney=" + settlementMoney +
-				", payTypeId=" + payTypeId +
-				", settlementTime='" + settlementTime + '\'' +
-				", orderTime='" + orderTime + '\'' +
-				", remark='" + remark + '\'' +
-				", createUser='" + createUser + '\'' +
-				", createTime='" + createTime + '\'' +
-				", updateUser='" + updateUser + '\'' +
-				", updateTime='" + updateTime + '\'' +
-				", refunSettlementMoney=" + refunSettlementMoney +
-				", differentMoney=" + differentMoney +
-				", province='" + province + '\'' +
-				", city='" + city + '\'' +
-				", area='" + area + '\'' +
-				'}';
+		return "OrderSettlement [orderSettlementId=" + orderSettlementId + ", businessType=" + businessType
+				+ ", orderId=" + orderId + ", flowId=" + flowId + ", custId=" + custId + ", custName=" + custName
+				+ ", supplyId=" + supplyId + ", supplyName=" + supplyName + ", confirmSettlement=" + confirmSettlement
+				+ ", settlementMoney=" + settlementMoney + ", payTypeId=" + payTypeId + ", settlementTime="
+				+ settlementTime + ", orderTime=" + orderTime + ", remark=" + remark + ", createUser=" + createUser
+				+ ", createTime=" + createTime + ", updateUser=" + updateUser + ", updateTime=" + updateTime
+				+ ", refunSettlementMoney=" + refunSettlementMoney + ", differentMoney=" + differentMoney
+				+ ", province=" + province + ", city=" + city + ", area=" + area + ", settleFlowId=" + settleFlowId
+				+ "]";
 	}
+	
 }
 

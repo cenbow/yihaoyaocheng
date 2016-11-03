@@ -21,7 +21,6 @@ public class OrderSettlementDto extends OrderSettlement{
     private String orderCreateTime ;  	//下单时间
     private String confirmSettlementName; //结算状态
     private String orgFlowId;			//原订单号
-    private String payFlowId;			//结算流水号
 
     public String getProvince() {
         return province;
@@ -125,14 +124,6 @@ public class OrderSettlementDto extends OrderSettlement{
 
 	public void setOrgFlowId(String orgFlowId) {
 		this.orgFlowId = orgFlowId;
-	}
-
-	public String getPayFlowId() {
-		return payFlowId;
-	}
-
-	public void setPayFlowId(String payFlowId) {
-		this.payFlowId = payFlowId;
 	}
     
 }

@@ -10,10 +10,16 @@
         <dependent-module archiveName="order-common-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/order-common/order-common">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="base-common-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/base-common/base-common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="order-dao-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/order-dao/order-dao">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="order-pay-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/order-pay/order-pay">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="base-pay-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/base-pay/base-pay">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="order-adapter"/>

@@ -13,6 +13,8 @@ $(function(){
 	doRefreshData(params);
 	//绑定 搜索的click事件
 	bindSearchBtn();
+	//绑定 导出事件
+	bindExportBtn();
 })
 
 
@@ -48,10 +50,16 @@ function pasretFormData(){
 }
 //绑定搜索按钮事件
 function bindSearchBtn(){
-	$("#searchForm .btn-info").on("click",function () {
+	$("#searchForm .btn-search").on("click",function () {
 		params.pageNo = 1;
 		pasretFormData();
 		doRefreshData(params);
+	})
+}
+//绑定导出事件
+function bindExportBtn(){
+	$("#searchForm .btn-export").on("click",function () {
+		$("#searchForm").submit();
 	})
 }
 
@@ -109,7 +117,7 @@ function doRefreshData(requestParam){
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
 			tipRemove();
-			alertModal("查询结算列表错误");
+			alertModalb("查询结算列表错误");
 		}
 	});
 }
@@ -149,7 +157,7 @@ function fillTableJson(data) {
 			var tr = "<tr>";
 			tr += "<td>" + orderSettlemnt.orgFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + typeToPayFlowId(orderSettlemnt.businessType,orderSettlemnt.payType,orderSettlemnt.payFlowId) + "</td>";
+			tr += "<td>" + orderSettlemnt.settleFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.payName + "</td>";
@@ -180,14 +188,7 @@ function typeToOperate(businessType,confirm,settlementId,payType) {
 	}
 	return result;
 }
-function typeToPayFlowId(businessType,payType,payFlowId){
-	//只有 采购业务，且线上支付、账期支付，才有支付流水号。退货、拒收、取消订单业务都没有支付流水号
-	if( payFlowId!=null && businessType==1 && (payType==1||payType==2) ){
-		return payFlowId;
-	}else{
-		return "";
-	}
-}
+
 function typeToshowMoney(businessType,money) {
 	if(money==null){
 		return "";
