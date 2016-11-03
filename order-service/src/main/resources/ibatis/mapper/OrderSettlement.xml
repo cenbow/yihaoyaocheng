@@ -39,6 +39,8 @@
 		<result column="province" property="province"/>
 		<result column="city" property="city"/>
 		<result column="area" property="area"/>
+		<result column="settle_flow_id" property="settleFlowId"/>
+		
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -64,6 +66,7 @@
 		, province
 		, city
 		, area
+		, settle_flow_id
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -88,6 +91,7 @@
 				, province
 				, city
 				, area
+				, settle_flow_id
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -113,6 +117,7 @@
 		, province
 		, city
 		, area
+		, settle_flow_id
 	</sql>
 	
 	<sql id="commonCondition">
@@ -182,6 +187,10 @@
 		<if test="area!= null and area!= ''">
 			AND area=#{area}
 		</if>
+		<if test="settleFlowId!= null and settleFlowId!= ''">
+			AND settle_flow_id=#{settleFlowId}
+		</if>
+		
 	</sql>
 	
 	<insert id="save" parameterType="OrderSettlement">
@@ -210,6 +219,7 @@
 				, #{province}
 				, #{city}
 				, #{area}
+				, #{settleFlowId}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderSettlement">
@@ -236,6 +246,7 @@
 			, province = #{province}
 			, city = #{city}
 			, area = #{area}
+			, settle_flow_id = #{settleFlowId}
 		WHERE order_settlement_id = #{orderSettlementId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -285,15 +296,16 @@
 		<result column="pay_type" property="payType"></result>
 		<result column="pay_type_name" property="payTypeName"/>
 		<result column="pay_name" property="payName"/>
+		<result column="settle_flow_id" property="settleFlowId"/>
 	</resultMap>
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
 		SELECT 
-			t1.order_settlement_id ,t1.org_flow_id ,t1.flow_id ,t3.pay_flow_id , 
+			t1.order_settlement_id ,t1.org_flow_id ,t1.flow_id ,t1.settle_flow_id , 
  			t1.pay_type, t1.pay_type_name, t1.pay_name,t1.business_type, t1.cust_name, t1.supply_name,
  			DATE_FORMAT(t1.order_time, '%Y-%m-%d %H:%i:%s') AS order_time,
  			DATE_FORMAT(t1.settlement_time, '%Y-%m-%d %H:%i:%s') AS settlement_time,
- 			t1.settlement_money , t1.refun_settlement_money ,t1.confirm_settlement 
+ 			t1.settlement_money , t1.refun_settlement_money ,t1.confirm_settlement, t1.settle_flow_id
 			FROM 
 			(
 			SELECT s.order_settlement_id AS order_settlement_id, 
@@ -310,13 +322,11 @@
 			t.pay_type_id, t.pay_type, t.pay_type_name, t.pay_name, t.pay_states, 
 			s.business_type, s.cust_id, s.cust_name, s.supply_id, s.supply_name,
 			s.order_time,s.settlement_time, s.settlement_money ,s.refun_settlement_money , 
-			s.confirm_settlement, s.province, s.city, s.area
+			s.confirm_settlement, s.province, s.city, s.area, s.settle_flow_id
 			FROM t_order_settlement s
 			LEFT JOIN t_order_exception e ON e.exception_order_id = s.flow_id
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
 			) t1 
-			LEFT JOIN t_order t2 ON t2.flow_id = t1.org_flow_id
-			LEFT JOIN t_order_combined t3 ON t3.order_combined_id = t2.order_combined_id 
 		]]>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="custId !=null and custId !=''">
@@ -362,6 +372,9 @@
 		</if>
 		<if test="area !=null and area != '' and area !='-1'">
 			AND t1.area = #{area}
+		</if>
+		<if test="settleFlowId !=null and settleFlowId != ''">
+			AND t1.settle_flow_id = #{settleFlowId}
 		</if>
 		ORDER BY t1.order_settlement_id DESC
 	</select>
