@@ -354,7 +354,7 @@ public class OrderController extends BaseJsonController {
 			shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
 		}
 
-		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList);
+		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList,iAdviserManageDubbo);
 
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
