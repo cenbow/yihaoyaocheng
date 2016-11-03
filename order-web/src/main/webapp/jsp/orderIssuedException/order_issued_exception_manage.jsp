@@ -110,18 +110,17 @@
                                 <table class="table table-box">
                                     <colgroup>
                                         <col style="width: 5%;"/>
+                                        <col style="width: 9%;"/>
+                                        <col style="width: 8%;"/>
+                                        <col style="width: 7%;"/>
+                                        <col style="width: 8%;"/>
+                                        <col style="width: 7%;"/>
                                         <col style="width: 10%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 7%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 7%;"/>
-                                        <col style="width: 10%;"/>
-                                        <col style="width: 5%;"/>
+                                        <col style="width: 6%;"/>
                                         <col style="width: 7%;"/>
                                         <col style="width: 7%;"/>
                                         <col style="width: 8%;"/>
-                                        <col style="width: 10%;"/>
+                                        <col style="width: 18%;"/>
                                     </colgroup>
                                     <thead>
                                     <tr>
@@ -130,7 +129,6 @@
                                         <th>下单时间</th>
                                         <th>供应商</th>
                                         <th>订单状态</th>
-                                        <th>处理状态</th>
                                         <th>支付类型</th>
                                         <th>采购商</th>
                                         <th>收货人</th>
