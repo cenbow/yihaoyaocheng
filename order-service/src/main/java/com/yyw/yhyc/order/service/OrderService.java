@@ -851,8 +851,12 @@ public class OrderService {
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
 //			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
-			orderDetail.setPromotionId(productInfoDto.getPromotionId());
-			orderDetail.setPromotionName(productInfoDto.getPromotionName());
+			if (!UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+				orderDetail.setPromotionId(productInfoDto.getPromotionId());
+			}
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionName())){
+				orderDetail.setPromotionName(productInfoDto.getPromotionName());
+			}
 
 			//生产厂家
 			int manufacturesId = 0;
