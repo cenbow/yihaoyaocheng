@@ -341,8 +341,11 @@ public class OrderIssuedExceptionService {
 
 			OrderDelivery orderDelivery = new OrderDelivery();
 			orderDelivery.setFlowId(one.getFlowId());
-			orderDelivery = orderDliveryMapper.listByProperty(orderDelivery)
-					.get(0);
+			List<OrderDelivery> orderDeliveryList  = orderDliveryMapper.listByProperty(orderDelivery);
+			if(orderDeliveryList == null || orderDeliveryList.size() == 0){
+				continue;
+			}
+			orderDelivery = orderDeliveryList.get(0);
 			orderIssuedException.setReceivePerson(orderDelivery
 					.getReceivePerson());
 			orderIssuedException.setReceiveContactPhone(orderDelivery
