@@ -1099,9 +1099,9 @@ public class OrderExportService {
 					sellerDeliveryAddress = secondArray[1].split(",")[1];
 					sellerDeliveryContact = secondArray[1].split(",")[2];
 				}else{
-					sellerReceivePerson= (String) tempMap.get("former_delivery_person");
-					sellerReceiveAddress = (String) tempMap.get("former_delivery_address");
-					sellerReceiveContact =  (String) tempMap.get("former_delivery_contact_phone");
+					sellerDeliveryPerson= (String) tempMap.get("former_delivery_person");
+					sellerDeliveryAddress = (String) tempMap.get("former_delivery_address");
+					sellerDeliveryContact =  (String) tempMap.get("former_delivery_contact_phone");
 					
 					buyerReceivePerson= (String) tempMap.get("former_receive_person");
 					buyerReceiveAddress = (String) tempMap.get("former_receive_address");
@@ -1137,29 +1137,29 @@ public class OrderExportService {
 				// 订单的第四行
 				HSSFRow row4 = sheet.getRow(rownum - 2);
 				HSSFCell cell12 = row4.createCell(3);
-				cell12.setCellValue(buyerReceiveAddress);
+				cell12.setCellValue(buyerDeliveryAddress);
 				cell12.setCellStyle(contentStyle);
 
 				HSSFCell cell13 = row4.createCell(5);
-				cell13.setCellValue(buyerReceivePerson);
+				cell13.setCellValue(buyerDeliveryPerson);
 				cell13.setCellStyle(contentStyle);
 
 				HSSFCell cell14 = row4.createCell(7);
-				cell14.setCellValue(buyerReceiveContact);
+				cell14.setCellValue(buyerDeliveryContact);
 				cell14.setCellStyle(contentStyle);
 				
 				// 订单的第五行
 				HSSFRow row5 = sheet.getRow(rownum - 1);
 				HSSFCell cell15 = row5.createCell(3);
-				cell15.setCellValue(buyerDeliveryAddress);
+				cell15.setCellValue(buyerReceiveAddress);
 				cell15.setCellStyle(contentStyle);
 
 				HSSFCell cell16 = row5.createCell(5);
-				cell16.setCellValue(buyerDeliveryPerson);
+				cell16.setCellValue(buyerReceivePerson);
 				cell16.setCellStyle(contentStyle);
 
 				HSSFCell cell17 = row5.createCell(7);
-				cell17.setCellValue(buyerDeliveryContact);
+				cell17.setCellValue(buyerReceiveContact);
 				cell17.setCellStyle(contentStyle);
 
 
