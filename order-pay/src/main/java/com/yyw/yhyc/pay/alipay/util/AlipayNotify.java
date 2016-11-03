@@ -122,4 +122,33 @@ public class AlipayNotify {
 
         return inputLine;
     }
+
+    /**
+     * 从批量退款数据中的详细信息返回支付宝交易号
+     * @param returnstr
+     * @return
+     */
+    public static String getTradeNo(String returnstr)
+    {
+        String[] refundstr = returnstr.split("\\^");
+        if(refundstr.length == 3)
+            return refundstr[0];
+        else
+            return null;
+    }
+
+    /**
+     * 从批量退款数据中的详细信息返回退款是否成功
+     * @param returnstr
+     * @return
+     */
+    public static boolean getIsSuccess(String returnstr)
+    {
+        String[] refundstr = returnstr.split("\\^");
+        if(refundstr.length == 3 && refundstr[2].equals("SUCCESS"))
+            return true;
+        else
+            return false;
+    }
+
 }

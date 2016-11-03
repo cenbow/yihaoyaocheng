@@ -16,9 +16,10 @@
  * */
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.yyw.yhyc.helper.SpringBeanHelper"%>
 <%@ page import="com.yyw.yhyc.order.manage.OrderPayManage"%>
 <%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify"%>
-<%@ page import="java.util.HashMap"%>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%
@@ -42,7 +43,7 @@
 	//批次号
 
 	String batch_no = new String(request.getParameter("batch_no").getBytes("ISO-8859-1"),"UTF-8");
-
+	System.out.println("batch_no===="+batch_no);
 	//批量退款数据中转账成功的笔数
 
 	String success_num = new String(request.getParameter("success_num").getBytes("ISO-8859-1"),"UTF-8");
@@ -57,9 +58,28 @@
 		//请在这里加上商户的业务逻辑程序代码
 
 		//——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
-		OrderPayManage orderPayManage = (OrderPayManage)SpringBeanHelper.getBean("orderPayMamage");
+		OrderPayManage orderPayManage = (OrderPayManage) SpringBeanHelper.getBean("orderPayMamage");
 		try {
-			orderPayManage.updateRedundOrderInfos(batch_no,true,params);
+			String detail =null;
+			String[] resultdetail = result_details.split("#");
+			System.out.println("result_details===="+result_details);
+			for(String tempreturn : resultdetail)
+			{
+				if(tempreturn.indexOf("$") == -1)
+				{
+					detail = tempreturn;
+				}
+				else
+				{
+					detail = tempreturn.split("\\$")[0];
+				}
+				String tradeNo = AlipayNotify.getTradeNo(detail);
+				System.out.println("tradeNo===="+tradeNo);
+				String payFlowId = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
+				System.out.println("payFlowId===="+payFlowId);
+				orderPayManage.updateRedundOrderInfos(payFlowId,AlipayNotify.getIsSuccess(detail),params);
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

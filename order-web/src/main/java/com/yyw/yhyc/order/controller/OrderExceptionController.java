@@ -325,9 +325,8 @@ public class OrderExceptionController extends BaseJsonController{
 			creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-				// TODO: 2016/8/25 暂时注释 不抛出异常
 				logger.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
-				//throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
 		}
 

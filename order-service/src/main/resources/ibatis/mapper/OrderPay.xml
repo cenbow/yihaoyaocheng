@@ -259,6 +259,11 @@
 		FROM t_order_pay WHERE pay_flow_id=#{payFlowId}
 	</select>
 
+	<select id="getPayFlowIdByPayAccountNo" parameterType="java.lang.String" resultMap="OrderPayResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonColumns"/>
+		FROM t_order_pay WHERE  pay_type_id = 7 and pay_account_no = #{payaccountno}
+	</select>
 
 	<select id="listOrderPayDtoByProperty" parameterType="OrderPay" resultMap="OrderPayDtoResultMapper">
 		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no,p.order_money FROM

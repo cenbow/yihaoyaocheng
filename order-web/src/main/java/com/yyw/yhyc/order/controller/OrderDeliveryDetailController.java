@@ -174,6 +174,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 			} catch (Exception e) {
 				logger.error("orderService.getByPK error, flowId: "+flowId+",errorMsg:"+e.getMessage());
 				e.printStackTrace();
+				throw new RuntimeException("creditDubboService 接口调用失败！");
 			}
 		}
 		return map;
