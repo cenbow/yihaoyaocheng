@@ -197,7 +197,7 @@
                                 <div class="fr f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
                             </div>
                             <p class="pt30">
-						                            给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" >
+						                            给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" style="margin-right: 100px;">
 						       
 						         <c:choose>
 					                <c:when test="${shoppingCart.adviserList != null && fn:length(shoppingCart.adviserList) gt 0 }">
