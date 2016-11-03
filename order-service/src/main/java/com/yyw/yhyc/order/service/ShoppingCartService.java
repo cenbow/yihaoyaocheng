@@ -18,9 +18,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.CartData;
@@ -41,6 +41,7 @@ import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.MyConfigUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -225,7 +226,8 @@ public class ShoppingCartService {
 	 * @param shoppingCart
 	 * @param userDto
      */
-	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,IProductDubboManageService iProductDubboManageService) throws Exception{
+	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto, IPromotionDubboManageService iPromotionDubboManageService,
+										IProductDubboManageService iProductDubboManageService, ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception{
 		Map<String,Object> resultMap = new HashMap<>();
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId())){
 			resultMap.put("resultCount",0);
@@ -259,7 +261,7 @@ public class ShoppingCartService {
 		if( !UtilHelper.isEmpty(oldShoppingCart.getPromotionId()) && oldShoppingCart.getPromotionId() > 0 ) {
 			oldShoppingCart.setProductCount(shoppingCart.getProductCount());
 			oldShoppingCart.setProductSettlementPrice(oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-			ShoppingCartDto normalProductShoppingCart = handleActivityProduct(oldShoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
+			ShoppingCartDto normalProductShoppingCart = handleActivityProduct(oldShoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 			resultMap.put("resultCount",2);
 			resultMap.put("normalProductShoppingCart",normalProductShoppingCart);
 
@@ -283,7 +285,8 @@ public class ShoppingCartService {
 	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
 	 * @throws Exception
 	 */
-	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,IProductDubboManageService iProductDubboManageService) throws Exception{
+	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,
+											   IProductDubboManageService iProductDubboManageService,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception{
 
 		/* 默认添加商品的来源是进货单 */
 		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
@@ -336,7 +339,7 @@ public class ShoppingCartService {
 		/* 判断该商品是否是活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCart.getPromotionId()) && shoppingCart.getPromotionId() > 0 ){
 			/* 处理活动商品 */
-			newNormalProductShoppingCart = handleActivityProduct(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
+			newNormalProductShoppingCart = handleActivityProduct(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}else{
 			/* 处理普通商品(原来的逻辑，代码不变) */
 			/* 新添加商品  或 添加已存在的商品逻辑 */
@@ -601,7 +604,8 @@ public class ShoppingCartService {
 	 * @param
 	 * @return
 	 */
-	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService){
+	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity, IProductDubboManageService iProductDubboManageService,
+											  IPromotionDubboManageService iPromotionDubboManageService,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setShoppingCartId(shoppingCartId);
@@ -609,7 +613,7 @@ public class ShoppingCartService {
 		UserDto userDto = new UserDto();
 		userDto.setCustId(custId);
 		try {
-			this.updateNum(shoppingCart, userDto,iPromotionDubboManageService,iProductDubboManageService);
+			this.updateNum(shoppingCart, userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo, productSearchInterface);
 		}catch (Exception e){
 			resultMap.put("statusCode","-3");
 			resultMap.put("message","更新进货单失败!");
@@ -692,7 +696,8 @@ public class ShoppingCartService {
 	 * @param userDto 	   当前登陆人的用户信息
 	 * @return  超出活动商品限购数量后，进货单中新增的普通商品数据
 	 */
-	private ShoppingCartDto handleActivityProduct(ShoppingCart shoppingCart ,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,IProductDubboManageService iProductDubboManageService) throws Exception {
+	private ShoppingCartDto handleActivityProduct(ShoppingCart shoppingCart ,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,
+												  IProductDubboManageService iProductDubboManageService,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception {
 		if(UtilHelper.isEmpty(shoppingCart)) return null;
 
 		/* 该商品是否是活动商品 */
@@ -704,7 +709,7 @@ public class ShoppingCartService {
 		//表示添加商品到购物车
 		if(UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || shoppingCart.getShoppingCartId() <= 0){
 			/* 校验是否超过活动商品限购数量 */
-			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,iPromotionDubboManageService);
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
 				activityProductShoppingCart.setCreateUser(userDto.getUserName());
@@ -718,7 +723,7 @@ public class ShoppingCartService {
 			shoppingCartOrigin.setProductPrice(shoppingCart.getProductPrice());
 			shoppingCartOrigin.setProductSettlementPrice(shoppingCart.getProductSettlementPrice());
 			/* 校验是否超过活动商品限购数量 */
-			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCartOrigin,iPromotionDubboManageService);
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCartOrigin,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
 				activityProductShoppingCart.setUpdateUser(userDto.getUserName());
@@ -792,7 +797,8 @@ public class ShoppingCartService {
 	 * @param shoppingCart 要检查的数据
 	 * @return 活动商品的数据、普通商品的数据
      */
-	private Map<String,ShoppingCart> isExceedActivityLimitedNum(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
+	private Map<String,ShoppingCart> isExceedActivityLimitedNum(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService,
+																UserDto userDto,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception {
 		/* 接入何家兵的获取活动商品信息的接口,区分出是否超出活动限购数量 */
 		if(UtilHelper.isEmpty(iPromotionDubboManageService)) {
 			logger.error("购物车页面-查询商品参加活动信息,接口iPromotionDubboManageService:" + iPromotionDubboManageService);
@@ -828,6 +834,7 @@ public class ShoppingCartService {
 		if(!UtilHelper.isEmpty(shoppingCart.getPromotionId()) && shoppingCart.getPromotionId() > 0){
 			buyedInHistory  = shoppingCartMapper.countBuyedNumInHistory(shoppingCart);
 		}
+		logger.info("判断是否若超出活动商品限购数量:本次购买数量=" + shoppingCart.getProductCount() + ",\n该商品在该活动中的历史购买量buyedInHistory=" + buyedInHistory+",\n个人限购=" + productPromotionDto.getLimitNum() + ",\n活动实时库存=" + productPromotionDto.getCurrentInventory()) ;
 
 		/* 判断理论上可以以特价购买的数量 */
 		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory;
@@ -843,7 +850,7 @@ public class ShoppingCartService {
 				canBuyByProductPriceNum = shoppingCart.getProductCount() - canBuyByPromotionPrice;
 			}
 		}
-		logger.info("判断是否若超出活动商品限购数量:能够以活动特价购买的商品数量canBuyByPromotionPriceNum=" + canBuyByPromotionPriceNum +",能够以商品原价购买的数量canBuyByProductPriceNum=" + canBuyByProductPriceNum) ;
+		logger.info("判断是否若超出活动商品限购数量:能够以活动特价购买的商品数量canBuyByPromotionPriceNum=" + canBuyByPromotionPriceNum +",\n能够以商品原价购买的数量canBuyByProductPriceNum=" + canBuyByProductPriceNum) ;
 
 		Map<String,ShoppingCart> resultMap = new HashMap<>();
 
@@ -853,11 +860,26 @@ public class ShoppingCartService {
 		activityProduct.setProductPrice(productPromotionDto.getPromotionPrice());
 		activityProduct.setProductSettlementPrice(productPromotionDto.getPromotionPrice().multiply(new BigDecimal(canBuyByPromotionPriceNum)));
 
-		ShoppingCart normalProduct = new ShoppingCart();
-		BeanUtils.copyProperties(shoppingCart,activityProduct);
-		normalProduct.setProductCount(canBuyByProductPriceNum);
-		normalProduct.setProductPrice(shoppingCart.getProductPrice());
-		normalProduct.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(canBuyByProductPriceNum)));
+		ShoppingCart normalProduct = null;
+		if(canBuyByProductPriceNum > 0){
+			/* 调用接口查询商品原价 */
+			long startTime = System.currentTimeMillis();
+			BigDecimal productPrice = orderManage.getProductPrice(shoppingCart.getSpuCode(),shoppingCart.getCustId(),shoppingCart.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface);
+			long endTime = System.currentTimeMillis();
+			logger.info("判断是否若超出活动商品限购数量:查询商品原价,耗时("+(endTime - startTime)+")毫秒，productPrice=" + productPrice ) ;
+			if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0")) <= 0){
+				logger.error("判断是否若超出活动商品限购数量:查询商品原价失败，productPrice=" + productPrice);
+				throw new Exception("查询商品价格失败");
+			}
+
+			normalProduct = new ShoppingCart();
+			BeanUtils.copyProperties(shoppingCart,normalProduct);
+			normalProduct.setPromotionId(null);
+			normalProduct.setPromotionName(null);
+			normalProduct.setProductCount(canBuyByProductPriceNum);
+			normalProduct.setProductPrice(productPrice);
+			normalProduct.setProductSettlementPrice(productPrice.multiply(new BigDecimal(canBuyByProductPriceNum)));
+		}
 
 		logger.info("判断是否若超出活动商品限购数量:activityProduct(ShoppingCart)=" + activityProduct +",normalProduct(ShoppingCart)=" + normalProduct) ;
 		//原活动商品的信息
@@ -874,7 +896,8 @@ public class ShoppingCartService {
 	 * @param iProductDubboManageService
      * @return
      */
-	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
+	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto, IProductDubboManageService iProductDubboManageService,
+											  IPromotionDubboManageService iPromotionDubboManageService ) {
 		long startTime = System.currentTimeMillis();
 		long start,end;
 		if(UtilHelper.isEmpty(shoppingCartDto)){

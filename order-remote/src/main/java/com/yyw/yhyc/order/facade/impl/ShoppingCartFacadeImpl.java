@@ -17,8 +17,10 @@ import java.util.Map;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 	@Reference
 	private IProductDubboManageService iProductDubboManageService;
+
+	@Reference
+	private ICustgroupmanageDubbo iCustgroupmanageDubbo;
+
+	@Reference
+	private ProductSearchInterface productSearchInterface;
 	
 	/**
 	 * 通过主键查询实体对象
@@ -206,7 +214,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		try {
 			//TODO Facade层 怎么获取当前登陆用户的信息呢？
-			return shoppingCartService.addShoppingCart(shoppingCart,null,iPromotionDubboManageService,iProductDubboManageService);
+			return shoppingCartService.addShoppingCart(shoppingCart,null,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}catch (Exception e){
 			logger.error(e.getMessage(), e);
 

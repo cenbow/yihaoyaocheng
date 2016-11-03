@@ -152,7 +152,7 @@ public class ShoppingCartController extends BaseController {
 		int custId = userDto.getCustId();
 		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
 		Integer quantity = shoppingCart.get("quantity");
-		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService,iPromotionDubboManageService);
+		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public class ShoppingCartController extends BaseController {
 		try{
 			shoppingCart.setCustId(userDto.getCustId());
 			shoppingCart.setCreateUser(userDto.getUserName());
-			result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
+			result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 			result.put("totalCount",result.get("productCount"));
 			result.put("result","成功");
 		}catch (Exception e){
