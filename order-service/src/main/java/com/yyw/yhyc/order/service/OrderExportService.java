@@ -1082,22 +1082,26 @@ public class OrderExportService {
 				if (StringUtils.isNotBlank(delivery)) {
 					String[] tempArray = delivery.split(";");
 					String[] firstArray = tempArray[0].split("split");
-					String[] secondArray = tempArray[1].split("split");
+					
 					sellerReceivePerson= firstArray[0].split(",")[0];
 					sellerReceiveAddress = firstArray[0].split(",")[1];
 					sellerReceiveContact =  firstArray[0].split(",")[2];
-					
 					buyerDeliveryPerson = firstArray[1].split(",")[0];
 					buyerDeliveryAddress = firstArray[1].split(",")[1];
 					buyerDeliveryContact = firstArray[1].split(",")[2];
 					
-					buyerReceivePerson= secondArray[0].split(",")[0];
-					buyerReceiveAddress = secondArray[0].split(",")[1];
-					buyerReceiveContact =  secondArray[0].split(",")[2];
+					if (tempArray.length == 2) {
+						String[] secondArray = tempArray[1].split("split");
+						
+						buyerReceivePerson= secondArray[0].split(",")[0];
+						buyerReceiveAddress = secondArray[0].split(",")[1];
+						buyerReceiveContact =  secondArray[0].split(",")[2];
+						
+						sellerDeliveryPerson = secondArray[1].split(",")[0];
+						sellerDeliveryAddress = secondArray[1].split(",")[1];
+						sellerDeliveryContact = secondArray[1].split(",")[2];
+					}
 					
-					sellerDeliveryPerson = secondArray[1].split(",")[0];
-					sellerDeliveryAddress = secondArray[1].split(",")[1];
-					sellerDeliveryContact = secondArray[1].split(",")[2];
 				}else{
 					sellerDeliveryPerson= (String) tempMap.get("former_delivery_person");
 					sellerDeliveryAddress = (String) tempMap.get("former_delivery_address");
