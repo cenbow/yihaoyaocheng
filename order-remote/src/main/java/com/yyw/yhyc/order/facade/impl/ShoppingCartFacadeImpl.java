@@ -214,10 +214,10 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 
 		try {
 			//TODO Facade层 怎么获取当前登陆用户的信息呢？
+			logger.info("提供给外部使用的加入进货单接口，请求数据shoppingCart=" + shoppingCart);
 			return shoppingCartService.addShoppingCart(shoppingCart,null,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}catch (Exception e){
 			logger.error(e.getMessage(), e);
-
 			map.put("message", e.getMessage());
 			return map;
 		}

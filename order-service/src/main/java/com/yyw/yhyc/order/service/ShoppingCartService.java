@@ -339,9 +339,11 @@ public class ShoppingCartService {
 		/* 判断该商品是否是活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCart.getPromotionId()) && shoppingCart.getPromotionId() > 0 ){
 			/* 处理活动商品 */
+			logger.info("加入进货单：处理活动商品，shoppingCart=" + shoppingCart);
 			newNormalProductShoppingCart = handleActivityProduct(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}else{
 			/* 处理普通商品(原来的逻辑，代码不变) */
+			logger.info("加入进货单：处理普通商品");
 			/* 新添加商品  或 添加已存在的商品逻辑 */
 			if(UtilHelper.isEmpty(shoppingCarts)){
 				if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
