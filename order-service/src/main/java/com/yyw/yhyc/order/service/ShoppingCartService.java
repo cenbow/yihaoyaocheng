@@ -30,6 +30,7 @@ import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import com.yyw.yhyc.order.manage.OrderManage;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.dto.ProductPromotionDto;
@@ -74,7 +75,8 @@ public class ShoppingCartService {
 		this.shoppingCartMapper = shoppingCartMapper;
 	}
 
-
+	@Autowired
+	private OrderManage orderManage;
 
 
 	@Autowired
@@ -782,7 +784,8 @@ public class ShoppingCartService {
 			return null;
 		}
 		logger.info("购物车页面-查询商品参加活动信息,请求参数:" + shoppingCart);
-		ProductPromotionDto productPromotionDto = queryProductWithPromotion(iPromotionDubboManageService,shoppingCart.getSpuCode(),shoppingCart.getSupplyId()+"",shoppingCart.getPromotionId());
+		ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,shoppingCart.getSpuCode(),
+				shoppingCart.getSupplyId()+"",shoppingCart.getPromotionId(),shoppingCart.getCustId()+"");
 		logger.info("购物车页面-查询商品参加活动信息,响应参数:" + productPromotionDto);
 		if(UtilHelper.isEmpty(productPromotionDto)){
 			return null;
@@ -925,7 +928,8 @@ public class ShoppingCartService {
 		ProductPromotionDto productPromotionDto  = null;
 		if(!UtilHelper.isEmpty(iPromotionDubboManageService) && !UtilHelper.isEmpty(shoppingCartDto.getPromotionId())){
 			logger.info("购物车页面-查询商品参加活动信息,请求参数:" + shoppingCartDto);
-			productPromotionDto = queryProductWithPromotion(iPromotionDubboManageService,shoppingCartDto.getSpuCode(),shoppingCartDto.getSupplyId()+"",shoppingCartDto.getPromotionId());
+			productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,shoppingCartDto.getSpuCode(),shoppingCartDto.getSupplyId()+"",
+					shoppingCartDto.getPromotionId(),shoppingCartDto.getCustId() + "");
 			logger.info("购物车页面-查询商品参加活动信息,响应参数:" + productPromotionDto);
 		}else{
 			logger.error("购物车页面-查询商品参加活动信息,接口iPromotionDubboManageService:" + iPromotionDubboManageService);
@@ -941,44 +945,6 @@ public class ShoppingCartService {
 		return shoppingCartDto;
 	}
 
-	/**
-	 * 查询商品参加活动的信息
-	 * @param iPromotionDubboManageService
-	 * @param spuCode                    商品的spu编码
-	 * @param sellerEnterpriseId       供应商企业id
-	 * @param promotionId                活动id
-	 * @return
-	 */
-	private ProductPromotionDto queryProductWithPromotion(IPromotionDubboManageService iPromotionDubboManageService, String spuCode, String sellerEnterpriseId, Integer promotionId) {
-		if(UtilHelper.isEmpty(iPromotionDubboManageService) || UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(sellerEnterpriseId) || UtilHelper.isEmpty(promotionId)){
-			return null;
-		}
-		logger.info("查询商品参加活动的信息,请求参数：iPromotionDubboManageService=" + iPromotionDubboManageService
-				+ ",spuCode=" + spuCode + ",sellerEnterpriseId=" + sellerEnterpriseId + ",promotionId=" + promotionId);
-		Map map = null;
-		try{
-			map = iPromotionDubboManageService.getProductGroupBySpuCodeAndSellerCode(spuCode,sellerEnterpriseId,promotionId);
-			logger.info("查询商品参加活动的信息,响应参数：map=" + map);
-		}catch (Exception e){
-			logger.error("查询商品参加活动的信息,dubbo服务查询异常：errorMesssage = " + e.getMessage(),e);
-			return null;
-		}
-		if(UtilHelper.isEmpty(map) ){
-			return null;
-		}
-		ProductPromotionDto productPromotionDto = new ProductPromotionDto();
-		productPromotionDto.setPromotionId(UtilHelper.isEmpty(map.get("promotionId")+"") ? 0 : Integer.parseInt(map.get("promotionId")+""));
-		productPromotionDto.setSpuCode(UtilHelper.isEmpty(map.get("spuCode")+"") ? "" : map.get("spuCode")+"");
-		productPromotionDto.setPromotionPrice(UtilHelper.isEmpty(map.get("promotionPrice")+"") ? new BigDecimal("0") : new BigDecimal(map.get("promotionPrice")+""));
-		productPromotionDto.setMinimumPacking(UtilHelper.isEmpty(map.get("minimumPacking")+"") ? 0 : Integer.parseInt(map.get("minimumPacking")+""));
-		productPromotionDto.setLimitNum(UtilHelper.isEmpty(map.get("limitNum")+"") ? 0 : Integer.parseInt(map.get("limitNum")+""));
-		productPromotionDto.setSumInventory(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Integer.parseInt(map.get("sumInventory")+""));
-		productPromotionDto.setCurrentInventory(UtilHelper.isEmpty(map.get("currentInventory")+"") ? 0 : Integer.parseInt(map.get("currentInventory")+""));
-		productPromotionDto.setSort(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Short.parseShort(map.get("sumInventory")+""));
-		productPromotionDto.setPromotionType(UtilHelper.isEmpty(map.get("promotionType")+"") ? 0 : Integer.parseInt(map.get("promotionType")+""));
-		productPromotionDto.setPromotionName(UtilHelper.isEmpty(map.get("promotionName")+"") ? "" : map.get("promotionName")+"");
-		logger.info("查询商品参加活动的信息,productPromotionDto=" + productPromotionDto);
-		return productPromotionDto;
-	}
+
 
 }
