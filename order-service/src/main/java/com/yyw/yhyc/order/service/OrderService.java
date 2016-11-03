@@ -641,8 +641,8 @@ public class OrderService {
 			shoppingCart.setProductId(productInfoDto.getId());
 			shoppingCart.setSupplyId(orderDto.getSupplyId());
 			shoppingCart.setFromWhere(productInfoDto.getFromWhere() == null ? ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere() : productInfoDto.getFromWhere());
-			if(!UtilHelper.isEmpty(productInfoDto.getPromotionId())){
-				shoppingCart.setProductId(productInfoDto.getPromotionId());
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0){
+				shoppingCart.setPromotionId(productInfoDto.getPromotionId());
 			}
 			shoppingCartMapper.deleteByProperty(shoppingCart);
 		}
