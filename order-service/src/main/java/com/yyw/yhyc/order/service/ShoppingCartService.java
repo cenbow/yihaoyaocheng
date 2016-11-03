@@ -413,15 +413,22 @@ public class ShoppingCartService {
 		/* 获取购物车中的商品信息 */
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
+		long startTime = System.currentTimeMillis();
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
-		logger.info("购物车页面-从数据库中取的数据，allShoppingCart=" + allShoppingCart);
+		long endTime = System.currentTimeMillis();
+		logger.info("购物车页面-从数据库中取的数据,耗时："+ (endTime - startTime) +"毫秒，allShoppingCart=" + allShoppingCart);
 
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
 		}
 
 		/* 处理商品信息： */
-		return handleProductInfo(allShoppingCart,iProductDubboManageService,iPromotionDubboManageService);
+		startTime = System.currentTimeMillis();
+		List<ShoppingCartListDto> allShoppingCartAfterHandler  = handleProductInfo(allShoppingCart,iProductDubboManageService,iPromotionDubboManageService);
+		endTime = System.currentTimeMillis();
+		logger.info("购物车页面-处理所有商品的数据(包含处理每个商品调用Dubbo服务的时间),耗时："+ (endTime - startTime) +"毫秒");
+		return allShoppingCartAfterHandler;
+
 	}
 
 	/**
@@ -434,12 +441,14 @@ public class ShoppingCartService {
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
 		}
+		long startTime ,endTime;
 		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
 			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) ||
 					UtilHelper.isEmpty(shoppingCartListDto.getSeller())){
 				continue;
 			}
 			BigDecimal productPriceCount = new BigDecimal(0);
+			startTime = System.currentTimeMillis();
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
@@ -452,6 +461,8 @@ public class ShoppingCartService {
 					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 				}
 			}
+			endTime = System.currentTimeMillis();
+			logger.info("购物车页面-处理商品信息：该供应商(enterprizeCode =" + shoppingCartListDto.getSeller().getEnterpriseId() +",企业名称="+ shoppingCartListDto.getSeller().getEnterpriseName()+")下的所有商品处理，耗时："+(endTime-startTime)+"毫秒");
 
 			/* 计算是否符合订单起售金额 */
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
@@ -472,6 +483,7 @@ public class ShoppingCartService {
 		if(UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(iProductDubboManageService)){
 			return filePath;
 		}
+		long startTime = System.currentTimeMillis();
 		Map map = new HashMap();
 		map.put("spu_code", spuCode);
 		map.put("type_id", "1");
@@ -504,6 +516,8 @@ public class ShoppingCartService {
 			logger.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
 			return filePath;
 		}
+		long endTime = System.currentTimeMillis();
+		logger.info("查询图片接口:处理完成！耗时" + (endTime - startTime) + "毫秒");
 		return  MyConfigUtil.IMG_DOMAIN + file_path;
 
 
@@ -860,6 +874,8 @@ public class ShoppingCartService {
      * @return
      */
 	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
+		long startTime = System.currentTimeMillis();
+		long start,end;
 		if(UtilHelper.isEmpty(shoppingCartDto)){
 			return null;
 		}
@@ -902,9 +918,13 @@ public class ShoppingCartService {
 		List productList = null;
 		Integer putaway_status = 0; //（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
 		try{
+
 			logger.info("购物车页面-查询商品信息,请求参数:" + map);
+			start = System.currentTimeMillis();
 			productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
-			logger.info("购物车页面-查询商品信息,响应参数:" + JSONArray.fromObject(productList));
+			end = System.currentTimeMillis();
+			logger.info("购物车页面-查询商品信息,耗时"+(end - start)+"毫秒，响应参数:" + JSONArray.fromObject(productList));
+
 		}catch (Exception e){
 			logger.error("购物车页面-查询商品信息失败:" + e.getMessage());
 		}
@@ -942,6 +962,8 @@ public class ShoppingCartService {
 			shoppingCartDto.setPromotionSumInventory(productPromotionDto.getSumInventory());
 			shoppingCartDto.setPromotionCurrentInventory(productPromotionDto.getCurrentInventory());
 		}
+		long endTime = System.currentTimeMillis();
+		logger.info("处理单个商品的信息,总耗时："+(endTime - startTime)+"毫秒");
 		return shoppingCartDto;
 	}
 
