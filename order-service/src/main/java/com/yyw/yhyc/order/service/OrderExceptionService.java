@@ -296,7 +296,7 @@ public class OrderExceptionService {
         } else if (OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
-            orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
+            orderSettlement.setConfirmSettlement("0");//生成结算信息 未结算
         }
         else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付
@@ -333,7 +333,11 @@ public class OrderExceptionService {
             orderSettlement.setCustId(null);
             orderSettlement.setSupplyId(order.getSupplyId());
             orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
-            orderSettlementMapper.save(orderSettlement);
+            //当全部拒收时不生成卖家结算 适用所有
+            if(orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
+                orderSettlementMapper.save(orderSettlement);
+            }
+
         }
     }
 
