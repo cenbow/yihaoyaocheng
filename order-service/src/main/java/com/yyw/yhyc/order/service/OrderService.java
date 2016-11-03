@@ -179,8 +179,6 @@ public class OrderService {
 	@Autowired
 	private  OrderSettlementService orderSettlementService;
 
-	@Reference
-	private IPromotionDubboManageService iPromotionDubboManageService;
 
 	/**
 	 * 通过主键查询实体对象

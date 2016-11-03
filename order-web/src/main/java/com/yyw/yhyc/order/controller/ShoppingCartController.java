@@ -135,7 +135,7 @@ public class ShoppingCartController extends BaseJsonController {
 	public ModelAndView index() throws Exception {
 		ModelAndView model = new ModelAndView();
 		UserDto userDto = super.getLoginUser();
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,iProductDubboManageService);
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,iProductDubboManageService,iPromotionDubboManageService);
 		model.addObject("allShoppingCart",allShoppingCart);
 		model.setViewName("shoppingCart/index");
 		return model;
@@ -151,7 +151,7 @@ public class ShoppingCartController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		return shoppingCartService.updateNum(shoppingCart,userDto);
+		return shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService);
 	}
 
 

@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import org.slf4j.Logger;
@@ -37,6 +40,12 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	{
 		this.shoppingCartService = shoppingCartService;
 	}
+
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
+
+	@Reference
+	private IProductDubboManageService iProductDubboManageService;
 	
 	/**
 	 * 通过主键查询实体对象
@@ -196,7 +205,8 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 		}
 
 		try {
-			return shoppingCartService.addShoppingCart(shoppingCart);
+			//TODO Facade层 怎么获取当前登陆用户的信息呢？
+			return shoppingCartService.addShoppingCart(shoppingCart,null,iPromotionDubboManageService,iProductDubboManageService);
 		}catch (Exception e){
 			logger.error(e.getMessage(), e);
 

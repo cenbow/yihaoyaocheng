@@ -74,11 +74,8 @@ public class ShoppingCartService {
 		this.shoppingCartMapper = shoppingCartMapper;
 	}
 
-	@Reference
-	private IProductDubboManageService iProductDubboManageService;
 
-	@Reference
-	private IPromotionDubboManageService iPromotionDubboManageService;
+
 
 	@Autowired
 	private OrderDetailMapper orderDetailMapper;
@@ -226,7 +223,7 @@ public class ShoppingCartService {
 	 * @param shoppingCart
 	 * @param userDto
      */
-	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto) throws Exception{
+	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,IProductDubboManageService iProductDubboManageService) throws Exception{
 		Map<String,Object> resultMap = new HashMap<>();
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId())){
 			resultMap.put("resultCount",0);
@@ -260,7 +257,7 @@ public class ShoppingCartService {
 		if( !UtilHelper.isEmpty(oldShoppingCart.getPromotionId()) && oldShoppingCart.getPromotionId() > 0 ) {
 			oldShoppingCart.setProductCount(shoppingCart.getProductCount());
 			oldShoppingCart.setProductSettlementPrice(oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-			ShoppingCartDto normalProductShoppingCart = handleActivityProduct(oldShoppingCart,userDto);
+			ShoppingCartDto normalProductShoppingCart = handleActivityProduct(oldShoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
 			resultMap.put("resultCount",2);
 			resultMap.put("normalProductShoppingCart",normalProductShoppingCart);
 
@@ -284,7 +281,7 @@ public class ShoppingCartService {
 	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
 	 * @throws Exception
 	 */
-	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws Exception{
+	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,IProductDubboManageService iProductDubboManageService) throws Exception{
 
 		/* 默认添加商品的来源是进货单 */
 		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
@@ -337,7 +334,7 @@ public class ShoppingCartService {
 		/* 判断该商品是否是活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCart.getPromotionId()) && shoppingCart.getPromotionId() > 0 ){
 			/* 处理活动商品 */
-			newNormalProductShoppingCart = handleActivityProduct(shoppingCart);
+			newNormalProductShoppingCart = handleActivityProduct(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
 		}else{
 			/* 处理普通商品(原来的逻辑，代码不变) */
 			/* 新添加商品  或 添加已存在的商品逻辑 */
@@ -379,7 +376,7 @@ public class ShoppingCartService {
 	 * @param fromWhere
      * @return
      */
-	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, IProductDubboManageService iProductDubboManageService, int fromWhere) {
+	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, IProductDubboManageService iProductDubboManageService, int fromWhere,IPromotionDubboManageService iPromotionDubboManageService) {
 		if(UtilHelper.isEmpty(userDto)){
 			logger.info("当前登陆人的信息,userDto=" + userDto);
 			return null;
@@ -397,7 +394,7 @@ public class ShoppingCartService {
 		}
 
 		/* 处理商品信息： */
-		return handleProductInfo(allShoppingCart,iProductDubboManageService);
+		return handleProductInfo(allShoppingCart,iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
@@ -406,7 +403,7 @@ public class ShoppingCartService {
 	 * @param iProductDubboManageService
      * @return
      */
-	public List<ShoppingCartListDto> index(UserDto userDto, IProductDubboManageService iProductDubboManageService){
+	public List<ShoppingCartListDto> index(UserDto userDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto)){
 			return null;
 		}
@@ -422,7 +419,7 @@ public class ShoppingCartService {
 		}
 
 		/* 处理商品信息： */
-		return handleProductInfo(allShoppingCart,iProductDubboManageService);
+		return handleProductInfo(allShoppingCart,iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
@@ -431,7 +428,7 @@ public class ShoppingCartService {
 	 * @param iProductDubboManageService
      * @return
      */
-	private List<ShoppingCartListDto> handleProductInfo(List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService iProductDubboManageService) {
+	private List<ShoppingCartListDto> handleProductInfo(List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
 		}
@@ -444,7 +441,7 @@ public class ShoppingCartService {
 			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
-				shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService);
+				shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService,iPromotionDubboManageService);
 
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
@@ -561,7 +558,7 @@ public class ShoppingCartService {
 	 * @param shoppingCartIds
 	 * @return
 	 */
-	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds, IProductDubboManageService iProductDubboManageService){
+	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		UserDto userDto = new UserDto();
 		userDto.setCustId(custId);
@@ -575,7 +572,7 @@ public class ShoppingCartService {
 
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService,iPromotionDubboManageService);
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
 		resultMap.put("statusCode", "0");
 		resultMap.put("data", cartData);
@@ -587,7 +584,7 @@ public class ShoppingCartService {
 	 * @param
 	 * @return
 	 */
-	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity, IProductDubboManageService iProductDubboManageService){
+	public  Map<String,Object> updateShopCart(Integer custId,Integer shoppingCartId,Integer quantity, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setShoppingCartId(shoppingCartId);
@@ -595,7 +592,7 @@ public class ShoppingCartService {
 		UserDto userDto = new UserDto();
 		userDto.setCustId(custId);
 		try {
-			this.updateNum(shoppingCart, userDto);
+			this.updateNum(shoppingCart, userDto,iPromotionDubboManageService,iProductDubboManageService);
 		}catch (Exception e){
 			resultMap.put("statusCode","-3");
 			resultMap.put("message","更新进货单失败!");
@@ -603,7 +600,7 @@ public class ShoppingCartService {
 		}
 		ShoppingCart sc = new ShoppingCart();
 		sc.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService,iPromotionDubboManageService);
 		if(UtilHelper.isEmpty(shoppingCartListDtos)){
 			resultMap.put("statusCode","0");
 			return resultMap;
@@ -614,8 +611,8 @@ public class ShoppingCartService {
 		return resultMap;
 	}
 
-	public Map<String,Object> getShopCartList(UserDto userDto, IProductDubboManageService iProductDubboManageService) {
-		List<ShoppingCartListDto> allShoppingCart = this.index(userDto,iProductDubboManageService);
+	public Map<String,Object> getShopCartList(UserDto userDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
+		List<ShoppingCartListDto> allShoppingCart = this.index(userDto,iProductDubboManageService,iPromotionDubboManageService);
 		CartData cartData = changeShopCartDtosToApp(allShoppingCart);
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		resultMap.put("statusCode", "0");
@@ -678,7 +675,7 @@ public class ShoppingCartService {
 	 * @param userDto 	   当前登陆人的用户信息
 	 * @return  超出活动商品限购数量后，进货单中新增的普通商品数据
 	 */
-	private ShoppingCartDto handleActivityProduct(ShoppingCart shoppingCart ,UserDto userDto) throws Exception {
+	private ShoppingCartDto handleActivityProduct(ShoppingCart shoppingCart ,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,IProductDubboManageService iProductDubboManageService) throws Exception {
 		if(UtilHelper.isEmpty(shoppingCart)) return null;
 
 		/* 该商品是否是活动商品 */
@@ -733,21 +730,12 @@ public class ShoppingCartService {
 
 			/*  查询该商品的相关信息 */
 			shoppingCartDto = convert(normalProductShoppingCart);
-			shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService);
+			shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService,iPromotionDubboManageService);
 		}
 
 		return shoppingCartDto;
 	}
 
-	/**
-	 * 功能描述：处理活动商品的相关逻辑(包括校验、增加一条记录等)
-	 * 使用场景：添加进货单、修改进货单时
-	 * @param shoppingCart 原始数据
-	 * @return  超出活动商品限购数量后，进货单中新增的普通商品数据
-     */
-	private ShoppingCartDto handleActivityProduct(ShoppingCart shoppingCart) throws Exception {
-		return handleActivityProduct(shoppingCart,null);
-	}
 
 	/**
 	 * ShoppingCart 转换成 ShoppingCartDto
@@ -868,7 +856,7 @@ public class ShoppingCartService {
 	 * @param iProductDubboManageService
      * @return
      */
-	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto, IProductDubboManageService iProductDubboManageService) {
+	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
 		if(UtilHelper.isEmpty(shoppingCartDto)){
 			return null;
 		}

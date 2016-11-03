@@ -106,7 +106,7 @@ public class FastOrderController extends BaseJsonController {
         try{
             shoppingCart.setCustId(userDto.getCustId());
             shoppingCart.setCreateUser(userDto.getUserName());
-            result = shoppingCartService.addShoppingCart(shoppingCart);
+            result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
         }catch (Exception e){
             logger.error(e.getMessage(),e);
             throw  new Exception(e.getMessage());
@@ -168,7 +168,7 @@ public class FastOrderController extends BaseJsonController {
         if(!UtilHelper.isEmpty(shoppingCart)){
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
         }
-        shoppingCartService.updateNum(shoppingCart,userDto);
+        shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
         return ok("修改成功");
     }
 
@@ -181,7 +181,7 @@ public class FastOrderController extends BaseJsonController {
     public Map<String,Object> list() throws Exception {
         UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
-        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),iPromotionDubboManageService);
         logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
         String message = UtilHelper.isEmpty(allShoppingCart) || allShoppingCart.size() == 0 ? "请添加商品" : "";
         return ok(message,allShoppingCart);

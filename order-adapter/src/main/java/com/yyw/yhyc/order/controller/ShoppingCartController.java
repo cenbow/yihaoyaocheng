@@ -138,7 +138,7 @@ public class ShoppingCartController extends BaseController {
 	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		int custId = userDto.getCustId();
-		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService);
+		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class ShoppingCartController extends BaseController {
 		int custId = userDto.getCustId();
 		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
 		Integer quantity = shoppingCart.get("quantity");
-		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService);
+		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public class ShoppingCartController extends BaseController {
 		try{
 			shoppingCart.setCustId(userDto.getCustId());
 			shoppingCart.setCreateUser(userDto.getUserName());
-			result = shoppingCartService.addShoppingCart(shoppingCart);
+			result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
 			result.put("totalCount",result.get("productCount"));
 			result.put("result","成功");
 		}catch (Exception e){
@@ -247,7 +247,7 @@ public class ShoppingCartController extends BaseController {
 	public Map<String, Object> getShopCartList() throws Exception {
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
-		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
+		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
