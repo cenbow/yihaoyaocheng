@@ -151,7 +151,7 @@ public class ShoppingCartController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		return shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
+		return shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 	}
 
 

@@ -11,9 +11,13 @@
 package com.yyw.yhyc.order.manage;
 
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.product.dto.ProductPromotionDto;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,4 +93,86 @@ public class OrderManage {
 		logger.info("查询商品参加活动的信息,productPromotionDto=" + productPromotionDto);
 		return productPromotionDto;
 	}
+
+
+	/**
+	 * 调用接口查询商品价格
+	 * @param spuCode               商品spu编码
+	 * @param buyerEnterprizeId    买家企业id
+	 * @param sellerEnterprizeId   商家企业id
+	 * @param productSearchInterface
+	 * @return
+	 */
+	public BigDecimal getProductPrice(String spuCode, Integer buyerEnterprizeId, Integer sellerEnterprizeId,
+									   ICustgroupmanageDubbo iCustgroupmanageDubbo, UserDto userDto, ProductSearchInterface productSearchInterface){
+		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
+			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
+			return null;
+		}
+		long startTime,endTime;
+		CustGroupDubboRet custGroupDubboRet = null;
+		try{
+			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
+			startTime = System.currentTimeMillis();
+			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
+			endTime = System.currentTimeMillis();
+			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，耗时:"+(endTime - startTime)+"毫秒，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
+		}catch (Exception e){
+			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+			return null;
+		}
+
+		String custGroupCode = null;//客户组编码
+		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
+			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
+			return null;
+		}else{
+			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
+		}
+
+		logger.info("统一校验订单商品接口,查询商品价格(调用搜索接口 productSearchInterface= "+ productSearchInterface +")");
+		if(UtilHelper.isEmpty(productSearchInterface)){
+			return null;
+		}
+
+		//调用搜索的接口
+		Double productPrice = null;
+		try{
+			logger.info("统一校验订单商品接口,查询商品价格，请求参数:\n buyerEnterprizeId=" + buyerEnterprizeId +
+					",sellerEnterprizeId=" + sellerEnterprizeId +",custGroupName="+custGroupCode +",spuCode="+spuCode);
+			startTime = System.currentTimeMillis();
+			productPrice = productSearchInterface.findProductShowPrice(buyerEnterprizeId+"",sellerEnterprizeId+"",spuCode,custGroupCode);
+			endTime = System.currentTimeMillis();
+			logger.info("统一校验订单商品接口,查询商品价格，耗时:"+(endTime - startTime)+"毫秒，响应参数：" + productPrice );
+		}catch (Exception e){
+			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+			return null;
+		}
+		if(UtilHelper.isEmpty(productPrice)){
+			return null;
+		}
+		return new BigDecimal(productPrice + "");
+	}
+
+	/**
+	 *
+	 * @param data  "[{group_code=61650851012264}, {group_code=61671525425650}]"
+	 * @return
+	 */
+	private String getCustGroupCode(List<Map<String, Object>> data) {
+		if(UtilHelper.isEmpty(data)) return "";
+		String result = "";
+		for(Map map : data){
+			if(UtilHelper.isEmpty(map)) continue;
+			if(!UtilHelper.isEmpty(map.get("group_code")+"")){
+				if(UtilHelper.isEmpty(result)){
+					result += map.get("group_code")+"";
+				}else{
+					result += "," + map.get("group_code")+"";
+				}
+			}
+		}
+		return result;
+	}
+
 }

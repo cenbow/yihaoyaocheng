@@ -106,7 +106,7 @@ public class FastOrderController extends BaseJsonController {
         try{
             shoppingCart.setCustId(userDto.getCustId());
             shoppingCart.setCreateUser(userDto.getUserName());
-            result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
+            result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
         }catch (Exception e){
             logger.error(e.getMessage(),e);
             throw  new Exception(e.getMessage());
@@ -168,7 +168,7 @@ public class FastOrderController extends BaseJsonController {
         if(!UtilHelper.isEmpty(shoppingCart)){
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
         }
-        shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
+        shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
         return ok("修改成功");
     }
 
