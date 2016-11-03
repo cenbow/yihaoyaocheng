@@ -194,6 +194,12 @@ public class OrderPayManage {
                 // 更新订单支付信息
                 orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
                 orderPay.setPayTime(now);
+
+                if(parameter.get("trade_no") != null){
+                    orderPay.setPayAccountName("支付宝");
+                    orderPay.setPayAccountNo(parameter.get("trade_no").toString());
+                }
+
                 orderPay.setPaymentPlatforReturn(parameter.toString());
                 orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
                 orderPayMapper.update(orderPay);
@@ -317,6 +323,18 @@ public class OrderPayManage {
             }
         }
         log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo end ----");
+    }
+
+
+    /**
+     * 通过支付宝交易id查询出PayFlowId
+     * @param payaccountno
+     * @return
+     */
+    public String getPayFlowIdByPayAccountNo(String payaccountno)
+    {
+        OrderPay orderPay = orderPayMapper.getPayFlowIdByPayAccountNo(payaccountno);
+        return orderPay.getPayFlowId();
     }
 
     public void createOrderTrace(Object order,String userName,String now,int type,String nodeName){
