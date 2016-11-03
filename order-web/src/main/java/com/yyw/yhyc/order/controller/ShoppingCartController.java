@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -62,6 +63,9 @@ public class ShoppingCartController extends BaseJsonController {
 
 	@Reference
 	private ProductSearchInterface productSearchInterface;
+
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 
 
 	/**
@@ -131,7 +135,7 @@ public class ShoppingCartController extends BaseJsonController {
 	public ModelAndView index() throws Exception {
 		ModelAndView model = new ModelAndView();
 		UserDto userDto = super.getLoginUser();
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,iProductDubboManageService);
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,iProductDubboManageService,iPromotionDubboManageService);
 		model.addObject("allShoppingCart",allShoppingCart);
 		model.setViewName("shoppingCart/index");
 		return model;
@@ -144,9 +148,10 @@ public class ShoppingCartController extends BaseJsonController {
 	 * @throws Exception
      */
 	@RequestMapping(value = "/updateNum", method = RequestMethod.POST)
-	public void updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
+	@ResponseBody
+	public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		shoppingCartService.updateNum(shoppingCart,userDto);
+		return shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService);
 	}
 
 
@@ -197,6 +202,7 @@ public class ShoppingCartController extends BaseJsonController {
 					productInfoDto.setSpuCode(temp.getSpuCode());
 					productInfoDto.setProductPrice(temp.getProductPrice());
 					productInfoDto.setProductCount(temp.getProductCount());
+					productInfoDto.setPromotionId(temp.getPromotionId());
 					productInfoDtoList.add(productInfoDto);
 				}
 			}
@@ -204,7 +210,8 @@ public class ShoppingCartController extends BaseJsonController {
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface);
+			resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService,
+					productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) resultMap.get("result");
 			if(!result){
 				return resultMap;

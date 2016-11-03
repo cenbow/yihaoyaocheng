@@ -47,9 +47,8 @@ import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
-import com.yaoex.framework.core.model.util.StringUtil;
-import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yyw.yhyc.bo.Pagination;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.framework.core.model.util.StringUtil;import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
@@ -116,6 +115,9 @@ public class OrderController extends BaseJsonController {
 	
 	@Autowired
 	private OrderExportService orderExportService;
+
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 
     /**
      * 通过主键查询实体对象
@@ -214,7 +216,8 @@ public class OrderController extends BaseJsonController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,productSearchInterface);
+			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+					productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
@@ -374,7 +377,7 @@ public class OrderController extends BaseJsonController {
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,productDubboManageService,creditDubboService);
+			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,productDubboManageService,creditDubboService,iPromotionDubboManageService);
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
 

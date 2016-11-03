@@ -113,6 +113,22 @@ public class ShoppingCart extends Model{
 	/* 来源表示字段（0：来自进货单，1：来自极速下单) */
 	private Integer fromWhere;
 
+	/* 活动ID（商品所参加活动的活动id） */
+	private Integer promotionId;
+
+	/* 活动名称（商品所参加活动的活动名称） */
+	private String promotionName;
+
+/*
+	数据库中t_shopping_cart中新增字段
+	ALTER TABLE `t_shopping_cart`
+	ADD COLUMN `promotion_id`  int(11) NULL DEFAULT NULL COMMENT '活动ID' AFTER `from_where`,
+	ADD COLUMN `promotion_name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '活动名称' AFTER `promotion_id`;
+
+*/
+
+
+
 	/**
 	  *	
 	  */
@@ -394,29 +410,47 @@ public class ShoppingCart extends Model{
 		this.fromWhere = fromWhere;
 	}
 
-	public String toString()
-	{
-		return "ShoppingCart [" + 
-					"shoppingCartId=" + shoppingCartId + 
-					", custId=" + custId + 
-					", skuId=" + skuId + 
-					", specification=" + specification + 
-					", supplyId=" + supplyId + 
-					", productId=" + productId + 
-					", spuCode=" + spuCode +
-					", productCodeCompany=" + productCodeCompany +
-					", productName=" + productName + 
-					", manufactures=" + manufactures + 
-					", productPrice=" + productPrice + 
-					", productSettlementPrice=" + productSettlementPrice + 
-					", productCount=" + productCount + 
-					", remark=" + remark + 
-					", createUser=" + createUser + 
-					", createTime=" + createTime + 
-					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime +
-					", fromWhere=" + fromWhere +
-				"]";
+	public Integer getPromotionId() {
+		return promotionId;
+	}
+
+	public void setPromotionId(Integer promotionId) {
+		this.promotionId = promotionId;
+	}
+
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
+	}
+
+	@Override
+	public String toString() {
+		return "ShoppingCart{" +
+				"shoppingCartId=" + shoppingCartId +
+				", custId=" + custId +
+				", skuId=" + skuId +
+				", specification='" + specification + '\'' +
+				", supplyId=" + supplyId +
+				", productId=" + productId +
+				", productCodeCompany='" + productCodeCompany + '\'' +
+				", spuCode='" + spuCode + '\'' +
+				", productName='" + productName + '\'' +
+				", manufactures='" + manufactures + '\'' +
+				", productPrice=" + productPrice +
+				", productSettlementPrice=" + productSettlementPrice +
+				", productCount=" + productCount +
+				", remark='" + remark + '\'' +
+				", createUser='" + createUser + '\'' +
+				", createTime='" + createTime + '\'' +
+				", updateUser='" + updateUser + '\'' +
+				", updateTime='" + updateTime + '\'' +
+				", fromWhere=" + fromWhere +
+				", promotionId=" + promotionId +
+				", promotionName=" + promotionName +
+				"} ";
 	}
 }
 

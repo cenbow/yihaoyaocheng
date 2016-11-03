@@ -2626,10 +2626,21 @@ i {
 }
 .shopping-cart .holder-list .td-price {
   width: 170px;
-  padding: 70px 10px 0 10px;
+  padding: 52px 10px 0 10px;
   font-size: 14px;
   text-align: center;
 }
+
+.shopping-cart .holder-list .td-price .special_price{
+  padding-bottom: 12px;
+}
+
+.shopping-cart .holder-list .td-price .special_price span {
+  color: #fff;
+  background: #fe5050;
+  padding: 4px 10px;
+}
+
 .shopping-cart .holder-list .td-amount {
   width: 190px;
   padding-top: 42px;
