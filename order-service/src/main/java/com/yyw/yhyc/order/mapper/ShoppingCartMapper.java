@@ -44,4 +44,11 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 	List<ShoppingCart> listDistinctCustIdAndSupplyId(ShoppingCart shoppingCart);
 
 	List<ShoppingCartListDto> listForFastOrder(ShoppingCart shoppingCart);
+
+	/**
+	 * 查询历史购买量
+	 * @param shoppingCart
+	 * @return
+     */
+	int countBuyedNumInHistory(ShoppingCart shoppingCart);
 }

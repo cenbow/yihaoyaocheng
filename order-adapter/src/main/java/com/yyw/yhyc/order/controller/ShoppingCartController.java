@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -66,6 +67,9 @@ public class ShoppingCartController extends BaseController {
 
 	@Reference
 	private ProductSearchInterface productSearchInterface;
+
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 
 	/**
 	* 通过主键查询实体对象
@@ -134,7 +138,7 @@ public class ShoppingCartController extends BaseController {
 	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		int custId = userDto.getCustId();
-		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService);
+		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
@@ -148,7 +152,7 @@ public class ShoppingCartController extends BaseController {
 		int custId = userDto.getCustId();
 		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
 		Integer quantity = shoppingCart.get("quantity");
-		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService);
+		return shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 	}
 
 	/**
@@ -214,7 +218,8 @@ public class ShoppingCartController extends BaseController {
 		Map<String, Object> result = null;
 		try{
 			shoppingCart.setCustId(userDto.getCustId());
-			result = shoppingCartService.addShoppingCart(shoppingCart);
+			shoppingCart.setCreateUser(userDto.getUserName());
+			result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 			result.put("totalCount",result.get("productCount"));
 			result.put("result","成功");
 		}catch (Exception e){
@@ -242,7 +247,7 @@ public class ShoppingCartController extends BaseController {
 	public Map<String, Object> getShopCartList() throws Exception {
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
-		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService);
+		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService,iPromotionDubboManageService);
 	}
 
 	/**
@@ -330,7 +335,7 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface);
+			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			String message = (String) map.get("message");
 			if(!result){
