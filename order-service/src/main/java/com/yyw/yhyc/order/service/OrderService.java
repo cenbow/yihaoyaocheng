@@ -401,7 +401,10 @@ public class OrderService {
 					continue;
 				}
 			}
-
+            // pc 订单来源设置
+			if(orderDto.getSource()==0){
+				orderDto.setSource(orderCreateDto.getSource());
+			};
 			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 
@@ -1583,8 +1586,9 @@ public class OrderService {
 	 * @return
 	 * @param userDto
 	 * @param oldShoppingCartIdList
+	 * @param iAdviserManageDubbo
 	 */
-	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList) throws Exception {
+	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList, IAdviserManageDubbo iAdviserManageDubbo) throws Exception {
 		log.info("检查订单页的数据,userDto = " + userDto);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(oldShoppingCartIdList)){
 			return null;
