@@ -879,6 +879,156 @@
 		</if>
 		ORDER BY T1.EXCEPTION_ID DESC
 	</select>
+	
+	<select id="getExportExceptionOrder" parameterType="OrderExceptionDto" resultType="map"  useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>, d.receive_person as former_receive_person,
+		d.receive_address as former_receive_address,d.receive_contact_phone as former_receive_contact_phone,
+		d.delivery_address as former_delivery_address,d.delivery_person as former_delivery_person,
+		d.delivery_contact_phone as former_delivery_contact_phone,
+		d1.receive_person as exception_receive_person,d1.receive_address as exception_receive_address ,
+		d1.receive_contact_phone as exception_receive_contact_phone,d1.delivery_address as exception_delivery_address,
+		d1.delivery_person as exception_delivery_person,d1.delivery_contact_phone as exception_delivery_contact_phone,
+		t4.detail,T2.bill_type,t2.preferential_money,t2.order_total
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN (SELECT group_concat(concat(
+				t2.product_code,',',t2.product_name,',',t2.specification,',',
+						t2.manufactures,',',t2.product_price,',',T1.return_count,',',t1.return_pay) separator ';'
+				) as detail,T1.exception_order_id
+				FROM
+					t_order_return T1
+				LEFT JOIN t_order_detail T2 ON T1.order_detail_id = T2.order_detail_id
+				GROUP BY T1.exception_order_id) t4 ON t1.exception_order_id = t4.exception_order_id
+		LEFT JOIN t_order_delivery d ON d.flow_id = t1.flow_id
+		LEFT JOIN t_order_delivery d1 ON d1.flow_id = t1.exception_order_id
+		WHERE
+		T1.RETURN_TYPE = #{returnType}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND T1.cust_id = #{custId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND T1.supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "2"'><!--待发货-->
+					AND T1.ORDER_STATUS = '2' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "4"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '3' <!--已关闭-->
+				</when>
+				<when test='orderStatus == "3"'><!--待收货-->
+					AND T1.ORDER_STATUS = '4' <!--待收货-->
+				</when>
+				<when test='orderStatus == "5"'>
+					AND (T1.ORDER_STATUS = '5' OR T1.ORDER_STATUS = '6') <!--买家已收货 + 系统自动确认收货-->
+				</when>
+				<otherwise>
+					<![CDATA[ AND 1<>1]]>
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
+	
+	<select id="getExportChangeOrder" parameterType="OrderExceptionDto" resultType="map"  useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>, d.delivery,
+		t4.detail,T2.bill_type,t2.preferential_money,t2.order_total,
+		v.receive_person as former_receive_person,
+		v.receive_address as former_receive_address,v.receive_contact_phone as former_receive_contact_phone,
+		v.delivery_address as former_delivery_address,v.delivery_person as former_delivery_person,
+		v.delivery_contact_phone as former_delivery_contact_phone
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN (SELECT group_concat(concat(
+				t2.product_code,',',t2.product_name,',',t2.specification,',',
+						t2.manufactures,',',t2.product_price,',',T1.return_count,',',t1.return_pay) separator ';'
+				) as detail,T1.exception_order_id
+				FROM
+					t_order_return T1
+				LEFT JOIN t_order_detail T2 ON T1.order_detail_id = T2.order_detail_id
+				GROUP BY T1.exception_order_id) t4 ON t1.exception_order_id = t4.exception_order_id
+		LEFT JOIN (
+			SELECT group_concat(concat(receive_person,',',receive_address,',',receive_contact_phone,'split',
+			delivery_person,',',delivery_address,',',delivery_contact_phone) separator ';') as delivery,flow_id 
+			from t_order_delivery GROUP BY flow_id ORDER BY delivery_id
+		)d ON d.flow_id = t1.exception_order_id
+		LEFT JOIN t_order_delivery v on v.flow_id = t1.flow_id
+		WHERE
+		T1.RETURN_TYPE = #{returnType}
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''">
+			AND T1.EXCEPTION_ORDER_ID LIKE CONCAT('%',#{exceptionOrderId},'%' )
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND T1.cust_id = #{custId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND T1.supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="startTime!= null and startTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!= null and endTime!= ''">
+			<![CDATA[ AND T1.ORDER_CREATE_TIME <= #{endTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<choose>
+				<when test='orderStatus == "1"'><!--待确认-->
+					AND T1.ORDER_STATUS = '1' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "2"'><!--待发货-->
+					AND T1.ORDER_STATUS = '2' <!--买家已申请-->
+				</when>
+				<when test='orderStatus == "4"'><!--已关闭-->
+					AND T1.ORDER_STATUS = '3' <!--已关闭-->
+				</when>
+				<when test='orderStatus == "3"'><!--待收货-->
+					AND T1.ORDER_STATUS = '4' <!--待收货-->
+				</when>
+				<when test='orderStatus == "5"'>
+					AND (T1.ORDER_STATUS = '5' OR T1.ORDER_STATUS = '6') <!--买家已收货 + 系统自动确认收货-->
+				</when>
+				<otherwise>
+					<![CDATA[ AND 1<>1]]>
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
 
 	<select id="findBuyerReplenishmentOrderTotal" parameterType="OrderExceptionDto" resultType="java.math.BigDecimal"  useCache="false">
 		SELECT

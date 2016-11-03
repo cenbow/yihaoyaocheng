@@ -2451,4 +2451,22 @@ public class OrderExceptionService {
         return orderExceptionDto;
     }
 
+    /**
+	 * 异常订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportExceptionOrder(OrderExceptionDto orderExceptionDto){
+		return orderExceptionMapper.getExportExceptionOrder(orderExceptionDto);
+	}
+	
+   /**
+	 * 换货订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto){
+		return orderExceptionMapper.getExportChangeOrder(orderExceptionDto);
+	}
+    
 }

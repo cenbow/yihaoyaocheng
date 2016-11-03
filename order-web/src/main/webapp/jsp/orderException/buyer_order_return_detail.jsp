@@ -209,10 +209,13 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
+                                                	<a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
                                                     <img alt="${orderReturnDto.productName}" class="productImageUrl" spuCode="${orderReturnDto.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                               		</a>
                                                 </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${orderReturnDto.productName}</p>
+                                                    <p class="title"><a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                      ${orderReturnDto.productName}</a></p>
                                                     <p class="text">${orderReturnDto.manufactures}</p>
                                                     <p class="text">${orderReturnDto.specification}</p>
                                                 </div>

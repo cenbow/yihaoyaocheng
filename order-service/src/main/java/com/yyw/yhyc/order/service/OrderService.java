@@ -14,7 +14,22 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.search.remote.yhyc.ProductSearchInterface;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
@@ -22,45 +37,78 @@ import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
 import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.adviser.AdviserModel;
 import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderProductBean;
-import com.yyw.yhyc.order.bo.*;
-import com.yyw.yhyc.order.dto.*;
-import com.yyw.yhyc.order.enmu.*;
-import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.CommonType;
+import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderCombined;
+import com.yyw.yhyc.order.bo.OrderDelivery;
+import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
+import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderSettlement;
+import com.yyw.yhyc.order.bo.OrderTrace;
+import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.AdviserDto;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.BillTypeEnum;
+import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
+import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
+import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderPayFlag;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.manage.OrderPayManage;
-import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
+import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.mapper.OrderPayMapper;
+import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
+import com.yyw.yhyc.order.mapper.OrderTraceMapper;
+import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
+import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.DateUtils;
-import com.yyw.yhyc.order.utils.RandomUtil;
-import com.yyw.yhyc.product.bo.ProductInfo;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
-import com.yyw.yhyc.product.mapper.ProductInfoMapper;
-
 import com.yyw.yhyc.utils.ExcelUtil;
 import com.yyw.yhyc.utils.MyConfigUtil;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.search.remote.yhyc.ProductSearchInterface;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.bo.Pagination;
 
 @Service("orderService")
 public class OrderService {
@@ -341,7 +389,10 @@ public class OrderService {
 					continue;
 				}
 			}
-
+            // pc 订单来源设置
+			if(orderDto.getSource()==0){
+				orderDto.setSource(orderCreateDto.getSource());
+			};
 			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
 
@@ -734,7 +785,14 @@ public class OrderService {
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
 		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
-
+		order.setSource(orderDto.getSource());//订单来源
+		/**
+		 * 销售顾问信息
+		 */
+		order.setAdviserCode(orderDto.getAdviserCode());
+		order.setAdviserName(orderDto.getAdviserName());
+		order.setAdviserPhoneNumber(orderDto.getAdviserPhoneNumber());
+		order.setAdviserRemark(orderDto.getAdviserRemark());
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
 		List<Order> orders = orderMapper.listByProperty(order);
@@ -1535,8 +1593,9 @@ public class OrderService {
 	 * @return
 	 * @param userDto
 	 * @param oldShoppingCartIdList
+	 * @param iAdviserManageDubbo 
 	 */
-	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList) throws Exception {
+	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList, IAdviserManageDubbo iAdviserManageDubbo) throws Exception {
 		log.info("检查订单页的数据,userDto = " + userDto);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(oldShoppingCartIdList)){
 			return null;
@@ -1610,6 +1669,21 @@ public class OrderService {
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
 			orderPriceCount = orderPriceCount.add(productPriceCount);
 			shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
+			
+			//查询供应商的销售顾问信息
+			//custIdAndSupplyId.getSupplyId();
+			List<AdviserDto> adviserList = new ArrayList<AdviserDto>();
+			List<AdviserModel> list = iAdviserManageDubbo.queryByEnterId(custIdAndSupplyId.getSupplyId());
+			for(AdviserModel one : list){
+				AdviserDto adviserDto = new AdviserDto();
+				adviserDto.setAdviserCode(one.getAdviser_code());
+				adviserDto.setAdviserName(one.getAdviser_name());
+				adviserDto.setAdviserPhoneNumber(one.getPhone_number());
+				adviserDto.setAdviserRemark(one.getRemark());
+				adviserList.add(adviserDto);
+			}
+			shoppingCartListDto.setAdviserList(adviserList);
+			
 			allShoppingCart.add(shoppingCartListDto);
 		}
 
@@ -2092,6 +2166,7 @@ public class OrderService {
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
 		orderDto.setPayFlag(Integer.valueOf((data.get("payFlag")==null || "".equals(data.get("payFlag"))) ?  "0":data.get("payFlag")));
+		orderDto.setSource(Integer.valueOf((data.get("source")==null || "".equals(data.get("source"))) ?  "0":data.get("source")));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
@@ -2458,6 +2533,7 @@ public class OrderService {
 				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				shoppingCartListDto.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDto);
 				continue;
 			}
@@ -2486,6 +2562,7 @@ public class OrderService {
 				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				shoppingCartListDto.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDto);
 
 				continue;
@@ -2517,6 +2594,7 @@ public class OrderService {
 				shoppingCartListDtoPeriodTerm.setAccountAmount(1);
 				shoppingCartListDtoPeriodTerm.setShoppingCartDtoList(shoppingCartDtoListPeriodTerm);
 				shoppingCartListDtoPeriodTerm.setProductPriceCount(productPriceCountPeriodTerm);
+				shoppingCartListDtoPeriodTerm.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDtoPeriodTerm);
 			}
 
@@ -2529,6 +2607,7 @@ public class OrderService {
 				shoppingCartListDto.setAccountAmount(1);
 				shoppingCartListDto.setProductPriceCount(productPriceCount);
 				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
+				shoppingCartListDto.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDto);
 			}
 		}
@@ -3059,5 +3138,9 @@ public class OrderService {
 		}
 		orderBean.setProductList(productList);
 		return orderBean;
+	}
+	
+	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
+		return orderMapper.getOrderDetailForExport(orderDto);
 	}
 }

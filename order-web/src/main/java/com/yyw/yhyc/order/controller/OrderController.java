@@ -9,27 +9,68 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.search.remote.yhyc.ProductSearchInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
-import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
-import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yyw.yhyc.controller.BaseJsonController;
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.annotation.Token;
-import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.dto.*;
+import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.annotation.Token;
+import com.yyw.yhyc.order.bo.CommonType;
+import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderSettlement;
+import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-
+import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo; 
+import com.yyw.yhyc.order.service.OrderExportService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
@@ -37,25 +78,6 @@ import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
 import com.yyw.yhyc.utils.DateUtils;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.collections.map.HashedMap;
-import org.search.remote.yhyc.ProductSearchInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.ServletOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order")
@@ -71,6 +93,9 @@ public class OrderController extends BaseJsonController {
 	@Reference
 	private CreditDubboServiceInterface creditDubboService;
 
+	@Reference
+	private IAdviserManageDubbo iAdviserManageDubbo;
+	
 	@Autowired
 	private SystemPayTypeService systemPayTypeService;
 
@@ -88,6 +113,9 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private ProductSearchInterface productSearchInterface;
+	
+	@Autowired
+	private OrderExportService orderExportService;
 
     /**
      * 通过主键查询实体对象
@@ -191,8 +219,18 @@ public class OrderController extends BaseJsonController {
 			if(!result){
 				return map;
 			}
+			
+			/**销售顾问信息**/
+			if(StringUtil.isNotEmpty(orderDto.getAdviserName())){
+				String [] adviserInfo = orderDto.getAdviserName().split(";");
+				orderDto.setAdviserCode(adviserInfo[0]);
+				orderDto.setAdviserName(adviserInfo[1]);
+				orderDto.setAdviserPhoneNumber(adviserInfo[2]);
+				orderDto.setAdviserRemark(adviserInfo[3]);
+			}
 		}
-
+		//订单来源 限用pc
+		orderCreateDto.setSource(1);
 		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
@@ -331,7 +369,7 @@ public class OrderController extends BaseJsonController {
 			shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
 		}
 
-		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList);
+		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList,iAdviserManageDubbo);
 
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
@@ -632,5 +670,47 @@ public class OrderController extends BaseJsonController {
 		map.put("code",code);
 		return map;
 	}
-
+	
+	 /**
+     * 采购订单导出
+     * @return
+     */
+    @RequestMapping("/exportSaleOrder")
+    public void exportSaleOrder(){
+    	String condition = request.getParameter("condition");
+    	JSONObject paramJSON = new JSONObject();
+		if(StringUtils.isNotBlank(condition)){
+			paramJSON = JSON.parseObject(condition).getJSONObject("param");
+		}
+    	OrderDto orderDto = new OrderDto();
+    	orderDto.setCreateBeginTime((String)paramJSON.get("createBeginTime"));
+    	orderDto.setCreateEndTime((String)paramJSON.get("createEndTime"));
+    	orderDto.setFlowId((String)paramJSON.get("flowId"));
+    	orderDto.setSupplyName((String)paramJSON.get("supplyName"));
+    	String payType = (String)paramJSON.get("payType");
+    	if(StringUtils.isNotBlank(payType)){
+    		orderDto.setPayType(Integer.parseInt(payType));
+    	}
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+       
+		String fileName = "订单明细.xls"; 
+		/* 设置字符集为'UTF-8' */
+		try {
+			response.setCharacterEncoding("UTF-8");
+			response.reset();
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition","attachment;filename=" + new String(fileName.getBytes("GBK"),"iso8859-1" ));
+			
+			OutputStream os = response.getOutputStream();
+			HSSFWorkbook wb = orderExportService.exportSaleOrder(orderDto);
+			
+			wb.write(os);
+			os.flush();
+			os.close();
+		}  catch (Exception e) {
+			logger.error("订单导出报错",e);
+		}
+    }
+    
 }

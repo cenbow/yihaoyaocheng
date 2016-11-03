@@ -91,7 +91,7 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
 
                 log.info("userDto-->" + userDto.toString());
             }
-
+            log.info("current user-->" + (UserDto)request.getAttribute(UserDto.REQUEST_KEY));
             return true;
     }
 

@@ -14,23 +14,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.dto.OrderIssuedDto;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.bo.OrderIssuedLog;
+import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yyw.yhyc.order.bo.OrderIssued;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.OrderIssued;
+import com.yyw.yhyc.order.bo.OrderIssuedException;
+import com.yyw.yhyc.order.dto.OrderIssuedDto;
+import com.yyw.yhyc.order.mapper.OrderIssuedExceptionMapper;
 import com.yyw.yhyc.order.mapper.OrderIssuedMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
 
 @Service("orderIssuedService")
 public class OrderIssuedService {
 
 	private OrderIssuedMapper	orderIssuedMapper;
 	private SystemDateMapper systemDateMapper;
+	private OrderIssuedLogMapper orderIssuedLogMapper;
 	private Log log = LogFactory.getLog(OrderIssuedService.class);
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
@@ -42,7 +47,14 @@ public class OrderIssuedService {
 	{
 		this.orderIssuedMapper = orderIssuedMapper;
 	}
-	
+	@Autowired
+	private OrderIssuedExceptionMapper orderIssuedExceptionMapper;
+
+	@Autowired
+	public void setOrderIssuedLogMapper(OrderIssuedLogMapper orderIssuedLogMapper) {
+		this.orderIssuedLogMapper = orderIssuedLogMapper;
+	}
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -183,10 +195,35 @@ public class OrderIssuedService {
 					orderIssued.setFlowId(orderIssuedDto.getOrderCode());//设置订单编号
 					orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
 					orderIssued.setSupplyId(supplyId);
+					orderIssued.setSupplyName(orderIssuedDto.getSupplyName());
 					orderIssued.setCreateTime(now);
 					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
-					orderIssuedMapper.save(orderIssued);
+					orderIssued.setIsScan(0);
+					try{
+						orderIssuedMapper.save(orderIssued);
+					}catch(Exception e){
+						log.info("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********");
+						orderIssued.setCusRelationship(1);
+						orderIssued.setIsScan(0);
+						orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
+						orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+						orderIssued.setUpdateTime(now);
+						orderIssuedMapper.updateBySelective(orderIssued);
+						
+						OrderIssuedException orderIssuedException = new OrderIssuedException();
+						orderIssuedException.setFlowId(flowId);
+						orderIssuedException.setDealStatus(2);
+						orderIssuedExceptionMapper.updateBySelective(orderIssuedException );
+					}
+					
 				}
+				//下发日志
+				OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
+				orderIssuedLog.setFlowId(orderIssuedDto.getOrderCode());
+				orderIssuedLog.setOperateName("下发");
+				orderIssuedLog.setOperator(orderIssuedDto.getSupplyName());
+				orderIssuedLog.setOperateTime(now);
+				orderIssuedLogMapper.save(orderIssuedLog);
 			}
 		}
 		resultMap.put("code","1");
@@ -213,6 +250,14 @@ public class OrderIssuedService {
 			orderIssued.setIssuedStatus("0");//设置下发状态，为失败
 			orderIssued.setUpdateTime(now);
 			orderIssuedMapper.update(orderIssued);
+
+			//下发日志
+			OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
+			orderIssuedLog.setFlowId(flowId);
+			orderIssuedLog.setOperateName("下发失败");
+			orderIssuedLog.setOperator(orderIssued.getSupplyName());
+			orderIssuedLog.setOperateTime(now);
+			orderIssuedLogMapper.save(orderIssuedLog);
 		}
 		resultMap.put("code","1");
 		return resultMap;
@@ -221,5 +266,17 @@ public class OrderIssuedService {
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId){
 		log.info("供应商编码："+supplyId+"订单编码集合：" + orderIssuedMapper.getManufacturerOrder(supplyId));
 		return orderIssuedMapper.getManufacturerOrder(supplyId);
+	}
+	
+	/**
+	 * 
+	 * 查询没有对码的订单记录
+	 */
+	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(){
+		return orderIssuedMapper.findOrderIssuedNoRelationshipList();
+	}
+	//根据flowId给更新
+	public int updateBySelective(OrderIssued orderIssued) {
+		return orderIssuedMapper.updateBySelective(orderIssued);
 	}
 }

@@ -91,6 +91,8 @@
 				, update_time
 				, short_name
 				, spu_code
+				, promotion_id
+				, promotion_name
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -219,6 +221,8 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{shortName}
 				, #{spuCode}
+				, #{promotionId}
+				, #{promotionName}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">

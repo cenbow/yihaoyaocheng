@@ -15,6 +15,7 @@ public class OrderCreateBean implements Serializable{
     private int payType;
     private int billType;
     private List<OrderBean> orderList;
+    private int source;//订单来源
 
     public Integer getAddressId() {
         return addressId;
@@ -48,6 +49,14 @@ public class OrderCreateBean implements Serializable{
         this.orderList = orderList;
     }
 
+    public int getSource() {
+        return source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
+    }
+
     @Override
     public String toString() {
         return "OrderCreateBean{" +
@@ -55,6 +64,9 @@ public class OrderCreateBean implements Serializable{
                 ", payType=" + payType +
                 ", billType=" + billType +
                 ", orderList=" + orderList +
+                ", source=" + source +
                 '}';
     }
+
+
 }

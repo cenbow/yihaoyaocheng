@@ -131,6 +131,15 @@ public class OrderDetail extends Model{
 	/* 商品的SPU编码 (三期)*/
 	private java.lang.String spuCode;
 
+	/**
+	 *	活动ID
+	 */
+	private int  promotionId;
+
+	/*
+	* 活动名称
+     */
+	private java.lang.String promotionName;
 
 
 	/**
@@ -485,6 +494,22 @@ public class OrderDetail extends Model{
 		this.spuCode = spuCode;
 	}
 
+	public int getPromotionId() {
+		return promotionId;
+	}
+
+	public void setPromotionId(int promotionId) {
+		this.promotionId = promotionId;
+	}
+
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
+	}
+
 	public String toString()
 	{
 		return "OrderDetail [" + 
@@ -511,7 +536,11 @@ public class OrderDetail extends Model{
 					", updateTime=" + updateTime +
 					", shortName=" + shortName +
 					", spuCode=" + spuCode +
+			    	", promotionId=" + promotionId +
+				    ", promotionName=" + promotionName +
 				"]";
 	}
+
+
 }
 

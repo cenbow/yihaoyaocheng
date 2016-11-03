@@ -11,6 +11,7 @@
 package com.yyw.yhyc.order.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.yyw.yhyc.order.bo.OrderIssued;
 import com.yyw.yhyc.mapper.GenericIBatisMapper;
@@ -25,4 +26,6 @@ public interface OrderIssuedMapper extends GenericIBatisMapper<OrderIssued, java
 	public List<OrderIssuedItemDto> getItemsById(Integer orderId);
 	public OrderIssued findByFlowId(String flowId);
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId);
+	public List<Map<String,Object>> findOrderIssuedNoRelationshipList();
+	public int updateBySelective(OrderIssued orderIssued);
 }

@@ -12,10 +12,11 @@ package com.yyw.yhyc.order.mapper;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
-import com.yyw.yhyc.order.bo.OrderException;
-import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
+import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 
 public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException, Integer> {
@@ -300,5 +301,17 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 */
 	public List<OrderExceptionDto> listPaginationOrderException(Pagination<OrderExceptionDto> pagination, OrderExceptionDto OrderExceptionDto);
 
-
+	/**
+	 * 异常订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportExceptionOrder(OrderExceptionDto orderExceptionDto);
+	
+	/**
+	 * 换货订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto);
 }

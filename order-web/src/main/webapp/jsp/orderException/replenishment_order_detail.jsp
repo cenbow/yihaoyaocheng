@@ -211,10 +211,13 @@
                                     <td>
                                         <div class="clearfix">
                                             <div class="fl">
+                                                 <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
                                                 <img  class="productImageUrl" spuCode="${orderReturnDto.spuCode}" alt="${orderReturnDto.shortName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                            	 </a>
                                             </div>
                                             <div class="fl fontbox">
-                                                <p class="title">${orderReturnDto.shortName}</p>
+                                                <p class="title"> <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                   ${orderReturnDto.shortName}</a></p>
                                                 <p class="text">${orderReturnDto.manufactures}</p>
                                                 <p class="text">${orderReturnDto.specification}</p>
                                             </div>
@@ -240,7 +243,7 @@
                 </table>
                 <c:if test="${orderExceptionDto.userType==1}">
                     <c:if test="${orderExceptionDto.orderStatus==5 || orderExceptionDto.orderStatus==6}">
-                        <div><a class="undeline" onclick="listReplenishment()">查看收货商品清单</a></div>
+                        <div><a class="undeline" onclick="listReplenishment()">查看收发货商品清单</a></div>
                     </c:if>
                 </c:if>
                 <div class="text-right">
@@ -264,12 +267,13 @@
             <div class="modal-body">
                 <table class="table table-box2">
                     <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -286,6 +290,7 @@
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>
