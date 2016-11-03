@@ -10,12 +10,15 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
-import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.framework.core.model.util.StringUtil;
+import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -27,25 +30,35 @@ import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.SystemPayType;
-import com.yyw.yhyc.order.dto.OrderCreateDto;
-import com.yyw.yhyc.order.dto.OrderDetailsDto;
-import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.order.dto.ShoppingCartDto;
-import com.yyw.yhyc.order.dto.ShoppingCartListDto;
-import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
-import com.yyw.yhyc.order.service.OrderExportService;
-import com.yyw.yhyc.order.service.OrderService;
-import com.yyw.yhyc.order.service.ShoppingCartService;
-import com.yyw.yhyc.order.service.SystemDateService;
-import com.yyw.yhyc.order.service.SystemPayTypeService;
+import com.yyw.yhyc.order.service.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
 import com.yyw.yhyc.utils.DateUtils;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.search.remote.yhyc.ProductSearchInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order")
@@ -341,7 +354,7 @@ public class OrderController extends BaseJsonController {
 			shoppingCartIdList.add(shoppingCartDto.getShoppingCartId());
 		}
 
-		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList,iAdviserManageDubbo);
+		dataMap = orderService.checkOrderPage(userDto,shoppingCartIdList);
 
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
