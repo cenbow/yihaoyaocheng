@@ -491,7 +491,8 @@ public class ShoppingCartService {
 		try{
 			logger.info("查询图片接口:请求参数：map=" + map);
 			picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
-			logger.info("查询图片接口:响应参数：picUrlList=" + picUrlList);
+			long endTime = System.currentTimeMillis();
+			logger.info("查询图片接口:耗时"+(endTime - startTime)+"毫秒，响应参数：picUrlList=" + picUrlList);
 		}catch (Exception e){
 			logger.error("查询图片接口:响应异常：" + e.getMessage(),e);
 			return filePath;
