@@ -3143,4 +3143,8 @@ public class OrderService {
 		orderBean.setProductList(productList);
 		return orderBean;
 	}
+
+	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
+		return orderMapper.getOrderDetailForExport(orderDto);
+	}
 }
