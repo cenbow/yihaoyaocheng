@@ -25,21 +25,16 @@
                 </ol>
             </div>
             <div class="row choseuser border-gray">
-                <form>
+                <form id="searchForm" method="POST" action="${ctx}/export/exportOrderSettlement/t2">
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
-
                             <label for="scope" class="col-xs-2 control-label">供应商 </label>
                             <div class="col-xs-3">
                                 <input type="text" class="form-control" id="carnum" name="supplyName" placeholder="">
                             </div>
-                            <label for="scope" class="col-xs-2 control-label">结算状态</label>
+                            <label for="scope" class="col-xs-2 control-label">原订单号</label>
                             <div class="col-xs-3">
-                                <select class="form-control" name="confirmSettlement">
-                                    <option value="-1">全部</option>
-                                    <option value="0">未结算</option>
-                                    <option value="1">已结算</option>
-                                </select>
+                                <input type="text" class="form-control" name="orgFlowId"/>
                             </div>
                         </div>
                         <div class="form-group">
@@ -53,9 +48,14 @@
                                         <option value="4">取消订单退款</option>
                                 </select>
                             </div>
-                            <label for="scope" class="col-xs-2 control-label">原订单号</label>
+                            <label for="scope" class="col-xs-2 control-label">结算状态</label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" name="orgFlowId"/>
+                                <select class="form-control" name="confirmSettlement">
+                                    <option value="-1">全部</option>
+                                    <option value="0">未结算</option>
+                                    <option value="2">结算中</option>
+                                    <option value="1">已结算</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -88,8 +88,9 @@
                                 </div>
                                 <p class="padding-t-10">[  <a class="blue">最近三天</a>   <a class="blue">最近1周</a>   <a class="blue">最近1月</a> ]</p>
                             </div>
-                            <div class="col-xs-2 text-left">
-                                <input type="button" class="btn btn-info" value="搜索">
+                            <div class="col-xs-5 text-left">
+                                <input type="button" class="btn btn-info btn-search" value="搜索">
+                                <input type="button" class="btn btn-info btn-export" value="导出">
                             </div>
                         </div>
                     </div>

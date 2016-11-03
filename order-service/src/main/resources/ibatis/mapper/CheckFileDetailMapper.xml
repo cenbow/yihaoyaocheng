@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:56
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.CheckFileDetailMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	
+	<sql id="commonColumns">
+		 TranDate
+		, AcqCode
+		, MerId
+		, TranReserved
+		, LiqDate
+		, MerOrderNo
+		, BankInstNo
+		, CurryNo
+		, TranType
+		, BusiType
+		, OrderStatus
+		, ChannelRespCode
+		, CompleteDate
+		, CompleteTime
+		, OrderAmt
+		, AcqSeqId
+		, AcqDate
+		, AcqTime
+	    , OriTranDate
+	    , OriOrderNo
+	    , DCMark
+	    , MerResv
+	    , Pid
+	    , create_time
+	</sql>
+
+	
+	<insert id="save" parameterType="OrderPay">
+		<![CDATA[ INSERT INTO t_checkfile_detail ( ]]>
+			<include refid="commonColumns"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{TranDate}
+				, #{AcqCode}
+				, #{MerId}
+				, #{TranReserved}
+				, #{LiqDate}
+				, #{MerOrderNo}
+				, #{BankInstNo}
+				, #{CurryNo}
+				, #{TranType}
+				, #{BusiType}
+				, #{OrderStatus}
+				, #{ChannelRespCode}
+				, #{CompleteDate}
+				, #{CompleteTime}
+				, #{OrderAmt}
+				, #{AcqSeqId}
+				, #{AcqDate}
+				, #{AcqTime}
+				, #{OriTranDate}
+				, #{OriOrderNo}
+				, #{DCMark}
+				, #{MerResv}
+				, #{Pid}
+				, #{create_time}
+				
+				
+				
+  ) ]]>
+	</insert>
+	
+
+
+</mapper>
