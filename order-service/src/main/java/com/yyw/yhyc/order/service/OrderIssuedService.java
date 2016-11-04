@@ -202,6 +202,7 @@ public class OrderIssuedService {
 					orderIssued.setSupplyName(orderIssuedDto.getSupplyName());
 					orderIssued.setCreateTime(now);
 					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+					orderIssued.setCusRelationship(1);
 					orderIssued.setIsScan(0);
 					try{
 						orderIssuedMapper.save(orderIssued);
