@@ -202,6 +202,7 @@
 						         <c:choose>
 					                <c:when test="${shoppingCart.adviserList != null && fn:length(shoppingCart.adviserList) gt 0 }">
 					                 	  销售顾问：<select  class="goi-input"  id="adviserName" name="orderDtoList[${shoppingCartVarStatus.index}].adviserName">
+					                 	 <option></option> 
 					                    <c:forEach var="adviserInfo"  items="${shoppingCart.adviserList}">
 					                        <option name="orderDtoList[${shoppingCartVarStatus.index}].adviserName" value="${adviserInfo.adviserCode};${adviserInfo.adviserName};${adviserInfo.adviserPhoneNumber};${adviserInfo.adviserRemark}">${adviserInfo.adviserName}</option>
 					                    </c:forEach>
