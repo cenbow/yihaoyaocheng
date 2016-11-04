@@ -289,4 +289,31 @@
 			AND SPT.PAY_TYPE = 1  
 			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
+	<select id="findOrderIssuedHasRelationshipList" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+		SELECT
+			O.FLOW_ID,
+			O.ORG_TOTAL,
+			O.SUPPLY_ID,
+			O.SUPPLY_NAME,
+			O.CREATE_TIME,
+			O.LEAVE_MESSAGE,
+			O.ORDER_ID,
+			PUO.cust_code_yc AS CUST_ID
+		FROM
+			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
+			ON O.FLOW_ID =OI.FLOW_ID
+			INNER JOIN t_cust_erp_relation  PUO
+			ON O.CUST_ID = PUO.cust_code_yc
+			AND O.SUPPLY_ID = PUO.seller_code
+			and PUO.relation_status='2'
+			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
+			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
+		WHERE
+			O.SUPPLY_ID = #{supplyId}
+		AND O.ORDER_STATUS = '5'
+		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
+		AND (3 = OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
+		AND SPT.PAY_TYPE = 1
+		and OI.cus_relationship = 0
+	</select>
 </mapper>
