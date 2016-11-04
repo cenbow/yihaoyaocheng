@@ -726,7 +726,7 @@ public class ShoppingCartService {
 
 		Map<String,ShoppingCart> exceedActivityLimitedNumMap = null;
 		/* 表示添加活动商品到购物车 */
-		if(UtilHelper.isEmpty(queryCondition)){
+		if(UtilHelper.isEmpty(queryCondition) || UtilHelper.isEmpty(queryCondition.getShoppingCartId())){
 			/* 校验是否超过活动商品限购数量 */
 			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
