@@ -192,6 +192,9 @@
 		<if test="promotionId!= null and promotionId !=''">
 			AND promotion_id = #{promotionId}
 		</if>
+		<if test="promotionId == null || promotionId == ''">
+			AND promotion_id  is null
+		</if>
 		<if test="promotionName!= null and promotionName !=''">
 			AND promotion_name = #{promotionName}
 		</if>
