@@ -18,7 +18,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.yyw.yhyc.helper.SpringBeanHelper"%>
 <%@ page import="com.yyw.yhyc.order.manage.OrderPayManage"%>
-<%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify"%>
+<%@ page import="com.yyw.yhyc.order.service.OrderSettlementService"%>
+<%@ page import="com.yyw.yhyc.pay.alipay.util.AlipayNotify" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
@@ -73,6 +74,7 @@
 
 		//——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
 		OrderPayManage orderPayManage = (OrderPayManage) SpringBeanHelper.getBean("orderPayMamage");
+		OrderSettlementService orderSettlementService = (OrderSettlementService) SpringBeanHelper.getBean("orderSettlementService");
 		try {
 			String detail =null;
 			String[] resultdetail = result_details.split("#");
@@ -89,9 +91,17 @@
 				}
 				String tradeNo = AlipayNotify.getTradeNo(detail);
 				System.out.println("tradeNo===="+tradeNo);
-				String payFlowId = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
-				System.out.println("payFlowId===="+payFlowId);
-				orderPayManage.updateRedundOrderInfos(payFlowId,AlipayNotify.getIsSuccess(detail),params);
+				String paymentPlatforReturn = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
+				System.out.println("paymentPlatforReturn===="+paymentPlatforReturn);
+				Map<String, Integer> myMap = new HashMap<String, Integer>();
+				String[] pairs = paymentPlatforReturn.split(",");
+				for (int i=0;i<pairs.length;i++) {
+					String pair = pairs[i];
+					String[] keyValue = pair.split("=");
+					myMap.put(keyValue[0], Integer.valueOf(keyValue[1]));
+				}
+				String temp = myMap.get("subject").toString().split("=")[1];
+				orderSettlementService.updateSettlementByMap(temp,4);
 			}
 
 		} catch (Exception e) {
