@@ -25,6 +25,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.search.remote.yhyc.ProductSearchInterface;
@@ -2159,13 +2160,21 @@ public class OrderService {
 		OrderDto orderDto = new OrderDto();
 		orderDto.setSupplyName(data.get("supplyName"));
 		orderDto.setCustName(data.get("custName"));
-		orderDto.setPayType(Integer.valueOf("".equals(data.get("payType")) ?  "0":data.get("payType")));
+		if(StringUtils.isNotBlank(data.get("payType"))){
+			orderDto.setPayType(Integer.valueOf(data.get("payType")));
+		}
 		orderDto.setCreateBeginTime(data.get("createBeginTime"));
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
-		orderDto.setPayFlag(Integer.valueOf((data.get("payFlag")==null || "".equals(data.get("payFlag"))) ?  "0":data.get("payFlag")));
-		orderDto.setSource(Integer.valueOf((data.get("source")==null || "".equals(data.get("source"))) ?  "":data.get("source")));
+		
+		if(StringUtils.isNotBlank(data.get("payFlag"))){
+			orderDto.setPayFlag(Integer.valueOf(data.get("payFlag")));
+		}
+		
+		if(StringUtils.isNotBlank(data.get("source"))){
+			orderDto.setSource(Integer.valueOf((data.get("source"))));
+		}
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderDto.getCreateEndTime(),"yyyy-MM-dd");
