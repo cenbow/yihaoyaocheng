@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONObject;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.controller.BaseJsonController;
@@ -63,6 +64,9 @@ public class FastOrderController extends BaseJsonController {
     @Autowired
     private HttpServletRequest request;
 
+    @Reference
+    private IPromotionDubboManageService iPromotionDubboManageService;
+
     /**
      * 添加商品到进货单
      * 请求数据格式如下：
@@ -101,7 +105,8 @@ public class FastOrderController extends BaseJsonController {
         Map<String, Object> result = null;
         try{
             shoppingCart.setCustId(userDto.getCustId());
-            result = shoppingCartService.addShoppingCart(shoppingCart);
+            shoppingCart.setCreateUser(userDto.getUserName());
+            result = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
         }catch (Exception e){
             logger.error(e.getMessage(),e);
             throw  new Exception(e.getMessage());
@@ -163,7 +168,7 @@ public class FastOrderController extends BaseJsonController {
         if(!UtilHelper.isEmpty(shoppingCart)){
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
         }
-        shoppingCartService.updateNum(shoppingCart,userDto);
+        shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
         return ok("修改成功");
     }
 
@@ -176,7 +181,7 @@ public class FastOrderController extends BaseJsonController {
     public Map<String,Object> list() throws Exception {
         UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
-        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),iPromotionDubboManageService);
         logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
         String message = UtilHelper.isEmpty(allShoppingCart) || allShoppingCart.size() == 0 ? "请添加商品" : "";
         return ok(message,allShoppingCart);
@@ -237,6 +242,8 @@ public class FastOrderController extends BaseJsonController {
                     productInfoDto.setProductPrice(temp.getProductPrice());
                     productInfoDto.setProductCount(temp.getProductCount());
                     productInfoDto.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+                    productInfoDto.setPromotionId(temp.getPromotionId());
+                    productInfoDto.setPromotionName(temp.getPromotionName());
                     productInfoDtoList.add(productInfoDto);
                 }
             }
@@ -244,7 +251,7 @@ public class FastOrderController extends BaseJsonController {
             orderDto.setProductInfoDtoList(productInfoDtoList);
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-            resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface);
+            resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
             boolean result = (boolean) resultMap.get("result");
             if(!result){
                 return ok(resultMap);

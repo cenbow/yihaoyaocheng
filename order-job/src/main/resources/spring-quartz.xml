@@ -6,6 +6,9 @@
         <bean id="orderCancelForNoDeliveryJobService" class="com.yyw.yhyc.job.order.service.impl.OrderCancelForNoDeliveryJobServiceImpl"/>
         <bean id="orderCancelForNoPayJobService" class="com.yyw.yhyc.job.order.service.impl.OrderCancelForNoPayJobServiceImpl"/>
         <bean id="orderDoneForDeliveryJobService" class="com.yyw.yhyc.job.order.service.impl.OrderDoneForDeliveryJobServiceImpl"/>
+         <bean id="checkFileJobService" class="com.yyw.yhyc.job.order.service.impl.CheckFileJobServiceImpl"/>
+  		<bean id="orderIssuedNoRelationshipJobService" class="com.yyw.yhyc.job.order.service.impl.OrderIssuedNoRelationshipJobServiceImpl"/>
+        <bean id="orderIssuedExceptionJobService" class="com.yyw.yhyc.job.order.service.impl.OrderIssuedExceptionJobServiceImpl"/>
 
         <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
             <!-- 添加触发器 -->

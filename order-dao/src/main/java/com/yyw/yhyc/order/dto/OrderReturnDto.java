@@ -19,6 +19,11 @@ public class OrderReturnDto extends OrderReturn {
     private String formOfDrug;              //剂型
     private String spuCode;                 //商品spu编码
     private String shortName;               //通用名
+    
+    /**
+	  *	供应商ID
+	  */
+	private java.lang.Integer supplyId;
 
     public String getProductName() {
         return productName;
@@ -100,7 +105,15 @@ public class OrderReturnDto extends OrderReturn {
         this.shortName = shortName;
     }
 
-    @Override
+    public java.lang.Integer getSupplyId() {
+		return supplyId;
+	}
+
+	public void setSupplyId(java.lang.Integer supplyId) {
+		this.supplyId = supplyId;
+	}
+
+	@Override
     public String toString() {
         return "OrderReturnDto{" +
                 "orderReturn="+super.toString()+

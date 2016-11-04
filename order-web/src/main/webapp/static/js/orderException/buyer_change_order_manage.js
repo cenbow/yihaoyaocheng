@@ -10,6 +10,8 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
+    //导出
+    bindExportBtn();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -34,7 +36,15 @@ function bindSearchBtn() {
         doRefreshData(params);
     })
 }
-
+//导出
+function bindExportBtn(){
+	$("#export").on("click", function () {
+		 pasretFormData();
+		 $("#exportForm").attr("action", ctx+"/orderException/exportExceptionOrder");
+		 $("#condition").val(JSON.stringify(params));
+		 $("#exportForm").submit();
+	});
+}
 /**
  * 切换订单状态
  * @param status

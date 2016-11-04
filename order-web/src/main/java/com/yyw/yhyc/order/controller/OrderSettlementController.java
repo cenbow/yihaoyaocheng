@@ -11,24 +11,40 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.yyw.yhyc.controller.BaseJsonController;
-import com.yyw.yhyc.order.bo.OrderSettlement;
-import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.bo.RequestListModel;
-import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.dto.OrderSettlementDto;
-import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.service.OrderSettlementService;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.order.bo.OrderSettlement;
+import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.OrderSettlementDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderSettlementService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
+import com.yyw.yhyc.order.utils.MyExcelUtil;
 
 @Controller
 @RequestMapping(value = "/order/orderSettlement")
@@ -37,6 +53,8 @@ public class OrderSettlementController extends BaseJsonController {
 
 	@Autowired
 	private OrderSettlementService orderSettlementService;
+	@Autowired
+	private SystemPayTypeService systemPayTypeService;
 
 	/**
 	* 通过主键查询实体对象
@@ -82,7 +100,7 @@ public class OrderSettlementController extends BaseJsonController {
         }
 		return orderSettlementService.listPaginationByProperty(pagination, orderSettlementDto);
 	}
-
+	
 	/**
 	* 新增记录
 	* @return
@@ -161,6 +179,38 @@ public class OrderSettlementController extends BaseJsonController {
 		OrderSettlement orderSettlement = settlement;
 		ModelAndView model = new ModelAndView();
         model.addObject("type",type);
+        
+        //加载支付平台、支付方式枚举值
+        SystemPayType systemPayType = new SystemPayType();
+        systemPayType.setPayStates(1);
+        List<SystemPayType> systemPayTypeList = systemPayTypeService.listByProperty(systemPayType);
+        //支付方式
+        SortedSet<SystemPayType> payTypeName = new TreeSet<SystemPayType>(  
+                // 函数对象：既匿名内部类的实例，这个瞬时的对象永远不会被别的对象引用  
+                        new Comparator<SystemPayType>() {  
+                            public int compare(SystemPayType type1, SystemPayType type2) {
+                            	String key1 = type1.getPayType().toString();
+                            	String key2 = type2.getPayType().toString();
+                                return key1.compareTo(key2);  
+                            }  
+                        });
+        //支付平台
+        SortedSet<SystemPayType> payName = new TreeSet<SystemPayType>(  
+                // 函数对象：既匿名内部类的实例，这个瞬时的对象永远不会被别的对象引用  
+                        new Comparator<SystemPayType>() {  
+                            public int compare(SystemPayType type1, SystemPayType type2) {
+                            	String key1 = type1.getPayTypeId().toString();
+                            	String key2 = type2.getPayTypeId().toString();
+                                return key1.compareTo(key2);  
+                            }  
+                        });
+        
+        for(SystemPayType record:systemPayTypeList){
+        	payTypeName.add(record);
+        	payName.add(record);
+        }
+        model.addObject("payTypeName",payTypeName);	
+        model.addObject("payName",payName);			
 		if(type==1){ //卖家
 			model.setViewName("order/order_settlement_seller");
 		}else if(type==2){//卖家应付
@@ -168,4 +218,5 @@ public class OrderSettlementController extends BaseJsonController {
 		}
 		return model;
 	}
+
 }

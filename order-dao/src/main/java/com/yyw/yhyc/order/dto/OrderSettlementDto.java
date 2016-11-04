@@ -15,10 +15,12 @@ public class OrderSettlementDto extends OrderSettlement{
 
     private Integer type; //1应收 2应付 用来转换 不同视角 businessType 对应的显示文案
 
-    private String payTypeName;         //支付名称
-    private String businessTypeName ;  //业务类型名
-    private String orderCreateTime ;  //下单时间
+    private String payTypeName;         //支付类型 名称
+    private String payName;         	//支付平台 名称
+    private String businessTypeName ;  	//业务类型名
+    private String orderCreateTime ;  	//下单时间
     private String confirmSettlementName; //结算状态
+    private String orgFlowId;			//原订单号
 
     public String getProvince() {
         return province;
@@ -84,7 +86,15 @@ public class OrderSettlementDto extends OrderSettlement{
         this.payTypeName = payTypeName;
     }
 
-    public String getBusinessTypeName() {
+    public String getPayName() {
+		return payName;
+	}
+
+	public void setPayName(String payName) {
+		this.payName = payName;
+	}
+
+	public String getBusinessTypeName() {
         return businessTypeName;
     }
 
@@ -107,4 +117,13 @@ public class OrderSettlementDto extends OrderSettlement{
     public void setConfirmSettlementName(String confirmSettlementName) {
         this.confirmSettlementName = confirmSettlementName;
     }
+
+	public String getOrgFlowId() {
+		return orgFlowId;
+	}
+
+	public void setOrgFlowId(String orgFlowId) {
+		this.orgFlowId = orgFlowId;
+	}
+    
 }

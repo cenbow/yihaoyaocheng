@@ -40,6 +40,12 @@ public class ShoppingCartListDto implements Serializable{
     /* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
     private int accountAmount;
 
+    
+    /**
+	 * 销售顾问信息
+	 */
+	private List<AdviserDto> adviserList;
+	
     public UsermanageEnterprise getBuyer() {
         return buyer;
     }
@@ -123,7 +129,23 @@ public class ShoppingCartListDto implements Serializable{
                 ", periodProductPriceCount=" + periodProductPriceCount +
                 ", nonPeriodProductPriceCount=" + nonPeriodProductPriceCount +
                 ", paymentTermCus=" + paymentTermCus +
-                ", accountAmount=" + accountAmount +
+                ", accountAmount=" + accountAmount +  
+                ", adviserList=" + adviserList +
                 '}';
     }
+
+	/**
+	 * @return the adviserList
+	 */
+	public List<AdviserDto> getAdviserList() {
+		return adviserList;
+	}
+
+	/**
+	 * @param adviserList the adviserList to set
+	 */
+	public void setAdviserList(List<AdviserDto> adviserList) {
+		this.adviserList = adviserList;
+	}
+
 }

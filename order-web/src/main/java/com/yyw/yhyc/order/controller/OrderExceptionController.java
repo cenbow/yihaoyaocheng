@@ -12,6 +12,8 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
@@ -20,16 +22,26 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.BillTypeEnum;
 import com.yyw.yhyc.order.enmu.BuyerChangeGoodsOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.service.OrderExceptionService;
+import com.yyw.yhyc.order.service.OrderExportService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.yyw.yhyc.controller.BaseJsonController;
@@ -41,7 +53,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,6 +74,10 @@ public class OrderExceptionController extends BaseJsonController{
 	private OrderService orderService;
 	@Autowired
 	private SystemPayTypeService systemPayTypeService;
+	
+	@Autowired
+	private OrderExportService orderExportService;
+	
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -307,9 +325,8 @@ public class OrderExceptionController extends BaseJsonController{
 			creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 			CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 			if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-				// TODO: 2016/8/25 暂时注释 不抛出异常
 				logger.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
-				//throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+				throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
 			}
 		}
 
@@ -409,6 +426,9 @@ public class OrderExceptionController extends BaseJsonController{
 		ModelAndView view = new ModelAndView("orderException/buyer_change_order_manage");
 		return view;
 	}
+	
+	
+    
 
 	/**
 	 * 采购换货订单查询
@@ -819,6 +839,55 @@ public class OrderExceptionController extends BaseJsonController{
 		orderExceptionService.updateChangeGoodsBuyerConfirmReceipt(exceptionOrderId, userDto);
 	}
 
+	 /**
+     * 异常订单导出
+     * @return
+     */
+    @RequestMapping("/exportExceptionOrder")
+    public void exportExceptionOrder(){
+    	String condition = request.getParameter("condition");
+    	JSONObject paramJSON = new JSONObject();
+		if(StringUtils.isNotBlank(condition)){
+			paramJSON = JSON.parseObject(condition).getJSONObject("param");
+		}
+		OrderExceptionDto orderDto = new OrderExceptionDto();
+    	orderDto.setStartTime((String)paramJSON.get("startTime"));
+    	orderDto.setEndTime((String)paramJSON.get("endTime"));
+    	orderDto.setExceptionOrderId((String)paramJSON.get("exceptionOrderId"));
+    	orderDto.setFlowId((String)paramJSON.get("flowId"));
+    	orderDto.setSupplyName((String)paramJSON.get("supplyName"));
+		UserDto userDto = super.getLoginUser();
+		orderDto.setCustId(userDto.getCustId());
+		String returnType = request.getParameter("returnType");
+		orderDto.setReturnType(returnType);
+       
+		String fileName = "订单明细.xls"; 
+		/* 设置字符集为'UTF-8' */
+		try {
+			response.setCharacterEncoding("UTF-8");
+			response.reset();
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition","attachment;filename=" + new String(fileName.getBytes("GBK"),"iso8859-1" ));
+			
+			OutputStream os = response.getOutputStream();
+			HSSFWorkbook wb = null;
+			if("3".equals(returnType) || "4".equals(returnType)){
+				wb = orderExportService.exportRelenishOrRejectOrder(orderDto);
+			}else if("1".equals(returnType)){
+				wb = orderExportService.exportReturnOrder(orderDto);
+			}else if("2".equals(returnType)){
+				wb = orderExportService.exportChangeOrder(orderDto);
+			}
+			
+			wb.write(os);
+			os.flush();
+			os.close();
+		}  catch (Exception e) {
+			logger.error("订单导出报错",e);
+		}
+    }
+    
+    
 }
 
 

@@ -334,6 +334,25 @@
         </div>
         <div class="row choseuser margin-t-20 border-gray">
             <div class="modify">
+         	   <c:if test="${orderDetailsDto.adviserCode !=null && orderDetailsDto.adviserCode!=''}">
+            		   <div class="form-horizontal padding-t-26">
+	                    <div class="form-group">
+	                        <label class="col-xs-12 color999 padding-l-40 font-size-16">销售顾问信息</label>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">销售顾问编号</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserCode}</div>
+	                        <label for="scope" class="col-xs-2 control-label">姓名</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserName}</div>
+	                    </div>
+	                    <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">电话</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserPhoneNumber}</div>
+	                        <label for="scope" class="col-xs-2 control-label">备注</label>
+	                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.adviserRemark}</div>
+	                    </div>
+	                </div>
+            	</c:if>
                 <div class="form-horizontal padding-t-26">
                     <div class="form-group">
                         <label class="col-xs-12 color999 padding-l-40 font-size-16">配送信息</label>
@@ -481,7 +500,7 @@
                         <%--遍历该供应商的商品信息  结束--%>
                         </tbody>
                     </table>
-                    <div><a class="undeline" onclick="listPg()">查看收货商品清单</a></div>
+                    <div><a class="undeline" onclick="listPg()">查看收发货商品清单</a></div>
                     <div class="text-right">
                         <p>商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.productTotal}" minFractionDigits="2"/>元
 
@@ -547,12 +566,13 @@
             <div class="modal-body">
                 <table class="table table-box2">
                     <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
@@ -569,6 +589,7 @@
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>

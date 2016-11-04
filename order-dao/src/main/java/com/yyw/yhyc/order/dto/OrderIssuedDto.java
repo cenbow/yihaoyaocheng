@@ -22,7 +22,10 @@ public class OrderIssuedDto implements Serializable {
     private List<OrderIssuedItemDto> orderItemList;   //子订单
 
     private String leaveMessage;        //买家留言
-
+    /**
+	  *	供应商名称
+	  */
+	private java.lang.String supplyName;
     private String createTime;      //下单时间
 
     private OrderDelivery orderDelivery;    //收货信息
@@ -102,4 +105,18 @@ public class OrderIssuedDto implements Serializable {
     public void setOrderDelivery(OrderDelivery orderDelivery) {
         this.orderDelivery = orderDelivery;
     }
+
+	/**
+	 * @return the supplyName
+	 */
+	public java.lang.String getSupplyName() {
+		return supplyName;
+	}
+
+	/**
+	 * @param supplyName the supplyName to set
+	 */
+	public void setSupplyName(java.lang.String supplyName) {
+		this.supplyName = supplyName;
+	}
 }

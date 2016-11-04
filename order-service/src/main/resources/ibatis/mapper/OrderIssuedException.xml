@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-10-24 15:52:00
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderIssuedExceptionMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderIssuedExceptionResultMapper" type="OrderIssuedException">
+		<result column="issued_exception_id" property="issuedExceptionId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="pay_type" property="payType"/>
+		<result column="pay_type_name" property="payTypeName"/>
+		<result column="order_create_time" property="orderCreateTime"/>
+		<result column="receive_person" property="receivePerson"/>
+		<result column="receive_address" property="receiveAddress"/>
+		<result column="receive_contact_phone" property="receiveContactPhone"/>
+		<result column="deal_status" property="dealStatus"/>
+		<result column="exception_type" property="exceptionType"/>
+		<result column="operate_time" property="operateTime"/>
+		<result column="operator" property="operator"/>
+	</resultMap>
+	
+	<resultMap id="OrderIssuedExceptionDtoMapper" type="com.yyw.yhyc.order.dto.OrderIssuedExceptionDto">
+		<result column="flow_id" property="flowId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="cust_id" property="custId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="supply_id" property="supplyId"/>
+		<result column="order_status" property="orderStatus"/>
+		<result column="order_status_name" property="orderStatusName"/>
+		<result column="pay_type" property="payType"/>
+		<result column="pay_type_name" property="payTypeName"/>
+		<result column="order_create_time" property="orderCreateTime"/>
+		<result column="receive_person" property="receivePerson"/>
+		<result column="receive_address" property="receiveAddress"/>
+		<result column="receive_contact_phone" property="receiveContactPhone"/>
+		<result column="deal_status" property="dealStatus"/>
+		<result column="deal_status_name" property="dealStatusName"/>
+		<result column="exception_type" property="exceptionType"/>
+		<result column="exception_type_name" property="exceptionTypeName"/>
+		<result column="is_relationship" property="isRelationship"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 issued_exception_id
+		, flow_id
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, pay_type
+		, pay_type_name
+		, order_create_time
+		, receive_person
+		, receive_address
+		, receive_contact_phone
+		, deal_status
+		, exception_type
+		, operate_time
+		, operator
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 flow_id
+				, cust_name
+				, cust_id
+				, supply_name
+				, supply_id
+				, pay_type
+				, pay_type_name
+				, order_create_time
+				, receive_person
+				, receive_address
+				, receive_contact_phone
+				, deal_status
+				, exception_type
+				, operate_time
+				, operator
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 issued_exception_id
+		, flow_id
+		, cust_name
+		, cust_id
+		, supply_name
+		, supply_id
+		, pay_type
+		, pay_type_name
+		, date_format(order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
+		, receive_person
+		, receive_address
+		, receive_contact_phone
+		, deal_status
+		, exception_type
+		, date_format(operate_time, '%Y-%m-%d %H:%i:%s') operate_time
+		, operator
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="issuedExceptionId!= null and issuedExceptionId!= ''"> 
+			AND issued_exception_id=#{issuedExceptionId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''"> 
+			AND cust_name like CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND supply_name like CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="payType!= null and payType!= ''"> 
+			AND pay_type=#{payType}
+		</if>
+		<if test="payTypeName!= null and payTypeName!= ''"> 
+			AND pay_type_name=#{payTypeName}
+		</if>
+		<if test="orderCreateTime!= null and orderCreateTime!= ''"> 
+			 <![CDATA[
+			and  order_create_time > STR_TO_DATE( #{createBeginTime} ,'%Y-%m-%d')
+			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
+		 ]]>
+		</if>
+		<if test="receivePerson!= null and receivePerson!= ''"> 
+			AND receive_person=#{receivePerson}
+		</if>
+		<if test="receiveAddress!= null and receiveAddress!= ''"> 
+			AND receive_address=#{receiveAddress}
+		</if>
+		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
+			AND receive_contact_phone=#{receiveContactPhone}
+		</if>
+		<if test="dealStatus!= null and dealStatus!= ''"> 
+			AND deal_status=#{dealStatus}
+		</if>
+		<if test="exceptionType!= null and exceptionType!= ''"> 
+			AND exception_type=#{exceptionType}
+		</if>
+		<if test="operateTime!= null and operateTime!= ''"> 
+			AND operate_time=str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="operator!= null and operator!= ''"> 
+			AND operator=#{operator}
+		</if>
+	</sql>
+	<sql id="commonConditionDto">
+		<if test="flowId!= null and flowId!= ''"> 
+			AND a.flow_id=#{flowId}
+		</if>
+		<if test="custName!= null and custName!= ''"> 
+			AND a.cust_name like CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND a.cust_id=#{custId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''"> 
+			AND a.supply_name like CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''"> 
+			AND a.supply_id=#{supplyId}
+		</if>
+		<if test="payType!= null and payType!= ''"> 
+			AND a.pay_type=#{payType}
+		</if>
+		<if test="payTypeName!= null and payTypeName!= ''"> 
+			AND a.pay_type_name=#{payTypeName}
+		</if>
+		<if test="receivePerson!= null and receivePerson!= ''"> 
+			AND a.receive_person=#{receivePerson}
+		</if>
+		<if test="receiveAddress!= null and receiveAddress!= ''"> 
+			AND a.receive_address=#{receiveAddress}
+		</if>
+		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
+			AND a.receive_contact_phone=#{receiveContactPhone}
+		</if>
+		<if test="dealStatus!= null and dealStatus!= ''"> 
+			AND a.deal_status=#{dealStatus}
+		</if>
+		<if test="exceptionType!= null and exceptionType!= ''"> 
+			AND a.exception_type=#{exceptionType}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderIssuedException">
+		<![CDATA[ INSERT INTO t_order_issued_exception ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{flowId}
+				, #{custName}
+				, #{custId}
+				, #{supplyName}
+				, #{supplyId}
+				, #{payType}
+				, #{payTypeName}
+				, str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
+				, #{receivePerson}
+				, #{receiveAddress}
+				, #{receiveContactPhone}
+				, #{dealStatus}
+				, #{exceptionType}
+				, str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s')
+				, #{operator}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderIssuedException">
+		<![CDATA[ UPDATE t_order_issued_exception SET 
+			 issued_exception_id=#{issuedExceptionId} 
+			, flow_id=#{flowId} 
+			, cust_name=#{custName} 
+			, cust_id=#{custId} 
+			, supply_name=#{supplyName} 
+			, supply_id=#{supplyId} 
+			, pay_type=#{payType}
+			, pay_type_name=#{payTypeName}
+			, order_create_time=str_to_date(#{orderCreateTime},'%Y-%m-%d %H:%i:%s')
+			, receive_person=#{receivePerson} 
+			, receive_address=#{receiveAddress} 
+			, receive_contact_phone=#{receiveContactPhone} 
+			, deal_status=#{dealStatus} 
+			, exception_type=#{exceptionType} 
+			, operate_time=str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s')
+			, operator=#{operator} 
+		WHERE issued_exception_id = #{issuedExceptionId}  ]]>
+	</update>
+	
+	<update id="updateBySelective" parameterType="OrderIssuedException">
+		UPDATE t_order_issued_exception 
+ 		<set >
+		<if test="flowId!= null "> 
+			flow_id=#{flowId},
+		</if>
+		<if test="custName!= null "> 
+			cust_name=#{custName},
+		</if>
+		<if test="custId!= null "> 
+			cust_id=#{custId},
+		</if>
+		<if test="supplyName!= null"> 
+			supply_name=#{supplyName},
+		</if>
+		<if test="supplyId!= null "> 
+			supply_id=#{supplyId},
+		</if>
+		<if test="payType!= null"> 
+			pay_type=#{payType},
+		</if>
+		<if test="payTypeName!= null"> 
+			pay_type_name=#{payTypeName},
+		</if>
+		<if test="receivePerson!= null "> 
+			receive_person=#{receivePerson},
+		</if>
+		<if test="receiveAddress!= null"> 
+			receive_address=#{receiveAddress},
+		</if>
+		<if test="receiveContactPhone!= null"> 
+			receive_contact_phone=#{receiveContactPhone},
+		</if>
+		<if test="dealStatus!= null"> 
+			deal_status=#{dealStatus},
+		</if>
+		<if test="exceptionType!= null "> 
+			exception_type=#{exceptionType},
+		</if>
+		<if test="operateTime!= null "> 
+			operate_time=str_to_date(#{operateTime},'%Y-%m-%d %H:%i:%s'),
+		</if>
+		<if test="operator!= null "> 
+			operator=#{operator}
+		</if>
+		</set>
+		WHERE flow_id = #{flowId}   
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Integer">
+		<![CDATA[ DELETE FROM t_order_issued_exception WHERE issued_exception_id = #{issuedExceptionId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_issued_exception WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" issued_exception_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderIssuedException">
+		DELETE FROM t_order_issued_exception WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderIssuedExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_issued_exception WHERE issued_exception_id = #{issuedExceptionId}  
+	</select>
+	<select id="list" resultMap="OrderIssuedExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_issued_exception
+	</select>
+	<select id="listByProperty" parameterType="OrderIssuedException" resultMap="OrderIssuedExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued_exception WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderIssuedException" resultMap="OrderIssuedExceptionResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_issued_exception WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderIssuedException" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_issued_exception WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	
+	<select id="listPaginationByPropertyEx" parameterType="OrderIssuedExceptionDto" resultMap="OrderIssuedExceptionDtoMapper">
+		SELECT 
+				 a.flow_id
+				, a.cust_name
+				, a.cust_id
+				, a.supply_name
+				, a.supply_id
+				, c.order_status
+				,( case c.order_status 				
+					WHEN 3 THEN
+						'卖家已取消'
+					WHEN 4 THEN
+						'系统自动取消'
+					WHEN 5 THEN
+						'买家已付款'
+					WHEN 6 THEN
+						'卖家已发货'
+					WHEN 7 THEN
+						'后台取消'
+					WHEN 8 THEN
+						'买家全部收货'
+					WHEN 9 THEN
+						'拒收中'
+					WHEN 10 THEN
+						'补货中'
+					WHEN 11 THEN
+						'系统自动确认收货'
+					WHEN 12 THEN
+						'买家延期收货'
+					WHEN 13 THEN
+						'打款异常'
+					WHEN 14 THEN
+						'买家部分收货' END)
+				as order_status_name
+				, a.pay_type
+				, a.pay_type_name
+				,  date_format(order_create_time, '%Y-%m-%d %H:%i:%s') order_create_time
+				, receive_person
+				, receive_address
+				, receive_contact_phone
+				, deal_status
+				, (case deal_status when 1 then '待处理' when 2 then '已完成' END ) as  deal_status_name 
+				, exception_type
+				, (case exception_type  when 1 then '无关联企业用户' when 2 then '下发返回错误' when 3 then '下发失败' end) as exception_type_name
+				,(case b.cust_code_yc WHEN IFNULL(b.cust_code_yc,0)   THEN 1 ELSE  0 END ) as is_relationship
+		FROM t_order_issued_exception a LEFT JOIN t_cust_erp_relation b on a.cust_id = b.cust_code_yc AND a.SUPPLY_ID = b.seller_code LEFT JOIN t_order c ON a.flow_id = c.flow_id
+		WHERE 1=1 and a.order_create_time >  date_sub(curdate(), interval 1 month)
+		AND c.order_status not in ('3','4','7')
+		<include refid="commonConditionDto"/>
+		order by a.order_create_time desc
+	</select>
+</mapper>
