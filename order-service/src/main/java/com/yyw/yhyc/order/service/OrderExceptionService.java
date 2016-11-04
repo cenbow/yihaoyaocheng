@@ -334,7 +334,7 @@ public class OrderExceptionService {
             orderSettlement.setSupplyId(order.getSupplyId());
             orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
             //当全部拒收时不生成卖家结算 适用所有
-            if(orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
+            if(!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
                 orderSettlementMapper.save(orderSettlement);
             }
 

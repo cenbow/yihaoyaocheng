@@ -16,6 +16,7 @@ import java.util.Map;
 
 import com.yyw.yhyc.order.bo.OrderIssuedLog;
 import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -278,8 +279,8 @@ public class OrderIssuedService {
 	 * 
 	 * 查询没有对码的订单记录
 	 */
-	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(){
-		return orderIssuedMapper.findOrderIssuedNoRelationshipList();
+	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(Integer supplyId){
+		return orderIssuedMapper.findOrderIssuedNoRelationshipList(supplyId);
 	}
 	//根据flowId给更新
 	public int updateBySelective(OrderIssued orderIssued) {
