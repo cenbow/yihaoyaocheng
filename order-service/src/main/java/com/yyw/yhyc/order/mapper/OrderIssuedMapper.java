@@ -27,5 +27,6 @@ public interface OrderIssuedMapper extends GenericIBatisMapper<OrderIssued, java
 	public OrderIssued findByFlowId(String flowId);
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId);
 	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(Integer supplyId);
+	public List<OrderIssuedDto> findOrderIssuedHasRelationshipList(Integer supplyId);
 	public int updateBySelective(OrderIssued orderIssued);
 }
