@@ -208,8 +208,6 @@
 					                    </select>
                               		   	<input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].adviserPhoneNumber" value=0 />
 					                </c:when>
-					                <c:otherwise>
-					                </c:otherwise>
 					            </c:choose>
                             </p>
                             <%--遍历每个供应商的信息  结束--%>
