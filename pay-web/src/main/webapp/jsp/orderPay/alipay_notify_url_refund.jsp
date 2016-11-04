@@ -93,14 +93,17 @@
 				System.out.println("tradeNo===="+tradeNo);
 				String paymentPlatforReturn = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
 				System.out.println("paymentPlatforReturn===="+paymentPlatforReturn);
-				Map<String, Integer> myMap = new HashMap<String, Integer>();
+				Map<String, String> myMap = new HashMap<String, String>();
+
 				String[] pairs = paymentPlatforReturn.split(",");
 				for (int i=0;i<pairs.length;i++) {
 					String pair = pairs[i];
 					String[] keyValue = pair.split("=");
-					myMap.put(keyValue[0], Integer.valueOf(keyValue[1]));
+					myMap.put(keyValue[0].trim().toString(), keyValue[1]);
 				}
-				String temp = myMap.get("subject").toString().split("=")[1];
+
+				String temp = myMap.get("subject").toString().split("：")[1];
+
 				orderSettlementService.updateSettlementByMap(temp,4);
 			}
 
