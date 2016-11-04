@@ -33,7 +33,7 @@ public class AlipayConfig {
 	// 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
 //	public static String notify_url = "http://tpay.yaoex.com/alipay/notify_url.jsp";
 	public static String notify_url = PayUtil.getValue("alipay_notify_url");
-	
+
 	// 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
 //	public static String notify_url_refund = "http://tpay.yaoex.com/alipay/notify_url_refund.jsp";
 	public static String notify_url_refund = PayUtil.getValue("alipay_notify_url_refund");
