@@ -505,6 +505,10 @@ public class OrderService {
 			orderDtoNew.setBillType(orderDto.getBillType());
 			orderDtoNew.setLeaveMessage(orderDto.getLeaveMessage());
 			orderDtoNew.setPaymentTerm(orderDto.getPaymentTerm());
+			orderDtoNew.setAdviserCode(orderDto.getAdviserCode());
+			orderDtoNew.setAdviserName(orderDto.getAdviserName());
+			orderDtoNew.setAdviserPhoneNumber(orderDto.getAdviserPhoneNumber());
+			orderDtoNew.setAdviserRemark(orderDto.getAdviserRemark());
 		}
 		return orderDtoNew;
 	}
