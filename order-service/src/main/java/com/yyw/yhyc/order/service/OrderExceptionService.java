@@ -693,8 +693,12 @@ public class OrderExceptionService {
                 || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //银联支付 拒收审核未通过，生成卖家结算信息，金额为全部订单金额
             OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2, null, null, userDto.getUserName(), null, order);
-            //默认 为已结算
-            orderSettlement.setConfirmSettlement("1");
+            //银联的默认 为已结算
+            if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    ){
+                orderSettlement.setConfirmSettlement("1");
+            }
             orderSettlementMapper.save(orderSettlement);
         } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付
