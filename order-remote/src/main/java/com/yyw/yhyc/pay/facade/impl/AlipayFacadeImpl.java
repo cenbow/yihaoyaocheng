@@ -48,10 +48,12 @@ public class AlipayFacadeImpl implements AlipayFacade {
     //测试
     public static void main(String[] args) {
 
-        Map<Integer, String> refundMap = new HashMap<>();
-        refundMap.put(1, "2016110221001004600268318252^0.01^协商退款");
-        refund(1,refundMap);
+//        Map<Integer, String> refundMap = new HashMap<>();
+//        refundMap.put(1, "2016110221001004600268318252^0.01^协商退款");
+//        refund(1,refundMap);
 
+
+        payall("test20161102210","贝尔金护腕式","0.11","美国专业护腕鼠标垫");
 
 
     }
@@ -73,6 +75,30 @@ public class AlipayFacadeImpl implements AlipayFacade {
         System.out.println(AlipayCore.createLinkStringByrefund(refundMap));
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
         System.out.println(StringUtils.repeat("=", 40));
+        System.out.println(sHtmlText);
+        return sHtmlText;
+    }
+
+
+    public static String payall(String out_trade_no, String subject, String total_fee, String body)
+    {
+        Map<String, String> sParaTemp = new HashMap<String, String>();
+        sParaTemp.put("service", AlipayConfig.service);
+        sParaTemp.put("partner", AlipayConfig.partner);
+        sParaTemp.put("seller_id", AlipayConfig.seller_id);
+        sParaTemp.put("_input_charset", AlipayConfig.input_charset);
+        sParaTemp.put("payment_type", AlipayConfig.payment_type);
+        sParaTemp.put("notify_url", "http://tpay.yaoex.com/jsp/orderPay/alipay_notify_url.jsp");
+        sParaTemp.put("return_url", "http://tpay.yaoex.com/jsp/orderPay/alipay_return_url.jsp");
+        sParaTemp.put("anti_phishing_key", AlipayConfig.anti_phishing_key);
+        sParaTemp.put("exter_invoke_ip", AlipayConfig.exter_invoke_ip);
+        sParaTemp.put("out_trade_no", out_trade_no);
+        sParaTemp.put("subject", subject);
+        sParaTemp.put("total_fee", total_fee);
+        sParaTemp.put("body", body);
+
+        String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
+
         System.out.println(sHtmlText);
         return sHtmlText;
     }
