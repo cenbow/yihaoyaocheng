@@ -49,9 +49,9 @@ public class AlipayFacadeImpl implements AlipayFacade {
     public static void main(String[] args) {
 
         Map<Integer, String> refundMap = new HashMap<>();
-        refundMap.put(1, "2016110221001004600268318252$0.01^协商退款");
-//        refund(1,refundMap);
-        System.out.println("2016110221001004600268318252$0.01^协商退款".split("\\$").length);
+        refundMap.put(1, "2016110221001004600268318252^0.01^协商退款");
+        refund(1,refundMap);
+
 
 
     }
