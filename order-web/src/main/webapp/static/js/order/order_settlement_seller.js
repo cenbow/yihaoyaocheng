@@ -157,7 +157,7 @@ function fillTableJson(data) {
 			var tr = "<tr>";
 			tr += "<td>" + orderSettlemnt.orgFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + orderSettlemnt.payFlowId + "</td>";
+			tr += "<td>" + orderSettlemnt.settleFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.payName + "</td>";

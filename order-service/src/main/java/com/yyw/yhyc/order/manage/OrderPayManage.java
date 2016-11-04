@@ -195,7 +195,7 @@ public class OrderPayManage {
                 orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
                 orderPay.setPayTime(now);
 
-                if(parameter.get("trade_no") != null){
+                if(parameter.get("trade_no") != null && orderPay.getPayTypeId() == 7){
                     orderPay.setPayAccountName("支付宝");
                     orderPay.setPayAccountNo(parameter.get("trade_no").toString());
                 }

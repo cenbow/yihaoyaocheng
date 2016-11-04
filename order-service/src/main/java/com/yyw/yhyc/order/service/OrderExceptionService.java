@@ -296,7 +296,7 @@ public class OrderExceptionService {
         } else if (OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
-            orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
+            orderSettlement.setConfirmSettlement("0");//生成结算信息 未结算
         }
         else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付
@@ -333,7 +333,11 @@ public class OrderExceptionService {
             orderSettlement.setCustId(null);
             orderSettlement.setSupplyId(order.getSupplyId());
             orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
-            orderSettlementMapper.save(orderSettlement);
+            //当全部拒收时不生成卖家结算 适用所有
+            if(orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
+                orderSettlementMapper.save(orderSettlement);
+            }
+
         }
     }
 
@@ -689,8 +693,12 @@ public class OrderExceptionService {
                 || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //银联支付 拒收审核未通过，生成卖家结算信息，金额为全部订单金额
             OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2, null, null, userDto.getUserName(), null, order);
-            //默认 为已结算
-            orderSettlement.setConfirmSettlement("1");
+            //银联的默认 为已结算
+            if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    ){
+                orderSettlement.setConfirmSettlement("1");
+            }
             orderSettlementMapper.save(orderSettlement);
         } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付

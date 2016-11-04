@@ -43,7 +43,7 @@
 	//批次号
 
 	String batch_no = new String(request.getParameter("batch_no").getBytes("ISO-8859-1"),"UTF-8");
-
+	System.out.println("batch_no===="+batch_no);
 	//批量退款数据中转账成功的笔数
 
 	String success_num = new String(request.getParameter("success_num").getBytes("ISO-8859-1"),"UTF-8");
@@ -62,6 +62,7 @@
 		try {
 			String detail =null;
 			String[] resultdetail = result_details.split("#");
+			System.out.println("result_details===="+result_details);
 			for(String tempreturn : resultdetail)
 			{
 				if(tempreturn.indexOf("$") == -1)
@@ -73,7 +74,9 @@
 					detail = tempreturn.split("\\$")[0];
 				}
 				String tradeNo = AlipayNotify.getTradeNo(detail);
+				System.out.println("tradeNo===="+tradeNo);
 				String payFlowId = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
+				System.out.println("payFlowId===="+payFlowId);
 				orderPayManage.updateRedundOrderInfos(payFlowId,AlipayNotify.getIsSuccess(detail),params);
 			}
 

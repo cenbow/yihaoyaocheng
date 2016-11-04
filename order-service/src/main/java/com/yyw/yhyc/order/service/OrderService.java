@@ -37,9 +37,10 @@ import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
 import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
-import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;
-import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
+
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
@@ -81,8 +82,11 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
-import com.yyw.yhyc.order.manage.OrderManage;
-import com.yyw.yhyc.order.manage.OrderPayManage;
+import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.*;
+import com.yyw.yhyc.order.enmu.*;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
@@ -99,9 +103,7 @@ import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.bo.ProductInventory;
-import com.yyw.yhyc.product.dto.ProductPromotionDto;import com.yyw.yhyc.product.manage.ProductInventoryManage;
-import com.yyw.yhyc.product.dto.ProductInfoDto;import com.yyw.yhyc.product.mapper.ProductInfoMapper;
-import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.product.dto.ProductInfoDto;import com.yyw.yhyc.product.dto.ProductPromotionDto;import com.yyw.yhyc.product.manage.ProductInventoryManage;import com.yyw.yhyc.product.mapper.ProductInfoMapper;import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
@@ -688,8 +690,8 @@ public class OrderService {
 			shoppingCart.setProductId(productInfoDto.getId());
 			shoppingCart.setSupplyId(orderDto.getSupplyId());
 			shoppingCart.setFromWhere(productInfoDto.getFromWhere() == null ? ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere() : productInfoDto.getFromWhere());
-			if(!UtilHelper.isEmpty(productInfoDto.getPromotionId())){
-				shoppingCart.setProductId(productInfoDto.getPromotionId());
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0){
+				shoppingCart.setPromotionId(productInfoDto.getPromotionId());
 			}
 			shoppingCartMapper.deleteByProperty(shoppingCart);
 		}
@@ -843,8 +845,12 @@ public class OrderService {
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
 //			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
-			orderDetail.setPromotionId(productInfoDto.getPromotionId());
-			orderDetail.setPromotionName(productInfoDto.getPromotionName());
+			if (!UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+				orderDetail.setPromotionId(productInfoDto.getPromotionId());
+			}
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionName())){
+				orderDetail.setPromotionName(productInfoDto.getPromotionName());
+			}
 
 			//生产厂家
 			int manufacturesId = 0;
@@ -989,7 +995,7 @@ public class OrderService {
 			BigDecimal productPrice = null;
 			long startTime = System.currentTimeMillis();
 			try{
-				productPrice = orderManage.getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface) ;
+				productPrice = orderManage.getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface) ;
 			}catch (Exception e){
 				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage(),e);
 				return returnFalse("查询商品价格失败",productFromFastOrderCount);
@@ -1543,7 +1549,11 @@ public class OrderService {
 
 				}
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
+				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
 					orderSettlementMapper.save(orderSettlement);
 				}
@@ -1578,7 +1588,7 @@ public class OrderService {
 	 * @return
 	 * @param userDto
 	 * @param oldShoppingCartIdList
-	 * @param iAdviserManageDubbo 
+	 * @param iAdviserManageDubbo
 	 */
 	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList, IAdviserManageDubbo iAdviserManageDubbo) throws Exception {
 		log.info("检查订单页的数据,userDto = " + userDto);
@@ -1656,7 +1666,7 @@ public class OrderService {
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
 			orderPriceCount = orderPriceCount.add(productPriceCount);
 			shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
-			
+
 			//查询供应商的销售顾问信息
 			//custIdAndSupplyId.getSupplyId();
 			List<AdviserDto> adviserList = new ArrayList<AdviserDto>();
@@ -1670,7 +1680,7 @@ public class OrderService {
 				adviserList.add(adviserDto);
 			}
 			shoppingCartListDto.setAdviserList(adviserList);
-			
+
 			allShoppingCart.add(shoppingCartListDto);
 		}
 
@@ -1784,7 +1794,9 @@ public class OrderService {
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
-					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)){
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)
+					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
 				orderSettlement.setConfirmSettlement("1");
 				orderSettlementMapper.save(orderSettlement);
@@ -2153,7 +2165,6 @@ public class OrderService {
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
 		orderDto.setPayFlag(Integer.valueOf((data.get("payFlag")==null || "".equals(data.get("payFlag"))) ?  "0":data.get("payFlag")));
-		orderDto.setSource(Integer.valueOf((data.get("source")==null || "".equals(data.get("source"))) ?  "0":data.get("source")));
 
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
@@ -2335,7 +2346,11 @@ public class OrderService {
 			}
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
+			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
@@ -3136,7 +3151,7 @@ public class OrderService {
 		orderBean.setProductList(productList);
 		return orderBean;
 	}
-	
+
 	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
 		return orderMapper.getOrderDetailForExport(orderDto);
 	}

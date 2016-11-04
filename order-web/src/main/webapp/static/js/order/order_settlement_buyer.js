@@ -151,7 +151,7 @@ function fillTableJson(data) {
 			var tr = "<tr>";
 			tr += "<td>" + orderSettlemnt.orgFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + typeToPayFlowId(orderSettlemnt.businessType,orderSettlemnt.payType,orderSettlemnt.payFlowId) + "</td>";
+			tr += "<td>" + orderSettlemnt.settleFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
 			tr += "<td>" + orderSettlemnt.payName + "</td>";
@@ -180,13 +180,7 @@ function typeToOperate(businessType,confirm,settlementId) {
 	}
 	return result;
 }
-function typeToPayFlowId(businessType,payType,payFlowId){
-	if( payFlowId!=null && businessType==1 && (payType==1||payType==2) ){
-		return payFlowId;
-	}else{
-		return "";
-	}
-}
+
 function typeToshowMoney(businessType,money) {
 	if(money==null){
 		return "";
