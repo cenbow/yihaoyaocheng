@@ -707,29 +707,49 @@ public class ShoppingCartService {
 			return null;
 		}
 
+		/* 活动商品添加、修改前，获取该商品是否已经添加，如已经添加，则获取已经添加的数量 */
+		ShoppingCart queryCondition = new ShoppingCart();
+		queryCondition.setCustId(shoppingCart.getCustId());
+		queryCondition.setSpuCode(shoppingCart.getSpuCode());
+		queryCondition.setSupplyId(shoppingCart.getSupplyId());
+		queryCondition.setFromWhere(shoppingCart.getFromWhere());
+		queryCondition.setPromotionId(shoppingCart.getPromotionId());
+		logger.info("加入进货单：查询活动商品是否存在，查询条件condition=" + queryCondition);
+		List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(queryCondition);
+		logger.info("加入进货单：查询活动商品是否存在，查询结果shoppingCarts=" + shoppingCarts);
+		/* 已经添加到购物车中的数量 */
+		int addedInShoppingCart = 0 ;
+		if(!UtilHelper.isEmpty(shoppingCarts) ){
+			addedInShoppingCart = shoppingCarts.get(0).getProductCount();
+		}
+
 		Map<String,ShoppingCart> exceedActivityLimitedNumMap = null;
-		//表示添加商品到购物车
+		/* 表示添加活动商品到购物车 */
 		if(UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || shoppingCart.getShoppingCartId() <= 0){
 			/* 校验是否超过活动商品限购数量 */
-			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
-				activityProductShoppingCart.setCreateUser(userDto.getUserName());
-				shoppingCartMapper.save(activityProductShoppingCart);
+				if(!UtilHelper.isEmpty(activityProductShoppingCart)){
+					activityProductShoppingCart.setCreateUser(userDto.getUserName());
+					shoppingCartMapper.save(activityProductShoppingCart);
+				}
 			}
 
-			//表示修改购物车中商品的数量
+		/* 表示修改购物车中商品的数量 */
 		}else{
 			ShoppingCart shoppingCartOrigin = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
 			shoppingCartOrigin.setProductCount(shoppingCart.getProductCount());
 			shoppingCartOrigin.setProductPrice(shoppingCart.getProductPrice());
 			shoppingCartOrigin.setProductSettlementPrice(shoppingCart.getProductSettlementPrice());
 			/* 校验是否超过活动商品限购数量 */
-			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCartOrigin,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCartOrigin,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
-				activityProductShoppingCart.setUpdateUser(userDto.getUserName());
-				shoppingCartMapper.update(activityProductShoppingCart);
+				if(!UtilHelper.isEmpty(activityProductShoppingCart)){
+					activityProductShoppingCart.setUpdateUser(userDto.getUserName());
+					shoppingCartMapper.update(activityProductShoppingCart);
+				}
 			}
 		}
 
@@ -799,8 +819,11 @@ public class ShoppingCartService {
 	 * @param shoppingCart 要检查的数据
 	 * @return 活动商品的数据、普通商品的数据
      */
-	private Map<String,ShoppingCart> isExceedActivityLimitedNum(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService,
+	private Map<String,ShoppingCart> isExceedActivityLimitedNum(ShoppingCart shoppingCart,int addedInShoppingCart, IPromotionDubboManageService iPromotionDubboManageService,
 																UserDto userDto,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception {
+
+
+
 		/* 接入何家兵的获取活动商品信息的接口,区分出是否超出活动限购数量 */
 		if(UtilHelper.isEmpty(iPromotionDubboManageService)) {
 			logger.error("购物车页面-查询商品参加活动信息,接口iPromotionDubboManageService:" + iPromotionDubboManageService);
@@ -839,7 +862,7 @@ public class ShoppingCartService {
 		logger.info("判断是否若超出活动商品限购数量:本次购买数量=" + shoppingCart.getProductCount() + ",\n该商品在该活动中的历史购买量buyedInHistory=" + buyedInHistory+",\n个人限购=" + productPromotionDto.getLimitNum() + ",\n活动实时库存=" + productPromotionDto.getCurrentInventory()) ;
 
 		/* 判断理论上可以以特价购买的数量 */
-		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory;
+		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory - addedInShoppingCart;
 		if(canBuyByPromotionPrice <= 0 ){
 			canBuyByProductPriceNum = shoppingCart.getProductCount();
 			canBuyByPromotionPriceNum = 0;
@@ -848,7 +871,7 @@ public class ShoppingCartService {
 				canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
 				canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
 			}else{
-				canBuyByPromotionPriceNum = canBuyByPromotionPrice;
+				canBuyByPromotionPriceNum = shoppingCart.getProductCount();
 				canBuyByProductPriceNum = shoppingCart.getProductCount() - canBuyByPromotionPrice;
 			}
 		}
@@ -856,11 +879,14 @@ public class ShoppingCartService {
 
 		Map<String,ShoppingCart> resultMap = new HashMap<>();
 
-		ShoppingCart activityProduct = new ShoppingCart();
-		BeanUtils.copyProperties(shoppingCart,activityProduct);
-		activityProduct.setProductCount(canBuyByPromotionPriceNum);
-		activityProduct.setProductPrice(productPromotionDto.getPromotionPrice());
-		activityProduct.setProductSettlementPrice(productPromotionDto.getPromotionPrice().multiply(new BigDecimal(canBuyByPromotionPriceNum)));
+		ShoppingCart activityProduct = null;
+		if(canBuyByPromotionPriceNum > 0){
+			activityProduct = new ShoppingCart();
+			BeanUtils.copyProperties(shoppingCart,activityProduct);
+			activityProduct.setProductCount(canBuyByPromotionPriceNum);
+			activityProduct.setProductPrice(productPromotionDto.getPromotionPrice());
+			activityProduct.setProductSettlementPrice(productPromotionDto.getPromotionPrice().multiply(new BigDecimal(canBuyByPromotionPriceNum)));
+		}
 
 		ShoppingCart normalProduct = null;
 		if(canBuyByProductPriceNum > 0){
@@ -873,7 +899,6 @@ public class ShoppingCartService {
 				logger.error("判断是否若超出活动商品限购数量:查询商品原价失败，productPrice=" + productPrice);
 				throw new Exception("查询商品价格失败");
 			}
-
 			normalProduct = new ShoppingCart();
 			BeanUtils.copyProperties(shoppingCart,normalProduct);
 			normalProduct.setPromotionId(null);
