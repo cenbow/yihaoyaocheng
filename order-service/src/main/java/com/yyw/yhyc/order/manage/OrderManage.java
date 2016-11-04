@@ -104,7 +104,7 @@ public class OrderManage {
 	 * @return
 	 */
 	public BigDecimal getProductPrice(String spuCode, Integer buyerEnterprizeId, Integer sellerEnterprizeId,
-									   ICustgroupmanageDubbo iCustgroupmanageDubbo, UserDto userDto, ProductSearchInterface productSearchInterface){
+									   ICustgroupmanageDubbo iCustgroupmanageDubbo, ProductSearchInterface productSearchInterface){
 		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
 			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
 			return null;
@@ -112,9 +112,9 @@ public class OrderManage {
 		long startTime,endTime;
 		CustGroupDubboRet custGroupDubboRet = null;
 		try{
-			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
+			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 buyerEnterprizeId = " + buyerEnterprizeId);
 			startTime = System.currentTimeMillis();
-			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
+			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(buyerEnterprizeId+"");
 			endTime = System.currentTimeMillis();
 			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，耗时:"+(endTime - startTime)+"毫秒，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
 		}catch (Exception e){

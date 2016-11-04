@@ -866,7 +866,7 @@ public class ShoppingCartService {
 		if(canBuyByProductPriceNum > 0){
 			/* 调用接口查询商品原价 */
 			long startTime = System.currentTimeMillis();
-			BigDecimal productPrice = orderManage.getProductPrice(shoppingCart.getSpuCode(),shoppingCart.getCustId(),shoppingCart.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface);
+			BigDecimal productPrice = orderManage.getProductPrice(shoppingCart.getSpuCode(),shoppingCart.getCustId(),shoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
 			long endTime = System.currentTimeMillis();
 			logger.info("判断是否若超出活动商品限购数量:查询商品原价,耗时("+(endTime - startTime)+")毫秒，productPrice=" + productPrice ) ;
 			if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0")) <= 0){

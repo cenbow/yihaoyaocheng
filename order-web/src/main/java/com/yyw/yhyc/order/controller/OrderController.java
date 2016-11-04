@@ -453,6 +453,7 @@ public class OrderController extends BaseJsonController {
 		try {
 			if(UtilHelper.isEmpty(creditDubboService)){
 				logger.error("CreditDubboServiceInterface creditDubboService is null");
+				throw new RuntimeException("资信接口调用失败！无资信服务！");
 			}else{
 				Order od =  orderService.getByPK(order.getOrderId());
 				SystemPayType systemPayType= systemPayTypeService.getByPK(od.getPayTypeId());
@@ -474,6 +475,7 @@ public class OrderController extends BaseJsonController {
 						}
 					}catch (Exception e){
 						logger.error("invoke creditDubboService.updateCreditRecord(..) error,msg:"+e.getMessage());
+						throw new RuntimeException("调用接口调用失败！");
 					}
 				}
 			}
