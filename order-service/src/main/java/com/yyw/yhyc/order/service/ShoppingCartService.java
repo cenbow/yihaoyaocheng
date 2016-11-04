@@ -731,7 +731,7 @@ public class ShoppingCartService {
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
 				if(!UtilHelper.isEmpty(activityProductShoppingCart)){
-					activityProductShoppingCart.setCreateUser(userDto.getUserName());
+					activityProductShoppingCart.setCreateUser(UtilHelper.isEmpty(userDto.getUserName()) ? "" : userDto.getUserName());
 					shoppingCartMapper.save(activityProductShoppingCart);
 				}
 			}
@@ -747,7 +747,7 @@ public class ShoppingCartService {
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
 				if(!UtilHelper.isEmpty(activityProductShoppingCart)){
-					activityProductShoppingCart.setUpdateUser(userDto.getUserName());
+					activityProductShoppingCart.setUpdateUser(UtilHelper.isEmpty(userDto.getUserName()) ? "" : userDto.getUserName());
 					shoppingCartMapper.update(activityProductShoppingCart);
 				}
 			}
