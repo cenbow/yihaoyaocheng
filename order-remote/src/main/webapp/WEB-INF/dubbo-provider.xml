@@ -35,7 +35,5 @@
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderCancelForNoDeliveryJobService" ref="orderCancelForNoDeliveryJobService"/>
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderDoneForDeliveryJobService" ref="orderDoneForDeliveryJobService"/>
 
-
-    <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderIssuedNoRelationshipJobService" ref="orderIssuedNoRelationshipJobService"/>
     <dubbo:service interface="com.yyw.yhyc.job.order.service.OrderIssuedExceptionJobService" ref="orderIssuedExceptionJobService"/>
 </beans>

@@ -400,7 +400,7 @@ public class OrderIssuedExceptionService {
 	 * 
 	 * @throws Exception
 	 */
-	public void downNoRelationshipJob() throws Exception {
+	public void downNoRelationshipJob(Integer supplyId) throws Exception {
 		List<Map<String, Object>> list = orderIssuedService
 				.findOrderIssuedNoRelationshipList();
 
