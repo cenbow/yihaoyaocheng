@@ -1001,7 +1001,7 @@ public class OrderService {
 			BigDecimal productPrice = null;
 			long startTime = System.currentTimeMillis();
 			try{
-				productPrice = orderManage.getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface) ;
+				productPrice = orderManage.getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface) ;
 			}catch (Exception e){
 				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage(),e);
 				return returnFalse("查询商品价格失败",productFromFastOrderCount);
