@@ -53,12 +53,12 @@ public class AlipayFacadeImpl implements AlipayFacade {
     //测试
     public static void main(String[] args) {
 
-//        Map<Integer, String> refundMap = new HashMap<>();
-//        refundMap.put(1, "2016110221001004600268318252^0.01^协商退款");
-//        refund(1,refundMap);
+        Map<Integer, String> refundMap = new HashMap<>();
+        refundMap.put(1, "2016110221001004600268318252^0.01^协商退款");
+        refund(1,refundMap);
 
 
-        payall("test20161102210","贝尔金护腕式","0.11","美国专业护腕鼠标垫");
+//        payall("test20161102210","贝尔金护腕式","0.11","美国专业护腕鼠标垫");
 
 
     }

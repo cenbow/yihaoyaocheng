@@ -126,4 +126,9 @@ public class PayUtil {
 		}
 		return propertiesForB2b.getProperty(key);
 	}
+
+
+	public static void main(String[] args) {
+		System.out.println(PayUtil.getValue("alipay_notify_url_refund"));
+	}
 }
