@@ -23,4 +23,5 @@ public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettleme
 	public List<OrderSettlementDto> listPaginationDtoByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto);
 
 	public OrderSettlement getByProperty(Map<String,Object> map);
+	public OrderSettlement getByPropertyByReturnCheckFile(Map<String,Object> map);
 }

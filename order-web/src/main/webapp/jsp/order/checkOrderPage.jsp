@@ -116,6 +116,8 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].paymentTerm" value="${shoppingCartDto.paymentTerm}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].manufactures" value="${shoppingCartDto.manufactures}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].fromWhere" value="${shoppingCartDto.fromWhere}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionId" value="${shoppingCartDto.promotionId}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionName" value="${shoppingCartDto.promotionName}"/>
                                                     <tr>
                                                         <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
                                                             <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
@@ -127,9 +129,16 @@
                                                             </h3>
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
-                                                        <td>¥ <fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></td>
+                                                        <td>
+                                                        <td>
+                                                            <c:if test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
+                                                                <p style="color: #fff;background: #fe5050;padding: 4px 10px;">
+                                                                    <span>限时特价</span>
+                                                                </p>
+                                                            </c:if>
+                                                            <p>¥ <fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></p>
+                                                        </td>
                                                         <td>${shoppingCartDto.productCount}</td>
-
                                                         <td class="red">¥ <fmt:formatNumber value="${shoppingCartDto.productPrice * shoppingCartDto.productCount}" minFractionDigits="2"/></td>
                                                     </tr>
                                                 </c:forEach>
@@ -199,8 +208,6 @@
 					                    </select>
                               		   	<input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].adviserPhoneNumber" value=0 />
 					                </c:when>
-					                <c:otherwise>
-					                </c:otherwise>
 					            </c:choose>
                             </p>
                             <%--遍历每个供应商的信息  结束--%>

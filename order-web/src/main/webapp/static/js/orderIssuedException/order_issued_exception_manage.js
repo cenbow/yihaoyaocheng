@@ -147,7 +147,6 @@ function fillTableJson(data) {
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
-        tr += "<td>" + order.dealStatusName + "</td>";
         tr += "<td>" + order.payTypeName + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.receivePerson + "</td>";

@@ -92,7 +92,7 @@
                                             </c:if>
                                         </li>
 
-                                        <li class="fl td-pic" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                        <li class="fl td-pic" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
                                             <c:choose>
                                                 <c:when test="${shoppingCartDto.productPrice <= 0}"><span class="inside-icon">失效</span></c:when>
                                                 <c:when test="${!shoppingCartDto.existProductInventory}"><span class="inside-icon">缺货</span></c:when>
@@ -102,12 +102,21 @@
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                         </li>
                                         <li class="fl td-item">
-                                            <p class="item-title" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
+                                            <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
                                             </p>
                                             <p>${shoppingCartDto.manufactures}</p>
                                         </li>
                                         <li class="fl td-price">
+                                            <c:choose>
+                                                <c:when test="${shoppingCartDto.promotionId > 0 && shoppingCartDto.promotionPrice > 0}">
+                                                    <p class="special_price">
+                                                        <span>限时特价</span>
+                                                    </p>
+                                                </c:when>
+                                                <c:otherwise>
+                                                </c:otherwise>
+                                            </c:choose>
                                             <div style="${shoppingCartDto.productPrice > 0 ? "display: block" : "display: none"} ">
                                                 ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></span>
                                             </div>

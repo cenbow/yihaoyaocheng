@@ -81,6 +81,9 @@
                                     <label payTypeId="<%=OnlinePayTypeEnum.UnionPayB2B.getPayTypeId()%>">
                                         <i class="inside-icon radio-skin"></i><i class="inside-icon banklogo-pay"></i><br><span class="pr">网银支付-B2B</span>
                                     </label>
+                                    <label payTypeId="<%=OnlinePayTypeEnum.AlipayWeb.getPayTypeId()%>">
+                                        <i class="inside-icon radio-skin"></i><img src="${STATIC_URL}/static/images/alipay.png" alt=""><br><span class="pr"></span>
+                                    </label>
                                 <input type="hidden" id="payTypeId">
                             </div>
                         </div>
