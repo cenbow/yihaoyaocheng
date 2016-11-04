@@ -789,10 +789,10 @@ public class ShoppingCartService {
 			if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
 				throw new Exception("商品没有库存");
 			}
-			if((queryCondition.getProductCount() + shoppingCart.getProductCount())>product.getFrontInventory()){
+			if((queryCondition.getProductCount() + normalProductShoppingCart.getProductCount())>product.getFrontInventory()){
 				normalProductShoppingCart.setProductCount(product.getFrontInventory());
 			}else{
-				normalProductShoppingCart.setProductCount(queryCondition.getProductCount() + shoppingCart.getProductCount());
+				normalProductShoppingCart.setProductCount(queryCondition.getProductCount() + normalProductShoppingCart.getProductCount());
 			}
 			normalProductShoppingCart.setProductSettlementPrice(normalProductShoppingCart.getProductPrice().multiply(new BigDecimal(normalProductShoppingCart.getProductCount())));
 
@@ -909,25 +909,49 @@ public class ShoppingCartService {
 		logger.info("判断是否若超出活动商品限购数量:本次购买数量=" + shoppingCart.getProductCount() + ",\n该商品在该活动中的历史购买量buyedInHistory=" + buyedInHistory+",\n个人限购=" + productPromotionDto.getLimitNum() + ",\n活动实时库存=" + productPromotionDto.getCurrentInventory()) ;
 
 		/* 判断理论上可以以特价购买的数量 */
-		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory - addedInShoppingCart;
+		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory;
 		if(canBuyByPromotionPrice <= 0 ){
-			if( addedInShoppingCart  > shoppingCart.getProductCount() ){
-				canBuyByProductPriceNum = addedInShoppingCart - shoppingCart.getProductCount();
-				canBuyByPromotionPriceNum = 0;
-			}else{
-				canBuyByProductPriceNum = shoppingCart.getProductCount();
-				canBuyByPromotionPriceNum = 0;
-			}
+			canBuyByProductPriceNum = shoppingCart.getProductCount() > addedInShoppingCart ? shoppingCart.getProductCount()-addedInShoppingCart : shoppingCart.getProductCount();
+			canBuyByPromotionPriceNum = 0;
 		}else{
-
-			if(productPromotionDto.getCurrentInventory() - canBuyByPromotionPrice <= 0 ){
-				canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
-				canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
+			/* 先判断购物车里面已经添加了多少 */
+			int canBeAdd = canBuyByPromotionPrice - addedInShoppingCart;
+			//购物车中还能增加活动商品
+			if(canBeAdd > 0  ){
+				if(shoppingCart.getProductCount() > canBeAdd ){////继续添加到购物车,并添加一条原价商品
+					canBuyByPromotionPriceNum = addedInShoppingCart + canBeAdd;
+					canBuyByProductPriceNum = shoppingCart.getProductCount() - canBuyByPromotionPriceNum;
+				}else{//继续添加到购物车
+					if(productPromotionDto.getCurrentInventory() - shoppingCart.getProductCount() <= 0 ){
+						canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
+						canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
+					}else{
+						canBuyByPromotionPriceNum = shoppingCart.getProductCount();
+						canBuyByProductPriceNum = 0;
+					}
+				}
 			}else{
-				canBuyByPromotionPriceNum = shoppingCart.getProductCount();
-				canBuyByProductPriceNum = 0;
+				int canBeReduce =  shoppingCart.getProductCount() - canBuyByPromotionPrice;
+				if(canBeReduce > 0){ //新增原价商品
+					canBuyByPromotionPriceNum = 0;
+					canBuyByProductPriceNum = canBeReduce;
+				}else{ //特价商品减少
+					//判断活动库存
+					if(productPromotionDto.getCurrentInventory() - shoppingCart.getProductCount() <= 0 ){
+						canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
+						canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
+					}else{
+						canBuyByPromotionPriceNum = shoppingCart.getProductCount();
+						canBuyByProductPriceNum = 0;
+					}
+
+				}
 			}
 		}
+
+
+
+
 		logger.info("判断是否若超出活动商品限购数量:能够以活动特价购买的商品数量canBuyByPromotionPriceNum=" + canBuyByPromotionPriceNum +",\n能够以商品原价购买的数量canBuyByProductPriceNum=" + canBuyByProductPriceNum) ;
 
 		Map<String,ShoppingCart> resultMap = new HashMap<>();
