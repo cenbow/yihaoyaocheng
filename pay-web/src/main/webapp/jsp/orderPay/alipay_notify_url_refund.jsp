@@ -23,6 +23,20 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%
+	String path = request.getContextPath();
+	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+	String  url  =  "http://"  +  request.getServerName()  +  ":"  +  request.getServerPort()  +  request.getContextPath()+request.getServletPath().substring(0,request.getServletPath().lastIndexOf("/")+1);
+
+	if(request.getQueryString()!=null)
+	{
+		url+="?"+request.getQueryString();
+	}
+	System.out.println("path："+path);
+	System.out.println("basePath："+basePath);
+	System.out.println("URL："+url);
+	System.out.println("URL参数："+request.getQueryString());
+
+
 	//获取支付宝POST过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
