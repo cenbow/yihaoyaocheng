@@ -352,7 +352,7 @@ public class OrderService {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto) throws Exception{
+	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
@@ -401,7 +401,7 @@ public class OrderService {
 				orderDto.setSource(orderCreateDto.getSource());
 			};
 			/* 创建订单相关的所有信息 */
-			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
@@ -414,7 +414,7 @@ public class OrderService {
 		/* 从原始订单信息中筛选出合法的账期商品信息 */
 		List<OrderDto> periodTermOrderDtoList = getPeriodTermOrderDtoList(orderCreateDto.getOrderDtoList());
 		/* 创建账期订单 */
-		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto());
+		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 		log.info("创建订单接口-生成的订单数据(以账期商品为单位拆单),periodTermOrderList = " + periodTermOrderList);
 		resultMap.put("periodTermOrderList",periodTermOrderList);
 
@@ -547,7 +547,7 @@ public class OrderService {
 	 * @param userDto			买家用户信息
      * @return
      */
-	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto) throws Exception {
+	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
 		if( UtilHelper.isEmpty(periodTermOrderDtoList) || UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(userDto)){
 			return null;
 		}
@@ -586,7 +586,7 @@ public class OrderService {
 //				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
 //				payFlowId += "-" + (i+1);
 
-				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto);
+				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto,iPromotionDubboManageService);
 				if(!UtilHelper.isEmpty(orderNew)){
 					/* 账期订单生成结算数据 */
 					//savePaymentDateSettlement(userDto,orderNew.getOrderId()); 需求变量 在确认收货时生成结算数据
@@ -627,7 +627,7 @@ public class OrderService {
 	 * @param userDto		买家用户信息
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto) throws Exception{
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception{
 		if( UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())
 				|| UtilHelper.isEmpty(orderDelivery) ){
 			return null;
@@ -645,6 +645,9 @@ public class OrderService {
 		/* 冻结库存 */
 		productInventoryManage.frozenInventory(orderDto);
 
+		/* 若是活动商品，则减掉活动库存 */
+		orderManage.reducePromotionInventory(orderDto,iPromotionDubboManageService);
+
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
 
@@ -654,12 +657,10 @@ public class OrderService {
 		/* 删除购物车中相关的商品 */
 		deleteShoppingCart(orderDto);
 
-		/* TODO 短信、邮件等通知买家 */
-
-		/* TODO 自动取消订单相关的定时任务 */
-
 		return order;
 	}
+
+
 
 	private OrderDto calculateOrderPrice(OrderDto orderDto) {
 		if(null == orderDto || null == orderDto.getProductInfoDtoList()) return null;
@@ -1018,9 +1019,11 @@ public class OrderService {
 				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
-				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+				if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
+					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+					return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+				}
 			}
 
 			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
@@ -1028,13 +1031,18 @@ public class OrderService {
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 
+
 			/* 校验活动商品相关的限购逻辑 */
 			/* 1、 非空校验*/
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0){
+				continue;
+			}
 			ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
 					seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
 			if(UtilHelper.isEmpty(productPromotionDto)){
 				continue;
 			}
+
 			/* 2、 校验 购买活动商品的数量 是否合法 */
 			if(productInfoDto.getProductCount() < productPromotionDto.getMinimumPacking()){
 				return returnFalse("购买活动商品的数量低于最小起批量",productFromFastOrderCount);

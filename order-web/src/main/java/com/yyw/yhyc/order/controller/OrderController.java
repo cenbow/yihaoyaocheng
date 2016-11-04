@@ -217,7 +217,7 @@ public class OrderController extends BaseJsonController {
 		}
 		//订单来源 限用pc
 		orderCreateDto.setSource(1);
-		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
+		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto,iPromotionDubboManageService);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
 		String orderIdStr = "";
