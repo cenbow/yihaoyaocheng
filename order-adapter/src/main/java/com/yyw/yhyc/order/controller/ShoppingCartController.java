@@ -344,7 +344,7 @@ public class ShoppingCartController extends BaseController {
 		}
 
 		/* 创建订单 */
-		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
+		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto,iPromotionDubboManageService);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
 		List<String> flowIdList = new ArrayList<>();
