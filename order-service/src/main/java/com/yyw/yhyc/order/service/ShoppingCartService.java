@@ -721,11 +721,12 @@ public class ShoppingCartService {
 		int addedInShoppingCart = 0 ;
 		if(!UtilHelper.isEmpty(shoppingCarts) ){
 			addedInShoppingCart = shoppingCarts.get(0).getProductCount();
+			queryCondition = shoppingCarts.get(0);
 		}
 
 		Map<String,ShoppingCart> exceedActivityLimitedNumMap = null;
 		/* 表示添加活动商品到购物车 */
-		if(UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || shoppingCart.getShoppingCartId() <= 0){
+		if(UtilHelper.isEmpty(queryCondition) || UtilHelper.isEmpty(queryCondition.getShoppingCartId())){
 			/* 校验是否超过活动商品限购数量 */
 			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
@@ -746,7 +747,7 @@ public class ShoppingCartService {
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
 				if(!UtilHelper.isEmpty(activityProductShoppingCart)){
 					String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" : userDto.getUserName();
-					ShoppingCart shoppingCartOrigin = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+					ShoppingCart shoppingCartOrigin = shoppingCartMapper.getByPK(queryCondition.getShoppingCartId());
 					shoppingCartOrigin.setProductCount( activityProductShoppingCart.getProductCount());
 					shoppingCartOrigin.setProductSettlementPrice(shoppingCartOrigin.getProductPrice().multiply(new BigDecimal(shoppingCartOrigin.getProductCount())));
 					shoppingCartOrigin.setUpdateUser(userName);
