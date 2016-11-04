@@ -51,6 +51,9 @@ public class OrderIssuedService {
 	private OrderIssuedExceptionMapper orderIssuedExceptionMapper;
 
 	@Autowired
+	private OrderIssuedExceptionService orderIssuedExceptionService;
+	
+	@Autowired
 	public void setOrderIssuedLogMapper(OrderIssuedLogMapper orderIssuedLogMapper) {
 		this.orderIssuedLogMapper = orderIssuedLogMapper;
 	}
@@ -226,6 +229,9 @@ public class OrderIssuedService {
 				orderIssuedLogMapper.save(orderIssuedLog);
 			}
 		}
+		//扫描此供应商没有对码的单
+		orderIssuedExceptionService.downNoRelationshipJob(supplyId);
+		
 		resultMap.put("code","1");
 		resultMap.put("orderIssuedDtoList",orderIssuedDtoList);
 		return resultMap;
