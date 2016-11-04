@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
@@ -35,7 +36,7 @@ public class ProductInventoryManage {
     private SystemDateMapper systemDateMapper;
     private ProductInventoryLogMapper productInventoryLogMapper;
     private OrderDetailMapper orderDetailMapper;
-    @Autowired
+    @Reference
     private IPromotionDubboManageService iPromotionDubboManageService;
     @Autowired
     private OrderService orderService;

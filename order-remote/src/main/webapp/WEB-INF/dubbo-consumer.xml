@@ -9,5 +9,5 @@
 
     <dubbo:reference id="jobCallback" interface="com.gangling.scheduler.IJobCallback" />
 
-    <dubbo:annotation package="com.yyw.yhyc.order.facade.impl,com.yyw.yhyc.job.order.service.impl"/>
+    <dubbo:annotation package="com.yyw.yhyc.order.facade.impl,com.yyw.yhyc.job.order.service.impl,com.yyw.yhyc.product.manage"/>
 </beans>
