@@ -211,7 +211,9 @@ public class OrderController extends BaseJsonController {
 				orderDto.setAdviserCode(adviserInfo[0]);
 				orderDto.setAdviserName(adviserInfo[1]);
 				orderDto.setAdviserPhoneNumber(adviserInfo[2]);
-				orderDto.setAdviserRemark(adviserInfo[3]);
+				if(adviserInfo.length > 3){
+					orderDto.setAdviserRemark(adviserInfo[3]);
+				}
 			}
 		}
 		//订单来源 限用pc
