@@ -1,25 +1,28 @@
 package com.yyw.yhyc.product.manage;
 
-import com.sun.tools.corba.se.idl.StringGen;
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.dto.OrderDto;
-import com.yyw.yhyc.order.mapper.OrderDetailMapper;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
-import com.yyw.yhyc.product.bo.ProductInventory;
-import com.yyw.yhyc.product.bo.ProductInventoryLog;
-import com.yyw.yhyc.product.enmu.ProductInventoryLogTypeEnum;
-import com.yyw.yhyc.product.mapper.ProductInventoryLogMapper;
-import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.bo.ProductInventoryLog;
+import com.yyw.yhyc.product.enmu.ProductInventoryLogTypeEnum;
+import com.yyw.yhyc.product.mapper.ProductInventoryLogMapper;
+import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
 
 /**
  * Created by liqiang on 2016/9/2.
@@ -32,7 +35,10 @@ public class ProductInventoryManage {
     private SystemDateMapper systemDateMapper;
     private ProductInventoryLogMapper productInventoryLogMapper;
     private OrderDetailMapper orderDetailMapper;
-
+    @Autowired
+    private IPromotionDubboManageService iPromotionDubboManageService;
+    @Autowired
+    private OrderService orderService;
     @Autowired
     public void setProductInventoryMapper(ProductInventoryMapper productInventoryMapper) {
         this.productInventoryMapper = productInventoryMapper;
@@ -166,6 +172,19 @@ public class ProductInventoryManage {
                     productInventory.setUpdateTime(nowTime);
                     productInventoryMapper.updateReleaseInventory(productInventory);
                     saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.release.getType(), nowTime, supplyName, operator);
+                    
+                    if((Integer)orderDetail.getPromotionId()!= null && orderDetail.getPromotionId()>0){
+                    	Map params=new HashMap();
+	      		      	params.put("spuCode", orderDetail.getSpuCode());
+	      		      	params.put("promotionId", orderDetail.getPromotionId());
+	      		      	params.put("productCount", orderDetail.getProductCount());
+	      		      	
+	      		      	Order order = orderService.getByPK(OrderId);
+	      		      	params.put("buyerCode", order.getCustId());
+	      		      	params.put("sellerCode", orderDetail.getSupplyId());
+	          			iPromotionDubboManageService.updateProductGroupInventroy(params);
+                    }
+        			
                 }
             }
         } catch (Exception e) {
