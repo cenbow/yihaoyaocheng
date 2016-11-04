@@ -798,16 +798,15 @@ public class ShoppingCartService {
 
 			/* 修改原数据的数量 */
 			if(!UtilHelper.isEmpty(queryCondition) && !UtilHelper.isEmpty(queryCondition.getShoppingCartId())){
-				normalProductShoppingCart.setPromotionId(null);
-				normalProductShoppingCart.setPromotionName(null);
+				queryCondition.setProductCount(normalProductShoppingCart.getProductCount());
+				queryCondition.setProductPrice(normalProductShoppingCart.getProductPrice());
+				queryCondition.setProductSettlementPrice(queryCondition.getProductPrice().multiply(new BigDecimal(queryCondition.getProductCount())));
 				String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" :userDto.getUserName();
-				normalProductShoppingCart.setCreateUser(userName);
-				shoppingCartMapper.update(normalProductShoppingCart);
+				queryCondition.setCreateUser(userName);
+				shoppingCartMapper.update(queryCondition);
 
 			/* 新增一条数据 */
 			}else{
-				normalProductShoppingCart.setPromotionId(null);
-				normalProductShoppingCart.setPromotionName(null);
 				String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" :userDto.getUserName();
 				normalProductShoppingCart.setCreateUser(userName);
 				shoppingCartMapper.save(normalProductShoppingCart);
