@@ -17,8 +17,8 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.SystemDateMapper;
-import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.bo.ProductInventoryLog;
 import com.yyw.yhyc.product.enmu.ProductInventoryLogTypeEnum;
@@ -39,7 +39,7 @@ public class ProductInventoryManage {
     @Reference
     private IPromotionDubboManageService iPromotionDubboManageService;
     @Autowired
-    private OrderService orderService;
+    private OrderMapper orderMapper;
     @Autowired
     public void setProductInventoryMapper(ProductInventoryMapper productInventoryMapper) {
         this.productInventoryMapper = productInventoryMapper;
@@ -180,10 +180,12 @@ public class ProductInventoryManage {
 	      		      	params.put("promotionId", orderDetail.getPromotionId());
 	      		      	params.put("productCount", orderDetail.getProductCount());
 	      		      	
-	      		      	Order order = orderService.getByPK(OrderId);
+	      		      	Order order = orderMapper.getByPK(OrderId);
 	      		      	params.put("buyerCode", order.getCustId());
 	      		      	params.put("sellerCode", orderDetail.getSupplyId());
-	          			iPromotionDubboManageService.updateProductGroupInventroy(params);
+	      		      	log.info("活动库存释放"+params.toString());
+	          			Map result = iPromotionDubboManageService.updateProductGroupInventroy(params);
+	          			log.info("更新结果"+result.get("code")+" "+result.toString());
                     }
         			
                 }
