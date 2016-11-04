@@ -44,6 +44,16 @@
             <groupId>com.yaoex.usermanage</groupId>
             <artifactId>usermanage-interfaces</artifactId>
             <version>1.4-SNAPSHOT</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>com.taobao.diamond</groupId>
+            		<artifactId>diamond-client</artifactId>
+            	</exclusion>
+            	<exclusion>
+            		<groupId>com.taobao.diamond</groupId>
+            		<artifactId>diamond-utils</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
