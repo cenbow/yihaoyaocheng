@@ -317,24 +317,6 @@ public class ShoppingCartService {
 			throw  new Exception("购买数量不能大于9999999");
 		}
 
-		/* 校验商品库存 */
-		/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
-		int countByid=0;
-		if(!UtilHelper.isEmpty(shoppingCarts)){
-			countByid=shoppingCarts.get(0).getProductCount();
-		}
-		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
-		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
-			throw new Exception("商品没有库存");
-		}
-		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
-			shoppingCart.setProductCount(product.getFrontInventory());
-		}else{
-			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
-		}
-		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-
-
 		ShoppingCartDto newNormalProductShoppingCart = null;
 		/* 判断该商品是否是活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCart.getPromotionId()) && shoppingCart.getPromotionId() > 0 ){
@@ -343,6 +325,24 @@ public class ShoppingCartService {
 			newNormalProductShoppingCart = handleActivityProduct(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}else{
 			/* 处理普通商品(原来的逻辑，代码不变) */
+			/* 校验商品库存 */
+			/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
+			int countByid=0;
+			if(!UtilHelper.isEmpty(shoppingCarts)){
+				countByid=shoppingCarts.get(0).getProductCount();
+			}
+			ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+			if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
+				throw new Exception("商品没有库存");
+			}
+			if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
+				shoppingCart.setProductCount(product.getFrontInventory());
+			}else{
+				shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
+			}
+			shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+
+
 			logger.info("加入进货单：处理普通商品");
 			/* 新添加商品  或 添加已存在的商品逻辑 */
 			if(UtilHelper.isEmpty(shoppingCarts)){
