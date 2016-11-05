@@ -1,7 +1,10 @@
 package com.yyw.yhyc.order.facade.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.order.facade.Order4ManagerFacade;
 import com.yyw.yhyc.order.service.OrderService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,9 @@ public class Order4ManagerFacadeImpl implements Order4ManagerFacade {
     public void setOrderService(OrderService orderService) {
         this.orderService = orderService;
     }
-
+    @Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
+    
     @Override
     public Map<String, Object> listPgOperationsOrder(Map<String, String> data) {
         return orderService.listPgOperationsOrder(data);
@@ -36,7 +41,7 @@ public class Order4ManagerFacadeImpl implements Order4ManagerFacade {
 
     @Override
     public void cancelOrder(String userName,String orderId, String cancelResult) throws Exception {
-        orderService.updateOrder4Manage(userName,orderId, cancelResult,null);
+        orderService.updateOrder4Manage(userName,orderId, cancelResult,iPromotionDubboManageService);
     }
 
 
