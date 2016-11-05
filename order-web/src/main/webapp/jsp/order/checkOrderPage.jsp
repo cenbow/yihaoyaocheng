@@ -130,6 +130,7 @@
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
                                                         <td>
+                                                        <td>
                                                             <c:if test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
                                                                 <p style="color: #fff;background: #fe5050;padding: 4px 10px;">
                                                                     <span>限时特价</span>
