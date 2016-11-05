@@ -60,7 +60,8 @@
                                         class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
                             <div class="col-xs-2 text-left">
-                                <input type="button" class="btn btn-info" value="搜索">
+                                <input type="button" class="btn btn-info" value="搜索">&nbsp;&nbsp;&nbsp;
+                                <input type="button" class="btn btn-info" value="订单导出" id="export">
                             </div>
                         </div>
                     </div>
@@ -110,6 +111,10 @@
         </div>
     </div>
 </div>
+<form action="" id="exportForm" method="post">
+	<input type="hidden" name="condition" id="condition">
+	<input type="hidden" name="returnType" id="returnType" value="4">
+</form>
 <%@ include file="../common_footer.jsp" %>
 <script type="text/javascript" src="${ctx }/static/js/orderException/buyer_reject_order_manage.js"></script>
 

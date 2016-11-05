@@ -35,6 +35,11 @@ public class OrderIssued extends Model{
 	private java.lang.Integer supplyId;
 
 	/**
+	  *	供应商名称
+	  */
+	private java.lang.String supplyName;
+	
+	/**
 	  *	下发状态 0：失败；1：成功
 	  */
 	private java.lang.String issuedStatus;
@@ -53,7 +58,14 @@ public class OrderIssued extends Model{
 	  *	订单下发最后更新时间
 	  */
 	private java.lang.String updateTime;
-
+	/**
+	 * 有无客户关联关系 0无 1有
+	 */
+	private java.lang.Integer cusRelationship;
+	/**
+	 * 是否已扫描标识0否1是
+	 */
+	private java.lang.Integer isScan;
 	/**
 	  *	订单下发ID主键
 	  */
@@ -172,11 +184,56 @@ public class OrderIssued extends Model{
 					"orderIssuedId=" + orderIssuedId + 
 					", flowId=" + flowId + 
 					", supplyId=" + supplyId + 
+					", supplyName=" + supplyName + 
 					", issuedStatus=" + issuedStatus + 
 					", issuedCount=" + issuedCount + 
 					", createTime=" + createTime + 
 					", updateTime=" + updateTime + 
+					", cusRelationship=" + cusRelationship + 
+					", isScan=" + isScan + 
 				"]";
+	}
+
+	/**
+	 * @return the cusRelationship
+	 */
+	public java.lang.Integer getCusRelationship() {
+		return cusRelationship;
+	}
+
+	/**
+	 * @param cusRelationship the cusRelationship to set
+	 */
+	public void setCusRelationship(java.lang.Integer cusRelationship) {
+		this.cusRelationship = cusRelationship;
+	}
+
+	/**
+	 * @return the isScan
+	 */
+	public java.lang.Integer getIsScan() {
+		return isScan;
+	}
+
+	/**
+	 * @param isScan the isScan to set
+	 */
+	public void setIsScan(java.lang.Integer isScan) {
+		this.isScan = isScan;
+	}
+
+	/**
+	 * @return the supplyName
+	 */
+	public java.lang.String getSupplyName() {
+		return supplyName;
+	}
+
+	/**
+	 * @param supplyName the supplyName to set
+	 */
+	public void setSupplyName(java.lang.String supplyName) {
+		this.supplyName = supplyName;
 	}
 }
 

@@ -14,7 +14,23 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.search.remote.yhyc.ProductSearchInterface;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
@@ -22,45 +38,85 @@ import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yao.trade.interfaces.credit.model.PeriodDubboResult;
 import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.adviser.AdviserModel;
 import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
+import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderProductBean;
+import com.yyw.yhyc.order.bo.CommonType;
+import com.yyw.yhyc.order.bo.Order;
+import com.yyw.yhyc.order.bo.OrderCombined;
+import com.yyw.yhyc.order.bo.OrderDelivery;
+import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
+import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderSettlement;
+import com.yyw.yhyc.order.bo.OrderTrace;
+import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.AdviserDto;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.BillTypeEnum;
+import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
+import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
+import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemOrderPayFlag;
+import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.manage.OrderManage;
 import com.yyw.yhyc.order.manage.OrderPayManage;
-import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
+import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
+import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.mapper.OrderPayMapper;
+import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
+import com.yyw.yhyc.order.mapper.OrderTraceMapper;
+import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
+import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.dto.ProductPromotionDto;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import com.yyw.yhyc.product.mapper.ProductInfoMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.DateUtils;
-import com.yyw.yhyc.order.utils.RandomUtil;
-import com.yyw.yhyc.product.bo.ProductInfo;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
-import com.yyw.yhyc.product.mapper.ProductInfoMapper;
-
 import com.yyw.yhyc.utils.ExcelUtil;
 import com.yyw.yhyc.utils.MyConfigUtil;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.search.remote.yhyc.ProductSearchInterface;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.bo.Pagination;
 
 @Service("orderService")
 public class OrderService {
@@ -175,6 +231,11 @@ public class OrderService {
 
 	@Autowired
 	private  OrderSettlementService orderSettlementService;
+
+	@Autowired
+	private OrderManage orderManage;
+
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -297,7 +358,7 @@ public class OrderService {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto) throws Exception{
+	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
@@ -341,9 +402,12 @@ public class OrderService {
 					continue;
 				}
 			}
-
+            // pc 订单来源设置
+			if(orderDto.getSource()==0){
+				orderDto.setSource(orderCreateDto.getSource());
+			};
 			/* 创建订单相关的所有信息 */
-			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
@@ -356,7 +420,7 @@ public class OrderService {
 		/* 从原始订单信息中筛选出合法的账期商品信息 */
 		List<OrderDto> periodTermOrderDtoList = getPeriodTermOrderDtoList(orderCreateDto.getOrderDtoList());
 		/* 创建账期订单 */
-		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto());
+		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 		log.info("创建订单接口-生成的订单数据(以账期商品为单位拆单),periodTermOrderList = " + periodTermOrderList);
 		resultMap.put("periodTermOrderList",periodTermOrderList);
 
@@ -447,6 +511,10 @@ public class OrderService {
 			orderDtoNew.setBillType(orderDto.getBillType());
 			orderDtoNew.setLeaveMessage(orderDto.getLeaveMessage());
 			orderDtoNew.setPaymentTerm(orderDto.getPaymentTerm());
+			orderDtoNew.setAdviserCode(orderDto.getAdviserCode());
+			orderDtoNew.setAdviserName(orderDto.getAdviserName());
+			orderDtoNew.setAdviserPhoneNumber(orderDto.getAdviserPhoneNumber());
+			orderDtoNew.setAdviserRemark(orderDto.getAdviserRemark());
 		}
 		return orderDtoNew;
 	}
@@ -485,7 +553,7 @@ public class OrderService {
 	 * @param userDto			买家用户信息
      * @return
      */
-	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto) throws Exception {
+	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
 		if( UtilHelper.isEmpty(periodTermOrderDtoList) || UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(userDto)){
 			return null;
 		}
@@ -524,7 +592,7 @@ public class OrderService {
 //				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
 //				payFlowId += "-" + (i+1);
 
-				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto);
+				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto,iPromotionDubboManageService);
 				if(!UtilHelper.isEmpty(orderNew)){
 					/* 账期订单生成结算数据 */
 					//savePaymentDateSettlement(userDto,orderNew.getOrderId()); 需求变量 在确认收货时生成结算数据
@@ -565,7 +633,7 @@ public class OrderService {
 	 * @param userDto		买家用户信息
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto) throws Exception{
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception{
 		if( UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())
 				|| UtilHelper.isEmpty(orderDelivery) ){
 			return null;
@@ -583,6 +651,9 @@ public class OrderService {
 		/* 冻结库存 */
 		productInventoryManage.frozenInventory(orderDto);
 
+		/* 若是活动商品，则减掉活动库存 */
+		orderManage.reducePromotionInventory(orderDto,iPromotionDubboManageService);
+
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
 
@@ -592,12 +663,10 @@ public class OrderService {
 		/* 删除购物车中相关的商品 */
 		deleteShoppingCart(orderDto);
 
-		/* TODO 短信、邮件等通知买家 */
-
-		/* TODO 自动取消订单相关的定时任务 */
-
 		return order;
 	}
+
+
 
 	private OrderDto calculateOrderPrice(OrderDto orderDto) {
 		if(null == orderDto || null == orderDto.getProductInfoDtoList()) return null;
@@ -633,6 +702,9 @@ public class OrderService {
 			shoppingCart.setProductId(productInfoDto.getId());
 			shoppingCart.setSupplyId(orderDto.getSupplyId());
 			shoppingCart.setFromWhere(productInfoDto.getFromWhere() == null ? ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere() : productInfoDto.getFromWhere());
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0){
+				shoppingCart.setPromotionId(productInfoDto.getPromotionId());
+			}
 			shoppingCartMapper.deleteByProperty(shoppingCart);
 		}
 	}
@@ -734,7 +806,14 @@ public class OrderService {
 		order.setOrgTotal(orderDto.getOrgTotal());//订单优惠后的金额(如果使用了优惠)
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
 		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
-
+		order.setSource(orderDto.getSource());//订单来源
+		/**
+		 * 销售顾问信息
+		 */
+		order.setAdviserCode(orderDto.getAdviserCode());
+		order.setAdviserName(orderDto.getAdviserName());
+		order.setAdviserPhoneNumber(orderDto.getAdviserPhoneNumber());
+		order.setAdviserRemark(orderDto.getAdviserRemark());
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
 		List<Order> orders = orderMapper.listByProperty(order);
@@ -778,6 +857,12 @@ public class OrderService {
 			orderDetail.setSpecification(productInfo.getSpec());//商品规格
 //			orderDetail.setBrandName(productInfo.getBrandId() + "");//todo 品牌名称
 			orderDetail.setFormOfDrug(productInfo.getDrugformType());//剂型
+			if (!UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+				orderDetail.setPromotionId(productInfoDto.getPromotionId());
+			}
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionName())){
+				orderDetail.setPromotionName(productInfoDto.getPromotionName());
+			}
 
 			//生产厂家
 			int manufacturesId = 0;
@@ -819,7 +904,8 @@ public class OrderService {
 	 * @return
      */
 	public Map<String,Object> validateProducts(UserDto userDto, OrderDto orderDto,
-											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService, ProductSearchInterface productSearchInterface){
+											   ICustgroupmanageDubbo iCustgroupmanageDubbo, IProductDubboManageService productDubboManageService,
+											   ProductSearchInterface productSearchInterface,IPromotionDubboManageService iPromotionDubboManageService){
 
 		/* 区分是来自进货单的商品还是极速下单的商品 */
 		int productFromFastOrderCount = 0;
@@ -919,13 +1005,16 @@ public class OrderService {
 
 			/* 查询价格 */
 			BigDecimal productPrice = null;
+			long startTime = System.currentTimeMillis();
 			try{
-				productPrice = getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,userDto,productSearchInterface) ;
+				productPrice = orderManage.getProductPrice(productInfoDto.getSpuCode(),orderDto.getCustId(),orderDto.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface) ;
 			}catch (Exception e){
 				log.error("统一校验订单商品接口,查询商品价格，发生异常," + e.getMessage(),e);
 				return returnFalse("查询商品价格失败",productFromFastOrderCount);
 			}
-			log.info("统一校验订单商品接口,查询商品价格:productPrice=" + productPrice);
+			long endTime = System.currentTimeMillis();
+
+			log.info("统一校验订单商品接口,查询完成，耗时："+ (endTime - startTime) +"毫秒，商品价格:productPrice=" + productPrice);
 			if(UtilHelper.isEmpty(productPrice)){
 				return returnFalse("查询商品价格失败",productFromFastOrderCount);
 			}
@@ -936,14 +1025,63 @@ public class OrderService {
 				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
-				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+				if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
+					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+					return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+				}
 			}
 
 			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
 			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
+			}
+
+
+			/* 校验活动商品相关的限购逻辑 */
+			/* 1、 非空校验*/
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0){
+				continue;
+			}
+			ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
+					seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
+			if(UtilHelper.isEmpty(productPromotionDto)){
+				continue;
+			}
+
+			/* 2、 校验 购买活动商品的数量 是否合法 */
+			if(productInfoDto.getProductCount() < productPromotionDto.getMinimumPacking()){
+				return returnFalse("购买活动商品的数量低于最小起批量",productFromFastOrderCount);
+			}
+
+			/* 3、查询该商品在该活动中的历史购买量*/
+			int buyedInHistory = 0;
+			if(!UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0){
+				ShoppingCart shoppingCart  = new ShoppingCart();
+				shoppingCart.setCustId(Integer.parseInt(buyer.getEnterpriseId()));
+				shoppingCart.setSupplyId(Integer.parseInt(seller.getEnterpriseId()));
+				shoppingCart.setSpuCode(productInfoDto.getSpuCode());
+				shoppingCart.setProductId(productInfoDto.getId());
+				shoppingCart.setPromotionId(productInfoDto.getPromotionId());
+				buyedInHistory  = shoppingCartMapper.countBuyedNumInHistory(shoppingCart);
+			}
+
+			/* 4、判断理论上可以以特价购买的数量 */
+			int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory;
+			if (canBuyByPromotionPrice <= 0){
+				return  returnFalse("该活动商品每人限购"+productPromotionDto.getLimitNum() +"件,您已购买了" + buyedInHistory +
+						"件,还能购买" + canBuyByPromotionPrice +"件。",productFromFastOrderCount);
+			}
+
+			/* 5、若还能以特价购买，则根据活动实时库存判断能买多少 */
+			if(productPromotionDto.getCurrentInventory() - canBuyByPromotionPrice <= 0 ){
+				if(productInfoDto.getProductCount() > productPromotionDto.getCurrentInventory()  ){
+					return returnFalse("本次购买的活动商品数量已超过活动实时库存",productFromFastOrderCount);
+				}
+			}else{
+				if(productInfoDto.getProductCount() > canBuyByPromotionPrice ){
+					return returnFalse("本次购买的活动商品数量已超过个人限购数量",productFromFastOrderCount);
+				}
 			}
 		}
 		log.info("统一校验订单商品接口:供应商[" + seller.getEnterpriseName() + "]("+seller.getEnterpriseId()+")的订单起售金额=" + seller.getOrderSamount() + ",在该供应商下购买的商品总额=" + productPriceCount);
@@ -956,6 +1094,8 @@ public class OrderService {
 		map.put("result", true);
 		return map;
 	}
+
+
 
 	private Map<String,Object> returnFalse(String message,Integer productFromFastOrderCount){
 		Map<String,Object> map = new HashMap<String, Object>();
@@ -971,59 +1111,6 @@ public class OrderService {
 		return map;
 	}
 
-	/**
-	 * 调用接口查询商品价格
-	 * @param spuCode               商品spu编码
-	 * @param buyerEnterprizeId    买家企业id
-	 * @param sellerEnterprizeId   商家企业id
-     * @param productSearchInterface
-	 * @return
-     */
-	private BigDecimal getProductPrice(String spuCode, Integer buyerEnterprizeId, Integer sellerEnterprizeId,
-									   ICustgroupmanageDubbo iCustgroupmanageDubbo, UserDto userDto, ProductSearchInterface productSearchInterface){
-		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
-			return null;
-		}
-		CustGroupDubboRet custGroupDubboRet = null;
-		try{
-			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 = " + userDto.getCustId());
-			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(userDto.getCustId()+"");
-			log.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
-		}catch (Exception e){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
-			return null;
-		}
-
-		String custGroupCode = null;//客户组编码
-		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
-			return null;
-		}else{
-			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
-		}
-
-		log.info("统一校验订单商品接口,查询商品价格(调用搜索接口 productSearchInterface= "+ productSearchInterface +")");
-		if(UtilHelper.isEmpty(productSearchInterface)){
-			return null;
-		}
-
-		//调用搜索的接口
-		Double productPrice = null;
-		try{
-			log.info("统一校验订单商品接口,查询商品价格，请求参数:\n buyerEnterprizeId=" + buyerEnterprizeId +
-					",sellerEnterprizeId=" + sellerEnterprizeId +",custGroupName="+custGroupCode +",spuCode="+spuCode);
-			productPrice = productSearchInterface.findProductShowPrice(buyerEnterprizeId+"",sellerEnterprizeId+"",spuCode,custGroupCode);
-			log.info("统一校验订单商品接口,查询商品价格，响应参数：" + productPrice );
-		}catch (Exception e){
-			log.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
-			return null;
-		}
-		if(UtilHelper.isEmpty(productPrice)){
-			return null;
-		}
-		return new BigDecimal(productPrice + "");
-	}
 
 	/**
 	 * 提交订单时，若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格
@@ -1050,26 +1137,7 @@ public class OrderService {
 		}
 	}
 
-	/**
-	 *
-	 * @param data  "[{group_code=61650851012264}, {group_code=61671525425650}]"
-	 * @return
-     */
-	private String getCustGroupCode(List<Map<String, Object>> data) {
-		if(UtilHelper.isEmpty(data)) return "";
-		String result = "";
-		for(Map map : data){
-			if(UtilHelper.isEmpty(map)) continue;
-			if(!UtilHelper.isEmpty(map.get("group_code")+"")){
-				if(UtilHelper.isEmpty(result)){
-					result += map.get("group_code")+"";
-				}else{
-					result += "," + map.get("group_code")+"";
-				}
-			}
-		}
-		return result;
-	}
+
 
 	/**
 	 * 根据订单号查询订单详情
@@ -1333,8 +1401,9 @@ public class OrderService {
 	 * 采购商取消订单
 	 * @param userDto
 	 * @param orderId
+	 * @param iPromotionDubboManageService 
 	 */
-	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId){
+	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId, IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -1371,7 +1440,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -1466,8 +1535,9 @@ public class OrderService {
 	 * 供应商取消订单
 	 * @param userDto
 	 * @param orderId
+	 * @param iPromotionDubboManageService 
 	 */
-	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult){
+	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult, IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");
 		}
@@ -1500,7 +1570,11 @@ public class OrderService {
 
 				}
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
+				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
 					orderSettlementMapper.save(orderSettlement);
 				}
@@ -1519,7 +1593,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1535,8 +1609,9 @@ public class OrderService {
 	 * @return
 	 * @param userDto
 	 * @param oldShoppingCartIdList
+	 * @param iAdviserManageDubbo
 	 */
-	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList) throws Exception {
+	public Map<String,Object> checkOrderPage(UserDto userDto, List<Integer> oldShoppingCartIdList, IAdviserManageDubbo iAdviserManageDubbo) throws Exception {
 		log.info("检查订单页的数据,userDto = " + userDto);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(oldShoppingCartIdList)){
 			return null;
@@ -1602,6 +1677,8 @@ public class OrderService {
 					shoppingCartDto.setProductSettlementPrice(temp.getProductSettlementPrice());
 					shoppingCartDto.setProductCodeCompany(temp.getProductCodeCompany());
 					shoppingCartDto.setFromWhere(temp.getFromWhere());
+					shoppingCartDto.setPromotionId(temp.getPromotionId());
+					shoppingCartDto.setPromotionName(temp.getPromotionName());
 					shoppingCartDtoList.add(shoppingCartDto);
 
 					productPriceCount = productPriceCount.add(temp.getProductPrice().multiply(new BigDecimal(temp.getProductCount())));
@@ -1610,6 +1687,21 @@ public class OrderService {
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
 			orderPriceCount = orderPriceCount.add(productPriceCount);
 			shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
+
+			//查询供应商的销售顾问信息
+			//custIdAndSupplyId.getSupplyId();
+			List<AdviserDto> adviserList = new ArrayList<AdviserDto>();
+			List<AdviserModel> list = iAdviserManageDubbo.queryByEnterId(custIdAndSupplyId.getSupplyId());
+			for(AdviserModel one : list){
+				AdviserDto adviserDto = new AdviserDto();
+				adviserDto.setAdviserCode(one.getAdviser_code());
+				adviserDto.setAdviserName(one.getAdviser_name());
+				adviserDto.setAdviserPhoneNumber(one.getPhone_number());
+				adviserDto.setAdviserRemark(one.getRemark());
+				adviserList.add(adviserDto);
+			}
+			shoppingCartListDto.setAdviserList(adviserList);
+
 			allShoppingCart.add(shoppingCartListDto);
 		}
 
@@ -1690,13 +1782,13 @@ public class OrderService {
 	 * 2 线下支付7天后未确认收款系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoPay(){
+	public void updateCancelOrderForNoPay(IPromotionDubboManageService iPromotionDubboManageService){
 		log.debug("开始准备系统自动取消未支付订单");
 		List<Order> lo=orderMapper.listCancelOrderForNoPay();
 		log.debug("要自动取消订单结果集是【" + Arrays.toString(lo.toArray()) + "】。");
 
 		for(Order od:lo){
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 		}
 		int count = orderMapper.cancelOrderForNoPay();
 		log.debug("成功取消未支付订单【" + count + "】条。");
@@ -1707,7 +1799,7 @@ public class OrderService {
 	 * 订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService){
+	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService,IPromotionDubboManageService iPromotionDubboManageService){
 		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
@@ -1723,7 +1815,9 @@ public class OrderService {
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
-					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)){
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)
+					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
 				orderSettlement.setConfirmSettlement("1");
 				orderSettlementMapper.save(orderSettlement);
@@ -1732,7 +1826,7 @@ public class OrderService {
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
 					payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
-					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 				}
 			}else{
 				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
@@ -1740,7 +1834,7 @@ public class OrderService {
 				}
 			}
 			//库存
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -2086,13 +2180,21 @@ public class OrderService {
 		OrderDto orderDto = new OrderDto();
 		orderDto.setSupplyName(data.get("supplyName"));
 		orderDto.setCustName(data.get("custName"));
-		orderDto.setPayType(Integer.valueOf("".equals(data.get("payType")) ?  "0":data.get("payType")));
+		if(StringUtils.isNotBlank(data.get("payType"))){
+			orderDto.setPayType(Integer.valueOf(data.get("payType")));
+		}
 		orderDto.setCreateBeginTime(data.get("createBeginTime"));
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
-		orderDto.setPayFlag(Integer.valueOf((data.get("payFlag")==null || "".equals(data.get("payFlag"))) ?  "0":data.get("payFlag")));
-
+		
+		if(StringUtils.isNotBlank(data.get("payFlag"))){
+			orderDto.setPayFlag(Integer.valueOf(data.get("payFlag")));
+		}
+		
+		if(StringUtils.isNotBlank(data.get("source"))){
+			orderDto.setSource(Integer.valueOf((data.get("source"))));
+		}
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderDto.getCreateEndTime(),"yyyy-MM-dd");
@@ -2224,7 +2326,7 @@ public class OrderService {
 	 * @param orderId
 	 * @param cancelResult
      */
-	public void  updateOrder4Manage(String userName,String orderId,String cancelResult){
+	public void  updateOrder4Manage(String userName,String orderId,String cancelResult,IPromotionDubboManageService iPromotionDubboManageService){
 		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误:订单编号为空");
 		}
@@ -2273,7 +2375,11 @@ public class OrderService {
 			}
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())){
+			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
@@ -2297,7 +2403,7 @@ public class OrderService {
 			}
 
 			//释放冻结库存
-			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName);
+			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName,iPromotionDubboManageService);
 
 
 		}else{
@@ -2312,9 +2418,12 @@ public class OrderService {
 	 * @param allShoppingCart
 	 * @param productDubboManageService
 	 * @param creditDubboService
-     * @return
+     * @param iPromotionDubboManageService
+	 * @return
      */
-	public List<ShoppingCartListDto> handleDataForPeriodTermOrder(UserDto userDto, List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService productDubboManageService, CreditDubboServiceInterface creditDubboService){
+	public List<ShoppingCartListDto> handleDataForPeriodTermOrder(UserDto userDto, List<ShoppingCartListDto> allShoppingCart,
+																  IProductDubboManageService productDubboManageService, CreditDubboServiceInterface creditDubboService,
+																  IPromotionDubboManageService iPromotionDubboManageService){
 
 		/* 组装购物车中的数据，查询客户账期、商品账期 */
 		List<PeriodParams> periodParamsList = queryAllPeriodList(allShoppingCart,creditDubboService);
@@ -2323,7 +2432,7 @@ public class OrderService {
 		allShoppingCart = convertAllShoppingCart(allShoppingCart,periodParamsList,creditDubboService);
 
 		/* 查询商品的信息 */
-		allShoppingCart = handlerProductInfo(allShoppingCart,productDubboManageService);
+		allShoppingCart = handlerProductInfo(allShoppingCart,productDubboManageService,iPromotionDubboManageService);
 		return allShoppingCart;
 	}
 
@@ -2387,7 +2496,8 @@ public class OrderService {
 	 * @param allShoppingCart
 	 * @return
 	 */
-	private List<ShoppingCartListDto> handlerProductInfo(List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService productDubboManageService) {
+	private List<ShoppingCartListDto> handlerProductInfo(List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService productDubboManageService,
+														 IPromotionDubboManageService iPromotionDubboManageService ) {
 		if(UtilHelper.isEmpty(allShoppingCart)) return allShoppingCart;
 
 		Map mapQuery = new HashMap();
@@ -2411,6 +2521,12 @@ public class OrderService {
 				}catch (Exception e){
 					log.error("检查订单页-查询商品信息失败，message:"+e.getMessage(),e);
 				}
+
+				/* 检查活动商品信息 */
+				ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,shoppingCartDto.getSpuCode(),
+						shoppingCartDto.getSupplyId()+"",shoppingCartDto.getPromotionId(),shoppingCartDto.getCustId()+"");
+
+
 			}
 		}
 		return allShoppingCart;
@@ -2458,6 +2574,7 @@ public class OrderService {
 				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				shoppingCartListDto.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDto);
 				continue;
 			}
@@ -2486,6 +2603,7 @@ public class OrderService {
 				shoppingCartListDto.setAccountAmount(0);
 				shoppingCartListDto.setProductPriceCount(s.getProductPriceCount());
 				shoppingCartListDto.setShoppingCartDtoList(s.getShoppingCartDtoList());
+				shoppingCartListDto.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDto);
 
 				continue;
@@ -2517,6 +2635,7 @@ public class OrderService {
 				shoppingCartListDtoPeriodTerm.setAccountAmount(1);
 				shoppingCartListDtoPeriodTerm.setShoppingCartDtoList(shoppingCartDtoListPeriodTerm);
 				shoppingCartListDtoPeriodTerm.setProductPriceCount(productPriceCountPeriodTerm);
+				shoppingCartListDtoPeriodTerm.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDtoPeriodTerm);
 			}
 
@@ -2529,6 +2648,7 @@ public class OrderService {
 				shoppingCartListDto.setAccountAmount(1);
 				shoppingCartListDto.setProductPriceCount(productPriceCount);
 				shoppingCartListDto.setShoppingCartDtoList(shoppingCartDtoList);
+				shoppingCartListDto.setAdviserList(s.getAdviserList());
 				resultShoppingCartList.add(shoppingCartListDto);
 			}
 		}
@@ -2672,7 +2792,7 @@ public class OrderService {
 	 * @param userDto
 	 * @param flowId
 	 */
-	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId){
+	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId,IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(flowId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -2709,7 +2829,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -3059,5 +3179,9 @@ public class OrderService {
 		}
 		orderBean.setProductList(productList);
 		return orderBean;
+	}
+
+	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
+		return orderMapper.getOrderDetailForExport(orderDto);
 	}
 }

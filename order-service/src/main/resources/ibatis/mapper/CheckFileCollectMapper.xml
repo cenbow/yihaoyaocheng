@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-7-28 17:34:56
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.CheckFileCollectMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	
+	<sql id="commonColumns">
+		 merId
+		, file_version
+		, countPay
+		, countPaySuc
+		, countPayAmt
+		, countPaySucAmt
+		, countPayCancel
+		, countPayCancelAmt
+		, countPayCancelSuc
+		, countPayCancelAmtSuc
+		, countRefundSuc
+		, countRefundAmtSuc
+		, countRefundCancel
+		, countRefundCancelAmt
+		, countRefundCancelSuc
+		, countRefundCancelAmtSuc
+		, create_time
+	
+	</sql>
+
+	
+	<insert id="insertCheckFileCollect" parameterType="CheckFileCollect">
+		<![CDATA[ INSERT INTO t_checkfile_collect ( ]]>
+			<include refid="commonColumns"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{merId}
+				, #{file_version}
+				, #{countPay}
+				, #{countPaySuc}
+				, #{countPayAmt}
+				, #{countPaySucAmt}
+				, #{countPayCancel}
+				, #{countPayCancelAmt}
+				, #{countPayCancelSuc}
+				, #{countPayCancelAmtSuc}
+				, #{countRefundSuc}
+				, #{countRefundAmtSuc}
+				, #{countRefundCancel}
+				, #{countRefundCancelAmt}
+				, #{countRefundCancelSuc}
+				, #{countRefundCancelAmtSuc}
+				, #{create_time}
+  ) 
+  ]]>
+   <selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="id" >
+        SELECT LAST_INSERT_ID() AS ID   
+      </selectKey>
+	</insert>
+	
+
+
+</mapper>

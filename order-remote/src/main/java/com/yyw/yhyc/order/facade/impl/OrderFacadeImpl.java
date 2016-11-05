@@ -13,8 +13,9 @@ package com.yyw.yhyc.order.facade.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.order.dto.*;
-import com.yyw.yhyc.order.dto.OrderDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,8 @@ public class OrderFacadeImpl implements OrderFacade {
 		this.orderService = orderService;
 	}
 
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 	/**
 	 * 通过主键查询实体对象
 	 *
@@ -160,7 +163,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @throws Exception
 	 */
 	public Map<String,Object> validateProducts(UserDto userDto,OrderDto orderDto) throws Exception {
-		return orderService.validateProducts(userDto,orderDto,null,null, null);
+		return orderService.validateProducts(userDto,orderDto,null,null, null,null);
 	}
 	/**
 	 * 查采购商订单查询
@@ -188,7 +191,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderId
 	 */
 	public void  buyerCancelOrder(UserDto userDto, Integer orderId){
-		orderService.updateOrderStatusForBuyer(userDto,orderId);
+		orderService.updateOrderStatusForBuyer(userDto,orderId,iPromotionDubboManageService);
 	}
 
 	/**
@@ -207,11 +210,11 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderId
 	 */
 	public void  sellerCancelOrder(UserDto userDto,Integer orderId,String cancelResult){
-		orderService.updateOrderStatusForSeller(userDto,orderId,cancelResult);
+		orderService.updateOrderStatusForSeller(userDto,orderId,cancelResult,iPromotionDubboManageService);
 	}
 
 	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
-		return orderService.checkOrderPage(userDto,null);
+		return orderService.checkOrderPage(userDto,null,null);
 	}
 	
 	/**
@@ -231,7 +234,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 */
 	public void cancelOrderForNoPay() {
-		orderService.updateCancelOrderForNoPay();
+		orderService.updateCancelOrderForNoPay(iPromotionDubboManageService);
 	}
 
 	/**

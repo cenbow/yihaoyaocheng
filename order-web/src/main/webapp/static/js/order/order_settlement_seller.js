@@ -13,6 +13,8 @@ $(function(){
 	doRefreshData(params);
 	//绑定 搜索的click事件
 	bindSearchBtn();
+	//绑定 导出事件
+	bindExportBtn();
 })
 
 
@@ -48,10 +50,16 @@ function pasretFormData(){
 }
 //绑定搜索按钮事件
 function bindSearchBtn(){
-	$("#searchForm .btn-info").on("click",function () {
+	$("#searchForm .btn-search").on("click",function () {
 		params.pageNo = 1;
 		pasretFormData();
 		doRefreshData(params);
+	})
+}
+//绑定导出事件
+function bindExportBtn(){
+	$("#searchForm .btn-export").on("click",function () {
+		$("#searchForm").submit();
 	})
 }
 
@@ -109,7 +117,7 @@ function doRefreshData(requestParam){
 		},
 		error : function(XMLHttpRequest, textStatus, errorThrown) {
 			tipRemove();
-			alertModal("查询结算列表错误");
+			alertModalb("查询结算列表错误");
 		}
 	});
 }
@@ -147,13 +155,17 @@ function fillTableJson(data) {
 			var orderSettlemnt = list[i];
 			var operation = typeToOperate(orderSettlemnt.businessType,orderSettlemnt.confirmSettlement,orderSettlemnt.orderSettlementId,orderSettlemnt.payType);
 			var tr = "<tr>";
+			tr += "<td>" + orderSettlemnt.orgFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.flowId + "</td>";
-			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.settleFlowId + "</td>";
 			tr += "<td>" + orderSettlemnt.businessTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.payTypeName + "</td>";
+			tr += "<td>" + orderSettlemnt.payName + "</td>";
 			tr += "<td>" + orderSettlemnt.custName + "</td>";
 			tr += "<td>" + orderSettlemnt.orderTime + "</td>";
 			tr += "<td>" + orderSettlemnt.settlementTime + "</td>";
 			tr += "<td>" +typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.settlementMoney) + "</td>";
+			tr += "<td>" + typeToshowMoney( orderSettlemnt.businessType,orderSettlemnt.refunSettlementMoney) + "</td>";
 			tr += "<td>" + orderSettlemnt.confirmSettlementName + "</td>";
 			tr += "<td>" +operation + "</td>";
 			tr += "</tr>";
@@ -178,6 +190,9 @@ function typeToOperate(businessType,confirm,settlementId,payType) {
 }
 
 function typeToshowMoney(businessType,money) {
+	if(money==null){
+		return "";
+	}
 	if(businessType==2||businessType==3||businessType==4){
 		return "-"+money;
 	}

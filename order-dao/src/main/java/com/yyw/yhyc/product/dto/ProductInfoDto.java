@@ -46,6 +46,31 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     private Integer fromWhere;
 
 
+    //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
+
+    /* 活动id */
+    private Integer promotionId;
+
+    /* 活动活动名称 */
+    private String promotionName;
+
+    /* 活动价格 */
+    private BigDecimal promotionPrice;
+
+    /* 活动最小起批量 */
+    private Integer promotionMinimumPacking;
+
+    /* 活动限购数量 */
+    private Integer promotionLimitNum;
+
+    /* 活动总库存 */
+    private Integer promotionSumInventory;
+
+    /* 活动实时库存 */
+    private Integer promotionCurrentInventory;
+
+//    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
+
 
     public BigDecimal getProductPrice() {
         return productPrice;
@@ -135,6 +160,61 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.fromWhere = fromWhere;
     }
 
+    public BigDecimal getPromotionPrice() {
+        return promotionPrice;
+    }
+
+    public void setPromotionPrice(BigDecimal promotionPrice) {
+        this.promotionPrice = promotionPrice;
+    }
+
+    public Integer getPromotionMinimumPacking() {
+        return promotionMinimumPacking;
+    }
+
+    public void setPromotionMinimumPacking(Integer promotionMinimumPacking) {
+        this.promotionMinimumPacking = promotionMinimumPacking;
+    }
+
+    public Integer getPromotionLimitNum() {
+        return promotionLimitNum;
+    }
+
+    public void setPromotionLimitNum(Integer promotionLimitNum) {
+        this.promotionLimitNum = promotionLimitNum;
+    }
+
+    public Integer getPromotionSumInventory() {
+        return promotionSumInventory;
+    }
+
+    public void setPromotionSumInventory(Integer promotionSumInventory) {
+        this.promotionSumInventory = promotionSumInventory;
+    }
+
+    public Integer getPromotionCurrentInventory() {
+        return promotionCurrentInventory;
+    }
+
+    public void setPromotionCurrentInventory(Integer promotionCurrentInventory) {
+        this.promotionCurrentInventory = promotionCurrentInventory;
+    }
+
+    public Integer getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Integer promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public String getPromotionName() {
+        return promotionName;
+    }
+
+    public void setPromotionName(String promotionName) {
+        this.promotionName = promotionName;
+    }
 
     @Override
     public String toString() {
@@ -146,10 +226,17 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
                 ", periodProduct=" + periodProduct +
                 ", paymentTerm=" + paymentTerm +
                 ", productCodeCompany='" + productCodeCompany + '\'' +
-                ", isChannel='" + isChannel + '\'' +
+                ", isChannel=" + isChannel +
                 ", manufactures='" + manufactures + '\'' +
                 ", manufactureId='" + manufactureId + '\'' +
-                ", fromWhere='" + fromWhere + '\'' +
+                ", fromWhere=" + fromWhere +
+                ", promotionId=" + promotionId +
+                ", promotionName=" + promotionName +
+                ", promotionPrice=" + promotionPrice +
+                ", promotionMinimumPacking=" + promotionMinimumPacking +
+                ", promotionLimitNum=" + promotionLimitNum +
+                ", promotionSumInventory=" + promotionSumInventory +
+                ", promotionCurrentInventory=" + promotionCurrentInventory +
                 "} " + super.toString();
     }
 }

@@ -505,8 +505,12 @@ public class OrderDeliveryDetailService {
 		log.info("HHJJ拒收支付类型systemPayType.getPayTypeId:"+systemPayType.getPayTypeId());
 		log.info("HHJJ拒收结算moneyTotal:"+moneyTotal);
 		log.info("HHJJ拒收:order.getOrderStatus:"+order.getOrderStatus());
-		orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
-		orderSettlementMapper.save(orderSettlement);
+		//如果全部拒收则不生成结算信息 支付宝结算时加 适用其它支付方式
+		if(!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
+			orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
+			orderSettlementMapper.save(orderSettlement);
+		}
+
 	}
 
 	/**

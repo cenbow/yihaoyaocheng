@@ -56,6 +56,10 @@
 		<result column="delay_times" property="delayTimes"/>
 		<result column="pay_flag" property="payFlag"/>
 		<result column="product_sort_count" property="productSortCount"/>
+		<result column="adviser_code" property="adviserCode"/>
+		<result column="adviser_name" property="adviserName"/>
+		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
+		<result column="adviser_remark" property="adviserRemark"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -99,6 +103,10 @@
 		<result column="delay_times" property="delayTimes"/>
 		<result column="pay_flag" property="payFlag"/>
 		<result column="product_sort_count" property="productSortCount"/>
+		<result column="adviser_code" property="adviserCode"/>
+		<result column="adviser_name" property="adviserName"/>
+		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
+		<result column="adviser_remark" property="adviserRemark"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -145,6 +153,10 @@
 		, delay_times
 		, pay_flag
 		, product_sort_count
+		,adviser_code
+		,adviser_name
+		,adviser_phone_number
+		,adviser_remark
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -185,6 +197,11 @@
 				, delay_times
 				, pay_flag
 				, product_sort_count
+				, source
+				,adviser_code
+				,adviser_name
+				,adviser_phone_number
+				,adviser_remark
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -227,6 +244,10 @@
 		, delay_times
 		, pay_flag
 		, product_sort_count
+		,adviser_code
+		,adviser_name
+		,adviser_phone_number
+		,adviser_remark
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -269,6 +290,10 @@
 		, T1.payment_term
 		, T1.pay_flag
 		, T1.product_sort_count
+		, T1.adviser_code
+		, T1.adviser_name
+		, T1.adviser_phone_number
+		, T1.adviser_remark
 	</sql>
 
 
@@ -312,6 +337,10 @@
 		, o.payment_term
 		, o.pay_flag
 		, o.product_sort_count
+		, o.adviser_code
+		, o.adviser_name
+		, o.adviser_phone_number
+		, o.adviser_remark
 	</sql>
 
 	<sql id="commonCondition">
@@ -472,6 +501,11 @@
 				, #{delayTimes}
 				, #{payFlag}
 				, #{productSortCount}
+				, #{source}
+				, #{adviserCode}
+				, #{adviserName}
+				, #{adviserPhoneNumber}
+				, #{adviserRemark}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -589,6 +623,18 @@
 		</if>
 		<if test="productSortCount!= null">
 			,product_sort_count=#{productSortCount}
+		</if>
+		<if test="adviserCode!= null">
+			,adviser_code=#{adviserCode}
+		</if>
+		<if test="adviserName!= null">
+			,adviser_name=#{adviserName}
+		</if>
+		<if test="adviserPhoneNumber!= null">
+			,adviser_phone_number=#{adviserPhoneNumber}
+		</if>
+		<if test="adviserRemark!= null">
+			,adviser_remark=#{adviserRemark}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
@@ -875,6 +921,44 @@
 			AND T2.DISTRICT = #{district}
 		</if>
 		GROUP BY ORDERSTATUS,T4.PAY_TYPE
+	</select>
+	
+	<select id="getOrderDetailForExport" parameterType="OrderDto" resultType="map" useCache="false">
+		SELECT  
+		<include refid="commonProcessDateOrderColumns"/>,d.receive_person,d.receive_address,d.receive_contact_phone,
+		d.delivery_address,d.delivery_person,d.delivery_contact_phone,t2.detail,t4.pay_type
+		from t_order o 
+		LEFT JOIN t_order_delivery d ON d.flow_id = o.flow_id
+		LEFT JOIN (SELECT group_concat(concat(t2.product_code,',',t2.product_name,',',t2.specification,',',
+		t2.manufactures,',',t2.product_price,',',t2.product_count,',',t2.product_settlement_price) separator ';') as detail,t2.order_id FROM
+        t_order_detail t2 GROUP BY t2.order_id) t2 ON t2.order_id = o.order_id
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON o.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE 1=1
+		<if test="flowId!= null and flowId!= ''">
+			AND o.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND o.cust_id = #{custId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND o.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND o.supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND o.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND o.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND o.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		GROUP BY o.order_id desc
 	</select>
 
 	<resultMap id="sellerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
@@ -1234,10 +1318,13 @@
 			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
 		</if>
 		<if test="orderStatus!= null and orderStatus!= ''">
-			AND T1.ORDER_STATUS = #{orderStatus}
+			AND find_in_set(T1.order_status,#{orderStatus})
 		</if>
 		<if test="payFlag!= null and payFlag!= ''">
 			<![CDATA[ AND T1.PAY_FLAG=#{payFlag} ]]>
+		</if>
+		<if test="source!= null and source!= ''">
+			<![CDATA[ AND T1.source=#{source} ]]>
 		</if>
 		ORDER BY T1.ORDER_ID DESC
 	</select>

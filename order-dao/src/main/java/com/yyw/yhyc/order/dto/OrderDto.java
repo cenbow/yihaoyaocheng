@@ -27,6 +27,7 @@ public class OrderDto extends Order {
     private String province;           //省编码
     private String city;               //市编码
     private String district;           //区编码
+    private int source;//订单来源
     /* 商品信息集合 */
     private List<ProductInfoDto> productInfoDtoList;
 
@@ -194,6 +195,7 @@ public class OrderDto extends Order {
         this.seller = seller;
     }
 
+
     @Override
     public String toString() {
         return "OrderDto{" +
@@ -216,6 +218,15 @@ public class OrderDto extends Order {
                 ", payFlagName='" + payFlagName + '\'' +
                 ", buyer=" + buyer +
                 ", seller=" + seller +
+                ", source=" + source +
                 "} " + super.toString();
+    }
+
+    public int getSource() {
+        return source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
     }
 }
