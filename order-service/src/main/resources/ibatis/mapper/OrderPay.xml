@@ -269,7 +269,7 @@
 		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no,p.order_money FROM
 		t_order_pay p,t_order o,t_order_combined c,t_account_pay_info a
 		WHERE p.pay_flow_id=c.pay_flow_id AND c.order_combined_id=o.order_combined_id
-		AND o.cust_id=a.cust_id AND a.account_status=1
+		AND o.supply_id=a.cust_id AND a.account_status=1
 		AND p.pay_flow_id=#{payFlowId} AND a.pay_type_id=#{payTypeId}
 	</select>
 
