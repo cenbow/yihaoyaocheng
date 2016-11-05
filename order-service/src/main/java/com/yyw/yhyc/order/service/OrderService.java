@@ -1401,8 +1401,9 @@ public class OrderService {
 	 * 采购商取消订单
 	 * @param userDto
 	 * @param orderId
+	 * @param iPromotionDubboManageService 
 	 */
-	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId){
+	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId, IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -1439,7 +1440,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -1534,8 +1535,9 @@ public class OrderService {
 	 * 供应商取消订单
 	 * @param userDto
 	 * @param orderId
+	 * @param iPromotionDubboManageService 
 	 */
-	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult){
+	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult, IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");
 		}
@@ -1591,7 +1593,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1780,13 +1782,13 @@ public class OrderService {
 	 * 2 线下支付7天后未确认收款系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoPay(){
+	public void updateCancelOrderForNoPay(IPromotionDubboManageService iPromotionDubboManageService){
 		log.debug("开始准备系统自动取消未支付订单");
 		List<Order> lo=orderMapper.listCancelOrderForNoPay();
 		log.debug("要自动取消订单结果集是【" + Arrays.toString(lo.toArray()) + "】。");
 
 		for(Order od:lo){
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 		}
 		int count = orderMapper.cancelOrderForNoPay();
 		log.debug("成功取消未支付订单【" + count + "】条。");
@@ -1797,7 +1799,7 @@ public class OrderService {
 	 * 订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService){
+	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService,IPromotionDubboManageService iPromotionDubboManageService){
 		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
@@ -1824,7 +1826,7 @@ public class OrderService {
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
 					payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
-					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 				}
 			}else{
 				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
@@ -1832,7 +1834,7 @@ public class OrderService {
 				}
 			}
 			//库存
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -2324,7 +2326,7 @@ public class OrderService {
 	 * @param orderId
 	 * @param cancelResult
      */
-	public void  updateOrder4Manage(String userName,String orderId,String cancelResult){
+	public void  updateOrder4Manage(String userName,String orderId,String cancelResult,IPromotionDubboManageService iPromotionDubboManageService){
 		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误:订单编号为空");
 		}
@@ -2401,7 +2403,7 @@ public class OrderService {
 			}
 
 			//释放冻结库存
-			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName);
+			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName,iPromotionDubboManageService);
 
 
 		}else{
@@ -2790,7 +2792,7 @@ public class OrderService {
 	 * @param userDto
 	 * @param flowId
 	 */
-	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId){
+	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId,IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(flowId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -2827,7 +2829,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
