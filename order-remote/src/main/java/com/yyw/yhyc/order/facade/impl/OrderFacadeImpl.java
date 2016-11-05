@@ -188,7 +188,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderId
 	 */
 	public void  buyerCancelOrder(UserDto userDto, Integer orderId){
-		orderService.updateOrderStatusForBuyer(userDto,orderId);
+		orderService.updateOrderStatusForBuyer(userDto,orderId,null);
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @param orderId
 	 */
 	public void  sellerCancelOrder(UserDto userDto,Integer orderId,String cancelResult){
-		orderService.updateOrderStatusForSeller(userDto,orderId,cancelResult);
+		orderService.updateOrderStatusForSeller(userDto,orderId,cancelResult,null);
 	}
 
 	public Map<String,Object> checkOrderPage(UserDto userDto) throws Exception {
@@ -231,7 +231,7 @@ public class OrderFacadeImpl implements OrderFacade {
 	 * @return
 	 */
 	public void cancelOrderForNoPay() {
-		orderService.updateCancelOrderForNoPay();
+		orderService.updateCancelOrderForNoPay(null);
 	}
 
 	/**

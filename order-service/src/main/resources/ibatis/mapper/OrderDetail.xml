@@ -40,6 +40,8 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="short_name" property="shortName"/>
 		<result column="spu_code" property="spuCode"/>
+		<result column="promotion_id" property="promotionId"/>
+		<result column="promotion_name" property="promotionName"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -66,6 +68,8 @@
 		, update_time
 		, short_name
 		, spu_code
+		, promotion_id
+		, promotion_name
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -119,6 +123,8 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, short_name
 		, spu_code
+		, promotion_id
+		, promotion_name
 	</sql>
 	
 	<sql id="commonCondition">
