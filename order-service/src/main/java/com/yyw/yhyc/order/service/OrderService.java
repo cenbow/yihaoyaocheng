@@ -1019,10 +1019,10 @@ public class OrderService {
 				return returnFalse("查询商品价格失败",productFromFastOrderCount);
 			}
 
-			/* 若商品的最新价格 小于等于0，则提示该商品无法够买 */
+			/* 若商品的最新价格 小于等于0，则提示该商品无法购买 */
 			if(productPrice.compareTo(new BigDecimal(0)) <= 0){
 				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
+				return returnFalse("部分商品您无法购买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
 			if(UtilHelper.isEmpty(productInfoDto.getPromotionId())){
