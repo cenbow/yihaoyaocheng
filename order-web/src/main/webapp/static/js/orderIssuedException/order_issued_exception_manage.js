@@ -176,6 +176,8 @@ function typeToOperate(order) {
     }
     if (order.isRelationship == 1 && order.dealStatus == 1 && order.orderStatus == 5) {//是否有客户关联关系，0否1是
         result += '<a href="javascript:issued(\'' + order.flowId + '\')"  class="btn btn-info btn-sm cancel_order margin-r-5">下发</a>';
+    }
+    if (order.isRelationship == 1 && order.dealStatus == 1 && (order.orderStatus !=1 || order.orderStatus !=2 || order.orderStatus !=3 || order.orderStatus !=4 || order.orderStatus !=7 || order.orderStatus !=9) ) {
         result += '<a href="javascript:orderMark(\'' + order.flowId + '\')"  class="btn btn-info btn-sm cancel_order margin-r-5">标记成功</a>';
     }
     result += '<a href="javascript:listOrderIssuedLog(\'' + order.flowId + '\')"  class="btn btn-info btn-sm cancel_order">日志</a>';
