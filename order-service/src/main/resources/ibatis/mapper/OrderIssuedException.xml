@@ -137,10 +137,14 @@
 		<if test="payTypeName!= null and payTypeName!= ''"> 
 			AND pay_type_name=#{payTypeName}
 		</if>
-		<if test="orderCreateTime!= null and orderCreateTime!= ''"> 
+		<if test="createEndTime!= null and createEndTime!= ''"> 
+			 <![CDATA[
+			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
+		 ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''"> 
 			 <![CDATA[
 			and  order_create_time > STR_TO_DATE( #{createBeginTime} ,'%Y-%m-%d')
-			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
 		 ]]>
 		</if>
 		<if test="receivePerson!= null and receivePerson!= ''"> 
@@ -336,7 +340,7 @@
 		<include refid="commonCondition"/>
 	</select>
 	
-	<select id="listPaginationByPropertyEx" parameterType="OrderIssuedExceptionDto" resultMap="OrderIssuedExceptionDtoMapper">
+	<select id="listPaginationByPropertyEx" parameterType="OrderIssuedExceptionDto" resultMap="OrderIssuedExceptionDtoMapper" useCache="false">
 		SELECT 
 				 a.flow_id
 				, a.cust_name
@@ -384,7 +388,7 @@
 		FROM t_order_issued_exception a LEFT JOIN t_cust_erp_relation b on a.cust_id = b.cust_code_yc AND a.SUPPLY_ID = b.seller_code LEFT JOIN t_order c ON a.flow_id = c.flow_id
 		WHERE 1=1 and a.order_create_time >  date_sub(curdate(), interval 1 month)
 		AND c.order_status not in ('3','4','7')
-		<include refid="commonConditionDto"/>
+		<include refid="commonCondition"/>
 		order by a.order_create_time desc
 	</select>
 </mapper>
