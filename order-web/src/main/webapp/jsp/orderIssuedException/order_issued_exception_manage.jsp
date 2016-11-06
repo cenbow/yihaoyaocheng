@@ -53,7 +53,6 @@
                             <div class="col-xs-3">
                                 <select class="form-control" id="exceptionType" name="exceptionType">
                                     <option value="">请选择</option>
-                                    <option value="0">下发超时未返回</option>
                                     <option value="1">无关联企业用户</option>
                                     <option value="2">下发返回错误</option>
                                     <option value="3">下发失败</option>
@@ -92,7 +91,7 @@
                 </form>
             </div>
             <div class="padding-t-20">
-                <button type="button" class="btn btn-info margin-r-10 editbtn" onclick="document.getElementById('form0').submit();">&nbsp;导出&nbsp;</button>
+                <button type="button" class="btn btn-info margin-r-10 editbtn" onclick="document.getElementById('form0').submit();">全部导出</button>
                 <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(1);">&nbsp;下发&nbsp;</button>
                 <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(2);">标记完成</button>
             </div>
