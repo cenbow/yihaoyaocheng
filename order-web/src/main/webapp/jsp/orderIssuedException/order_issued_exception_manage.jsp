@@ -74,12 +74,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">供应商</label>
-
-                            <div class="col-xs-3">
-                                <input type="text" id="supplyName" name="supplyName" class="form-control"/>
-                            </div>
-
                             <label for="custName" class="col-xs-2 control-label">采购商</label>
 
                             <div class="col-xs-3">
@@ -109,25 +103,23 @@
                             <div class="row">
                                 <table class="table table-box">
                                     <colgroup>
-                                        <col style="width: 5%;"/>
+                                        <col style="width: 2%;"/>
+                                        <col style="width: 6%;"/>
+                                        <col style="width: 8%;"/>
+                                        <col style="width: 8%;"/>
+                                        <col style="width: 8%;"/>
                                         <col style="width: 9%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 7%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 7%;"/>
-                                        <col style="width: 10%;"/>
                                         <col style="width: 6%;"/>
                                         <col style="width: 7%;"/>
-                                        <col style="width: 7%;"/>
+                                        <col style="width: 17%;"/>
                                         <col style="width: 8%;"/>
-                                        <col style="width: 18%;"/>
+                                        <col style="width: 21%;"/>
                                     </colgroup>
                                     <thead>
                                     <tr>
                                         <th><input type="checkbox" id="checkboxTitle" /></th>
                                         <th>订单编号</th>
                                         <th>下单时间</th>
-                                        <th>供应商</th>
                                         <th>订单状态</th>
                                         <th>支付类型</th>
                                         <th>采购商</th>
