@@ -507,7 +507,7 @@ public class OrderDeliveryDetailService {
 		log.info("HHJJ拒收:order.getOrderStatus:"+order.getOrderStatus());
 		//如果全部拒收则不生成结算信息 支付宝结算时加 适用其它支付方式
 		//当是线下支付时 SettlementMoney 会为空 不会生成结算
-		if(UtilHelper.isEmpty(orderSettlement.getSettlementMoney())&&!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
+		if(!UtilHelper.isEmpty(orderSettlement.getSettlementMoney())&&!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
 			orderSettlementService.parseSettlementProvince(orderSettlement,order.getCustId()+"");
 			orderSettlementMapper.save(orderSettlement);
 		}
