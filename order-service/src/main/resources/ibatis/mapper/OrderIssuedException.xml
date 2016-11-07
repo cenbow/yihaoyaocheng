@@ -137,10 +137,14 @@
 		<if test="payTypeName!= null and payTypeName!= ''"> 
 			AND pay_type_name=#{payTypeName}
 		</if>
-		<if test="orderCreateTime!= null and orderCreateTime!= ''"> 
+		<if test="createEndTime!= null and createEndTime!= ''"> 
+			 <![CDATA[
+			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
+		 ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''"> 
 			 <![CDATA[
 			and  order_create_time > STR_TO_DATE( #{createBeginTime} ,'%Y-%m-%d')
-			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
 		 ]]>
 		</if>
 		<if test="receivePerson!= null and receivePerson!= ''"> 
@@ -201,6 +205,16 @@
 		</if>
 		<if test="exceptionType!= null and exceptionType!= ''"> 
 			AND a.exception_type=#{exceptionType}
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''"> 
+			 <![CDATA[
+			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
+		 ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''"> 
+			 <![CDATA[
+			and  order_create_time > STR_TO_DATE( #{createBeginTime} ,'%Y-%m-%d')
+		 ]]>
 		</if>
 	</sql>
 	
@@ -336,7 +350,7 @@
 		<include refid="commonCondition"/>
 	</select>
 	
-	<select id="listPaginationByPropertyEx" parameterType="OrderIssuedExceptionDto" resultMap="OrderIssuedExceptionDtoMapper">
+	<select id="listPaginationByPropertyEx" parameterType="OrderIssuedExceptionDto" resultMap="OrderIssuedExceptionDtoMapper" useCache="false">
 		SELECT 
 				 a.flow_id
 				, a.cust_name

@@ -40,9 +40,8 @@ import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
-import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yaoex.usermanage.model.adviser.AdviserModel;
-import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
+
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
@@ -88,8 +87,7 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.manage.OrderManage;
-import com.yyw.yhyc.order.manage.OrderPayManage;
+import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
@@ -106,11 +104,7 @@ import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.bo.ProductInventory;
-import com.yyw.yhyc.product.dto.ProductPromotionDto;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
-import com.yyw.yhyc.product.manage.ProductInventoryManage;
-import com.yyw.yhyc.product.mapper.ProductInfoMapper;
-import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.product.dto.ProductInfoDto;import com.yyw.yhyc.product.dto.ProductPromotionDto;import com.yyw.yhyc.product.manage.ProductInventoryManage;import com.yyw.yhyc.product.mapper.ProductInfoMapper;import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
@@ -358,7 +352,7 @@ public class OrderService {
 	 * @param orderCreateDto
 	 * @throws Exception
 	 */
-	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto) throws Exception{
+	public Map<String,Object> createOrder(OrderCreateDto orderCreateDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception{
 
 		if(UtilHelper.isEmpty(orderCreateDto) || UtilHelper.isEmpty(orderCreateDto.getReceiveAddressId()) || UtilHelper.isEmpty(orderCreateDto.getBillType())
 				|| UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()) || UtilHelper.isEmpty(orderCreateDto.getUserDto())){
@@ -407,7 +401,7 @@ public class OrderService {
 				orderDto.setSource(orderCreateDto.getSource());
 			};
 			/* 创建订单相关的所有信息 */
-			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto());
+			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 
 			if(null == orderNew) continue;
 			orderNewList.add(orderNew);
@@ -420,7 +414,7 @@ public class OrderService {
 		/* 从原始订单信息中筛选出合法的账期商品信息 */
 		List<OrderDto> periodTermOrderDtoList = getPeriodTermOrderDtoList(orderCreateDto.getOrderDtoList());
 		/* 创建账期订单 */
-		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto());
+		List<Order> periodTermOrderList =  createPeriodTermOrder(periodTermOrderDtoList,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 		log.info("创建订单接口-生成的订单数据(以账期商品为单位拆单),periodTermOrderList = " + periodTermOrderList);
 		resultMap.put("periodTermOrderList",periodTermOrderList);
 
@@ -553,7 +547,7 @@ public class OrderService {
 	 * @param userDto			买家用户信息
      * @return
      */
-	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto) throws Exception {
+	private List<Order> createPeriodTermOrder(List<OrderDto> periodTermOrderDtoList, OrderDelivery orderDelivery, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
 		if( UtilHelper.isEmpty(periodTermOrderDtoList) || UtilHelper.isEmpty(orderDelivery) || UtilHelper.isEmpty(userDto)){
 			return null;
 		}
@@ -592,7 +586,7 @@ public class OrderService {
 //				String payFlowId = RandomUtil.createOrderPayFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),userDto.getCustId());
 //				payFlowId += "-" + (i+1);
 
-				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto);
+				Order orderNew = createOrderInfo(orderDtoNew,orderDelivery,userDto,iPromotionDubboManageService);
 				if(!UtilHelper.isEmpty(orderNew)){
 					/* 账期订单生成结算数据 */
 					//savePaymentDateSettlement(userDto,orderNew.getOrderId()); 需求变量 在确认收货时生成结算数据
@@ -633,7 +627,7 @@ public class OrderService {
 	 * @param userDto		买家用户信息
 	 * @return
 	 */
-	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto) throws Exception{
+	private Order createOrderInfo(OrderDto orderDto, OrderDelivery orderDelivery, UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService) throws Exception{
 		if( UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList())
 				|| UtilHelper.isEmpty(orderDelivery) ){
 			return null;
@@ -651,6 +645,9 @@ public class OrderService {
 		/* 冻结库存 */
 		productInventoryManage.frozenInventory(orderDto);
 
+		/* 若是活动商品，则减掉活动库存 */
+		orderManage.reducePromotionInventory(orderDto,iPromotionDubboManageService);
+
 		/* 订单配送发货信息表 */
 		insertOrderDeliver(order, orderDelivery);
 
@@ -660,12 +657,10 @@ public class OrderService {
 		/* 删除购物车中相关的商品 */
 		deleteShoppingCart(orderDto);
 
-		/* TODO 短信、邮件等通知买家 */
-
-		/* TODO 自动取消订单相关的定时任务 */
-
 		return order;
 	}
+
+
 
 	private OrderDto calculateOrderPrice(OrderDto orderDto) {
 		if(null == orderDto || null == orderDto.getProductInfoDtoList()) return null;
@@ -1018,15 +1013,17 @@ public class OrderService {
 				return returnFalse("查询商品价格失败",productFromFastOrderCount);
 			}
 
-			/* 若商品的最新价格 小于等于0，则提示该商品无法够买 */
+			/* 若商品的最新价格 小于等于0，则提示该商品无法购买 */
 			if(productPrice.compareTo(new BigDecimal(0)) <= 0){
 				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("部分商品您无法够买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
+				return returnFalse("部分商品您无法购买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-			if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
-				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
-				return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+				if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
+					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+					return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+				}
 			}
 
 			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
@@ -1034,13 +1031,18 @@ public class OrderService {
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 
+
 			/* 校验活动商品相关的限购逻辑 */
 			/* 1、 非空校验*/
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0){
+				continue;
+			}
 			ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
 					seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
 			if(UtilHelper.isEmpty(productPromotionDto)){
 				continue;
 			}
+
 			/* 2、 校验 购买活动商品的数量 是否合法 */
 			if(productInfoDto.getProductCount() < productPromotionDto.getMinimumPacking()){
 				return returnFalse("购买活动商品的数量低于最小起批量",productFromFastOrderCount);
@@ -1393,8 +1395,9 @@ public class OrderService {
 	 * 采购商取消订单
 	 * @param userDto
 	 * @param orderId
+	 * @param iPromotionDubboManageService 
 	 */
-	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId){
+	public void  updateOrderStatusForBuyer(UserDto userDto,Integer orderId, IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -1431,7 +1434,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
@@ -1526,8 +1529,9 @@ public class OrderService {
 	 * 供应商取消订单
 	 * @param userDto
 	 * @param orderId
+	 * @param iPromotionDubboManageService 
 	 */
-	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult){
+	public void  updateOrderStatusForSeller(UserDto userDto,Integer orderId,String cancelResult, IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误");
 		}
@@ -1583,7 +1587,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -1772,13 +1776,13 @@ public class OrderService {
 	 * 2 线下支付7天后未确认收款系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoPay(){
+	public void updateCancelOrderForNoPay(IPromotionDubboManageService iPromotionDubboManageService){
 		log.debug("开始准备系统自动取消未支付订单");
 		List<Order> lo=orderMapper.listCancelOrderForNoPay();
 		log.debug("要自动取消订单结果集是【" + Arrays.toString(lo.toArray()) + "】。");
 
 		for(Order od:lo){
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 		}
 		int count = orderMapper.cancelOrderForNoPay();
 		log.debug("成功取消未支付订单【" + count + "】条。");
@@ -1789,7 +1793,7 @@ public class OrderService {
 	 * 订单7个自然日未发货系统自动取消
 	 * @return
 	 */
-	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService){
+	public void updateCancelOrderForNoDelivery(CreditDubboServiceInterface creditDubboService,IPromotionDubboManageService iPromotionDubboManageService){
 		List<Order> lo=orderMapper.listOrderForNoDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
@@ -1816,7 +1820,7 @@ public class OrderService {
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
 					payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
-					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 				}
 			}else{
 				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
@@ -1824,7 +1828,7 @@ public class OrderService {
 				}
 			}
 			//库存
-			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin");
+			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -2316,7 +2320,7 @@ public class OrderService {
 	 * @param orderId
 	 * @param cancelResult
      */
-	public void  updateOrder4Manage(String userName,String orderId,String cancelResult){
+	public void  updateOrder4Manage(String userName,String orderId,String cancelResult,IPromotionDubboManageService iPromotionDubboManageService){
 		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误:订单编号为空");
 		}
@@ -2393,7 +2397,7 @@ public class OrderService {
 			}
 
 			//释放冻结库存
-			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName);
+			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName,iPromotionDubboManageService);
 
 
 		}else{
@@ -2782,7 +2786,7 @@ public class OrderService {
 	 * @param userDto
 	 * @param flowId
 	 */
-	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId){
+	public void  updateOrderStatusForBuyer(UserDto userDto,String flowId,IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(userDto.getCustId()) || UtilHelper.isEmpty(flowId)){
 			throw new RuntimeException("参数错误");
 		}
@@ -2819,7 +2823,7 @@ public class OrderService {
 				orderTraceMapper.save(orderTrace);
 
 				//释放冻结库存
-				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName());
+				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
 
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());

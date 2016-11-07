@@ -317,24 +317,6 @@ public class ShoppingCartService {
 			throw  new Exception("购买数量不能大于9999999");
 		}
 
-		/* 校验商品库存 */
-		/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
-		int countByid=0;
-		if(!UtilHelper.isEmpty(shoppingCarts)){
-			countByid=shoppingCarts.get(0).getProductCount();
-		}
-		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
-		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
-			throw new Exception("商品没有库存");
-		}
-		if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
-			shoppingCart.setProductCount(product.getFrontInventory());
-		}else{
-			shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
-		}
-		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-
-
 		ShoppingCartDto newNormalProductShoppingCart = null;
 		/* 判断该商品是否是活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCart.getPromotionId()) && shoppingCart.getPromotionId() > 0 ){
@@ -343,6 +325,24 @@ public class ShoppingCartService {
 			newNormalProductShoppingCart = handleActivityProduct(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}else{
 			/* 处理普通商品(原来的逻辑，代码不变) */
+			/* 校验商品库存 */
+			/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
+			int countByid=0;
+			if(!UtilHelper.isEmpty(shoppingCarts)){
+				countByid=shoppingCarts.get(0).getProductCount();
+			}
+			ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+			if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
+				throw new Exception("商品没有库存");
+			}
+			if((countByid+shoppingCart.getProductCount())>product.getFrontInventory()){
+				shoppingCart.setProductCount(product.getFrontInventory());
+			}else{
+				shoppingCart.setProductCount(countByid + shoppingCart.getProductCount());
+			}
+			shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+
+
 			logger.info("加入进货单：处理普通商品");
 			/* 新添加商品  或 添加已存在的商品逻辑 */
 			if(UtilHelper.isEmpty(shoppingCarts)){
@@ -721,11 +721,12 @@ public class ShoppingCartService {
 		int addedInShoppingCart = 0 ;
 		if(!UtilHelper.isEmpty(shoppingCarts) ){
 			addedInShoppingCart = shoppingCarts.get(0).getProductCount();
+			queryCondition = shoppingCarts.get(0);
 		}
 
 		Map<String,ShoppingCart> exceedActivityLimitedNumMap = null;
 		/* 表示添加活动商品到购物车 */
-		if(UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || shoppingCart.getShoppingCartId() <= 0){
+		if(UtilHelper.isEmpty(queryCondition) || UtilHelper.isEmpty(queryCondition.getShoppingCartId())){
 			/* 校验是否超过活动商品限购数量 */
 			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
@@ -739,18 +740,19 @@ public class ShoppingCartService {
 
 		/* 表示修改购物车中商品的数量 */
 		}else{
-			ShoppingCart shoppingCartOrigin = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
-			shoppingCartOrigin.setProductCount(shoppingCart.getProductCount());
-			shoppingCartOrigin.setProductPrice(shoppingCart.getProductPrice());
-			shoppingCartOrigin.setProductSettlementPrice(shoppingCart.getProductSettlementPrice());
+
 			/* 校验是否超过活动商品限购数量 */
-			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCartOrigin,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
+			exceedActivityLimitedNumMap = isExceedActivityLimitedNum(shoppingCart,addedInShoppingCart,iPromotionDubboManageService,userDto,iCustgroupmanageDubbo,productSearchInterface);
 			if(!UtilHelper.isEmpty(exceedActivityLimitedNumMap) && !UtilHelper.isEmpty(exceedActivityLimitedNumMap.get("activityProduct"))){
 				ShoppingCart activityProductShoppingCart = exceedActivityLimitedNumMap.get("activityProduct");
 				if(!UtilHelper.isEmpty(activityProductShoppingCart)){
 					String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" : userDto.getUserName();
-					activityProductShoppingCart.setCreateUser( userName);
-					shoppingCartMapper.update(activityProductShoppingCart);
+					ShoppingCart shoppingCartOrigin = shoppingCartMapper.getByPK(queryCondition.getShoppingCartId());
+					shoppingCartOrigin.setProductCount( activityProductShoppingCart.getProductCount());
+					shoppingCartOrigin.setProductSettlementPrice(shoppingCartOrigin.getProductPrice().multiply(new BigDecimal(shoppingCartOrigin.getProductCount())));
+					shoppingCartOrigin.setUpdateUser(userName);
+					shoppingCartMapper.update(shoppingCartOrigin);
+
 				}
 			}
 		}
@@ -763,11 +765,54 @@ public class ShoppingCartService {
 		ShoppingCartDto shoppingCartDto = null;
 		ShoppingCart normalProductShoppingCart = exceedActivityLimitedNumMap.get("normalProduct");
 		if(!UtilHelper.isEmpty(normalProductShoppingCart)){
-			/* 移除活动相关信息 */
-			normalProductShoppingCart.setPromotionId(null);
-			normalProductShoppingCart.setPromotionName(null);
-			normalProductShoppingCart.setCreateUser(userDto.getUserName());
-			shoppingCartMapper.save(normalProductShoppingCart);
+
+			/* 判断是否已经以原价新增过该商品，如果新增过，则修改数量 */
+			queryCondition = new ShoppingCart();
+			queryCondition.setCustId(shoppingCart.getCustId());
+			queryCondition.setSpuCode(shoppingCart.getSpuCode());
+			queryCondition.setSupplyId(shoppingCart.getSupplyId());
+			queryCondition.setFromWhere(shoppingCart.getFromWhere());
+			logger.info("加入进货单：是否已经以原价新增过该商品，查询条件condition=" + queryCondition);
+			shoppingCarts = shoppingCartMapper.listByProperty(queryCondition);
+			logger.info("加入进货单：是否已经以原价新增过该商品，查询结果shoppingCarts=" + shoppingCarts);
+			if(!UtilHelper.isEmpty(shoppingCarts) && shoppingCarts.size() == 1){
+				queryCondition = shoppingCarts.get(0);
+			}else{
+				queryCondition.setProductCount(0);
+				logger.error("加入进货单：是否已经以原价新增过该商品，数据库有多条该商品数据");
+			}
+			if(!UtilHelper.isEmpty(queryCondition.getPromotionId())){
+				return null;
+			}
+
+			/* 查询商品库存 */
+			ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+			if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
+				throw new Exception("商品没有库存");
+			}
+			if((queryCondition.getProductCount() + normalProductShoppingCart.getProductCount())>product.getFrontInventory()){
+				normalProductShoppingCart.setProductCount(product.getFrontInventory());
+			}else{
+				normalProductShoppingCart.setProductCount(queryCondition.getProductCount() + normalProductShoppingCart.getProductCount());
+			}
+			normalProductShoppingCart.setProductSettlementPrice(normalProductShoppingCart.getProductPrice().multiply(new BigDecimal(normalProductShoppingCart.getProductCount())));
+
+			/* 修改原数据的数量 */
+			if(!UtilHelper.isEmpty(queryCondition) && !UtilHelper.isEmpty(queryCondition.getShoppingCartId())){
+				queryCondition.setProductCount(normalProductShoppingCart.getProductCount());
+				queryCondition.setProductPrice(normalProductShoppingCart.getProductPrice());
+				queryCondition.setProductSettlementPrice(queryCondition.getProductPrice().multiply(new BigDecimal(queryCondition.getProductCount())));
+				String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" :userDto.getUserName();
+				queryCondition.setCreateUser(userName);
+				shoppingCartMapper.update(queryCondition);
+
+			/* 新增一条数据 */
+			}else{
+				String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" :userDto.getUserName();
+				normalProductShoppingCart.setCreateUser(userName);
+				shoppingCartMapper.save(normalProductShoppingCart);
+			}
+
 			List<ShoppingCart> newShoppingCartList = shoppingCartMapper.listByProperty(normalProductShoppingCart);
 			if(newShoppingCartList != null && newShoppingCartList.size() == 1){
 				normalProductShoppingCart = newShoppingCartList.get(0);
@@ -864,19 +909,49 @@ public class ShoppingCartService {
 		logger.info("判断是否若超出活动商品限购数量:本次购买数量=" + shoppingCart.getProductCount() + ",\n该商品在该活动中的历史购买量buyedInHistory=" + buyedInHistory+",\n个人限购=" + productPromotionDto.getLimitNum() + ",\n活动实时库存=" + productPromotionDto.getCurrentInventory()) ;
 
 		/* 判断理论上可以以特价购买的数量 */
-		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory - addedInShoppingCart;
+		int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory;
 		if(canBuyByPromotionPrice <= 0 ){
-			canBuyByProductPriceNum = shoppingCart.getProductCount();
+			canBuyByProductPriceNum = shoppingCart.getProductCount() > addedInShoppingCart ? shoppingCart.getProductCount()-addedInShoppingCart : shoppingCart.getProductCount();
 			canBuyByPromotionPriceNum = 0;
 		}else{
-			if(productPromotionDto.getCurrentInventory() - canBuyByPromotionPrice <= 0 ){
-				canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
-				canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
+			/* 先判断购物车里面已经添加了多少 */
+			int canBeAdd = canBuyByPromotionPrice - addedInShoppingCart;
+			//购物车中还能增加活动商品
+			if(canBeAdd > 0  ){
+				if(shoppingCart.getProductCount() > canBeAdd ){////继续添加到购物车,并添加一条原价商品
+					canBuyByPromotionPriceNum = addedInShoppingCart + canBeAdd;
+					canBuyByProductPriceNum = shoppingCart.getProductCount() - canBuyByPromotionPriceNum;
+				}else{//继续添加到购物车
+					if(productPromotionDto.getCurrentInventory() - shoppingCart.getProductCount() <= 0 ){
+						canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
+						canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
+					}else{
+						canBuyByPromotionPriceNum = shoppingCart.getProductCount();
+						canBuyByProductPriceNum = 0;
+					}
+				}
 			}else{
-				canBuyByPromotionPriceNum = shoppingCart.getProductCount();
-				canBuyByProductPriceNum = shoppingCart.getProductCount() - canBuyByPromotionPrice;
+				int canBeReduce =  shoppingCart.getProductCount() - canBuyByPromotionPrice;
+				if(canBeReduce > 0){ //新增原价商品
+					canBuyByPromotionPriceNum = 0;
+					canBuyByProductPriceNum = canBeReduce;
+				}else{ //特价商品减少
+					//判断活动库存
+					if(productPromotionDto.getCurrentInventory() - shoppingCart.getProductCount() <= 0 ){
+						canBuyByPromotionPriceNum = productPromotionDto.getCurrentInventory();
+						canBuyByProductPriceNum = shoppingCart.getProductCount() -  productPromotionDto.getCurrentInventory();
+					}else{
+						canBuyByPromotionPriceNum = shoppingCart.getProductCount();
+						canBuyByProductPriceNum = 0;
+					}
+
+				}
 			}
 		}
+
+
+
+
 		logger.info("判断是否若超出活动商品限购数量:能够以活动特价购买的商品数量canBuyByPromotionPriceNum=" + canBuyByPromotionPriceNum +",\n能够以商品原价购买的数量canBuyByProductPriceNum=" + canBuyByProductPriceNum) ;
 
 		Map<String,ShoppingCart> resultMap = new HashMap<>();

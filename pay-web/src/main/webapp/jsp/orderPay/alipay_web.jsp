@@ -23,7 +23,7 @@
     </script>
 </head>
 <body>
-支付宝-请求支付接口测试：
+支付宝跳转中...
 <br/>
 
 <%--<form name="payment" action="${payRequestParamMap.payRequestUrl}" method="get">--%>

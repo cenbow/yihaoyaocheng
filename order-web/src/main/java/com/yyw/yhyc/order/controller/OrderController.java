@@ -20,8 +20,7 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.Pagination;import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
@@ -211,12 +210,14 @@ public class OrderController extends BaseJsonController {
 				orderDto.setAdviserCode(adviserInfo[0]);
 				orderDto.setAdviserName(adviserInfo[1]);
 				orderDto.setAdviserPhoneNumber(adviserInfo[2]);
-				orderDto.setAdviserRemark(adviserInfo[3]);
+				if(adviserInfo.length > 3){
+					orderDto.setAdviserRemark(adviserInfo[3]);
+				}
 			}
 		}
 		//订单来源 限用pc
 		orderCreateDto.setSource(1);
-		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto);
+		Map<String,Object> newOrderMap = orderService.createOrder(orderCreateDto,iPromotionDubboManageService);
 		List<Order> orderList = (List<Order>) newOrderMap.get("orderNewList");
 
 		String orderIdStr = "";
@@ -416,7 +417,7 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		UserDto userDto = super.getLoginUser();
-		orderService.updateOrderStatusForBuyer(userDto, orderId);
+		orderService.updateOrderStatusForBuyer(userDto, orderId,iPromotionDubboManageService);
 	}
 
 	/**
@@ -448,7 +449,7 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public void sellerCancelOrder(@RequestBody Order order){
 		UserDto userDto = super.getLoginUser();
-		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
+		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult(),iPromotionDubboManageService);
 
 		try {
 			if(UtilHelper.isEmpty(creditDubboService)){

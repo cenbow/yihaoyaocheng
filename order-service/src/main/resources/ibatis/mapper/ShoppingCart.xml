@@ -192,6 +192,9 @@
 		<if test="promotionId!= null and promotionId !=''">
 			AND promotion_id = #{promotionId}
 		</if>
+		<if test="promotionId == null || promotionId == ''">
+			AND promotion_id  is null
+		</if>
 		<if test="promotionName!= null and promotionName !=''">
 			AND promotion_name = #{promotionName}
 		</if>
@@ -462,9 +465,9 @@
 	</select>
 
 	<select id="countBuyedNumInHistory" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="int" useCache="false">
-		SELECT count(1) AS totalcount
+		SELECT ifnull(SUM(od.product_count),0) AS totalcount
 		FROM t_order o,t_order_detail od
-		WHERE o.order_id = od.order_id
+		WHERE o.order_id = od.order_id and o.order_status not in(2,3,4,7)
 		<if test="custId!= null and custId!= ''">
 			AND o.cust_id=#{custId}
 		</if>

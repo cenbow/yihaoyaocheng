@@ -14,8 +14,9 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.dto.ProductPromotionDto;
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
@@ -175,4 +176,58 @@ public class OrderManage {
 		return result;
 	}
 
+	/**
+	 * 若是活动商品，则减掉活动商品库存
+	 * @param orderDto
+	 * @param iPromotionDubboManageService
+	 */
+	public void reducePromotionInventory(OrderDto orderDto, IPromotionDubboManageService iPromotionDubboManageService) {
+		if(UtilHelper.isEmpty(orderDto) || UtilHelper.isEmpty(orderDto.getProductInfoDtoList()) || UtilHelper.isEmpty(iPromotionDubboManageService)){
+
+			return ;
+		}
+		long startTime,endTime;
+		Map params = new HashMap();
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+			if(UtilHelper.isEmpty(productInfoDto) || UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0
+					|| UtilHelper.isEmpty(productInfoDto.getProductCount()) || productInfoDto.getProductCount() <= 0){
+				continue;
+			}
+			params.put("spuCode",productInfoDto.getSpuCode() );
+			params.put("promotionId", productInfoDto.getPromotionId());
+			params.put("buyerCode", orderDto.getCustId());
+			params.put("sellerCode", orderDto.getSupplyId());
+			params.put("productCount", ( 0 - productInfoDto.getProductCount()));//调用此接口时，负数表示减库存
+
+//			params.put("spuCode", "1000500BBBH240001");
+//			params.put("promotionId", 3);
+//			params.put("buyerCode", "8859");
+//			params.put("sellerCode", "11905");
+//			params.put("productCount", -10);
+			startTime = System.currentTimeMillis();
+			logger.info("活动商品创建完订单后，减库存操作，请求参数params= " + params);
+			Map map = iPromotionDubboManageService.updateProductGroupInventroy(params);
+			endTime = System.currentTimeMillis();
+			logger.info("活动商品创建完订单后，减库存操作完成，耗时(" + (endTime - startTime) + ")毫秒，响应参数map= " + map);
+		}
+
+	}
+
+
+
+	/**
+	 * 获取本次可以购买的商品数量
+	 * @return
+     */
+	public int getProductCount(){
+		return 0;
+	}
+
+	/**
+	 * 获取本次可以购买的活动商品数量
+	 * @return
+	 */
+	public int getProductPromotionCount(int productCount , int buyedInHistory,int promotionLimitNum,int promotionCurrentInventory){
+		return 0;
+	}
 }

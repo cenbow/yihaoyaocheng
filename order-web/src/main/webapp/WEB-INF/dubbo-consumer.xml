@@ -7,5 +7,5 @@
        http://code.alibabatech.com/schema/dubbo
        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-    <dubbo:annotation package="com.yyw.yhyc.order.controller"/>
+    <dubbo:annotation package="com.yyw.yhyc.order.controller,com.yyw.yhyc.product.manage"/>
 </beans>

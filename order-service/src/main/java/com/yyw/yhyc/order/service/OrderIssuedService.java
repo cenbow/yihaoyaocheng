@@ -177,6 +177,7 @@ public class OrderIssuedService {
 	 * @throws Exception
 	 */
 	public Map<String,Object> editOrderIssuedListBySupplyId(Integer supplyId) throws Exception{
+		String now = systemDateMapper.getSystemDate();
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		if(UtilHelper.isEmpty(supplyId)){
 			resultMap.put("code","0");
@@ -185,7 +186,6 @@ public class OrderIssuedService {
 		}
 		List<OrderIssuedDto> orderIssuedDtoList = orderIssuedMapper.findOrderIssuedListBySupplyId(supplyId);
 		if(!UtilHelper.isEmpty(orderIssuedDtoList)){
-			String now = systemDateMapper.getSystemDate();
 			for(OrderIssuedDto orderIssuedDto :orderIssuedDtoList){
 				String flowId = orderIssuedDto.getOrderCode();
 				OrderIssued orderIssued = orderIssuedMapper.findByFlowId(flowId);
@@ -204,23 +204,7 @@ public class OrderIssuedService {
 					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
 					orderIssued.setCusRelationship(1);
 					orderIssued.setIsScan(0);
-					try{
-						orderIssuedMapper.save(orderIssued);
-					}catch(Exception e){
-						log.info("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********");
-						orderIssued.setCusRelationship(1);
-						orderIssued.setIsScan(0);
-						orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
-						orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
-						orderIssued.setUpdateTime(now);
-						orderIssuedMapper.updateBySelective(orderIssued);
-						
-						OrderIssuedException orderIssuedException = new OrderIssuedException();
-						orderIssuedException.setFlowId(flowId);
-						orderIssuedException.setDealStatus(2);
-						orderIssuedExceptionMapper.updateBySelective(orderIssuedException );
-					}
-					
+					orderIssuedMapper.save(orderIssued);
 				}
 				//下发日志
 				OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
@@ -230,6 +214,23 @@ public class OrderIssuedService {
 				orderIssuedLog.setOperateTime(now);
 				orderIssuedLogMapper.save(orderIssuedLog);
 			}
+		}
+		//
+		List<OrderIssuedDto> issuedlist = orderIssuedMapper.findOrderIssuedHasRelationshipList(supplyId);
+		for(OrderIssuedDto one:issuedlist ){
+			log.error("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********"+one.getOrderCode());
+			OrderIssued orderIssued = orderIssuedMapper.findByFlowId(one.getOrderCode());
+			orderIssued.setCusRelationship(1);
+			orderIssued.setIsScan(0);
+			orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
+			orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+			orderIssued.setUpdateTime(now);
+			orderIssuedMapper.updateBySelective(orderIssued);
+			
+			OrderIssuedException orderIssuedException = new OrderIssuedException();
+			orderIssuedException.setFlowId(one.getOrderCode());
+			orderIssuedException.setDealStatus(2);
+			orderIssuedExceptionMapper.updateBySelective(orderIssuedException );
 		}
 		//扫描此供应商没有对码的单
 		orderIssuedExceptionService.downNoRelationshipJob(supplyId);

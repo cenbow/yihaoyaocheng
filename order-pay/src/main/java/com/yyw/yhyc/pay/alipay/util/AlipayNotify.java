@@ -145,7 +145,7 @@ public class AlipayNotify {
     public static boolean getIsSuccess(String returnstr)
     {
         String[] refundstr = returnstr.split("\\^");
-        if(refundstr.length == 3 && refundstr[2].equals("SUCCESS"))
+        if(refundstr.length == 3 && refundstr[2].equalsIgnoreCase("SUCCESS"))
             return true;
         else
             return false;
