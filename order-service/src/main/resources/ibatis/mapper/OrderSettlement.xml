@@ -402,4 +402,13 @@
 		and business_type in (2,3,4)
 		<![CDATA[ limit 1 ]]>
 	</select>
+
+	<update id="updateConfirmSettlement" parameterType="OrderSettlement">
+		<![CDATA[ UPDATE t_order_settlement SET
+
+			 confirm_settlement=#{confirmSettlement}
+
+		WHERE settle_flow_id = #{settle_flow_id}  ]]>
+
+	</update>
 </mapper>
