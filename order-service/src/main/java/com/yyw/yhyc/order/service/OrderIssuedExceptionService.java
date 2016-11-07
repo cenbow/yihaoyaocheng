@@ -216,6 +216,7 @@ public class OrderIssuedExceptionService {
 	public Pagination<OrderIssuedExceptionDto> listPaginationByPropertyEx(
 			Pagination<OrderIssuedExceptionDto> pagination,
 			OrderIssuedExceptionDto orderIssuedExceptionDto) throws Exception {
+		orderIssuedExceptionDto.setDealStatus(1);//只要处理中的
 		List<OrderIssuedExceptionDto> list = orderIssuedExceptionMapper
 				.listPaginationByPropertyEx(pagination, orderIssuedExceptionDto);
 

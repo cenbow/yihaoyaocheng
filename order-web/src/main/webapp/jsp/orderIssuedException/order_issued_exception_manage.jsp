@@ -53,7 +53,6 @@
                             <div class="col-xs-3">
                                 <select class="form-control" id="exceptionType" name="exceptionType">
                                     <option value="">请选择</option>
-                                    <option value="0">下发超时未返回</option>
                                     <option value="1">无关联企业用户</option>
                                     <option value="2">下发返回错误</option>
                                     <option value="3">下发失败</option>
@@ -74,12 +73,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="scope" class="col-xs-2 control-label">供应商</label>
-
-                            <div class="col-xs-3">
-                                <input type="text" id="supplyName" name="supplyName" class="form-control"/>
-                            </div>
-
                             <label for="custName" class="col-xs-2 control-label">采购商</label>
 
                             <div class="col-xs-3">
@@ -98,7 +91,7 @@
                 </form>
             </div>
             <div class="padding-t-20">
-                <button type="button" class="btn btn-info margin-r-10 editbtn" onclick="document.getElementById('form0').submit();">&nbsp;导出&nbsp;</button>
+                <button type="button" class="btn btn-info margin-r-10 editbtn" onclick="document.getElementById('form0').submit();">全部导出</button>
                 <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(1);">&nbsp;下发&nbsp;</button>
                 <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(2);">标记完成</button>
             </div>
@@ -109,25 +102,23 @@
                             <div class="row">
                                 <table class="table table-box">
                                     <colgroup>
-                                        <col style="width: 5%;"/>
+                                        <col style="width: 2%;"/>
+                                        <col style="width: 6%;"/>
+                                        <col style="width: 8%;"/>
+                                        <col style="width: 8%;"/>
+                                        <col style="width: 8%;"/>
                                         <col style="width: 9%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 7%;"/>
-                                        <col style="width: 8%;"/>
-                                        <col style="width: 7%;"/>
-                                        <col style="width: 10%;"/>
                                         <col style="width: 6%;"/>
                                         <col style="width: 7%;"/>
-                                        <col style="width: 7%;"/>
+                                        <col style="width: 17%;"/>
                                         <col style="width: 8%;"/>
-                                        <col style="width: 18%;"/>
+                                        <col style="width: 21%;"/>
                                     </colgroup>
                                     <thead>
                                     <tr>
                                         <th><input type="checkbox" id="checkboxTitle" /></th>
                                         <th>订单编号</th>
                                         <th>下单时间</th>
-                                        <th>供应商</th>
                                         <th>订单状态</th>
                                         <th>支付类型</th>
                                         <th>采购商</th>
