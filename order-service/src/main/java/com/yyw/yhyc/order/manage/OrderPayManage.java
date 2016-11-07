@@ -220,9 +220,9 @@ public class OrderPayManage {
 
                         OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
                         //支付宝
-                        if(parameter.get("trade_no") != null && orderPay.getPayTypeId() == 7){
+                        if(parameter.get("trade_no") != null){
                             orderSettlement.setSettleFlowId(parameter.get("trade_no").toString());
-                        }else if(parameter.get("OriOrderNo") != null && orderPay.getPayTypeId() == 6){
+                        }else if(parameter.get("OriOrderNo") != null){
                         	//银联支付
                             orderSettlement.setSettleFlowId(parameter.get("OriOrderNo").toString());
                         }
