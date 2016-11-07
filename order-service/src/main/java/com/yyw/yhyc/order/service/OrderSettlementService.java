@@ -30,6 +30,7 @@ import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -366,13 +367,17 @@ public class OrderSettlementService {
      * 退货退款成功回调
      * flowId  order 的flowId 或者是 exceptionOrder 的 exceptionOrderId
      * type 1 销售货款  2 退货货款   3 拒收货款 4 取消订单退款
+     * settleFlowId 结算流水号
      */
-    public void updateSettlementByMap(String flowId,Integer type){
+    public void updateSettlementByMap(String flowId,Integer type,String settleFlowId){
         log.info("银联同步回调->更新结算信息->订单:"+flowId+";业务类型:"+type);
         Map<String,Object> condition = new HashedMap();
         condition.put("flowId",flowId);
         condition.put("businessType",type);//退货退款
         OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+        if(StringUtils.isNotBlank(settleFlowId)){
+        	orderSettlement.setSettleFlowId(settleFlowId);
+        }
         if(orderSettlement!=null){
             orderSettlement.setConfirmSettlement("1");
             orderSettlementMapper.update(orderSettlement);
