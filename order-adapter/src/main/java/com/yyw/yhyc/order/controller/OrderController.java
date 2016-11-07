@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
@@ -30,6 +31,7 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.order.service.OrderService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Map;
 
 
@@ -62,6 +63,8 @@ public class OrderController extends BaseController {
 	@Autowired
 	private OrderDeliveryService orderDeliveryService;
 
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -129,7 +132,7 @@ public class OrderController extends BaseController {
 	public Map<String,Object> cancelOrder(String orderId) throws Exception
 	{
 		UserDto userDto = super.getLoginUser();
-		orderService.updateOrderStatusForBuyer(userDto, orderId);
+		orderService.updateOrderStatusForBuyer(userDto, orderId,iPromotionDubboManageService);
 		return ok(null);
 	}
 

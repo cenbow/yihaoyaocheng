@@ -36,8 +36,7 @@ public class ProductInventoryManage {
     private SystemDateMapper systemDateMapper;
     private ProductInventoryLogMapper productInventoryLogMapper;
     private OrderDetailMapper orderDetailMapper;
-    @Reference
-    private IPromotionDubboManageService iPromotionDubboManageService;
+   
     @Autowired
     private OrderMapper orderMapper;
     @Autowired
@@ -157,9 +156,10 @@ public class ProductInventoryManage {
      * @param OrderId
      * @param supplyName      供应商自己操作是 operator=supplyName
      * @param operator
+     * @param iPromotionDubboManageService 
      * @throws Exception
      */
-    public void releaseInventory(int OrderId, String supplyName, String operator){
+    public void releaseInventory(int OrderId, String supplyName, String operator, IPromotionDubboManageService iPromotionDubboManageService){
         try {
             List<OrderDetail> list=orderDetailMapper.listOrderDetailInfoByOrderId(OrderId);
             if (!UtilHelper.isEmpty(list)) {

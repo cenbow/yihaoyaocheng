@@ -283,7 +283,8 @@ public class OrderPayManage {
      */
     public void updateRedundOrderInfos(String payFlowId, boolean orderRefundStatus, Map parameter)
             throws Exception {
-        log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----");
+        log.info(payFlowId + "----- 退款成功后更新信息  update orderInfo start ----"+orderRefundStatus);
+        log.info("----- parameter   ----"+parameter);
 
         List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
 
@@ -334,7 +335,7 @@ public class OrderPayManage {
     public String getPayFlowIdByPayAccountNo(String payaccountno)
     {
         OrderPay orderPay = orderPayMapper.getPayFlowIdByPayAccountNo(payaccountno);
-        return orderPay.getPayFlowId();
+        return orderPay.getPaymentPlatforReturn();
     }
 
     public void createOrderTrace(Object order,String userName,String now,int type,String nodeName){

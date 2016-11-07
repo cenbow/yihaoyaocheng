@@ -418,7 +418,7 @@ public class OrderController extends BaseJsonController {
 		 *  http://localhost:8088/order/buyerCancelOrder/2
 		 */
 		UserDto userDto = super.getLoginUser();
-		orderService.updateOrderStatusForBuyer(userDto, orderId);
+		orderService.updateOrderStatusForBuyer(userDto, orderId,iPromotionDubboManageService);
 	}
 
 	/**
@@ -450,7 +450,7 @@ public class OrderController extends BaseJsonController {
 	@ResponseBody
 	public void sellerCancelOrder(@RequestBody Order order){
 		UserDto userDto = super.getLoginUser();
-		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult());
+		orderService.updateOrderStatusForSeller(userDto, order.getOrderId(), order.getCancelResult(),iPromotionDubboManageService);
 
 		try {
 			if(UtilHelper.isEmpty(creditDubboService)){
