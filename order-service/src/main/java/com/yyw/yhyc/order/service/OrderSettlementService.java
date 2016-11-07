@@ -416,11 +416,13 @@ public class OrderSettlementService {
      */
     public void updateConfirmSettlement(String settleFlowId)
     {
+        log.info("updateConfirmSettlement method=="+settleFlowId);
         OrderSettlement orderSettlement = null;
         Map<String,Object> condition = new HashedMap();
         condition.put("settleFlowId",settleFlowId);
+        condition.put("confirmSettlement","1");
         orderSettlement = orderSettlementMapper.getByProperty(condition);
-        if(orderSettlement != null)
+        if(orderSettlement == null)
         {
             orderSettlement.setSettleFlowId(settleFlowId);
             orderSettlement.setConfirmSettlement("1");
