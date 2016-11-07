@@ -219,6 +219,9 @@ public class OrderPayManage {
                         //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
 
                         OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
+                        if(parameter.get("trade_no") != null && orderPay.getPayTypeId() == 7){
+                            orderSettlement.setSettleFlowId(parameter.get("trade_no").toString());
+                        }
                         orderSettlementService.save(orderSettlement);
                     }
                 }
@@ -337,6 +340,9 @@ public class OrderPayManage {
         OrderPay orderPay = orderPayMapper.getPayFlowIdByPayAccountNo(payaccountno);
         return orderPay.getPaymentPlatforReturn();
     }
+
+
+
 
     public void createOrderTrace(Object order,String userName,String now,int type,String nodeName){
         //插入日志表
