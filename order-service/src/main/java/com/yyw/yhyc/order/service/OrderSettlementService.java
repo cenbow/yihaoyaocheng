@@ -411,14 +411,21 @@ public class OrderSettlementService {
    }
 
     /**
-     * 支付成功后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
+     * 退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
      * @param settleFlowId
      */
     public void updateConfirmSettlement(String settleFlowId)
     {
-        OrderSettlement orderSettlement = new OrderSettlement();
-        orderSettlement.setSettleFlowId(settleFlowId);
-        orderSettlement.setConfirmSettlement("1");
-        orderSettlementMapper.updateConfirmSettlement(orderSettlement);
+        OrderSettlement orderSettlement = null;
+        Map<String,Object> condition = new HashedMap();
+        condition.put("settleFlowId",settleFlowId);
+        orderSettlement = orderSettlementMapper.getByProperty(condition);
+        if(orderSettlement != null)
+        {
+            orderSettlement.setSettleFlowId(settleFlowId);
+            orderSettlement.setConfirmSettlement("1");
+            orderSettlementMapper.updateConfirmSettlement(orderSettlement);
+        }
+
     }
 }
