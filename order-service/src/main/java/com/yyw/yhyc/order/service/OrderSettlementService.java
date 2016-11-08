@@ -378,12 +378,15 @@ public class OrderSettlementService {
 		Map<String, Object> condition = new HashedMap();
 		condition.put("flowId", flowId);
 		condition.put("businessType", type);// 退货退款
-        condition.put("supplyId", supplyId);
-		OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
-		if (StringUtils.isNotBlank(settleFlowId)) {
-			orderSettlement.setSettleFlowId(settleFlowId);
+		if(!UtilHelper.isEmpty(type)&&(type.intValue()==4||type.intValue()==3)){
+			condition.put("custId", supplyId);
+		}else if(!UtilHelper.isEmpty(type)&&type.intValue()==1){
+			condition.put("supplyId", supplyId);
 		}
-		if (orderSettlement != null) {
+		OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+
+		if (!UtilHelper.isEmpty(orderSettlement)) {
+			orderSettlement.setSettleFlowId(settleFlowId);
 			orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			orderSettlementMapper.update(orderSettlement);
 		} else {
