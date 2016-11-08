@@ -390,7 +390,7 @@ public class OrderSettlementService {
 		}
 		log.info("update settlement ..........");
 		List<OrderSettlement>  listSettlement = orderSettlementMapper.listByProperty(condition);
-
+		log.info("更新结算信息->有效订单:" + listSettlement.size());
 		if (!UtilHelper.isEmpty(listSettlement)) {
 			OrderSettlement orderSettlement=listSettlement.get(0);
 			orderSettlement.setSettleFlowId(settleFlowId);
