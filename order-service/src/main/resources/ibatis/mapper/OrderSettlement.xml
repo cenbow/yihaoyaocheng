@@ -415,7 +415,7 @@
 	<update id="updateSettlementPayFlowId" parameterType="OrderSettlement">
 		<![CDATA[ UPDATE   t_order_settlement SET
 			 confirm_settlement=#{confirmSettlement},
-             settle_flow_id = #{settle_flow_id}  ]]>
+             settle_flow_id = #{settleFlowId}  ]]>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="custId !=null and custId !=''">
 			AND t1.cust_id = #{custId}
