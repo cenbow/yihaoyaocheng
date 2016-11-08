@@ -375,17 +375,24 @@ public class OrderSettlementService {
 	 */
 	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
 		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type);
-		Map<String, Object> condition = new HashedMap();
-		condition.put("flowId", flowId);
-		condition.put("businessType", type);// 退货退款
+		OrderSettlement condition=new OrderSettlement();
+		//Map<String, Object> condition = new HashedMap();
+		//condition.put("flowId", flowId);
+		condition.setFlowId(flowId);
+		//condition.put("businessType", type);// 退货退款
+		condition.setBusinessType(type);
 		if(!UtilHelper.isEmpty(type)&&(type.intValue()==4||type.intValue()==3)){
-			condition.put("custId", supplyId);
+			//condition.put("custId", supplyId);
+			condition.setCustId(supplyId);
 		}else if(!UtilHelper.isEmpty(type)&&type.intValue()==1){
-			condition.put("supplyId", supplyId);
+			//condition.put("supplyId", supplyId);
+			condition.setSupplyId(supplyId);
 		}
-		OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+		log.info("update settlement ..........");
+		List<OrderSettlement>  listSettlement = orderSettlementMapper.listByProperty(condition);
 
-		if (!UtilHelper.isEmpty(orderSettlement)) {
+		if (!UtilHelper.isEmpty(listSettlement)) {
+			OrderSettlement orderSettlement=listSettlement.get(0);
 			orderSettlement.setSettleFlowId(settleFlowId);
 			orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			orderSettlementMapper.update(orderSettlement);
