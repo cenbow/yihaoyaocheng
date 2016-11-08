@@ -222,9 +222,9 @@ public class OrderPayManage {
                         //支付宝
                         if(parameter.get("trade_no") != null){
                             orderSettlement.setSettleFlowId(parameter.get("trade_no").toString());
-                        }else if(parameter.get("OriOrderNo") != null){
+                        }else if(parameter.get("MerOrderNo") != null){
                         	//银联支付
-                            orderSettlement.setSettleFlowId(parameter.get("OriOrderNo").toString());
+                            orderSettlement.setSettleFlowId(parameter.get("MerOrderNo").toString());
                         }
                         orderSettlementService.save(orderSettlement);
                     }
@@ -307,12 +307,8 @@ public class OrderPayManage {
                 if (orderRefundStatus) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
-                    //银联支付
-                    String settleFlowId = "";
-                    if(parameter.get("OriOrderNo") != null){
-                    	//银联支付
-                    	settleFlowId = parameter.get("OriOrderNo").toString();
-                    }
+                    //银联支付 退款流水号
+                    String settleFlowId = payFlowId+"TK";
                     //更新取消订单退款为已结算
                     orderSettlementService.updateSettlementByMap(o.getFlowId(),4,settleFlowId);
                     OrderException orderException=new OrderException();
