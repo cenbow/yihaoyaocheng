@@ -273,7 +273,7 @@
 			 <include refid="commonProcessDateColumns"/>
  		FROM t_order_settlement
 	</select>
-	<select id="listByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper">
+	<select id="listByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 			<include refid="commonProcessDateColumns"/>
 		FROM t_order_settlement WHERE 1=1 
