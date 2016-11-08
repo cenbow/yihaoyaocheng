@@ -388,7 +388,7 @@
 		SELECT count(1) AS totalcount FROM t_order_settlement WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="getByProperty" parameterType="Map" resultMap="OrderSettlementResultMapper">
+	<select id="getByProperty" parameterType="Map" resultMap="OrderSettlementResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_settlement WHERE 1=1
