@@ -285,9 +285,6 @@ public class OrderSettlementService {
 	 *            拒收订单状态为卖家已确认 (进入应付) 4 退货订单状态为卖家已收货或系统自动确认收货时(进入应收) 5
 	 *            卖家取消、运营后台取消、过期未发货自动取消(进入应付)
 	 * @param orderSettlement
-	 * @param userDto
-	 * @param order
-	 * @param orderException
 	 * @return
 	 */
 	public OrderSettlement parseOnlineSettlement(Integer type, Integer custId, Integer supplyId, String createUser,
@@ -376,11 +373,12 @@ public class OrderSettlementService {
 	 * just for 在线-招行支付 退货退款成功回调 flowId order 的flowId 或者是 exceptionOrder 的
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
-	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId) {
+	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
 		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type);
 		Map<String, Object> condition = new HashedMap();
 		condition.put("flowId", flowId);
 		condition.put("businessType", type);// 退货退款
+        condition.put("supplyId", supplyId);
 		OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
 		if (StringUtils.isNotBlank(settleFlowId)) {
 			orderSettlement.setSettleFlowId(settleFlowId);
