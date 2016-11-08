@@ -374,31 +374,22 @@ public class OrderSettlementService {
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
 	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
-		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type);
+		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
 		OrderSettlement condition=new OrderSettlement();
-		//Map<String, Object> condition = new HashedMap();
-		//condition.put("flowId", flowId);
 		condition.setFlowId(flowId);
-		//condition.put("businessType", type);// 退货退款
 		condition.setBusinessType(type);
 		if(!UtilHelper.isEmpty(type)&&(type.intValue()==4||type.intValue()==3)){
-			//condition.put("custId", supplyId);
 			condition.setCustId(supplyId);
+			condition.setSettleFlowId(settleFlowId);
+			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
+			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}else if(!UtilHelper.isEmpty(type)&&type.intValue()==1){
-			//condition.put("supplyId", supplyId);
+			condition.setSettleFlowId(settleFlowId);
+			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			condition.setSupplyId(supplyId);
+			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}
-		log.info("update settlement ..........");
-		List<OrderSettlement>  listSettlement = orderSettlementMapper.listByProperty(condition);
-		log.info("更新结算信息->有效订单:" + listSettlement.size());
-		if (!UtilHelper.isEmpty(listSettlement)) {
-			OrderSettlement orderSettlement=listSettlement.get(0);
-			orderSettlement.setSettleFlowId(settleFlowId);
-			orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
-			orderSettlementMapper.update(orderSettlement);
-		} else {
-			log.info("更新结算信息->未找到有效订单:" + flowId);
-		}
+
 	}
 
 	public void updateSettlementByCheckFile(String flowId, Integer type) {

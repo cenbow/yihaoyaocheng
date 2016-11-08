@@ -411,4 +411,23 @@
 		WHERE settle_flow_id = #{settle_flow_id}  ]]>
 
 	</update>
+
+	<update id="updateSettlementPayFlowId" parameterType="OrderSettlement">
+		<![CDATA[ UPDATE   t_order_settlement SET
+			 confirm_settlement=#{confirmSettlement},
+             settle_flow_id = #{settle_flow_id}  ]]>
+		<![CDATA[ WHERE 1 = 1 ]]>
+		<if test="custId !=null and custId !=''">
+			AND t1.cust_id = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND t1.supply_id = #{supplyId}
+		</if>
+		<if test="businessType !=null and businessType !='' and businessType !='-1'">
+			AND t1.business_type = #{businessType}
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND flow_id=#{flowId}
+		</if>
+	</update>
 </mapper>
