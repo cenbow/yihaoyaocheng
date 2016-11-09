@@ -232,6 +232,7 @@ public class ShoppingCartService {
 		normalProductNum     普通商品最终修改的数量
 		activityProduct      活动商品的shoppingCartId
 		activityProductNum   活动商品最终修改的数量
+		normalProductShoppingCart
      */
 	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto, IPromotionDubboManageService iPromotionDubboManageService,
 										IProductDubboManageService iProductDubboManageService, ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception{
@@ -254,6 +255,12 @@ public class ShoppingCartService {
 		if(shoppingCart.getProductCount() > oldShoppingCart.getProductCount()){
 			//增加数量
 			resultMap = this.increaseNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			if(!UtilHelper.isEmpty(resultMap) && !UtilHelper.isEmpty(resultMap.get("normalProductInfo"))){
+				ShoppingCart normalProductInfo = (ShoppingCart) resultMap.get("normalProductInfo");
+				ShoppingCartDto shoppingCartDto = convert(normalProductInfo);
+				shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService,iPromotionDubboManageService);
+				resultMap.put("normalProductInfo",shoppingCartDto);
+			}
 			long endTime = System.currentTimeMillis();
 			logger.info("修改进货单中商品的数量:增加数量耗时" + (endTime - startTime) + "毫秒");
 
@@ -668,6 +675,7 @@ public class ShoppingCartService {
 		if(!UtilHelper.isEmpty(normalProductMap)){
 			map.put("normalProduct",normalProductMap.get("normalProduct"));
 			map.put("normalProductNum",normalProductMap.get("normalProductNum"));
+			map.put("normalProductInfo",normalProductMap.get("normalProductInfo"));
 		}
 
 		map.put("resultCount",resultCount);
@@ -847,11 +855,17 @@ public class ShoppingCartService {
 
 
 		/* 返回数据到页面，供页面调用 */
-		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
+		condition = new ShoppingCart();
+		condition.setCustId(shoppingCart.getCustId());
+		condition.setSupplyId(shoppingCart.getSupplyId());
+		condition.setSpuCode(shoppingCart.getSpuCode());
+		condition.setFromWhere(shoppingCart.getFromWhere());
+		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(condition);
 		Map<String, Object>  resultMap = new HashMap<>();
 		if(!UtilHelper.isEmpty(shoppingCartList)){
 			resultMap.put("normalProduct",shoppingCartList.get(0).getShoppingCartId());
 			resultMap.put("normalProductNum",shoppingCartList.get(0).getProductCount());
+			resultMap.put("normalProductInfo",shoppingCart);
 		}
 		return resultMap;
 	}
