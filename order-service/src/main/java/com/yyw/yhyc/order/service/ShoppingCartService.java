@@ -243,13 +243,19 @@ public class ShoppingCartService {
 			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
 			throw  new Exception("购买数量不能大于9999999");
 		}
-
+		long startTime = System.currentTimeMillis();
 		if(shoppingCart.getProductCount() > oldShoppingCart.getProductCount()){
 			//增加数量
-			return this.increaseNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			resultMap = this.increaseNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			long endTime = System.currentTimeMillis();
+			logger.info("修改进货单中商品的数量:增加数量耗时" + (endTime - startTime) + "毫秒");
+			return  resultMap;
 		}else{
 			//减少数量
-			return this.reduceNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			resultMap =  this.reduceNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			long endTime = System.currentTimeMillis();
+			logger.info("修改进货单中商品的数量:减少数量耗时" + (endTime - startTime) + "毫秒");
+			return  resultMap;
 		}
 
 
@@ -274,6 +280,7 @@ public class ShoppingCartService {
 		logger.info("加入进货单总入口，shoppingCart = " + shoppingCart);
 
 
+		long startTime = System.currentTimeMillis();
 		if( !UtilHelper.isEmpty(shoppingCart.getPromotionId()) &&  shoppingCart.getPromotionId() > 0 ){
 			/* 处理活动商品 */
 			this.addActivityProduct(shoppingCart,userDto,iPromotionDubboManageService, iCustgroupmanageDubbo, productSearchInterface);
@@ -281,6 +288,8 @@ public class ShoppingCartService {
 			/* 处理普通商品 */
 			this.addNormalProduct(shoppingCart,userDto);
 		}
+		long endTime = System.currentTimeMillis();
+		logger.info("加入进货单总入口，加入完成，耗时" +( endTime - startTime) + "毫秒");
 
 		/* 统计已加入商品的品种总数 和 进货单的商品总额 */
 		ShoppingCart query = new ShoppingCart();
@@ -493,7 +502,7 @@ public class ShoppingCartService {
 
 		/* 校验商品库存 */
 		/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
-		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(oldShoppingCart.getSupplyId(), oldShoppingCart.getSpuCode());
 		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
 			throw new Exception("商品没有库存");
 		}
@@ -502,6 +511,7 @@ public class ShoppingCartService {
 		}else{
 			shoppingCart.setProductCount(oldShoppingCart.getProductCount() + shoppingCart.getProductCount());
 		}
+		shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 
 		/* 检查该商品库存数量 */
@@ -648,22 +658,29 @@ public class ShoppingCartService {
 	 * @return
 	 */
 	private Map<String, Object> reduceNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+		Map<String, Object>  resultMap = new HashMap<>();
+		ShoppingCart oldShoppingCart = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+		if(UtilHelper.isEmpty(oldShoppingCart)){
+			resultMap.put("resultCount",0);
+			return resultMap;
+		}
 
 		/* 校验商品库存 */
 		/* 当前修改商品的数量  > 可见库存, 则只能买当前最大库存 */
-		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
+		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(oldShoppingCart.getSupplyId(), oldShoppingCart.getSpuCode());
 		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
 			throw new Exception("商品没有库存");
 		}
 		if( shoppingCart.getProductCount() > product.getFrontInventory()){
 			shoppingCart.setProductCount(product.getFrontInventory());
 		}
+		shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 
 		/* 检查该商品库存数量 */
 		ProductInventory productInventory = new ProductInventory();
-		productInventory.setSupplyId(shoppingCart.getSupplyId());//设置供应商Id
-		productInventory.setSpuCode(shoppingCart.getSpuCode());//设置SPUCODE
+		productInventory.setSupplyId(oldShoppingCart.getSupplyId());//设置供应商Id
+		productInventory.setSpuCode(oldShoppingCart.getSpuCode());//设置SPUCODE
 		productInventory.setFrontInventory(shoppingCart.getProductCount());//获取当前数量
 		Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
 		String code = map.get("code").toString();
@@ -736,7 +753,6 @@ public class ShoppingCartService {
 		newShoppingCart.setProductSettlementPrice( shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 		String userName = UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getUserName()) ? "" : userDto.getUserName();
 		newShoppingCart.setUpdateUser(userName);
-		newShoppingCart.setFromWhere(shoppingCart.getFromWhere());
 		logger.info("更新商品数量：newShoppingCart = " + newShoppingCart);
 		int  resultCount = shoppingCartMapper.update(newShoppingCart);
 		resultMap.put("resultCount",resultCount);
