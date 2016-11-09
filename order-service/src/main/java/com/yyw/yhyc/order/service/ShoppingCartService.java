@@ -225,6 +225,13 @@ public class ShoppingCartService {
 	 *	修改进货单中商品的数量(公用、核心逻辑,该方法提供给上层调用)
 	 * @param shoppingCart  外部传过来的原始数据
 	 * @param userDto        当前登录人的信息
+	 * @return 返回数据(Map形式)，部分key值解释如下：
+
+	    resultCount          操作记录条数
+		normalProduct        普通商品的shoppingCartId
+		normalProductNum     普通商品最终修改的数量
+		activityProduct      活动商品的shoppingCartId
+		activityProductNum   活动商品最终修改的数量
      */
 	public Map<String,Object> updateNum(ShoppingCart shoppingCart, UserDto userDto, IPromotionDubboManageService iPromotionDubboManageService,
 										IProductDubboManageService iProductDubboManageService, ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception{
@@ -249,16 +256,15 @@ public class ShoppingCartService {
 			resultMap = this.increaseNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 			long endTime = System.currentTimeMillis();
 			logger.info("修改进货单中商品的数量:增加数量耗时" + (endTime - startTime) + "毫秒");
-			return  resultMap;
+
 		}else{
 			//减少数量
 			resultMap =  this.reduceNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 			long endTime = System.currentTimeMillis();
 			logger.info("修改进货单中商品的数量:减少数量耗时" + (endTime - startTime) + "毫秒");
-			return  resultMap;
 		}
 
-
+		return  resultMap;
 	}
 
 	/**
@@ -309,7 +315,7 @@ public class ShoppingCartService {
 	 * @param shoppingCart 外部传递过来的原始数据
 	 * @return
 	 */
-	private void addNormalProduct(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+	private Map<String,Object> addNormalProduct(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
 
 		/* 加入进货单：查询商品是否存在 */
 		ShoppingCart condition = new ShoppingCart();
@@ -323,12 +329,11 @@ public class ShoppingCartService {
 
 		/* 如果没有添加过，则添加 */
 		if(UtilHelper.isEmpty(shoppingCarts)){
-			this.saveNormalProductNum(shoppingCart,userDto);
-			return ;
+			return this.saveNormalProductNum(shoppingCart,userDto);
 		}
 
 		/* 如果添加过,则累加数据 */
-		this.increaseNormalProductNum(shoppingCart,userDto);
+		return this.increaseNormalProductNum(shoppingCart,userDto);
 	}
 
 	/**
@@ -626,39 +631,48 @@ public class ShoppingCartService {
 			shoppingCart.setUpdateUser(userDto.getUserName());
 			logger.info("加入进货单:添加活动商品的数据shoppingCart = " + shoppingCart);
 			int resultCount = shoppingCartMapper.update(shoppingCart);
+			map.put("activityProduct",shoppingCart.getShoppingCartId());
+			map.put("activityProductNum",shoppingCart.getProductCount());
 			map.put("resultCount",resultCount);
 			return map;
-		}else if( shoppingCart.getProductCount() > promotionProductNumStillCanBuy ){
-			/* 若 原数据的数量 + 当前买的数量 > 限购量 ，则表示还没买满，原数据中的数量买满。超过限购量的部分，则以原价新增一条数据(saveOrUpdate)*/
-			/* 原数据中的数量买满。 */
-			ShoppingCart activityProductShoppingCart = new ShoppingCart();
-			BeanUtils.copyProperties(shoppingCart,activityProductShoppingCart);
-			activityProductShoppingCart.setProductCount(promotionProductNumStillCanBuy);
-			activityProductShoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
-			activityProductShoppingCart.setUpdateUser(userDto.getUserName());
-			logger.info("加入进货单:更新活动商品的数据shoppingCart = " + activityProductShoppingCart);
-			int resultCount =  shoppingCartMapper.update(activityProductShoppingCart);
-
-			/* 超过限购量的部分，则以原价新增一条数据(saveOrUpdate) */
-			BigDecimal productPrice = orderManage.getProductPrice(oldShoppingCart.getSpuCode(),oldShoppingCart.getCustId(),oldShoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
-			if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0"))<= 0){
-				throw new Exception("查询商品价格失败");
-			}
-			ShoppingCart normalProductShoppingCart = new ShoppingCart();
-			BeanUtils.copyProperties(oldShoppingCart,normalProductShoppingCart);
-			normalProductShoppingCart.setShoppingCartId(null);
-			normalProductShoppingCart.setPromotionId(null);
-			normalProductShoppingCart.setPromotionName(null);
-			normalProductShoppingCart.setProductPrice(productPrice);
-			normalProductShoppingCart.setProductCount(shoppingCart.getProductCount() - promotionProductNumStillCanBuy);
-			normalProductShoppingCart.setProductSettlementPrice(normalProductShoppingCart.getProductPrice().multiply(new BigDecimal(normalProductShoppingCart.getProductCount())));
-			this.addNormalProduct(normalProductShoppingCart,userDto);
-
-			map.put("resultCount",resultCount);
-			return map;
-		}else{
-			throw new Exception("非法数据");
 		}
+
+		/* 若 原数据的数量 + 当前买的数量 > 限购量 ，则表示还没买满，原数据中的数量买满。超过限购量的部分，则以原价新增一条数据(saveOrUpdate)*/
+		/* 原数据中的数量买满。 */
+		ShoppingCart activityProductShoppingCart = new ShoppingCart();
+		BeanUtils.copyProperties(shoppingCart,activityProductShoppingCart);
+		activityProductShoppingCart.setProductCount(promotionProductNumStillCanBuy);
+		activityProductShoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+		activityProductShoppingCart.setUpdateUser(userDto.getUserName());
+		logger.info("加入进货单:更新活动商品的数据shoppingCart = " + activityProductShoppingCart);
+		int resultCount =  shoppingCartMapper.update(activityProductShoppingCart);
+		map.put("resultCount",resultCount);
+		map.put("activityProduct",activityProductShoppingCart.getShoppingCartId());
+		map.put("activityProductNum",promotionProductNumStillCanBuy);
+
+		/* 超过限购量的部分，则以原价新增一条数据(saveOrUpdate) */
+		BigDecimal productPrice = orderManage.getProductPrice(oldShoppingCart.getSpuCode(),oldShoppingCart.getCustId(),oldShoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
+		if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0"))<= 0){
+			throw new Exception("查询商品价格失败");
+		}
+		ShoppingCart normalProductShoppingCart = new ShoppingCart();
+		BeanUtils.copyProperties(oldShoppingCart,normalProductShoppingCart);
+		normalProductShoppingCart.setShoppingCartId(null);
+		normalProductShoppingCart.setPromotionId(null);
+		normalProductShoppingCart.setPromotionName(null);
+		normalProductShoppingCart.setProductPrice(productPrice);
+		normalProductShoppingCart.setProductCount(shoppingCart.getProductCount() - promotionProductNumStillCanBuy);
+		normalProductShoppingCart.setProductSettlementPrice(normalProductShoppingCart.getProductPrice().multiply(new BigDecimal(normalProductShoppingCart.getProductCount())));
+		Map<String ,Object> normalProductMap = this.addNormalProduct(normalProductShoppingCart,userDto);
+
+		if(!UtilHelper.isEmpty(normalProductMap)){
+			map.put("normalProduct",normalProductMap.get("normalProduct"));
+			map.put("normalProductNum",normalProductMap.get("normalProductNum"));
+		}
+
+		map.put("resultCount",resultCount);
+		return map;
+
 	}
 
 	/**
@@ -782,6 +796,14 @@ public class ShoppingCartService {
 		logger.info("更新商品数量：newShoppingCart = " + newShoppingCart);
 		int  resultCount = shoppingCartMapper.update(newShoppingCart);
 		resultMap.put("resultCount",resultCount);
+
+		if(UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0){
+			resultMap.put("normalProduct",shoppingCart.getShoppingCartId());
+			resultMap.put("normalProductNum",shoppingCart.getProductCount());
+		}else{
+			resultMap.put("activityProduct",shoppingCart.getShoppingCartId());
+			resultMap.put("activityProductNum",shoppingCart.getProductCount());
+		}
 		return resultMap;
 	}
 
@@ -790,7 +812,7 @@ public class ShoppingCartService {
 	 * @param shoppingCart  外部传递过来的原始数据
 	 * @return
 	 */
-	private void saveNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+	private Map<String,Object> saveNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
 		/* 查询已添加商品的品种总数 */
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
@@ -822,6 +844,16 @@ public class ShoppingCartService {
 		shoppingCart.setCreateUser(userName);
 		logger.info("加入进货单：处理普通商品,shoppingCart=" + shoppingCart);
 		shoppingCartMapper.save(shoppingCart);
+
+
+		/* 返回数据到页面，供页面调用 */
+		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
+		Map<String, Object>  resultMap = new HashMap<>();
+		if(!UtilHelper.isEmpty(shoppingCartList)){
+			resultMap.put("normalProduct",shoppingCartList.get(0).getShoppingCartId());
+			resultMap.put("normalProductNum",shoppingCartList.get(0).getProductCount());
+		}
+		return resultMap;
 	}
 
 
