@@ -292,7 +292,7 @@ public class OrderExceptionService {
         if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //如银联支付 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
-            orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
+            orderSettlement.setConfirmSettlement("0");//生成结算信息 已结算
         } else if (OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
