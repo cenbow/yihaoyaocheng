@@ -186,7 +186,6 @@ public class ShoppingCartController extends BaseJsonController {
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw  new Exception("登陆超时");
 		}
-		Map<String, Object> result = null;
 		return shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 	}
 
