@@ -648,7 +648,6 @@ public class ShoppingCartService {
 	 * @return
 	 */
 	private Map<String, Object> reduceNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
-		Map<String, Object>  resultMap = new HashMap<>();
 
 		/* 校验商品库存 */
 		/* 当前修改商品的数量  > 可见库存, 则只能买当前最大库存 */
@@ -693,7 +692,7 @@ public class ShoppingCartService {
 		int promotionProductNumStillCanBuy = getPromotionProductNumStillCanBuy(shoppingCart,iPromotionDubboManageService);
 
 		Map<String,Object> map = new HashMap<>();
-				if(promotionProductNumStillCanBuy <= 0){
+		if(promotionProductNumStillCanBuy <= 0){
 			//若改活动商品不能再次购买，则不做任何操作，直接返回
 			map.put("resultCount",0);
 			return map;
