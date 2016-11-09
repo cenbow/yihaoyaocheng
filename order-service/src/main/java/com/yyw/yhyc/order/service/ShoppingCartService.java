@@ -493,12 +493,35 @@ public class ShoppingCartService {
 	 * @return
 	 */
 	private Map<String, Object> increaseNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+		if(UtilHelper.isEmpty(shoppingCart)  || UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(shoppingCart.getProductCount())
+				|| shoppingCart.getProductCount() <= 0){
+			throw new Exception("非法参数");
+		}
 		Map<String, Object>  resultMap = new HashMap<>();
-		ShoppingCart oldShoppingCart = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
-		if(UtilHelper.isEmpty(oldShoppingCart)){
+
+		/* 增加普通商品数量的数量有两种场景 */
+		/* 场景一：在进货单页面，点击增加数量的按钮，这时传过来的商品数量shoppingCart.getProductCount() 为最终数据库中保存的数量 */
+		ShoppingCart oldShoppingCart = null;
+		if(!UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) && shoppingCart.getShoppingCartId()  > 0 ){
+			oldShoppingCart = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+
+		/* 场景二：在商品详情页、搜索列表页等， 多次点击添加购物车接口，这时传过来的商品数量shoppingCart.getProductCount() 为当次要累加的量 */
+		}else{
+			ShoppingCart queryCondition = new ShoppingCart();
+			queryCondition.setCustId(shoppingCart.getCustId());
+			queryCondition.setSupplyId(shoppingCart.getSupplyId());
+			queryCondition.setSpuCode(shoppingCart.getSpuCode());
+			queryCondition.setFromWhere(shoppingCart.getFromWhere());
+			List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(queryCondition);
+			if(!UtilHelper.isEmpty(shoppingCartList)){
+				oldShoppingCart = shoppingCartList.get(0);
+			}
+		}
+		if(UtilHelper.isEmpty(oldShoppingCart) || UtilHelper.isEmpty(oldShoppingCart.getProductCount()) || oldShoppingCart.getProductCount() <= 0){
 			resultMap.put("resultCount",0);
 			return resultMap;
 		}
+
 
 		/* 校验商品库存 */
 		/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
@@ -511,20 +534,10 @@ public class ShoppingCartService {
 		}else{
 			shoppingCart.setProductCount(oldShoppingCart.getProductCount() + shoppingCart.getProductCount());
 		}
+		shoppingCart.setShoppingCartId(oldShoppingCart.getShoppingCartId());
 		shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 
-		/* 检查该商品库存数量 */
-		ProductInventory productInventory = new ProductInventory();
-		productInventory.setSupplyId(oldShoppingCart.getSupplyId());//设置供应商Id
-		productInventory.setSpuCode(oldShoppingCart.getSpuCode());//设置SPUCODE
-		productInventory.setFrontInventory(shoppingCart.getProductCount());//获取当前数量
-		Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
-		String code = map.get("code").toString();
-		if("0".equals(code) || "1".equals(code)){
-			logger.info("检查购物车库存数量 ：商品(spuCode=" + oldShoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
-			throw  new Exception("修改商品数量失败!");
-		}
 		return this.update(shoppingCart,userDto);
 	}
 
@@ -677,17 +690,6 @@ public class ShoppingCartService {
 		shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 
-		/* 检查该商品库存数量 */
-		ProductInventory productInventory = new ProductInventory();
-		productInventory.setSupplyId(oldShoppingCart.getSupplyId());//设置供应商Id
-		productInventory.setSpuCode(oldShoppingCart.getSpuCode());//设置SPUCODE
-		productInventory.setFrontInventory(shoppingCart.getProductCount());//获取当前数量
-		Map<String, Object> map = productInventoryManage.findInventoryNumber(productInventory);
-		String code = map.get("code").toString();
-		if("0".equals(code) || "1".equals(code)){
-			logger.info("检查购物车库存数量 ：商品(spuCode=" + shoppingCart.getSpuCode() + ")库存校验失败!resultMap=" + map );
-			throw  new Exception("修改商品数量失败!");
-		}
 		return this.update(shoppingCart,userDto);
 	}
 
