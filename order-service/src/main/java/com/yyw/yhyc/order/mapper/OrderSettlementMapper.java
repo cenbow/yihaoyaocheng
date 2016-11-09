@@ -26,4 +26,6 @@ public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettleme
 	public OrderSettlement getByPropertyByReturnCheckFile(Map<String,Object> map);
 
 	public int updateConfirmSettlement(OrderSettlement orderSettlement);
+
+	public int updateSettlementPayFlowId(OrderSettlement orderSettlement);
 }

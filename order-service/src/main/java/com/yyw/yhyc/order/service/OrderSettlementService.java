@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("orderSettlementService")
 public class OrderSettlementService {
@@ -285,9 +286,6 @@ public class OrderSettlementService {
 	 *            拒收订单状态为卖家已确认 (进入应付) 4 退货订单状态为卖家已收货或系统自动确认收货时(进入应收) 5
 	 *            卖家取消、运营后台取消、过期未发货自动取消(进入应付)
 	 * @param orderSettlement
-	 * @param userDto
-	 * @param order
-	 * @param orderException
 	 * @return
 	 */
 	public OrderSettlement parseOnlineSettlement(Integer type, Integer custId, Integer supplyId, String createUser,
@@ -376,21 +374,29 @@ public class OrderSettlementService {
 	 * just for 在线-招行支付 退货退款成功回调 flowId order 的flowId 或者是 exceptionOrder 的
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
-	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId) {
-		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type);
-		Map<String, Object> condition = new HashedMap();
-		condition.put("flowId", flowId);
-		condition.put("businessType", type);// 退货退款
-		OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
-		if (StringUtils.isNotBlank(settleFlowId)) {
-			orderSettlement.setSettleFlowId(settleFlowId);
+	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
+		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
+		OrderSettlement condition=new OrderSettlement();
+		condition.setFlowId(flowId);
+		condition.setBusinessType(type);
+		if(!UtilHelper.isEmpty(flowId)&&!UtilHelper.isEmpty(type)
+				&&!UtilHelper.isEmpty(settleFlowId)&&!UtilHelper.isEmpty(supplyId)
+				&&(type.intValue()==4||type.intValue()==3)){
+			condition.setCustId(supplyId);
+			condition.setSettleFlowId(settleFlowId);
+			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
+			orderSettlementMapper.updateSettlementPayFlowId(condition);
+		}else if(!UtilHelper.isEmpty(flowId)&&!UtilHelper.isEmpty(type)
+				&&!UtilHelper.isEmpty(settleFlowId)&&!UtilHelper.isEmpty(supplyId)
+				&&type.intValue()==1){
+			condition.setSettleFlowId(settleFlowId);
+			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
+			condition.setSupplyId(supplyId);
+			orderSettlementMapper.updateSettlementPayFlowId(condition);
+		}else{
+			log.info("银联同步回调->更新结算信息-传入空值参数");
 		}
-		if (orderSettlement != null) {
-			orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
-			orderSettlementMapper.update(orderSettlement);
-		} else {
-			log.info("更新结算信息->未找到有效订单:" + flowId);
-		}
+
 	}
 
 	public void updateSettlementByCheckFile(String flowId, Integer type) {

@@ -220,11 +220,11 @@ public class OrderPayManage {
 
                         OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
                         //支付宝
-                        if(parameter.get("trade_no") != null && orderPay.getPayTypeId() == 7){
+                        if(parameter.get("trade_no") != null){
                             orderSettlement.setSettleFlowId(parameter.get("trade_no").toString());
-                        }else if(parameter.get("OriOrderNo") != null && orderPay.getPayTypeId() == 6){
+                        }else if(parameter.get("MerOrderNo") != null){
                         	//银联支付
-                            orderSettlement.setSettleFlowId(parameter.get("OriOrderNo").toString());
+                            orderSettlement.setSettleFlowId(parameter.get("MerOrderNo").toString());
                         }
                         orderSettlementService.save(orderSettlement);
                     }
@@ -262,7 +262,7 @@ public class OrderPayManage {
                     //生产订单日志
                     createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
                     //更新结算信息为已结算
-                    orderSettlementService.updateSettlementByMap(order.getFlowId(),1,payFlowId+"FZ");
+                    orderSettlementService.updateSettlementByMap(order.getFlowId(),1,payFlowId+"FZ",order.getSupplyId());
                 //}
             }
         } else {// 打款异常
@@ -307,21 +307,17 @@ public class OrderPayManage {
                 if (orderRefundStatus) {
                     orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
                     orderRefundMapper.update(orderRefund);
-                    //银联支付
-                    String settleFlowId = "";
-                    if(parameter.get("OriOrderNo") != null){
-                    	//银联支付
-                    	settleFlowId = parameter.get("OriOrderNo").toString();
-                    }
+                    //银联支付 退款流水号
+                    String settleFlowId = payFlowId+"TK";
                     //更新取消订单退款为已结算
-                    orderSettlementService.updateSettlementByMap(o.getFlowId(),4,settleFlowId);
+                    orderSettlementService.updateSettlementByMap(o.getFlowId(),4,settleFlowId,o.getCustId());
                     OrderException orderException=new OrderException();
                     orderException.setFlowId(o.getFlowId());
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
                     List<OrderException> list= orderExceptionMapper.listByProperty(orderException);
                     if(list.size()>0){
                         //更新拒收结算为已结算
-                        orderSettlementService.updateSettlementByMap(orderException.getExceptionOrderId(),3,settleFlowId);
+                        orderSettlementService.updateSettlementByMap(list.get(0).getExceptionOrderId(),3,settleFlowId,o.getCustId());
                     }
                     //更新订单支付标记
                     o.setPayFlag(SystemOrderPayFlag.RefundSuccess.getType());

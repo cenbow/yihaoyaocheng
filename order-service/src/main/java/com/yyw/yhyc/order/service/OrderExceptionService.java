@@ -292,7 +292,7 @@ public class OrderExceptionService {
         if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //如银联支付 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
-            orderSettlement.setConfirmSettlement("1");//生成结算信息 已结算
+            orderSettlement.setConfirmSettlement("0");//生成结算信息 已结算
         } else if (OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
@@ -324,6 +324,7 @@ public class OrderExceptionService {
         //银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
         if ((OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||
+                OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())||
                 OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId()))
                 && orderException.getOrderMoney() != null) {
@@ -674,10 +675,6 @@ public class OrderExceptionService {
         }
 
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-        if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
-            PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-            payService.handleRefund(userDto, 2, oe.getExceptionOrderId(), "卖家审核通过拒收订单");
-        }
 
         if (count == 0) {
             log.error("原始订单更新失败,order info :" + order);
@@ -707,6 +704,13 @@ public class OrderExceptionService {
             orderSettlementMapper.save(orderSettlement);
             log.info("account:create settlement账期审核不通过该生成结算");
         }
+        //审核通过时。在线支付调用相关支付接口，然后更新结算信息
+        if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())
+                &&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+            PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+            payService.handleRefund(userDto, 2, oe.getExceptionOrderId(), "卖家审核通过拒收订单");
+        }
+
 
     }
 
