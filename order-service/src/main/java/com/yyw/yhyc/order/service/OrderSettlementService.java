@@ -379,16 +379,22 @@ public class OrderSettlementService {
 		OrderSettlement condition=new OrderSettlement();
 		condition.setFlowId(flowId);
 		condition.setBusinessType(type);
-		if(!UtilHelper.isEmpty(type)&&(type.intValue()==4||type.intValue()==3)){
+		if(!UtilHelper.isEmpty(flowId)&&!UtilHelper.isEmpty(type)
+				&&!UtilHelper.isEmpty(settleFlowId)&&!UtilHelper.isEmpty(supplyId)
+				&&(type.intValue()==4||type.intValue()==3)){
 			condition.setCustId(supplyId);
 			condition.setSettleFlowId(settleFlowId);
 			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
-		}else if(!UtilHelper.isEmpty(type)&&type.intValue()==1){
+		}else if(!UtilHelper.isEmpty(flowId)&&!UtilHelper.isEmpty(type)
+				&&!UtilHelper.isEmpty(settleFlowId)&&!UtilHelper.isEmpty(supplyId)
+				&&type.intValue()==1){
 			condition.setSettleFlowId(settleFlowId);
 			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			condition.setSupplyId(supplyId);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
+		}else{
+			log.info("银联同步回调->更新结算信息-传入空值参数");
 		}
 
 	}
