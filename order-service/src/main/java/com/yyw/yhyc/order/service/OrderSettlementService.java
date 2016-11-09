@@ -374,7 +374,6 @@ public class OrderSettlementService {
 	 * just for 在线-招行支付 退货退款成功回调 flowId order 的flowId 或者是 exceptionOrder 的
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
-	@Transactional
 	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
 		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
 		OrderSettlement condition=new OrderSettlement();
