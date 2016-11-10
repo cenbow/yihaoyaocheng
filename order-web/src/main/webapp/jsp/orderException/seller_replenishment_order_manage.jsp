@@ -6,6 +6,10 @@
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+	String flowId =  request.getParameter("flowId");
+	flowId = flowId==null?"":flowId;
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,7 +63,7 @@
                         <div class="form-group">
                             <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" id="flowId" name="flowId" placeholder="">
+                                <input type="text" class="form-control" id="flowId" name="flowId" placeholder="" value="<%=flowId%>"/>
                             </div>
                             <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
                             <div class="col-xs-3">

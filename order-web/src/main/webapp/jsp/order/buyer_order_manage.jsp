@@ -268,7 +268,7 @@
 <div class="modal fade" id="postponeOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width: 400px;">
         <div class="modal-content">
-            <div class="modal-header">延期收获</div>
+            <div class="modal-header">延期收货</div>
             <div class="modal-body font-size-16 text-center" >
                 每笔订单最多延期收货两次，确认延期收货吗？
             </div>

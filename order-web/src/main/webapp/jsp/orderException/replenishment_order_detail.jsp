@@ -41,10 +41,10 @@
                         <label class="col-xs-2 control-label">原订单号</label>
                         <div class="col-xs-2 control-label text-left">
                             <c:if test="${orderExceptionDto.userType==1}">
-                                <a href="${ctx}/order/getBuyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a>
+                                <a href="${ctx}/order/getBuyOrderDetails?flowId=${orderExceptionDto.flowId}" class="undeline">${orderExceptionDto.flowId}</a>
                             </c:if>
                             <c:if test="${orderExceptionDto.userType==2}">
-                                <a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a>
+                                <a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}" class="undeline">${orderExceptionDto.flowId}</a>
                             </c:if>
                         </div>
                     </div>
