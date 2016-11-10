@@ -308,7 +308,9 @@ public class ShoppingCartService {
 		ShoppingCart query = new ShoppingCart();
 		query.setCustId(shoppingCart.getCustId());
 		query.setFromWhere(shoppingCart.getFromWhere());
+		logger.info("加入进货单总入口，加入完成，查询统计信息条件：query = " + query);
 		Map<String, java.math.BigDecimal>  statisticsMap = shoppingCartMapper.queryShoppingCartStatistics(query);
+		logger.info("加入进货单总入口，加入完成，查询统计信息结果：statisticsMap = " + statisticsMap);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("state", "S");
 		map.put("productCount", statisticsMap.get("productCount") != null ? statisticsMap.get("productCount").intValue() : 0);
@@ -354,8 +356,11 @@ public class ShoppingCartService {
 			throw new Exception("非法参数");
 		}
 
-			/*获取活动商品 实际上还能购买的数量*/
-		int promotionProductNumStillCanBuy = getPromotionProductNumStillCanBuy(shoppingCart,iPromotionDubboManageService);
+		/*获取活动商品 实际上还能购买的数量*/
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,iPromotionDubboManageService);
+		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
+		shoppingCart = (ShoppingCart) queryMap.get("shoppingCart");
+
 
 		/* 如果不能再以特价购买改活动商品，则查询该商品的原价，并以原价购买 */
 		if(promotionProductNumStillCanBuy <= 0){
@@ -433,25 +438,30 @@ public class ShoppingCartService {
 	 * 获取活动商品 实际上还能购买的数量
 	 * @param shoppingCart
 	 * @param iPromotionDubboManageService
-	 * @return
+	 * @return  Map<String,Object> 里面有两个key。
+	 * 			"stillCanBuy" 的key表示实际上还能购买的数量
+	 * 		    "shoppingCart" 表示获取活动信息后的 ShoppingCart实体
 	 * @throws Exception
      */
-	private int getPromotionProductNumStillCanBuy(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
+	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0){
 			throw new Exception("非法参数");
 		}
+		Map<String,Object> resultMap = new HashMap<>();
 		int stillCanBuy = 0;
 		/* 接入何家兵的获取活动商品信息的接口,区分出是否超出活动限购数量 */
 		if(UtilHelper.isEmpty(iPromotionDubboManageService)) {
 			logger.error("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,接口iPromotionDubboManageService:" + iPromotionDubboManageService);
-			return stillCanBuy;
+			resultMap.put("stillCanBuy",stillCanBuy);
+			return resultMap;
 		}
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,请求参数:" + shoppingCart);
 		ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,shoppingCart.getSpuCode(),
 				shoppingCart.getSupplyId()+"",shoppingCart.getPromotionId(),shoppingCart.getCustId()+"");
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,响应参数:" + productPromotionDto);
 		if(UtilHelper.isEmpty(productPromotionDto)){
-			return stillCanBuy;
+			resultMap.put("stillCanBuy",stillCanBuy);
+			return resultMap;
 		}
 
 		/* 活动商品的限购逻辑(目前只有特价促销这一种活动类型) */
@@ -479,7 +489,10 @@ public class ShoppingCartService {
 			stillCanBuy = 0;
 		}
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 实际上还能购买的数量,stillCanBuy = " + stillCanBuy);
-		return stillCanBuy;
+		resultMap.put("stillCanBuy",stillCanBuy);
+		shoppingCart.setPromotionName(productPromotionDto.getPromotionName());
+		resultMap.put("shoppingCart",shoppingCart);
+		return resultMap;
 	}
 
 
@@ -540,6 +553,12 @@ public class ShoppingCartService {
 			if(!UtilHelper.isEmpty(shoppingCartList)){
 				oldShoppingCart = shoppingCartList.get(0);
 			}
+			if(UtilHelper.isEmpty(oldShoppingCart)){
+				throw new Exception("非法数据");
+			}
+			shoppingCart.setProductCount(oldShoppingCart.getProductCount() + shoppingCart.getProductCount());
+			shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
+			shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 		}
 		if(UtilHelper.isEmpty(oldShoppingCart) || UtilHelper.isEmpty(oldShoppingCart.getProductCount()) || oldShoppingCart.getProductCount() <= 0){
 			resultMap.put("resultCount",0);
@@ -553,10 +572,8 @@ public class ShoppingCartService {
 		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
 			throw new Exception("商品没有库存");
 		}
-		if((oldShoppingCart.getProductCount() + shoppingCart.getProductCount()) > product.getFrontInventory()){
+		if( shoppingCart.getProductCount() > product.getFrontInventory()){
 			shoppingCart.setProductCount(product.getFrontInventory());
-		}else{
-			shoppingCart.setProductCount(oldShoppingCart.getProductCount() + shoppingCart.getProductCount());
 		}
 		shoppingCart.setShoppingCartId(oldShoppingCart.getShoppingCartId());
 		shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
@@ -580,7 +597,8 @@ public class ShoppingCartService {
 		}
 
 		/* 获取该活动商品 实际上还能购买的数量 */
-		int promotionProductNumStillCanBuy = getPromotionProductNumStillCanBuy(shoppingCart,iPromotionDubboManageService);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,iPromotionDubboManageService);
+		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 
 		/* 如果不能再以特价购买改活动商品，则查询该商品的原价，并以原价购买 */
 		if(promotionProductNumStillCanBuy <= 0){
@@ -754,7 +772,8 @@ public class ShoppingCartService {
 			throw new Exception("查询活动商品信息失败");
 		}
 		/* 获取该活动商品 实际上还能购买的数量 */
-		int promotionProductNumStillCanBuy = getPromotionProductNumStillCanBuy(shoppingCart,iPromotionDubboManageService);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,iPromotionDubboManageService);
+		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 
 		Map<String,Object> map = new HashMap<>();
 		if(promotionProductNumStillCanBuy <= 0){
