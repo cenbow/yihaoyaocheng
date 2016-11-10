@@ -78,12 +78,12 @@ public class OrderIssuedException extends Model{
 	private java.lang.String receiveContactPhone;
 
 	/**
-	  *	处理状态 0：处理中；1：待处理；2：已完成
+	  *	处理状态 1：待处理；2：已完成
 	  */
 	private java.lang.Integer dealStatus;
 
 	/**
-	  *	异常类型（0下发超时未返回，1无关联企业用户，2下发返回错误，3下发失败）
+	  *	异常类型（1无关联企业用户，2下发返回错误，3下发失败）
 	  */
 	private java.lang.Integer exceptionType;
 

@@ -40,9 +40,8 @@ import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
-import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yaoex.usermanage.model.adviser.AdviserModel;
-import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
+
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
@@ -88,8 +87,7 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.*;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.manage.OrderManage;
-import com.yyw.yhyc.order.manage.OrderPayManage;
+import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
@@ -106,11 +104,7 @@ import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.product.bo.ProductInfo;
 import com.yyw.yhyc.product.bo.ProductInventory;
-import com.yyw.yhyc.product.dto.ProductPromotionDto;
-import com.yyw.yhyc.product.dto.ProductInfoDto;
-import com.yyw.yhyc.product.manage.ProductInventoryManage;
-import com.yyw.yhyc.product.mapper.ProductInfoMapper;
-import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.product.dto.ProductInfoDto;import com.yyw.yhyc.product.dto.ProductPromotionDto;import com.yyw.yhyc.product.manage.ProductInventoryManage;import com.yyw.yhyc.product.mapper.ProductInfoMapper;import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
@@ -1564,11 +1558,6 @@ public class OrderService {
 				}
 
 				SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
-					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-					payService.handleRefund(userDto, 1, order.getFlowId(), "卖家主动取消订单");
-
-				}
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
@@ -1577,6 +1566,12 @@ public class OrderService {
 						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
 					orderSettlementMapper.save(orderSettlement);
+				}
+
+				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+					payService.handleRefund(userDto, 1, order.getFlowId(), "卖家主动取消订单");
+
 				}
 
 
@@ -2369,10 +2364,7 @@ public class OrderService {
 			orderTraceMapper.save(orderTrace);
 
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-			if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
-				PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-				payService.handleRefund(userDto, 1, order.getFlowId(), "运营后台取消订单");
-			}
+
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
@@ -2401,7 +2393,10 @@ public class OrderService {
 				orderSettlement.setSettlementMoney(order.getOrgTotal());
 				orderSettlementMapper.save(orderSettlement);
 			}
-
+			if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+				PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+				payService.handleRefund(userDto, 1, order.getFlowId(), "运营后台取消订单");
+			}
 			//释放冻结库存
 			productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userName,iPromotionDubboManageService);
 
