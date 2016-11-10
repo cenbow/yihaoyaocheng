@@ -442,7 +442,10 @@ function addNewNormalProduct(_obj,_this){
                                 "<div class='its-input'>"+
                                     "<a href='javascript:;' class='its-btn-reduce'>-</a>"+
                                     "<a href='javascript:;' class='its-btn-add'>+</a>"+
-                                    "<input value='1' class='its-buy-num'shoppingCartId='"+ shoppingCartId +"'  saleStart='" + saleStart + "' upStep='"+upStep+"' preValue='"+productCount+"' productInventory='"+productInventory+"' productPrice='"+fmoney(productPrice,3)+"'>"+
+                                    "<input value='1' class='its-buy-num'shoppingCartId='"+ shoppingCartId +"'  saleStart='" + saleStart + "' upStep='"+upStep
+                                        + "' preValue='"+productCount+"' productInventory='"+productInventory +"' id='its-buy-num_" + shoppingCartId +
+                                        + "' productPrice='"+fmoney(productPrice,3)+"'>"+
+
                                 "</div>"+
                             "</div>"+
                         "</div>"+
