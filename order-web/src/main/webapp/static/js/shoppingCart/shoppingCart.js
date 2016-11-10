@@ -712,8 +712,6 @@ $(function() {
         }else{
             $(this).parents('.holder-list').remove();
         }
-        var shoppingCartId = $(this).attr("shoppingCartId");
-        deleteShoppingCart(shoppingCartId);
         totalItem();
         totalSum();
     });
