@@ -5,7 +5,20 @@
 /**
  *   发送创建订单请求
  */
+var flag = true;
 function createOrder(){
+	if(!flag){
+		 new Dialog({
+	            title:'提示',
+	            content:'<p class="mt60 f14">请勿重复提交表单数据！</p>',
+	            ok:'确定',
+	            afterOk:function(){
+	                console.log('111');
+	            }
+	        });
+	        return;
+	}
+	flag = false;
     $("#createOrderButton").removeAttr("onsubmit");
 
     var receiveAddressId = $("#receiveAddressId").val();

@@ -273,7 +273,7 @@
 			 <include refid="commonProcessDateColumns"/>
  		FROM t_order_settlement
 	</select>
-	<select id="listByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper">
+	<select id="listByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 			<include refid="commonProcessDateColumns"/>
 		FROM t_order_settlement WHERE 1=1 
@@ -388,7 +388,7 @@
 		SELECT count(1) AS totalcount FROM t_order_settlement WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
-	<select id="getByProperty" parameterType="Map" resultMap="OrderSettlementResultMapper">
+	<select id="getByProperty" parameterType="Map" resultMap="OrderSettlementResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_settlement WHERE 1=1
@@ -402,4 +402,32 @@
 		and business_type in (2,3,4)
 		<![CDATA[ limit 1 ]]>
 	</select>
+
+	<update id="updateConfirmSettlement" parameterType="OrderSettlement">
+		<![CDATA[ UPDATE t_order_settlement SET
+
+			 confirm_settlement=#{confirmSettlement}
+
+		WHERE settle_flow_id = #{settle_flow_id}  ]]>
+
+	</update>
+
+	<update id="updateSettlementPayFlowId" parameterType="OrderSettlement">
+		<![CDATA[ UPDATE   t_order_settlement SET
+			 confirm_settlement=#{confirmSettlement},
+             settle_flow_id = #{settleFlowId}  ]]>
+		<![CDATA[ WHERE 1 = 1 ]]>
+		<if test="businessType !=null and businessType !=''">
+			AND business_type = #{businessType}
+		</if>
+		<if test="custId !=null and custId !=''">
+			AND cust_id = #{custId}
+		</if>
+		<if test="supplyId !=null and supplyId !=''">
+			AND supply_id = #{supplyId}
+		</if>
+		<if test="flowId!= null and flowId!= ''">
+			AND flow_id=#{flowId}
+		</if>
+	</update>
 </mapper>

@@ -10,13 +10,13 @@
  **/
 package com.yyw.yhyc.order.mapper;
 
-import java.util.List;
-import java.util.Map;
-
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.mapper.GenericIBatisMapper;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
-import com.yyw.yhyc.mapper.GenericIBatisMapper;
-import com.yyw.yhyc.bo.Pagination;
+
+import java.util.List;
+import java.util.Map;
 
 public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettlement, Integer> {
 
@@ -24,4 +24,8 @@ public interface OrderSettlementMapper extends GenericIBatisMapper<OrderSettleme
 
 	public OrderSettlement getByProperty(Map<String,Object> map);
 	public OrderSettlement getByPropertyByReturnCheckFile(Map<String,Object> map);
+
+	public int updateConfirmSettlement(OrderSettlement orderSettlement);
+
+	public int updateSettlementPayFlowId(OrderSettlement orderSettlement);
 }

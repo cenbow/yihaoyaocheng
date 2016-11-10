@@ -300,9 +300,9 @@ public class ShoppingCartController extends BaseController {
 		UserDto userDto = super.getLoginUser();
 
 		//订单来源
-		if(UtilHelper.isEmpty(os)&&os.equals("os")){
+		if(UtilHelper.isNoEmpty(os)&&os.equals("os")){
 			orderCreateBean.setSource(3);
-		}else if(UtilHelper.isEmpty(os)&&os.equals("android")){
+		}else if(UtilHelper.isNoEmpty(os)&&os.equals("android")){
 			orderCreateBean.setSource(2);
 		}
 
