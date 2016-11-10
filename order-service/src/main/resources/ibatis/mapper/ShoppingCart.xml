@@ -475,6 +475,7 @@
 		<if test="spuCode!= null and spuCode!= ''">
 			AND spu_code=#{spuCode}
 		</if>
+		order by  sc.spu_code,sc.promotion_id desc
 	</select>
 
 
@@ -511,6 +512,7 @@
 		<if test="spuCode!= null and spuCode!= ''">
 			AND spu_code=#{spuCode}
 		</if>
+		order by  sc.spu_code,sc.promotion_id desc
 	</select>
 
 	<select id="queryShoppingCartStatistics" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="java.util.HashMap">

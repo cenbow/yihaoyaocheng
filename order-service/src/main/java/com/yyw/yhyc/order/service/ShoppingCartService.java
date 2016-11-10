@@ -884,8 +884,9 @@ public class ShoppingCartService {
 		if(!UtilHelper.isEmpty(shoppingCartList)){
 			resultMap.put("normalProduct",shoppingCartList.get(0).getShoppingCartId());
 			resultMap.put("normalProductNum",shoppingCartList.get(0).getProductCount());
-			resultMap.put("normalProductInfo",shoppingCart);
+			resultMap.put("normalProductInfo",shoppingCartList.get(0));
 		}
+		logger.info("加入进货单：处理普通商品,返回数据resultMap=" + resultMap);
 		return resultMap;
 	}
 

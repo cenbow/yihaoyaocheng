@@ -377,21 +377,27 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
  * @param _this 原活动商品节点
  */
 function addNewNormalProduct(_obj,_this){
+
+    console.info("超过活动商品限购数量，新增一条原价商品数据:");
+    console.info(_obj);
+    
     
     var spuCode = "142AFAZ120002" ;
     var supplyId = "33092";
     var productImgUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
-    var shoppingCartId = null;
-    var specification = null;
-    var productName = null;
-    var manufactures = null;
-    var productPrice = null;
-    var productCount = null;
-    var productSettlementPrice = null;
+    var shoppingCartId = "123456";
+    var specification = "测试规格";
+    var productName = "测试商品名";
+    var manufactures = "测试厂商";
+    var productPrice = 100.325;
+    var productCount = 1;
+    var productSettlementPrice = 100.325;
     var saleStart = null;
-    var upStep = null;
-    var productInventory = null;
-    var unit = null;
+    var upStep = 1;
+    var productInventory = 600;
+    var existProductInventory = true;
+    var unit = "叼";
+    var putawayStatus = 1;
     if(_obj != null){
         shoppingCartId = _obj.shoppingCartId;
         spuCode = _obj.spuCode ;
@@ -406,9 +412,45 @@ function addNewNormalProduct(_obj,_this){
         saleStart = _obj.saleStart;
         upStep = _obj.upStep;
         productInventory = _obj.productInventory;
+        existProductInventory = _obj.existProductInventory;
         unit = _obj.unit;
+        putawayStatus = _obj.putawayStatus;
+    }
+
+    /* 过期商品的html代码 */
+    var expiredProductHtml = "";
+    if(productPrice == null || productPrice <= 0){
+        expiredProductHtml ="<span class='inside-icon'>失效</span>";
+    }else if(existProductInventory == null || !existProductInventory){
+        expiredProductHtml ="<span class='inside-icon'>缺货</span>";
+    }else if(putawayStatus == null || putawayStatus != 1){
+        expiredProductHtml ="<span class='inside-icon'>缺货</span>";
     }
     
+    var showProductPriceStyleHtml = "block";
+    if( productPrice == null || productPrice <= 0){
+        showProductPriceStyleHtml = "none";
+    }
+    
+
+    /* 最小拆零包装代码 */
+    var upStepHtml ="";
+    if(upStep != null && upStep > 0 ){
+        upStepHtml += "<span class='color-gray9'>最小拆零包装:" + upStep + unit + "</span><br/>"
+    }
+    if(productInventory != null && productInventory > 500){
+        upStepHtml += "<span class='color-gray9'>库存 > 500</span>"
+    }else if(productInventory > 0 && productInventory <= 500){
+        upStepHtml += "<span class='color-gray9'>库存 : " + productInventory + "</span>"
+    }
+    
+    var productSettlementPriceHtml = "<input type='hidden' name='productSettlementPrice' />";
+    if(productPrice > 0  &&  existProductInventory && putawayStatus == 1){
+        productSettlementPriceHtml = "<input type='hidden' name='productSettlementPrice' value='"+fmoney(productSettlementPrice,3)+"'/>";
+    }
+    var its_buy_num_id = "its-buy-num_"+shoppingCartId;
+
+    /* 组装一条商品的HTML代码 */
     var htmlStr = "" +
         "<div class='holder-list'>" +
             "<ul>" +
@@ -419,6 +461,7 @@ function addNewNormalProduct(_obj,_this){
                 "</li>" +
 
                 "<li class='fl td-pic' style='cursor: pointer'" + 'onclick="gotoProductDetail(\''+ spuCode + '\',\''+ supplyId +'\')"'  +">" +
+                    + expiredProductHtml +
                     "<img src='" + productImgUrl + "'" +  "title='"+productName +" " + specification  +"' alt='"+productName +" " + specification  +"' />" +
                 "</li>" +
 
@@ -430,8 +473,8 @@ function addNewNormalProduct(_obj,_this){
                 "</li>"+
 
                 "<li class='fl td-price'>"+
-                    "<div style='display: block '>"+
-                        "¥<span>41.74</span>"+
+                    "<div style='display: "+ showProductPriceStyleHtml +" '>"+
+                        "¥<span>"+ productPrice +"</span>"+
                     "</div>"+
                 "</li>"+
 
@@ -442,22 +485,20 @@ function addNewNormalProduct(_obj,_this){
                                 "<div class='its-input'>"+
                                     "<a href='javascript:;' class='its-btn-reduce'>-</a>"+
                                     "<a href='javascript:;' class='its-btn-add'>+</a>"+
-                                    "<input value='1' class='its-buy-num'shoppingCartId='"+ shoppingCartId +"'  saleStart='" + saleStart + "' upStep='"+upStep
-                                        + "' preValue='"+productCount+"' productInventory='"+productInventory +"' id='its-buy-num_" + shoppingCartId +
+                                    "<input value='1' class='its-buy-num' shoppingCartId='"+ shoppingCartId +"'  saleStart='" + saleStart + "' upStep='"+upStep
+                                        + "' preValue='"+productCount+"' productInventory='"+productInventory +"' id='" + its_buy_num_id +
                                         + "' productPrice='"+fmoney(productPrice,3)+"'>"+
-
                                 "</div>"+
                             "</div>"+
                         "</div>"+
 
-                        "<span class='color-gray9'>最小拆零包装:"+upStep + unit +"</span>"+
-                        "<br>"+
-                        "<span class='color-gray9'>库存 : " + productInventory + "</span>"+
+                      + upStepHtml +
+
                     "</div>"+
                 "</li>"+
 
                 "<li class='fl td-sum'>"+
-                    "<input type='hidden' name='productSettlementPrice' value='"+fmoney(productSettlementPrice,3)+"'/>"+
+                    + productSettlementPriceHtml + 
                     "<div style='display: block '>"+
                         "¥<span>" + fmoney(productSettlementPrice,3) + "</span>"+
                     "</div>"+
