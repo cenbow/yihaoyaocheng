@@ -192,9 +192,6 @@
 		<if test="promotionId!= null and promotionId !=''">
 			AND promotion_id = #{promotionId}
 		</if>
-		<if test="promotionId == null || promotionId == ''">
-			AND promotion_id  is null
-		</if>
 		<if test="promotionName!= null and promotionName !=''">
 			AND promotion_name = #{promotionName}
 		</if>
@@ -359,7 +356,72 @@
 		<![CDATA[ SELECT ]]>
 			<include refid="commonProcessDateColumns"/>
 		FROM t_shopping_cart WHERE 1=1
-		<include refid="commonCondition"/>
+		<if test="shoppingCartId!= null and shoppingCartId!= ''">
+			AND shopping_cart_id=#{shoppingCartId}
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND cust_id=#{custId}
+		</if>
+		<if test="skuId!= null and skuId!= ''">
+			AND sku_id=#{skuId}
+		</if>
+		<if test="specification!= null and specification!= ''">
+			AND specification=#{specification}
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND supply_id=#{supplyId}
+		</if>
+		<if test="productId!= null and productId!= ''">
+			AND product_id=#{productId}
+		</if>
+		<if test="spuCode!= null and spuCode!= ''">
+			AND spu_code=#{spuCode}
+		</if>
+		<if test="productCodeCompany!= null and productCodeCompany!= ''">
+			AND product_code_company=#{productCodeCompany}
+		</if>
+		<if test="productName!= null and productName!= ''">
+			AND product_name=#{productName}
+		</if>
+		<if test="manufactures!= null and manufactures!= ''">
+			AND manufactures=#{manufactures}
+		</if>
+		<if test="productPrice!= null and productPrice!= ''">
+			AND product_price=#{productPrice}
+		</if>
+		<if test="productSettlementPrice!= null and productSettlementPrice!= ''">
+			AND product_settlement_price=#{productSettlementPrice}
+		</if>
+		<if test="productCount!= null and productCount!= ''">
+			AND product_count=#{productCount}
+		</if>
+		<if test="remark!= null and remark!= ''">
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''">
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''">
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''">
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''">
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="fromWhere!= null">
+			AND from_where = #{fromWhere}
+		</if>
+		<if test="promotionId!= null and promotionId !=''">
+			AND promotion_id = #{promotionId}
+		</if>
+		<if test="promotionId == null || promotionId == ''">
+			AND promotion_id  is null
+		</if>
+		<if test="promotionName!= null and promotionName !=''">
+			AND promotion_name = #{promotionName}
+		</if>
 	</select>
 	<select id="listPaginationByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper">
 		SELECT 
