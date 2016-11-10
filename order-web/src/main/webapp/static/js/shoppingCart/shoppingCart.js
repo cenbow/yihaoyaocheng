@@ -307,6 +307,8 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                 });
             }else if(null != normalProductInfo){
                 // addNewNormalProduct(normalProductInfo,_this);
+                //原本打算 动态增加html节点,但增加后节点里面所有控件都无法点击，需要重新绑定每个节点的js事件（特别是页首次加载完后的 js绑定事件）
+                //目前采取刷页面的方式
                 window.location.reload();
             }else{
                 var _normalProductShoppingCartId = "#its-buy-num_";
@@ -448,7 +450,10 @@ function addNewNormalProduct(_obj,_this){
     if(productPrice > 0  &&  existProductInventory && putawayStatus == 1){
         productSettlementPriceHtml = "<input type='hidden' name='productSettlementPrice' value='"+fmoney(productSettlementPrice,3)+"'/>";
     }
-    var its_buy_num_id = "its-buy-num_"+shoppingCartId;
+
+    var its_buy_num_id = "its-buy-num_" + shoppingCartId;
+    //console.info("its_buy_num_id=" + its_buy_num_id);
+    var its_buy_num_html = '<input value="1" class="its-buy-num" shoppingCartId="'+ shoppingCartId +'"  saleStart="' + saleStart + '" upStep="' + upStep + '" preValue="' + productCount + '" productInventory="' + productInventory + '" id="' + its_buy_num_id + '" productPrice="' + fmoney(productPrice,3) + '"/>';
 
     /* 组装一条商品的HTML代码 */
     var htmlStr = "" +
@@ -460,9 +465,9 @@ function addNewNormalProduct(_obj,_this){
                     "</div>"+
                 "</li>" +
 
-                "<li class='fl td-pic' style='cursor: pointer'" + 'onclick="gotoProductDetail(\''+ spuCode + '\',\''+ supplyId +'\')"'  +">" +
-                    + expiredProductHtml +
-                    "<img src='" + productImgUrl + "'" +  "title='"+productName +" " + specification  +"' alt='"+productName +" " + specification  +"' />" +
+                "<li class='fl td-pic' style='cursor: pointer'" + 'onclick="gotoProductDetail(\''+ spuCode + '\',\''+ supplyId +'\')"'  +">" ;
+    htmlStr +=  expiredProductHtml ;
+    htmlStr +=       "<img src='" + productImgUrl + "'" +  "title='"+productName +" " + specification  +"' alt='"+productName +" " + specification  +"' />" +
                 "</li>" +
 
                 "<li class='fl td-item'>" +
@@ -484,21 +489,20 @@ function addNewNormalProduct(_obj,_this){
                             "<div class='its-choose-amount fl'>"+
                                 "<div class='its-input'>"+
                                     "<a href='javascript:;' class='its-btn-reduce'>-</a>"+
-                                    "<a href='javascript:;' class='its-btn-add'>+</a>"+
-                                    "<input value='1' class='its-buy-num' shoppingCartId='"+ shoppingCartId +"'  saleStart='" + saleStart + "' upStep='"+upStep
-                                        + "' preValue='"+productCount+"' productInventory='"+productInventory +"' id='" + its_buy_num_id +
-                                        + "' productPrice='"+fmoney(productPrice,3)+"'>"+
+                                    "<a href='javascript:;' class='its-btn-add'>+</a>";
+        htmlStr +=                               its_buy_num_html ;
+        htmlStr +=
                                 "</div>"+
                             "</div>"+
-                        "</div>"+
-
-                      + upStepHtml +
-
+                        "</div>";
+        htmlStr +=  upStepHtml ;
+        htmlStr +=
                     "</div>"+
                 "</li>"+
 
-                "<li class='fl td-sum'>"+
-                    + productSettlementPriceHtml + 
+                "<li class='fl td-sum'>";
+        htmlStr+=       productSettlementPriceHtml ;
+    　　htmlStr+=　
                     "<div style='display: block '>"+
                         "¥<span>" + fmoney(productSettlementPrice,3) + "</span>"+
                     "</div>"+
@@ -509,7 +513,13 @@ function addNewNormalProduct(_obj,_this){
         "</div>";
 
     $(_this).parents('.order-holder').append(htmlStr);
+
+
+    /* 重新加载js */
+    // var body = $('body').remove('#shoppingCartJs');
+    // $("<scri"+"pt>"+"</scr"+"ipt>").attr({src:file,type:'text/javascript',id:'shoppingCartJs'}).append(body);
     
+    // $("#shoppingCartJs").attr({src: domainPath + "/static/js/shoppingCart/shoppingCart.js"});
 }
 
 
@@ -702,6 +712,8 @@ $(function() {
         }else{
             $(this).parents('.holder-list').remove();
         }
+        var shoppingCartId = $(this).attr("shoppingCartId");
+        deleteShoppingCart(shoppingCartId);
         totalItem();
         totalSum();
     });
