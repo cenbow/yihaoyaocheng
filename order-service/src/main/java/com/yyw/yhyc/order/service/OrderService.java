@@ -1019,7 +1019,7 @@ public class OrderService {
 				return returnFalse("部分商品您无法购买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-			if(UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0){
 				if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
 					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
 					return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
@@ -1040,7 +1040,7 @@ public class OrderService {
 			ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
 					seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
 			if(UtilHelper.isEmpty(productPromotionDto)){
-				continue;
+				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
 			}
 
 			/* 2、 校验 购买活动商品的数量 是否合法 */
