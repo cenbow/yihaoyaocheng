@@ -1,4 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+	String flowId =  request.getParameter("flowId");
+	flowId = flowId==null?"":flowId;
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,7 +40,7 @@
 
                             <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" id="flowId" name="flowId"
+                                <input type="text" class="form-control" id="flowId" name="flowId" value="<%=flowId%>"
                                        placeholder="">
                             </div>
 

@@ -2347,6 +2347,14 @@ public class OrderService {
 				log.error("order info :"+order);
 				throw new RuntimeException("订单取消失败");
 			}
+			//部分发货时，有可能产生补货单
+			OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+			orderExceptionDto.setFlowId(order.getFlowId());
+			orderExceptionDto.setOrderStatus(SystemOrderStatusEnum.BackgroundCancellation.getType());//标记订单为卖家取消状态
+			orderExceptionDto.setRemark(cancelResult);
+			orderExceptionDto.setUpdateUser(userName);
+			orderExceptionDto.setUpdateTime(now);
+			orderExceptionMapper.update(orderExceptionDto);
 
 			UserDto userDto = new UserDto();
 			userDto.setUserName(userName);

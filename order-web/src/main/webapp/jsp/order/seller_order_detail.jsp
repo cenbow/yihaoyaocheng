@@ -41,7 +41,7 @@
                                 <a class="undeline" href="${ctx}/orderException/getDetails-2/${orderDetailsDto.flowId}" >查看拒收订单</a>
                             </c:if>
                             <c:if test="${orderDetailsDto.orderStatus==10}">
-                                <a href="${ctx}/orderException/getReplenishmentDetails-2/${orderDetailsDto.flowId}" class="undeline">查看补货订单</a>
+                                <a href="${ctx}/orderException/sellerReplenishmentOrderManage?flowId=${orderDetailsDto.flowId}" class="undeline">查看补货订单</a>
                             </c:if>
                         </div>
                 </div>
