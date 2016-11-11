@@ -468,6 +468,16 @@ public class ShoppingCartService {
 			return resultMap;
 		}
 
+		if(UtilHelper.isEmpty(shoppingCart.getProductPrice()) || shoppingCart.getProductPrice().compareTo(new BigDecimal(0)) <= 0){
+			logger.info("非法商品价格! 传来的商品活动价格shoppingCart.getProductPrice() = " + shoppingCart.getProductPrice());
+			throw new Exception("非法商品价格");
+		}
+
+		if(shoppingCart.getProductPrice().compareTo(productPromotionDto.getPromotionPrice()) != 0){
+			logger.info("非法商品活动价格! 传来的商品活动价格productPromotionDto.getPromotionPrice() = " + productPromotionDto.getPromotionPrice() +",\n shoppingCart.getProductPrice() = " + shoppingCart.getProductPrice());
+			throw new Exception("非法商品活动价格");
+		}
+
 		/* 活动商品的限购逻辑(目前只有特价促销这一种活动类型) */
 		/* 当前购买的数量 < 最小起批量(minimumPacking)，  则不能购买 */
 		if(shoppingCart.getProductCount() < productPromotionDto.getMinimumPacking()){
