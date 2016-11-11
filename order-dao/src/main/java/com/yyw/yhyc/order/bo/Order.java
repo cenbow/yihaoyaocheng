@@ -912,6 +912,9 @@ public class Order extends Model{
 				", adviserName=" + adviserName +
 				", adviserPhoneNumber=" + adviserPhoneNumber +
 				", adviserRemark=" + adviserRemark +
+				", cancelMoney=" + cancelMoney +
+				", deliveryMoney=" + deliveryMoney +
+				", isDartDelivery=" + isDartDelivery +
 				'}';
 	}
 

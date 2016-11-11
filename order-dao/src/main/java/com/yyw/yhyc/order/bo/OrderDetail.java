@@ -554,6 +554,7 @@ public class OrderDetail extends Model{
 					", spuCode=" + spuCode +
 			    	", promotionId=" + promotionId +
 				    ", promotionName=" + promotionName +
+				    ", cancelProduceNum=" + cancelProduceNum +
 				"]";
 	}
 

@@ -371,6 +371,7 @@ public class OrderDeliveryDetail extends Model{
 				", updateTime='" + updateTime + '\'' +
 				", recieveCount=" + recieveCount +
 				", canReturnCount=" + canReturnCount +
+				", validUntil=" + validUntil +
 				'}';
 	}
 }
