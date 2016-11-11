@@ -286,6 +286,10 @@ public class ShoppingCartService {
 			throw new Exception("非法参数");
 		}
 
+		if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
+			shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
+		}
+
 		/* 商品来源的字段：如果该字段没有，则默认添加商品的来源是进货单 */
 		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
 			shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
@@ -667,7 +671,7 @@ public class ShoppingCartService {
 		ShoppingCart activityProductShoppingCart = new ShoppingCart();
 		BeanUtils.copyProperties(shoppingCart,activityProductShoppingCart);
 		activityProductShoppingCart.setProductCount(promotionProductNumStillCanBuy);
-		activityProductShoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+		activityProductShoppingCart.setProductSettlementPrice(activityProductShoppingCart.getProductPrice().multiply(new BigDecimal(activityProductShoppingCart.getProductCount())));
 		activityProductShoppingCart.setUpdateUser(userDto.getUserName());
 		logger.info("加入进货单:更新活动商品的数据shoppingCart = " + activityProductShoppingCart);
 		int resultCount =  shoppingCartMapper.update(activityProductShoppingCart);
