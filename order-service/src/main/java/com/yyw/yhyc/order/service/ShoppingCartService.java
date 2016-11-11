@@ -1089,6 +1089,16 @@ public class ShoppingCartService {
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
 				cartProductBean.setSpuCode(scd.getSpuCode());
+				Integer promotionId = null;
+				if(!UtilHelper.isEmpty(scd.getPromotionId()) && scd.getPromotionId() > 0 ){
+					promotionId = scd.getPromotionId();
+				}
+				cartProductBean.setPromotionId(promotionId);
+				String promotionName = null;
+				if(!UtilHelper.isEmpty(scd.getPromotionName())){
+					promotionName = scd.getPromotionName();
+				}
+				cartProductBean.setPromotionName(promotionName);
 				products.add(cartProductBean);
 			}
 			cartGroupData.setProducts(products);

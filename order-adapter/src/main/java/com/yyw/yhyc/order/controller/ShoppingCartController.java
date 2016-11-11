@@ -416,6 +416,8 @@ public class ShoppingCartController extends BaseController {
 				productInfoDto.setProductPrice(shoppingCart.getProductPrice());
 				productInfoDto.setProductCount(shoppingCart.getProductCount());
 				productInfoDto.setProductCodeCompany(shoppingCart.getProductCodeCompany());
+				productInfoDto.setPromotionId(shoppingCart.getPromotionId());
+				productInfoDto.setPromotionName(shoppingCart.getPromotionName());
 				productInfoDtoList.add(productInfoDto);
 			}
 
@@ -429,6 +431,13 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setLeaveMessage(orderBean.getLeaveMsg());
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
+
+			/* 销售顾问信息 */
+			orderDto.setAdviserCode(orderBean.getAdviserCode());
+			orderDto.setAdviserName(orderBean.getAdviserName());
+			orderDto.setAdviserPhoneNumber(orderBean.getAdviserPhoneNumber());
+			orderDto.setAdviserRemark(orderBean.getAdviserRemark());
+
 			orderDtoList.add(orderDto);
 		}
 		orderCreateDto.setOrderDtoList(orderDtoList);

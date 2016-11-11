@@ -7,6 +7,7 @@ import java.math.BigDecimal;
  * Created by luweibin on 2016/9/6.
  */
 public class CartProductBean implements Serializable,Cloneable {
+    private static final long serialVersionUID = -7384290110347695348L;
     private long shoppingCartId;//购物车ID
     private int quantity;//购买数量
     private int oldQuantity;//
@@ -27,6 +28,12 @@ public class CartProductBean implements Serializable,Cloneable {
     private String vendorName;//供应商名称
     private Integer vendorId;//供应商id
     private String spuCode;//商品SPU编码
+
+    /* 活动ID（商品所参加活动的活动id） */
+    private Integer promotionId;
+
+    /* 活动名称（商品所参加活动的活动名称） */
+    private String promotionName;
 
     public long getShoppingCartId() {
         return shoppingCartId;
@@ -188,6 +195,22 @@ public class CartProductBean implements Serializable,Cloneable {
         this.spuCode = spuCode;
     }
 
+    public Integer getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Integer promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public String getPromotionName() {
+        return promotionName;
+    }
+
+    public void setPromotionName(String promotionName) {
+        this.promotionName = promotionName;
+    }
+
     @Override
     public String toString() {
         return "CartProductBean{" +
@@ -211,6 +234,8 @@ public class CartProductBean implements Serializable,Cloneable {
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorId=" + vendorId +
                 ", spuCode='" + spuCode + '\'' +
+                ", promotionId='" + promotionId + '\'' +
+                ", promotionName='" + promotionName + '\'' +
                 '}';
     }
 }

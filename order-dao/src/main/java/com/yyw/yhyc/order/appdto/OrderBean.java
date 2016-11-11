@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class OrderBean implements Serializable{
 
+    private static final long serialVersionUID = -2270982949438087902L;
     private String orderId;                     //订单Id
     private String orderStatus;                 //订单状态
     private String createTime;                  //下单时间
@@ -33,6 +34,18 @@ public class OrderBean implements Serializable{
     private String orderStatusName;            //状态枚举值
     private Integer supplyId;                   //供应商id
     private List<Integer> shopCartIdList;     //购物车id
+
+    /* 销售顾问编码 */
+    private String adviserCode;
+
+    /* 销售顾问姓名 */
+    private String adviserName;
+
+    /* 销售顾问手机号码 */
+    private String adviserPhoneNumber;
+
+    /* 销售顾问备注 */
+    private String adviserRemark;
 
     public String getOrderStatusName() {
         return orderStatusName;
@@ -235,6 +248,38 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
+    public String getAdviserCode() {
+        return adviserCode;
+    }
+
+    public void setAdviserCode(String adviserCode) {
+        this.adviserCode = adviserCode;
+    }
+
+    public String getAdviserName() {
+        return adviserName;
+    }
+
+    public void setAdviserName(String adviserName) {
+        this.adviserName = adviserName;
+    }
+
+    public String getAdviserPhoneNumber() {
+        return adviserPhoneNumber;
+    }
+
+    public void setAdviserPhoneNumber(String adviserPhoneNumber) {
+        this.adviserPhoneNumber = adviserPhoneNumber;
+    }
+
+    public String getAdviserRemark() {
+        return adviserRemark;
+    }
+
+    public void setAdviserRemark(String adviserRemark) {
+        this.adviserRemark = adviserRemark;
+    }
+
     @Override
     public String toString() {
         return "OrderBean{" +
@@ -262,6 +307,10 @@ public class OrderBean implements Serializable{
                 ", postponeTime=" + postponeTime +
                 ", supplyId=" + supplyId +
                 ", shopCartIdList=" + shopCartIdList +
+                ", adviserCode=" + adviserCode +
+                ", adviserName=" + adviserName +
+                ", adviserPhoneNumber=" + adviserPhoneNumber +
+                ", adviserRemark=" + adviserRemark +
                 '}';
     }
 }
