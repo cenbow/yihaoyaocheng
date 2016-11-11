@@ -10,6 +10,8 @@
  **/
 package com.yyw.yhyc.order.bo;
 
+import java.math.BigDecimal;
+
 import com.yyw.yhyc.bo.Model;
 
 public class Order extends Model{
@@ -235,6 +237,47 @@ public class Order extends Model{
 	 */
 	private String adviserRemark;
 	
+	/**
+	 * 卖家发货是部分发货,且不补发货物,剩下的货物金额
+	 */
+	private BigDecimal cancelMoney;
+	
+	/**
+	 * 卖家发货是部分发货,所发货物金额
+	 */
+	private BigDecimal deliveryMoney;
+	
+	/**
+	 * 卖家是否部分发货,1-是,0-否
+	 */
+	private String isDartDelivery;
+	
+	
+	
+
+	public BigDecimal getCancelMoney() {
+		return cancelMoney;
+	}
+
+	public void setCancelMoney(BigDecimal cancelMoney) {
+		this.cancelMoney = cancelMoney;
+	}
+
+	public BigDecimal getDeliveryMoney() {
+		return deliveryMoney;
+	}
+
+	public void setDeliveryMoney(BigDecimal deliveryMoney) {
+		this.deliveryMoney = deliveryMoney;
+	}
+
+	public String getIsDartDelivery() {
+		return isDartDelivery;
+	}
+
+	public void setIsDartDelivery(String isDartDelivery) {
+		this.isDartDelivery = isDartDelivery;
+	}
 
 	public Integer getPayFlag() {
 		return payFlag;

@@ -485,6 +485,36 @@ public class OrderController extends BaseJsonController {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	/**
+	 * 销售商下载发货模板
+	 * @param flowId
+	 */
+	@RequestMapping(value = {"/exportBatchTemplate"}, method = RequestMethod.POST)
+	@ResponseBody
+	public void exportBatchTemplate(String batchTemplateFlowId){
+		
+		
+		String fileName = "发货模板.xls";
+		/* 设置字符集为'UTF-8' */
+		try {
+			response.setCharacterEncoding("UTF-8");
+			response.reset();
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition","attachment;filename=" + new String(fileName.getBytes("GBK"),"iso8859-1" ));
+
+			OutputStream os = response.getOutputStream();
+			HSSFWorkbook wb =this.orderExportService.exportSaleProduceTemplate(batchTemplateFlowId);
+
+			wb.write(os);
+			os.flush();
+			os.close();
+		}  catch (Exception e) {
+			logger.error("导出模板报错",e);
+		}
+		
+	}
 
 	/**
 	 * 导出销售订单信息

@@ -13,6 +13,8 @@ $(function () {
 
     //绑定省市区
     bindAreaData('province','city','district');
+    //绑定下载批号模板
+    blindDownLoadBatchTemplate();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -289,6 +291,19 @@ function cancleOrder(orderId) {
     $("#myModalOperate").modal().hide();
 
 }
+
+/**
+ * 绑定批号模板导入模板下载
+ */
+function blindDownLoadBatchTemplate(){
+	 $("#batchTemplateExport").on("click", function () {
+		 $("#exportTemplateForm").attr("action", ctx+"/order/exportBatchTemplate");
+		 $("#exportTemplateForm").submit();
+	});
+	 
+}
+
+
 /**
  * 发货
  * * @param orderId
@@ -296,6 +311,7 @@ function cancleOrder(orderId) {
 
 function sendDelivery(flowId) {
     $("#sendFlowId").val(flowId);
+    $("#batchTemplateFlowId").val(flowId);
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");
@@ -359,7 +375,7 @@ function checkImgType(this_) {
 }
 
 function sendDeliverysubmit(){
-
+	
     var delivery = $("input[type=radio][name=delivery]:checked");
     var ownw = $("input[type=radio][name=ownw]:checked");
 
@@ -404,6 +420,9 @@ function sendDeliverysubmit(){
             var obj=eval("(" + data + ")");
                 if(obj.code==0){
                     alertModal(obj.msg);
+                }else if(obj.code==1 && obj.isSomeSend && obj.isSomeSend==3){ //说明是部分发货成功了
+                	$("#myModalSendDelivery").modal("hide");
+                    $("#myConfirmOtherSendMessage").modal().hide();
                 }else{
                     $("#myModalPrompt").modal().hide();
                     $("#msgDiv").html("");

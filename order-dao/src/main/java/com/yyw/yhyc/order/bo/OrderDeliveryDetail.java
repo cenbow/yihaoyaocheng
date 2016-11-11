@@ -93,6 +93,11 @@ public class OrderDeliveryDetail extends Model{
 	 * 确认收货数量
 	 */
 	private java.lang.Integer recieveCount;
+	
+	/**
+	 * 有效期至
+	 */
+	private String validUntil;
 	/**
 	 * 可退还数量
      */
@@ -335,6 +340,16 @@ public class OrderDeliveryDetail extends Model{
 
 	public void setCanReturnCount(Integer canReturnCount) {
 		this.canReturnCount = canReturnCount;
+	}
+	
+	
+
+	public String getValidUntil() {
+		return validUntil;
+	}
+
+	public void setValidUntil(String validUntil) {
+		this.validUntil = validUntil;
 	}
 
 	@Override

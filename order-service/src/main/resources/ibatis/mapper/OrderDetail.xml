@@ -42,6 +42,7 @@
 		<result column="spu_code" property="spuCode"/>
 		<result column="promotion_id" property="promotionId"/>
 		<result column="promotion_name" property="promotionName"/>
+		<result column="cancel_produce_num" property="cancelProduceNum"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -70,6 +71,7 @@
 		, spu_code
 		, promotion_id
 		, promotion_name
+		,cancel_produce_num
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -97,6 +99,7 @@
 				, spu_code
 				, promotion_id
 				, promotion_name
+				,cancel_produce_num
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -125,6 +128,36 @@
 		, spu_code
 		, promotion_id
 		, promotion_name
+		,cancel_produce_num
+	</sql>
+	
+	<sql id="queryDetailByFlowIdCommonSql">
+		    c.order_detail_id,
+		    c.order_id,
+		    c.sku_id,
+		    c.specification,
+		    c.supply_id,
+		    c.product_id,
+		    c.brand_name,
+		    c.form_of_drug,
+		    c.product_name,
+		    c.product_code,
+		    c.manufactures_id,
+		    c.manufactures,
+		    c.product_price,
+		    c.product_settlement_price,
+		    c.product_count,
+		    c.recieve_count,
+		    c.remark,
+		    c.create_user,
+		    date_format(c.create_time, '%Y-%m-%d %H:%i:%s') create_time,
+		    c.update_user,
+		    date_format(c.update_time, '%Y-%m-%d %H:%i:%s') update_time,
+		    c.short_name,
+		    c.spu_code,
+		    c.promotion_id,
+		    c.promotion_name,
+		    c.cancel_produce_num
 	</sql>
 	
 	<sql id="commonCondition">
@@ -229,6 +262,7 @@
 				, #{spuCode}
 				, #{promotionId}
 				, #{promotionName}
+				, #{cancelProduceNum}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">
@@ -300,6 +334,9 @@
 		<if test="spuCode!= null and spuCode!= ''">
 			, spu_code=#{spuCode}
 		</if>
+		<if test="cancelProduceNum!= null">
+			, cancel_produce_num=#{cancelProduceNum}
+		</if>
 		<![CDATA[  WHERE order_detail_id = #{orderDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -348,6 +385,19 @@
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_detail WHERE order_Id= #{orderId}
+	</select>
+	
+	
+	<select id="listOrderDetailInfoByOrderFlowId" parameterType="java.lang.String" resultMap="OrderDetailResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="queryDetailByFlowIdCommonSql"/>
+		FROM
+		    t_order_detail c,
+		    t_order t
+		WHERE
+		    1=1
+		AND c.order_id=t.order_id
+		AND t.flow_id=#{flowId}
 	</select>
 
 	<select id="listByIds"  resultMap="OrderDetailResultMapper">

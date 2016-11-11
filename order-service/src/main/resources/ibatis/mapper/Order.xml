@@ -60,6 +60,9 @@
 		<result column="adviser_name" property="adviserName"/>
 		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
 		<result column="adviser_remark" property="adviserRemark"/>
+		<result column="cancel_money" property="cancelMoney"/>
+		<result column="delivery_money" property="deliveryMoney"/>
+		<result column="is_part_delivery" property="isDartDelivery"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -107,6 +110,9 @@
 		<result column="adviser_name" property="adviserName"/>
 		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
 		<result column="adviser_remark" property="adviserRemark"/>
+		<result column="cancel_money" property="cancelMoney"/>
+		<result column="delivery_money" property="deliveryMoney"/>
+		<result column="is_part_delivery" property="isDartDelivery"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -157,6 +163,9 @@
 		,adviser_name
 		,adviser_phone_number
 		,adviser_remark
+		,cancel_money
+		,delivery_money
+		,is_part_delivery
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -202,6 +211,9 @@
 				,adviser_name
 				,adviser_phone_number
 				,adviser_remark
+				,cancel_money
+				,delivery_money
+				,is_part_delivery
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -248,6 +260,9 @@
 		,adviser_name
 		,adviser_phone_number
 		,adviser_remark
+		,cancel_money
+		,delivery_money
+		,is_part_delivery
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -294,6 +309,9 @@
 		, T1.adviser_name
 		, T1.adviser_phone_number
 		, T1.adviser_remark
+		,T1.cancel_money
+		,T1.delivery_money
+		,T1.is_part_delivery
 	</sql>
 
 
@@ -341,6 +359,9 @@
 		, o.adviser_name
 		, o.adviser_phone_number
 		, o.adviser_remark
+		,o.cancel_money
+		,o.delivery_money
+		,o.is_part_delivery
 	</sql>
 
 	<sql id="commonCondition">
@@ -506,6 +527,9 @@
 				, #{adviserName}
 				, #{adviserPhoneNumber}
 				, #{adviserRemark}
+				, #{cancelMoney}
+				, #{deliveryMoney}
+				, #{isDartDelivery}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -635,6 +659,15 @@
 		</if>
 		<if test="adviserRemark!= null">
 			,adviser_remark=#{adviserRemark}
+		</if>
+		<if test="cancelMoney!= null">
+			,cancel_money=#{cancelMoney}
+		</if>
+		<if test="deliveryMoney!= null">
+			,delivery_money=#{deliveryMoney}
+		</if>
+		<if test="isDartDelivery!= null">
+			,is_part_delivery=#{isDartDelivery}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>

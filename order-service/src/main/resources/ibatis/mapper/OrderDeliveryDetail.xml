@@ -33,6 +33,7 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="recieve_count" property="recieveCount"/>
 		<result column="can_return_count" property="canReturnCount"/>
+		<result column="valid_until" property="validUntil"/>
 	</resultMap>
 
 	<resultMap type="OrderDeliveryDetailDto" id="OrderDeliveryDetailDtoResultMapper" extends="OrderDeliveryDetailResultMapper">
@@ -65,6 +66,7 @@
 		, update_time
 		, recieve_count
 		, can_return_count
+		,valid_until
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -83,6 +85,7 @@
 				, update_time
 				, recieve_count
 				, can_return_count
+				,valid_until
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -102,6 +105,7 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, recieve_count
 		, can_return_count
+		,valid_until
 	</sql>
 	
 	<sql id="commonCondition">
@@ -175,6 +179,7 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{recieveCount}
 				, #{canReturnCount}
+				, #{validUntil}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDeliveryDetail">
@@ -195,6 +200,7 @@
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, recieve_count=#{recieveCount}
 			, can_return_count=#{canReturnCount}
+			, valid_until=#{validUntil}
 		WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">

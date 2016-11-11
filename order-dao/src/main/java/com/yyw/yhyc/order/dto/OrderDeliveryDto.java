@@ -31,6 +31,8 @@ public class OrderDeliveryDto extends OrderDelivery {
     private String path;
     //文件名
     private String fileName;
+    
+    private boolean isSomeSend;//是否部分发货
 
     public int getOrderType() {
         return orderType;
@@ -97,8 +99,18 @@ public class OrderDeliveryDto extends OrderDelivery {
     public void setReceiveRegionName(String receiveRegionName) {
         this.receiveRegionName = receiveRegionName;
     }
+    
+    
 
-    @Override
+    public boolean isSomeSend() {
+		return isSomeSend;
+	}
+
+	public void setSomeSend(boolean isSomeSend) {
+		this.isSomeSend = isSomeSend;
+	}
+
+	@Override
     public String toString() {
         return "OrderDeliveryDto{" +
                 "receiveProvinceName='" + receiveProvinceName + '\'' +

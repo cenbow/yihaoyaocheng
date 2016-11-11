@@ -178,6 +178,41 @@
     </div>
 </div>
 
+   <!-- 当发货是部分发货的时候该对话框弹出 -->
+<div class="modal fade" id="myConfirmOtherSendMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">发货</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="cancelResult" class="col-xs-6 control-label">你此次为部分发货,<span style="color: red">剩余商品是否补发货</span>:</label>
+                        <div class="col-xs-6 control-label text-left">
+                               <input name="isBuFa" value="1" type="radio">是
+                               <input name="isBuFa" value="0" type="radio">否(不发货商品将进行退款)
+                        </div>
+                    </div>
+                    
+                   <div class="form-group">
+                        <label for="cancelResult" class="col-xs-3 control-label"><span style="color: red">*</span>说明:</label>
+                        <div class="col-xs-6 control-label text-left">
+                         <textarea type="text" class="form-control" id="bufaMark" name="bufaMark" placeholder="" maxlength="200"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="doCancle();">确定</button>
+                    <button type="button" id="closeM" class="btn btn-default" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="myModalPrompt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -195,6 +230,9 @@
         </div>
     </div>
 </div>
+<form action="" id="exportTemplateForm" method="post">
+	<input type="hidden" name="batchTemplateFlowId" id="batchTemplateFlowId">
+</form>
 <div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -220,7 +258,7 @@
                             <label class="col-xs-2 control-label">批号导入</label>
                             <div class="col-xs-7">
                                 <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
-                                <p class="padding-t-10"><a class="m-l-10 eyesee" href='${ctx}/static/include/excel/excelTemplate.xls'><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
+                                <p class="padding-t-10"><a class="m-l-10 eyesee" id="batchTemplateExport"><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
                             </div>
                         </div>
                         <div class="form-group">

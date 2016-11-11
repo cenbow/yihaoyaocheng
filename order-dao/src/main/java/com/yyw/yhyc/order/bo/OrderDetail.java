@@ -123,6 +123,11 @@ public class OrderDetail extends Model{
 	  *	记录更新时间
 	  */
 	private java.lang.String updateTime;
+	
+	/**
+	 * 卖家发货是部分发货,且不补发货物,剩下商品的数量
+	 */
+	private Integer cancelProduceNum;
 
 
 	/* 通用名 (二期)*/
@@ -140,7 +145,18 @@ public class OrderDetail extends Model{
 	* 活动名称
      */
 	private java.lang.String promotionName;
+	
+	
+	
 
+
+	public Integer getCancelProduceNum() {
+		return cancelProduceNum;
+	}
+
+	public void setCancelProduceNum(Integer cancelProduceNum) {
+		this.cancelProduceNum = cancelProduceNum;
+	}
 
 	/**
 	  *	
