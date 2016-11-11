@@ -307,7 +307,10 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                 });
             }else if(null != normalProductInfo){
                 // addNewNormalProduct(normalProductInfo,_this);
-                //原本打算 动态增加html节点,但增加后节点里面所有控件都无法点击，需要重新绑定每个节点的js事件（特别是页首次加载完后的 js绑定事件）
+                //原本打算 动态增加html节点,但增加后节点里面所有控件都无法点击，
+                // 需要重新绑定每个节点的js事件，特别是页首次加载完后的 js绑定事件。但是再次绑定事件后，出现各种奇葩问题，
+                //若要有完美的效果，页面上复杂的交互的效果应该由前端开发人员来做
+                
                 //目前采取刷页面的方式
                 window.location.reload();
             }else{
@@ -380,10 +383,6 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
  */
 function addNewNormalProduct(_obj,_this){
 
-    console.info("超过活动商品限购数量，新增一条原价商品数据:");
-    console.info(_obj);
-    
-    
     var spuCode = "142AFAZ120002" ;
     var supplyId = "33092";
     var productImgUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
@@ -514,18 +513,17 @@ function addNewNormalProduct(_obj,_this){
 
     $(_this).parents('.order-holder').append(htmlStr);
 
-
-    /* 重新加载js */
-    // var body = $('body').remove('#shoppingCartJs');
-    // $("<scri"+"pt>"+"</scr"+"ipt>").attr({src:file,type:'text/javascript',id:'shoppingCartJs'}).append(body);
-    
-    // $("#shoppingCartJs").attr({src: domainPath + "/static/js/shoppingCart/shoppingCart.js"});
 }
 
 
 
 $(function() {
+
+    /* 页面加载完毕后，首次加载页面节点js绑定的事件 */
+
     getSelectedShoppingCart();
+
+    /* 输入框失去焦点事件 */
     $('.its-buy-num').blur(function(){
         var shoppingCartId = $(this).parent().find('.its-buy-num').attr("shoppingCartId");
         // var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");//起批量
@@ -549,19 +547,16 @@ $(function() {
         console.info("转换后的value=" + value);
         updateNumInShoppingCart(shoppingCartId,value,this,'updateText',_preValue);
     });
-    //小计
-    $('.its-btn-reduce').click(function(){
 
+
+    /* 减少按钮 */
+    $('.its-btn-reduce').click(function(){
         var shoppingCartId = $(this).parent().find('.its-buy-num').attr("shoppingCartId");
         // var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");//起批量
         var upStep = $(this).parent().find('.its-buy-num').attr("upStep");//最小可拆零包装量(用于递增、递减)
         if(upStep == '' || Number(upStep) <=0){
             upStep=1;
         }
-        // if(saleStart == '' || Number(saleStart) <=0){
-        //     saleStart=1;
-        // }
-        // console.info("shoppingCartId=" + shoppingCartId );
         var value = 0;
         if(Number($(this).parent().find('.its-buy-num').val())-Number(upStep) <= Number(upStep)){
             $(this).parent().find('.its-buy-num').val(upStep);
@@ -570,40 +565,27 @@ $(function() {
         }else{
             value = Number($(this).parent().find('.its-buy-num').val()) - Number(upStep);
         }
-
-        //minusitem(this,value);
-        //totalSub(this);
-        //totalItem();
-        //totalSum();
-        //priceNeed();
         var _preValue =   $(this).parent().find('.its-buy-num').attr("preValue");
         updateNumInShoppingCart(shoppingCartId,value,this,'minusitem');
     });
-    $('.its-btn-add').click(function(){
 
+
+    /* 增加按钮 */
+    $('.its-btn-add').click(function(){
         var shoppingCartId = $(this).parent().find('.its-buy-num').attr("shoppingCartId");
         // var saleStart = $(this).parent().find('.its-buy-num').attr("saleStart");//起批量
         var upStep = $(this).parent().find('.its-buy-num').attr("upStep"); //最小可拆零包装量(用于递增、递减)
         if(upStep == '' || Number(upStep) <=0){
             upStep=1;
         }
-        // if(saleStart == '' || Number(saleStart) <=0){
-        //     saleStart=1;
-        // }
-        // console.info("shoppingCartId=" + shoppingCartId );
-
         if(Number($(this).parent().find('.its-buy-num').val())+Number(upStep) > Number(upStep)){
             $(this).parent().find('.its-btn-reduce').removeClass('its-btn-gray');
         }
         var value =  Number($(this).parent().find('.its-buy-num').val()) + Number(upStep);
-        //additem(this,upStep);
-        //totalSub(this);
-        //totalItem();
-        //totalSum();
-        //priceNeed();
         updateNumInShoppingCart(shoppingCartId,value,this,'add');
     });
-    //单选
+
+//单选
     $('.holder-list .cart-checkbox').click(function(){
         // var shoppingCartId = $(this).attr("shoppingCartId");
         // console.info("shoppingCartId=" + shoppingCartId );
@@ -632,7 +614,8 @@ $(function() {
             getSelectedShoppingCart();
         }
     });
-    //全选
+
+//全选
     $(".th-chk").click(function(){
         if($(".cart-checkbox",this).hasClass('select-all')){
             $('.cart-checkbox').removeClass('select-all');
@@ -647,7 +630,8 @@ $(function() {
         totalSum();
 
     });
-    //企业全选
+
+//企业全选
     $(".holder-top .cart-checkbox").click(function(){
         if($(this).hasClass('select-all')){
             $(this).parent().parent().find('.cart-checkbox').removeClass('select-all');
@@ -664,7 +648,8 @@ $(function() {
         totalItem();
         totalSum();
     });
-    // 删除选中商品
+
+// 删除选中商品
     $('.delete-items').click(function(){
         deleteSelectedShoppingCart();
         $(".order-holder").each(function(){
@@ -680,7 +665,8 @@ $(function() {
         totalItem();
         totalSum();
     });
-    //清除失效商品（缺货、下架等）
+
+//清除失效商品（缺货、下架等）
     $(".clear-items").click(function(){
         var _shoppingCartIdList = new Array();
         $(".order-holder").each(function(_index,_element){
@@ -703,7 +689,8 @@ $(function() {
         totalSum();
     });
 
-    // 删除
+
+// 删除的链接
     $('.td-op .btn-delete').click(function(){
         var orderHolder =$(this).parents('.order-holder');
         var holderList=$('.holder-list',orderHolder).length;
@@ -715,7 +702,7 @@ $(function() {
         totalItem();
         totalSum();
     });
-    //删除 提示
+//删除 提示
     $('.td-op .btn-notice').click(function(){
         new Dialog({
             title:'提示',
@@ -724,12 +711,12 @@ $(function() {
             ok:'确定'
         });
     });
-    //品种总计 商品总额
+//品种总计 商品总额
     totalItem();
     totalSum();
     priceNeed();
 
-    //结算判断
+//结算判断
     $('.os-btn-pay').click(function(){
         if($('.select-all').length<1){
             new Dialog({
@@ -785,7 +772,6 @@ $(function() {
             });
         }
     });
-
 });
 
 /**
