@@ -3124,6 +3124,8 @@ public class OrderService {
 		orderBean.setLeaveMsg(orderDetailsDto.getLeaveMessage());
 		orderBean.setQq("");
 		orderBean.setPayType(orderDetailsDto.getPayType());
+		orderBean.setPayTypeId(orderDetailsDto.getPayTypeId());
+		orderBean.setPayName(OnlinePayTypeEnum.getPayName(orderDetailsDto.getPayTypeId()));
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));

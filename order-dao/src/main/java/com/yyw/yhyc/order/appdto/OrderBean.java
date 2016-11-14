@@ -17,6 +17,8 @@ public class OrderBean implements Serializable{
     private List<OrderProductBean> productList;  //商品列表
     private String qq;                          //联系方式
     private Integer payType;                    //支付方式
+    private Integer payTypeId;                  //支付类型id
+    private String payName;                 //支付类型名称
     private Integer deliveryMethod;             //配送方式(1是自有物流 2是第三方物流)
     private Integer billType;                   //发票类型(1是增值税专用发票2是增值税普通发票)
     private double orderTotal;                  //订单总金额
@@ -234,34 +236,43 @@ public class OrderBean implements Serializable{
     public void setShopCartIdList(List<Integer> shopCartIdList) {
         this.shopCartIdList = shopCartIdList;
     }
+    
+    
 
-    @Override
-    public String toString() {
-        return "OrderBean{" +
-                "orderId='" + orderId + '\'' +
-                ", orderStatus='" + orderStatus + '\'' +
-                ", createTime='" + createTime + '\'' +
-                ", address=" + address +
-                ", supplyName='" + supplyName + '\'' +
-                ", leaveMsg='" + leaveMsg + '\'' +
-                ", productList=" + productList +
-                ", qq='" + qq + '\'' +
-                ", payType=" + payType +
-                ", deliveryMethod=" + deliveryMethod +
-                ", billType=" + billType +
-                ", orderTotal=" + orderTotal +
-                ", finalPay=" + finalPay +
-                ", exceptionOrderId='" + exceptionOrderId + '\'' +
-                ", applyTime='" + applyTime + '\'' +
-                ", returnDesc='" + returnDesc + '\'' +
-                ", merchantDesc='" + merchantDesc + '\'' +
-                ", varietyNumber=" + varietyNumber +
-                ", productNumber=" + productNumber +
-                ", residualTime=" + residualTime +
-                ", delayTimes=" + delayTimes +
-                ", postponeTime=" + postponeTime +
-                ", supplyId=" + supplyId +
-                ", shopCartIdList=" + shopCartIdList +
-                '}';
-    }
+    public Integer getPayTypeId() {
+		return payTypeId;
+	}
+
+	public void setPayTypeId(Integer payTypeId) {
+		this.payTypeId = payTypeId;
+	}
+
+
+	public String getPayName() {
+		return payName;
+	}
+
+	public void setPayName(String payName) {
+		this.payName = payName;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderBean [orderId=" + orderId + ", orderStatus=" + orderStatus
+				+ ", createTime=" + createTime + ", address=" + address
+				+ ", supplyName=" + supplyName + ", leaveMsg=" + leaveMsg
+				+ ", productList=" + productList + ", qq=" + qq + ", payType="
+				+ payType + ", payTypeId=" + payTypeId + ", payName="
+				+ payName + ", deliveryMethod=" + deliveryMethod
+				+ ", billType=" + billType + ", orderTotal=" + orderTotal
+				+ ", finalPay=" + finalPay + ", exceptionOrderId="
+				+ exceptionOrderId + ", applyTime=" + applyTime
+				+ ", returnDesc=" + returnDesc + ", merchantDesc="
+				+ merchantDesc + ", varietyNumber=" + varietyNumber
+				+ ", productNumber=" + productNumber + ", residualTime="
+				+ residualTime + ", delayTimes=" + delayTimes
+				+ ", postponeTime=" + postponeTime + ", orderStatusName="
+				+ orderStatusName + ", supplyId=" + supplyId
+				+ ", shopCartIdList=" + shopCartIdList + "]";
+	}
 }
