@@ -3136,6 +3136,8 @@ public class OrderService {
 		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
 		orderBean.setVarietyNumber(orderDetailsDto.getDetails().size());
+		orderBean.setAdviserName(orderDetailsDto.getAdviserName());
+		orderBean.setAdviserPhoneNumber(orderDetailsDto.getAdviserPhoneNumber());
 		//地址对象
 		AddressBean address=new AddressBean();
 		address.setDeliveryPhone(orderDetailsDto.getOrderDelivery().getReceiveContactPhone());

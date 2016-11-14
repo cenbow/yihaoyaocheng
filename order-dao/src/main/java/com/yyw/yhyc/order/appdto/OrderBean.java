@@ -34,9 +34,29 @@ public class OrderBean implements Serializable{
     private Integer postponeTime;               //能延期次数
     private String orderStatusName;            //状态枚举值
     private Integer supplyId;                   //供应商id
+    private String adviserName;                 //销售顾问姓名
+    private String adviserPhoneNumber;          //销售顾问手机号码
     private List<Integer> shopCartIdList;     //购物车id
 
-    public String getOrderStatusName() {
+    
+    
+    public String getAdviserName() {
+		return adviserName;
+	}
+
+	public void setAdviserName(String adviserName) {
+		this.adviserName = adviserName;
+	}
+
+	public String getAdviserPhoneNumber() {
+		return adviserPhoneNumber;
+	}
+
+	public void setAdviserPhoneNumber(String adviserPhoneNumber) {
+		this.adviserPhoneNumber = adviserPhoneNumber;
+	}
+
+	public String getOrderStatusName() {
         return orderStatusName;
     }
 
@@ -262,17 +282,18 @@ public class OrderBean implements Serializable{
 				+ ", createTime=" + createTime + ", address=" + address
 				+ ", supplyName=" + supplyName + ", leaveMsg=" + leaveMsg
 				+ ", productList=" + productList + ", qq=" + qq + ", payType="
-				+ payType + ", payTypeId=" + payTypeId + ", payName="
-				+ payName + ", deliveryMethod=" + deliveryMethod
-				+ ", billType=" + billType + ", orderTotal=" + orderTotal
-				+ ", finalPay=" + finalPay + ", exceptionOrderId="
-				+ exceptionOrderId + ", applyTime=" + applyTime
-				+ ", returnDesc=" + returnDesc + ", merchantDesc="
-				+ merchantDesc + ", varietyNumber=" + varietyNumber
-				+ ", productNumber=" + productNumber + ", residualTime="
-				+ residualTime + ", delayTimes=" + delayTimes
-				+ ", postponeTime=" + postponeTime + ", orderStatusName="
-				+ orderStatusName + ", supplyId=" + supplyId
+				+ payType + ", payTypeId=" + payTypeId + ", payName=" + payName
+				+ ", deliveryMethod=" + deliveryMethod + ", billType="
+				+ billType + ", orderTotal=" + orderTotal + ", finalPay="
+				+ finalPay + ", exceptionOrderId=" + exceptionOrderId
+				+ ", applyTime=" + applyTime + ", returnDesc=" + returnDesc
+				+ ", merchantDesc=" + merchantDesc + ", varietyNumber="
+				+ varietyNumber + ", productNumber=" + productNumber
+				+ ", residualTime=" + residualTime + ", delayTimes="
+				+ delayTimes + ", postponeTime=" + postponeTime
+				+ ", orderStatusName=" + orderStatusName + ", supplyId="
+				+ supplyId + ", adviserName=" + adviserName
+				+ ", adviserPhoneNumber=" + adviserPhoneNumber
 				+ ", shopCartIdList=" + shopCartIdList + "]";
 	}
 }
