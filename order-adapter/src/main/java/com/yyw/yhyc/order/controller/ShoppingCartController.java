@@ -433,10 +433,10 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
 
 			/* 销售顾问信息 */
-			orderDto.setAdviserCode(orderBean.getAdviserCode());
-			orderDto.setAdviserName(orderBean.getAdviserName());
-			orderDto.setAdviserPhoneNumber(orderBean.getAdviserPhoneNumber());
-			orderDto.setAdviserRemark(orderBean.getAdviserRemark());
+			orderDto.setAdviserCode(orderBean.getAdviser_code());
+			orderDto.setAdviserName(orderBean.getAdviser_name());
+			orderDto.setAdviserPhoneNumber(orderBean.getPhone_number());
+			orderDto.setAdviserRemark(orderBean.getRemark());
 
 			orderDtoList.add(orderDto);
 		}

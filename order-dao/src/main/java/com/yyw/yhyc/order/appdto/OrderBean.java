@@ -36,16 +36,16 @@ public class OrderBean implements Serializable{
     private List<Integer> shopCartIdList;     //购物车id
 
     /* 销售顾问编码 */
-    private String adviserCode;
+    private String adviser_code;
 
     /* 销售顾问姓名 */
-    private String adviserName;
+    private String adviser_name;
 
     /* 销售顾问手机号码 */
-    private String adviserPhoneNumber;
+    private String phone_number;
 
     /* 销售顾问备注 */
-    private String adviserRemark;
+    private String remark;
 
     public String getOrderStatusName() {
         return orderStatusName;
@@ -248,36 +248,36 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
-    public String getAdviserCode() {
-        return adviserCode;
+    public String getAdviser_code() {
+        return adviser_code;
     }
 
-    public void setAdviserCode(String adviserCode) {
-        this.adviserCode = adviserCode;
+    public void setAdviser_code(String adviser_code) {
+        this.adviser_code = adviser_code;
     }
 
-    public String getAdviserName() {
-        return adviserName;
+    public String getAdviser_name() {
+        return adviser_name;
     }
 
-    public void setAdviserName(String adviserName) {
-        this.adviserName = adviserName;
+    public void setAdviser_name(String adviser_name) {
+        this.adviser_name = adviser_name;
     }
 
-    public String getAdviserPhoneNumber() {
-        return adviserPhoneNumber;
+    public String getPhone_number() {
+        return phone_number;
     }
 
-    public void setAdviserPhoneNumber(String adviserPhoneNumber) {
-        this.adviserPhoneNumber = adviserPhoneNumber;
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
     }
 
-    public String getAdviserRemark() {
-        return adviserRemark;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setAdviserRemark(String adviserRemark) {
-        this.adviserRemark = adviserRemark;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     @Override
@@ -307,10 +307,10 @@ public class OrderBean implements Serializable{
                 ", postponeTime=" + postponeTime +
                 ", supplyId=" + supplyId +
                 ", shopCartIdList=" + shopCartIdList +
-                ", adviserCode=" + adviserCode +
-                ", adviserName=" + adviserName +
-                ", adviserPhoneNumber=" + adviserPhoneNumber +
-                ", adviserRemark=" + adviserRemark +
+                ", adviser_code=" + adviser_code +
+                ", adviser_name=" + adviser_name +
+                ", phone_number=" + phone_number +
+                ", remark=" + remark +
                 '}';
     }
 }
