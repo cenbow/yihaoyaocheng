@@ -22,10 +22,7 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.appdto.AddressBean;
-import com.yyw.yhyc.order.appdto.CartData;
-import com.yyw.yhyc.order.appdto.CartGroupData;
-import com.yyw.yhyc.order.appdto.CartProductBean;
+import com.yyw.yhyc.order.appdto.*;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -538,6 +535,7 @@ public class ShoppingCartService {
 		if(UtilHelper.isEmpty(shoppingCartListDtos)) return null;
 		CartData cartData = new CartData();
 		int totalCount = 0;
+		ProductPromotion productPromotion = null;
 		List<CartGroupData> shopCartList = new ArrayList<CartGroupData>();
 		for(ShoppingCartListDto scds : shoppingCartListDtos){
 			totalCount+=scds.getShoppingCartDtoList().size();
@@ -565,16 +563,19 @@ public class ShoppingCartService {
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
 				cartProductBean.setSpuCode(scd.getSpuCode());
-				Integer promotionId = null;
+
 				if(!UtilHelper.isEmpty(scd.getPromotionId()) && scd.getPromotionId() > 0 ){
-					promotionId = scd.getPromotionId();
+					productPromotion = new ProductPromotion();
+					productPromotion.setPromotionId(scd.getPromotionId());
+					productPromotion.setPromotionName(scd.getPromotionName());
+					productPromotion.setPromotionType(scd.getPromotionType());
+					productPromotion.setPromotionPrice(scd.getPromotionPrice());
+					productPromotion.setLimitNum(scd.getPromotionLimitNum());
+					productPromotion.setMinimumPacking(scd.getMinimumPacking());
+					productPromotion.setCurrentInventory(scd.getPromotionCurrentInventory());
+					cartProductBean.setProductPromotion(productPromotion);
 				}
-				cartProductBean.setPromotionId(promotionId);
-				String promotionName = null;
-				if(!UtilHelper.isEmpty(scd.getPromotionName())){
-					promotionName = scd.getPromotionName();
-				}
-				cartProductBean.setPromotionName(promotionName);
+
 				products.add(cartProductBean);
 			}
 			cartGroupData.setProducts(products);
@@ -1099,6 +1100,7 @@ public class ShoppingCartService {
 			shoppingCartDto.setPromotionLimitNum(productPromotionDto.getLimitNum());
 			shoppingCartDto.setPromotionSumInventory(productPromotionDto.getSumInventory());
 			shoppingCartDto.setPromotionCurrentInventory(productPromotionDto.getCurrentInventory());
+			shoppingCartDto.setPromotionType(productPromotionDto.getPromotionType());
 		}
 		long endTime = System.currentTimeMillis();
 		logger.info("处理单个商品的信息,总耗时："+(endTime - startTime)+"毫秒");

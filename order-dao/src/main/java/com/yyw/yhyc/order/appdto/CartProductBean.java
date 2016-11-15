@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * Created by luweibin on 2016/9/6.
+ * Created by luweibin on 2016/9/6
  */
 public class CartProductBean implements Serializable,Cloneable {
     private static final long serialVersionUID = -7384290110347695348L;
@@ -29,11 +29,8 @@ public class CartProductBean implements Serializable,Cloneable {
     private Integer vendorId;//供应商id
     private String spuCode;//商品SPU编码
 
-    /* 活动ID（商品所参加活动的活动id） */
-    private Integer promotionId;
-
-    /* 活动名称（商品所参加活动的活动名称） */
-    private String promotionName;
+    /* 促销商品活动信息 */
+    private ProductPromotion productPromotion;
 
     public long getShoppingCartId() {
         return shoppingCartId;
@@ -195,20 +192,12 @@ public class CartProductBean implements Serializable,Cloneable {
         this.spuCode = spuCode;
     }
 
-    public Integer getPromotionId() {
-        return promotionId;
+    public ProductPromotion getProductPromotion() {
+        return productPromotion;
     }
 
-    public void setPromotionId(Integer promotionId) {
-        this.promotionId = promotionId;
-    }
-
-    public String getPromotionName() {
-        return promotionName;
-    }
-
-    public void setPromotionName(String promotionName) {
-        this.promotionName = promotionName;
+    public void setProductPromotion(ProductPromotion productPromotion) {
+        this.productPromotion = productPromotion;
     }
 
     @Override
@@ -234,8 +223,7 @@ public class CartProductBean implements Serializable,Cloneable {
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorId=" + vendorId +
                 ", spuCode='" + spuCode + '\'' +
-                ", promotionId='" + promotionId + '\'' +
-                ", promotionName='" + promotionName + '\'' +
+                ", productPromotion='" + productPromotion.toString() + '\'' +
                 '}';
     }
 }
