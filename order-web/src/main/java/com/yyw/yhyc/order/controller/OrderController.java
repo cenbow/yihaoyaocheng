@@ -37,6 +37,7 @@ import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
+import com.yyw.yhyc.utils.CacheUtil;
 import com.yyw.yhyc.utils.DateUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -169,6 +170,20 @@ public class OrderController extends BaseJsonController {
 		if(UtilHelper.isEmpty(orderCreateDto))throw new Exception("非法参数");
 		orderCreateDto.setUserDto(userDto);
 		if(UtilHelper.isEmpty(orderCreateDto.getOrderDtoList()))throw new Exception("非法参数");
+		//每隔3秒提交订单，否则提示提交订单频率过高
+		String createOrderUserCache = null;
+		String createOrderUserCacheKey = "CREATEORDER_"+userDto.getCustId();
+		try {
+			createOrderUserCache = CacheUtil.getSingleton().get(createOrderUserCacheKey);
+		} catch (Exception e1) {
+			logger.error("获取缓存失败",e1);
+		}
+		if(StringUtils.isNotBlank(createOrderUserCache)){
+			throw new Exception("提交订单频率过高");
+		}else{
+			CacheUtil.getSingleton().add(createOrderUserCacheKey,createOrderUserCacheKey,3);
+		}
+
 		Map<String,Object> map = new HashMap<String, Object>();
 		for(OrderDto orderDto : orderCreateDto.getOrderDtoList()){
 			/* 校验采购商状态、资质 */
