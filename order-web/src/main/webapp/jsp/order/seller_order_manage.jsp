@@ -190,22 +190,30 @@
             <div class="modal-body">
                 <div class="form-horizontal">
                     <div class="form-group">
+                        <input type="hidden" id="hiddenFileName">
+                        <input type="hidden" id="hiddenReceiverAddressId">
+                        <input type="hidden" id="hiddenDeliveryContactPerson">
+                        <input type="hidden" id="hiddenDeliveryExpressNo">
+                        <input type="hidden" id="hiddenDeliveryMethod">
+                        <input type="hidden" id="hiddenDeliveryDateHidden">
+                        <input type="hidden" id="hiddenSendFlowId">
+                        <input type="hidden" id="hiddenOrderType" value="1">
                         <label for="cancelResult" class="col-xs-6 control-label">你此次为部分发货,<span style="color: red">剩余商品是否补发货</span>:</label>
                         <div class="col-xs-6 control-label text-left">
-                               <input name="isBuFa" value="1" type="radio">是
-                               <input name="isBuFa" value="0" type="radio">否(不发货商品将进行退款)
+                               <input name="selectPartDeliverty" value="1" type="radio">是
+                               <input name="selectPartDeliverty" value="0" type="radio">否(不发货商品将进行退款)
                         </div>
                     </div>
                     
                    <div class="form-group">
                         <label for="cancelResult" class="col-xs-3 control-label"><span style="color: red">*</span>说明:</label>
                         <div class="col-xs-6 control-label text-left">
-                         <textarea type="text" class="form-control" id="bufaMark" name="bufaMark" placeholder="" maxlength="200"></textarea>
+                         <textarea type="text" class="form-control" id="partComent" name="partComent" placeholder="" maxlength="200"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" onclick="doCancle();">确定</button>
+                    <button type="button" class="btn btn-danger" onclick="partDeliveryConfirm();">确定</button>
                     <button type="button" id="closeM" class="btn btn-default" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -247,6 +255,7 @@
                         <input type="hidden" id="deliveryContactPerson" name="deliveryContactPerson">
                         <input type="hidden" id="deliveryExpressNo" name="deliveryExpressNo">
                         <input type="hidden" id="deliveryMethod" name="deliveryMethod">
+                         <input type="hidden" id="deliveryDateHidden" name="deliveryDateHidden">
                         <input type="hidden" id="sendFlowId" name="flowId">
                         <input type="hidden" id="orderType" name="orderType" value="1">
                         <div class="form-group">

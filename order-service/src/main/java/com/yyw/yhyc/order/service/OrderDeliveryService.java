@@ -13,10 +13,11 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.alibaba.dubbo.common.json.JSON;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
-
+import com.yyw.yhyc.order.dto.OrderPartDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
@@ -29,6 +30,7 @@ import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
 import com.yyw.yhyc.utils.FileUtil;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -278,6 +280,10 @@ public class OrderDeliveryService {
         String code=map.get("code");
         if(code.equals("1") && orderDeliveryDto.isSomeSend()){ //发货成功了,且是部分发货
         	map.put("isSomeSend","3");
+        	List<OrderPartDeliveryDto> partDto=orderDeliveryDto.getPartDeliveryDtoList();
+        	String jsonStr=com.alibaba.fastjson.JSON.toJSONString(partDto);
+        	System.out.println("部分发货==="+jsonStr);
+        	map.put("partDeliveryList",jsonStr);
         }
         return map;
     }
@@ -398,6 +404,7 @@ public class OrderDeliveryService {
 
                 //验证商品数量是否相同
                 if (orderDeliveryDto.getOrderType() == 1) { //正常订单
+                	
                     for (String code : codeMap.keySet()) {
                         OrderDetail orderDetail = new OrderDetail();
                         orderDetail.setOrderId(orderId);
@@ -423,6 +430,23 @@ public class OrderDeliveryService {
                                   }
                             }else if(sendProductCount<orderDetailProductCount){ //发货的数量小于订单数量，那么代表正常订单中的部分发货
                             	orderDeliveryDto.setSomeSend(true);
+                            	orderDeliveryDto.setCodeMap(codeMap);
+                            	
+                            	OrderPartDeliveryDto partDeliveryDto=new OrderPartDeliveryDto();
+                            	partDeliveryDto.setFlowId(orderDeliveryDto.getFlowId());
+                            	partDeliveryDto.setOrderId(orderId);
+                            	partDeliveryDto.setProduceCode(code);
+                            	partDeliveryDto.setOrderDetailId(orderDetail.getOrderDetailId());
+                            	partDeliveryDto.setNoDeliveryNum((orderDetailProductCount-sendProductCount));
+                            	
+                            	 if(orderDeliveryDto.getPartDeliveryDtoList()==null){
+                            		 List<OrderPartDeliveryDto> partDeliveryList=new ArrayList<OrderPartDeliveryDto>();
+                            		 partDeliveryList.add(partDeliveryDto);
+                            		 orderDeliveryDto.setPartDeliveryDtoList(partDeliveryList);
+                            	 }else{
+                            		 orderDeliveryDto.getPartDeliveryDtoList().add(partDeliveryDto);
+                            	 }
+                            	
                             }
                             
                         }
@@ -776,8 +800,25 @@ public class OrderDeliveryService {
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrderId(order.getOrderId());
                 orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
+                
                 List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
+                 //如果是部分发货，那么应该扣减冻结发货的部分，而不是全部冻结
+                if(orderDeliveryDto.isSomeSend()){
+                	 Map<String,String> currentCodeMap=orderDeliveryDto.getCodeMap();
+                	 for (String code : currentCodeMap.keySet()) {
+                		     
+                		   for(OrderDetail innerOrderDetail : detailList){
+                			    String produceCode=innerOrderDetail.getProductCode();
+                			     if(produceCode.equals(code)){
+                			    	 innerOrderDetail.setProductCount(Integer.parseInt(currentCodeMap.get(code)));
+                			     }
+                			   
+                		   }
+                	 }
+                  }
                 productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
+                
+                
             } else {
                 //更新异常订单
                 OrderException orderException = orderExceptionMapper.getByExceptionOrderId(orderDeliveryDto.getFlowId());
