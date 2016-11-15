@@ -69,6 +69,8 @@ public class PayUtil {
 	
 	private static Properties propertiesForB2b = null;
 
+	private static Properties propertiesForMobile = null;
+
 
 	/**
 	 * 根据key值取得对应的value值
@@ -120,6 +122,26 @@ public class PayUtil {
 			 InputStream isB2b = PayUtil.class.getResourceAsStream("/com/chinapay/config/payForB2b.properties");
 			 propertiesForB2b = new Properties();
 			 propertiesForB2b.load(isB2b);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return propertiesForB2b.getProperty(key);
+	}
+
+
+	/**
+	 * 根据key值取得对应的value值
+	 *
+	 * @param key
+	 * @return
+	 */
+	public static String getMobileValue(String key) {
+		try {
+			if(propertiesForMobile==null){
+				InputStream isMobile = PayUtil.class.getResourceAsStream("/com/chinapay/config/payForMobile.properties");
+				propertiesForMobile = new Properties();
+				propertiesForMobile.load(isMobile);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

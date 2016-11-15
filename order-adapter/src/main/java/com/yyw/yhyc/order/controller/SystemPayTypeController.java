@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping(value = "/api/order/systemPayType")
+@RequestMapping(value = {"/api/order/systemPayType","/order/api/order/systemPayType"})
 public class SystemPayTypeController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(SystemPayTypeController.class);
 

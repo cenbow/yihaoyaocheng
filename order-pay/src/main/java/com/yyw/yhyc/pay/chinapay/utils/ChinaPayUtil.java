@@ -4,13 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChinaPayUtil {
-	
+
+	/* 银联B2C支付 */
 	public static final String B2C="1";
-	
+
+	/* 银联无卡支付 */
 	public static final String NOCARD="2";
-	
+
+	/* 银联B2B支付 */
 	public static final String B2B="3";
-	
+
+	/* 银联手机支付 */
+	public static final String MOBILE="4";
+
 	public static final int PAYINFOTYPE_ZF=1;//表示支付
  
 	public static final int PAYINFOTYPE_FZ=2;//表示分账

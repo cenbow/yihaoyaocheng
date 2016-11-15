@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/api/order/orderDelivery")
+@RequestMapping(value = {"/api/order/orderDelivery","/order/api/order/orderDelivery"})
 public class OrderDeliveryController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryController.class);
 

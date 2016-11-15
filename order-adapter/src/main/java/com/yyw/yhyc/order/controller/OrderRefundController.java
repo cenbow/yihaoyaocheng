@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping(value = "/api/order/orderRefund")
+@RequestMapping(value = {"/api/order/orderRefund" ,"/order/api/order/orderRefund"})
 public class OrderRefundController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderRefundController.class);
 

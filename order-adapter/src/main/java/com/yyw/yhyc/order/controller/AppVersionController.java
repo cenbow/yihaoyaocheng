@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api/version", headers = "Accept=application/json;")
+@RequestMapping(value = {"/api/version","/order/api/version"}, headers = "Accept=application/json;")
 public class AppVersionController extends BaseController {
   
 	@Autowired
