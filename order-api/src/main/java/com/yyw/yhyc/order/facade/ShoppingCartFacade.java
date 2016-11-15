@@ -108,14 +108,5 @@ public interface ShoppingCartFacade {
 	 * @param shoppingCart 进货单对象
 	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
      */
-	@Deprecated
 	Map<String, Object> addShoppingCart(ShoppingCart shoppingCart);
-
-	/**
-	 * 加入进货单
-	 * @param shoppingCart 进货单对象
-	 * @param sessionId 会话id
-	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
-	 */
-	Map<String, Object> addShoppingCart(ShoppingCart shoppingCart,String sessionId);
 }

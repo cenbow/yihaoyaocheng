@@ -15,14 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSONObject;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
-import com.yyw.yhyc.utils.CacheUtil;
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +34,6 @@ import com.yyw.yhyc.order.service.ShoppingCartService;
 @Service("shoppingCartFacade")
 public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartFacadeImpl.class);
-
-	public static final String CACHE_PREFIX = "passport";
 
 	private ShoppingCartService shoppingCartService;
 	
@@ -195,7 +190,6 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
 	 * @throws Exception
 	 */
-	@Deprecated
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart){
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("state", "F");
@@ -228,117 +222,4 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			return map;
 		}
 	}
-
-
-
-	/**
-	 * 加入进货单
-	 * @param shoppingCart 进货单对象
-	 * @param sessionId 会话id
-	 * @return 成功失败标识（state：[S-->成功, F-->失败]），进货单商品数量，进货单订单金额
-	 * @throws Exception
-	 */
-	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart,String sessionId){
-
-		logger.info("提供给外部使用的加入进货单接口，请求数据sessionId = " + sessionId + ",\nshoppingCart=" + shoppingCart);
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("state", "F");
-
-		if(UtilHelper.isEmpty(sessionId)){
-			map.put("message", "登陆超时");
-			return map;
-		}
-		UserDto userDto = getUserInfo(sessionId);
-		if(UtilHelper.isEmpty(userDto)){
-			map.put("message", "登陆超时");
-			return map;
-		}
-
-		logger.info("提供给外部使用的加入进货单接口，请求数据sessionId = " + sessionId + ",\n 当前登陆的用户信息=" + userDto);
-
-		if(UtilHelper.isEmpty(shoppingCart)) return map;
-		if(UtilHelper.isEmpty(shoppingCart.getCustId())) {
-			map.put("message", "采购商企业ID不能为空！");
-			return map;
-		}else if (UtilHelper.isEmpty(shoppingCart.getSupplyId())){
-			map.put("message", "供应商企业ID不能为空！");
-			return map;
-		}else if (UtilHelper.isEmpty(shoppingCart.getSpuCode())){
-			map.put("message", "SPU编码不能为空！");
-			return map;
-		}else if (UtilHelper.isEmpty(shoppingCart.getProductId())){
-			map.put("message", "商品ID不能为空！");
-			return map;
-		}else if (UtilHelper.isEmpty(shoppingCart.getProductCount())){
-			map.put("message", "商品数量不能为空！");
-			return map;
-		}
-
-		if(userDto.getCustId() != shoppingCart.getCustId()){
-			logger.error("非法参数！不能帮别人购买商品userDto.getCustId()= " + userDto.getCustId() + ",shoppingCart.getCustId()= " + shoppingCart.getCustId());
-			map.put("message", "非法参数！");
-			return map;
-		}
-
-		if(userDto.getCustId() == shoppingCart.getSupplyId()){
-			logger.error("非法参数,不能购买自己的商品! userDto.getCustId()= " + userDto.getCustId() + ",shoppingCart.getSupplyId()= " + shoppingCart.getSupplyId());
-			map.put("message", "非法参数！");
-			return map;
-		}
-
-		try {
-			return shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
-		}catch (Exception e){
-			logger.error(e.getMessage(), e);
-			map.put("message", e.getMessage());
-			return map;
-		}
-	}
-
-	/**
-	 * 根据sessionId获取用户信息
-	 * @param sessionId
-	 * @return
-     */
-	private UserDto getUserInfo(String sessionId){
-		logger.info("根据sessionId("+ sessionId +")获取用户信息,开始...");
-		UserDto userDto = null;
-
-		/* 解析用户信息 */
-		String user = CacheUtil.getSingleton().get(CACHE_PREFIX + sessionId);
-		logger.info("根据sessionId("+ sessionId +")获取用户信息,进行中...缓存中的用户信息为 ：" + user );
-
-		if(UtilHelper.isEmpty(user))  return userDto;
-
-		Map userMap = JSONObject.parseObject(user, HashMap.class);
-		logger.info("根据sessionId("+ sessionId +")获取用户信息,进行中...缓存中的用户信息转为Map ：" + userMap );
-		if(UtilHelper.isEmpty(userMap)) return userDto;
-
-		int custId = 0;
-		if(UtilHelper.isEmpty(userMap.get("enterprise_id")+"")){
-			return userDto;
-		}else{
-			custId = Integer.parseInt(userMap.get("enterprise_id")+"");
-		}
-
-		String userName = "";
-		if(UtilHelper.isEmpty(userMap.get("username")+"")){
-			return userDto;
-		}else{
-			userName = userMap.get("username")+"";
-		}
-
-		if(custId <= 0 || UtilHelper.isEmpty(userName)){
-			return userDto;
-		}
-
-		userDto = new UserDto();
-		userDto.setUser(userMap);
-		userDto.setCustId( custId);
-		userDto.setUserName(userName);
-		logger.info("根据sessionId("+ sessionId +")获取用户信息,完成，userDto = " + userDto);
-		return userDto;
-	}
-
 }
