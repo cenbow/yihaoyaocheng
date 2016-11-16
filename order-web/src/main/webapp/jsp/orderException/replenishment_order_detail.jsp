@@ -54,7 +54,7 @@
             <div class="row choseuser margin-t-20 border-gray">
                 <h2 class="row">订单信息</h2>
                 <div class="modify">
-                    <div class="form-horizontal padding-t-26">
+                   <%--  <div class="form-horizontal padding-t-26">
                         <div class="form-group">
                             <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人信息</label>
                         </div>
@@ -83,11 +83,18 @@
                             <label for="scope" class="col-xs-2 control-label">联系方式</label>
                             <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                         </div>
-                    </div>
+                    </div> --%>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
                             <label class="col-xs-12 color999 padding-l-40 font-size-16">其他信息</label>
                         </div>
+                        <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">采购商</label>
+	
+	                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.custName}</div>
+	                        <label for="scope" class="col-xs-2 control-label"></label>
+	                        <div class="col-xs-3 control-label text-left"></div>
+                       </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">关联订单支付方式</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
@@ -117,6 +124,41 @@
 
                     </div>
                 </div>
+                
+                
+                 <div class="form-horizontal padding-t-26">
+                    <div class="form-group">
+                        <label class="col-xs-12 color999 padding-l-40 font-size-16">收货地址</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">收货地址</label>
+                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receiveAddress}</div>
+                         <label for="scope" class="col-xs-2 control-label">收货人</label>
+                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receivePerson}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">联系方式</label>
+                        <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.receiveContactPhone}</div>
+                    </div>
+                </div>
+                 <div class="form-horizontal padding-t-26">
+                    <div class="form-group">
+                        <label class="col-xs-12 color999 padding-l-40 font-size-16">发货地址</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">发货地址</label>
+                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryAddress}</div>
+                        <label for="scope" class="col-xs-2 control-label">发货人</label>
+
+                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">联系方式</label>
+
+                        <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
+                    </div>
+                </div>
+                
             </div>
 
 

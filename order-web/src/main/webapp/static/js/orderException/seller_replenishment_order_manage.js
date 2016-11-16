@@ -12,6 +12,9 @@ $(function () {
     bindSearchBtn();
     //绑定省市区
     bindAreaData('province','city','area');
+    
+    //绑定下载批号模板
+    blindDownLoadBatchTemplate();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -24,6 +27,17 @@ function pasretFormData() {
     params.pageSize = 20;
     params.param = p;
 
+}
+
+/**
+ * 绑定批号模板导入模板下载
+ */
+function blindDownLoadBatchTemplate(){
+	 $("#batchTemplateExport").on("click", function () {
+		 $("#exportTemplateForm").attr("action", ctx+"/order/exportBatchTemplate");
+		 $("#exportTemplateForm").submit();
+	});
+	 
 }
 /**
  * 绑定省市区操作
@@ -280,6 +294,8 @@ function format(date){
 
 function sendDelivery(exceptionOrderId) {
     $("#sendFlowId").val(exceptionOrderId);
+    $("#batchTemplateFlowId").val(exceptionOrderId);
+    $('#orderTypeTemplate').val("2"); //补货订单发货
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");

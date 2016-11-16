@@ -156,6 +156,10 @@
         </div>
     </div>
 </div>
+<form action="" id="exportTemplateForm" method="post">
+	<input type="hidden" name="batchTemplateFlowId" id="batchTemplateFlowId">
+	<input type="hidden" name="orderType" id="orderTypeTemplate">
+</form>
 <div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -181,7 +185,7 @@
                             <label class="col-xs-2 control-label">批号导入</label>
                             <div class="col-xs-7">
                                 <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
-                                <p class="padding-t-10"><a class="m-l-10 eyesee" href='${ctx}/static/include/excel/excelTemplate.xls'><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
+                               <p class="padding-t-10"><a class="m-l-10 eyesee" id="batchTemplateExport"><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
                             </div>
                         </div>
                         <div class="form-group">

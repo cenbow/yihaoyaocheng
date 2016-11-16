@@ -493,7 +493,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportBatchTemplate"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportBatchTemplate(String batchTemplateFlowId){
+	public void exportBatchTemplate(String batchTemplateFlowId,String orderType){
 		
 		
 		String fileName = "发货模板.xls";
@@ -505,7 +505,7 @@ public class OrderController extends BaseJsonController {
 			response.setHeader("Content-Disposition","attachment;filename=" + new String(fileName.getBytes("GBK"),"iso8859-1" ));
 
 			OutputStream os = response.getOutputStream();
-			HSSFWorkbook wb =this.orderExportService.exportSaleProduceTemplate(batchTemplateFlowId);
+			HSSFWorkbook wb =this.orderExportService.exportSaleProduceTemplate(batchTemplateFlowId,orderType);
 
 			wb.write(os);
 			os.flush();

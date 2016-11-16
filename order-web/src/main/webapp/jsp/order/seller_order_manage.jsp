@@ -240,6 +240,7 @@
 </div>
 <form action="" id="exportTemplateForm" method="post">
 	<input type="hidden" name="batchTemplateFlowId" id="batchTemplateFlowId">
+	<input type="hidden" name="orderType" id="orderTypeTemplate">
 </form>
 <div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">

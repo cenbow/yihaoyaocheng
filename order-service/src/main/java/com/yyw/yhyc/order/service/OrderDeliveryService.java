@@ -652,11 +652,11 @@ public class OrderDeliveryService {
         String filePath = "";
         //生成错误excel和发货记录
         if (errorList.size() > 0) {
-            String[] headers = {"序号", "订单编码", "商品编码", "批号", "数量", "失败原因"};
+        	 String[] headers = {"序号", "订单编码", "商品编码","通用名","规格","厂商","批号","有效期至", "数量", "失败原因"};
             List<Object[]> dataset = new ArrayList<Object[]>();
             for (Map<String, String> dataMap : errorList) {
                 dataset.add(new Object[]{
-                        dataMap.get("0"), dataMap.get("1"), dataMap.get("2"), dataMap.get("3"), dataMap.get("4"), dataMap.get("5")
+                		 dataMap.get("0"), dataMap.get("1"), dataMap.get("2"), dataMap.get("3"), dataMap.get("4"), dataMap.get("5"),dataMap.get("6"),dataMap.get("7"),dataMap.get("8"),dataMap.get("9")
                 });
             }
             filePath = orderDeliveryDto.getPath() + ExcelUtil.downloadExcel("发货批号导入信息", headers, dataset, orderDeliveryDto.getPath());
@@ -704,9 +704,10 @@ public class OrderDeliveryService {
                     orderDeliveryDetail.setOrderId(orderReturn.getOrderId());
                     orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
                     orderDeliveryDetail.setDeliveryStatus(1);
-                    orderDeliveryDetail.setBatchNumber(rowMap.get("3"));
+                    orderDeliveryDetail.setBatchNumber(rowMap.get("6"));//批号
                     orderDeliveryDetail.setOrderDetailId(orderReturn.getOrderDetailId());
-                    orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("4")));
+                    orderDeliveryDetail.setDeliveryProductCount(Integer.parseInt(rowMap.get("8")));
+                    orderDeliveryDetail.setValidUntil(rowMap.get("7")); //有效期至
                     orderDeliveryDetail.setImportFileUrl(excelPath);
                     orderDeliveryDetail.setCreateTime(now);
                     orderDeliveryDetail.setUpdateTime(now);
@@ -1157,11 +1158,7 @@ public class OrderDeliveryService {
                         stringBuffer.append("商品编码不能为空,");
                     }
 
-                    if (UtilHelper.isEmpty(rowMap.get("3"))) {
-                        stringBuffer.append("批号为不能空,");
-                    }
-
-                    if (UtilHelper.isEmpty(rowMap.get("4"))) {
+                    if (UtilHelper.isEmpty(rowMap.get("8"))) {
                         stringBuffer.append("数量为空,");
                     }
 
@@ -1172,7 +1169,7 @@ public class OrderDeliveryService {
                     //如果有必填为空则记录错误返回下一次循环
                     if (stringBuffer.length() > 0) {
                         errorMap = rowMap;
-                        errorMap.put("5", stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length() - 1) + "", "。"));
+                        errorMap.put("9", stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length() - 1) + "", "。"));
                         errorList.add(errorMap);
                         continue;
                     } else {
@@ -1195,14 +1192,14 @@ public class OrderDeliveryService {
                                 }
                                 if (stringBuffer.length() > 0) {
                                     errorMap = rowMap;
-                                    errorMap.put("5", stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length() - 1) + "", "。"));
+                                    errorMap.put("9", stringBuffer.toString().replace(stringBuffer.charAt(stringBuffer.length() - 1) + "", "。"));
                                     errorList.add(errorMap);
                                     continue;
                                 } else {
                                     if (UtilHelper.isEmpty(codeMap.get(rowMap.get("2")))) {
-                                        codeMap.put(rowMap.get("2"), rowMap.get("4"));
+                                        codeMap.put(rowMap.get("2"), rowMap.get("8"));
                                     } else {
-                                        codeMap.put(rowMap.get("2"), String.valueOf(Integer.parseInt(codeMap.get(rowMap.get("2"))) + Integer.parseInt(rowMap.get("4"))));
+                                        codeMap.put(rowMap.get("2"), String.valueOf(Integer.parseInt(codeMap.get(rowMap.get("2"))) + Integer.parseInt(rowMap.get("8"))));
                                     }
                                 }
                             }
@@ -1233,7 +1230,7 @@ public class OrderDeliveryService {
                         }
                         if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
                             errorMap = new HashMap<String, String>();
-                            errorMap.put("5", "商品编码为" + code + "的商品导入数量不等于换货数量");
+                            errorMap.put("9", "商品编码为" + code + "的商品导入数量不等于换货数量");
                             errorList.add(errorMap);
                         }
                     }

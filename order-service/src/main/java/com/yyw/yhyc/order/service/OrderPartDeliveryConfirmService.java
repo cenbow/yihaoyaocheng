@@ -19,6 +19,7 @@ import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderPartDeliveryDto;
@@ -606,6 +607,10 @@ private void savePartDeliveryException(OrderDeliveryDto orderDeliveryDto,String 
 			orderException.setUpdateTime(now);
 			orderException.setUpdateUser(userDto.getUserName());
 			orderExceptionMapper.save(orderException);
+			
+			
+			//保存未发货的商品
+			this.saveOrderReturn(orderDeliveryDto, now, order, exceptionOrderId);
 
 			//插入异常订单日志
 			OrderTrace orderTrace1 = new OrderTrace();
@@ -620,6 +625,61 @@ private void savePartDeliveryException(OrderDeliveryDto orderDeliveryDto,String 
 			orderTrace1.setCreateUser(userDto.getUserName());
 			orderTraceMapper.save(orderTrace1);
 
+	
+}
+
+/**
+ * 将未发出去的货物保存起来
+ * @param orderDeliveryDto
+ * @param now
+ * @param order
+ * @param exceptionOrderId
+ */
+private void  saveOrderReturn(OrderDeliveryDto orderDeliveryDto,String now,Order order,String exceptionOrderId){
+	
+	//将没有发出去的货物保存插入t_order_return表
+	List<OrderPartDeliveryDto> noDeliveryList=orderDeliveryDto.getPartDeliveryDtoList();
+	UserDto userDto=orderDeliveryDto.getUserDto();
+	if(noDeliveryList!=null && noDeliveryList.size()>0){
+		for(OrderPartDeliveryDto partBean : noDeliveryList){
+			
+			OrderReturn orderReturn=new OrderReturn();
+			orderReturn.setOrderDetailId(partBean.getOrderDetailId());
+			orderReturn.setOrderId(order.getOrderId());
+			orderReturn.setCustId(userDto.getCustId());
+			orderReturn.setReturnCount(partBean.getNoDeliveryNum());
+			BigDecimal moneyTotal = new BigDecimal(0);
+			BigDecimal countBig=new BigDecimal(orderReturn.getReturnCount());
+			moneyTotal = moneyTotal.add(partBean.getProducePrice().multiply(countBig));
+			orderReturn.setReturnPay(moneyTotal);
+			orderReturn.setReturnType("3");
+			orderReturn.setReturnDesc("");
+			orderReturn.setFlowId(order.getFlowId());
+			orderReturn.setReturnStatus("1");//未处理
+			orderReturn.setCreateTime(now);
+			orderReturn.setUpdateTime(now);
+			orderReturn.setCreateUser(userDto.getUserName());
+			orderReturn.setUpdateUser(userDto.getUserName());
+			orderReturn.setExceptionOrderId(exceptionOrderId);
+			
+			
+			OrderDeliveryDetail parameterDelivery=new OrderDeliveryDetail();
+			parameterDelivery.setOrderId(order.getOrderId());
+			parameterDelivery.setFlowId(order.getFlowId());
+			parameterDelivery.setOrderDetailId(partBean.getOrderDetailId());
+			
+			List<OrderDeliveryDetail> deliverDetailList=this.orderDeliveryDetailMapper.listByProperty(parameterDelivery);
+			OrderDeliveryDetail currenDetailDelivery=deliverDetailList.get(0); 
+			
+			orderReturn.setOrderDeliveryDetailId(currenDetailDelivery.getOrderDeliveryDetailId());
+			orderReturn.setBatchNumber(currenDetailDelivery.getBatchNumber());
+			orderReturn.setProductCode(partBean.getProduceCode());
+			orderReturnMapper.save(orderReturn);
+			
+		}
+		
+	}
+	
 	
 }
 

@@ -1,5 +1,6 @@
 package com.yyw.yhyc.order.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.enmu.BillTypeEnum;
+import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderRefundMapper;
+import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 
 @Service("orderExportService")
 public class OrderExportService {
@@ -35,6 +42,10 @@ public class OrderExportService {
 	
 	@Autowired
 	private OrderExceptionService orderExceptionService;
+	@Autowired
+	private OrderExceptionMapper orderExceptionMapper;
+	@Autowired
+	private OrderReturnMapper orderReturnMapper;
 	
 	private final static Map<String, String> orderTypeMap = new HashMap<String, String>(); 
 	
@@ -564,12 +575,60 @@ public class OrderExportService {
     * @param orderDto
     * @return
     */
-    public HSSFWorkbook exportSaleProduceTemplate(String flowId){
+    public HSSFWorkbook exportSaleProduceTemplate(String flowId,String orderType){
+    	List<OrderDetail> list=null;
+    	
+    	 if(orderType.equals("2")){ //补货订单
+    		 Map<String,Object> map=new HashMap<String,Object>();
+	    		 map.put("exceptionOrderId", flowId);
+	    		 map.put("returnType","3");
+    		 List<OrderReturnDto> orderReturnList=this.orderReturnMapper.getOrderReturnByTypeAndExceptionId(map); //补货
+    		 
+    		 if(orderReturnList!=null && orderReturnList.size()>0){
+    			
+    			 list=new ArrayList<OrderDetail>();
+    			 
+    			 for(OrderReturnDto returnBean : orderReturnList){
+    				 OrderDetail detailBean=new OrderDetail();
+    				 detailBean.setProductCode(returnBean.getProductCode());
+    				 detailBean.setShortName(returnBean.getShortName());
+    				 detailBean.setSpecification(returnBean.getSpecification());
+    				 detailBean.setManufactures(returnBean.getManufactures());
+    				 detailBean.setProductCount(returnBean.getReturnCount());
+    				 
+    				 list.add(detailBean);
+    			 }
+    		 }
+    	 }else if(orderType.equals("3")){ //换货
+             //换货的时候flowid是主键
+    		 OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(flowId));
+    		 flowId=orderException.getExceptionOrderId();
+    		 Map<String,Object> map=new HashMap<String,Object>();
+    		 map.put("exceptionOrderId",flowId);
+    		 map.put("returnType","2");
+		    List<OrderReturnDto> orderReturnList=this.orderReturnMapper.getOrderReturnByTypeAndExceptionId(map); //换货
+    		 
+    		 if(orderReturnList!=null && orderReturnList.size()>0){
+    			
+    			 list=new ArrayList<OrderDetail>();
+    			 
+    			 for(OrderReturnDto returnBean : orderReturnList){
+    				 OrderDetail detailBean=new OrderDetail();
+    				 detailBean.setProductCode(returnBean.getProductCode());
+    				 detailBean.setShortName(returnBean.getShortName());
+    				 detailBean.setSpecification(returnBean.getSpecification());
+    				 detailBean.setManufactures(returnBean.getManufactures());
+    				 detailBean.setProductCount(returnBean.getReturnCount());
+    				 list.add(detailBean);
+    			 }
+    		 }
+    	 }else{
+    		list=this.orderDetailService.queryOrderDetailByOrderFlowId(flowId);
+    	 }
+    	
     	HSSFWorkbook  wb = new HSSFWorkbook(); 
 		HSSFSheet sheet = wb.createSheet("发货明细");
 		
-	    List<OrderDetail> list=this.orderDetailService.queryOrderDetailByOrderFlowId(flowId);
-	    
 	    //设置列宽
 		sheet.setDefaultColumnWidth(30);  
 		sheet.setDefaultRowHeightInPoints(20);  

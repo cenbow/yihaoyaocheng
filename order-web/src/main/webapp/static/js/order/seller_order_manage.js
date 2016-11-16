@@ -312,6 +312,7 @@ function blindDownLoadBatchTemplate(){
 function sendDelivery(flowId) {
     $("#sendFlowId").val(flowId);
     $("#batchTemplateFlowId").val(flowId);
+    $("#orderTypeTemplate").val("1"); //正常订单发货
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");
@@ -418,24 +419,24 @@ function partDeliveryConfirm(){
 	            tipRemove();
 	            if (data!=null) {
 	            	 console.info(data);
-	                 if(obj.code==0){
-	                	 alertModal(obj.msg);
+	                 if(data.code==0){
+	                	 alertModal(data.msg);
 	                 }else{
 	                	 
 	                	 $("#myConfirmOtherSendMessage").modal("hide");
 	                     $("#myModalPrompt").modal().hide();
 	                     $("#msgDiv").html("");
 	                     var div = "";
-	                     if(obj.code==1){
+	                     if(data.code==1){
 	                         div += " <p class='font-size-20 red'><b>发货成功</b></p>"
 	                         if(fileName){
 	                             div += "<p>可在订单详情中查看批号的导入详情!</p>";
 	                         }
 	                         pasretFormData();
 	                         doRefreshData(params);
-	                     }else if(obj.code==2){
+	                     }else if(data.code==2){
 	                         div += "<p class='font-size-20 red'><b>发货失败</b></p><p>批号信息导入有误，可以直接下载导入失败原因，也可以进入订单详情下载导入失败原因！</p>";
-	                         div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+obj.fileName+"&fileName=发货批号导入信息'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
+	                         div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+data.fileName+"&fileName=发货批号导入信息'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
 	                     }
 	                     $("#msgDiv").append(div);
 	                	 
