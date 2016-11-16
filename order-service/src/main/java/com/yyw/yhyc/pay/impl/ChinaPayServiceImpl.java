@@ -188,6 +188,8 @@ public class ChinaPayServiceImpl implements PayService {
             fromWhere=ChinaPayUtil.NOCARD;
         }else if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
             fromWhere=ChinaPayUtil.B2B;
+        }else if(OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().intValue() == systemPayType.getPayTypeId().intValue()){
+            fromWhere=ChinaPayUtil.MOBILE;
         }else{
             fromWhere=ChinaPayUtil.B2C;
         }

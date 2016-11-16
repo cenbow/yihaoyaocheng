@@ -138,9 +138,9 @@ public class HttpRequestHandler {
 		}
 		String transResvedStr = null;
 		String cardResvedStr = null;
-		if (cardInfoJson != null)
+		if (cardInfoJson != null && cardInfoJson.size() > 0)
 			cardResvedStr = cardInfoJson.toString();
-		if (transResvedJson != null)
+		if (transResvedJson != null && transResvedJson.size() > 0)
 			transResvedStr = transResvedJson.toString();
 		// 敏感信息加密处理
 		if (StringUtil.isNotEmpty(cardResvedStr)) {

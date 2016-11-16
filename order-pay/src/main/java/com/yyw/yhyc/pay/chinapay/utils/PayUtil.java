@@ -146,7 +146,7 @@ public class PayUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return propertiesForB2b.getProperty(key);
+		return propertiesForMobile.getProperty(key);
 	}
 
 
