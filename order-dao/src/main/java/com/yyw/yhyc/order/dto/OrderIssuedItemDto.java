@@ -20,6 +20,8 @@ public class OrderIssuedItemDto implements Serializable {
     private BigDecimal goodsAmount;        //1号药城订单商品金额
 
     private Integer productId;          //1号药城商品Id
+	
+	private Integer orderDetailId; //主键
 
     public Long getGoodsNum() {
         return goodsNum;
@@ -53,4 +55,20 @@ public class OrderIssuedItemDto implements Serializable {
     public void setProduceCode(String produceCode) {
         this.produceCode = produceCode;
     }
+	
+	public Integer getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Integer productId) {
+		this.productId = productId;
+	}
+
+	public Integer getOrderDetailId() {
+		return orderDetailId;
+	}
+
+	public void setOrderDetailId(Integer orderDetailId) {
+		this.orderDetailId = orderDetailId;
+	}
 }
