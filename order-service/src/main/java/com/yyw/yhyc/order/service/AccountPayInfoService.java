@@ -273,12 +273,15 @@ public class AccountPayInfoService {
                     && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                    && !OnlinePayTypeEnum.UnionPayApp.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     )
                 throw new RuntimeException("payTypeId不正确");
 			/*银联b2c 或 银联无卡*/
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
-                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) ) {
+                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) 
+                    || OnlinePayTypeEnum.UnionPayApp.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+            		) {
                 if (null!=accountPayInfo.getReceiveAccountNo())
                     list.add(accountPayInfo);
             }
@@ -318,6 +321,7 @@ public class AccountPayInfoService {
                 && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                && !OnlinePayTypeEnum.UnionPayApp.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {
             resultMap.put("code", "1111");
             resultMap.put("msg", "payTypeId不正确");
@@ -327,6 +331,7 @@ public class AccountPayInfoService {
         if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                || OnlinePayTypeEnum.UnionPayApp.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {
             if (null==accountPayInfo.getReceiveAccountNo()) {
                 resultMap.put("code", "1111");
