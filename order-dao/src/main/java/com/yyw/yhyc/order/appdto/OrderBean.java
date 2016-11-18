@@ -36,13 +36,13 @@ public class OrderBean implements Serializable{
     private List<Integer> shopCartIdList;     //购物车id
 
     /* 销售顾问编码 */
-    private String adviser_code;
+    private String adviserCode;
 
     /* 销售顾问姓名 */
-    private String adviser_name;
+    private String adviseName;
 
     /* 销售顾问手机号码 */
-    private String phone_number;
+    private String phoneNumber;
 
     /* 销售顾问备注 */
     private String remark;
@@ -248,28 +248,28 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
-    public String getAdviser_code() {
-        return adviser_code;
+    public String getAdviserCode() {
+        return adviserCode;
     }
 
-    public void setAdviser_code(String adviser_code) {
-        this.adviser_code = adviser_code;
+    public void setAdviserCode(String adviserCode) {
+        this.adviserCode = adviserCode;
     }
 
-    public String getAdviser_name() {
-        return adviser_name;
+    public String getAdviseName() {
+        return adviseName;
     }
 
-    public void setAdviser_name(String adviser_name) {
-        this.adviser_name = adviser_name;
+    public void setAdviseName(String adviseName) {
+        this.adviseName = adviseName;
     }
 
-    public String getPhone_number() {
-        return phone_number;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getRemark() {
@@ -307,9 +307,9 @@ public class OrderBean implements Serializable{
                 ", postponeTime=" + postponeTime +
                 ", supplyId=" + supplyId +
                 ", shopCartIdList=" + shopCartIdList +
-                ", adviser_code=" + adviser_code +
-                ", adviser_name=" + adviser_name +
-                ", phone_number=" + phone_number +
+                ", adviserCode=" + adviserCode +
+                ", adviseName=" + adviseName +
+                ", phoneNumber=" + phoneNumber +
                 ", remark=" + remark +
                 '}';
     }
