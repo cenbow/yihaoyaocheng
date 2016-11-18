@@ -230,7 +230,12 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
+        if(order.isDartDelivery && order.isDartDelivery=='1'){
+           tr += "<td><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a><div><a onclick=openSendProductInfo(\""+order.flowId+"\")>部分发货</a></div></td>";
+        }else{
+        	tr += "<td><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</td>";
+        }
+        
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -242,6 +247,93 @@ function fillTableJson(data) {
     $(".table-box tbody").append(trs);
     changeColor();
 }
+
+/**
+ * 填充收发货物清单
+ * @param data
+ */
+function fillSendDataTableJson(data) {
+    console.info(data)
+    var indexNum = 1;
+    if (!data || !data.resultList)
+        return;
+    var list = data.resultList;
+    $(".table-box2 tbody").html("");
+    var trs = "";
+    for (var i = 0; i < list.length; i++) {
+        var orderDeliveryDetail = list[i];
+        var recieveCount=orderDeliveryDetail.recieveCount;
+        if(recieveCount == null){
+            recieveCount='';
+        }
+        var tr = "<tr>";
+        tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
+        tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+        tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.specification + "</td>";
+        tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
+        tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
+        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
+        tr += "<td>" + recieveCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+    }
+    $(".table-box2 tbody").append(trs);
+    $("#myModal2").modal();
+}
+
+/**
+ * 查看部分发货清单
+ * @param flowId
+ */
+function openSendProductInfo(flowId){
+	  var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
+	    var flowId=flowId
+	    var userType="2";
+	    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
+	    tipLoad();
+	    $.ajax({
+	        url : requestUrl,
+	        data : JSON.stringify(requestParam),
+	        type : 'POST',
+	        dataType:'json',
+	        contentType : "application/json;charset=UTF-8",
+	        success : function(data) {
+	            tipRemove();
+	            //填充表格数据
+	            fillSendDataTableJson(data);
+	            var totalpage = data.totalPage;
+	            var nowpage = data.pageNo;
+	            var totalCount = data.total;
+	            $("#J_pager2").attr("current",nowpage);
+	            $("#J_pager2").attr("total",totalpage);
+	            $("#J_pager2").attr("url",requestUrl);
+	            $("#J_pager2").pager({
+	                data:requestParam,
+	                requestType:"post",
+	                asyn:1,
+	                contentType:'application/json;charset=UTF-8',
+	                callback:function(data,index){
+	                    tipLoad();
+	                    var nowpage = data.page;
+	                    $("#nowpageedit").val(nowpage);
+	                    fillSendDataTableJson(data);
+	                    tipRemove();
+	                }});
+	        },
+	        error : function(XMLHttpRequest, textStatus, errorThrown) {
+	            tipRemove();
+	            alertModal("数据获取失败",function(){
+	            });
+	        }
+	    });
+	    
+}
+
 function changeColor() {
     $(".table tr:not(:first):odd").css({background: "#f7f7f7"});
     $(".table tr:not(:first):even").css({background: "#fff"});

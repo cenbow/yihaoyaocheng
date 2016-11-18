@@ -363,7 +363,7 @@ function listPg(flowId) {
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
-
+        	console.info(data);
             //填充表格数据
             fillTable(data);
             var totalpage = data.totalPage;
@@ -415,11 +415,17 @@ function fillTable(data) {
         "</td>";
         tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
         tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+         if(orderDeliveryDetail.validUntil){
+        	  tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+         }else{
+        	  tr += "<td></td>";
+         }
         tr += "<td>" + orderDeliveryDetail.productName + "</td>";
         tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
         tr += "<td><input type='hidden' name='list.productCount' value='"+orderDeliveryDetail.deliveryProductCount+"' >" + orderDeliveryDetail.deliveryProductCount + "</td>";
         tr += "<td><input class='form-control' type='text' name='list.recieveCount' value='"+orderDeliveryDetail.deliveryProductCount+"' /></td>";
         tr += "</tr>";

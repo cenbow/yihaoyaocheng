@@ -147,12 +147,14 @@
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
+                        <col style="width: 6%;">
+                        <col style="width: 6%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
+                        <col style="width: 6%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 6%;">
+                        <col style="width: 6%;">
                         <col style="width: 10%;">
                     </colgroup>
                     <thead>
@@ -160,12 +162,14 @@
                         <th>订单行号</th>
                         <th>商品编码</th>
                         <th>批号</th>
+                        <th>有效期至</th>
                         <th>商品名</th>
                         <th>通用名</th>
                         <th>规格</th>
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>
@@ -218,13 +222,14 @@
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 10%;">
+                            <col style="width: 5%;">
+                            <col style="width: 8%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
+                            <col style="width: 7%;">
                             <col style="width: 10%;">
                         </colgroup>
                         <thead>
@@ -232,6 +237,7 @@
                             <th>订单行号</th>
                             <th>商品编码</th>
                             <th>批号</th>
+                            <th>有效期至</th>
                             <th>商品名</th>
                             <th>通用名</th>
                             <th>规格</th>
@@ -246,8 +252,13 @@
                     </table>
                     <div class="modal-body" id="bodyDiv2" >
                         <div class="form-horizontal">
+                              <div class="form-group" id="receviceAddressShow" style="display: none;">
+	                            <label for="scope" class="col-xs-3 control-label">请选择换货收货地址:</label>
+		                            <div class="col-xs-6 control-label text-center" id="warehouse" >
+		                            </div>
+                             </div>
                             <div class="form-group">
-                                <label for="cancelResult" class="col-xs-3 control-label">退货说明:</label>
+                                <label for="cancelResult" class="col-xs-3 control-label" id="labelMessage">退货说明:</label>
                                 <div class="col-xs-6 control-label text-left">
                                     <textarea type="text" class="form-control" id="returnDesc2" name="list.returnDesc"
                                               placeholder="" maxlength="200"></textarea>

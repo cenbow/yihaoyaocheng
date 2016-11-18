@@ -7,11 +7,44 @@ function  bindTabChange() {
         if($(this).index()==0){
             $("#myModalSalesReturnForm thead th:last").html("退货数量");
             $("#myModalSalesReturnForm thead th:last").prev().html("可退数量");
-            $("#bodyDiv2 label").html("退货说明:");
+            $("#labelMessage").html("退货说明:");
+            $("#receviceAddressShow").hide();
         }else {
             $("#myModalSalesReturnForm thead th:last").html("换货数量");
             $("#myModalSalesReturnForm thead th:last").prev().html("可换数量");
-            $("#bodyDiv2 label").html("换货说明:");
+            $("#labelMessage").html("换货说明:");
+            $("#receviceAddressShow").show();
+            
+            $.ajax({
+                url: ctx+"/order/orderDelivery/getReceiveAddressList",
+                type: 'GET',
+                success: function (data) {
+                    tipRemove();
+                    if (data!=null) {
+                            $("#warehouse").html("");
+                            var divs = "";
+                            for (var i = 0; i < data.length; i++) {
+                                var delivery = data[i];
+                                var div = "<label class='radio-inline no-margin' style='margin-left:0px' >";
+                                if(delivery.defaultAddress==1){
+                                    div += " <input type='radio' checked='true' name='delivery' value='"+delivery.id+"'/> "
+                                }else{
+                                    div += " <input type='radio' name='delivery' value='"+delivery.id+"' /> "
+                                }
+                                div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+                                "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+                                divs += div;
+                            }
+                            $("#warehouse").append(divs);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    tipRemove();
+                    alertModal("加载失败");
+                }
+            });
+            
+            
         }
     })
 }
@@ -136,6 +169,11 @@ function fillSaleReturnTable(data) {
                 "</td>";
             tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
             tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+            if(orderDeliveryDetail.validUntil){
+            	 tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+            }else{
+            	tr += "<td></td>";
+            }
             tr += "<td>" + orderDeliveryDetail.productName + "</td>";
             tr += "<td>" + (orderDeliveryDetail.shortName==null?"":orderDeliveryDetail.shortName) + "</td>";
             tr += "<td>" + orderDeliveryDetail.specification + "</td>";
@@ -166,7 +204,7 @@ function confirmSaleReturn(){
         return ;
     }
     var returnType = $(".nav-tabs:eq(1) .active").index()+1;
-
+    var delivery = $("input[type=radio][name=delivery]:checked").val();
     for(var i=0;i<returnProductCount.length;i++){
         if(!$(returnProductCount[i]).val()||$(returnProductCount[i]).val()==""||$(returnProductCount[i]).val() =="0"){
             continue;
@@ -178,7 +216,8 @@ function confirmSaleReturn(){
             "returnType":returnType,
             "returnDesc":returnDesc,
             "batchNumber":$(batchNumber[i]).val(),
-            "returnCount":$(returnProductCount[i]).val()
+            "returnCount":$(returnProductCount[i]).val(),
+            "delivery":delivery
         })
 
     }

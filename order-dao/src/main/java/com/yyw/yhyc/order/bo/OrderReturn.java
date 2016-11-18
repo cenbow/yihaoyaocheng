@@ -23,6 +23,12 @@ public class OrderReturn extends Model{
 	  *	
 	  */
 	private java.lang.Integer returnId;
+	
+	
+	/**
+	 * 选择的收货地址
+	 */
+	private Integer delivery;
 
 	/**
 	  *	客户ID
@@ -117,6 +123,16 @@ public class OrderReturn extends Model{
 	 *	订单异常编号
 	 */
 	private java.lang.Integer orderDeliveryDetailId;
+	
+	
+
+	public Integer getDelivery() {
+		return delivery;
+	}
+
+	public void setDelivery(Integer delivery) {
+		this.delivery = delivery;
+	}
 
 	/**
 	 *	发货批次

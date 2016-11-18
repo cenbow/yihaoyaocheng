@@ -225,7 +225,7 @@
             <h2 class="row">订单信息</h2>
 
             <div class="modify">
-                <div class="form-horizontal padding-t-26">
+               <%--  <div class="form-horizontal padding-t-26">
                     <div class="form-group">
                         <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人信息</label>
                     </div>
@@ -260,11 +260,17 @@
 
                         <div class="col-xs-10 control-label text-left">${orderDetailsDto.orderDelivery.deliveryContactPhone}</div>
                     </div>
-                </div>
+                </div> --%>
                 <div class="form-horizontal padding-t-26">
-                    <div class="form-group">
+                   <!--  <div class="form-group">
                         <label class="col-xs-12 color999 padding-l-40 font-size-16">其他信息</label>
-                    </div>
+                    </div> -->
+                      <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">供应商</label>
+                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.supplyName}</div>
+                        <label for="scope" class="col-xs-2 control-label"></label>
+                        <div class="col-xs-3 control-label text-left"></div>
+                      </div>
                     <div class="form-group">
                         <label for="scope" class="col-xs-2 control-label">支付方式</label>
 
@@ -329,6 +335,40 @@
                         <div class="col-xs-8 control-label text-left">${orderDetailsDto.leaveMessage}</div>
                     </div>
                 </div>
+                
+                  <div class="form-horizontal padding-t-26">
+                    <div class="form-group">
+                        <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人地址</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">收货地址</label>
+                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.receiveAddress}</div>
+                        <label for="scope" class="col-xs-2 control-label">收货人</label>
+                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.receivePerson}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">联系方式</label>
+                        <div class="col-xs-10 control-label text-left">${orderDetailsDto.orderDelivery.receiveContactPhone}</div>
+                    </div>
+                </div>
+                <div class="form-horizontal padding-t-26">
+                    <div class="form-group">
+                        <label class="col-xs-12 color999 padding-l-40 font-size-16">发货地址</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">发货地址</label>
+
+                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryAddress}</div>
+                        <label for="scope" class="col-xs-2 control-label">发货人</label>
+                        <div class="col-xs-3 control-label text-left">${orderDetailsDto.orderDelivery.deliveryPerson}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="scope" class="col-xs-2 control-label">联系方式</label>
+
+                        <div class="col-xs-10 control-label text-left">${orderDetailsDto.orderDelivery.deliveryContactPhone}</div>
+                    </div>
+                </div>
+                
             </div>
         </div>
         <div class="row choseuser margin-t-20 border-gray">
@@ -554,13 +594,15 @@
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 5%;">
+                        <col style="width: 5%;">
                     </colgroup>
                     <thead>
                     <tr>
                         <th>订单行号</th>
                         <th>商品编码</th>
                         <th>批号</th>
+                        <th>有效期至</th>
                         <th>商品名</th>
                         <th>通用名</th>
                         <th>规格</th>
@@ -574,6 +616,14 @@
                     <tbody>
                     </tbody>
                 </table>
+                <c:if test="${orderDetailsDto.isDartDelivery=='1'}">
+                          <c:if test="${orderDetailsDto.cancelMoney!=null}">
+                          <div class="form-group">
+	                        <label for="scope" class="col-xs-8 control-label"></label>
+	                        <label for="scope" class="col-xs-4 control-label">未发货商品金额:&yen${orderDetailsDto.cancelMoney}</label>
+                           </div>
+                          </c:if>
+                 </c:if>
                 <div class="pager" id="J_pager2"></div>
             </div>
             <div class="modal-footer">
