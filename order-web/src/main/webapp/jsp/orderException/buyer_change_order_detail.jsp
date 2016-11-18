@@ -41,7 +41,7 @@
             <div class="row choseuser margin-t-20 border-gray">
                 <h2 class="row">订单信息</h2>
                 <div class="modify">
-                    <div class="form-horizontal padding-t-26">
+                    <%-- <div class="form-horizontal padding-t-26">
                         <div class="form-group">
                             <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人信息</label>
                         </div>
@@ -70,11 +70,18 @@
                             <label for="scope" class="col-xs-2 control-label">联系方式</label>
                             <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                         </div>
-                    </div>
+                    </div> --%>
                     <div class="form-horizontal padding-t-26">
                         <div class="form-group">
-                            <label class="col-xs-12 color999 padding-l-40 font-size-16">其他信息</label>
+                            <label class="col-xs-12 color999 padding-l-40 font-size-16"></label>
                         </div>
+                        <div class="form-group">
+	                        <label for="scope" class="col-xs-2 control-label">供应商</label>
+	
+	                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
+	                        <label for="scope" class="col-xs-2 control-label"></label>
+	                        <div class="col-xs-3 control-label text-left"></div>
+                       </div>
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">关联订单支付方式</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
@@ -112,6 +119,84 @@
                     </div>
                 </div>
             </div>
+            
+                 <!-- 买卖方换货发货地址 -->
+               <c:if test="${orderExceptionDto.orderDeliveryList != null && fn:length(orderExceptionDto.orderDeliveryList) gt 0 }">
+                <c:forEach items="${orderExceptionDto.orderDeliveryList}" var="item" varStatus="status">
+				      <c:if test="${status.index == 0}">
+					   <div class="row choseuser margin-t-20 border-gray">
+			                <h2 class="row"> 买家换货发货地址</h2>
+	                        <div class="form-horizontal padding-t-26">
+	                                <div class="form-group">
+	                                    <label for="scope" class="col-xs-2 control-label">发货地址</label>
+	                                    <div class="col-xs-3 control-label text-left">${item.deliveryAddress}</div>
+	                                    <label for="scope" class="col-xs-2 control-label">联系人</label>
+	                                    <div class="col-xs-3 control-label text-left">${item.deliveryPerson}</div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="scope" class="col-xs-2 control-label">联系人电话</label>
+	                                    <div class="col-xs-3 control-label text-left">${item.deliveryContactPhone}</div>
+	                                    <label for="scope" class="col-xs-2 control-label"></label>
+	                                    <div class="col-xs-3 control-label text-left"></div>
+	                                </div>
+	                        </div>
+                       </div>
+					       <div class="row choseuser margin-t-20 border-gray">
+		                        <h2 class="row">卖家换货收货地址</h2>
+		                        <div class="form-horizontal padding-t-26">
+		                                <div class="form-group">
+		                                    <label for="scope" class="col-xs-2 control-label">收货地址</label>
+		                                    <div class="col-xs-3 control-label text-left">${item.receiveAddress}</div>
+		                                    <label for="scope" class="col-xs-2 control-label">联系人</label>
+		                                    <div class="col-xs-3 control-label text-left">${item.receivePerson}</div>
+		                                </div>
+		                                <div class="form-group">
+		                                    <label for="scope" class="col-xs-2 control-label">联系人电话</label>
+		                                    <div class="col-xs-3 control-label text-left">${item.receiveContactPhone}</div>
+		                                    <label for="scope" class="col-xs-2 control-label"></label>
+		                                    <div class="col-xs-3 control-label text-left"></div>
+		                                </div>
+		                        </div>
+		                    </div>
+					  </c:if>
+					  <c:if test="${status.index ==1}">
+					        <div class="row choseuser margin-t-20 border-gray">
+			                <h2 class="row"> 卖家换货发货地址</h2>
+	                        <div class="form-horizontal padding-t-26">
+	                                <div class="form-group">
+	                                    <label for="scope" class="col-xs-2 control-label">发货地址</label>
+	                                    <div class="col-xs-3 control-label text-left">${item.deliveryAddress}</div>
+	                                    <label for="scope" class="col-xs-2 control-label">联系人</label>
+	                                    <div class="col-xs-3 control-label text-left">${item.deliveryPerson}</div>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="scope" class="col-xs-2 control-label">联系人电话</label>
+	                                    <div class="col-xs-3 control-label text-left">${item.deliveryContactPhone}</div>
+	                                    <label for="scope" class="col-xs-2 control-label"></label>
+	                                    <div class="col-xs-3 control-label text-left"></div>
+	                                </div>
+	                        </div>
+                       </div>
+					       <div class="row choseuser margin-t-20 border-gray">
+		                        <h2 class="row">买家换货收货地址</h2>
+		                        <div class="form-horizontal padding-t-26">
+		                                <div class="form-group">
+		                                    <label for="scope" class="col-xs-2 control-label">收货地址</label>
+		                                    <div class="col-xs-3 control-label text-left">${item.receiveAddress}</div>
+		                                    <label for="scope" class="col-xs-2 control-label">联系人</label>
+		                                    <div class="col-xs-3 control-label text-left">${item.receivePerson}</div>
+		                                </div>
+		                                <div class="form-group">
+		                                    <label for="scope" class="col-xs-2 control-label">联系人电话</label>
+		                                    <div class="col-xs-3 control-label text-left">${item.receiveContactPhone}</div>
+		                                    <label for="scope" class="col-xs-2 control-label"></label>
+		                                    <div class="col-xs-3 control-label text-left"></div>
+		                                </div>
+		                        </div>
+		                    </div>
+					  </c:if>
+                </c:forEach>
+            </c:if>
 
             <c:choose>
                 <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderDeliveryList) gt 0 }">
@@ -249,10 +334,11 @@
 	                        <col style="width: 8%;">
 	                        <col style="width: 8%;">
 	                        <col style="width: 8%;">
-	                        <col style="width: 10%;">
 	                        <col style="width: 8%;">
-	                        <col style="width: 10%;">
-	                        <col style="width: 10%;">
+	                        <col style="width: 8%;">
+	                        <col style="width: 8%;">
+	                        <col style="width: 8%;">
+	                        <col style="width: 8%;">
 	                        <col style="width: 10%;">
 	                        <col style="width: 10%;">
 	                    </colgroup>
@@ -261,6 +347,7 @@
 	                        <th>订单行号</th>
 	                        <th>商品编码</th>
 	                        <th>批号</th>
+	                        <th>有效期至</th>
 	                        <th>商品名</th>
 	                        <th>通用名</th>
 	                        <th>规格</th>

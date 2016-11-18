@@ -107,7 +107,13 @@ function fillTableJson(data) {
         tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
         tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
         tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
-        tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+        
+        if(orderDeliveryDetail.validUntil){
+        	 tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+        }else{
+        	 tr += "<td></td>";
+        }
+       
         tr += "<td>" + orderDeliveryDetail.productName + "</td>";
         tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
