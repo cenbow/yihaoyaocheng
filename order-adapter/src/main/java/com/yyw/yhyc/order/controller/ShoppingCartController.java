@@ -19,6 +19,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.AdviserBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderCreateBean;
 import com.yyw.yhyc.order.bo.Order;
@@ -432,12 +433,14 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
 
+			AdviserBean adviserBean = orderBean.getAdviser();
+			if(!UtilHelper.isEmpty(adviserBean)){
 			/* 销售顾问信息 */
-			orderDto.setAdviserCode(orderBean.getAdviser_code());
-			orderDto.setAdviserName(orderBean.getAdviser_name());
-			orderDto.setAdviserPhoneNumber(orderBean.getPhone_number());
-			orderDto.setAdviserRemark(orderBean.getRemark());
-
+				orderDto.setAdviserCode(adviserBean.getAdviserCode());
+				orderDto.setAdviserName(adviserBean.getAdviseName());
+				orderDto.setAdviserPhoneNumber(adviserBean.getPhoneNumber());
+				orderDto.setAdviserRemark(adviserBean.getRemark());
+			}
 			orderDtoList.add(orderDto);
 		}
 		orderCreateDto.setOrderDtoList(orderDtoList);

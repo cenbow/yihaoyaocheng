@@ -35,17 +35,8 @@ public class OrderBean implements Serializable{
     private Integer supplyId;                   //供应商id
     private List<Integer> shopCartIdList;     //购物车id
 
-    /* 销售顾问编码 */
-    private String adviserCode;
-
-    /* 销售顾问姓名 */
-    private String adviseName;
-
-    /* 销售顾问手机号码 */
-    private String phoneNumber;
-
-    /* 销售顾问备注 */
-    private String remark;
+    /* 销售顾问 */
+    private AdviserBean adviser;
 
     public String getOrderStatusName() {
         return orderStatusName;
@@ -248,36 +239,12 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
-    public String getAdviserCode() {
-        return adviserCode;
+    public AdviserBean getAdviser() {
+        return adviser;
     }
 
-    public void setAdviserCode(String adviserCode) {
-        this.adviserCode = adviserCode;
-    }
-
-    public String getAdviseName() {
-        return adviseName;
-    }
-
-    public void setAdviseName(String adviseName) {
-        this.adviseName = adviseName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setAdviser(AdviserBean adviser) {
+        this.adviser = adviser;
     }
 
     @Override
@@ -307,10 +274,7 @@ public class OrderBean implements Serializable{
                 ", postponeTime=" + postponeTime +
                 ", supplyId=" + supplyId +
                 ", shopCartIdList=" + shopCartIdList +
-                ", adviserCode=" + adviserCode +
-                ", adviseName=" + adviseName +
-                ", phoneNumber=" + phoneNumber +
-                ", remark=" + remark +
+                ", adviser=" + adviser +
                 '}';
     }
 }
