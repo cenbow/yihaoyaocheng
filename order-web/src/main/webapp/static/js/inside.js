@@ -27,6 +27,7 @@
 
 /* 选择收货地址 */
 function changeReceiveAddress(id){
+    $("#receiveAddressId").val($("#defaultReceiveAddressId").val());
     $(id).click(function(){
         $(''+id+' b').hide();
         if($('.goi-selected')){

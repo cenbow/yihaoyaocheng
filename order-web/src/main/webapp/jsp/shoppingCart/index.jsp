@@ -71,9 +71,9 @@
                         <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
                             <input type="hidden" name="orderSamount" supplyId="${shoppingCartListDto.seller.enterpriseId}" supplyName="${shoppingCartListDto.seller.enterpriseName}"
                                    value="${shoppingCartListDto.seller.orderSamount}" buyPrice="${shoppingCartListDto.productPriceCount}" needPrice="${shoppingCartListDto.needPrice}">
-                            此供应商订单起售价为<span class="from-price"><fmt:formatNumber value="${shoppingCartListDto.seller.orderSamount}" minFractionDigits="2"/></span>元，您目前已购买
-                            <span class="buy-price"><fmt:formatNumber value="${shoppingCartListDto.productPriceCount}" minFractionDigits="2"/></span>元，还差
-                            <span class="need-price"><fmt:formatNumber value="${shoppingCartListDto.needPrice}" minFractionDigits="2"/></span>元!
+                            此供应商订单起售价为<span class="from-price"><fmt:formatNumber value="${shoppingCartListDto.seller.orderSamount}" minFractionDigits="3"/></span>元，您目前已购买
+                            <span class="buy-price"><fmt:formatNumber value="${shoppingCartListDto.productPriceCount}" minFractionDigits="3"/></span>元，还差
+                            <span class="need-price"><fmt:formatNumber value="${shoppingCartListDto.needPrice}" minFractionDigits="3"/></span>元!
                         </p>
                     </div>
 
@@ -118,7 +118,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                             <div style="${shoppingCartDto.productPrice > 0 ? "display: block" : "display: none"} ">
-                                                ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></span>
+                                                ¥<span><fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="3"/></span>
                                             </div>
                                         </li>
                                         <li class="fl td-amount">
@@ -128,7 +128,7 @@
                                                         <div class="its-input">
                                                             <a href="javascript:;" class="its-btn-reduce">-</a>
                                                             <a href="javascript:;" class="its-btn-add">+</a>
-                                                            <input value="${shoppingCartDto.productCount}" class="its-buy-num" shoppingCartId="${shoppingCartDto.shoppingCartId}"
+                                                            <input value="${shoppingCartDto.productCount}" class="its-buy-num" id="its-buy-num_${shoppingCartDto.shoppingCartId}" shoppingCartId="${shoppingCartDto.shoppingCartId}"
                                                                    saleStart="${shoppingCartDto.saleStart}" upStep = "${shoppingCartDto.upStep}" preValue="${shoppingCartDto.productCount}"
                                                                    productInventory="${shoppingCartDto.productInventory}" productPrice="${shoppingCartDto.productPrice}" promotionId="${shoppingCartDto.promotionId}">
                                                         </div>
@@ -152,7 +152,7 @@
                                         <li class="fl td-sum">
                                                 <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1 && shoppingCartDto.productPrice > 0}">  value="${shoppingCartDto.productSettlementPrice}" </c:if> >
                                                 <div style="${shoppingCartDto.productPrice > 0 ? "display: block" : "display: none"} ">
-                                                    ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="2"/></span>
+                                                    ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="3"/></span>
                                                 </div>
                                         </li>
                                         <li class="fl td-op"><a href="javascript:deleteShoppingCart(${shoppingCartDto.shoppingCartId});" class="btn-delete">删除</a></li>
