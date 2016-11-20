@@ -241,6 +241,8 @@ public class ShoppingCartController extends BaseJsonController {
 					productInfoDto.setProductPrice(temp.getProductPrice());
 					productInfoDto.setProductCount(temp.getProductCount());
 					productInfoDto.setPromotionId(temp.getPromotionId());
+					productInfoDto.setPromotionName(temp.getPromotionName());
+					productInfoDto.setFromWhere(temp.getFromWhere());
 					productInfoDtoList.add(productInfoDto);
 				}
 			}

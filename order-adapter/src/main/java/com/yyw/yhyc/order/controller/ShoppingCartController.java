@@ -419,6 +419,7 @@ public class ShoppingCartController extends BaseController {
 				productInfoDto.setProductCodeCompany(shoppingCart.getProductCodeCompany());
 				productInfoDto.setPromotionId(shoppingCart.getPromotionId());
 				productInfoDto.setPromotionName(shoppingCart.getPromotionName());
+				productInfoDto.setFromWhere(shoppingCart.getFromWhere());
 				productInfoDtoList.add(productInfoDto);
 			}
 

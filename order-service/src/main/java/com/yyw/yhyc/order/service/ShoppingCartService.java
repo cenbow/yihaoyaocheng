@@ -472,15 +472,32 @@ public class ShoppingCartService {
 			throw new Exception("非法商品价格");
 		}
 
-		if(shoppingCart.getProductPrice().compareTo(productPromotionDto.getPromotionPrice()) != 0){
-			logger.info("非法商品活动价格! 传来的商品活动价格productPromotionDto.getPromotionPrice() = " + productPromotionDto.getPromotionPrice() +",\n shoppingCart.getProductPrice() = " + shoppingCart.getProductPrice());
-			throw new Exception("非法商品活动价格");
+		/* 活动价格异常 处理 */
+		if(!UtilHelper.isEmpty(shoppingCart.getProductPrice()) && shoppingCart.getProductPrice().compareTo(productPromotionDto.getPromotionPrice()) != 0){
+			logger.info("该商品活动价格发生变化! 查询到的商品活动价格：= " + productPromotionDto.getPromotionPrice() +", 购物车中的价格 = " + shoppingCart.getProductPrice());
+
+			/* 添加商品到购物车时，传进来的商品价格不对 */
+			if(UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || shoppingCart.getShoppingCartId() <= 0 ){
+				shoppingCart.setProductPrice(productPromotionDto.getPromotionPrice());
+
+			/* 修改购物车中活动商品数量时，商品的活动价格在实时变化 */
+			}else{
+				ShoppingCart oldShoppingCart = shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
+				if(!UtilHelper.isEmpty(oldShoppingCart) && !UtilHelper.isEmpty(oldShoppingCart.getShoppingCartId())){
+					ShoppingCart temp = new ShoppingCart();
+					temp.setShoppingCartId(oldShoppingCart.getShoppingCartId());
+					temp.setProductPrice(productPromotionDto.getPromotionPrice());
+					temp.setProductCount(oldShoppingCart.getProductCount());
+					temp.setProductSettlementPrice(temp.getProductPrice().multiply(new BigDecimal(temp.getProductCount())));
+					shoppingCartMapper.update(temp);
+				}
+			}
 		}
 
 		/* 活动商品的限购逻辑(目前只有特价促销这一种活动类型) */
 		/* 当前购买的数量 < 最小起批量(minimumPacking)，  则不能购买 */
 		if(shoppingCart.getProductCount() < productPromotionDto.getMinimumPacking()){
-			throw new Exception("该活动商品的购买数量小于活动最小起批量");
+			throw new Exception("该活动商品的购买数量("+ shoppingCart.getProductCount() +")小于活动最小起批量("+ productPromotionDto.getMinimumPacking()+")");
 		}
 
 		/*查询该商品在该活动中的历史购买量*/
