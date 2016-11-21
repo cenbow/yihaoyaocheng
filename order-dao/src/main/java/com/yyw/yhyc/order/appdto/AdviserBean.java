@@ -12,7 +12,7 @@ public class AdviserBean implements Serializable {
     private String adviserCode;
 
     /* 销售顾问姓名 */
-    private String adviseName;
+    private String adviserName;
 
     /* 销售顾问手机号码 */
     private String phoneNumber;
@@ -28,12 +28,12 @@ public class AdviserBean implements Serializable {
         this.adviserCode = adviserCode;
     }
 
-    public String getAdviseName() {
-        return adviseName;
+    public String getAdviserName() {
+        return adviserName;
     }
 
-    public void setAdviseName(String adviseName) {
-        this.adviseName = adviseName;
+    public void setAdviserName(String adviserName) {
+        this.adviserName = adviserName;
     }
 
     public String getPhoneNumber() {
@@ -56,7 +56,7 @@ public class AdviserBean implements Serializable {
     public String toString() {
         return "AdviserBean{" +
                 "adviserCode='" + adviserCode + '\'' +
-                ", adviseName='" + adviseName + '\'' +
+                ", adviserName='" + adviserName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

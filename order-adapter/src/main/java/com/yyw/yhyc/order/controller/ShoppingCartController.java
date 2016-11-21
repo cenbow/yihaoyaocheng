@@ -415,6 +415,7 @@ public class ShoppingCartController extends BaseController {
 				}
 				productInfoDto = new ProductInfoDto();
 				productInfoDto.setId(shoppingCart.getProductId());
+				productInfoDto.setProductName(shoppingCart.getProductName());
 				productInfoDto.setSpuCode(shoppingCart.getSpuCode());
 				productInfoDto.setProductPrice(shoppingCart.getProductPrice());
 				productInfoDto.setProductCount(shoppingCart.getProductCount());
@@ -440,7 +441,7 @@ public class ShoppingCartController extends BaseController {
 			if(!UtilHelper.isEmpty(adviserBean)){
 			/* 销售顾问信息 */
 				orderDto.setAdviserCode(adviserBean.getAdviserCode());
-				orderDto.setAdviserName(adviserBean.getAdviseName());
+				orderDto.setAdviserName(adviserBean.getAdviserName());
 				orderDto.setAdviserPhoneNumber(adviserBean.getPhoneNumber());
 				orderDto.setAdviserRemark(adviserBean.getRemark());
 			}
