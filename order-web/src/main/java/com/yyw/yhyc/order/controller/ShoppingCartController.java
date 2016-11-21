@@ -237,6 +237,7 @@ public class ShoppingCartController extends BaseJsonController {
 					ShoppingCart temp = shoppingCartService.getByPK(shoppingCart.getShoppingCartId());
 					if(UtilHelper.isEmpty(temp)) continue;
 					productInfoDto.setId(temp.getProductId());
+					productInfoDto.setPromotionName(temp.getProductName());
 					productInfoDto.setSpuCode(temp.getSpuCode());
 					productInfoDto.setProductPrice(temp.getProductPrice());
 					productInfoDto.setProductCount(temp.getProductCount());
