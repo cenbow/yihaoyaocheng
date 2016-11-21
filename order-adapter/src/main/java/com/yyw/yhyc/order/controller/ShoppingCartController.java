@@ -301,10 +301,12 @@ public class ShoppingCartController extends BaseController {
 		UserDto userDto = super.getLoginUser();
 
 		//订单来源
-		if(UtilHelper.isNoEmpty(os)&&os.equals("os")){
+		if(!UtilHelper.isNoEmpty(os)&&os.equals("os")){
 			orderCreateBean.setSource(3);
-		}else if(UtilHelper.isNoEmpty(os)&&os.equals("android")){
+		}else if(!UtilHelper.isNoEmpty(os)&&os.equals("android")){
 			orderCreateBean.setSource(2);
+		}else{
+			orderCreateBean.setSource(4);
 		}
 
 		/* 把APP端的数据格式，转成与PC通用的数据格式 */
