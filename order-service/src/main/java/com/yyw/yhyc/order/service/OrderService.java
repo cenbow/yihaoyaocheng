@@ -1572,6 +1572,7 @@ public class OrderService {
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+				        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
@@ -1821,7 +1822,8 @@ public class OrderService {
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
-					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)
+			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
@@ -1867,6 +1869,8 @@ public class OrderService {
 			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
+			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(od.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
 
@@ -1942,6 +1946,8 @@ public class OrderService {
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+				        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
 						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
 					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
@@ -2380,6 +2386,7 @@ public class OrderService {
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
