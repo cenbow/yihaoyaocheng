@@ -44,7 +44,7 @@ public class HttpRequestHandler {
 	 * 
 	 */
 	public static Map<String, String> executePostHttpRequest(Map<String, Object> params, String action) {
-		log.info("银联请求参数：" + params.toString());
+		log.info("_________向银联发起请求_________URL:\n" + action + " ,\n请求参数：" + params.toString());
 		HttpClient client = HttpClientUtil.getHttpClient();
 		PostMethod post = new PostMethod(action);
 		post.addRequestHeader("User-Agent", "Mozilla/4.0");
@@ -60,17 +60,17 @@ public class HttpRequestHandler {
 			
 			//后台http请求状态
 			if(status!=200){
-				log.info("银联响应异常结果：" + returnStr);
+				log.info("_________向银联发起请求_________银联响应Http状态码异常，响应结果：" + returnStr);
 			   return getErrorMap();
 			}else{
-				log.info("银联响应结果：" + returnStr);
+				log.info("_________向银联发起请求_________银联响应结果：" + returnStr);
 			}
 		} catch (HttpException e) {
-			log.info("银联响应异常结果：" + returnStr);
+			log.error("_________向银联发起请求_________银联响应发生异常，响应结果：" + returnStr +",异常信息msg="+e.getMessage(),e);
 			e.printStackTrace();
 			return getErrorMap();
 		} catch (IOException e) {
-			log.info("银联响应异常结果：" + returnStr);
+			log.error("_________向银联发起请求_________银联响应发生异常，响应结果：" + returnStr +",异常信息msg="+e.getMessage(),e);
 			e.printStackTrace();
 			return getErrorMap();
 		}
@@ -80,10 +80,10 @@ public class HttpRequestHandler {
 		Map<String, String> reponse= StringUtil.paserStrtoMap(returnStr);
 		Map<String, String> reponseOld=StringUtil.paserStrtoMap(returnStrOld);
 		if(SignUtil.verify(reponseOld)){
-			log.info("银联响签名结果：true");
+			log.info("_________向银联发起请求_________对银联的响应报文验签成功!");
 			return reponse;
 		}else{
-			log.info("银联响签名结果：false");
+			log.info("_________向银联发起请求_________对银联的响应报文验签失败......");
 		}
 		
 		return reponse;
@@ -173,6 +173,9 @@ public class HttpRequestHandler {
 			 sendMap.remove("fromWhere");
 			 signature = SignUtil.signForApp(sendMap);
 		 }else if( !StringUtil.isEmpty((String)sendMap.get("fromWhere"))&&sendMap.get("fromWhere").equals(ChinaPayUtil.MOBILE) ){
+			 if(busiType.equals("9908")||busiType.equals("0401")){
+				 sendMap.remove("BankInstNo");
+			 }
 			 sendMap.remove("fromWhere");
 			 signature = SignUtil.signForMobile(sendMap);
 		 }else{
