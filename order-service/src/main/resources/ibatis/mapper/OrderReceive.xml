@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-11-21 10:34:21
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderReceiveMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderReceiveResultMapper" type="OrderReceive">
+		<result column="exception_order_id" property="exceptionOrderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="receive_person" property="receivePerson"/>
+		<result column="receive_region" property="receiveRegion"/>
+		<result column="receive_city" property="receiveCity"/>
+		<result column="receive_province" property="receiveProvince"/>
+		<result column="receive_address" property="receiveAddress"/>
+		<result column="receive_contact_phone" property="receiveContactPhone"/>
+		<result column="remark" property="remark"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 exception_order_id
+		, flow_id
+		, receive_person
+		, receive_region
+		, receive_city
+		, receive_province
+		, receive_address
+		, receive_contact_phone
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 flow_id
+				, receive_person
+				, receive_region
+				, receive_city
+				, receive_province
+				, receive_address
+				, receive_contact_phone
+				, remark
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 exception_order_id
+		, flow_id
+		, receive_person
+		, receive_region
+		, receive_city
+		, receive_province
+		, receive_address
+		, receive_contact_phone
+		, remark
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''"> 
+			AND exception_order_id=#{exceptionOrderId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="receivePerson!= null and receivePerson!= ''"> 
+			AND receive_person=#{receivePerson}
+		</if>
+		<if test="receiveRegion!= null and receiveRegion!= ''"> 
+			AND receive_region=#{receiveRegion}
+		</if>
+		<if test="receiveCity!= null and receiveCity!= ''"> 
+			AND receive_city=#{receiveCity}
+		</if>
+		<if test="receiveProvince!= null and receiveProvince!= ''"> 
+			AND receive_province=#{receiveProvince}
+		</if>
+		<if test="receiveAddress!= null and receiveAddress!= ''"> 
+			AND receive_address=#{receiveAddress}
+		</if>
+		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
+			AND receive_contact_phone=#{receiveContactPhone}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderReceive">
+		<![CDATA[ INSERT INTO t_order_receive ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{flowId}
+				, #{receivePerson}
+				, #{receiveRegion}
+				, #{receiveCity}
+				, #{receiveProvince}
+				, #{receiveAddress}
+				, #{receiveContactPhone}
+				, #{remark}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderReceive">
+		<![CDATA[ UPDATE t_order_receive SET 
+			 exception_order_id=#{exceptionOrderId} 
+			, flow_id=#{flowId} 
+			, receive_person=#{receivePerson} 
+			, receive_region=#{receiveRegion} 
+			, receive_city=#{receiveCity} 
+			, receive_province=#{receiveProvince} 
+			, receive_address=#{receiveAddress} 
+			, receive_contact_phone=#{receiveContactPhone} 
+			, remark=#{remark} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE exception_order_id = #{exceptionOrderId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.String">
+		<![CDATA[ DELETE FROM t_order_receive WHERE exception_order_id = #{exceptionOrderId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_receive WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" exception_order_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderReceive">
+		DELETE FROM t_order_receive WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.String" resultMap="OrderReceiveResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_receive WHERE exception_order_id = #{exceptionOrderId}  
+	</select>
+	<select id="list" resultMap="OrderReceiveResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_receive
+	</select>
+	<select id="listByProperty" parameterType="OrderReceive" resultMap="OrderReceiveResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_receive WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderReceive" resultMap="OrderReceiveResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_receive WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderReceive" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_receive WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>

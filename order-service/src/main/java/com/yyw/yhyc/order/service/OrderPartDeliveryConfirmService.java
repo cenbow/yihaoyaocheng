@@ -438,27 +438,9 @@ private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto
        orderDelivery.setUpdateTime(now);
        orderDelivery.setCreateTime(now);
        orderDeliveryMapper.update(orderDelivery);
-       //发货调用扣减冻结库存
-       OrderDetail orderDetail = new OrderDetail();
-       orderDetail.setOrderId(order.getOrderId());
-       orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
        
-       List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
-        //如果是部分发货，那么应该扣减冻结发货的部分，而不是全部冻结
-       if(orderDeliveryDto.isSomeSend()){
-       	 Map<String,String> currentCodeMap=orderDeliveryDto.getCodeMap();
-       	 for (String code : currentCodeMap.keySet()) {
-       		     
-       		   for(OrderDetail innerOrderDetail : detailList){
-       			    String produceCode=innerOrderDetail.getProductCode();
-       			     if(produceCode.equals(code)){
-       			    	 innerOrderDetail.setProductCount(Integer.parseInt(currentCodeMap.get(code)));
-       			     }
-       			   
-       		   }
-       	 }
-         }
-       productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
+       //发货调用扣减冻结库存
+       this.updateDeductionInventory(orderDeliveryDto, order);
        
        //处理剩余的货物
        this.updateAllDeliverYesAndNo(orderDeliveryDto,now);
@@ -468,6 +450,50 @@ private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto
    map.put("code", "1");
    map.put("msg", "发货成功。");
    map.put("fileName", excelPath);
+}
+
+/**
+ * 发货的时候处理，掉释放冻结的库存，发货调用扣减冻结库存
+ * @param orderDeliveryDto
+ */
+private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order order){
+	
+	 //发货调用扣减冻结库存
+    OrderDetail orderDetail = new OrderDetail();
+    orderDetail.setOrderId(order.getOrderId());
+    orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
+    
+    List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
+    
+    String selectIsPartDelivery=orderDeliveryDto.getSelectPartDeliverty();
+   
+    if(StringUtils.hasText(selectIsPartDelivery) && selectIsPartDelivery.equals("1")){ //剩余商品补发货物
+    	
+    	 productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
+ 	   
+    }else if(StringUtils.hasText(selectIsPartDelivery) && selectIsPartDelivery.equals("0")){ //剩余商品不补发了
+    	   //如果是部分发货,且剩余的商品不补发，那么需要释放掉不补发那部分的商品，冻结发货部分的商品
+     /*   if(orderDeliveryDto.isSomeSend()){
+        	 Map<String,String> currentCodeMap=orderDeliveryDto.getCodeMap();
+        	 for (String code : currentCodeMap.keySet()) {
+        		     
+        		   for(OrderDetail innerOrderDetail : detailList){
+        			    String produceCode=innerOrderDetail.getProductCode();
+        			     if(produceCode.equals(code)){
+        			    	 innerOrderDetail.setProductCount(Integer.parseInt(currentCodeMap.get(code)));
+        			     }
+        			   
+        		   }
+        	 }
+          }
+        productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());*/
+    	
+    	
+    	
+    }else{
+    	throw new RuntimeException("没有选择剩余商品是否补发货");
+    }
+	
 }
 
 /**

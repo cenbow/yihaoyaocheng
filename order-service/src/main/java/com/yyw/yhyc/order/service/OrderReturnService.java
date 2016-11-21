@@ -52,6 +52,8 @@ public class OrderReturnService {
     private OrderExceptionService orderExceptionService;
     @Autowired
     private UsermanageReceiverAddressMapper receiverAddressMapper;
+    @Autowired
+    private OrderReceiveService orderReceiveAddressService;
 
 	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper)
@@ -249,21 +251,25 @@ public class OrderReturnService {
 				Integer addressId=orderReturn.getDelivery();
 				UsermanageReceiverAddress  addressBean=this.receiverAddressMapper.getByPK(addressId);
 				
-				String nowDate=this.systemDateMapper.getSystemDate();
-				OrderDelivery orderDelivery=new OrderDelivery();
-				
-				orderDelivery.setCreateTime(nowDate);
-				orderDelivery.setCreateUser(userDto.getUserName());
-				orderDelivery.setFlowId(oe.getExceptionOrderId());
-				orderDelivery.setOrderId(oe.getExceptionId());
 				String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
-				orderDelivery.setReceiveAddress(addressMessage);
-				orderDelivery.setReceiveCity(addressBean.getCityCode());
-				orderDelivery.setReceiveProvince(addressBean.getProvinceCode());
-				orderDelivery.setReceiveRegion(addressBean.getDistrictCode());
-				orderDelivery.setReceivePerson(addressBean.getReceiverName());
-				orderDelivery.setReceiveContactPhone(addressBean.getContactPhone());
-				this.orderDeliveryService.save(orderDelivery);
+				
+				String nowDate=this.systemDateMapper.getSystemDate();
+				
+				OrderReceive orderRecevieAddress=new OrderReceive();
+				orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
+				orderRecevieAddress.setFlowId(order.getFlowId());
+				orderRecevieAddress.setReceiveAddress(addressMessage);
+				orderRecevieAddress.setReceiveCity(addressBean.getCityCode());
+				orderRecevieAddress.setReceiveProvince(addressBean.getProvinceCode());
+				orderRecevieAddress.setReceiveRegion(addressBean.getDistrictCode());
+				orderRecevieAddress.setReceivePerson(addressBean.getReceiverName());
+				orderRecevieAddress.setReceiveContactPhone(addressBean.getContactPhone());
+				orderRecevieAddress.setCreateTime(nowDate);
+				orderRecevieAddress.setCreateUser(userDto.getUserName());
+				orderRecevieAddress.setUpdateTime(nowDate);
+				orderRecevieAddress.setUpdateUser(userDto.getUserName());
+		
+				this.orderReceiveAddressService.save(orderRecevieAddress);
 				 
 				
 			}

@@ -433,19 +433,6 @@ public class OrderPartDeliveryService {
             
             List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
              //如果是部分发货，那么应该扣减冻结发货的部分，而不是全部冻结
-            if(orderDeliveryDto.isSomeSend()){
-            	 Map<String,String> currentCodeMap=orderDeliveryDto.getCodeMap();
-            	 for (String code : currentCodeMap.keySet()) {
-            		     
-            		   for(OrderDetail innerOrderDetail : detailList){
-            			    String produceCode=innerOrderDetail.getProductCode();
-            			     if(produceCode.equals(code)){
-            			    	 innerOrderDetail.setProductCount(Integer.parseInt(currentCodeMap.get(code)));
-            			     }
-            			   
-            		   }
-            	 }
-              }
             productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
             
             

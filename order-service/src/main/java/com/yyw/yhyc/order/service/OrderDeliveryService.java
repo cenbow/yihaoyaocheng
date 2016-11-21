@@ -33,6 +33,8 @@ import com.yyw.yhyc.utils.FileUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Service("orderDeliveryService")
 public class OrderDeliveryService {
+	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryService.class);
 
     private OrderDeliveryMapper orderDeliveryMapper;
 
@@ -63,6 +66,8 @@ public class OrderDeliveryService {
     private OrderTraceMapper orderTraceMapper;
 
     private ProductInventoryManage productInventoryManage;
+    @Autowired
+    private OrderReceiveService orderReceviveService;
 
     @Autowired
     public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
@@ -804,19 +809,6 @@ public class OrderDeliveryService {
                 
                 List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
                  //如果是部分发货，那么应该扣减冻结发货的部分，而不是全部冻结
-                if(orderDeliveryDto.isSomeSend()){
-                	 Map<String,String> currentCodeMap=orderDeliveryDto.getCodeMap();
-                	 for (String code : currentCodeMap.keySet()) {
-                		     
-                		   for(OrderDetail innerOrderDetail : detailList){
-                			    String produceCode=innerOrderDetail.getProductCode();
-                			     if(produceCode.equals(code)){
-                			    	 innerOrderDetail.setProductCount(Integer.parseInt(currentCodeMap.get(code)));
-                			     }
-                			   
-                		   }
-                	 }
-                  }
                 productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
                 
                 
@@ -897,24 +889,64 @@ public class OrderDeliveryService {
             orderTraceMapper.save(orderTrace);
             //生成发货信息
             UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
-            //更具原订单发货信息生成新的异常订单发货信息
-            OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderException.getFlowId());
-            orderDelivery.setOrderId(orderException.getExceptionId());
-            orderDelivery.setFlowId(orderException.getExceptionOrderId());
-            orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
-            orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
-            orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
-            orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
-            orderDelivery.setUpdateDate(now);
-            orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
-            orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
-            orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
-            orderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
-            orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
-            orderDelivery.setCreateTime(now);
-            orderDelivery.setDeliveryId(null);
-            orderDelivery.setUpdateTime(now);
-            orderDeliveryMapper.save(orderDelivery);
+            
+             //在买家换货的时候，买家会选择换货的收货地址,且换货的收货地址保存在t_order_receive表里面,在卖家换货的发货的时候，查询出来，然后插入到orderDelivery表
+            OrderReceive orderRecevive=null;
+            try {
+				orderRecevive=this.orderReceviveService.getByPK(orderException.getExceptionOrderId());
+			} catch (Exception e) {
+				logger.error("卖家换货发货的时候，选择的买家的收货地址，没有查询到");
+			}
+            
+            if(orderRecevive!=null){
+            	
+            	OrderDelivery changeOrderDelivery=new OrderDelivery();
+            	changeOrderDelivery.setOrderId(orderException.getExceptionId());
+            	changeOrderDelivery.setFlowId(orderException.getExceptionOrderId());
+            	changeOrderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
+            	changeOrderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
+            	changeOrderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
+            	changeOrderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
+            	changeOrderDelivery.setUpdateDate(now);
+            	changeOrderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+            	changeOrderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+            	changeOrderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+            	changeOrderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+            	changeOrderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+            	changeOrderDelivery.setCreateTime(now);
+            	changeOrderDelivery.setUpdateTime(now);
+            	changeOrderDelivery.setReceivePerson(orderRecevive.getReceivePerson());
+            	changeOrderDelivery.setReceiveCity(orderRecevive.getReceiveCity());
+            	changeOrderDelivery.setReceiveContactPhone(orderRecevive.getReceiveContactPhone());
+            	changeOrderDelivery.setReceiveProvince(orderRecevive.getReceiveProvince());
+            	changeOrderDelivery.setReceiveRegion(orderRecevive.getReceiveRegion());
+            	changeOrderDelivery.setReceiveAddress(orderRecevive.getReceiveAddress());
+                orderDeliveryMapper.save(changeOrderDelivery);
+            	
+            }else{
+            	
+            	//如果没有查询到orderRecevive，那么使用之前买家定的收货地址来收货
+                OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(orderException.getFlowId());
+                orderDelivery.setOrderId(orderException.getExceptionId());
+                orderDelivery.setFlowId(orderException.getExceptionOrderId());
+                orderDelivery.setDeliveryMethod(orderDeliveryDto.getDeliveryMethod());
+                orderDelivery.setDeliveryContactPerson(orderDeliveryDto.getDeliveryContactPerson());
+                orderDelivery.setDeliveryExpressNo(orderDeliveryDto.getDeliveryExpressNo());
+                orderDelivery.setDeliveryDate(orderDeliveryDto.getDeliveryDate());
+                orderDelivery.setUpdateDate(now);
+                orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+                orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+                orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+                orderDelivery.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+                orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+                orderDelivery.setCreateTime(now);
+                orderDelivery.setDeliveryId(null);
+                orderDelivery.setUpdateTime(now);
+                orderDeliveryMapper.save(orderDelivery);
+            	
+            }
+            
+           
 
             map.put("code", "1");
             map.put("msg", "发货成功。");
