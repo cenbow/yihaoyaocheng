@@ -137,7 +137,6 @@ public class AlipayServiceImpl  implements PayService {
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
 
         log.info(sHtmlText);
-        System.out.println(sHtmlText);
         return sHtmlText;
 
     }
@@ -160,7 +159,6 @@ public class AlipayServiceImpl  implements PayService {
             throw new RuntimeException("退款总笔数跟参数集数量不一致");
         }
 
-
         //把请求参数打包成数组
         Map<String, String> sParaTemp = new HashMap<String, String>();
         sParaTemp.put("service", AlipayConfig.servicerefund);
@@ -172,12 +170,9 @@ public class AlipayServiceImpl  implements PayService {
         sParaTemp.put("batch_no", UtilDate.getOrderNum());
         sParaTemp.put("batch_num", String.valueOf(batch_num));
         sParaTemp.put("detail_data", AlipayCore.createLinkStringByrefund(refundMap));
-        System.out.println(AlipayCore.createLinkStringByrefund(refundMap));
+        log.info("封装退款请求数据----"+AlipayCore.createLinkStringByrefund(refundMap));
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
-
-        log.info(sHtmlText);
-        System.out.println(StringUtils.repeat("=", 40));
-        System.out.println(sHtmlText);
+        log.info("封装退款请求URL----"+sHtmlText);
         return sHtmlText;
     }
 
