@@ -258,12 +258,12 @@ public class OrderReturnService {
 				OrderReceive orderRecevieAddress=new OrderReceive();
 				orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
 				orderRecevieAddress.setFlowId(order.getFlowId());
-				orderRecevieAddress.setReceiveAddress(addressMessage);
-				orderRecevieAddress.setReceiveCity(addressBean.getCityCode());
-				orderRecevieAddress.setReceiveProvince(addressBean.getProvinceCode());
-				orderRecevieAddress.setReceiveRegion(addressBean.getDistrictCode());
-				orderRecevieAddress.setReceivePerson(addressBean.getReceiverName());
-				orderRecevieAddress.setReceiveContactPhone(addressBean.getContactPhone());
+				orderRecevieAddress.setBuyerReceiveAddress(addressMessage);
+				orderRecevieAddress.setBuyerReceiveCity(addressBean.getCityCode());
+				orderRecevieAddress.setBuyerReceiveProvince(addressBean.getProvinceCode());
+				orderRecevieAddress.setBuyerReceiveRegion(addressBean.getDistrictCode());
+				orderRecevieAddress.setBuyerReceivePerson(addressBean.getReceiverName());
+				orderRecevieAddress.setBuyerReceiveContactPhone(addressBean.getContactPhone());
 				orderRecevieAddress.setCreateTime(nowDate);
 				orderRecevieAddress.setCreateUser(userDto.getUserName());
 				orderRecevieAddress.setUpdateTime(nowDate);

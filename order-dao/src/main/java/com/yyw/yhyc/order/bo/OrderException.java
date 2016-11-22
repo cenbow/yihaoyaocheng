@@ -75,6 +75,8 @@ public class OrderException extends Model{
 	 *	备注(确认/关闭说明)
 	 */
 	private java.lang.String remark;
+	
+	private Integer delivery; //保存卖家审核换货的时候选择的收货地址
 
 	/**
 	 *	原订单金额
@@ -141,6 +143,14 @@ public class OrderException extends Model{
 	 */
 	private java.lang.String reviewTime;
 
+
+	public Integer getDelivery() {
+		return delivery;
+	}
+
+	public void setDelivery(Integer delivery) {
+		this.delivery = delivery;
+	}
 
 	/**
 	 *

@@ -2,7 +2,7 @@
 <!-- 
  **
  * Created By: XI
- * Created On: 2016-11-21 10:34:21
+ * Created On: 2016-11-22 10:24:37
  *
  * Amendment History:
  * 
@@ -19,12 +19,18 @@
 	<resultMap id="OrderReceiveResultMapper" type="OrderReceive">
 		<result column="exception_order_id" property="exceptionOrderId"/>
 		<result column="flow_id" property="flowId"/>
-		<result column="receive_person" property="receivePerson"/>
-		<result column="receive_region" property="receiveRegion"/>
-		<result column="receive_city" property="receiveCity"/>
-		<result column="receive_province" property="receiveProvince"/>
-		<result column="receive_address" property="receiveAddress"/>
-		<result column="receive_contact_phone" property="receiveContactPhone"/>
+		<result column="buyer_receive_person" property="buyerReceivePerson"/>
+		<result column="buyer_receive_region" property="buyerReceiveRegion"/>
+		<result column="buyer_receive_city" property="buyerReceiveCity"/>
+		<result column="buyer_receive_province" property="buyerReceiveProvince"/>
+		<result column="buyer_receive_address" property="buyerReceiveAddress"/>
+		<result column="buyer_receive_contact_phone" property="buyerReceiveContactPhone"/>
+		<result column="seller_receive_person" property="sellerReceivePerson"/>
+		<result column="seller_receive_region" property="sellerReceiveRegion"/>
+		<result column="seller_receive_city" property="sellerReceiveCity"/>
+		<result column="seller_receive_province" property="sellerReceiveProvince"/>
+		<result column="seller_receive_address" property="sellerReceiveAddress"/>
+		<result column="seller_receive_contact_phone" property="sellerReceiveContactPhone"/>
 		<result column="remark" property="remark"/>
 		<result column="create_user" property="createUser"/>
 		<result column="create_time" property="createTime"/>
@@ -35,12 +41,18 @@
 	<sql id="commonColumns">
 		 exception_order_id
 		, flow_id
-		, receive_person
-		, receive_region
-		, receive_city
-		, receive_province
-		, receive_address
-		, receive_contact_phone
+		, buyer_receive_person
+		, buyer_receive_region
+		, buyer_receive_city
+		, buyer_receive_province
+		, buyer_receive_address
+		, buyer_receive_contact_phone
+		, seller_receive_person
+		, seller_receive_region
+		, seller_receive_city
+		, seller_receive_province
+		, seller_receive_address
+		, seller_receive_contact_phone
 		, remark
 		, create_user
 		, create_time
@@ -50,12 +62,18 @@
 
     <sql id="commonColumnsNotPK">
 				 flow_id
-				, receive_person
-				, receive_region
-				, receive_city
-				, receive_province
-				, receive_address
-				, receive_contact_phone
+				, buyer_receive_person
+				, buyer_receive_region
+				, buyer_receive_city
+				, buyer_receive_province
+				, buyer_receive_address
+				, buyer_receive_contact_phone
+				, seller_receive_person
+				, seller_receive_region
+				, seller_receive_city
+				, seller_receive_province
+				, seller_receive_address
+				, seller_receive_contact_phone
 				, remark
 				, create_user
 				, create_time
@@ -66,12 +84,18 @@
 	<sql id="commonProcessDateColumns">
 		 exception_order_id
 		, flow_id
-		, receive_person
-		, receive_region
-		, receive_city
-		, receive_province
-		, receive_address
-		, receive_contact_phone
+		, buyer_receive_person
+		, buyer_receive_region
+		, buyer_receive_city
+		, buyer_receive_province
+		, buyer_receive_address
+		, buyer_receive_contact_phone
+		, seller_receive_person
+		, seller_receive_region
+		, seller_receive_city
+		, seller_receive_province
+		, seller_receive_address
+		, seller_receive_contact_phone
 		, remark
 		, create_user
 		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
@@ -86,23 +110,41 @@
 		<if test="flowId!= null and flowId!= ''"> 
 			AND flow_id=#{flowId}
 		</if>
-		<if test="receivePerson!= null and receivePerson!= ''"> 
-			AND receive_person=#{receivePerson}
+		<if test="buyerReceivePerson!= null and buyerReceivePerson!= ''"> 
+			AND buyer_receive_person=#{buyerReceivePerson}
 		</if>
-		<if test="receiveRegion!= null and receiveRegion!= ''"> 
-			AND receive_region=#{receiveRegion}
+		<if test="buyerReceiveRegion!= null and buyerReceiveRegion!= ''"> 
+			AND buyer_receive_region=#{buyerReceiveRegion}
 		</if>
-		<if test="receiveCity!= null and receiveCity!= ''"> 
-			AND receive_city=#{receiveCity}
+		<if test="buyerReceiveCity!= null and buyerReceiveCity!= ''"> 
+			AND buyer_receive_city=#{buyerReceiveCity}
 		</if>
-		<if test="receiveProvince!= null and receiveProvince!= ''"> 
-			AND receive_province=#{receiveProvince}
+		<if test="buyerReceiveProvince!= null and buyerReceiveProvince!= ''"> 
+			AND buyer_receive_province=#{buyerReceiveProvince}
 		</if>
-		<if test="receiveAddress!= null and receiveAddress!= ''"> 
-			AND receive_address=#{receiveAddress}
+		<if test="buyerReceiveAddress!= null and buyerReceiveAddress!= ''"> 
+			AND buyer_receive_address=#{buyerReceiveAddress}
 		</if>
-		<if test="receiveContactPhone!= null and receiveContactPhone!= ''"> 
-			AND receive_contact_phone=#{receiveContactPhone}
+		<if test="buyerReceiveContactPhone!= null and buyerReceiveContactPhone!= ''"> 
+			AND buyer_receive_contact_phone=#{buyerReceiveContactPhone}
+		</if>
+		<if test="sellerReceivePerson!= null and sellerReceivePerson!= ''"> 
+			AND seller_receive_person=#{sellerReceivePerson}
+		</if>
+		<if test="sellerReceiveRegion!= null and sellerReceiveRegion!= ''"> 
+			AND seller_receive_region=#{sellerReceiveRegion}
+		</if>
+		<if test="sellerReceiveCity!= null and sellerReceiveCity!= ''"> 
+			AND seller_receive_city=#{sellerReceiveCity}
+		</if>
+		<if test="sellerReceiveProvince!= null and sellerReceiveProvince!= ''"> 
+			AND seller_receive_province=#{sellerReceiveProvince}
+		</if>
+		<if test="sellerReceiveAddress!= null and sellerReceiveAddress!= ''"> 
+			AND seller_receive_address=#{sellerReceiveAddress}
+		</if>
+		<if test="sellerReceiveContactPhone!= null and sellerReceiveContactPhone!= ''"> 
+			AND seller_receive_contact_phone=#{sellerReceiveContactPhone}
 		</if>
 		<if test="remark!= null and remark!= ''"> 
 			AND remark=#{remark}
@@ -127,12 +169,18 @@
 		<![CDATA[
 			) VALUES ( 
 				 #{flowId}
-				, #{receivePerson}
-				, #{receiveRegion}
-				, #{receiveCity}
-				, #{receiveProvince}
-				, #{receiveAddress}
-				, #{receiveContactPhone}
+				, #{buyerReceivePerson}
+				, #{buyerReceiveRegion}
+				, #{buyerReceiveCity}
+				, #{buyerReceiveProvince}
+				, #{buyerReceiveAddress}
+				, #{buyerReceiveContactPhone}
+				, #{sellerReceivePerson}
+				, #{sellerReceiveRegion}
+				, #{sellerReceiveCity}
+				, #{sellerReceiveProvince}
+				, #{sellerReceiveAddress}
+				, #{sellerReceiveContactPhone}
 				, #{remark}
 				, #{createUser}
 				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
@@ -144,12 +192,18 @@
 		<![CDATA[ UPDATE t_order_receive SET 
 			 exception_order_id=#{exceptionOrderId} 
 			, flow_id=#{flowId} 
-			, receive_person=#{receivePerson} 
-			, receive_region=#{receiveRegion} 
-			, receive_city=#{receiveCity} 
-			, receive_province=#{receiveProvince} 
-			, receive_address=#{receiveAddress} 
-			, receive_contact_phone=#{receiveContactPhone} 
+			, buyer_receive_person=#{buyerReceivePerson} 
+			, buyer_receive_region=#{buyerReceiveRegion} 
+			, buyer_receive_city=#{buyerReceiveCity} 
+			, buyer_receive_province=#{buyerReceiveProvince} 
+			, buyer_receive_address=#{buyerReceiveAddress} 
+			, buyer_receive_contact_phone=#{buyerReceiveContactPhone} 
+			, seller_receive_person=#{sellerReceivePerson} 
+			, seller_receive_region=#{sellerReceiveRegion} 
+			, seller_receive_city=#{sellerReceiveCity} 
+			, seller_receive_province=#{sellerReceiveProvince} 
+			, seller_receive_address=#{sellerReceiveAddress} 
+			, seller_receive_contact_phone=#{sellerReceiveContactPhone} 
 			, remark=#{remark} 
 			, create_user=#{createUser} 
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')

@@ -24,15 +24,18 @@ import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
-
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.DateUtils;
 import com.yyw.yhyc.utils.MyConfigUtil;
+
 import net.sf.json.JSONObject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hpsf.Util;
@@ -58,6 +61,10 @@ public class OrderExceptionService {
     private OrderDeliveryMapper orderDeliveryMapper;
     @Autowired
     private SystemPayTypeService systemPayTypeService;
+    @Autowired
+    private UsermanageReceiverAddressMapper receiverAddressMapper;
+    @Autowired
+    private OrderReceiveService orderReceiveService;
 
     @Autowired
     public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
@@ -588,7 +595,7 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderExceptionDto getChangeOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+    public OrderExceptionDto getChangeOrderDetails(OrderExceptionDto orderExceptionDto,UserDto userDto) throws Exception {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
@@ -598,6 +605,11 @@ public class OrderExceptionService {
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderStatusName(getSellerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
+            
+            UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
+            receiverAddress.setEnterpriseId(String.valueOf(userDto.getCustId()));
+            List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
+            orderExceptionDto.setReceiverAddressList(receiverAddressList);
         }
         return orderExceptionDto;
     }
@@ -770,6 +782,47 @@ public class OrderExceptionService {
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
         orderTraceMapper.save(orderTrace);
+        
+        //如果卖家审核通过，那么需要保存卖家换货收货地址
+        if(orderException.getOrderStatus().equals("4")){ //审核通过
+        	UsermanageReceiverAddress addressBean=this.receiverAddressMapper.getByPK(orderException.getDelivery());
+        	 String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
+        	 String nowDate=this.systemDateMapper.getSystemDate();
+        	 try {
+				OrderReceive orderReceiveBean=this.orderReceiveService.getByPK(oe.getExceptionOrderId());
+				
+				if(orderReceiveBean!=null){
+					 orderReceiveBean.setSellerReceiveRegion(addressBean.getDistrictCode());
+					 orderReceiveBean.setSellerReceiveProvince(addressBean.getProvinceCode());
+					 orderReceiveBean.setSellerReceiveContactPhone(addressBean.getContactPhone());
+					 orderReceiveBean.setSellerReceiveCity(addressBean.getCityCode());
+					 orderReceiveBean.setSellerReceivePerson(addressBean.getReceiverName());
+					 orderReceiveBean.setSellerReceiveAddress(addressMessage);
+					 orderReceiveBean.setUpdateTime(nowDate);
+					 orderReceiveBean.setUpdateUser(userDto.getUserName());
+					 this.orderReceiveService.update(orderReceiveBean);
+						
+				 }else{
+						OrderReceive orderRecevieAddress=new OrderReceive();
+						orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
+						orderRecevieAddress.setFlowId(oe.getFlowId());
+						orderRecevieAddress.setSellerReceiveAddress(addressMessage);
+						orderRecevieAddress.setSellerReceiveCity(addressBean.getCityCode());
+						orderRecevieAddress.setSellerReceiveProvince(addressBean.getProvinceCode());
+						orderRecevieAddress.setSellerReceiveRegion(addressBean.getDistrictCode());
+						orderRecevieAddress.setSellerReceivePerson(addressBean.getReceiverName());
+						orderRecevieAddress.setSellerReceiveContactPhone(addressBean.getContactPhone());
+						orderRecevieAddress.setCreateTime(nowDate);
+						orderRecevieAddress.setCreateUser(userDto.getUserName());
+						orderRecevieAddress.setUpdateTime(nowDate);
+						orderRecevieAddress.setUpdateUser(userDto.getUserName());
+						 this.orderReceiveService.save(orderRecevieAddress);
+				 }
+				
+			} catch (Exception e) {
+				 log.info("处理卖家审核通过，保存卖家的收货地址失败");
+			}
+        }
 
     }
 

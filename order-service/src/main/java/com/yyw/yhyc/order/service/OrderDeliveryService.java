@@ -808,7 +808,6 @@ public class OrderDeliveryService {
                 orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
                 
                 List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
-                 //如果是部分发货，那么应该扣减冻结发货的部分，而不是全部冻结
                 productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
                 
                 
@@ -915,12 +914,12 @@ public class OrderDeliveryService {
             	changeOrderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
             	changeOrderDelivery.setCreateTime(now);
             	changeOrderDelivery.setUpdateTime(now);
-            	changeOrderDelivery.setReceivePerson(orderRecevive.getReceivePerson());
-            	changeOrderDelivery.setReceiveCity(orderRecevive.getReceiveCity());
-            	changeOrderDelivery.setReceiveContactPhone(orderRecevive.getReceiveContactPhone());
-            	changeOrderDelivery.setReceiveProvince(orderRecevive.getReceiveProvince());
-            	changeOrderDelivery.setReceiveRegion(orderRecevive.getReceiveRegion());
-            	changeOrderDelivery.setReceiveAddress(orderRecevive.getReceiveAddress());
+            	changeOrderDelivery.setReceivePerson(orderRecevive.getBuyerReceivePerson());
+            	changeOrderDelivery.setReceiveCity(orderRecevive.getBuyerReceiveCity());
+            	changeOrderDelivery.setReceiveContactPhone(orderRecevive.getBuyerReceiveContactPhone());
+            	changeOrderDelivery.setReceiveProvince(orderRecevive.getBuyerReceiveProvince());
+            	changeOrderDelivery.setReceiveRegion(orderRecevive.getBuyerReceiveRegion());
+            	changeOrderDelivery.setReceiveAddress(orderRecevive.getBuyerReceiveAddress());
                 orderDeliveryMapper.save(changeOrderDelivery);
             	
             }else{
@@ -1107,9 +1106,25 @@ public class OrderDeliveryService {
         orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
         orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
         orderDelivery.setCreateTime(now);
-        orderDelivery.setReceivePerson(od.getDeliveryPerson());
-        orderDelivery.setReceiveAddress(od.getDeliveryAddress());
-        orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
+     
+        OrderReceive orderRecevieBean=null;
+        try{
+        	  orderRecevieBean=this.orderReceviveService.getByPK(orderException.getExceptionOrderId());
+             if(orderRecevieBean!=null){
+            	 orderDelivery.setReceivePerson(orderRecevieBean.getSellerReceivePerson());
+                 orderDelivery.setReceiveAddress(orderRecevieBean.getSellerReceiveAddress());
+                 orderDelivery.setReceiveContactPhone(orderRecevieBean.getSellerReceiveContactPhone());
+             }
+        }catch(Exception es){
+        	log.info("买家换货发货的时候，查询卖家的收货地址为空！");
+        }
+        
+        if(orderRecevieBean==null){
+        	 orderDelivery.setReceivePerson(od.getDeliveryPerson());
+             orderDelivery.setReceiveAddress(od.getDeliveryAddress());
+             orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
+        }
+       
         orderDeliveryMapper.save(orderDelivery);
         orderException.setUpdateTime(now);
         orderException.setBuyerDeliverTime(now);

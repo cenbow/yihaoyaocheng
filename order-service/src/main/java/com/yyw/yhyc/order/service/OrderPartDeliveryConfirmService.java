@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDelivery;
@@ -21,11 +23,13 @@ import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.bo.OrderTrace;
+import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderPartDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
@@ -68,7 +72,8 @@ private OrderReturnMapper orderReturnMapper;
 private OrderTraceMapper orderTraceMapper;
 @Autowired
 private ProductInventoryManage productInventoryManage;
-
+@Autowired
+private SystemPayTypeService systemPayTypeService;
 
 /**
  * 部分发货确定按钮处理逻辑
@@ -76,7 +81,7 @@ private ProductInventoryManage productInventoryManage;
  * @return
  * @throws Exception
  */
-public Map<String,String> updatePartDeliveryConfirmMethodInfo(OrderDeliveryDto orderDeliveryDto) throws Exception{
+public Map<String,String> updatePartDeliveryConfirmMethodInfo(OrderDeliveryDto orderDeliveryDto,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService) throws Exception{
 	 Map<String, String> map = new HashMap<String, String>();
        if (UtilHelper.isEmpty(orderDeliveryDto)) {
            map.put("code", "0");
@@ -109,7 +114,7 @@ public Map<String,String> updatePartDeliveryConfirmMethodInfo(OrderDeliveryDto o
        orderDeliveryDto.setOrderId(orderDelivery.getOrderId());
 
        //验证批次号并生成订单发货数据
-       this.readExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto);
+       this.readExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
       
        return map;
 	
@@ -117,7 +122,7 @@ public Map<String,String> updatePartDeliveryConfirmMethodInfo(OrderDeliveryDto o
 
 
  //读取验证订单批次信息excel
-public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<String, String> map, OrderDeliveryDto orderDeliveryDto) {
+public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<String, String> map, OrderDeliveryDto orderDeliveryDto,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService) {
    String now = systemDateMapper.getSystemDate();
    List<Map<String, String>> errorList = new ArrayList<Map<String, String>>();
    Map<String, String> errorMap = null;
@@ -271,7 +276,7 @@ public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<St
        	
        	 if(orderDeliveryDto.isSomeSend()){ //该订单是部分发货
        		 this.saveAllRightOrderDeliverDetail(orderDeliveryDto, list, detailMap, excelPath, now);
-       		 this.updateAllRightOrderDeliveryMethod(orderDeliveryDto,map, excelPath, now);
+       		 this.updateAllRightOrderDeliveryMethod(orderDeliveryDto,map, excelPath, now,iPromotionDubboManageService,creditDubboService);
        	 }
        	
        }
@@ -400,7 +405,7 @@ private void saveAllRightOrderDeliverDetail(OrderDeliveryDto orderDeliveryDto, L
 
 
 
-private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto, Map<String, String> map, String excelPath, String now) throws Exception {
+private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto, Map<String, String> map, String excelPath, String now,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService) throws Exception {
 	 //发货成功更新订单状态
    if (orderDeliveryDto.getOrderType() == 1) {
        Order order = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
@@ -440,7 +445,7 @@ private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto
        orderDeliveryMapper.update(orderDelivery);
        
        //发货调用扣减冻结库存
-       this.updateDeductionInventory(orderDeliveryDto, order);
+       this.updateDeductionInventory(orderDeliveryDto, order,iPromotionDubboManageService,creditDubboService);
        
        //处理剩余的货物
        this.updateAllDeliverYesAndNo(orderDeliveryDto,now);
@@ -456,7 +461,7 @@ private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto
  * 发货的时候处理，掉释放冻结的库存，发货调用扣减冻结库存
  * @param orderDeliveryDto
  */
-private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order order){
+private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order order,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService){
 	
 	 //发货调用扣减冻结库存
     OrderDetail orderDetail = new OrderDetail();
@@ -472,23 +477,94 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
     	 productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
  	   
     }else if(StringUtils.hasText(selectIsPartDelivery) && selectIsPartDelivery.equals("0")){ //剩余商品不补发了
-    	   //如果是部分发货,且剩余的商品不补发，那么需要释放掉不补发那部分的商品，冻结发货部分的商品
-     /*   if(orderDeliveryDto.isSomeSend()){
-        	 Map<String,String> currentCodeMap=orderDeliveryDto.getCodeMap();
-        	 for (String code : currentCodeMap.keySet()) {
-        		     
-        		   for(OrderDetail innerOrderDetail : detailList){
-        			    String produceCode=innerOrderDetail.getProductCode();
-        			     if(produceCode.equals(code)){
-        			    	 innerOrderDetail.setProductCount(Integer.parseInt(currentCodeMap.get(code)));
+    	
+    	  //如果剩余的商品不补货物,那么需要将发货的部分扣减掉库存，同时如果不发货的部分包含了活动商品，
+    	  //那么需要将该部分扣减掉，如果该订单是账期支付类型的，那么还需要向账期模块发送解冻未发货商品金额的指令
+    	  
+    	  //处理发货的部分
+    	  List<OrderPartDeliveryDto> sendDeliveryList=orderDeliveryDto.getSendDeliveryDtoList();
+    	  List<OrderDetail> currentOrderDetailList=new ArrayList<OrderDetail>();
+    	  
+    	  if(sendDeliveryList!=null && sendDeliveryList.size()>0){
+    		  
+    		  for(OrderPartDeliveryDto sendOrderBean : sendDeliveryList){
+    			    Integer orderDetailId=sendOrderBean.getOrderDetailId();
+    			    String productCode=sendOrderBean.getProduceCode();
+    			    int sendDeliveryNum=sendOrderBean.getSendDeliveryNum();
+    			    
+    			    for(OrderDetail innerOrderDetail : detailList){
+        			    String innerProduceCode=innerOrderDetail.getProductCode();
+        			    Integer innerOrderDetailId=innerOrderDetail.getOrderDetailId();
+        			     if(innerProduceCode.equals(productCode) && innerOrderDetailId.intValue()==orderDetailId.intValue()){
+        			    	 innerOrderDetail.setProductCount(sendDeliveryNum);
+        			    	 currentOrderDetailList.add(innerOrderDetail);
         			     }
         			   
         		   }
-        	 }
-          }
-        productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());*/
-    	
-    	
+    		  }
+    		  productInventoryManage.deductionInventory(currentOrderDetailList, orderDeliveryDto.getUserDto().getUserName());
+    	  }
+    	  
+    	  //处理剩余没有发货的部分商品
+    	  List<OrderPartDeliveryDto> noSendDeliveryList=orderDeliveryDto.getPartDeliveryDtoList();
+    	  if(noSendDeliveryList!=null && noSendDeliveryList.size()>0){
+    		  
+    		  List<OrderDetail> currentOrderDetailNOSendList=new ArrayList<OrderDetail>();
+    		  
+    		  for(OrderPartDeliveryDto noSendBean : noSendDeliveryList){
+    			  
+    			  Integer orderDetailId=noSendBean.getOrderDetailId();
+  			     String productCode=noSendBean.getProduceCode();
+  			     int noSendDeliveryNum=noSendBean.getNoDeliveryNum();
+  			     
+  			     
+  			   for(OrderDetail innerOrderDetail : detailList){
+  				   
+   			    String innerProduceCode=innerOrderDetail.getProductCode();
+   			    Integer innerOrderDetailId=innerOrderDetail.getOrderDetailId();
+   			    
+   			     if(innerProduceCode.equals(productCode) && innerOrderDetailId.intValue()==orderDetailId.intValue()){
+   			    	 innerOrderDetail.setProductCount(noSendDeliveryNum);
+   			    	 currentOrderDetailNOSendList.add(innerOrderDetail);
+   			     }
+   			   
+   		      }
+  			     
+    			  
+    		  }
+    		  //释放没发货的库存
+    		  this.productInventoryManage.releaseInventoryByOrderDetail(currentOrderDetailNOSendList,order.getOrderId(),orderDeliveryDto.getUserDto().getCustName(), orderDeliveryDto.getUserDto().getCustName(), iPromotionDubboManageService);
+    		  
+    	  }
+    	  
+    	  //如果该订单的支付类型是账期支付那么需要将不发货的部分解冻
+		try {
+			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+			
+			if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
+				/*CreditParams creditParams = new CreditParams();
+				//creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
+				creditParams.setBuyerCode(oe.getCustId() + "");
+				creditParams.setSellerCode(oe.getSupplyId() + "");
+				creditParams.setBuyerName(oe.getCustName());
+				creditParams.setSellerName(oe.getSupplyName());
+				if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+					creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
+				else
+					creditParams.setOrderTotal(order.getOrderTotal());//订单金额
+				creditParams.setFlowId(oe.getFlowId());//订单编码
+				creditParams.setStatus("2");
+				creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
+				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+				if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
+					logger.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
+					throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
+				}*/
+			}
+			
+		} catch (Exception e) {
+			throw new RuntimeException("该订单的支付类型不存在");
+		}
     	
     }else{
     	throw new RuntimeException("没有选择剩余商品是否补发货");

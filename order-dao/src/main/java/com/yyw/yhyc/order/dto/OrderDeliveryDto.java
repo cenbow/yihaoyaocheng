@@ -43,7 +43,7 @@ public class OrderDeliveryDto extends OrderDelivery {
     //该属性是为部分发货使用的，key=商品编码,value=卖家发货的数量
     private Map<String, String> codeMap;
     
-    private List<OrderPartDeliveryDto> partDeliveryDtoList; //部分发货实体
+    private List<OrderPartDeliveryDto> partDeliveryDtoList; //部分未发货实体
     
     private List<OrderPartDeliveryDto> sendDeliveryDtoList; //发货的实体
     

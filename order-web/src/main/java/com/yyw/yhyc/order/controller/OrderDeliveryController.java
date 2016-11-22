@@ -33,6 +33,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
@@ -58,6 +61,12 @@ public class OrderDeliveryController extends BaseJsonController {
    private OrderPartDeliveryService orderPartDeliveryService;
 	@Autowired
    private OrderPartDeliveryConfirmService orderPartDeliveryConfirmService;
+	
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
+	
+	@Reference(timeout = 50000)
+	private CreditDubboServiceInterface creditDubboService;
 
 	/**
 	* 通过主键查询实体对象
@@ -191,7 +200,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
 		}
 		
-		returnMap=this.orderPartDeliveryConfirmService.updatePartDeliveryConfirmMethodInfo(orderDeliveryDto);
+		returnMap=this.orderPartDeliveryConfirmService.updatePartDeliveryConfirmMethodInfo(orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
 		
 		return returnMap;
 	}

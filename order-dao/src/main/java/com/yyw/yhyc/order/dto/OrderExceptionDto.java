@@ -5,6 +5,7 @@ import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,6 +33,8 @@ public class OrderExceptionDto extends OrderException {
     private List<OrderDelivery> orderDeliveryList;        //异常订单的发货信息
 
     private OrderSettlement orderSettlement; //结算信息
+    
+    private List<UsermanageReceiverAddress> receiverAddressList; //卖家审核换货通过后，选择的收货地址列表
 
     /* 商品总金额 */
     private BigDecimal productPriceCount;
@@ -62,8 +65,19 @@ public class OrderExceptionDto extends OrderException {
     private int orderCount;             //订单数量
     private int waitingConfirmCount;   // 待确认 数量
     private int refundingCount ;     //退款中数量
+    
+    
 
-    public OrderExceptionDto() {
+    public List<UsermanageReceiverAddress> getReceiverAddressList() {
+		return receiverAddressList;
+	}
+
+	public void setReceiverAddressList(
+			List<UsermanageReceiverAddress> receiverAddressList) {
+		this.receiverAddressList = receiverAddressList;
+	}
+
+	public OrderExceptionDto() {
     }
 
     public int getPayType() {

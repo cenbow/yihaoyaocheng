@@ -432,7 +432,6 @@ public class OrderPartDeliveryService {
             orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
             
             List<OrderDetail> detailList = orderDetailMapper.listByProperty(orderDetail);
-             //如果是部分发货，那么应该扣减冻结发货的部分，而不是全部冻结
             productInventoryManage.deductionInventory(detailList, orderDeliveryDto.getUserDto().getUserName());
             
             

@@ -148,6 +148,49 @@ public class ProductInventoryManage {
             e.printStackTrace();
         }
     }
+    
+    
+    /**
+     * 根据订单详情集合释放库存
+     * @param orderDetailList
+     * @param supplyName
+     * @param operator
+     * @param iPromotionDubboManageService
+     */
+    public void releaseInventoryByOrderDetail(List<OrderDetail> orderDetailList,Integer orderId,String supplyName, String operator, IPromotionDubboManageService iPromotionDubboManageService){
+    	  try {
+              if (!UtilHelper.isEmpty(orderDetailList)) {
+                  String nowTime = systemDateMapper.getSystemDate();
+                  for (OrderDetail orderDetail : orderDetailList) {
+                      ProductInventory productInventory = new ProductInventory();
+                      productInventory.setSpuCode(orderDetail.getSpuCode());
+                      productInventory.setSupplyId(orderDetail.getSupplyId());
+                      productInventory.setBlockedInventory(orderDetail.getProductCount());
+                      productInventory.setUpdateUser(operator);
+                      productInventory.setUpdateTime(nowTime);
+                      productInventoryMapper.updateReleaseInventory(productInventory);
+                      saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.release.getType(), nowTime, supplyName, operator);
+                      
+                      if((Integer)orderDetail.getPromotionId()!= null && orderDetail.getPromotionId()>0){
+                      	Map params=new HashMap();
+  	      		      	params.put("spuCode", orderDetail.getSpuCode());
+  	      		      	params.put("promotionId", orderDetail.getPromotionId());
+  	      		      	params.put("productCount", orderDetail.getProductCount());
+  	      		      	
+  	      		      	Order order = orderMapper.getByPK(orderId);
+  	      		      	params.put("buyerCode", order.getCustId());
+  	      		      	params.put("sellerCode", orderDetail.getSupplyId());
+  	      		      	log.info("活动库存释放"+params.toString());
+  	          			Map result = iPromotionDubboManageService.updateProductGroupInventroy(params);
+  	          			log.info("更新结果"+result.get("code")+" "+result.toString());
+                      }
+          			
+                  }
+              }
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+    }
 
 
     /**

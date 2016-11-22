@@ -347,26 +347,30 @@
                     <colgroup>
                         <col style="width: 10%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
                     </colgroup>
                     <thead>
                     <tr>
                         <th>订单行号</th>
                         <th>商品编码</th>
                         <th>批号</th>
+                        <th>有效期至</th>
                         <th>商品名</th>
                         <th>通用名</th>
                         <th>规格</th>
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>

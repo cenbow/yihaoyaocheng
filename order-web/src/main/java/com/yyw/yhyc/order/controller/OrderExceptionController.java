@@ -276,7 +276,7 @@ public class OrderExceptionController extends BaseJsonController{
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionId(exceptionId);
 		orderExceptionDto.setSupplyId(user.getCustId());
-		orderExceptionDto = orderExceptionService.getChangeOrderDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionService.getChangeOrderDetails(orderExceptionDto,user);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
 		modelAndView.setViewName("orderException/seller_review_change_order");

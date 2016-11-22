@@ -1,6 +1,6 @@
 /**
  * Created By: XI
- * Created On: 2016-11-21 10:34:21
+ * Created On: 2016-11-22 10:24:37
  *
  * Amendment History:
  * 
@@ -30,34 +30,64 @@ public class OrderReceive extends Model{
 	private java.lang.String flowId;
 
 	/**
-	  *	收货人
+	  *	买家收货人
 	  */
-	private java.lang.String receivePerson;
+	private java.lang.String buyerReceivePerson;
 
 	/**
-	  *	收货区编码
+	  *	买家收货区编码
 	  */
-	private java.lang.String receiveRegion;
+	private java.lang.String buyerReceiveRegion;
 
 	/**
-	  *	收货城市编码
+	  *	买家收货城市编码
 	  */
-	private java.lang.String receiveCity;
+	private java.lang.String buyerReceiveCity;
 
 	/**
-	  *	收货省份
+	  *	买家收货省份
 	  */
-	private java.lang.String receiveProvince;
+	private java.lang.String buyerReceiveProvince;
 
 	/**
-	  *	收货详细地址
+	  *	买家收货详细地址
 	  */
-	private java.lang.String receiveAddress;
+	private java.lang.String buyerReceiveAddress;
 
 	/**
-	  *	
+	  *	买家收货联系人手机号
 	  */
-	private java.lang.String receiveContactPhone;
+	private java.lang.String buyerReceiveContactPhone;
+
+	/**
+	  *	卖家收货人
+	  */
+	private java.lang.String sellerReceivePerson;
+
+	/**
+	  *	卖家收货区编码
+	  */
+	private java.lang.String sellerReceiveRegion;
+
+	/**
+	  *	卖家收货城市编码
+	  */
+	private java.lang.String sellerReceiveCity;
+
+	/**
+	  *	卖家收货省份
+	  */
+	private java.lang.String sellerReceiveProvince;
+
+	/**
+	  *	卖家收货详细地址
+	  */
+	private java.lang.String sellerReceiveAddress;
+
+	/**
+	  *	卖家收货联系人手机号
+	  */
+	private java.lang.String sellerReceiveContactPhone;
 
 	/**
 	  *	
@@ -117,99 +147,195 @@ public class OrderReceive extends Model{
 	}
 	
 	/**
-	  *	收货人
+	  *	买家收货人
 	  */
-	public java.lang.String getReceivePerson() 
+	public java.lang.String getBuyerReceivePerson() 
 	{
-		return receivePerson;
+		return buyerReceivePerson;
 	}
 	
 	/**
-	  *	收货人
+	  *	买家收货人
 	  */
-	public void setReceivePerson(java.lang.String receivePerson) 
+	public void setBuyerReceivePerson(java.lang.String buyerReceivePerson) 
 	{
-		this.receivePerson = receivePerson;
+		this.buyerReceivePerson = buyerReceivePerson;
 	}
 	
 	/**
-	  *	收货区编码
+	  *	买家收货区编码
 	  */
-	public java.lang.String getReceiveRegion() 
+	public java.lang.String getBuyerReceiveRegion() 
 	{
-		return receiveRegion;
+		return buyerReceiveRegion;
 	}
 	
 	/**
-	  *	收货区编码
+	  *	买家收货区编码
 	  */
-	public void setReceiveRegion(java.lang.String receiveRegion) 
+	public void setBuyerReceiveRegion(java.lang.String buyerReceiveRegion) 
 	{
-		this.receiveRegion = receiveRegion;
+		this.buyerReceiveRegion = buyerReceiveRegion;
 	}
 	
 	/**
-	  *	收货城市编码
+	  *	买家收货城市编码
 	  */
-	public java.lang.String getReceiveCity() 
+	public java.lang.String getBuyerReceiveCity() 
 	{
-		return receiveCity;
+		return buyerReceiveCity;
 	}
 	
 	/**
-	  *	收货城市编码
+	  *	买家收货城市编码
 	  */
-	public void setReceiveCity(java.lang.String receiveCity) 
+	public void setBuyerReceiveCity(java.lang.String buyerReceiveCity) 
 	{
-		this.receiveCity = receiveCity;
+		this.buyerReceiveCity = buyerReceiveCity;
 	}
 	
 	/**
-	  *	收货省份
+	  *	买家收货省份
 	  */
-	public java.lang.String getReceiveProvince() 
+	public java.lang.String getBuyerReceiveProvince() 
 	{
-		return receiveProvince;
+		return buyerReceiveProvince;
 	}
 	
 	/**
-	  *	收货省份
+	  *	买家收货省份
 	  */
-	public void setReceiveProvince(java.lang.String receiveProvince) 
+	public void setBuyerReceiveProvince(java.lang.String buyerReceiveProvince) 
 	{
-		this.receiveProvince = receiveProvince;
+		this.buyerReceiveProvince = buyerReceiveProvince;
 	}
 	
 	/**
-	  *	收货详细地址
+	  *	买家收货详细地址
 	  */
-	public java.lang.String getReceiveAddress() 
+	public java.lang.String getBuyerReceiveAddress() 
 	{
-		return receiveAddress;
+		return buyerReceiveAddress;
 	}
 	
 	/**
-	  *	收货详细地址
+	  *	买家收货详细地址
 	  */
-	public void setReceiveAddress(java.lang.String receiveAddress) 
+	public void setBuyerReceiveAddress(java.lang.String buyerReceiveAddress) 
 	{
-		this.receiveAddress = receiveAddress;
+		this.buyerReceiveAddress = buyerReceiveAddress;
 	}
 	
 	/**
-	  *	
+	  *	买家收货联系人手机号
 	  */
-	public java.lang.String getReceiveContactPhone() 
+	public java.lang.String getBuyerReceiveContactPhone() 
 	{
-		return receiveContactPhone;
+		return buyerReceiveContactPhone;
 	}
 	
 	/**
-	  *	
+	  *	买家收货联系人手机号
 	  */
-	public void setReceiveContactPhone(java.lang.String receiveContactPhone) 
+	public void setBuyerReceiveContactPhone(java.lang.String buyerReceiveContactPhone) 
 	{
-		this.receiveContactPhone = receiveContactPhone;
+		this.buyerReceiveContactPhone = buyerReceiveContactPhone;
+	}
+	
+	/**
+	  *	卖家收货人
+	  */
+	public java.lang.String getSellerReceivePerson() 
+	{
+		return sellerReceivePerson;
+	}
+	
+	/**
+	  *	卖家收货人
+	  */
+	public void setSellerReceivePerson(java.lang.String sellerReceivePerson) 
+	{
+		this.sellerReceivePerson = sellerReceivePerson;
+	}
+	
+	/**
+	  *	卖家收货区编码
+	  */
+	public java.lang.String getSellerReceiveRegion() 
+	{
+		return sellerReceiveRegion;
+	}
+	
+	/**
+	  *	卖家收货区编码
+	  */
+	public void setSellerReceiveRegion(java.lang.String sellerReceiveRegion) 
+	{
+		this.sellerReceiveRegion = sellerReceiveRegion;
+	}
+	
+	/**
+	  *	卖家收货城市编码
+	  */
+	public java.lang.String getSellerReceiveCity() 
+	{
+		return sellerReceiveCity;
+	}
+	
+	/**
+	  *	卖家收货城市编码
+	  */
+	public void setSellerReceiveCity(java.lang.String sellerReceiveCity) 
+	{
+		this.sellerReceiveCity = sellerReceiveCity;
+	}
+	
+	/**
+	  *	卖家收货省份
+	  */
+	public java.lang.String getSellerReceiveProvince() 
+	{
+		return sellerReceiveProvince;
+	}
+	
+	/**
+	  *	卖家收货省份
+	  */
+	public void setSellerReceiveProvince(java.lang.String sellerReceiveProvince) 
+	{
+		this.sellerReceiveProvince = sellerReceiveProvince;
+	}
+	
+	/**
+	  *	卖家收货详细地址
+	  */
+	public java.lang.String getSellerReceiveAddress() 
+	{
+		return sellerReceiveAddress;
+	}
+	
+	/**
+	  *	卖家收货详细地址
+	  */
+	public void setSellerReceiveAddress(java.lang.String sellerReceiveAddress) 
+	{
+		this.sellerReceiveAddress = sellerReceiveAddress;
+	}
+	
+	/**
+	  *	卖家收货联系人手机号
+	  */
+	public java.lang.String getSellerReceiveContactPhone() 
+	{
+		return sellerReceiveContactPhone;
+	}
+	
+	/**
+	  *	卖家收货联系人手机号
+	  */
+	public void setSellerReceiveContactPhone(java.lang.String sellerReceiveContactPhone) 
+	{
+		this.sellerReceiveContactPhone = sellerReceiveContactPhone;
 	}
 	
 	/**
@@ -297,12 +423,18 @@ public class OrderReceive extends Model{
 		return "OrderReceive [" + 
 					"exceptionOrderId=" + exceptionOrderId + 
 					", flowId=" + flowId + 
-					", receivePerson=" + receivePerson + 
-					", receiveRegion=" + receiveRegion + 
-					", receiveCity=" + receiveCity + 
-					", receiveProvince=" + receiveProvince + 
-					", receiveAddress=" + receiveAddress + 
-					", receiveContactPhone=" + receiveContactPhone + 
+					", buyerReceivePerson=" + buyerReceivePerson + 
+					", buyerReceiveRegion=" + buyerReceiveRegion + 
+					", buyerReceiveCity=" + buyerReceiveCity + 
+					", buyerReceiveProvince=" + buyerReceiveProvince + 
+					", buyerReceiveAddress=" + buyerReceiveAddress + 
+					", buyerReceiveContactPhone=" + buyerReceiveContactPhone + 
+					", sellerReceivePerson=" + sellerReceivePerson + 
+					", sellerReceiveRegion=" + sellerReceiveRegion + 
+					", sellerReceiveCity=" + sellerReceiveCity + 
+					", sellerReceiveProvince=" + sellerReceiveProvince + 
+					", sellerReceiveAddress=" + sellerReceiveAddress + 
+					", sellerReceiveContactPhone=" + sellerReceiveContactPhone + 
 					", remark=" + remark + 
 					", createUser=" + createUser + 
 					", createTime=" + createTime + 
