@@ -381,6 +381,8 @@ public class ShoppingCartService {
 			}
 			shoppingCart.setProductPrice(productPrice);
 			shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+			shoppingCart.setPromotionId(null);
+			shoppingCart.setPromotionName(null);
 			this.addNormalProduct(shoppingCart,userDto);
 			return  null;
 		}
@@ -431,6 +433,8 @@ public class ShoppingCartService {
 			normalProductShoppingCart.setProductPrice(productPrice);
 			normalProductShoppingCart.setProductCount(shoppingCart.getProductCount() - promotionProductNumStillCanBuy);
 			normalProductShoppingCart.setProductSettlementPrice(normalProductShoppingCart.getProductPrice().multiply(new BigDecimal(normalProductShoppingCart.getProductCount())));
+			normalProductShoppingCart.setPromotionId(null);
+			normalProductShoppingCart.setPromotionName(null);
 			logger.info("加进货单接口--添加活动商品到进货单：超过部分，则以商品原价去购买 normalProductShoppingCart=" + normalProductShoppingCart);
 			this.addNormalProduct(normalProductShoppingCart,userDto);
 
@@ -661,6 +665,8 @@ public class ShoppingCartService {
 			}
 			shoppingCart.setProductPrice(productPrice);
 			shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
+			shoppingCart.setPromotionId(null);
+			shoppingCart.setPromotionName(null);
 			this.addNormalProduct(shoppingCart,userDto);
 			return  null;
 		}
@@ -742,6 +748,8 @@ public class ShoppingCartService {
 		normalProductShoppingCart.setProductPrice(productPrice);
 		normalProductShoppingCart.setProductCount(shoppingCart.getProductCount() - promotionProductNumStillCanBuy);
 		normalProductShoppingCart.setProductSettlementPrice(normalProductShoppingCart.getProductPrice().multiply(new BigDecimal(normalProductShoppingCart.getProductCount())));
+		normalProductShoppingCart.setPromotionId(null);
+		normalProductShoppingCart.setPromotionName(null);
 		logger.info("加进货单接口--增加活动商品在进货单的数量：购买的特价数量买满，超出的数量以原价处理 normalProductShoppingCart = " + normalProductShoppingCart +",userDto="+userDto);
 		Map<String ,Object> normalProductMap = this.addNormalProduct(normalProductShoppingCart,userDto);
 
