@@ -709,11 +709,11 @@ public class OrderExceptionService {
             orderSettlementMapper.save(orderSettlement);
             log.info("account:create settlement账期审核不通过该生成结算");
         }
-        //审核通过时。在线支付调用相关支付接口，然后更新结算信息
-        if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())
+        //审核不通过时。在线支付调用相关支付接口，然后更新结算信息
+        if (SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())
                 &&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
             PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-            payService.handleRefund(userDto, 2, oe.getExceptionOrderId(), "卖家审核通过拒收订单");
+            payService.handleRefund(userDto, 2, oe.getExceptionOrderId(), "卖家审核不通过拒收订单");
         }
 
 
