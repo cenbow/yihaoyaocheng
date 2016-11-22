@@ -2309,6 +2309,8 @@ public class OrderExceptionService {
         orderBean.setSupplyName(orderExceptionDto.getSupplyName());
         orderBean.setLeaveMsg("");
         orderBean.setQq("");
+        orderBean.setPayTypeId(orderExceptionDto.getPayTypeId());
+        orderBean.setPayName(orderExceptionDto.getPayName());
         orderBean.setReturnDesc(orderExceptionDto.getReturnDesc());
         orderBean.setMerchantDesc(orderExceptionDto.getRemark());
         orderBean.setExceptionOrderId(orderExceptionDto.getExceptionOrderId());
