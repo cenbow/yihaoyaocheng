@@ -238,7 +238,7 @@ public class OrderExceptionController extends BaseJsonController{
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionId(exceptionId);
 		orderExceptionDto.setSupplyId(user.getCustId());
-		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto,user);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
 		modelAndView.setViewName("orderException/seller_review_return_order");
@@ -247,7 +247,7 @@ public class OrderExceptionController extends BaseJsonController{
 
 	/**
 	 * 拒收订单信息
-	 * @param exceptionId 异常订单编码
+	 * @param exceptionId 异常订单编码sellerReviewReturnOrder
 	 * @return
 	 * @throws Exception
 	 */
@@ -257,7 +257,7 @@ public class OrderExceptionController extends BaseJsonController{
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setExceptionId(exceptionId);
 		orderExceptionDto.setSupplyId(user.getCustId());
-		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto);
+		orderExceptionDto = orderExceptionService.getRejectOrderDetails(orderExceptionDto,user);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);
 		modelAndView.setViewName("orderException/seller_review_reject_order");

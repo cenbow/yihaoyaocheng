@@ -50,6 +50,32 @@
                                     <textarea class="form-control" rows="5" id="remark" maxlength="50"></textarea>
                                 </div>
                             </div>
+                            
+                             <div class="form-group">
+	                               <label for="scope" class="col-xs-2 control-label">退货收货地址:</label>
+		                            <div class="col-xs-9 control-label text-left" id="warehouse" >
+		                            
+		                            
+		                      <c:if test="${orderExceptionDto.receiverAddressList != null && fn:length(orderExceptionDto.receiverAddressList) gt 0 }">
+                                      <c:forEach items="${orderExceptionDto.receiverAddressList}" var="item" varStatus="status">
+				                       <div>
+			                               <label>
+												<c:if test="${item.defaultAddress==1}">
+												<input type="radio" checked="true" name="delivery" value="${item.id}"/>
+												 ${item.provinceName}${item.cityName}${item.districtName}${item.address}&nbsp;&nbsp;${item.receiverName}&nbsp;&nbsp;${item.contactPhone}
+												</c:if>
+												<c:if test="${item.defaultAddress==0}">
+												<input type="radio" name="delivery" value="${item.id}"/>
+												 ${item.provinceName}${item.cityName}${item.districtName}${item.address}&nbsp;&nbsp;${item.receiverName}&nbsp;&nbsp;${item.contactPhone}
+												</c:if>
+									       </label>
+								       </div>
+                                     </c:forEach>
+                                </c:if>
+		                             
+		                            </div>
+                             </div>
+                            
                             <div class="form-group">
                                 <label class="col-xs-2"></label>
                                 <div class="col-xs-1"><button type="button" class="btn btn-danger" onclick="review(3)">通过</button></div>
@@ -199,6 +225,15 @@
             }
             var remark = $("#remark").val().trim();
             var data = {exceptionId:exceptionId,remark:remark,orderStatus:type};
+            if(type == 3){ //审核通过
+	           	 var delivery = $("input[type=radio][name=delivery]:checked").val();
+	           	 if(delivery){
+	           		data.delivery=delivery;
+	           	 }else{
+	           	  alertModal("请选择收货地址!");
+	              return;
+	           	 }
+            }
             tipLoad();
             $.ajax({
                 url: ctx+"/orderException/sellerReviewReturnOrder",

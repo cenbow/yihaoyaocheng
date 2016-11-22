@@ -546,7 +546,7 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderExceptionDto getRejectOrderDetails(OrderExceptionDto orderExceptionDto) throws Exception {
+    public OrderExceptionDto getRejectOrderDetails(OrderExceptionDto orderExceptionDto,UserDto userDto) throws Exception {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
@@ -559,6 +559,11 @@ public class OrderExceptionService {
                 orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
             else
                 orderExceptionDto.setOrderStatusName(getSellerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
+            
+            UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
+            receiverAddress.setEnterpriseId(String.valueOf(userDto.getCustId()));
+            List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
+            orderExceptionDto.setReceiverAddressList(receiverAddressList);
         }
         return orderExceptionDto;
     }
@@ -1108,6 +1113,33 @@ public class OrderExceptionService {
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
         orderTraceMapper.save(orderTrace);
+        
+        //卖家审核通过退货信息需要插入卖家的收货地址
+        if(orderException.getOrderStatus().equals("3")){ //审核通过
+	        	UsermanageReceiverAddress addressBean=this.receiverAddressMapper.getByPK(orderException.getDelivery());
+		       	 String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
+		       	 String nowDate=this.systemDateMapper.getSystemDate();
+		       	 
+       		           OrderReceive orderRecevieAddress=new OrderReceive();
+						orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
+						orderRecevieAddress.setFlowId(oe.getFlowId());
+						orderRecevieAddress.setSellerReceiveAddress(addressMessage);
+						orderRecevieAddress.setSellerReceiveCity(addressBean.getCityCode());
+						orderRecevieAddress.setSellerReceiveProvince(addressBean.getProvinceCode());
+						orderRecevieAddress.setSellerReceiveRegion(addressBean.getDistrictCode());
+						orderRecevieAddress.setSellerReceivePerson(addressBean.getReceiverName());
+						orderRecevieAddress.setSellerReceiveContactPhone(addressBean.getContactPhone());
+						orderRecevieAddress.setCreateTime(nowDate);
+						orderRecevieAddress.setCreateUser(userDto.getUserName());
+						orderRecevieAddress.setUpdateTime(nowDate);
+						orderRecevieAddress.setUpdateUser(userDto.getUserName());
+						try {
+							this.orderReceiveService.save(orderRecevieAddress);
+						} catch (Exception e) {
+							log.error("保存卖家退货收货地址失败:" + oe);
+				            throw new RuntimeException("保存卖家退货收货地址失败");
+						}
+        }
     }
 
     /**

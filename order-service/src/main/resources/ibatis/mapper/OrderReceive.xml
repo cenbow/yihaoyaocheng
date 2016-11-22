@@ -61,7 +61,8 @@
 	</sql>
 
     <sql id="commonColumnsNotPK">
-				 flow_id
+               exception_order_id
+				, flow_id
 				, buyer_receive_person
 				, buyer_receive_region
 				, buyer_receive_city
@@ -167,8 +168,9 @@
 		<![CDATA[ INSERT INTO t_order_receive ( ]]>
 			<include refid="commonColumnsNotPK"/>
 		<![CDATA[
-			) VALUES ( 
-				 #{flowId}
+			) VALUES (
+			      #{exceptionOrderId}
+				, #{flowId}
 				, #{buyerReceivePerson}
 				, #{buyerReceiveRegion}
 				, #{buyerReceiveCity}

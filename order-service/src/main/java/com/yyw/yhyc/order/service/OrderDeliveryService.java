@@ -1026,9 +1026,17 @@ public class OrderDeliveryService {
         orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
         orderDelivery.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
         orderDelivery.setCreateTime(now);
-        orderDelivery.setReceivePerson(od.getDeliveryPerson());
-        orderDelivery.setReceiveAddress(od.getDeliveryAddress());
-        orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
+        
+        OrderReceive orderReceiverBean=this.orderReceviveService.getByPK(orderException.getExceptionOrderId());
+        if(orderReceiverBean!=null){
+        	 orderDelivery.setReceivePerson(orderReceiverBean.getSellerReceivePerson());
+             orderDelivery.setReceiveAddress(orderReceiverBean.getSellerReceiveAddress());
+             orderDelivery.setReceiveContactPhone(orderReceiverBean.getSellerReceiveContactPhone());
+        }else{
+        	 orderDelivery.setReceivePerson(od.getReceivePerson());
+             orderDelivery.setReceiveAddress(od.getDeliveryAddress());
+             orderDelivery.setReceiveContactPhone(od.getDeliveryContactPhone());
+        }
         orderDeliveryMapper.save(orderDelivery);
         orderException.setUpdateTime(now);
         orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
