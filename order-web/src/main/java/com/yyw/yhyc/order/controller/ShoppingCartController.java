@@ -151,8 +151,46 @@ public class ShoppingCartController extends BaseJsonController {
 	@ResponseBody
 	public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("登陆超时");
+		}
 		return shoppingCartService.updateNum(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 	}
+
+
+	/**
+	 * 添加商品到进货单
+	 * 请求数据格式如下：
+
+	 {
+		 "custId": 6066,                //采购商企业编号
+		 "supplyId": "6067",            //供应商企业编号
+		 "spuCode": "010BAA3040006",    // 商品SPU编码
+		 "productId": "7",             //商品id
+		 "productCount": 1,            //商品数量
+		 "productPrice": 12,           //商品单价
+		 "productCodeCompany": "3545451",  //商品的本公司编码
+		 "promotionId":"123"            //活动商品的活动id（没有该字段则不传）
+	 }
+
+	 * @param shoppingCart
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/addShoppingCart", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
+
+		/* 获取登陆用户的企业信息 */
+		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw  new Exception("登陆超时");
+		}
+		return shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+	}
+
+
+
 
 
 	/**
@@ -199,10 +237,13 @@ public class ShoppingCartController extends BaseJsonController {
 					ShoppingCart temp = shoppingCartService.getByPK(shoppingCart.getShoppingCartId());
 					if(UtilHelper.isEmpty(temp)) continue;
 					productInfoDto.setId(temp.getProductId());
+					productInfoDto.setPromotionName(temp.getProductName());
 					productInfoDto.setSpuCode(temp.getSpuCode());
 					productInfoDto.setProductPrice(temp.getProductPrice());
 					productInfoDto.setProductCount(temp.getProductCount());
 					productInfoDto.setPromotionId(temp.getPromotionId());
+					productInfoDto.setPromotionName(temp.getPromotionName());
+					productInfoDto.setFromWhere(temp.getFromWhere());
 					productInfoDtoList.add(productInfoDto);
 				}
 			}

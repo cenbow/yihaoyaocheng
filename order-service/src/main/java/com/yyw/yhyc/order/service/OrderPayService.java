@@ -241,6 +241,7 @@ public class OrderPayService {
 
 		if(orderCount == 0 || orderIdList.size() == 0) return null;
 
+		/* 订单首次支付 */
 		OrderPay orderPay =orderPayMapper.getByPayFlowId(payFlowId);
 		if(UtilHelper.isEmpty(orderPay)){
 			OrderCombined orderCombined = new OrderCombined();
@@ -285,11 +286,21 @@ public class OrderPayService {
 			orderPayMapper.save(orderPay);
 			orderPay = orderPayMapper.getByPayFlowId(payFlowId);
 			log.info("在线支付订单前，预处理订单数据:处理完成，返回数据=" + orderPay);
+
+		/* 订单非首次支付 */
 		} else {
 			orderPay.setPayTime(systemDateMapper.getSystemDate());
 			orderPay.setPayTypeId(payTypeId);
+			orderPay.setUpdateUser(userDto.getUserName());
+			orderPay.setUpdateTime(systemDateMapper.getSystemDate());
 			orderPayMapper.update(orderPay);
+
 			OrderCombined orderCombined=orderCombinedMapper.findByPayFlowId(payFlowId);
+			orderCombined.setPayTypeId(payTypeId);
+			orderCombined.setUpdateTime(systemDateMapper.getSystemDate());
+			orderCombined.setUpdateUser(userDto.getUserName());
+			orderCombinedMapper.update(orderCombined);
+
 			for(Integer orderId : orderIdList){
 				if(orderId <= 0) continue;
 				order = new Order();
@@ -297,6 +308,8 @@ public class OrderPayService {
 				order.setPayTypeId(payTypeId);
 				order.setPayTime(systemDateMapper.getSystemDate());
 				order.setOrderCombinedId(orderCombined.getOrderCombinedId());
+				order.setUpdateTime(systemDateMapper.getSystemDate());
+				order.setUpdateUser(userDto.getUserName());
 				orderMapper.update(order);
 			}
 		}

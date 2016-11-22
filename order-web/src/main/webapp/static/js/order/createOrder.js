@@ -13,7 +13,6 @@ function createOrder(){
 	            content:'<p class="mt60 f14">请勿重复提交表单数据！</p>',
 	            ok:'确定',
 	            afterOk:function(){
-	                console.log('111');
 	            }
 	        });
 	        return;
@@ -40,7 +39,16 @@ function createOrder(){
             content:'<p class="mt60 f14">请选择发票类型！</p>',
             ok:'确定',
             afterOk:function(){
-                console.log('111');
+            }
+        });
+        return;
+    }
+    if( billType != 1 && billType != 2){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">非法发票类型！</p>',
+            ok:'确定',
+            afterOk:function(){
             }
         });
         return;

@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class OrderBean implements Serializable{
 
+    private static final long serialVersionUID = -2270982949438087902L;
     private String orderId;                     //订单Id
     private String orderStatus;                 //订单状态
     private String createTime;                  //下单时间
@@ -33,6 +34,9 @@ public class OrderBean implements Serializable{
     private String orderStatusName;            //状态枚举值
     private Integer supplyId;                   //供应商id
     private List<Integer> shopCartIdList;     //购物车id
+
+    /* 销售顾问 */
+    private AdviserBean adviser;
 
     public String getOrderStatusName() {
         return orderStatusName;
@@ -235,6 +239,14 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
+    public AdviserBean getAdviser() {
+        return adviser;
+    }
+
+    public void setAdviser(AdviserBean adviser) {
+        this.adviser = adviser;
+    }
+
     @Override
     public String toString() {
         return "OrderBean{" +
@@ -262,6 +274,7 @@ public class OrderBean implements Serializable{
                 ", postponeTime=" + postponeTime +
                 ", supplyId=" + supplyId +
                 ", shopCartIdList=" + shopCartIdList +
+                ", adviser=" + adviser +
                 '}';
     }
 }

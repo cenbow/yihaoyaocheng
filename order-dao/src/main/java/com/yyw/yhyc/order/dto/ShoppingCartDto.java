@@ -64,6 +64,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 活动实时库存 */
     private Integer promotionCurrentInventory;
 
+    /* 活动类型：1表示特价促销活动 */
+    private int promotionType;
+
 //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
 
     public Integer getSaleStart() {
@@ -194,6 +197,14 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.promotionCurrentInventory = promotionCurrentInventory;
     }
 
+    public int getPromotionType() {
+        return promotionType;
+    }
+
+    public void setPromotionType(int promotionType) {
+        this.promotionType = promotionType;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -213,6 +224,7 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", promotionLimitNum=" + promotionLimitNum +
                 ", promotionSumInventory=" + promotionSumInventory +
                 ", promotionCurrentInventory=" + promotionCurrentInventory +
+                ", promotionType=" + promotionType +
                 "} " + super.toString();
     }
 }

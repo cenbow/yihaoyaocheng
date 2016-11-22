@@ -24,7 +24,6 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +40,7 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 
-import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.SpringBeanHelper;
@@ -83,10 +82,6 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
-import com.yyw.yhyc.order.bo.*;
-import com.yyw.yhyc.order.dto.*;
-import com.yyw.yhyc.order.enmu.*;
-import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
@@ -1015,13 +1010,13 @@ public class OrderService {
 
 			/* 若商品的最新价格 小于等于0，则提示该商品无法购买 */
 			if(productPrice.compareTo(new BigDecimal(0)) <= 0){
-				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice,productInfoDto.getFromWhere(),productInfoDto.getPromotionId());
 				return returnFalse("部分商品您无法购买，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
 			/* 若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格 */
-			if(UtilHelper.isEmpty(productInfoDto.getPromotionId())){
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0){
 				if( productPrice.compareTo(productInfoDto.getProductPrice()) != 0){
-					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice);
+					updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPrice,productInfoDto.getFromWhere(),productInfoDto.getPromotionId());
 					return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
 				}
 			}
@@ -1040,12 +1035,19 @@ public class OrderService {
 			ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
 					seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
 			if(UtilHelper.isEmpty(productPromotionDto)){
-				continue;
+				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
 			}
+
+			/*商品的活动价格是否发生变化*/
+			if(!UtilHelper.isEmpty(productInfoDto.getProductPrice()) && productInfoDto.getProductPrice().compareTo(productPromotionDto.getPromotionPrice()) != 0){
+				updateProductPrice(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productPromotionDto.getPromotionPrice(),productInfoDto.getFromWhere(),productInfoDto.getPromotionId());
+				return returnFalse("商品的活动价格发生变化，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+			}
+
 
 			/* 2、 校验 购买活动商品的数量 是否合法 */
 			if(productInfoDto.getProductCount() < productPromotionDto.getMinimumPacking()){
-				return returnFalse("购买活动商品的数量低于最小起批量",productFromFastOrderCount);
+				return returnFalse("购买活动商品的数量("+ productInfoDto.getProductCount() +")低于最小起批量(" + productPromotionDto.getMinimumPacking() + ")",productFromFastOrderCount);
 			}
 
 			/* 3、查询该商品在该活动中的历史购买量*/
@@ -1062,7 +1064,8 @@ public class OrderService {
 
 			/* 4、判断理论上可以以特价购买的数量 */
 			int canBuyByPromotionPrice = productPromotionDto.getLimitNum() - buyedInHistory;
-			if (canBuyByPromotionPrice <= 0){
+			if (productPromotionDto.getLimitNum() > 0 && canBuyByPromotionPrice <= 0){
+				/* productPromotionDto.getLimitNum() == -1 时表示不限购 */
 				return  returnFalse("该活动商品每人限购"+productPromotionDto.getLimitNum() +"件,您已购买了" + buyedInHistory +
 						"件,还能购买" + canBuyByPromotionPrice +"件。",productFromFastOrderCount);
 			}
@@ -1112,12 +1115,20 @@ public class OrderService {
 	 * @param supplyId
 	 * @param spuCode
 	 * @param newProductPrice
+	 * @param fromWhere         	购物车中商品来源
+	 * @param promotionId        商品参加活动的id
 	 */
-	private void updateProductPrice(UserDto userDto, Integer supplyId, String spuCode, BigDecimal newProductPrice){
+	private void updateProductPrice(UserDto userDto, Integer supplyId, String spuCode, BigDecimal newProductPrice, Integer fromWhere, Integer promotionId){
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
 		shoppingCart.setSupplyId(supplyId);
 		shoppingCart.setSpuCode(spuCode);
+		if(!UtilHelper.isEmpty(promotionId) && promotionId > 0 ){
+			shoppingCart.setPromotionId(promotionId);
+		}
+		if( !UtilHelper.isEmpty(fromWhere) && (ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere() == fromWhere || ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere() == fromWhere)){
+			shoppingCart.setFromWhere(fromWhere);
+		}
 
 		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
 		if(!UtilHelper.isEmpty(shoppingCartList) && shoppingCartList.size() == 1){
@@ -1561,6 +1572,7 @@ public class OrderService {
 				//如果是银联在线支付，生成结算信息，类型为订单取消退款
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+				        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
@@ -1810,7 +1822,8 @@ public class OrderService {
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
-					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(payTypeId)
+			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
@@ -1856,6 +1869,8 @@ public class OrderService {
 			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
+			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(od.getPayTypeId())
+					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
 
@@ -1931,6 +1946,8 @@ public class OrderService {
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
 			if(!UtilHelper.isEmpty(od)){
 				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+				        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
 						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
 					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
@@ -2369,6 +2386,7 @@ public class OrderService {
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){

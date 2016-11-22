@@ -44,7 +44,7 @@ public class HttpRequestHandler {
 	 * 
 	 */
 	public static Map<String, String> executePostHttpRequest(Map<String, Object> params, String action) {
-		log.info("银联请求参数：" + params.toString());
+		log.info("_________向银联发起请求_________URL:\n" + action + " ,\n请求参数：" + params.toString());
 		HttpClient client = HttpClientUtil.getHttpClient();
 		PostMethod post = new PostMethod(action);
 		post.addRequestHeader("User-Agent", "Mozilla/4.0");
@@ -60,17 +60,17 @@ public class HttpRequestHandler {
 			
 			//后台http请求状态
 			if(status!=200){
-				log.info("银联响应异常结果：" + returnStr);
+				log.info("_________向银联发起请求_________银联响应Http状态码异常，响应结果：" + returnStr);
 			   return getErrorMap();
 			}else{
-				log.info("银联响应结果：" + returnStr);
+				log.info("_________向银联发起请求_________银联响应结果：" + returnStr);
 			}
 		} catch (HttpException e) {
-			log.info("银联响应异常结果：" + returnStr);
+			log.error("_________向银联发起请求_________银联响应发生异常，响应结果：" + returnStr +",异常信息msg="+e.getMessage(),e);
 			e.printStackTrace();
 			return getErrorMap();
 		} catch (IOException e) {
-			log.info("银联响应异常结果：" + returnStr);
+			log.error("_________向银联发起请求_________银联响应发生异常，响应结果：" + returnStr +",异常信息msg="+e.getMessage(),e);
 			e.printStackTrace();
 			return getErrorMap();
 		}
@@ -80,10 +80,10 @@ public class HttpRequestHandler {
 		Map<String, String> reponse= StringUtil.paserStrtoMap(returnStr);
 		Map<String, String> reponseOld=StringUtil.paserStrtoMap(returnStrOld);
 		if(SignUtil.verify(reponseOld)){
-			log.info("银联响签名结果：true");
+			log.info("_________向银联发起请求_________对银联的响应报文验签成功!");
 			return reponse;
 		}else{
-			log.info("银联响签名结果：false");
+			log.info("_________向银联发起请求_________对银联的响应报文验签失败......");
 		}
 		
 		return reponse;
@@ -138,9 +138,9 @@ public class HttpRequestHandler {
 		}
 		String transResvedStr = null;
 		String cardResvedStr = null;
-		if (cardInfoJson != null)
+		if (cardInfoJson != null && cardInfoJson.size() > 0)
 			cardResvedStr = cardInfoJson.toString();
-		if (transResvedJson != null)
+		if (transResvedJson != null && transResvedJson.size() > 0)
 			transResvedStr = transResvedJson.toString();
 		// 敏感信息加密处理
 		if (StringUtil.isNotEmpty(cardResvedStr)) {
@@ -172,6 +172,12 @@ public class HttpRequestHandler {
 			 }
 			 sendMap.remove("fromWhere");
 			 signature = SignUtil.signForApp(sendMap);
+		 }else if( !StringUtil.isEmpty((String)sendMap.get("fromWhere"))&&sendMap.get("fromWhere").equals(ChinaPayUtil.MOBILE) ){
+			 if(busiType.equals("9908")||busiType.equals("0401")){
+				 sendMap.remove("BankInstNo");
+			 }
+			 sendMap.remove("fromWhere");
+			 signature = SignUtil.signForMobile(sendMap);
 		 }else{
 			 sendMap.remove("fromWhere");
 			 signature = SignUtil.signForB2b(sendMap);
@@ -361,8 +367,91 @@ public class HttpRequestHandler {
 	public static Map<String, Object> getSubmitFormMap(Map<String, Object> params) {
 
 		 if (params != null && params.keySet().size() > 0) {
-			 
-		  if(!StringUtil.isEmpty((String)params.get("fromWhere"))&&params.get("fromWhere").equals(ChinaPayUtil.B2C)){
+
+			 if(!StringUtil.isEmpty((String)params.get("fromWhere"))&&params.get("fromWhere").equals(ChinaPayUtil.MOBILE)){
+
+				 if (!params.containsKey(PayUtil.MerId) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.MerId)))
+					 params.put(PayUtil.MerId, PayUtil.getMobileValue(PayUtil.MerId));
+
+				 if (!params.containsKey(PayUtil.TranType) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.TranType)))
+					 params.put(PayUtil.TranType, PayUtil.getMobileValue(PayUtil.TranType));
+
+				 if (!params.containsKey(PayUtil.BusiType) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.BusiType)))
+					 params.put(PayUtil.BusiType, PayUtil.getMobileValue(PayUtil.BusiType));
+
+				 if (!params.containsKey(PayUtil.Version) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.Version)))
+					 params.put(PayUtil.Version, PayUtil.getMobileValue(PayUtil.Version));
+
+				 if (!params.containsKey(PayUtil.SplitType) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.SplitType)))
+					 params.put(PayUtil.SplitType, PayUtil.getMobileValue(PayUtil.SplitType));
+
+				 if (!params.containsKey(PayUtil.SplitMethod) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.SplitMethod)))
+					 params.put(PayUtil.SplitMethod, PayUtil.getMobileValue(PayUtil.SplitMethod));
+
+				 if (!params.containsKey(PayUtil.BankInstNo) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.BankInstNo)))
+					 params.put(PayUtil.BankInstNo, PayUtil.getMobileValue(PayUtil.BankInstNo));
+
+				 if (!params.containsKey(PayUtil.PayTimeOut) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.PayTimeOut)))
+					 params.put(PayUtil.PayTimeOut, PayUtil.getMobileValue(PayUtil.PayTimeOut));
+
+				 if (!params.containsKey(PayUtil.TimeStamp) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.TimeStamp)))
+					 params.put(PayUtil.TimeStamp, PayUtil.getMobileValue(PayUtil.TimeStamp));
+
+				 if (!params.containsKey(PayUtil.CurryNo) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.CurryNo)))
+					 params.put(PayUtil.CurryNo, PayUtil.getMobileValue(PayUtil.CurryNo));
+
+				 if (!params.containsKey(PayUtil.AccessType) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.AccessType)))
+					 params.put(PayUtil.AccessType, PayUtil.getMobileValue(PayUtil.AccessType));
+
+				 if (!params.containsKey(PayUtil.AcqCode) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.AcqCode)))
+					 params.put(PayUtil.AcqCode, PayUtil.getMobileValue(PayUtil.AcqCode));
+
+				 if (!params.containsKey(PayUtil.CommodityMsg) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.CommodityMsg)))
+					 params.put(PayUtil.CommodityMsg, PayUtil.getMobileValue(PayUtil.CommodityMsg));
+
+				 if (!params.containsKey(PayUtil.MerPageUrl) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.MerPageUrl)))
+					 params.put(PayUtil.MerPageUrl, PayUtil.getMobileValue(PayUtil.MerPageUrl));
+
+				 if (!params.containsKey(PayUtil.MerBgUrl) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.MerBgUrl)))
+					 params.put(PayUtil.MerBgUrl, PayUtil.getMobileValue(PayUtil.MerBgUrl));
+
+				 if (!params.containsKey(PayUtil.MerResv) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.MerResv)))
+					 params.put(PayUtil.MerResv, PayUtil.getMobileValue(PayUtil.MerResv));
+
+				 if (!params.containsKey(PayUtil.trans_BusiId) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_BusiId)))
+					 params.put(PayUtil.trans_BusiId, PayUtil.getMobileValue(PayUtil.trans_BusiId));
+
+				 if (!params.containsKey(PayUtil.trans_P1) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P1)))
+					 params.put(PayUtil.trans_P1, PayUtil.getMobileValue(PayUtil.trans_P1));
+
+				 if (!params.containsKey(PayUtil.trans_P2) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P2)))
+					 params.put(PayUtil.trans_P2, PayUtil.getMobileValue(PayUtil.trans_P2));
+
+				 if (!params.containsKey(PayUtil.trans_P3) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P3)))
+					 params.put(PayUtil.trans_P3, PayUtil.getMobileValue(PayUtil.trans_P3));
+
+				 if (!params.containsKey(PayUtil.trans_P4) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P4)))
+					 params.put(PayUtil.trans_P4, PayUtil.getMobileValue(PayUtil.trans_P4));
+
+				 if (!params.containsKey(PayUtil.trans_P5) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P5)))
+					 params.put(PayUtil.trans_P5, PayUtil.getMobileValue(PayUtil.trans_P5));
+
+				 if (!params.containsKey(PayUtil.trans_P6) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P6)))
+					 params.put(PayUtil.trans_P6, PayUtil.getMobileValue(PayUtil.trans_P6));
+
+				 if (!params.containsKey(PayUtil.trans_P7) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P7)))
+					 params.put(PayUtil.trans_P7, PayUtil.getMobileValue(PayUtil.trans_P7));
+
+				 if (!params.containsKey(PayUtil.trans_P8) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P8)))
+					 params.put(PayUtil.trans_P8, PayUtil.getMobileValue(PayUtil.trans_P8));
+
+				 if (!params.containsKey(PayUtil.trans_P9) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P9)))
+					 params.put(PayUtil.trans_P9, PayUtil.getMobileValue(PayUtil.trans_P9));
+
+				 if (!params.containsKey(PayUtil.trans_P10) && !StringUtil.isEmpty(PayUtil.getMobileValue(PayUtil.trans_P10)))
+					 params.put(PayUtil.trans_P10, PayUtil.getValue(PayUtil.trans_P10));
+
+		 }else if(!StringUtil.isEmpty((String)params.get("fromWhere"))&&params.get("fromWhere").equals(ChinaPayUtil.B2C)){
 
 			if (!params.containsKey(PayUtil.MerId) && !StringUtil.isEmpty(PayUtil.getValue(PayUtil.MerId)))
 				params.put(PayUtil.MerId, PayUtil.getValue(PayUtil.MerId));
