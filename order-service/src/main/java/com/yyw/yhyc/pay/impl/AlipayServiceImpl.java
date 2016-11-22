@@ -149,7 +149,7 @@ public class AlipayServiceImpl  implements PayService {
      * @return
      */
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-
+    	log.info("支付宝退款接口-------------start");
         if(refundMap.size()<0){
             log.info("退款参数不能为空");
             throw new RuntimeException("退款参数不能为空");
@@ -173,6 +173,7 @@ public class AlipayServiceImpl  implements PayService {
         log.info("封装退款请求数据----"+AlipayCore.createLinkStringByrefund(refundMap));
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
         log.info("封装退款请求URL----"+sHtmlText);
+        log.info("支付宝退款接口-------------end");
         return sHtmlText;
     }
 
