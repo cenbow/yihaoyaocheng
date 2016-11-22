@@ -199,7 +199,7 @@ public class OrderPayService {
      */
 	public OrderPay preHandler(UserDto userDto, String flowIds, int payTypeId, String payFlowId) throws Exception {
 
-		log.info("在线支付订单前，预处理订单数据:userDto=" + userDto + ",flowIds=" + ",payTypeId=" + payTypeId + ",payFlowId="+payFlowId);
+		log.info("在线支付订单前，预处理订单数据:userDto=" + userDto + ",flowIds=" +flowIds+ ",payTypeId=" + payTypeId + ",payFlowId="+payFlowId);
 
 		/* 过滤非法订单参数 */
 		if(UtilHelper.isEmpty(userDto)) return null;

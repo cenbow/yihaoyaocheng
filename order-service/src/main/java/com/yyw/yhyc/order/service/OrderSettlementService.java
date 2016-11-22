@@ -134,14 +134,36 @@ public class OrderSettlementService {
 					}
 				}
 
-				if (OrderSettlement.confirm_settlement_done.equals(osd.getConfirmSettlement())) {
-					osd.setConfirmSettlementName("已结算");
-				} else if (OrderSettlement.confirm_settlement_doing.equals(osd.getConfirmSettlement())) {
-					osd.setConfirmSettlementName("结算中");
-				} else {
-					osd.setConfirmSettlementName("未结算");
-				}
-
+    /**
+     * 根据查询条件查询分页记录
+     * @return
+     * @throws Exception
+     */
+    public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination, OrderSettlementDto orderSettlementDto) throws Exception {
+        List<OrderSettlementDto> list = orderSettlementMapper.listPaginationDtoByProperty(pagination, orderSettlementDto);
+        if (!UtilHelper.isEmpty(list)) {
+            for (OrderSettlementDto osd : list) {
+                if (orderSettlementDto.getType() == 1) {//type = 1 卖家
+                    if (osd.getBusinessType() == 1) {
+                        osd.setBusinessTypeName("销售货款");
+                    } else if (osd.getBusinessType() == 2) {
+                        osd.setBusinessTypeName("退款货款");
+                    } else if(osd.getBusinessType() == 3){
+                        osd.setBusinessTypeName("拒收退款");
+                    }else {
+                        osd.setBusinessTypeName("取消订单退款");
+                    }
+                } else {// type =2 买家
+                    if (osd.getBusinessType() == 1) {
+                        osd.setBusinessTypeName("采购货款");
+                    } else if (osd.getBusinessType() == 2) {
+                        osd.setBusinessTypeName("退款货款");
+                    } else if(osd.getBusinessType() == 3){
+                        osd.setBusinessTypeName("拒收退款");
+                    }else {
+                        osd.setBusinessTypeName("取消订单退款");
+                    }
+                }
 				// 目前只有 采购业务，且线上支付、账期支付，才有支付流水号。退货、拒收、取消订单业务都没有支付流水号
 				if (osd.getSettleFlowId() == null) {
 					osd.setSettleFlowId("");

@@ -137,6 +137,10 @@
             <artifactId>healthcheck</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.alipay.api</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>20161009220103</version>
+        </dependency>
     </dependencies>
 </project>

@@ -2,6 +2,8 @@ package com.yyw.yhyc.pay.alipay.util;
 
 import com.yyw.yhyc.pay.alipay.sign.RSA;
 import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -24,11 +26,31 @@ import java.util.Map;
  */
 public class AlipayNotify {
 
+    private static final Logger logger = LoggerFactory.getLogger(AlipayNotify.class);
+
     /**
      * 支付宝消息验证地址
      */
     private static final String HTTPS_VERIFY_URL = "https://mapi.alipay.com/gateway.do?service=notify_verify&";
 
+    /**
+     * 验证消息是否是支付宝发出的合法消息
+     * @param params 通知返回来的参数数组
+     * @return 验证结果
+     */
+    public static boolean verifyAPP(Map<String, String> params) {
+    	//将异步通知中收到的待验证所有参数都存放到map中
+        try{
+            logger.info("支付宝App支付----验证签名开始,请求参数params：" + params );
+            boolean result  = AlipaySignature.rsaCheckV1(params, AlipayConfig.alipay_public_key, AlipayConfig.input_charset); //调用SDK验证签名
+            logger.info("支付宝App支付----验证签名结果：" + result);
+            return result;
+        }catch (Exception e){
+            logger.error("支付宝App支付----验证签名失败，原因：" + e.getMessage(),e);
+            return false;
+        }
+    }
+    
     /**
      * 验证消息是否是支付宝发出的合法消息
      * @param params 通知返回来的参数数组
