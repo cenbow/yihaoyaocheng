@@ -297,4 +297,20 @@ public class OrderBean implements Serializable{
     public void setAdviserPhoneNumber(String adviserPhoneNumber) {
         this.adviserPhoneNumber = adviserPhoneNumber;
     }
+
+    public Integer getPayTypeId() {
+        return payTypeId;
+    }
+
+    public void setPayTypeId(Integer payTypeId) {
+        this.payTypeId = payTypeId;
+    }
+
+    public String getPayName() {
+        return payName;
+    }
+
+    public void setPayName(String payName) {
+        this.payName = payName;
+    }
 }
