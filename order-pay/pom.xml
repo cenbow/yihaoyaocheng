@@ -48,6 +48,10 @@
             <artifactId>bcprov-jdk16</artifactId>
             <version>1.46</version>
         </dependency>
-
+		<dependency>
+            <groupId>com.alipay.api</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>20161009220103</version>
+        </dependency>
     </dependencies>
 </project>

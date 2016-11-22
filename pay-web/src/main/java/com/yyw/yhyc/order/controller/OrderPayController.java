@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/orderPay")
+@RequestMapping(value = {"/orderPay","/api/orderPay","/pay/api/orderPay"})
 public class OrderPayController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderPayController.class);
 
