@@ -392,9 +392,7 @@ public class OrderService {
 				}
 			}
             // pc 订单来源设置
-			if(orderDto.getSource()==0){
 				orderDto.setSource(orderCreateDto.getSource());
-			};
 			/* 创建订单相关的所有信息 */
 			Order orderNew = createOrderInfo(orderDto,orderDelivery,orderCreateDto.getUserDto(),iPromotionDubboManageService);
 

@@ -69,7 +69,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 通过主键查询实体对象
-	 * 
+	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
@@ -80,7 +80,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 查询所有记录
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -90,7 +90,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据查询条件查询所有记录
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -154,7 +154,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据主键删除记录
-	 * 
+	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
@@ -165,7 +165,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据多个主键删除记录
-	 * 
+	 *
 	 * @param primaryKeys
 	 * @throws Exception
 	 */
@@ -175,7 +175,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据传入参数删除记录
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -186,7 +186,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 保存记录
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -197,7 +197,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 更新记录
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -208,7 +208,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据条件查询记录条数
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -219,7 +219,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 退款结算
-	 * 
+	 *
 	 * @param orderSettlement
 	 */
 	public void updateRefundSettlement(OrderSettlement orderSettlement) {
@@ -278,7 +278,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 正常订单 just for 银联支付
-	 * 
+	 *
 	 * @param type
 	 *            业务类型 1 在线支付 买家已付款 (进入应付) 2 买家全部收货或者买家部分收货或者系统自动确认收货时(进入应收) 3
 	 *            拒收订单状态为卖家已确认 (进入应付) 4 退货订单状态为卖家已收货或系统自动确认收货时(进入应收) 5
@@ -354,7 +354,7 @@ public class OrderSettlementService {
 
 	/**
 	 * for all orderSettlement 设置省市区代码
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @param custId
 	 *            采购商id
@@ -423,7 +423,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 退款回调返回成功状态后修改 结算表 的 结算状态 为 1已结算（银行对账完毕）
-	 * 
+	 *
 	 * @param settleFlowId
 	 */
 	public void updateConfirmSettlement(String settleFlowId) {
