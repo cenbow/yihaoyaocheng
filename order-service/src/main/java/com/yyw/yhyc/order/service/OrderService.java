@@ -1044,7 +1044,8 @@ public class OrderService {
 
 
 			/* 2、 校验 购买活动商品的数量 是否合法 */
-			if(productInfoDto.getProductCount() < productPromotionDto.getMinimumPacking()){
+			if(productPromotionDto.getLimitNum() > 0 && productInfoDto.getProductCount() < productPromotionDto.getMinimumPacking()){
+				/* productPromotionDto.getLimitNum() == -1 时表示不限购 */
 				return returnFalse("购买活动商品的数量("+ productInfoDto.getProductCount() +")低于最小起批量(" + productPromotionDto.getMinimumPacking() + ")",productFromFastOrderCount);
 			}
 
@@ -1069,13 +1070,20 @@ public class OrderService {
 			}
 
 			/* 5、若还能以特价购买，则根据活动实时库存判断能买多少 */
-			if(productPromotionDto.getCurrentInventory() - canBuyByPromotionPrice <= 0 ){
+
+			if(productPromotionDto.getLimitNum() > 0){ //如果有个人限购
+				if(productPromotionDto.getCurrentInventory() - canBuyByPromotionPrice <= 0 ){
+					if(productInfoDto.getProductCount() > productPromotionDto.getCurrentInventory()  ){
+						return returnFalse("本次购买的活动商品数量已超过活动实时库存",productFromFastOrderCount);
+					}
+				}else{
+					if(productInfoDto.getProductCount() > canBuyByPromotionPrice ){
+						return returnFalse("本次购买的活动商品数量已超过个人限购数量",productFromFastOrderCount);
+					}
+				}
+			}else{ //如果不限购
 				if(productInfoDto.getProductCount() > productPromotionDto.getCurrentInventory()  ){
 					return returnFalse("本次购买的活动商品数量已超过活动实时库存",productFromFastOrderCount);
-				}
-			}else{
-				if(productInfoDto.getProductCount() > canBuyByPromotionPrice ){
-					return returnFalse("本次购买的活动商品数量已超过个人限购数量",productFromFastOrderCount);
 				}
 			}
 		}
