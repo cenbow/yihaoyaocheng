@@ -100,40 +100,6 @@ public class OrderSettlementService {
 		return orderSettlementMapper.listByProperty(orderSettlement);
 	}
 
-	/**
-	 * 根据查询条件查询分页记录
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	public Pagination<OrderSettlementDto> listPaginationByProperty(Pagination<OrderSettlementDto> pagination,
-			OrderSettlementDto orderSettlementDto) throws Exception {
-		List<OrderSettlementDto> list = orderSettlementMapper.listPaginationDtoByProperty(pagination,
-				orderSettlementDto);
-		if (!UtilHelper.isEmpty(list)) {
-			for (OrderSettlementDto osd : list) {
-				if (orderSettlementDto.getType() == 1) {// type = 1 卖家
-					if (osd.getBusinessType() == 1) {
-						osd.setBusinessTypeName("销售货款");
-					} else if (osd.getBusinessType() == 2) {
-						osd.setBusinessTypeName("退款货款");
-					} else if (osd.getBusinessType() == 3) {
-						osd.setBusinessTypeName("拒收");
-					} else {
-						osd.setBusinessTypeName("取消订单退款");
-					}
-				} else {// type =2 买家
-					if (osd.getBusinessType() == 1) {
-						osd.setBusinessTypeName("采购货款");
-					} else if (osd.getBusinessType() == 2) {
-						osd.setBusinessTypeName("退款货款");
-					} else if (osd.getBusinessType() == 3) {
-						osd.setBusinessTypeName("拒收");
-					} else {
-						osd.setBusinessTypeName("取消订单退款");
-					}
-				}
-
     /**
      * 根据查询条件查询分页记录
      * @return
@@ -168,7 +134,6 @@ public class OrderSettlementService {
 				if (osd.getSettleFlowId() == null) {
 					osd.setSettleFlowId("");
 				}
-
 			}
 		}
 		pagination.setResultList(list);
