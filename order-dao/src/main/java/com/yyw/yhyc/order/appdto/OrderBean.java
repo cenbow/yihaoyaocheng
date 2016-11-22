@@ -39,23 +39,8 @@ public class OrderBean implements Serializable{
     private String adviserPhoneNumber;          //销售顾问手机号码
     private List<Integer> shopCartIdList;     //购物车id
 
-
-
-    public String getAdviserName() {
-		return adviserName;
-	}
-
-	public void setAdviserName(String adviserName) {
-		this.adviserName = adviserName;
-	}
-
-	public String getAdviserPhoneNumber() {
-		return adviserPhoneNumber;
-	}
-
-	public void setAdviserPhoneNumber(String adviserPhoneNumber) {
-		this.adviserPhoneNumber = adviserPhoneNumber;
-	}
+    /* 销售顾问 */
+    private AdviserBean adviser;
 
 	public String getOrderStatusName() {
         return orderStatusName;
@@ -258,41 +243,58 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
-    public Integer getPayTypeId() {
-		return payTypeId;
-	}
+    public AdviserBean getAdviser() {
+        return adviser;
+    }
 
-	public void setPayTypeId(Integer payTypeId) {
-		this.payTypeId = payTypeId;
-	}
+    public void setAdviser(AdviserBean adviser) {
+        this.adviser = adviser;
+    }
 
+    @Override
+    public String toString() {
+        return "OrderBean{" +
+                "orderId='" + orderId + '\'' +
+                ", orderStatus='" + orderStatus + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", address=" + address +
+                ", supplyName='" + supplyName + '\'' +
+                ", leaveMsg='" + leaveMsg + '\'' +
+                ", productList=" + productList +
+                ", qq='" + qq + '\'' +
+                ", payType=" + payType +
+                ", deliveryMethod=" + deliveryMethod +
+                ", billType=" + billType +
+                ", orderTotal=" + orderTotal +
+                ", finalPay=" + finalPay +
+                ", exceptionOrderId='" + exceptionOrderId + '\'' +
+                ", applyTime='" + applyTime + '\'' +
+                ", returnDesc='" + returnDesc + '\'' +
+                ", merchantDesc='" + merchantDesc + '\'' +
+                ", varietyNumber=" + varietyNumber +
+                ", productNumber=" + productNumber +
+                ", residualTime=" + residualTime +
+                ", delayTimes=" + delayTimes +
+                ", postponeTime=" + postponeTime +
+                ", supplyId=" + supplyId +
+                ", shopCartIdList=" + shopCartIdList +
+                ", adviser=" + adviser +
+                '}';
+    }
 
-	public String getPayName() {
-		return payName;
-	}
+    public String getAdviserName() {
+        return adviserName;
+    }
 
-	public void setPayName(String payName) {
-		this.payName = payName;
-	}
+    public void setAdviserName(String adviserName) {
+        this.adviserName = adviserName;
+    }
 
-	@Override
-	public String toString() {
-		return "OrderBean [orderId=" + orderId + ", orderStatus=" + orderStatus
-				+ ", createTime=" + createTime + ", address=" + address
-				+ ", supplyName=" + supplyName + ", leaveMsg=" + leaveMsg
-				+ ", productList=" + productList + ", qq=" + qq + ", payType="
-				+ payType + ", payTypeId=" + payTypeId + ", payName=" + payName
-				+ ", deliveryMethod=" + deliveryMethod + ", billType="
-				+ billType + ", orderTotal=" + orderTotal + ", finalPay="
-				+ finalPay + ", exceptionOrderId=" + exceptionOrderId
-				+ ", applyTime=" + applyTime + ", returnDesc=" + returnDesc
-				+ ", merchantDesc=" + merchantDesc + ", varietyNumber="
-				+ varietyNumber + ", productNumber=" + productNumber
-				+ ", residualTime=" + residualTime + ", delayTimes="
-				+ delayTimes + ", postponeTime=" + postponeTime
-				+ ", orderStatusName=" + orderStatusName + ", supplyId="
-				+ supplyId + ", adviserName=" + adviserName
-				+ ", adviserPhoneNumber=" + adviserPhoneNumber
-				+ ", shopCartIdList=" + shopCartIdList + "]";
-	}
+    public String getAdviserPhoneNumber() {
+        return adviserPhoneNumber;
+    }
+
+    public void setAdviserPhoneNumber(String adviserPhoneNumber) {
+        this.adviserPhoneNumber = adviserPhoneNumber;
+    }
 }
