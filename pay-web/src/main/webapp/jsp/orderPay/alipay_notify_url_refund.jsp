@@ -23,6 +23,13 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="org.slf4j.Logger" %>
+
+<%!
+	private static final Logger logger = LoggerFactory.getLogger("jsp.orderPay.alipay_notify_refund.jsp");
+%>
+
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
