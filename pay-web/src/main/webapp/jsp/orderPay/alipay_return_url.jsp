@@ -24,6 +24,9 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="com.yyw.yhyc.order.mapper.SystemDateMapper" %>
 <%@ page import="com.yyw.yhyc.helper.SpringBeanHelper" %>
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="com.yyw.yhyc.helper.UtilHelper" %>
 
 <html>
   <head>
@@ -31,11 +34,14 @@
 		<title>支付宝页面跳转同步通知页面</title>
   </head>
   <body>
+<%!
+	private static final Logger logger = LoggerFactory.getLogger("jsp.orderPay.alipay_return_url.jsp");
+%>
 <%
-
 	//获取支付宝GET过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
+	logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......原始信息：requestParams = " + requestParams);
 	for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
 		String name = (String) iter.next();
 		String[] values = (String[]) requestParams.get(name);
@@ -48,7 +54,7 @@
 		valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
 		params.put(name, valueStr);
 	}
-
+	logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......转码后的信息：params =" + params);
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以下仅供参考)//
 	//商户订单号
 
@@ -64,9 +70,9 @@
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
 
 	//计算得出通知验证结果
-	boolean verify_result = AlipayNotify.verify(params);
-
-	if(verify_result){//验证成功
+	boolean result = AlipayNotify.verify(params);
+	logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......校验签名的结果=" + result );
+	if(result){//验证成功
 		//////////////////////////////////////////////////////////////////////////////////////////
 		//请在这里加上商户的业务逻辑程序代码
 
@@ -90,6 +96,7 @@
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}else{
 		//该页面可做页面美工编辑
+		logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......校验签名失败......" );
 		out.println("验证失败");
 	}
 %>
