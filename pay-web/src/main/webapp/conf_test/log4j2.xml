@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration status="ERROR" monitorInterval="3" shutdownHook="disable">
+<configuration status="DEBUG" monitorInterval="3" shutdownHook="disable">
     <properties>
         <property name="LOG_FILE">app/logs/tomcat7/pay-web.log</property>
         <property name="FILE_LOG_PATTERN">%d [%c:%L][%p] - %m%n</property>
