@@ -312,7 +312,7 @@ function updateNumInShoppingCart(_shoppingCartId,_value,_this,_type, _preValue){
                 //若要有完美的效果，页面上复杂的交互的效果应该由前端开发人员来做
                 
                 //目前采取刷页面的方式
-                window.location.reload();
+                window.location.href = window.location.href;//强制刷新本页面
             }else{
                 var _normalProductShoppingCartId = "#its-buy-num_";
                 if(normalProduct != null && normalProduct > 0 && normalProductNum!= null && normalProductNum > 0 ){
