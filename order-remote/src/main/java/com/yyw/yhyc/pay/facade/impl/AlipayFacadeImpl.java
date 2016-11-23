@@ -28,14 +28,14 @@ public class AlipayFacadeImpl implements AlipayFacade {
 
     @Override
     public String alipayCommit(String out_trade_no, String subject, String total_fee, String body) {
-        logger.info("go  to   alipayCommit");
+        logger.error("go  to   alipayCommit");
       return alipayService.alipayCommit(out_trade_no,subject,total_fee,body);
 
     }
 
     @Override
     public String alipayrefundFastpay(int batch_num, String trade_no, String total_fee, String reason) {
-        logger.info("go  to   alipayrefundFastpay");
+        logger.error("go  to   alipayrefundFastpay");
         Map<Integer, String> refundMap = new HashMap<>();
         refundMap.put(1, trade_no + "^" + total_fee + "^" + reason);
         return alipayrefundFastpayByMap(batch_num, refundMap);
@@ -43,9 +43,9 @@ public class AlipayFacadeImpl implements AlipayFacade {
 
     @Override
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-        logger.debug("go  to   alipayrefundFastpayByMap-----------------------------------");
+        logger.error("go  to   alipayrefundFastpayByMap-----------------------------------");
         String url_str = alipayService.alipayrefundFastpayByMap(batch_num,refundMap);
-        logger.debug("url_str==== "+url_str);
+        logger.error("url_str==== "+url_str);
         return url_str;
     }
 

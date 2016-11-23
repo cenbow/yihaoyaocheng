@@ -427,7 +427,7 @@ public class OrderSettlementService {
 	 * @param settleFlowId
 	 */
 	public void updateConfirmSettlement(String settleFlowId) {
-		log.info("updateConfirmSettlement method==" + settleFlowId);
+		log.error("updateConfirmSettlement method==" + settleFlowId);
 		OrderSettlement orderSettlement = null;
 		Map<String, Object> condition = new HashedMap();
 		condition.put("settleFlowId", settleFlowId);
@@ -440,4 +440,24 @@ public class OrderSettlementService {
 		}
 
 	}
+	
+	  /**
+     * 退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
+     * @param settleFlowId
+     */
+    public void updateSettlementByMapInfo(String settleFlowId)
+    {
+    	log.error("更新结算状态updateSettlementByMapInfo method==" + settleFlowId);
+        OrderSettlement orderSettlement = null;
+        Map<String,Object> condition = new HashedMap();
+        condition.put("settleFlowId",settleFlowId);
+        orderSettlement = orderSettlementMapper.getByProperty(condition);
+        if(orderSettlement != null)
+        {
+            orderSettlement.setSettleFlowId(settleFlowId);
+            orderSettlement.setConfirmSettlement("1");
+            orderSettlementMapper.updateConfirmSettlement(orderSettlement);
+        }
+
+    }
 }

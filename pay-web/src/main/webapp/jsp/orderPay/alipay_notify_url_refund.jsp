@@ -47,7 +47,7 @@
 	//获取支付宝POST过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
-	logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......原始信息：requestParams = " + requestParams);
+	logger.error("支付宝App退款：退款成功后的，处理支付宝的回调信息......原始信息：requestParams = " + requestParams);
 	for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
 		String name = (String) iter.next();
 		String[] values = (String[]) requestParams.get(name);
@@ -71,7 +71,7 @@
 
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
 	boolean result = AlipayNotify.verify(params);
-	logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......校验签名的结果=" + result );
+	logger.error("支付宝App退款：退款成功后的，处理支付宝的回调信息......校验签名的结果=" + result );
 	if(AlipayNotify.verify(params)){//验证成功
 		//////////////////////////////////////////////////////////////////////////////////////////
 		//请在这里加上商户的业务逻辑程序代码
@@ -82,7 +82,7 @@
 		try {
 			String detail =null;
 			String[] resultdetail = result_details.split("#");
-			logger.info("result_details===="+result_details);
+			logger.error("result_details===="+result_details);
 			for(String tempreturn : resultdetail)
 			{
 				if(tempreturn.indexOf("$") == -1)
@@ -94,9 +94,9 @@
 					detail = tempreturn.split("\\$")[0];
 				}
 				String tradeNo = AlipayNotify.getTradeNo(detail);
-				logger.info("tradeNo===="+tradeNo);
+				logger.error("tradeNo===="+tradeNo);
 				String paymentPlatforReturn = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
-				logger.info("paymentPlatforReturn===="+paymentPlatforReturn);
+				logger.error("paymentPlatforReturn===="+paymentPlatforReturn);
 				Map<String, String> myMap = new HashMap<String, String>();
 
 				String[] pairs = paymentPlatforReturn.split(",");
@@ -108,7 +108,7 @@
 
 				String temp = myMap.get("subject").toString().split("：")[1];
 				logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......flowId=" + temp );
-				orderSettlementService.updateSettlementByMap(temp,4);
+				orderSettlementService.updateSettlementByMapInfo(temp);
 				Boolean state = AlipayNotify.getIsSuccess(detail);
 				if(state)
 					orderSettlementService.updateConfirmSettlement(tradeNo);
