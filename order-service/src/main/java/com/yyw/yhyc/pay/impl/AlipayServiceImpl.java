@@ -149,13 +149,13 @@ public class AlipayServiceImpl  implements PayService {
      * @return
      */
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-    	log.info("支付宝退款接口-------------start");
+    	log.debug("支付宝退款接口-------------start");
         if(refundMap.size()<0){
-            log.info("退款参数不能为空");
+            log.debug("退款参数不能为空");
             throw new RuntimeException("退款参数不能为空");
         }
         if(refundMap.size()-batch_num !=0){
-            log.info("退款总笔数跟参数集数量不一致");
+            log.debug("退款总笔数跟参数集数量不一致");
             throw new RuntimeException("退款总笔数跟参数集数量不一致");
         }
 
@@ -170,10 +170,10 @@ public class AlipayServiceImpl  implements PayService {
         sParaTemp.put("batch_no", UtilDate.getOrderNum());
         sParaTemp.put("batch_num", String.valueOf(batch_num));
         sParaTemp.put("detail_data", AlipayCore.createLinkStringByrefund(refundMap));
-        log.info("封装退款请求数据----"+AlipayCore.createLinkStringByrefund(refundMap));
+        log.debug("封装退款请求数据----"+AlipayCore.createLinkStringByrefund(refundMap));
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
-        log.info("封装退款请求URL----"+sHtmlText);
-        log.info("支付宝退款接口-------------end");
+        log.debug("封装退款请求URL----"+sHtmlText);
+        log.debug("支付宝退款接口-------------end");
         return sHtmlText;
     }
 
