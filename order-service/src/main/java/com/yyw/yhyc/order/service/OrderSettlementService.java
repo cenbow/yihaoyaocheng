@@ -465,7 +465,7 @@ public class OrderSettlementService {
 	    	    	log.error("开始更新数据");
 	                orderSettlement.setSettleFlowId(tradeNo);
 	                orderSettlement.setConfirmSettlement("1");
-	                orderSettlementMapper.updateConfirmSettlement(orderSettlement);
+	                orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
 	            }
 	    		
 	    	} else {
