@@ -43,9 +43,9 @@ public class AlipayFacadeImpl implements AlipayFacade {
 
     @Override
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-        logger.info("go  to   alipayrefundFastpayByMap");
+        logger.debug("go  to   alipayrefundFastpayByMap-----------------------------------");
         String url_str = alipayService.alipayrefundFastpayByMap(batch_num,refundMap);
-        logger.info("url_str==== "+url_str);
+        logger.debug("url_str==== "+url_str);
         return url_str;
     }
 
