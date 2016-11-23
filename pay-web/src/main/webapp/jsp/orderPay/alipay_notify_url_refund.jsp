@@ -31,23 +31,10 @@
 %>
 
 <%
-	String path = request.getContextPath();
-	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-	String  url  =  "http://"  +  request.getServerName()  +  ":"  +  request.getServerPort()  +  request.getContextPath()+request.getServletPath().substring(0,request.getServletPath().lastIndexOf("/")+1);
-
-	if(request.getQueryString()!=null)
-	{
-		url+="?"+request.getQueryString();
-	}
-	System.out.println("path："+path);
-	System.out.println("basePath："+basePath);
-	System.out.println("URL："+url);
-	System.out.println("URL参数："+request.getQueryString());
-
 	//获取支付宝POST过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
-	logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......原始信息：requestParams = " + requestParams);
+	logger.error("支付宝退款：退款成功后的，处理支付宝的回调信息......原始信息：requestParams = " + requestParams);
 	for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
 		String name = (String) iter.next();
 		String[] values = (String[]) requestParams.get(name);
@@ -60,7 +47,7 @@
 		valueStr = new String(valueStr.getBytes("ISO-8859-1"), "UTF-8");
 		params.put(name, valueStr);
 	}
-	logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......转码后的信息：params =" + params);
+	logger.info("支付宝退款：退款成功后的，处理支付宝的回调信息......转码后的信息：params =" + params);
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以下仅供参考)//
 	//批次号
 	String batch_no = new String(request.getParameter("batch_no").getBytes("ISO-8859-1"),"UTF-8");
@@ -71,8 +58,9 @@
 
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
 	boolean result = AlipayNotify.verify(params);
-	logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......校验签名的结果=" + result );
+	logger.error("支付宝退款：退款成功后的，处理支付宝的回调信息......校验签名的结果=" + result );
 	if(AlipayNotify.verify(params)){//验证成功
+		logger.info("支付宝退款：退款成功后的，处理支付宝的回调信息......校验签名通过！" );
 		//////////////////////////////////////////////////////////////////////////////////////////
 		//请在这里加上商户的业务逻辑程序代码
 
@@ -82,7 +70,7 @@
 		try {
 			String detail =null;
 			String[] resultdetail = result_details.split("#");
-			logger.info("result_details===="+result_details);
+			logger.error("result_details===="+result_details);
 			for(String tempreturn : resultdetail)
 			{
 				if(tempreturn.indexOf("$") == -1)
@@ -94,9 +82,9 @@
 					detail = tempreturn.split("\\$")[0];
 				}
 				String tradeNo = AlipayNotify.getTradeNo(detail);
-				logger.info("tradeNo===="+tradeNo);
+				logger.error("tradeNo===="+tradeNo);
 				String paymentPlatforReturn = orderPayManage.getPayFlowIdByPayAccountNo(tradeNo);
-				logger.info("paymentPlatforReturn===="+paymentPlatforReturn);
+				logger.error("paymentPlatforReturn===="+paymentPlatforReturn);
 				Map<String, String> myMap = new HashMap<String, String>();
 
 				String[] pairs = paymentPlatforReturn.split(",");
@@ -108,7 +96,7 @@
 
 				String temp = myMap.get("subject").toString().split("：")[1];
 				logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......flowId=" + temp );
-				orderSettlementService.updateSettlementByMap(temp,4);
+				orderSettlementService.updateSettlementByMapInfo(temp,tradeNo);
 				Boolean state = AlipayNotify.getIsSuccess(detail);
 				if(state)
 					orderSettlementService.updateConfirmSettlement(tradeNo);
@@ -116,17 +104,19 @@
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("支付宝退款：退款成功后的，处理支付宝的回调信息......回写支付信息到数据库发生异常....异常信息:"+e.getMessage(),e);
 		}
 		//判断是否在商户网站中已经做过了这次通知返回的处理
 			//如果没有做过处理，那么执行商户的业务程序
 			//如果有做过处理，那么不执行商户的业务程序
 			
+		logger.error("支付宝退款：退款成功后的，处理支付宝的回调信息......处理支付宝的回调信息请求完成！");
 		out.print("success");	//请不要修改或删除
-
 		//——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}else{//验证失败
+		logger.info("支付宝退款：退款成功后的，处理支付宝的回调信息......校验签名失败......" );
 		out.print("fail");
 	}
 %>

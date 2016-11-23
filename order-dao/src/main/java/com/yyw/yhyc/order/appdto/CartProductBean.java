@@ -223,7 +223,7 @@ public class CartProductBean implements Serializable,Cloneable {
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorId=" + vendorId +
                 ", spuCode='" + spuCode + '\'' +
-                ", productPromotion='" + productPromotion.toString() + '\'' +
+                ", productPromotion='" + productPromotion + '\'' +
                 '}';
     }
 }

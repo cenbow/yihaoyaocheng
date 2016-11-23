@@ -304,7 +304,7 @@ public class ShoppingCartController extends BaseController {
 		OrderCreateDto orderCreateDto = convertDataForApp(userDto,orderCreateBean);
 
 		//订单来源
-		if(UtilHelper.isNoEmpty(os)&&os.equals("os")){
+		if(UtilHelper.isNoEmpty(os)&&os.equals("ios")){
 			orderCreateDto.setSource(3);
 		}else if(UtilHelper.isNoEmpty(os)&&os.equals("android")){
 			orderCreateDto.setSource(2);
