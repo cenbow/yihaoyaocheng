@@ -441,23 +441,37 @@ public class OrderSettlementService {
 
 	}
 	
-	  /**
-     * 退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
-     * @param settleFlowId
-     */
-    public void updateSettlementByMapInfo(String settleFlowId)
-    {
-    	log.error("更新结算状态updateSettlementByMapInfo method==" + settleFlowId);
-        OrderSettlement orderSettlement = null;
-        Map<String,Object> condition = new HashedMap();
-        condition.put("settleFlowId",settleFlowId);
-        orderSettlement = orderSettlementMapper.getByProperty(condition);
-        if(orderSettlement != null)
-        {
-            orderSettlement.setSettleFlowId(settleFlowId);
-            orderSettlement.setConfirmSettlement("1");
-            orderSettlementMapper.updateConfirmSettlement(orderSettlement);
-        }
 
-    }
+	  /**
+	     * 退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
+	     * @param settleFlowId
+	     */
+	    public void updateSettlementByMapInfo(String settleFlowId,String tradeNo)
+	    {
+	    	log.error("更新结算状态updateSettlementByMapInfo method==" + settleFlowId+", "+tradeNo);
+	    	OrderException exceptionInfo = new OrderException();
+	  
+	    	exceptionInfo.setFlowId(settleFlowId);
+	    	List<OrderException> listInfo = orderExceptionMapper.listByProperty(exceptionInfo);
+	    	if (listInfo != null && listInfo.size() > 0) {
+	    		log.error("取出异常结算数据exception_order_id");
+	    		OrderException exception  = listInfo.get(0);
+	    	    OrderSettlement orderSettlement = null;
+	    	    Map<String,Object> condition = new HashedMap();
+	    	    condition.put("flowId",exception.getExceptionOrderId());
+	    	    orderSettlement = orderSettlementMapper.getByProperty(condition);
+	    	    if(orderSettlement != null)
+	            {
+	    	    	log.error("开始更新数据");
+	                orderSettlement.setSettleFlowId(tradeNo);
+	                orderSettlement.setConfirmSettlement("1");
+	                orderSettlementMapper.updateConfirmSettlement(orderSettlement);
+	            }
+	    		
+	    	} else {
+	    		log.error("无数据");
+	    	}
+	    	
+
+	    }
 }

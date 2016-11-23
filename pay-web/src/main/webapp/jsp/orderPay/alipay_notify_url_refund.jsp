@@ -96,7 +96,7 @@
 
 				String temp = myMap.get("subject").toString().split("：")[1];
 				logger.info("支付宝App退款：退款成功后的，处理支付宝的回调信息......flowId=" + temp );
-				orderSettlementService.updateSettlementByMapInfo(temp);
+				orderSettlementService.updateSettlementByMapInfo(temp,tradeNo);
 				Boolean state = AlipayNotify.getIsSuccess(detail);
 				if(state)
 					orderSettlementService.updateConfirmSettlement(tradeNo);
