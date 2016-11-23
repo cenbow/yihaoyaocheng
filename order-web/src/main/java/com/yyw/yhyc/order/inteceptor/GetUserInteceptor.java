@@ -5,7 +5,9 @@ import com.yhyc.auth.User;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.CustTypeEnum;
+import com.yyw.yhyc.order.utils.ContextHolder;
 import com.yyw.yhyc.utils.CacheUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,6 +91,8 @@ public class GetUserInteceptor extends HandlerInterceptorAdapter {
                 }
 
                 request.setAttribute(UserDto.REQUEST_KEY, userDto);
+                
+                ContextHolder.setUserDto(userDto);
 
                 log.info("userDto-->" + userDto.toString());
             }

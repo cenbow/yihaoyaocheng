@@ -18,6 +18,7 @@ import java.util.Map;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
@@ -56,6 +57,8 @@ public class OrderSettlementService {
 
 	@Autowired
 	private UsermanageEnterpriseMapper usermanageEnterpriseMapper;
+	@Autowired
+	private OrderTraceService orderTraceService;
 
 	@Autowired
 	public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
@@ -273,6 +276,14 @@ public class OrderSettlementService {
 		int result = orderSettlementMapper.update(os);
 		if (result == 0)
 			throw new RuntimeException("结算失败");
+		
+		//插入日志
+		OrderLogDto orderLogDto=new OrderLogDto();
+		orderLogDto.setOrderId(orderException.getOrderId());
+		orderLogDto.setNodeName("退款结算==flowID"+orderException.getExceptionOrderId());
+		orderLogDto.setOrderStatus(orderException.getOrderStatus());
+		orderLogDto.setRemark("请求参数orderSettlement==["+orderSettlement.toString()+"]");
+		this.orderTraceService.saveOrderLog(orderLogDto);
 
 	}
 

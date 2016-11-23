@@ -18,10 +18,12 @@ import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.RandomUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,8 @@ public class OrderReturnService {
 
     @Autowired
     private OrderExceptionService orderExceptionService;
+    @Autowired
+    private OrderTraceService orderTraceService;
 
 	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper)
@@ -234,6 +238,15 @@ public class OrderReturnService {
 				or.setProductCode(productCodeMap.get(or.getOrderDeliveryDetailId()));
             }
 			orderReturnMapper.saveBatch(returnList);
+			
+			//插入日志
+			OrderLogDto orderLogDto=new OrderLogDto();
+			orderLogDto.setOrderId(order.getOrderId());
+			orderLogDto.setNodeName("买家申请退换货=flowId"+oe.getExceptionOrderId());
+			orderLogDto.setOrderStatus(order.getOrderStatus());
+			orderLogDto.setRemark("orderReturn=="+orderReturn.toString());
+			this.orderTraceService.saveOrderLog(orderLogDto);
+			
 			code = "1";
 		}
 		return  "{\"code\":"+code+"}";

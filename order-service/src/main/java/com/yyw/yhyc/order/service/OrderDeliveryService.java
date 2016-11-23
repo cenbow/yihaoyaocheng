@@ -16,7 +16,7 @@ import java.util.*;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
-
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
@@ -29,6 +29,7 @@ import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 import com.yyw.yhyc.utils.ExcelUtil;
 import com.yyw.yhyc.utils.FileUtil;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,8 @@ public class OrderDeliveryService {
     private OrderReturnMapper orderReturnMapper;
 
     private OrderTraceMapper orderTraceMapper;
+    @Autowired
+    private OrderTraceService orderTraceService;
 
     private ProductInventoryManage productInventoryManage;
 
@@ -724,7 +727,14 @@ public class OrderDeliveryService {
                 orderMapper.update(order);
 
                 //插入日志表
-                OrderTrace orderTrace = new OrderTrace();
+                 OrderLogDto orderLog=new OrderLogDto();
+                 orderLog.setOrderId(order.getOrderId());
+                 orderLog.setNodeName("卖家已发货");
+                 orderLog.setOrderStatus(order.getOrderStatus());
+                 orderLog.setRemark("发货的参数orderDeliveryDto==["+orderDeliveryDto.toString()+"]");
+                 this.orderTraceService.saveOrderLog(orderLog);
+                 
+                /*OrderTrace orderTrace = new OrderTrace();
                 orderTrace.setOrderId(order.getOrderId());
                 orderTrace.setNodeName("卖家已发货");
                 orderTrace.setDealStaff(orderDeliveryDto.getUserDto().getUserName());
@@ -733,7 +743,7 @@ public class OrderDeliveryService {
                 orderTrace.setOrderStatus(order.getOrderStatus());
                 orderTrace.setCreateTime(now);
                 orderTrace.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
-                orderTraceMapper.save(orderTrace);
+                orderTraceMapper.save(orderTrace);*/
 
                 //生成发货信息
                 UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
@@ -766,7 +776,15 @@ public class OrderDeliveryService {
                 orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
                 orderExceptionMapper.update(orderException);
                 //插入日志表
-                OrderTrace orderTrace = new OrderTrace();
+                
+                OrderLogDto orderLog=new OrderLogDto();
+                orderLog.setOrderId(orderException.getOrderId());
+                orderLog.setNodeName("补货卖家已发货 补货订单号=="+orderException.getExceptionOrderId());
+                orderLog.setOrderStatus(orderException.getOrderStatus());
+                orderLog.setRemark("发货的参数orderDeliveryDto==["+orderDeliveryDto.toString()+"]");
+                this.orderTraceService.saveOrderLog(orderLog);
+                
+              /*  OrderTrace orderTrace = new OrderTrace();
                 orderTrace.setOrderId(orderException.getOrderId());
                 orderTrace.setNodeName("补货卖家已发货");
                 orderTrace.setDealStaff(orderDeliveryDto.getUserDto().getUserName());
@@ -775,7 +793,7 @@ public class OrderDeliveryService {
                 orderTrace.setOrderStatus(orderException.getOrderStatus());
                 orderTrace.setCreateTime(now);
                 orderTrace.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
-                orderTraceMapper.save(orderTrace);
+                orderTraceMapper.save(orderTrace);*/
                 //生成发货信息
                 UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
                 //更具原订单发货信息生成新的异常订单发货信息
@@ -822,7 +840,14 @@ public class OrderDeliveryService {
             orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
             orderExceptionMapper.update(orderException);
             //插入日志表
-            OrderTrace orderTrace = new OrderTrace();
+            OrderLogDto orderLogDto=new OrderLogDto();
+            orderLogDto.setOrderId(orderException.getOrderId());
+            orderLogDto.setNodeName("换货->卖家确认发货flowId="+orderException.getExceptionOrderId());
+            orderLogDto.setOrderStatus(orderException.getOrderStatus());
+            orderLogDto.setRemark("请求参数orderDeliveryDto=["+orderDeliveryDto.toString()+"]");
+            this.orderTraceService.saveOrderLog(orderLogDto);
+            
+           /* OrderTrace orderTrace = new OrderTrace();
             orderTrace.setOrderId(orderException.getOrderId());
             orderTrace.setNodeName("补货卖家已发货");
             orderTrace.setDealStaff(orderDeliveryDto.getUserDto().getUserName());
@@ -831,7 +856,7 @@ public class OrderDeliveryService {
             orderTrace.setOrderStatus(orderException.getOrderStatus());
             orderTrace.setCreateTime(now);
             orderTrace.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
-            orderTraceMapper.save(orderTrace);
+            orderTraceMapper.save(orderTrace);*/
             //生成发货信息
             UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(orderDeliveryDto.getReceiverAddressId());
             //更具原订单发货信息生成新的异常订单发货信息
@@ -940,6 +965,16 @@ public class OrderDeliveryService {
         orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
         orderException.setOrderStatus(SystemRefundOrderStatusEnum.BuyerDelivered.getType());
         orderExceptionMapper.update(orderException);
+        
+        
+        //保存日志
+        OrderLogDto orderLog=new OrderLogDto();
+        orderLog.setOrderId(order.getOrderId());
+        orderLog.setNodeName("退货->买家确认发货,退货flowId=="+orderException.getExceptionOrderId());
+        orderLog.setOrderStatus(order.getOrderStatus());
+        orderLog.setRemark("请求参数orderDeliveryDto=["+orderDeliveryDto.toString()+"]");
+        this.orderTraceService.saveOrderLog(orderLog);
+        
         map.put("code", "1");
         map.put("msg", "发货成功。");
         return map;
@@ -1021,6 +1056,15 @@ public class OrderDeliveryService {
         orderException.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
         orderException.setOrderStatus(SystemChangeGoodsOrderStatusEnum.WaitingSellerReceived.getType());
         orderExceptionMapper.update(orderException);
+        
+        //保存日志
+        OrderLogDto orderLog=new OrderLogDto();
+        orderLog.setOrderId(order.getOrderId());
+        orderLog.setNodeName("换货，买家确认发货,换货flowId=="+orderException.getExceptionOrderId());
+        orderLog.setOrderStatus(order.getOrderStatus());
+        orderLog.setRemark("请求参数orderDeliveryDto=["+orderDeliveryDto.toString()+"]");
+        this.orderTraceService.saveOrderLog(orderLog);
+        
         map.put("code", "1");
         map.put("msg", "发货成功。");
         return map;

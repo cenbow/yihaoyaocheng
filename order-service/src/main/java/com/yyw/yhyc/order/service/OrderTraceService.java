@@ -14,15 +14,22 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.yyw.yhyc.order.bo.OrderTrace;
+import com.yyw.yhyc.order.dto.OrderLogDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.mapper.OrderTraceMapper;
+import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.utils.ContextHolder;
 
 @Service("orderTraceService")
 public class OrderTraceService {
 
 	private OrderTraceMapper	orderTraceMapper;
+	@Autowired
+    private SystemDateMapper systemDateMapper;
 
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper)
@@ -106,6 +113,37 @@ public class OrderTraceService {
 	public int deleteByProperty(OrderTrace orderTrace) throws Exception
 	{
 		return orderTraceMapper.deleteByProperty(orderTrace);
+	}
+	
+	/**
+	 * 保存订单相关的日志
+	 * @param orderLog
+	 */
+	public void saveOrderLog(OrderLogDto orderLog){
+		String now=this.systemDateMapper.getSystemDate();
+		UserDto userDto=ContextHolder.getUserDtoInfo();
+		OrderTrace orderTrace=new OrderTrace();
+		orderTrace.setOrderId(orderLog.getOrderId());
+		orderTrace.setOrderStatus(orderLog.getOrderStatus());
+		orderTrace.setNodeName(orderLog.getNodeName());
+		orderTrace.setPaymentPlatforReturn(orderLog.getPaymentPlatforReturn());
+		String remark=orderLog.getRemark();
+		if(StringUtils.hasText(remark)){
+			if(remark.length()>5000){
+				String subRemark=remark.substring(0,4999);
+				orderTrace.setRemark(subRemark);
+			}else{
+				orderTrace.setRemark(remark);
+			}
+		}
+		
+		orderTrace.setCreateUser(userDto.getUserName());
+		orderTrace.setCreateTime(now);
+		orderTrace.setUpdateTime(now);
+		orderTrace.setUpdateUser(userDto.getUserName());
+		this.orderTraceMapper.save(orderTrace);
+		
+		
 	}
 
 	/**
