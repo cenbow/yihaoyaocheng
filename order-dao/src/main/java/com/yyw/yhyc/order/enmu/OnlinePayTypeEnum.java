@@ -10,7 +10,8 @@ public enum OnlinePayTypeEnum {
     MerchantBank(5,"招商银行支付"),
     UnionPayB2B(6,"银联B2B支付"),
     AlipayWeb(7,"支付宝WEB"),
-    AlipayApp(8,"支付宝APP");
+    AlipayApp(8,"支付宝APP"),
+    UnionPayMobile(9,"银联手机支付");
 
     /* 支付方式Id */
     private Integer payTypeId;
