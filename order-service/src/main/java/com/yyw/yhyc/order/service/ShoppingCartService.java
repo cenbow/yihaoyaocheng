@@ -286,6 +286,22 @@ public class ShoppingCartService {
 			throw new Exception("非法参数");
 		}
 
+		/* 查询已添加商品的品种总数 */
+		ShoppingCart condition = new ShoppingCart();
+		condition.setCustId(shoppingCart.getCustId());
+		condition.setFromWhere(shoppingCart.getFromWhere());
+		int count = shoppingCartMapper.findByCount(condition);
+		if (count >= 100) {
+			logger.info("查询已添加商品的品种总数:已购买的品种总数为" + count);
+			throw new Exception("最多只能添加100个品种，请先下单。");
+		}
+
+		/* 单个商品的最大数量限制 */
+		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
+			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
+			throw  new Exception("购买数量不能大于9999999");
+		}
+
 		if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
 			shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
 		}
@@ -1067,8 +1083,8 @@ public class ShoppingCartService {
 
 				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
 
-				/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
-				if( shoppingCartDto.isExistProductInventory() && 1 == shoppingCartDto.getPutawayStatus() && shoppingCartDto.getProductPrice().compareTo(new BigDecimal(0)) > 0){
+				/* 如果该商品没有缺货、没有下架、价格合法等，则统计该供应商下的已买商品总额 */
+				if( shoppingCartDto.isNormalStatus()){
 					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 				}
 			}
@@ -1441,8 +1457,33 @@ public class ShoppingCartService {
 			shoppingCartDto.setPromotionCurrentInventory(productPromotionDto.getCurrentInventory());
 			shoppingCartDto.setPromotionType(productPromotionDto.getPromotionType());
 		}
+
+		/**
+		 * 商品(含活动商品)的正常、异常情况处理
+		 */
+
+		/* 没库存 */
+		if( !shoppingCartDto.isExistProductInventory()){
+			shoppingCartDto.setNormalStatus(false);
+			shoppingCartDto.setUnNormalStatusReason("商品库存不足");
+		/* 没价格 */
+		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) == 0){
+			shoppingCartDto.setNormalStatus(false);
+			shoppingCartDto.setUnNormalStatusReason("商品价格异常");
+		/* 已下架 */
+		}else if(shoppingCartDto.getPutawayStatus() == null || shoppingCartDto.getPutawayStatus() != 1){
+			shoppingCartDto.setNormalStatus(false);
+			shoppingCartDto.setUnNormalStatusReason("商品已下架");
+		/* 活动商品参加的活动已失效 : 进货单中保存了活动id, 但接口中查询不到活动信息 */
+		}else if( (!UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && shoppingCartDto.getPromotionId() > 0 )  && UtilHelper.isEmpty(shoppingCartDto.getPromotionPrice())  ) {
+			shoppingCartDto.setNormalStatus(false);
+			shoppingCartDto.setUnNormalStatusReason("活动商品参加的活动已失效");
+		}else{
+			shoppingCartDto.setNormalStatus(true);
+		}
+
 		long endTime = System.currentTimeMillis();
-		logger.info("处理单个商品的信息,总耗时："+(endTime - startTime)+"毫秒");
+		logger.info("处理单个商品的信息,总耗时："+(endTime - startTime)+"毫秒，返回处理后的数据 shoppingCartDto = " + shoppingCartDto);
 		return shoppingCartDto;
 	}
 

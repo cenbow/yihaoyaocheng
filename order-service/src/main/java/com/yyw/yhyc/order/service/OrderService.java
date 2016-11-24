@@ -1028,11 +1028,6 @@ public class OrderService {
 				}
 			}
 
-			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
-			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
-				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
-			}
-
 
 			/* 校验活动商品相关的限购逻辑 */
 			/* 1、 非空校验*/
@@ -1044,6 +1039,12 @@ public class OrderService {
 			if(UtilHelper.isEmpty(productPromotionDto)){
 				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
 			}
+
+			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
+				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
+			}
+
 
 			/*商品的活动价格是否发生变化*/
 			if(!UtilHelper.isEmpty(productInfoDto.getProductPrice()) && productInfoDto.getProductPrice().compareTo(productPromotionDto.getPromotionPrice()) != 0){
