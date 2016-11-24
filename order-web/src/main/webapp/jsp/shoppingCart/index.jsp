@@ -111,7 +111,7 @@
                                         </li>
                                         <li class="fl td-price">
                                             <c:choose>
-                                                <c:when test="${shoppingCartDto.promotionId > 0 && shoppingCartDto.promotionPrice > 0}">
+                                                <c:when test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
                                                     <p class="special_price">
                                                         <span>限时特价</span>
                                                     </p>
