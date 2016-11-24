@@ -39,7 +39,6 @@ import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
-
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
@@ -66,6 +65,7 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -130,6 +130,9 @@ public class OrderService {
 
 	@Autowired
 	private OrderPayManage orderPayManage;
+	
+	@Autowired
+	private OrderTraceService orderTraceService;
 
 	private ProductInventoryManage productInventoryManage;
 	@Autowired
@@ -645,7 +648,13 @@ public class OrderService {
 		insertOrderDeliver(order, orderDelivery);
 
 		/* 订单跟踪信息表 */
-		insertOrderTrace(order);
+		OrderLogDto orderLogDto=new OrderLogDto();
+		orderLogDto.setOrderId(order.getOrderId());
+		orderLogDto.setOrderStatus(order.getOrderStatus());
+		orderLogDto.setNodeName("创建订单日志记录");
+		orderLogDto.setRemark("订单的请求参数["+orderDto.toString()+"]");
+        this.orderTraceService.saveOrderLog(orderLogDto);
+		//insertOrderTrace(order);
 
 		/* 删除购物车中相关的商品 */
 		deleteShoppingCart(orderDto);
@@ -1019,11 +1028,6 @@ public class OrderService {
 				}
 			}
 
-			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
-			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
-				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
-			}
-
 
 			/* 校验活动商品相关的限购逻辑 */
 			/* 1、 非空校验*/
@@ -1035,6 +1039,12 @@ public class OrderService {
 			if(UtilHelper.isEmpty(productPromotionDto)){
 				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
 			}
+
+			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
+				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
+			}
+
 
 			/*商品的活动价格是否发生变化*/
 			if(!UtilHelper.isEmpty(productInfoDto.getProductPrice()) && productInfoDto.getProductPrice().compareTo(productPromotionDto.getPromotionPrice()) != 0){
@@ -1439,16 +1449,11 @@ public class OrderService {
 					throw new RuntimeException("订单取消失败");
 				}
 				//插入日志表
-				OrderTrace orderTrace = new OrderTrace();
-				orderTrace.setOrderId(order.getOrderId());
-				orderTrace.setNodeName("买家取消订单");
-				orderTrace.setDealStaff(userDto.getUserName());
-				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff(userDto.getUserName());
-				orderTrace.setOrderStatus(order.getOrderStatus());
-				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser(userDto.getUserName());
-				orderTraceMapper.save(orderTrace);
+				OrderLogDto orderLog=new OrderLogDto();
+				orderLog.setOrderId(order.getOrderId());
+				orderLog.setNodeName("买家取消订单");
+				orderLog.setOrderStatus(order.getOrderStatus());
+				this.orderTraceService.saveOrderLog(orderLog);
 
 				//释放冻结库存
 				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
@@ -1594,16 +1599,11 @@ public class OrderService {
 
 
 				//插入日志表
-				OrderTrace orderTrace = new OrderTrace();
-				orderTrace.setOrderId(order.getOrderId());
-				orderTrace.setNodeName("卖家取消订单");
-				orderTrace.setDealStaff(userDto.getUserName());
-				orderTrace.setRecordDate(now);
-				orderTrace.setRecordStaff(userDto.getUserName());
-				orderTrace.setOrderStatus(order.getOrderStatus());
-				orderTrace.setCreateTime(now);
-				orderTrace.setCreateUser(userDto.getUserName());
-				orderTraceMapper.save(orderTrace);
+				OrderLogDto orderLog=new OrderLogDto();
+				orderLog.setOrderId(order.getOrderId());
+				orderLog.setNodeName("卖家取消订单");
+				orderLog.setOrderStatus(order.getOrderStatus());
+				this.orderTraceService.saveOrderLog(orderLog);
 
 				//释放冻结库存
 				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
@@ -1799,9 +1799,21 @@ public class OrderService {
 		log.debug("开始准备系统自动取消未支付订单");
 		List<Order> lo=orderMapper.listCancelOrderForNoPay();
 		log.debug("要自动取消订单结果集是【" + Arrays.toString(lo.toArray()) + "】。");
-
+        String now=this.systemDateMapper.getSystemDate();
 		for(Order od:lo){
 			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
+			//插入日志
+		     OrderTrace orderTrace=new OrderTrace();
+		     orderTrace.setOrderId(od.getOrderId());
+		     orderTrace.setOrderStatus(od.getOrderStatus());
+		     orderTrace.setNodeName("系统自动取消未支付订单");
+		     orderTrace.setRemark("order=="+od.toString());
+		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateUser("admin");
+		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateUser("admin");
+		     this.orderTraceMapper.save(orderTrace);
+			
 		}
 		int count = orderMapper.cancelOrderForNoPay();
 		log.debug("成功取消未支付订单【" + count + "】条。");
@@ -1849,6 +1861,20 @@ public class OrderService {
 			}
 			//库存
 			productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
+			
+			//插入日志
+		     OrderTrace orderTrace=new OrderTrace();
+		     orderTrace.setOrderId(od.getOrderId());
+		     orderTrace.setOrderStatus(od.getOrderStatus());
+		     orderTrace.setNodeName("订单7个自然日未发货系统自动取消");
+		     orderTrace.setRemark("order=="+od.toString());
+		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateUser("admin");
+		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateUser("admin");
+		     this.orderTraceMapper.save(orderTrace);
+			
+			
 		}
 		//if(UtilHelper.isEmpty(cal)) return;
 		//取消订单
@@ -1894,6 +1920,18 @@ public class OrderService {
 				}
 
 			}
+			
+			//插入日志
+		     OrderTrace orderTrace=new OrderTrace();
+		     orderTrace.setOrderId(od.getOrderId());
+		     orderTrace.setOrderStatus(od.getOrderStatus());
+		     orderTrace.setNodeName("订单发货后7个自然日后系统自动确认收货");
+		     orderTrace.setRemark("order=="+od.toString());
+		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateUser("admin");
+		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateUser("admin");
+		     this.orderTraceMapper.save(orderTrace);
 		}
         //退货异常订单自动确认
 		autoConfirmRefundOrder(creditDubboService);
@@ -1926,6 +1964,19 @@ public class OrderService {
 			orderExceptionService.saveReturnOrderSettlement(o);//生成结算信息
 			//调用资信接口
 			sendReundCredit(creditDubboService,systemPayType,o);
+			
+			//插入日志
+			 String now=this.systemDateMapper.getSystemDate();
+		     OrderTrace orderTrace=new OrderTrace();
+		     orderTrace.setOrderId(o.getOrderId());
+		     orderTrace.setOrderStatus(o.getOrderStatus());
+		     orderTrace.setNodeName("退货异常订单自动确认收货");
+		     orderTrace.setRemark("OrderException=="+o.toString());
+		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateUser("admin");
+		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateUser("admin");
+		     this.orderTraceMapper.save(orderTrace);
 		}
 	}
 
@@ -1974,6 +2025,18 @@ public class OrderService {
 			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
+			
+			//插入日志
+		     OrderTrace orderTrace=new OrderTrace();
+		     orderTrace.setOrderId(o.getOrderId());
+		     orderTrace.setOrderStatus(o.getOrderStatus());
+		     orderTrace.setNodeName("补货异常订单自动确认");
+		     orderTrace.setRemark("OrderException=="+o.toString());
+		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateUser("admin");
+		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateUser("admin");
+		     this.orderTraceMapper.save(orderTrace);
 		}
 		return cal;
 	}
@@ -1992,6 +2055,19 @@ public class OrderService {
 			o.setOrderStatus(SystemChangeGoodsOrderStatusEnum.AutoFinished.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
+			
+			//插入日志
+			String now=this.systemDateMapper.getSystemDate();
+		     OrderTrace orderTrace=new OrderTrace();
+		     orderTrace.setOrderId(o.getOrderId());
+		     orderTrace.setOrderStatus(o.getOrderStatus());
+		     orderTrace.setNodeName("换货异常订单自动确认");
+		     orderTrace.setRemark("OrderException=="+o.toString());
+		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateUser("admin");
+		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateUser("admin");
+		     this.orderTraceMapper.save(orderTrace);
 		}
 	}
 
@@ -2060,7 +2136,14 @@ public class OrderService {
 		orderSettlement.setRefunSettlementMoney(orderSettlement.getRefunSettlementMoney());
 		orderSettlementMapper.save(orderSettlement);
 		//TODO 订单记录表
-		insertOrderTrace(order);
+		OrderLogDto orderLogDto=new OrderLogDto();
+		orderLogDto.setNodeName("收款确认");
+		orderLogDto.setOrderId(order.getOrderId());
+		orderLogDto.setOrderStatus(order.getOrderStatus());
+		orderLogDto.setRemark(orderSettlement.toString());
+		this.orderTraceService.saveOrderLog(orderLogDto);
+		//insertOrderTrace(order);
+		
 		order.setFinalPay(orderSettlement.getSettlementMoney());
 		// 2016-8-13修改 收款确认后订单状态为 5-买家已付款
 		// order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
@@ -3114,6 +3197,15 @@ public class OrderService {
 			resutlMap.put("statusCode",-3);
 			resutlMap.put("message","您好！距离确认收货截止日期前3天内才可以延期!");
 		}
+		
+		//插入日志
+		OrderLogDto orderLogDto=new OrderLogDto();
+		orderLogDto.setOrderId(order.getOrderId());
+		orderLogDto.setOrderStatus(order.getOrderStatus());
+		orderLogDto.setNodeName("延期收货flowId="+flowId);
+		orderLogDto.setRemark("order"+order.toString());
+	    this.orderTraceService.saveOrderLog(orderLogDto);
+	    
 		return  resutlMap;
 	}
 

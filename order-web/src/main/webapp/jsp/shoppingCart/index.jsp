@@ -81,11 +81,12 @@
                     <c:choose>
                         <c:when test="${shoppingCartListDto != null && fn:length(shoppingCartListDto.shoppingCartDtoList) gt 0}">
                             <c:forEach var="shoppingCartDto" items="${shoppingCartListDto.shoppingCartDtoList}"  varStatus="shoppingCartDtoVarStatus">
-                                <div class="holder-list <c:if test="${!shoppingCartDto.existProductInventory ||  shoppingCartDto.putawayStatus != 1 || shoppingCartDto.productPrice <= 0 }"> no-stock </c:if> ">
+                                <div class="holder-list <c:if test="${!shoppingCartDto.normalStatus}"> no-stock </c:if> ">
+                                    <input type="hidden" value="${shoppingCartDto.unNormalStatusReason}">
                                     <ul>
                                         <li class="fl td-chk">
-                                            <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1 && shoppingCartDto.productPrice > 0}">
-                                                <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.existProductInventory}"> checkbox-disable </c:if>"
+                                            <c:if test="${shoppingCartDto.normalStatus}">
+                                                <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all </c:if><c:if test="${!shoppingCartDto.normalStatus}"> checkbox-disable </c:if>"
                                                      shoppingCartId="${shoppingCartDto.shoppingCartId}" supplyId="${shoppingCartListDto.seller.enterpriseId}">
                                                     <span class="inside-icon" >全选所有商品</span>
                                                 </div>
@@ -97,6 +98,7 @@
                                                 <c:when test="${shoppingCartDto.productPrice <= 0}"><span class="inside-icon">失效</span></c:when>
                                                 <c:when test="${!shoppingCartDto.existProductInventory}"><span class="inside-icon">缺货</span></c:when>
                                                 <c:when test="${ shoppingCartDto.putawayStatus != 1}"><span class="inside-icon">下架</span></c:when>
+                                                <c:when test="${ shoppingCartDto.promotionId > 0  &&  (shoppingCartDto.promotionPrice == null || shoppingCartDto.promotionPrice < 0 )  }"><span class="inside-icon">失效</span></c:when>
                                             </c:choose>
                                             <img  src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
@@ -109,7 +111,7 @@
                                         </li>
                                         <li class="fl td-price">
                                             <c:choose>
-                                                <c:when test="${shoppingCartDto.promotionId > 0 && shoppingCartDto.promotionPrice > 0}">
+                                                <c:when test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
                                                     <p class="special_price">
                                                         <span>限时特价</span>
                                                     </p>
@@ -150,7 +152,7 @@
                                             </div>
                                         </li>
                                         <li class="fl td-sum">
-                                                <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.existProductInventory  && shoppingCartDto.putawayStatus == 1 && shoppingCartDto.productPrice > 0}">  value="${shoppingCartDto.productSettlementPrice}" </c:if> >
+                                                <input type="hidden" name="productSettlementPrice" <c:if test="${shoppingCartDto.normalStatus}">  value="${shoppingCartDto.productSettlementPrice}" </c:if> >
                                                 <div style="${shoppingCartDto.productPrice > 0 ? "display: block" : "display: none"} ">
                                                     ¥<span><fmt:formatNumber value="${shoppingCartDto.productSettlementPrice}" minFractionDigits="3"/></span>
                                                 </div>

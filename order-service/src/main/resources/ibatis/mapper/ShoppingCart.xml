@@ -516,7 +516,7 @@
 	</select>
 
 	<select id="queryShoppingCartStatistics" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="java.util.HashMap">
-		SELECT SUM(1) productCount, SUM(product_settlement_price) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
+		SELECT ifnull(SUM(1),0) productCount, ifnull(SUM(product_settlement_price),0) sumPrice FROM t_shopping_cart WHERE cust_id=#{custId}
 		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
 		</if>
