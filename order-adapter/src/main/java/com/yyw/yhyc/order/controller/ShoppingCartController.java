@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -295,21 +296,22 @@ public class ShoppingCartController extends BaseController {
      */
 	@RequestMapping(value = "/submitShopCart", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean,@RequestHeader("os") String os) throws Exception {
+	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean,@RequestHeader(value = "os", required = false, defaultValue = "") String os) throws Exception {
 
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
 
 		/* 把APP端的数据格式，转成与PC通用的数据格式 */
 		OrderCreateDto orderCreateDto = convertDataForApp(userDto,orderCreateBean);
-
 		//订单来源
 		if(UtilHelper.isNoEmpty(os)&&os.equals("ios")){
 			orderCreateDto.setSource(3);
 		}else if(UtilHelper.isNoEmpty(os)&&os.equals("android")){
 			orderCreateDto.setSource(2);
-		}else{
+		}else if(UtilHelper.isNoEmpty(os)&&os.equals("h5")) {
 			orderCreateDto.setSource(4);
+		}else{
+			orderCreateDto.setSource(2);
 		}
 
 		if(UtilHelper.isEmpty(orderCreateDto))throw new Exception("非法参数");
