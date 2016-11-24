@@ -296,18 +296,13 @@ public class ShoppingCartController extends BaseController {
      */
 	@RequestMapping(value = "/submitShopCart", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean, HttpServletRequest request) throws Exception {
+	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean,@RequestHeader(value = "os", required = false, defaultValue = "") String os) throws Exception {
 
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
 
 		/* 把APP端的数据格式，转成与PC通用的数据格式 */
 		OrderCreateDto orderCreateDto = convertDataForApp(userDto,orderCreateBean);
-		String os="";
-		try {
-			 os=request.getHeader("os");
-		}catch (Exception e){
-		}
 		//订单来源
 		if(UtilHelper.isNoEmpty(os)&&os.equals("ios")){
 			orderCreateDto.setSource(3);
