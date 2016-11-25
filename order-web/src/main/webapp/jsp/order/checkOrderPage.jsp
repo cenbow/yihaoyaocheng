@@ -131,7 +131,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionName" value="${shoppingCartDto.promotionName}"/>
                                                     <tr>
                                                         <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
-                                                            <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
+                                                            <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl" onerror="this.src='http://oms.yaoex.com/static/images/product_default_img.jpg'">
                                                             <h3>
                                                                 <c:if test="${shoppingCartDto.isChannel == 1}">
                                                                     <span class="ct-lable">渠道</span>
