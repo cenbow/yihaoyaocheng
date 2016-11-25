@@ -1040,8 +1040,12 @@ public class OrderService {
 				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
 			}
 
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() < 0){
+				continue;
+			}
+
 			/* 1、 非空校验*/
-			if(UtilHelper.isEmpty(productPromotionDto)){
+			if( !UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0 &&  UtilHelper.isEmpty(productPromotionDto)){
 				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
 			}
 
