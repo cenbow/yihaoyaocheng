@@ -2957,6 +2957,7 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderStatus))
 			throw new RuntimeException("订单状态不正确");
 		orderDto.setOrderStatus(orderStatus);
+		orderDto.setPayType(1);//只取在线支付订单
 		//获取订单列表
 		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
