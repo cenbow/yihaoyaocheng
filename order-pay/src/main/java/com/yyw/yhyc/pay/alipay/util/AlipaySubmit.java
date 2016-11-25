@@ -2,12 +2,16 @@ package com.yyw.yhyc.pay.alipay.util;
 
 import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
 import com.yyw.yhyc.pay.alipay.sign.RSA;
+import com.yyw.yhyc.pay.alipay.sign.SignUtils;
+import com.yyw.yhyc.pay.chinapay.utils.PayUtil;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -44,6 +48,21 @@ public class AlipaySubmit {
         String mysign = "";
         if(AlipayConfig.sign_type.equals("RSA") ){
         	mysign = RSA.sign(prestr, AlipayConfig.private_key, AlipayConfig.input_charset);
+        }
+        return mysign;
+    }
+	
+	/**
+     * 生成APP签名结果
+     * @param sPara 要签名的数组
+     * @return 签名结果字符串
+     */
+	public static String buildAPPRequestMysign(Map<String, String> sPara) {
+    	String prestr = AlipayCore.createAPPLinkString(sPara); //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+        String mysign = "";
+        if(AlipayConfig.sign_type.equals("RSA") ){
+//        	mysign = RSA.sign(prestr, PayUtil.getValue("private_key_app"), AlipayConfig.input_charset);
+        	mysign = SignUtils.sign(prestr, AlipayConfig.private_key_app);
         }
         return mysign;
     }
@@ -112,6 +131,31 @@ public class AlipaySubmit {
         return ALIPAY_GATEWAY_NEW+AlipayCore.createLinkString(sParaEncoder);
     }
 
+
+    /**
+     * 生成要请求给支付宝app的参数数组,把数组所有元素排序，并按照“参数=参数值”的模式用“&”字符拼接成字符串
+     * @param sParaTemp
+     * @return
+     */
+    public static String buildAppRequestUrl(Map<String, String> sParaTemp){
+        //除去数组中的空值和签名参数
+        Map<String, String> sPara = AlipayCore.paraFilter(sParaTemp);
+        //生成签名结果
+        String mysign = buildAPPRequestMysign(sPara);
+        String sign = null;
+        try {
+			sign = URLEncoder.encode(mysign,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+        }
+        Map<String, String> sParaEncoder = AlipayCore.paraFilter(sParaTemp);
+
+        //签名结果与签名方式加入请求提交参数组中
+        sParaEncoder.put("sign", sign);
+        sParaEncoder.put("sign_type", AlipayConfig.sign_type);
+        return AlipayCore.createAPPLinkString(sParaEncoder);
+    }
     
     /**
      * 用于防钓鱼，调用接口query_timestamp来获取时间戳的处理函数

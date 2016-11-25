@@ -7,19 +7,6 @@
  */
 var flag = true;
 function createOrder(){
-	if(!flag){
-		 new Dialog({
-	            title:'提示',
-	            content:'<p class="mt60 f14">请勿重复提交表单数据！</p>',
-	            ok:'确定',
-	            afterOk:function(){
-	                console.log('111');
-	            }
-	        });
-	        return;
-	}
-	flag = false;
-    $("#createOrderButton").removeAttr("onsubmit");
 
     var receiveAddressId = $("#receiveAddressId").val();
     if(receiveAddressId == null || receiveAddressId == '' || typeof  receiveAddressId == 'undefined'){
@@ -40,7 +27,16 @@ function createOrder(){
             content:'<p class="mt60 f14">请选择发票类型！</p>',
             ok:'确定',
             afterOk:function(){
-                console.log('111');
+            }
+        });
+        return;
+    }
+    if( billType != 1 && billType != 2){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">非法发票类型！</p>',
+            ok:'确定',
+            afterOk:function(){
             }
         });
         return;
@@ -91,6 +87,19 @@ function createOrder(){
         });
         return;
     }
+
+    if(!flag){
+        new Dialog({
+            title:'提示',
+            content:'<p class="mt60 f14">请勿重复提交表单数据！</p>',
+            ok:'确定',
+            afterOk:function(){
+            }
+        });
+        return;
+    }
+    flag = false;
+    $("#createOrderButton").removeAttr("onsubmit");
 
 
     $("#createOrderForm").attr({"action": ctx + "/order/createOrder"});

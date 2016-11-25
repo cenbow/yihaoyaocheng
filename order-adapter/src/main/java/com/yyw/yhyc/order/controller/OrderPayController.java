@@ -19,6 +19,7 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.SystemDateService;
@@ -35,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/api/orderPay")
+@RequestMapping(value = {"/api/orderPay","/order/api/orderPay"})
 public class OrderPayController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderPayController.class);
 
@@ -109,7 +110,7 @@ public class OrderPayController extends BaseController {
 	/**
 	 * App端支付接口
 	 * @param orderIds 订单编号集合,以英文的逗号（“,”）隔开
-	 * @param payTypeId 支付方式id （目前传固定值：4，表示使用银联无卡支付）
+	 * @param payTypeId 支付方式id （4 : 表示使用银联无卡支付 , 9 : 表示使用银联手机支付）
 	 * @return
 	 * @throws Exception
 	 */
@@ -120,6 +121,14 @@ public class OrderPayController extends BaseController {
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			return error(STATUS_CODE_INVALID_TOKEN,"登陆超时");
 		}
+
+		logger.info("App端支付接口：请求参数orderIds = " + orderIds  + ",payTypeId = " + payTypeId);
+
+		/* 新增银联手机支付 ，代替原有的银联无卡支付 。但为了App不再改参数，银联无卡支付 归于 银联手机支付 */
+		if( OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId ){
+			payTypeId = OnlinePayTypeEnum.UnionPayMobile.getPayTypeId();
+		}
+
 		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
 		if(UtilHelper.isEmpty(systemPayType)){
 			return error("非法参数");
@@ -142,19 +151,19 @@ public class OrderPayController extends BaseController {
 		PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 		Map<String,Object> payRequestParamMap = payService.handleDataBeforeSendPayRequest(orderPay,systemPayType,3);
 
-		if( null == payRequestParamMap || payRequestParamMap.size() == 0){
-			return error("非法参数");
-		}
-		if(!payRequestParamMap.containsKey("MerSplitMsg")){
-			payRequestParamMap.put("MerSplitMsg", "0");
-		}
 		Map<String,Object> resultMap = new HashMap<>();
+
+		if( null == payRequestParamMap || payRequestParamMap.size() == 0) return error("非法参数");
+		if(!payRequestParamMap.containsKey("MerSplitMsg")) payRequestParamMap.put("MerSplitMsg", "0");
 		for(Map.Entry<String, Object> entry:payRequestParamMap.entrySet()){
 			String params = "TranReserved;MerId;MerOrderNo;OrderAmt;CurryNo;TranDate;SplitMethod;BusiType;MerPageUrl;MerBgUrl;SplitType;MerSplitMsg;PayTimeOut;MerResv;Version;BankInstNo;CommodityMsg;Signature;AccessType;AcqCode;OrderExpiryTime;TranType;RemoteAddr;Referred;TranTime;TimeStamp;CardTranData";
 			if(params.contains(entry.getKey())){
 				resultMap.put(entry.getKey(),entry.getValue());
 			}
 		}
+		logger.info("App端支付接口：请求参数orderIds = " + orderIds  + ",payTypeId = " + payTypeId + "\n 响应参数:resultMap=" + resultMap);
 		return ok(resultMap);
+
+
 	}
 }

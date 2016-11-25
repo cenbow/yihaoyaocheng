@@ -4,9 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * Created by luweibin on 2016/9/6.
+ * Created by luweibin on 2016/9/6
  */
 public class CartProductBean implements Serializable,Cloneable {
+    private static final long serialVersionUID = -7384290110347695348L;
     private long shoppingCartId;//购物车ID
     private int quantity;//购买数量
     private int oldQuantity;//
@@ -27,6 +28,15 @@ public class CartProductBean implements Serializable,Cloneable {
     private String vendorName;//供应商名称
     private Integer vendorId;//供应商id
     private String spuCode;//商品SPU编码
+
+    /* 促销商品活动信息 */
+    private ProductPromotion productPromotion;
+
+    /* 商品状态是否正常*/
+    private boolean normalStatus ;
+
+    /* 商品状态是不正常的原因*/
+    private String unNormalStatusReason;
 
     public long getShoppingCartId() {
         return shoppingCartId;
@@ -188,6 +198,30 @@ public class CartProductBean implements Serializable,Cloneable {
         this.spuCode = spuCode;
     }
 
+    public ProductPromotion getProductPromotion() {
+        return productPromotion;
+    }
+
+    public void setProductPromotion(ProductPromotion productPromotion) {
+        this.productPromotion = productPromotion;
+    }
+
+    public boolean isNormalStatus() {
+        return normalStatus;
+    }
+
+    public void setNormalStatus(boolean normalStatus) {
+        this.normalStatus = normalStatus;
+    }
+
+    public String getUnNormalStatusReason() {
+        return unNormalStatusReason;
+    }
+
+    public void setUnNormalStatusReason(String unNormalStatusReason) {
+        this.unNormalStatusReason = unNormalStatusReason;
+    }
+
     @Override
     public String toString() {
         return "CartProductBean{" +
@@ -211,6 +245,9 @@ public class CartProductBean implements Serializable,Cloneable {
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorId=" + vendorId +
                 ", spuCode='" + spuCode + '\'' +
+                ", productPromotion=" + productPromotion +
+                ", normalStatus=" + normalStatus +
+                ", unNormalStatusReason='" + unNormalStatusReason + '\'' +
                 '}';
     }
 }

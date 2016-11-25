@@ -137,12 +137,12 @@
 		<if test="payTypeName!= null and payTypeName!= ''"> 
 			AND pay_type_name=#{payTypeName}
 		</if>
-		<if test="createEndTime!= null and createEndTime!= ''"> 
+		<if test="createEndTime!= null and createEndTime!= ''">
 			 <![CDATA[
 			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
 		 ]]>
 		</if>
-		<if test="createBeginTime!= null and createBeginTime!= ''"> 
+		<if test="createBeginTime!= null and createBeginTime!= ''">
 			 <![CDATA[
 			and  order_create_time > STR_TO_DATE( #{createBeginTime} ,'%Y-%m-%d')
 		 ]]>
@@ -206,12 +206,12 @@
 		<if test="exceptionType!= null and exceptionType!= ''"> 
 			AND a.exception_type=#{exceptionType}
 		</if>
-		<if test="createEndTime!= null and createEndTime!= ''"> 
+		<if test="createEndTime!= null and createEndTime!= ''">
 			 <![CDATA[
 			and  order_create_time < DATE_SUB(STR_TO_DATE( #{createEndTime} ,'%Y-%m-%d'),INTERVAL 1 DAY)
 		 ]]>
 		</if>
-		<if test="createBeginTime!= null and createBeginTime!= ''"> 
+		<if test="createBeginTime!= null and createBeginTime!= ''">
 			 <![CDATA[
 			and  order_create_time > STR_TO_DATE( #{createBeginTime} ,'%Y-%m-%d')
 		 ]]>

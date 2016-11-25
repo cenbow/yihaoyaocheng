@@ -19,6 +19,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.AdviserBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderCreateBean;
 import com.yyw.yhyc.order.bo.Order;
@@ -40,13 +41,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/api/cart")
+@RequestMapping(value = {"/api/cart","/order/api/cart"})
 public class ShoppingCartController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(ShoppingCartController.class);
 
@@ -294,20 +296,23 @@ public class ShoppingCartController extends BaseController {
      */
 	@RequestMapping(value = "/submitShopCart", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean,@RequestHeader("os") String os) throws Exception {
+	public Map<String, Object> submitShopCart(@RequestBody OrderCreateBean orderCreateBean,@RequestHeader(value = "os", required = false, defaultValue = "") String os) throws Exception {
 
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
 
-		//订单来源
-		if(UtilHelper.isNoEmpty(os)&&os.equals("os")){
-			orderCreateBean.setSource(3);
-		}else if(UtilHelper.isNoEmpty(os)&&os.equals("android")){
-			orderCreateBean.setSource(2);
-		}
-
 		/* 把APP端的数据格式，转成与PC通用的数据格式 */
 		OrderCreateDto orderCreateDto = convertDataForApp(userDto,orderCreateBean);
+		//订单来源
+		if(UtilHelper.isNoEmpty(os)&&os.equals("ios")){
+			orderCreateDto.setSource(3);
+		}else if(UtilHelper.isNoEmpty(os)&&os.equals("android")){
+			orderCreateDto.setSource(2);
+		}else if(UtilHelper.isNoEmpty(os)&&os.equals("h5")) {
+			orderCreateDto.setSource(4);
+		}else{
+			orderCreateDto.setSource(2);
+		}
 
 		if(UtilHelper.isEmpty(orderCreateDto))throw new Exception("非法参数");
 
@@ -412,10 +417,14 @@ public class ShoppingCartController extends BaseController {
 				}
 				productInfoDto = new ProductInfoDto();
 				productInfoDto.setId(shoppingCart.getProductId());
+				productInfoDto.setProductName(shoppingCart.getProductName());
 				productInfoDto.setSpuCode(shoppingCart.getSpuCode());
 				productInfoDto.setProductPrice(shoppingCart.getProductPrice());
 				productInfoDto.setProductCount(shoppingCart.getProductCount());
 				productInfoDto.setProductCodeCompany(shoppingCart.getProductCodeCompany());
+				productInfoDto.setPromotionId(shoppingCart.getPromotionId());
+				productInfoDto.setPromotionName(shoppingCart.getPromotionName());
+				productInfoDto.setFromWhere(shoppingCart.getFromWhere());
 				productInfoDtoList.add(productInfoDto);
 			}
 
@@ -429,6 +438,15 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setLeaveMessage(orderBean.getLeaveMsg());
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
+
+			AdviserBean adviserBean = orderBean.getAdviser();
+			if(!UtilHelper.isEmpty(adviserBean)){
+			/* 销售顾问信息 */
+				orderDto.setAdviserCode(adviserBean.getAdviserCode());
+				orderDto.setAdviserName(adviserBean.getAdviserName());
+				orderDto.setAdviserPhoneNumber(adviserBean.getPhoneNumber());
+				orderDto.setAdviserRemark(adviserBean.getRemark());
+			}
 			orderDtoList.add(orderDto);
 		}
 		orderCreateDto.setOrderDtoList(orderDtoList);

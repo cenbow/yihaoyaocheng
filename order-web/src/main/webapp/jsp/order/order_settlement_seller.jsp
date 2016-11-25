@@ -59,7 +59,7 @@
                                         <option value="-1">全部</option>
                                         <option value="1">销售货款</option>
                                         <option value="2">退货货款</option>
-                                        <option value="3">拒收</option>
+                                        <option value="3">拒收退款</option>
                                         <option value="4">取消订单退款</option>
                                 </select>
                             </div>

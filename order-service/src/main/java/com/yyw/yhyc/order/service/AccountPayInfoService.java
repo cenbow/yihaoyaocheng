@@ -272,6 +272,7 @@ public class AccountPayInfoService {
             if (!OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                    && !OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     && !OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     )
@@ -279,10 +280,8 @@ public class AccountPayInfoService {
 			/*银联b2c 或 银联无卡*/
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
-                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) 
-                    || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
-            		) {
-                if (null!=accountPayInfo.getReceiveAccountNo())
+					|| OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId()) ) {                if (null!=accountPayInfo.getReceiveAccountNo())
                     list.add(accountPayInfo);
             }
 			/*招行*/
@@ -320,6 +319,7 @@ public class AccountPayInfoService {
         if (!OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                && !OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 && !OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {
@@ -330,6 +330,7 @@ public class AccountPayInfoService {
             /*银联b2c 或 银联无卡*/
         if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(accountPayInfo.getPayTypeId())
+                || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(accountPayInfo.getPayTypeId())
                 ) {

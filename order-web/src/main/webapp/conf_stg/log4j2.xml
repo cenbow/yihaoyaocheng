@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="ERROR" monitorInterval="3" shutdownHook="disable">
     <properties>
-        <property name="LOG_FILE">../logs/order-web.log</property>
+        <property name="LOG_FILE">app/logs/tomcat7/order-web.log</property>
         <property name="FILE_LOG_PATTERN">%d [%c:%L][%p] - %m%n</property>
         <property name="CONSOLE_LOG_PATTERN">%d [%c:%L][%p] - %m%n</property>
     </properties>
@@ -33,5 +33,6 @@
         <logger name="com.yyw.yhyc.cache" level="INFO"/>
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.pay" level="INFO"/>
     </loggers>
 </configuration>

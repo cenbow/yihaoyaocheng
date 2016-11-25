@@ -4,13 +4,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.CustTypeEnum;
+import com.yyw.yhyc.order.utils.ContextHolder;
 import com.yyw.yhyc.utils.CacheUtil;
+
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -92,6 +95,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             }
 
             request.setAttribute(UserDto.REQUEST_KEY, userDto);
+            
+             ContextHolder.setUserDto(userDto);
 
             logger.info("userDto-->" + userDto.toString());
 

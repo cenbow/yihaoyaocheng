@@ -13,6 +13,7 @@ public class SignUtil {
 
 	private static Properties pPc = null;
 	private static Properties pApp = null;
+	private static Properties pMobile = null;
 	private static Properties pB2b = null;
 	private static String path = null;
 	
@@ -65,7 +66,29 @@ public class SignUtil {
 				e.printStackTrace();
 			 }
 	   }
-	   
+
+		if(pMobile==null){
+			InputStream is = PayUtil.class.getResourceAsStream("/com/chinapay/config/securityForMobile.properties");
+			pMobile = new Properties();
+			try {
+				pMobile.load(is);
+				is.close();
+				initPath(pMobile);
+				pMobile.setProperty("verify.file", path + pMobile.getProperty("verify.file"));
+				pMobile.setProperty("sign.file", path + pMobile.getProperty("sign.file"));
+				System.out.println(path);
+				File f= new File(pMobile.getProperty("sign.file"));
+				if(!f.exists()){
+					createSignMobileFile(pMobile,path);
+				}else{
+					f.delete();
+					createSignMobileFile(pMobile,path);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 	   if(pB2b==null){
 			 InputStream is = PayUtil.class.getResourceAsStream("/com/chinapay/config/securityForB2b.properties");
 			 pB2b = new Properties();
@@ -90,8 +113,9 @@ public class SignUtil {
 	   }
 		   
 	}
-	
-	
+
+
+
 
 	public static String sign(Map signMap) {
 		SecssUtil secssUtil = new SecssUtil();
@@ -116,7 +140,19 @@ public class SignUtil {
 
 		return secssAppUtil.getSign();
 	}
-	
+
+	public static String signForMobile(Map signMap) {
+		SecssUtil secssAppUtil = new SecssUtil();
+		secssAppUtil.init(pMobile);
+		secssAppUtil.init();
+		secssAppUtil.sign(signMap);
+
+		System.out.println(secssAppUtil.getErrCode());
+		System.out.println(secssAppUtil.getErrMsg());
+
+		return secssAppUtil.getSign();
+	}
+
 	public static String signForB2b(Map signMap) {
 		SecssUtil secssB2bUtil = new SecssUtil();
 		secssB2bUtil.init(pB2b);
@@ -149,7 +185,15 @@ public class SignUtil {
 		secssAppUtil.verify(map);
 		if ("00".equals(secssAppUtil.getErrCode())){
 			return true;
-		}	
+		}
+
+		SecssUtil secssMobileUtil = new SecssUtil();
+		secssMobileUtil.init(pMobile);
+		secssMobileUtil.init();
+		secssMobileUtil.verify(map);
+		if ("00".equals(secssMobileUtil.getErrCode())){
+			return true;
+		}
 		
 		SecssUtil secssB2bUtil = new SecssUtil();
 		secssB2bUtil.init(pB2b);
@@ -264,7 +308,49 @@ public class SignUtil {
 		    }
 		}
 	}
-	
+
+
+	private static void createSignMobileFile(Properties p, String outFileDirectory) {
+		File fileDirectory = new File(outFileDirectory);
+		if(!fileDirectory.exists()){
+			fileDirectory.mkdir();
+		}
+
+		InputStream inFile = PayUtil.class.getResourceAsStream("/com/chinapay/certificate/yiyiaowangtradeForMobile.pfx");
+
+		File outFile = new File(p.getProperty("sign.file"));
+
+		try {
+			FileOutputStream outStream = new FileOutputStream(outFile);
+			int bytesRead = 0;
+			byte[] buffer = new byte[8192];
+			while ((bytesRead = inFile.read(buffer, 0, 8192)) != -1) {
+				outStream.write(buffer, 0, bytesRead);
+			}
+			outStream.close();
+			inFile.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		InputStream inFile1 = PayUtil.class.getResourceAsStream("/com/chinapay/certificate/cp_test.cer");
+
+		File outFile1 = new File(p.getProperty("verify.file"));
+		if(!outFile1.exists()){
+			try {
+				FileOutputStream outStream1 = new FileOutputStream(outFile1);
+				int bytesRead = 0;
+				byte[] buffer = new byte[8192];
+				while ((bytesRead = inFile1.read(buffer, 0, 8192)) != -1) {
+					outStream1.write(buffer, 0, bytesRead);
+				}
+				outStream1.close();
+				inFile1.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	/*
 	 * 将包中的签名文件放在用户工作目录
