@@ -55,7 +55,7 @@ public class AlipayServiceImpl  implements PayService {
         }
 
         //处理请求支付的参数，返回请求支付的url/已经签名过的数据，方便后续直接发起请求
-        String payRequestUrl= this.alipayCommit(orderPay.getPayFlowId(),"OrderID" + flowIds , orderPay.getOrderMoney()+"","");
+        String payRequestUrl= this.alipayCommit(orderPay.getPayFlowId(), flowIds , orderPay.getOrderMoney()+"","");
 
         payRequestParamMap.put("payRequestUrl",payRequestUrl);
         return payRequestParamMap;
