@@ -237,6 +237,7 @@ public class OrderIssuedService {
 		
 		resultMap.put("code","1");
 		resultMap.put("orderIssuedDtoList",orderIssuedDtoList);
+		log.error("orderIssuedDtoList"+orderIssuedDtoList.toString());
 		return resultMap;
 	}
 
