@@ -1028,21 +1028,25 @@ public class OrderService {
 				}
 			}
 
-
 			/* 校验活动商品相关的限购逻辑 */
-			/* 1、 非空校验*/
-			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() <= 0){
+			ProductPromotionDto productPromotionDto = null;
+			if( !UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0){
+				productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
+						seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
+			}
+
+			/* 如果常规商品这种状态是正常的，或者活动商品的活动信息是有效的，则统计该供应商下的已买商品总额 */
+			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0 || (!UtilHelper.isEmpty(productPromotionDto) && new BigDecimal("0").compareTo(productPromotionDto.getPromotionPrice()) < 0 )){
+				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
+			}
+
+			if(UtilHelper.isEmpty(productInfoDto.getPromotionId()) || productInfoDto.getPromotionId() < 0){
 				continue;
 			}
-			ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),
-					seller.getEnterpriseId(),productInfoDto.getPromotionId(),buyer.getEnterpriseId());
-			if(UtilHelper.isEmpty(productPromotionDto)){
-				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
-			}
 
-			/* 如果该商品没有缺货、没有下架、价格合法，则统计该供应商下的已买商品总额 */
-			if( "2".equals(code) && 1 == putawayStatus && productPrice.compareTo(new BigDecimal(0)) > 0){
-				productPriceCount = productPriceCount.add( productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())) );
+			/* 1、 非空校验*/
+			if( !UtilHelper.isEmpty(productInfoDto.getPromotionId()) && productInfoDto.getPromotionId() > 0 &&  UtilHelper.isEmpty(productPromotionDto)){
+				return returnFalse("商品("+ productInfoDto.getProductName() +")参加的活动已失效",productFromFastOrderCount);
 			}
 
 

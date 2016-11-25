@@ -63,9 +63,9 @@
     <c:choose>
         <c:when test="${allShoppingCart != null && fn:length(allShoppingCart) gt 0 }">
             <c:forEach var="shoppingCartListDto"  items="${allShoppingCart}" varStatus="shoppingCartListDtoVarStatus">
-                <div class="order-holder">
+                <div class="order-holder" supplyId="${shoppingCartListDto.seller.enterpriseId}" id="${shoppingCartListDto.seller.enterpriseId}">
                     <div class="holder-top">
-                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>" ><span class="inside-icon">全选所有商品</span></div>
+                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>"  supplyId="${shoppingCartListDto.seller.enterpriseId}"  ><span class="inside-icon">全选所有商品</span></div>
                         <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
                         <a class="lts-shop-icon f12" href="${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
                         <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
@@ -101,7 +101,7 @@
                                                 <c:when test="${ shoppingCartDto.promotionId > 0  &&  (shoppingCartDto.promotionPrice == null || shoppingCartDto.promotionPrice < 0 )  }"><span class="inside-icon">失效</span></c:when>
                                             </c:choose>
                                             <img  src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
-                                                 alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
+                                                 alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}" onerror="this.src='http://oms.yaoex.com/static/images/product_default_img.jpg'">
                                         </li>
                                         <li class="fl td-item">
                                             <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">

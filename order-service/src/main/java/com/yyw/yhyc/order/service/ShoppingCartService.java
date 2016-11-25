@@ -1188,6 +1188,8 @@ public class ShoppingCartService {
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
 				cartProductBean.setSpuCode(scd.getSpuCode());
+				cartProductBean.setNormalStatus(scd.isNormalStatus());
+				cartProductBean.setUnNormalStatusReason(scd.getUnNormalStatusReason());
 
 				if(!UtilHelper.isEmpty(scd.getPromotionId()) && scd.getPromotionId() > 0 ){
 					productPromotion = new ProductPromotion();

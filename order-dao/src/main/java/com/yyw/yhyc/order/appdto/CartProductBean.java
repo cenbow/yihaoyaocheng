@@ -32,6 +32,12 @@ public class CartProductBean implements Serializable,Cloneable {
     /* 促销商品活动信息 */
     private ProductPromotion productPromotion;
 
+    /* 商品状态是否正常*/
+    private boolean normalStatus ;
+
+    /* 商品状态是不正常的原因*/
+    private String unNormalStatusReason;
+
     public long getShoppingCartId() {
         return shoppingCartId;
     }
@@ -200,6 +206,22 @@ public class CartProductBean implements Serializable,Cloneable {
         this.productPromotion = productPromotion;
     }
 
+    public boolean isNormalStatus() {
+        return normalStatus;
+    }
+
+    public void setNormalStatus(boolean normalStatus) {
+        this.normalStatus = normalStatus;
+    }
+
+    public String getUnNormalStatusReason() {
+        return unNormalStatusReason;
+    }
+
+    public void setUnNormalStatusReason(String unNormalStatusReason) {
+        this.unNormalStatusReason = unNormalStatusReason;
+    }
+
     @Override
     public String toString() {
         return "CartProductBean{" +
@@ -223,7 +245,9 @@ public class CartProductBean implements Serializable,Cloneable {
                 ", vendorName='" + vendorName + '\'' +
                 ", vendorId=" + vendorId +
                 ", spuCode='" + spuCode + '\'' +
-                ", productPromotion='" + productPromotion + '\'' +
+                ", productPromotion=" + productPromotion +
+                ", normalStatus=" + normalStatus +
+                ", unNormalStatusReason='" + unNormalStatusReason + '\'' +
                 '}';
     }
 }

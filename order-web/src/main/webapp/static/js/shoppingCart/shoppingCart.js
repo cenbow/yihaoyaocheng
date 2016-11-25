@@ -196,43 +196,6 @@ function changeOrderAmountPriceTip(_this){
     $(_this).parents('.order-holder').find(".holder-top")
 }
 
-/**
- * 刷新购物车页面，计算每个供应商下的商品 是否低于各自的订单起售金额
- */
-function updateOrderSaleAmount(){
-
-    $('.order-holder').each(function(){
-        var needPrice = $(this).find("input[name='orderSamount']").attr("buyPrice");
-
-        var buyedOrderAmount = 0;
-        $(this).find("input[name='productSettlementPrice']").each(function (index,element) {
-            buyedOrderAmount += Number(this.value);
-        });
-        $(e).parents('.order-holder').find('.buy-price').html(fmoney(buyedOrderAmount));
-        var orderSamountObject = $(e).parents('.order-holder').find("input[name='orderSamount']");
-        var supplyId = orderSamountObject.attr("supplyId");
-        orderSamountObject.attr("buyPrice",buyedOrderAmount.toFixed(2));
-
-        var orderSamount = orderSamountObject.val();
-        /* 如果在该供应商下购买的商品总额 超过 订单起售金额 ，则隐藏提示语。否则要提示用户 */
-        if(Number(orderSamount) <= Number( buyedOrderAmount)){
-            orderSamountObject.attr("needPrice",Number(0));
-            $(e).parents('.order-holder').find('.need-price').html(fmoney(0));
-            $(e).parents('.order-holder').find('.holder-top p').hide();
-            // $(e).parents('.order-holder').find(".cart-checkbox").addClass('select-all');
-        }else{
-            var needPrice = (Number(orderSamount) - Number( buyedOrderAmount)).toFixed(2);
-            orderSamountObject.attr("needPrice",needPrice);
-            $(e).parents('.order-holder').find('.need-price').html(fmoney(needPrice));
-            $(e).parents('.order-holder').find('.holder-top p').show();
-            // $(e).parents('.order-holder').find(".cart-checkbox").removeClass('select-all');
-        }
-    });
-
-
-    getSelectedShoppingCart();
-
-}
 
 
 /**
@@ -516,6 +479,49 @@ function addNewNormalProduct(_obj,_this){
 }
 
 
+/**
+ * 点击页面上的单选框，动态计算该供应商下的商品 是否低于各自的订单起售金额，
+ * @param _supply_id 供应商企业id
+ */
+function calculateSelectedProductAmount(_supply_id){
+    var _id = "#" + _supply_id;
+    var supplyObj = $(_id);
+
+        var supplyId = supplyObj.attr("supplyId");
+        if( supplyId === _supply_id){
+            var productSettlementPrice = 0;
+            $(_id).find('.holder-list').each(function(){
+                if( $(this).find(".cart-checkbox").hasClass("select-all")){
+                    var shoppingCartId = $(this).find(".cart-checkbox").attr("shoppingCartId");
+                    if(shoppingCartId == null || shoppingCartId == "" || typeof  shoppingCartId == "undefined"){
+                        return true;
+                    }
+                    productSettlementPrice +=  Number($(this).find("input[name='productSettlementPrice']").val());
+                }
+            });
+
+            //比较订单起售金额 与 已购买的商品总和
+            var orderSamount = $(_id).find("input[name='orderSamount']").val();
+            // console.info("该供应商设置订单起售金额：" + orderSamount);
+
+            var needPrice = Number(orderSamount) - Number(productSettlementPrice);
+            if(needPrice <= 0 ){
+                needPrice = Number(0);
+            }
+            // console.info("orderSamount=" + orderSamount +",productSettlementPrice = "+productSettlementPrice+ ",needPrice = " + needPrice);
+
+            $(_id).find("input[name='orderSamount']").attr("buyPrice",productSettlementPrice.toFixed(3));
+            $(_id).find("input[name='orderSamount']").attr("needPrice",needPrice.toFixed(3));
+            $(_id).find(".holder-top").find(".buy-price").html(fmoney(productSettlementPrice,3));
+            $(_id).find(".holder-top").find(".need-price").html(fmoney(needPrice,3));
+            if(Number(needPrice) > 0){
+                $(_id).find('.holder-top p').show();
+            }else{
+                $(_id).find('.holder-top p').hide();
+            }
+        }
+}
+
 
 $(function() {
 
@@ -589,6 +595,7 @@ $(function() {
     $('.holder-list .cart-checkbox').click(function(){
         // var shoppingCartId = $(this).attr("shoppingCartId");
         // console.info("shoppingCartId=" + shoppingCartId );
+        var supplyId = $(this).attr("supplyId");
         //判断 缺货 下架
         if($(this).hasClass('select-all')){
             $(this).removeClass('select-all');
@@ -597,6 +604,9 @@ $(function() {
             totalItem();
             totalSum();
             removeSelectedShoppingCart();
+
+            // 动态计算 在 该供应商下 已勾选的商品总额
+            calculateSelectedProductAmount(supplyId)
         }else{
             //全选：是否符合订单起售金额
             // var obj = $(this).parents('.order-holder').find("input[name='orderSamount']");
@@ -612,6 +622,9 @@ $(function() {
             totalItem();
             totalSum();
             getSelectedShoppingCart();
+
+            //动态计算 在 该供应商下 已勾选的商品总额
+            calculateSelectedProductAmount(supplyId)
         }
     });
 
@@ -620,11 +633,23 @@ $(function() {
         if($(".cart-checkbox",this).hasClass('select-all')){
             $('.cart-checkbox').removeClass('select-all');
             removeSelectedShoppingCart();
+
+            // 动态计算 所有供应商下 已勾选的商品总额
+            $(".holder-top .cart-checkbox").each(function(index,element){
+                var supplyId = $(element).attr("supplyId");
+                calculateSelectedProductAmount(supplyId);
+            });
         }else{
             $('.shopping-cart .cart-checkbox').each(function(){
                 $(this).addClass('select-all');
             });
             getSelectedShoppingCart();
+
+            // 动态计算 所有供应商下 已勾选的商品总额
+            $(".holder-top .cart-checkbox").each(function(index,element){
+                var supplyId = $(element).attr("supplyId");
+                calculateSelectedProductAmount(supplyId);
+            });
         }
         totalItem();
         totalSum();
@@ -633,9 +658,13 @@ $(function() {
 
 //企业全选
     $(".holder-top .cart-checkbox").click(function(){
+        var supplyId = $(this).attr("supplyId");
         if($(this).hasClass('select-all')){
             $(this).parent().parent().find('.cart-checkbox').removeClass('select-all');
             removeSelectedShoppingCart();
+
+            //动态计算 在 该供应商下 已勾选的商品总额
+            calculateSelectedProductAmount(supplyId);
         }else{
             //排除无库存 全选
             var holderTop = $(this).parents('.order-holder').find('.holder-list');
@@ -644,6 +673,8 @@ $(function() {
                 $(this).parents('.order-holder').find('.holder-top .cart-checkbox').addClass('select-all');
             });
             getSelectedShoppingCart();
+            // 动态计算 在 该供应商下 已勾选的商品总额
+            calculateSelectedProductAmount(supplyId);
         }
         totalItem();
         totalSum();
@@ -733,13 +764,20 @@ $(function() {
         }else if($('.order-holder .cart-checkbox').hasClass('select-all')){
 
             var canSubmit = true;
-            $("input[name='orderSamount']").each(function(index,element){
-                var needPrice = $(this).attr("needPrice");
-                // console.info("needPrice =" + needPrice );
-                if(Number(needPrice) > 0 ){
-                    canSubmit = false;
+            // 获取 submitCheckOrderPage 表当中要提交的 supply_id的值
+            $("#submitCheckOrderPage").find(".selectedShoppingCart").each(function(){
+                var shoppingCartId = $(this).val();
+                var supplyId = $(this).attr("supplyId");
+                var _id = "#" + supplyId;
+                if($(_id)){
+                    //再判断 每个 supply_id的值 是否都已经满足订单起售量，
+                    var needPrice = $(_id).find("input[name='orderSamount']").attr("needPrice");
+                    if(Number(needPrice) > 0 ){
+                        canSubmit = false;
+                    }
                 }
             });
+
             if(!canSubmit){
                 new Dialog({
                     title:'提示',
@@ -828,7 +866,6 @@ function removeSelectedShoppingCart(){
     $('.cart-checkbox').each(function(){
         if(!$(this).hasClass('select-all')){
             var shoppingCartId = $(this).attr("shoppingCartId");
-            console.info("shoppingCartId=" + shoppingCartId );
             if(shoppingCartId != null || shoppingCartId != '' && typeof shoppingCartId != 'undefined'){
                 array.push(shoppingCartId);
             }
