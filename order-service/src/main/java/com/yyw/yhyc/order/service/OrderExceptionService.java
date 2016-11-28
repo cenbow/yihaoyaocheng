@@ -816,7 +816,6 @@ public class OrderExceptionService {
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
         orderTraceMapper.save(orderTrace);*/
-        orderTraceMapper.save(orderTrace);
 
         //如果卖家审核通过，那么需要保存卖家换货收货地址
         if(orderException.getOrderStatus().equals("4")){ //审核通过
