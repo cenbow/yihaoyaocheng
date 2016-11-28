@@ -33,6 +33,7 @@
 		<result column="product_count" property="goodsNum"/>
 		<result column="product_price" property="goodsUnitPrice"/>
 		<result column="product_code" property="produceCode"/>
+		<result column="order_detail_id" property="orderDetailId"/>
 		<!--<association property="produceCode" column="{supplyId=supply_Id,spuCode=spu_code}"
 					 select="getErpCodeByPro"></association>-->
 	</resultMap>
@@ -232,7 +233,7 @@
 			O.ORG_TOTAL,
 			O.SUPPLY_ID,
 			O.SUPPLY_NAME,
-			O.CREATE_TIME,
+			date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
 			PUO.cust_code_yc AS CUST_ID
@@ -253,8 +254,18 @@
 		AND SPT.PAY_TYPE = 1
 	</select>
 	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
-		SELECT OD.PRODUCT_ID ,OD.PRODUCT_COUNT,OD.PRODUCT_PRICE,OD.SUPPLY_ID,OD.SPU_CODE,OD.PRODUCT_CODE FROM T_ORDER_DETAIL OD
-		WHERE OD.ORDER_ID = #{orderId}
+		SELECT
+			OD.PRODUCT_ID ,
+			OD.PRODUCT_COUNT,
+			OD.PRODUCT_PRICE,
+			OD.SUPPLY_ID,
+			OD.SPU_CODE,
+			OD.PRODUCT_CODE,
+			OD.order_detail_id
+		FROM
+			T_ORDER_DETAIL OD
+		WHERE
+			OD.ORDER_ID = #{orderId}
 	</select>
 	<select id="findByFlowId" parameterType="java.lang.String"  resultMap="OrderIssuedResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
