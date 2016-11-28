@@ -32,9 +32,15 @@ public class OrderIssuedDto implements Serializable {
 
     private Integer orderId;
 
-    private String custId;
+    private Integer custId;
 
-  
+    public Integer getCustId() {
+        return custId;
+    }
+
+    public void setCustId(Integer custId) {
+        this.custId = custId;
+    }
 
     public Integer getOrderId() {
         return orderId;
@@ -112,19 +118,5 @@ public class OrderIssuedDto implements Serializable {
 	 */
 	public void setSupplyName(java.lang.String supplyName) {
 		this.supplyName = supplyName;
-	}
-
-	/**
-	 * @return the custId
-	 */
-	public String getCustId() {
-		return custId;
-	}
-
-	/**
-	 * @param custId the custId to set
-	 */
-	public void setCustId(String custId) {
-		this.custId = custId;
 	}
 }
