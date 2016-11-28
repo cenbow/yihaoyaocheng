@@ -394,8 +394,8 @@
 				, (case deal_status when 1 then '待处理' when 2 then '已完成' END ) as  deal_status_name 
 				, exception_type
 				, (case exception_type  when 1 then '无关联企业用户' when 2 then '下发返回错误' when 3 then '下发失败' end) as exception_type_name
-				,(case b.cust_code_yc WHEN IFNULL(b.cust_code_yc,0)   THEN 1 ELSE  0 END ) as is_relationship
-		FROM t_order_issued_exception a LEFT JOIN t_cust_erp_relation b on a.cust_id = b.cust_code_yc AND a.SUPPLY_ID = b.seller_code LEFT JOIN t_order c ON a.flow_id = c.flow_id
+				,(case b.cust_code_erp WHEN IFNULL(b.cust_code_erp,0)   THEN 1 ELSE  0 END ) as is_relationship
+		FROM t_order_issued_exception a LEFT JOIN t_cust_erp_relation b on a.cust_id = b.cust_code_erp AND a.SUPPLY_ID = b.seller_code LEFT JOIN t_order c ON a.flow_id = c.flow_id
 		WHERE 1=1 and a.order_create_time >  date_sub(curdate(), interval 1 month)
 		AND c.order_status not in ('3','4','7')
 		<include refid="commonConditionDto"/>

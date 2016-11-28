@@ -236,12 +236,12 @@
 			date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.cust_code_yc AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
 			INNER JOIN t_cust_erp_relation  PUO
-			ON O.CUST_ID = PUO.cust_code_yc
+			ON O.CUST_ID = PUO.cust_code_erp
 			AND O.SUPPLY_ID = PUO.seller_code
 			and PUO.relation_status='2'
 			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
@@ -298,7 +298,7 @@
 		WHERE O.SUPPLY_ID = #{supplyId}
 		AND   O.ORDER_STATUS = '5'
 			AND SPT.PAY_TYPE = 1  
-			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
+			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_erp,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
 	<select id="findOrderIssuedHasRelationshipList" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
@@ -309,12 +309,12 @@
 			O.CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.cust_code_yc AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
 			INNER JOIN t_cust_erp_relation  PUO
-			ON O.CUST_ID = PUO.cust_code_yc
+			ON O.CUST_ID = PUO.cust_code_erp
 			AND O.SUPPLY_ID = PUO.seller_code
 			and PUO.relation_status='2'
 			LEFT JOIN T_SYSTEM_PAY_TYPE SPT
