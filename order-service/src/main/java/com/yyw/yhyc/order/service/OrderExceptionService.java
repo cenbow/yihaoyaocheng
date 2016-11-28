@@ -1903,7 +1903,8 @@ public class OrderExceptionService {
             String now = systemDateMapper.getSystemDate();
             orderException.setUpdateUser(userDto.getUserName());
             orderException.setUpdateTime(now);
-            orderException.setReceiveTime(now);
+           //orderException.setReceiveTime(now);
+            orderException.setSellerReceiveTime(now);
             int count = orderExceptionMapper.update(orderException);
             if (count == 0) {
                 log.info("orderException info :" + orderException);
