@@ -85,16 +85,23 @@
                         </div>
                     </div> --%>
                     <div class="form-horizontal padding-t-26">
-                        <div class="form-group">
-                            <label class="col-xs-12 color999 padding-l-40 font-size-16">其他信息</label>
-                        </div>
-                        <div class="form-group">
-	                        <label for="scope" class="col-xs-2 control-label">采购商</label>
-	
-	                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.custName}</div>
-	                        <label for="scope" class="col-xs-2 control-label"></label>
-	                        <div class="col-xs-3 control-label text-left"></div>
-                       </div>
+                         <c:if test="${orderExceptionDto.userType==1}">
+	                         <div class="form-group">
+		                        <label for="scope" class="col-xs-2 control-label">供应商</label>
+		                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
+		                        <label for="scope" class="col-xs-2 control-label"></label>
+		                        <div class="col-xs-3 control-label text-left"></div>
+	                        </div>
+                         </c:if>
+                           <c:if test="${orderExceptionDto.userType==2}">
+	                         <div class="form-group">
+		                        <label for="scope" class="col-xs-2 control-label">采购商</label>
+		                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.custName}</div>
+		                        <label for="scope" class="col-xs-2 control-label"></label>
+		                        <div class="col-xs-3 control-label text-left"></div>
+	                        </div>
+                         </c:if>
+                       
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">关联订单支付方式</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
@@ -314,11 +321,12 @@
                         <col style="width: 8%;">
                         <col style="width: 8%;">
                         <col style="width: 8%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
                         <col style="width: 8%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
                         <col style="width: 10%;">
                     </colgroup>
                     <thead>
@@ -326,6 +334,7 @@
                         <th>订单行号</th>
                         <th>商品编码</th>
                         <th>批号</th>
+                        <th>有效期至</th>
                         <th>商品名</th>
                         <th>通用名</th>
                         <th>规格</th>
