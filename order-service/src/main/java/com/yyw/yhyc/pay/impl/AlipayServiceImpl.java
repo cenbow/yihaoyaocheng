@@ -55,7 +55,7 @@ public class AlipayServiceImpl  implements PayService {
         }
 
         //处理请求支付的参数，返回请求支付的url/已经签名过的数据，方便后续直接发起请求
-        String payRequestUrl= this.alipayCommit(orderPay.getPayFlowId(),"订单编号：" + flowIds , orderPay.getOrderMoney()+"","");
+        String payRequestUrl= this.alipayCommit(orderPay.getPayFlowId(),"OrderID" + flowIds , orderPay.getOrderMoney()+"","");
 
         payRequestParamMap.put("payRequestUrl",payRequestUrl);
         return payRequestParamMap;
@@ -137,7 +137,6 @@ public class AlipayServiceImpl  implements PayService {
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
 
         log.info(sHtmlText);
-        System.out.println(sHtmlText);
         return sHtmlText;
 
     }
@@ -150,16 +149,15 @@ public class AlipayServiceImpl  implements PayService {
      * @return
      */
     public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-
+    	log.debug("支付宝退款接口-------------start");
         if(refundMap.size()<0){
-            log.info("退款参数不能为空");
+            log.debug("退款参数不能为空");
             throw new RuntimeException("退款参数不能为空");
         }
         if(refundMap.size()-batch_num !=0){
-            log.info("退款总笔数跟参数集数量不一致");
+            log.debug("退款总笔数跟参数集数量不一致");
             throw new RuntimeException("退款总笔数跟参数集数量不一致");
         }
-
 
         //把请求参数打包成数组
         Map<String, String> sParaTemp = new HashMap<String, String>();
@@ -172,12 +170,10 @@ public class AlipayServiceImpl  implements PayService {
         sParaTemp.put("batch_no", UtilDate.getOrderNum());
         sParaTemp.put("batch_num", String.valueOf(batch_num));
         sParaTemp.put("detail_data", AlipayCore.createLinkStringByrefund(refundMap));
-        System.out.println(AlipayCore.createLinkStringByrefund(refundMap));
+        log.debug("封装退款请求数据----"+AlipayCore.createLinkStringByrefund(refundMap));
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
-
-        log.info(sHtmlText);
-        System.out.println(StringUtils.repeat("=", 40));
-        System.out.println(sHtmlText);
+        log.debug("封装退款请求URL----"+sHtmlText);
+        log.debug("支付宝退款接口-------------end");
         return sHtmlText;
     }
 

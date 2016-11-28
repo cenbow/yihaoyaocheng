@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/orderPay")
+@RequestMapping(value = {"/orderPay","/api/orderPay","/pay/api/orderPay"})
 public class OrderPayController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderPayController.class);
 
@@ -265,7 +265,7 @@ public class OrderPayController extends BaseJsonController {
 	 * App银联支付（同步响应的页面）
 	 * @return
      */
-	@RequestMapping(value = "/chinaPayAppSubmitSuccess", method = RequestMethod.GET)
+	@RequestMapping(value = "/chinaPayAppSubmitSuccess", method = { RequestMethod.GET, RequestMethod.POST })
 	public ModelAndView chinaPayAppSubmitSuccess(){
 		return new ModelAndView("orderPay/chinaPayAppSubmitSuccess");
 	}

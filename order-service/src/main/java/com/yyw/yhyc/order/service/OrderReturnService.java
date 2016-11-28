@@ -18,11 +18,13 @@ import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.RandomUtil;
+
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 
@@ -41,7 +43,7 @@ public class OrderReturnService {
 
 	@Autowired
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
-	
+
 	@Autowired
 	private OrderDeliveryService orderDeliveryService;
 
@@ -50,6 +52,8 @@ public class OrderReturnService {
 
     @Autowired
     private OrderExceptionService orderExceptionService;
+    @Autowired
+    private OrderTraceService orderTraceService;
     @Autowired
     private UsermanageReceiverAddressMapper receiverAddressMapper;
     @Autowired
@@ -245,16 +249,25 @@ public class OrderReturnService {
 				or.setProductCode(productCodeMap.get(or.getOrderDeliveryDetailId()));
             }
 			orderReturnMapper.saveBatch(returnList);
-			
+
+			//插入日志
+			OrderLogDto orderLogDto=new OrderLogDto();
+			orderLogDto.setOrderId(order.getOrderId());
+			orderLogDto.setNodeName("买家申请退换货=flowId"+oe.getExceptionOrderId());
+			orderLogDto.setOrderStatus(order.getOrderStatus());
+			orderLogDto.setRemark("orderReturn=="+orderReturn.toString());
+			this.orderTraceService.saveOrderLog(orderLogDto);
+
+
 			//如果是换货,那么保存换货地址
 			if(OrderExceptionTypeEnum.CHANGE.getType().equals(orderReturn.getReturnType())){ //换货需要保存换货地址
 				Integer addressId=orderReturn.getDelivery();
 				UsermanageReceiverAddress  addressBean=this.receiverAddressMapper.getByPK(addressId);
-				
+
 				String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
-				
+
 				String nowDate=this.systemDateMapper.getSystemDate();
-				
+
 				OrderReceive orderRecevieAddress=new OrderReceive();
 				orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
 				orderRecevieAddress.setFlowId(order.getFlowId());
@@ -268,13 +281,13 @@ public class OrderReturnService {
 				orderRecevieAddress.setCreateUser(userDto.getUserName());
 				orderRecevieAddress.setUpdateTime(nowDate);
 				orderRecevieAddress.setUpdateUser(userDto.getUserName());
-		
+
 				this.orderReceiveAddressService.save(orderRecevieAddress);
-				 
-				
+
+
 			}
-			
-			
+
+
 			code = "1";
 		}
 		return  "{\"code\":"+code+"}";

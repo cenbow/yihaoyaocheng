@@ -47,12 +47,26 @@
         <ul>
             <c:choose>
                 <c:when test="${dataMap != null && fn:length(dataMap.receiveAddressList) gt 0 }">
-                    <c:forEach var="receiveAddress"  items="${dataMap.receiveAddressList}">
-                        <li receiveAddressId="${receiveAddress.id}">
-                            <p>${receiveAddress.receiverName}</p>
-                            <p>${receiveAddress.provinceName} ${receiveAddress.cityName} ${receiveAddress.districtName} ${receiveAddress.address}</p>
-                            <b class="inside-icon"></b>
-                        </li>
+                    <c:forEach var="receiveAddress"  items="${dataMap.receiveAddressList}" varStatus="receiveAddressVarStatus">
+
+                        <c:choose>
+                            <c:when test="${receiveAddressVarStatus.index == 0}">
+                                <li receiveAddressId="${receiveAddress.id}" class="goi-selected">
+                                    <p>${receiveAddress.receiverName}</p>
+                                    <p>${receiveAddress.provinceName} ${receiveAddress.cityName} ${receiveAddress.districtName} ${receiveAddress.address}</p>
+                                    <b class="inside-icon" style="display: block;"></b>
+                                    <input type="hidden" id="defaultReceiveAddressId" value="${receiveAddress.id}">
+                                </li>
+                            </c:when>
+                            <c:otherwise>
+                                <li receiveAddressId="${receiveAddress.id}">
+                                    <p>${receiveAddress.receiverName}</p>
+                                    <p>${receiveAddress.provinceName} ${receiveAddress.cityName} ${receiveAddress.districtName} ${receiveAddress.address}</p>
+                                    <b class="inside-icon"></b>
+                                </li>
+                            </c:otherwise>
+                        </c:choose>
+
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
@@ -68,11 +82,8 @@
     <div class="goi-con-bill">
         <h2>发票信息</h2>
         <ul class="tc">
-            <%--
-                暂时不需要 增值税普通发票  ，以后需要再加
-                <li billType="2">增值税普通发票<b class="inside-icon"></b></li>
-            --%>
-            <li billType="1" class="goi-selected">增值税专用发票<b class="inside-icon" style="display: inline"></b></li>
+            <li billType="2" class="goi-selected">增值税普通发票<b class="inside-icon" style="display: inline"></b></li>
+            <li billType="1">增值税专用发票<b class="inside-icon"></b></li>
         </ul>
         <p class="goi-tips pt30">请选择发票种类，订单完成后配送商汇分别单独开具发票，如开票类型不一致，请单独提交结算。</p>
     </div>
@@ -82,7 +93,7 @@
         <form id="createOrderForm" method="post" >
             <input type="hidden" name="custId" id="custId" value="${userDto.custId}"/>
             <input type="hidden" name="receiveAddressId" id="receiveAddressId" />
-            <input type="hidden" name="billType" id="billType" value="1"/>
+            <input type="hidden" name="billType" id="billType" value="2"/>
 
         <%--遍历每个供应商的信息  开始--%>
             <c:choose>
@@ -120,7 +131,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionName" value="${shoppingCartDto.promotionName}"/>
                                                     <tr>
                                                         <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
-                                                            <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl">
+                                                            <img spuCode="${shoppingCartDto.spuCode}" class="fl pr20 productImageUrl" onerror="this.src='http://oms.yaoex.com/static/images/product_default_img.jpg'">
                                                             <h3>
                                                                 <c:if test="${shoppingCartDto.isChannel == 1}">
                                                                     <span class="ct-lable">渠道</span>
@@ -130,10 +141,9 @@
                                                             <p class="f12">生产企业：${shoppingCartDto.manufactures}</p>
                                                         </td>
                                                         <td>
-                                                        <td>
                                                             <c:if test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
-                                                                <p style="color: #fff;background: #fe5050;padding: 4px 10px;">
-                                                                    <span>限时特价</span>
+                                                                <p style="padding-bottom: 12px">
+                                                                    <span style="color: #fff;background: #fe5050;padding: 4px 10px;">限时特价</span>
                                                                 </p>
                                                             </c:if>
                                                             <p>¥ <fmt:formatNumber value="${shoppingCartDto.productPrice}" minFractionDigits="2"/></p>

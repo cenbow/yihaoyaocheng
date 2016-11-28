@@ -20,13 +20,13 @@ import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
-import com.yyw.yhyc.order.mapper.OrderDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 import com.yyw.yhyc.pay.interfaces.PayService;
+
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,10 @@ public class OrderDeliveryDetailService {
 	private OrderExceptionMapper orderExceptionMapper;
 
 	private OrderTraceMapper orderTraceMapper;
-
+  
+	@Autowired
+	private OrderTraceService orderTraceService;
+	
 	@Autowired
 	private SystemPayTypeService systemPayTypeService;
 
@@ -375,7 +378,14 @@ public class OrderDeliveryDetailService {
 		saveOrderSettlement(order,moneyTotal);
 
 		//插入日志表
-		OrderTrace orderTrace = new OrderTrace();
+		OrderLogDto orderLogDto=new OrderLogDto();
+		orderLogDto.setOrderId(order.getOrderId());
+		orderLogDto.setNodeName("买家确认收货");
+		orderLogDto.setOrderStatus(order.getOrderStatus());
+		orderLogDto.setRemark("请求参数list["+list.toString()+"]");
+		this.orderTraceService.saveOrderLog(orderLogDto);
+		
+		/*OrderTrace orderTrace = new OrderTrace();
 		orderTrace.setOrderId(order.getOrderId());
 		orderTrace.setNodeName("买家确认收货");
 		orderTrace.setDealStaff(user.getUserName());
@@ -384,7 +394,7 @@ public class OrderDeliveryDetailService {
 		orderTrace.setOrderStatus(order.getOrderStatus());
 		orderTrace.setCreateTime(now);
 		orderTrace.setCreateUser(user.getUserName());
-		orderTraceMapper.save(orderTrace);
+		orderTraceMapper.save(orderTrace);*/
 
 		//生成异常订单
 		if (!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
@@ -413,7 +423,19 @@ public class OrderDeliveryDetailService {
 			orderExceptionMapper.save(orderException);
 
 			//插入异常订单日志
-			OrderTrace orderTrace1 = new OrderTrace();
+			OrderLogDto exceptionOrderLogDto=new OrderLogDto();
+			exceptionOrderLogDto.setOrderId(order.getOrderId());
+			
+			if(returnType.equals("3")){
+				exceptionOrderLogDto.setNodeName("买家确认收货申请补货：" + SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getValue()+" flowId=="+orderException.getExceptionOrderId());
+			}else if(returnType.equals("4")){
+				exceptionOrderLogDto.setNodeName("买家确认收货申请拒收：" + SystemOrderExceptionStatusEnum.RejectApplying.getValue()+" flowId="+orderException.getExceptionOrderId());
+			}
+			exceptionOrderLogDto.setOrderStatus(orderException.getOrderStatus());
+			exceptionOrderLogDto.setRemark("请求参数list["+list.toString()+"]");
+			this.orderTraceService.saveOrderLog(exceptionOrderLogDto);
+			
+			/*OrderTrace orderTrace1 = new OrderTrace();
 			orderTrace1.setOrderId(orderException.getExceptionId());
 			if(returnType.equals("3")){
 				orderTrace1.setNodeName("确认收货：" + SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getValue());
@@ -426,7 +448,7 @@ public class OrderDeliveryDetailService {
 			orderTrace1.setOrderStatus(orderException.getOrderStatus());
 			orderTrace1.setCreateTime(now);
 			orderTrace1.setCreateUser(user.getUserName());
-			orderTraceMapper.save(orderTrace1);
+			orderTraceMapper.save(orderTrace1);*/
 
 		}
 		//正常全部收货确认收货分账

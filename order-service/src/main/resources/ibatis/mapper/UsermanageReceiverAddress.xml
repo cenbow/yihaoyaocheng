@@ -213,6 +213,7 @@
 			<include refid="commonProcessDateColumns"/>
 		FROM t_usermanage_receiver_address WHERE 1=1 
 		<include refid="commonCondition"/>
+		order by default_address desc
 	</select>
 	<select id="listPaginationByProperty" parameterType="UsermanageReceiverAddress" resultMap="UsermanageReceiverAddressResultMapper">
 		SELECT 

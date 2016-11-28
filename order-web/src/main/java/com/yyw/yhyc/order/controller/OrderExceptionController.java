@@ -24,6 +24,7 @@ import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.BillTypeEnum;
 import com.yyw.yhyc.order.enmu.BuyerChangeGoodsOrderStatusEnum;
@@ -34,6 +35,7 @@ import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderExportService;
 import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.service.OrderTraceService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,10 +46,12 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.bo.Pagination;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -77,6 +81,8 @@ public class OrderExceptionController extends BaseJsonController{
 	
 	@Autowired
 	private OrderExportService orderExportService;
+	@Autowired
+	private OrderTraceService orderTraceService;
 	
 	/**
 	* 通过主键查询实体对象
@@ -536,7 +542,15 @@ public class OrderExceptionController extends BaseJsonController{
 			map.put("result", "S");
 		else
 			map.put("message", "你没有操作该记录的权限，请刷新页面后重试。");
-
+		
+		
+		//插入日志
+        OrderLogDto logDto=new OrderLogDto();
+        logDto.setOrderId(orderException.getOrderId());
+        logDto.setNodeName("取消订单 flowId=="+orderException.getExceptionOrderId());
+        logDto.setOrderStatus(orderException.getOrderStatus());
+        logDto.setRemark("请求参数id=="+id+" orderStatus=="+orderStatus);
+        this.orderTraceService.saveOrderLog(logDto);
 		return map;
 	}
 

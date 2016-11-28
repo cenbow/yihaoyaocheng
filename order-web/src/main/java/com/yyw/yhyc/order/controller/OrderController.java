@@ -183,7 +183,7 @@ public class OrderController extends BaseJsonController {
 		}else{
 			CacheUtil.getSingleton().add(createOrderUserCacheKey,createOrderUserCacheKey,3);
 		}
-		
+
 		Map<String,Object> map = new HashMap<String, Object>();
 		for(OrderDto orderDto : orderCreateDto.getOrderDtoList()){
 			/* 校验采购商状态、资质 */

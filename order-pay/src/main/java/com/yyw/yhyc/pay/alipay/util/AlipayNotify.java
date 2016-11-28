@@ -2,6 +2,8 @@ package com.yyw.yhyc.pay.alipay.util;
 
 import com.yyw.yhyc.pay.alipay.sign.RSA;
 import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -24,6 +26,8 @@ import java.util.Map;
  */
 public class AlipayNotify {
 
+    private static final Logger logger = LoggerFactory.getLogger(AlipayNotify.class);
+
     /**
      * 支付宝消息验证地址
      */
@@ -34,11 +38,30 @@ public class AlipayNotify {
      * @param params 通知返回来的参数数组
      * @return 验证结果
      */
+    public static boolean verifyAPP(Map<String, String> params) {
+    	//将异步通知中收到的待验证所有参数都存放到map中
+        try{
+            logger.info("支付宝App支付----验证签名开始,请求参数params：" + params );
+            boolean result  = AlipaySignature.rsaCheckV1(params, AlipayConfig.alipay_public_key, AlipayConfig.input_charset); //调用SDK验证签名
+            logger.info("支付宝App支付----验证签名结果：" + result);
+            return result;
+        }catch (Exception e){
+            logger.error("支付宝App支付----验证签名失败，原因：" + e.getMessage(),e);
+            return false;
+        }
+    }
+    
+    /**
+     * 验证消息是否是支付宝发出的合法消息
+     * @param params 通知返回来的参数数组
+     * @return 验证结果
+     */
     public static boolean verify(Map<String, String> params) {
 
         //判断responsetTxt是否为true，isSign是否为true
         //responsetTxt的结果不是true，与服务器设置问题、合作身份者ID、notify_id一分钟失效有关
         //isSign不是true，与安全校验码、请求时的参数格式（如：带自定义参数等）、编码格式有关
+    	logger.info("支付宝PC支付----验证签名开始,请求参数params：" + params );
     	String responseTxt = "false";
 		if(params.get("notify_id") != null) {
 			String notify_id = params.get("notify_id");
@@ -50,12 +73,15 @@ public class AlipayNotify {
 
         //写日志记录（若要调试，请取消下面两行注释）
         String sWord = "responseTxt=" + responseTxt + "\n isSign=" + isSign + "\n 返回回来的参数：" + AlipayCore.createLinkString(params);
+        logger.info("支付宝PC支付----要写入日志里的文本内容：" + params );
 	    AlipayCore.logResult(sWord);
         
 
         if (isSign && responseTxt.equals("true")) {
+        	logger.info("支付宝PC支付----验证签名结果：true");
             return true;
         } else {
+        	logger.info("支付宝PC支付----验证签名结果：false");
             return false;
         }
     }

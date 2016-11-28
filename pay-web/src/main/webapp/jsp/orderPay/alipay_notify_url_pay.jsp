@@ -23,10 +23,18 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="com.yyw.yhyc.order.mapper.SystemDateMapper" %>
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="com.yyw.yhyc.helper.UtilHelper" %>
+<%!
+	private static final Logger logger = LoggerFactory.getLogger("jsp.orderPay.alipay_notify_url_pay.jsp");
+%>
 <%
 	//获取支付宝POST过来反馈信息
 	Map<String,String> params = new HashMap<String,String>();
 	Map requestParams = request.getParameterMap();
+	logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......原始信息：requestParams = " + requestParams);
 	for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
 		String name = (String) iter.next();
 		String[] values = (String[]) requestParams.get(name);
@@ -39,7 +47,7 @@
 		//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "gbk");
 		params.put(name, valueStr);
 	}
-	
+	logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......转码后的信息：params =" + params);
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以下仅供参考)//
 	//商户订单号
 
@@ -55,13 +63,16 @@
 	String money = new String(request.getParameter("total_fee").getBytes("ISO-8859-1"),"UTF-8");
 
 	//获取支付宝的通知返回参数，可参考技术文档中页面跳转同步通知参数列表(以上仅供参考)//
-
-	if(AlipayNotify.verify(params)){//验证成功
+	boolean result = AlipayNotify.verify(params);
+	logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......校验签名的结果=" + result );
+	if(result){//验证成功
+		logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......校验签名通过！" );
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		//——请根据您的业务逻辑来编写程序（以下代码仅作参考）——
 		
-		if(trade_status.equals("TRADE_FINISHED")){
+		if(trade_status.equals("TRADE_SUCCESS")){
+			logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......该笔订单已经做过处理，trade_status = " + trade_status);
 			//判断该笔订单是否在商户网站中已经做过处理
 				//如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
 				//请务必判断请求时的total_fee、seller_id与通知时获取的total_fee、seller_id为一致的
@@ -70,12 +81,15 @@
 			OrderPayManage orderPayManage = (OrderPayManage) SpringBeanHelper.getBean("orderPayMamage");
 			try {
 				orderPayManage.updateOrderpayInfos(out_trade_no,new BigDecimal(money),params);
+				logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......回写支付信息到数据库成功！");
 			} catch (Exception e) {
 				e.printStackTrace();
+				logger.error("支付宝PC支付：支付成功后的，处理支付宝的回调信息......回写支付信息到数据库发生异常....异常信息:"+e.getMessage(),e);
 			}
 			//注意：
 			//退款日期超过可退款期限后（如三个月可退款），支付宝系统发送该交易状态通知
-		} else if (trade_status.equals("TRADE_SUCCESS")){
+		} else if (trade_status.equals("TRADE_FINISHED")){
+			logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......开始回写支付信息到数据库....，trade_status = " + trade_status);
 			//判断该笔订单是否在商户网站中已经做过处理
 				//如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
 				//请务必判断请求时的total_fee、seller_id与通知时获取的total_fee、seller_id为一致的
@@ -83,14 +97,18 @@
 				
 			//注意：
 			//付款完成后，支付宝系统发送该交易状态通知
+		} else {
+			logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......处理其他交易状态，trade_status = ：" + trade_status);
+
 		}
 
 		//——请根据您的业务逻辑来编写程序（以上代码仅作参考）——
-			
+		logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......处理支付宝的回调信息请求完成！");
 		out.print("success");	//请不要修改或删除
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}else{//验证失败
+		logger.info("支付宝PC支付：支付成功后的，处理支付宝的回调信息......校验签名失败......" );
 		out.print("fail");
 	}
 %>

@@ -173,65 +173,81 @@ public class OrderPayManage {
      * @param parameter 支付平台返回的信息
      * @throws Exception
      */
-    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,Map parameter)
-            throws Exception {
-        log.info(payFlowId + "----- 支付成功后更新信息  update orderInfo start ----");
+    public void updateOrderpayInfos(String payFlowId, BigDecimal finalPay,Map parameter) throws Exception {
 
         synchronized(payFlowId){
 
             String now = systemDateMapper.getSystemDate();
+            log.info(payFlowId + "在线支付成功后，更新支付状态等信息开始!!!!!!!!!!!!!!! payFlowId=" + payFlowId + "，finalPay=" + finalPay +",now=" + now + ",parameter=" + parameter);
+
             OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+            log.info("在线支付成功后，更新支付状态等信息----根据payFlowId("+ payFlowId +")查询orderPay=" + orderPay);
+            if(UtilHelper.isEmpty(orderPay)){
+                log.info("在线支付成功后，更新支付状态等信息----根据订单流水号查询订单不存在,orderPay = " + orderPay);
+                throw new Exception("支付信息异常！");
+            }
 
-            if (!UtilHelper.isEmpty(orderPay)&& (orderPay.getPayStatus().equals(OrderPayStatusEnum.UN_PAYED.getPayStatus()))) {//未支付
+            if(OrderPayStatusEnum.PAYED.getPayStatus().equals(orderPay.getPayStatus())){
+                log.info("在线支付成功后，更新支付状态等信息----该订单已支付,orderPay = " + orderPay);
+                throw new Exception("该订单已支付！");
+            }
 
-                List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
+            if( !OrderPayStatusEnum.UN_PAYED.getPayStatus().equals(orderPay.getPayStatus())){
+                log.info("在线支付成功后，更新支付状态等信息----该订单不是待付款订单,orderPay = " + orderPay);
+                throw new Exception("该订单不是待付款订单！");
+            }
 
-                if (UtilHelper.isEmpty(listOrder)||listOrder.size()==0) {
-                    // 商户数据异常
-                    log.info("根据订单流水号查询订单不存在");
-                    throw new Exception("支付信息异常！");
-                }
-                // 更新订单支付信息
-                orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
-                orderPay.setPayTime(now);
+            List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
+            log.info("在线支付成功后，更新支付状态等信息----根据payFlowId("+ payFlowId +")查询订单信息，List<Order>= " + listOrder);
+            if ( UtilHelper.isEmpty(listOrder) || listOrder.size() == 0) {
+                log.info("根据订单流水号查询订单不存在");
+                throw new Exception("支付信息异常！");
+            }
 
-                if(parameter.get("trade_no") != null && orderPay.getPayTypeId() == 7){
-                    orderPay.setPayAccountName("支付宝");
-                    orderPay.setPayAccountNo(parameter.get("trade_no").toString());
-                }
+            // 更新订单支付信息
+            orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
+            orderPay.setPayTime(now);
+            //pay_type_id 7：支付宝PC端支付，8：支付宝APP端支付
+            if(parameter.get("trade_no") != null && (orderPay.getPayTypeId() == 7 || orderPay.getPayTypeId() == 8)){
+                orderPay.setPayAccountName("支付宝");
+                orderPay.setPayAccountNo(parameter.get("trade_no").toString());
+            }
+            orderPay.setPaymentPlatforReturn(parameter.toString());
+            orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+            log.info("在线支付成功后，更新支付状态等信息----更新t_order_pay表,数据：" + orderPay);
+            orderPayMapper.update(orderPay);
 
-                orderPay.setPaymentPlatforReturn(parameter.toString());
-                orderPay.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
-                orderPayMapper.update(orderPay);
+            for (Order order : listOrder) {
+                if (SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) {
+                    // 更新订单信息
+                    order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
+                    order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
+                    order.setUpdateTime(now);
+                    order.setPayTime(now);
+                    log.info("在线支付成功后，更新支付状态等信息----更新t_order表,数据：" + order);
+                    orderMapper.update(order);
+                    /*orderManager.sendSMS(order, null, order.getSupplyId(), MessageTemplate.BUYER_PAY_ORDER_INFO_CODE);*/
+                    // 保存订单操作记录
+                    createOrderTrace(order, OnlinePayTypeEnum.getPayName(orderPay.getPayTypeId()), now, 2, "买家已付款.");
 
-                for (Order order : listOrder) {
-                    if (SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) {
-                        // 更新订单信息
-                        order.setOrderStatus(SystemOrderStatusEnum.BuyerAlreadyPaid.getType());
-                        order.setPayStatus(OrderPayStatusEnum.PAYED.getPayStatus());
-                        order.setUpdateTime(now);
-                        order.setPayTime(now);
-                        orderMapper.update(order);
-                        /*orderManager.sendSMS(order, null, order.getSupplyId(), MessageTemplate.BUYER_PAY_ORDER_INFO_CODE);*/
-                        // 保存订单操作记录
-                        createOrderTrace(order, OnlinePayTypeEnum.getPayName(orderPay.getPayTypeId()), now, 2, "买家已付款.");
+                    //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
 
-                        //TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
+					//TODO 从买家支付后开始计算5个自然日内未发货将资金返还买家订单自动取消-与支付接口整合 待接入方法
 
-                        OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
-                        //支付宝
-                        if(parameter.get("trade_no") != null){
-                            orderSettlement.setSettleFlowId(parameter.get("trade_no").toString());
-                        }else if(parameter.get("MerOrderNo") != null){
-                        	//银联支付
-                            orderSettlement.setSettleFlowId(parameter.get("MerOrderNo").toString());
-                        }
-                        orderSettlementService.save(orderSettlement);
+                    OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(1,null,null,null,null,order);
+                    //支付宝
+                    if(parameter.get("trade_no") != null){
+                        orderSettlement.setSettleFlowId(parameter.get("trade_no").toString());
+                    }else if(parameter.get("MerOrderNo") != null){
+                    	//银联支付
+                        orderSettlement.setSettleFlowId(parameter.get("MerOrderNo").toString());
                     }
+                    log.info("在线支付成功后，更新支付状态等信息----更新t_order_settlement表,数据：" + orderSettlement);
+                    orderSettlementService.save(orderSettlement);
                 }
-               log.info(payFlowId + "-----支付成功后更新信息   update orderInfo end ----");
             }
         }
+        log.info("在线支付成功后，更新支付状态等信息完成!!!!!!!!!!!!!!! payFlowId= " + payFlowId + " now =  " + systemDateMapper.getSystemDate());
     }
 
 

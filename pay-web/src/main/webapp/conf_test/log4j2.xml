@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration status="ERROR" monitorInterval="3" shutdownHook="disable">
+<configuration status="DEBUG" monitorInterval="3" shutdownHook="disable">
     <properties>
-        <property name="LOG_FILE">../logs/order-web.log</property>
+        <property name="LOG_FILE">app/logs/tomcat7/pay-web.log</property>
         <property name="FILE_LOG_PATTERN">%d [%c:%L][%p] - %m%n</property>
         <property name="CONSOLE_LOG_PATTERN">%d [%c:%L][%p] - %m%n</property>
     </properties>
@@ -27,10 +27,10 @@
             <appender-ref ref="FILE" />
         </root>
 
-        <logger name="org.springframework" level="INFO"/>
-        <logger name="org.apache.zookeeper" level="INFO"/>
-        <logger name="com.yyw.yhyc.order" level="INFO"/>
-        <logger name="com.yyw.yhyc.cache" level="INFO"/>
+        <logger name="org.springframework" level="DEBUG"/>
+        <logger name="org.apache.zookeeper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.order" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.cache" level="DEBUG"/>
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
     </loggers>

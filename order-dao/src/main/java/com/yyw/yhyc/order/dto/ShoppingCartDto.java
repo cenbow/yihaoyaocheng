@@ -64,7 +64,16 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 活动实时库存 */
     private Integer promotionCurrentInventory;
 
+    /* 活动类型：1表示特价促销活动 */
+    private int promotionType;
+
 //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
+
+    /* 商品状态是否正常*/
+    private boolean normalStatus ;
+
+    /* 商品状态是不正常的原因*/
+    private String unNormalStatusReason;
 
     public Integer getSaleStart() {
         return saleStart;
@@ -194,6 +203,30 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.promotionCurrentInventory = promotionCurrentInventory;
     }
 
+    public int getPromotionType() {
+        return promotionType;
+    }
+
+    public void setPromotionType(int promotionType) {
+        this.promotionType = promotionType;
+    }
+
+    public boolean isNormalStatus() {
+        return normalStatus;
+    }
+
+    public void setNormalStatus(boolean normalStatus) {
+        this.normalStatus = normalStatus;
+    }
+
+    public String getUnNormalStatusReason() {
+        return unNormalStatusReason;
+    }
+
+    public void setUnNormalStatusReason(String unNormalStatusReason) {
+        this.unNormalStatusReason = unNormalStatusReason;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -213,6 +246,9 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", promotionLimitNum=" + promotionLimitNum +
                 ", promotionSumInventory=" + promotionSumInventory +
                 ", promotionCurrentInventory=" + promotionCurrentInventory +
+                ", promotionType=" + promotionType +
+                ", normalStatus=" + normalStatus +
+                ", unNormalStatusReason=" + unNormalStatusReason +
                 "} " + super.toString();
     }
 }

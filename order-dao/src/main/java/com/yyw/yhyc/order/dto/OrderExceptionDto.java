@@ -19,6 +19,8 @@ public class OrderExceptionDto extends OrderException {
 
     private int payType;                                    //支付类型
     private String payTypeName;                             //支付类型名称
+    private int payTypeId;                                  //支付类型id
+    private String payName;                                 //名称
     private List<OrderReturnDto>  orderReturnList;         //退货商品列表
     private OrderDelivery orderDelivery;                    //订单收货信息
     private UsermanageEnterprise  usermanageEnterprise;    //订单发货信息
@@ -33,7 +35,7 @@ public class OrderExceptionDto extends OrderException {
     private List<OrderDelivery> orderDeliveryList;        //异常订单的发货信息
 
     private OrderSettlement orderSettlement; //结算信息
-    
+
     private List<UsermanageReceiverAddress> receiverAddressList; //卖家审核换货通过后，选择的收货地址列表
 
     /* 商品总金额 */
@@ -65,8 +67,24 @@ public class OrderExceptionDto extends OrderException {
     private int orderCount;             //订单数量
     private int waitingConfirmCount;   // 待确认 数量
     private int refundingCount ;     //退款中数量
-    
-    
+
+
+
+    public int getPayTypeId() {
+		return payTypeId;
+	}
+
+	public void setPayTypeId(int payTypeId) {
+		this.payTypeId = payTypeId;
+	}
+
+	public String getPayName() {
+		return payName;
+	}
+
+	public void setPayName(String payName) {
+		this.payName = payName;
+	}
 
     public List<UsermanageReceiverAddress> getReceiverAddressList() {
 		return receiverAddressList;
@@ -330,6 +348,8 @@ public class OrderExceptionDto extends OrderException {
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
                 ", area='" + area + '\'' +
+                ", payTypeId='" + payTypeId + '\'' +
+                ", payName='" + payName + '\'' +
                 ", type=" + type +
                 ", payTypes=" + payTypes +
                 ", orderCount=" + orderCount +

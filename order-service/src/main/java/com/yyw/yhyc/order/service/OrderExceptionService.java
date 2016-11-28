@@ -24,6 +24,7 @@ import com.yyw.yhyc.order.appdto.OrderProductBean;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
@@ -61,6 +62,8 @@ public class OrderExceptionService {
     private OrderDeliveryMapper orderDeliveryMapper;
     @Autowired
     private SystemPayTypeService systemPayTypeService;
+    @Autowired
+    private OrderTraceService orderTraceService;
     @Autowired
     private UsermanageReceiverAddressMapper receiverAddressMapper;
     @Autowired
@@ -296,7 +299,7 @@ public class OrderExceptionService {
         orderSettlement.setSettlementMoney(orderException.getOrderMoney());
         orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
         log.info("account-yes:systemPayType.getPayType():" + systemPayType.getPayType());
-        if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+        if (OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //如银联支付 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setConfirmSettlement("0");//生成结算信息 已结算
@@ -331,6 +334,7 @@ public class OrderExceptionService {
         //银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
         if ((OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||
+                OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())||
                 OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())||
                 OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId()))
@@ -559,7 +563,7 @@ public class OrderExceptionService {
                 orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
             else
                 orderExceptionDto.setOrderStatusName(getSellerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
-            
+
             UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
             receiverAddress.setEnterpriseId(String.valueOf(userDto.getCustId()));
             List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
@@ -610,7 +614,7 @@ public class OrderExceptionService {
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderStatusName(getSellerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
-            
+
             UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
             receiverAddress.setEnterpriseId(String.valueOf(userDto.getCustId()));
             List<UsermanageReceiverAddress> receiverAddressList = receiverAddressMapper.listByProperty(receiverAddress);
@@ -662,7 +666,14 @@ public class OrderExceptionService {
         }
 
         //插入日志表
-        OrderTrace orderTrace = new OrderTrace();
+        OrderLogDto orderLog=new OrderLogDto();
+        orderLog.setOrderId(oe.getOrderId());
+        orderLog.setNodeName("卖家审核拒收订单 状态="+SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark()+" flowId="+oe.getExceptionOrderId());
+        orderLog.setOrderStatus(oe.getOrderStatus());
+        orderLog.setRemark(orderException.toString());
+        this.orderTraceService.saveOrderLog(orderLog);
+
+      /*  OrderTrace orderTrace = new OrderTrace();
         orderTrace.setOrderId(oe.getExceptionId());
         orderTrace.setNodeName(SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
         orderTrace.setDealStaff(userDto.getUserName());
@@ -671,7 +682,7 @@ public class OrderExceptionService {
         orderTrace.setOrderStatus(oe.getOrderStatus());
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
-        orderTraceMapper.save(orderTrace);
+        orderTraceMapper.save(orderTrace);*/
 
         //卖家审核通过 则原订单部分确认收货 不能过则全部确认收货
         Order order;
@@ -704,12 +715,16 @@ public class OrderExceptionService {
             this.saveRefuseOrderSettlement(userDto.getCustId(), oe);
         } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
                 || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+                || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+                || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
                 || OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
                 || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //银联支付 拒收审核未通过，生成卖家结算信息，金额为全部订单金额
             OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2, null, null, userDto.getUserName(), null, order);
             //银联的默认 为已结算
             if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
                     ){
                 orderSettlement.setConfirmSettlement("1");
@@ -721,9 +736,15 @@ public class OrderExceptionService {
             orderSettlementMapper.save(orderSettlement);
             log.info("account:create settlement账期审核不通过该生成结算");
         }
-        //审核通过时。在线支付调用相关支付接口，然后更新结算信息
-        if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())
+        //审核不通过时。在线支付调用相关支付接口，然后更新结算信息
+        if (SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())
                 &&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+            log.info("----------------卖家审核拒收订单:卖家审核不通过----------------");
+            PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+            payService.handleRefund(userDto,1,oe.getFlowId(),"卖家审核不通过拒收订单");
+        } else if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())
+                &&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+            log.info("----------------卖家审核拒收订单:卖家审核通过,进行退款操作,向【" + systemPayType.getPayName() + "】发起退款请求----------------");
             PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
             payService.handleRefund(userDto, 2, oe.getExceptionOrderId(), "卖家审核通过拒收订单");
         }
@@ -777,7 +798,15 @@ public class OrderExceptionService {
             throw new RuntimeException("换货订单审核失败");
         }
         //插入日志表
-        OrderTrace orderTrace = new OrderTrace();
+        //插入日志表
+        OrderLogDto orderLog=new OrderLogDto();
+        orderLog.setOrderId(oe.getOrderId());
+        orderLog.setNodeName("卖家审核换货订单 状态="+SystemChangeGoodsOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark()+" flowId="+oe.getExceptionOrderId());
+        orderLog.setOrderStatus(oe.getOrderStatus());
+        orderLog.setRemark(orderException.toString());
+        this.orderTraceService.saveOrderLog(orderLog);
+
+      /*  OrderTrace orderTrace = new OrderTrace();
         orderTrace.setOrderId(oe.getExceptionId());
         orderTrace.setNodeName(SystemChangeGoodsOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
         orderTrace.setDealStaff(userDto.getUserName());
@@ -786,8 +815,9 @@ public class OrderExceptionService {
         orderTrace.setOrderStatus(oe.getOrderStatus());
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
+        orderTraceMapper.save(orderTrace);*/
         orderTraceMapper.save(orderTrace);
-        
+
         //如果卖家审核通过，那么需要保存卖家换货收货地址
         if(orderException.getOrderStatus().equals("4")){ //审核通过
         	UsermanageReceiverAddress addressBean=this.receiverAddressMapper.getByPK(orderException.getDelivery());
@@ -795,7 +825,7 @@ public class OrderExceptionService {
         	 String nowDate=this.systemDateMapper.getSystemDate();
         	 try {
 				OrderReceive orderReceiveBean=this.orderReceiveService.getByPK(oe.getExceptionOrderId());
-				
+
 				if(orderReceiveBean!=null){
 					 orderReceiveBean.setSellerReceiveRegion(addressBean.getDistrictCode());
 					 orderReceiveBean.setSellerReceiveProvince(addressBean.getProvinceCode());
@@ -806,7 +836,7 @@ public class OrderExceptionService {
 					 orderReceiveBean.setUpdateTime(nowDate);
 					 orderReceiveBean.setUpdateUser(userDto.getUserName());
 					 this.orderReceiveService.update(orderReceiveBean);
-						
+
 				 }else{
 						OrderReceive orderRecevieAddress=new OrderReceive();
 						orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
@@ -823,7 +853,7 @@ public class OrderExceptionService {
 						orderRecevieAddress.setUpdateUser(userDto.getUserName());
 						 this.orderReceiveService.save(orderRecevieAddress);
 				 }
-				
+
 			} catch (Exception e) {
 				 log.info("处理卖家审核通过，保存卖家的收货地址失败");
 			}
@@ -1103,7 +1133,14 @@ public class OrderExceptionService {
         }
 
         //插入日志表
-        OrderTrace orderTrace = new OrderTrace();
+        OrderLogDto orderLog=new OrderLogDto();
+        orderLog.setOrderId(oe.getOrderId());
+        orderLog.setNodeName("卖家审核退货订单 状态="+SystemRefundOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark()+" flowId="+oe.getExceptionOrderId());
+        orderLog.setOrderStatus(oe.getOrderStatus());
+        orderLog.setRemark(orderException.toString());
+        this.orderTraceService.saveOrderLog(orderLog);
+
+/*        OrderTrace orderTrace = new OrderTrace();
         orderTrace.setOrderId(oe.getExceptionId());
         orderTrace.setNodeName(SystemRefundOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
         orderTrace.setDealStaff(userDto.getUserName());
@@ -1112,14 +1149,14 @@ public class OrderExceptionService {
         orderTrace.setOrderStatus(oe.getOrderStatus());
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
-        orderTraceMapper.save(orderTrace);
-        
+        orderTraceMapper.save(orderTrace);*/
+
         //卖家审核通过退货信息需要插入卖家的收货地址
         if(orderException.getOrderStatus().equals("3")){ //审核通过
 	        	UsermanageReceiverAddress addressBean=this.receiverAddressMapper.getByPK(orderException.getDelivery());
 		       	 String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
 		       	 String nowDate=this.systemDateMapper.getSystemDate();
-		       	 
+
        		           OrderReceive orderRecevieAddress=new OrderReceive();
 						orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
 						orderRecevieAddress.setFlowId(oe.getFlowId());
@@ -1504,7 +1541,14 @@ public class OrderExceptionService {
                     throw new RuntimeException("订单取消失败");
                 }
                 //插入日志表
-                OrderTrace orderTrace = new OrderTrace();
+                OrderLogDto orderLogDto=new OrderLogDto();
+                orderLogDto.setOrderId(orderException.getOrderId());
+                orderLogDto.setNodeName("买家取消退货订单 flowId="+orderException.getExceptionOrderId());
+                orderLogDto.setOrderStatus(orderException.getOrderStatus());
+                orderLogDto.setRemark(orderException.toString());
+                this.orderTraceService.saveOrderLog(orderLogDto);
+
+              /*  OrderTrace orderTrace = new OrderTrace();
                 orderTrace.setOrderId(orderException.getExceptionId());
                 orderTrace.setNodeName("买家取消退货订单");
                 orderTrace.setDealStaff(userDto.getUserName());
@@ -1513,7 +1557,7 @@ public class OrderExceptionService {
                 orderTrace.setOrderStatus(orderException.getOrderStatus());
                 orderTrace.setCreateTime(now);
                 orderTrace.setCreateUser(userDto.getUserName());
-                orderTraceMapper.save(orderTrace);
+                orderTraceMapper.save(orderTrace);*/
 
             } else {
                 log.error("orderException status error ,orderStatus:" + orderException.getOrderStatus());
@@ -1681,14 +1725,14 @@ public class OrderExceptionService {
                     throw new RuntimeException("订单收货失败");
                 }
                 //生成日志
-                createOrderTrace(orderException, userDto, now, 1, "买家已收货");
+                createOrderTrace(orderException, userDto, now, 1, "补货->买家已收货");
                 //更新原订单状态
                 Order order = orderMapper.getOrderbyFlowId(orderException.getFlowId());
                 order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
                 order.setUpdateTime(now);
                 order.setUpdateUser(userDto.getUserName());
                 orderMapper.update(order);
-                createOrderTrace(order, userDto, now, 2, "买家部分收货");
+                //createOrderTrace(order, userDto, now, 2, "买家部分收货");
                 SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
                 if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
                     PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
@@ -1709,7 +1753,21 @@ public class OrderExceptionService {
 
     public void createOrderTrace(Object order, UserDto userDto, String now, int type, String nodeName) {
         //插入日志表
-        OrderTrace orderTrace = new OrderTrace();
+    	OrderLogDto orderLog=new OrderLogDto();
+
+    	  if (type == 1) {
+              OrderException orderException = (OrderException) order;
+              orderLog.setOrderId(orderException.getOrderId());
+              orderLog.setOrderStatus(orderException.getOrderStatus());
+              orderLog.setNodeName(nodeName+" flowId="+orderException.getExceptionOrderId());
+          } else {
+              Order newOrder = (Order) order;
+              orderLog.setOrderId(newOrder.getOrderId());
+              orderLog.setOrderStatus(newOrder.getOrderStatus());
+              orderLog.setNodeName(nodeName +"flowId=="+newOrder.getFlowId());
+          }
+    	  this.orderTraceService.saveOrderLog(orderLog);
+/*        OrderTrace orderTrace = new OrderTrace();
         orderTrace.setDealStaff(userDto.getUserName());
         orderTrace.setRecordDate(now);
         orderTrace.setRecordStaff(userDto.getUserName());
@@ -1727,7 +1785,7 @@ public class OrderExceptionService {
             orderTrace.setOrderStatus(newOrder.getOrderStatus());
             orderTrace.setNodeName(nodeName);
         }
-        orderTraceMapper.save(orderTrace);
+        orderTraceMapper.save(orderTrace);*/
     }
 
     /**
@@ -1784,7 +1842,14 @@ public class OrderExceptionService {
         }
 
         //插入日志表
-        OrderTrace orderTrace = new OrderTrace();
+        OrderLogDto logDto=new OrderLogDto();
+        logDto.setOrderId(oe.getOrderId());
+        logDto.setNodeName("卖家审核补货订单->flowID="+oe.getExceptionOrderId()+SystemReplenishmentOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
+        logDto.setOrderStatus(oe.getOrderStatus());
+        logDto.setRemark("请求参数["+orderException.toString()+"]");
+        this.orderTraceService.saveOrderLog(logDto);
+
+       /* OrderTrace orderTrace = new OrderTrace();
         orderTrace.setOrderId(oe.getExceptionId());
         orderTrace.setNodeName(SystemReplenishmentOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
         orderTrace.setDealStaff(userDto.getUserName());
@@ -1793,7 +1858,8 @@ public class OrderExceptionService {
         orderTrace.setOrderStatus(oe.getOrderStatus());
         orderTrace.setCreateTime(now);
         orderTrace.setCreateUser(userDto.getUserName());
-        orderTraceMapper.save(orderTrace);
+        orderTraceMapper.save(orderTrace);*/
+
         //补货订单卖家审核不通过时、原订单状态改为买家全部收货
         if (SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())) {
             order.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
@@ -1804,7 +1870,14 @@ public class OrderExceptionService {
             orderMapper.update(order);
 
             //插入日志表
-            OrderTrace orderTrace1 = new OrderTrace();
+            OrderLogDto logDto1=new OrderLogDto();
+            logDto1.setOrderId(oe.getOrderId());
+            logDto1.setNodeName("系统自动确认收货");
+            logDto1.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+            logDto1.setRemark("请求参数["+orderException.toString()+"]");
+            this.orderTraceService.saveOrderLog(logDto1);
+
+          /*  OrderTrace orderTrace1 = new OrderTrace();
             orderTrace1.setOrderId(order.getOrderId());
             orderTrace1.setNodeName("系统自动确认收货");
             orderTrace1.setDealStaff(userDto.getUserName());
@@ -1813,7 +1886,7 @@ public class OrderExceptionService {
             orderTrace1.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
             orderTrace1.setCreateTime(now);
             orderTrace1.setCreateUser(userDto.getUserName());
-            orderTraceMapper.save(orderTrace);
+            orderTraceMapper.save(orderTrace);*/
 
             try {//审核不通过直接生成结算信息，通过的结算信息在买家确认收货时产生
                 saveOrderSettlement(order);
@@ -1911,7 +1984,14 @@ public class OrderExceptionService {
                 throw new RuntimeException("订单收货失败");
             }
             //插入日志表
-            OrderTrace orderTrace = new OrderTrace();
+            OrderLogDto logDto1=new OrderLogDto();
+            logDto1.setOrderId(orderException.getOrderId());
+            logDto1.setNodeName("退货订单收货->flowId="+orderException.getExceptionOrderId());
+            logDto1.setOrderStatus(orderException.getOrderStatus());
+            logDto1.setRemark("请求参数["+orderException.toString()+"]");
+            this.orderTraceService.saveOrderLog(logDto1);
+
+           /* OrderTrace orderTrace = new OrderTrace();
             orderTrace.setOrderId(orderException.getExceptionId());
             orderTrace.setNodeName("退货订单收货");
             orderTrace.setDealStaff(userDto.getUserName());
@@ -1920,7 +2000,7 @@ public class OrderExceptionService {
             orderTrace.setOrderStatus(orderException.getOrderStatus());
             orderTrace.setCreateTime(now);
             orderTrace.setCreateUser(userDto.getUserName());
-            orderTraceMapper.save(orderTrace);
+            orderTraceMapper.save(orderTrace);*/
 
 
             //调用资信接口
@@ -2003,7 +2083,14 @@ public class OrderExceptionService {
                 throw new RuntimeException("订单收货失败");
             }
             //插入日志表
-            OrderTrace orderTrace = new OrderTrace();
+            OrderLogDto logDto1=new OrderLogDto();
+            logDto1.setOrderId(orderException.getOrderId());
+            logDto1.setNodeName("换货订单收货->flowId="+orderException.getExceptionOrderId());
+            logDto1.setOrderStatus(orderException.getOrderStatus());
+            logDto1.setRemark("请求参数["+orderException.toString()+"]");
+            this.orderTraceService.saveOrderLog(logDto1);
+
+          /*  OrderTrace orderTrace = new OrderTrace();
             orderTrace.setOrderId(orderException.getExceptionId());
             orderTrace.setNodeName("换货订单收货");
             orderTrace.setDealStaff(userDto.getUserName());
@@ -2012,7 +2099,8 @@ public class OrderExceptionService {
             orderTrace.setOrderStatus(orderException.getOrderStatus());
             orderTrace.setCreateTime(now);
             orderTrace.setCreateUser(userDto.getUserName());
-            orderTraceMapper.save(orderTrace);
+            orderTraceMapper.save(orderTrace);*/
+
             msg = "true";
         } else {
             log.info("订单不存在，编号为：" + exceptionOrderId);
@@ -2389,6 +2477,8 @@ public class OrderExceptionService {
         orderBean.setSupplyName(orderExceptionDto.getSupplyName());
         orderBean.setLeaveMsg("");
         orderBean.setQq("");
+        orderBean.setPayTypeId(orderExceptionDto.getPayTypeId());
+        orderBean.setPayName(orderExceptionDto.getPayName());
         orderBean.setReturnDesc(orderExceptionDto.getReturnDesc());
         orderBean.setMerchantDesc(orderExceptionDto.getRemark());
         orderBean.setExceptionOrderId(orderExceptionDto.getExceptionOrderId());

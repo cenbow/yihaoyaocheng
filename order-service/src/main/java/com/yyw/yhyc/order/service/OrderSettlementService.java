@@ -18,6 +18,7 @@ import java.util.Map;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
@@ -30,7 +31,6 @@ import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service("orderSettlementService")
 public class OrderSettlementService {
@@ -58,6 +57,8 @@ public class OrderSettlementService {
 
 	@Autowired
 	private UsermanageEnterpriseMapper usermanageEnterpriseMapper;
+	@Autowired
+	private OrderTraceService orderTraceService;
 
 	@Autowired
 	public void setOrderSettlementMapper(OrderSettlementMapper orderSettlementMapper) {
@@ -71,7 +72,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 通过主键查询实体对象
-	 * 
+	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
@@ -82,7 +83,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 查询所有记录
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -92,7 +93,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据查询条件查询所有记录
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -102,7 +103,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据查询条件查询分页记录
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -118,7 +119,7 @@ public class OrderSettlementService {
 					} else if (osd.getBusinessType() == 2) {
 						osd.setBusinessTypeName("退款货款");
 					} else if (osd.getBusinessType() == 3) {
-						osd.setBusinessTypeName("拒收");
+						osd.setBusinessTypeName("拒收退款");
 					} else {
 						osd.setBusinessTypeName("取消订单退款");
 					}
@@ -128,7 +129,7 @@ public class OrderSettlementService {
 					} else if (osd.getBusinessType() == 2) {
 						osd.setBusinessTypeName("退款货款");
 					} else if (osd.getBusinessType() == 3) {
-						osd.setBusinessTypeName("拒收");
+						osd.setBusinessTypeName("拒收退款");
 					} else {
 						osd.setBusinessTypeName("取消订单退款");
 					}
@@ -156,7 +157,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据主键删除记录
-	 * 
+	 *
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
@@ -167,7 +168,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据多个主键删除记录
-	 * 
+	 *
 	 * @param primaryKeys
 	 * @throws Exception
 	 */
@@ -177,7 +178,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据传入参数删除记录
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -188,7 +189,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 保存记录
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -199,7 +200,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 更新记录
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -210,7 +211,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 根据条件查询记录条数
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @return
 	 * @throws Exception
@@ -221,7 +222,7 @@ public class OrderSettlementService {
 
 	/**
 	 * 退款结算
-	 * 
+	 *
 	 * @param orderSettlement
 	 */
 	public void updateRefundSettlement(OrderSettlement orderSettlement) {
@@ -275,12 +276,20 @@ public class OrderSettlementService {
 		int result = orderSettlementMapper.update(os);
 		if (result == 0)
 			throw new RuntimeException("结算失败");
+		
+		//插入日志
+		OrderLogDto orderLogDto=new OrderLogDto();
+		orderLogDto.setOrderId(orderException.getOrderId());
+		orderLogDto.setNodeName("退款结算==flowID"+orderException.getExceptionOrderId());
+		orderLogDto.setOrderStatus(orderException.getOrderStatus());
+		orderLogDto.setRemark("请求参数orderSettlement==["+orderSettlement.toString()+"]");
+		this.orderTraceService.saveOrderLog(orderLogDto);
 
 	}
 
 	/**
 	 * 正常订单 just for 银联支付
-	 * 
+	 *
 	 * @param type
 	 *            业务类型 1 在线支付 买家已付款 (进入应付) 2 买家全部收货或者买家部分收货或者系统自动确认收货时(进入应收) 3
 	 *            拒收订单状态为卖家已确认 (进入应付) 4 退货订单状态为卖家已收货或系统自动确认收货时(进入应收) 5
@@ -356,7 +365,7 @@ public class OrderSettlementService {
 
 	/**
 	 * for all orderSettlement 设置省市区代码
-	 * 
+	 *
 	 * @param orderSettlement
 	 * @param custId
 	 *            采购商id
@@ -425,11 +434,11 @@ public class OrderSettlementService {
 
 	/**
 	 * 退款回调返回成功状态后修改 结算表 的 结算状态 为 1已结算（银行对账完毕）
-	 * 
+	 *
 	 * @param settleFlowId
 	 */
 	public void updateConfirmSettlement(String settleFlowId) {
-		log.info("updateConfirmSettlement method==" + settleFlowId);
+		log.error("updateConfirmSettlement method==" + settleFlowId);
 		OrderSettlement orderSettlement = null;
 		Map<String, Object> condition = new HashedMap();
 		condition.put("settleFlowId", settleFlowId);
@@ -442,4 +451,38 @@ public class OrderSettlementService {
 		}
 
 	}
+	
+
+	  /**
+	     * 退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
+	     * @param settleFlowId
+	     */
+	    public void updateSettlementByMapInfo(String settleFlowId,String tradeNo)
+	    {
+	    	log.error("更新结算状态updateSettlementByMapInfo method==" + settleFlowId+", "+tradeNo);
+	    	OrderException exceptionInfo = new OrderException();
+	  
+	    	exceptionInfo.setFlowId(settleFlowId);
+	    	List<OrderException> listInfo = orderExceptionMapper.listByProperty(exceptionInfo);
+	    	if (listInfo != null && listInfo.size() > 0) {
+	    		log.error("取出异常结算数据exception_order_id");
+	    		OrderException exception  = listInfo.get(0);
+	    	    OrderSettlement orderSettlement = null;
+	    	    Map<String,Object> condition = new HashedMap();
+	    	    condition.put("flowId",exception.getExceptionOrderId());
+	    	    orderSettlement = orderSettlementMapper.getByProperty(condition);
+	    	    if(orderSettlement != null)
+	            {
+	    	    	log.error("开始更新数据");
+	                orderSettlement.setSettleFlowId(tradeNo);
+	                orderSettlement.setConfirmSettlement("1");
+	                orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
+	            }
+	    		
+	    	} else {
+	    		log.error("无数据");
+	    	}
+	    	
+
+	    }
 }

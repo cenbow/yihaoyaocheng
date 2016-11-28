@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class OrderBean implements Serializable{
 
+    private static final long serialVersionUID = -2270982949438087902L;
     private String orderId;                     //订单Id
     private String orderStatus;                 //订单状态
     private String createTime;                  //下单时间
@@ -17,6 +18,8 @@ public class OrderBean implements Serializable{
     private List<OrderProductBean> productList;  //商品列表
     private String qq;                          //联系方式
     private Integer payType;                    //支付方式
+    private Integer payTypeId;                  //支付类型id
+    private String payName;                 //支付类型名称
     private Integer deliveryMethod;             //配送方式(1是自有物流 2是第三方物流)
     private Integer billType;                   //发票类型(1是增值税专用发票2是增值税普通发票)
     private double orderTotal;                  //订单总金额
@@ -32,9 +35,14 @@ public class OrderBean implements Serializable{
     private Integer postponeTime;               //能延期次数
     private String orderStatusName;            //状态枚举值
     private Integer supplyId;                   //供应商id
+    private String adviserName;                 //销售顾问姓名
+    private String adviserPhoneNumber;          //销售顾问手机号码
     private List<Integer> shopCartIdList;     //购物车id
 
-    public String getOrderStatusName() {
+    /* 销售顾问 */
+    private AdviserBean adviser;
+
+	public String getOrderStatusName() {
         return orderStatusName;
     }
 
@@ -235,6 +243,14 @@ public class OrderBean implements Serializable{
         this.shopCartIdList = shopCartIdList;
     }
 
+    public AdviserBean getAdviser() {
+        return adviser;
+    }
+
+    public void setAdviser(AdviserBean adviser) {
+        this.adviser = adviser;
+    }
+
     @Override
     public String toString() {
         return "OrderBean{" +
@@ -262,6 +278,39 @@ public class OrderBean implements Serializable{
                 ", postponeTime=" + postponeTime +
                 ", supplyId=" + supplyId +
                 ", shopCartIdList=" + shopCartIdList +
+                ", adviser=" + adviser +
                 '}';
+    }
+
+    public String getAdviserName() {
+        return adviserName;
+    }
+
+    public void setAdviserName(String adviserName) {
+        this.adviserName = adviserName;
+    }
+
+    public String getAdviserPhoneNumber() {
+        return adviserPhoneNumber;
+    }
+
+    public void setAdviserPhoneNumber(String adviserPhoneNumber) {
+        this.adviserPhoneNumber = adviserPhoneNumber;
+    }
+
+    public Integer getPayTypeId() {
+        return payTypeId;
+    }
+
+    public void setPayTypeId(Integer payTypeId) {
+        this.payTypeId = payTypeId;
+    }
+
+    public String getPayName() {
+        return payName;
+    }
+
+    public void setPayName(String payName) {
+        this.payName = payName;
     }
 }

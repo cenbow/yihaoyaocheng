@@ -250,7 +250,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	}
 
     /**
-     * 确认发货
+     *换货 确认发货
      * @return
      */
     @RequestMapping(value = "/sendOrderDeliveryReturn", method = RequestMethod.POST)
