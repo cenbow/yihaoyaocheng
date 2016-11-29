@@ -1476,7 +1476,7 @@ public class ShoppingCartService {
 		com.search.model.yhyc.ProductPromotion productPromotion  = productDrug.getProductPromotion();
 		int promotionId = UtilHelper.isEmpty(productPromotion) || UtilHelper.isEmpty(productPromotion.getPromotion_id()) ? 0 : Integer.valueOf(productPromotion.getPromotion_id());
 
-		if( promotionId > 0 && shoppingCartDto.getPromotionId().equals(promotionId)) {
+		if( promotionId > 0 && promotionId == shoppingCartDto.getPromotionId()) {
 			shoppingCartDto.setPromotionPrice(productPromotion.getPromotion_price());
 			shoppingCartDto.setPromotionMinimumPacking(productPromotion.getMinimum_packing());
 			shoppingCartDto.setPromotionLimitNum(productPromotion.getLimit_num());
