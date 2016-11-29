@@ -78,13 +78,13 @@ public class ExportController {
 				orderSettlementDto.setSupplyId(dto.getCustId());
 				fileName = "结算应收管理";
 				colNames = new String[]{"原订单号","异常流程订单号","结算流水号","业务类型","支付方式","支付平台","采购商","下单时间","结算时间","应结算金额(元)","实际结算金额(元)","结算状态"};
-				colParams= new String[]{"orgFlowId","settleFlowId","payFlowId","businessTypeName","payTypeName","payName","custName","orderTime",
+				colParams= new String[]{"orgFlowId","flowId","settleFlowId","businessTypeName","payTypeName","payName","custName","orderTime",
 						"settlementTime","settlementMoney","refunSettlementMoney","confirmSettlementName"};
 			}else{
 				orderSettlementDto.setCustId(dto.getCustId());
 				fileName = "结算应付管理";
 				colNames = new String[]{"原订单号","异常流程订单号","结算流水号","业务类型","支付方式","支付平台","供购商","下单时间","结算时间","应结算金额(元)","实际结算金额(元)","结算状态"};
-				colParams= new String[]{"orgFlowId","settleFlowId","payFlowId","businessTypeName","payTypeName","payName","supplyName","orderTime",
+				colParams= new String[]{"orgFlowId","flowId","settleFlowId","businessTypeName","payTypeName","payName","supplyName","orderTime",
 						"settlementTime","settlementMoney","refunSettlementMoney","confirmSettlementName"};
 	        }
 			
