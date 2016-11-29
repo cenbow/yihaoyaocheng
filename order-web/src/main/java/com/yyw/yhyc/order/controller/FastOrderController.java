@@ -181,7 +181,7 @@ public class FastOrderController extends BaseJsonController {
     public Map<String,Object> list() throws Exception {
         UserDto userDto = getUserDto(request);
         logger.info("当前登陆的用户信息userDto=" + userDto);
-        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),iPromotionDubboManageService);
+        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),productSearchInterface,iCustgroupmanageDubbo);
         logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
         String message = UtilHelper.isEmpty(allShoppingCart) || allShoppingCart.size() == 0 ? "请添加商品" : "";
         return ok(message,allShoppingCart);

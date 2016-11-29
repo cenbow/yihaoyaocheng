@@ -140,7 +140,7 @@ public class ShoppingCartController extends BaseController {
 	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		int custId = userDto.getCustId();
-		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService,iPromotionDubboManageService);
+		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),productSearchInterface,iCustgroupmanageDubbo);
 	}
 
 	/**
@@ -249,7 +249,7 @@ public class ShoppingCartController extends BaseController {
 	public Map<String, Object> getShopCartList() throws Exception {
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
-		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService,iPromotionDubboManageService);
+		return shoppingCartService.getShopCartList(userDto,productSearchInterface,iCustgroupmanageDubbo);
 	}
 
 	/**

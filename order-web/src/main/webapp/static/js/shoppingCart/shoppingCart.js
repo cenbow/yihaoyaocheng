@@ -703,7 +703,7 @@ $(function() {
         $(".order-holder").each(function(_index,_element){
             $('.holder-list',this).each(function(index,element){
                 if($(element).hasClass("no-stock")){
-                    var _shoppingCartId = $(element).find(".cart-checkbox").attr("shoppingCartId");
+                    var _shoppingCartId = $(element).find(".its-buy-num").attr("shoppingCartId");
                     if(_shoppingCartId != null || _shoppingCartId != '' && typeof _shoppingCartId != 'undefined'){
                         _shoppingCartIdList.push(_shoppingCartId);
                     }

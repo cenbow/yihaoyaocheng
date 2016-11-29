@@ -12,20 +12,20 @@ package com.yyw.yhyc.order.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 
+import com.search.model.yhyc.*;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.*;
+import com.yyw.yhyc.order.appdto.ProductPromotion;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.ProductStatusEnum;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.order.manage.OrderManage;
 import com.yyw.yhyc.order.mapper.OrderDetailMapper;
@@ -256,7 +256,17 @@ public class ShoppingCartService {
 			if(!UtilHelper.isEmpty(resultMap) && !UtilHelper.isEmpty(resultMap.get("normalProductInfo"))){
 				ShoppingCart normalProductInfo = (ShoppingCart) resultMap.get("normalProductInfo");
 				ShoppingCartDto shoppingCartDto = convert(normalProductInfo);
-				shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService,iPromotionDubboManageService);
+
+				/* 处理商品详情信息 */
+				String custGroupCode =  orderManage.getCustGroupCode(shoppingCartDto.getCustId(),iCustgroupmanageDubbo);
+				Set productSet = new HashSet();
+				String key = shoppingCartDto.getSpuCode() + "-" + shoppingCartDto.getSpuCode();
+				productSet.add(key);
+				Map<String,ProductDrug> productDrugMap =  orderManage.searchBatchProduct(productSearchInterface,shoppingCartDto.getCustId()+"",custGroupCode,productSet);
+				if(productDrugMap.containsKey(key)){
+					shoppingCartDto = handleProductInfo(shoppingCartDto,productDrugMap.get(key));
+				}
+
 				resultMap.put("normalProductInfo",shoppingCartDto);
 			}
 			long endTime = System.currentTimeMillis();
@@ -382,7 +392,7 @@ public class ShoppingCartService {
 		}
 
 		/*获取活动商品 实际上还能购买的数量*/
-		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,iPromotionDubboManageService);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo);
 		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 		shoppingCart = (ShoppingCart) queryMap.get("shoppingCart");
 
@@ -421,7 +431,7 @@ public class ShoppingCartService {
 		/* 场景：商品详情页或搜索列表页，页面上多次调用的添加购物车接口，达到累加商品数量的目的*/
 		/* 1、购物车中再次次添加活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCarts)){
-			return this.increaseActivityProductNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			return this.increaseActivityProductNum(shoppingCart,userDto,iCustgroupmanageDubbo,productSearchInterface);
 		}
 
 
@@ -474,13 +484,13 @@ public class ShoppingCartService {
 	/**
 	 * 获取活动商品 实际上还能购买的数量
 	 * @param shoppingCart
-	 * @param iPromotionDubboManageService
+	 * @param productSearchInterface
 	 * @return  Map<String,Object> 里面有两个key。
 	 * 			"stillCanBuy" 的key表示实际上还能购买的数量
 	 * 		    "shoppingCart" 表示获取活动信息后的 ShoppingCart实体
 	 * @throws Exception
      */
-	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService) throws Exception {
+	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) throws Exception {
 		logger.info(" _______________获取活动商品 实际上还能购买的数量_______________\n外部传过来的shoppingCart="+ shoppingCart);
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0){
 			throw new Exception("非法参数");
@@ -488,14 +498,14 @@ public class ShoppingCartService {
 		Map<String,Object> resultMap = new HashMap<>();
 		int stillCanBuy = 0;
 		/* 接入何家兵的获取活动商品信息的接口,区分出是否超出活动限购数量 */
-		if(UtilHelper.isEmpty(iPromotionDubboManageService)) {
-			logger.error("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,接口iPromotionDubboManageService:" + iPromotionDubboManageService);
+		if(UtilHelper.isEmpty(productSearchInterface) || UtilHelper.isEmpty(iCustgroupmanageDubbo)) {
+			logger.error("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,接口productSearchInterface:" + productSearchInterface +",iCustgroupmanageDubbo=" + iCustgroupmanageDubbo);
 			resultMap.put("stillCanBuy",stillCanBuy);
 			return resultMap;
 		}
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,请求参数:" + shoppingCart);
-		ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,shoppingCart.getSpuCode(),
-				shoppingCart.getSupplyId()+"",shoppingCart.getPromotionId(),shoppingCart.getCustId()+"");
+		ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(productSearchInterface,iCustgroupmanageDubbo,shoppingCart.getSpuCode(),
+				shoppingCart.getSupplyId(),shoppingCart.getPromotionId(),shoppingCart.getCustId());
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,响应参数:" + productPromotionDto);
 		if(UtilHelper.isEmpty(productPromotionDto)){
 			resultMap.put("stillCanBuy",stillCanBuy);
@@ -592,7 +602,7 @@ public class ShoppingCartService {
 
 		/* 判断是否是活动商品 还是普通商品 */
 		if (!UtilHelper.isEmpty(oldShoppingCart.getPromotionId()) && oldShoppingCart.getPromotionId() > 0 ) {
-			return  this.increaseActivityProductNum(shoppingCart,userDto,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+			return  this.increaseActivityProductNum(shoppingCart,userDto,iCustgroupmanageDubbo,productSearchInterface);
 		} else {
 			return  this.increaseNormalProductNum(shoppingCart,userDto);
 		}
@@ -660,10 +670,9 @@ public class ShoppingCartService {
 	 * 添加购物车或更新购物车中数量接口--增加活动商品数量
 	 * @param shoppingCart 外部传递过来的原始数据
 	 * @param userDto
-	 * @param iPromotionDubboManageService 实际上还能以特价购买的数量；
      * @return
      */
-	private Map<String, Object> increaseActivityProductNum(ShoppingCart shoppingCart,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,
+	private Map<String, Object> increaseActivityProductNum(ShoppingCart shoppingCart,UserDto userDto,
 														   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception {
 		logger.error("加进货单接口--增加活动商品在进货单的数量：传入参数shoppingCart=" + shoppingCart +",userDto=" + userDto);
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0 ){
@@ -671,7 +680,7 @@ public class ShoppingCartService {
 		}
 
 		/* 获取该活动商品 实际上还能购买的数量 */
-		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,iPromotionDubboManageService);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo);
 		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 
 		/* 如果不能再以特价购买改活动商品，则查询该商品的原价，并以原价购买 */
@@ -862,7 +871,7 @@ public class ShoppingCartService {
 			throw new Exception("查询活动商品信息失败");
 		}
 		/* 获取该活动商品 实际上还能购买的数量 */
-		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,iPromotionDubboManageService);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo);
 		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 
 		Map<String,Object> map = new HashMap<>();
@@ -1001,16 +1010,15 @@ public class ShoppingCartService {
 	/**
 	 * 极速下单 获取商品列表
 	 * @param userDto
-	 * @param iProductDubboManageService
+	 * @param productSearchInterface
 	 * @param fromWhere
      * @return
      */
-	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, IProductDubboManageService iProductDubboManageService, int fromWhere,IPromotionDubboManageService iPromotionDubboManageService) {
+	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, int fromWhere,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
 		if(UtilHelper.isEmpty(userDto)){
 			logger.info("当前登陆人的信息,userDto=" + userDto);
 			return null;
 		}
-
 		/* 获取极速下单中的商品信息 */
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
@@ -1023,17 +1031,18 @@ public class ShoppingCartService {
 		}
 
 		/* 处理商品信息： */
-		return handleProductInfo(allShoppingCart,iProductDubboManageService,iPromotionDubboManageService);
+		return handleProductInfo(allShoppingCart,userDto, productSearchInterface,iCustgroupmanageDubbo);
 	}
 
 	/**
-	 * 购物车首页数据获取(PC端、App端通用逻辑)
+	 * 进货单列表接口(PC端、App端、H5通用逻辑)
 	 * @param userDto
-	 * @param iProductDubboManageService
+	 * @param productSearchInterface
+	 * @param iCustgroupmanageDubbo
      * @return
      */
-	public List<ShoppingCartListDto> index(UserDto userDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService){
-		if(UtilHelper.isEmpty(userDto)){
+	public List<ShoppingCartListDto> index(UserDto userDto,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo){
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId()) || userDto.getCustId() <0){
 			return null;
 		}
 
@@ -1043,17 +1052,23 @@ public class ShoppingCartService {
 		long startTime = System.currentTimeMillis();
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
 		long endTime = System.currentTimeMillis();
-		logger.info("购物车页面-从数据库中取的数据,耗时："+ (endTime - startTime) +"毫秒，allShoppingCart=" + allShoppingCart);
+		logger.info("购物车列表接口---从DB获取数据,耗时："+ (endTime - startTime) +"毫秒，allShoppingCart=" + allShoppingCart);
 
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
 		}
 
-		/* 处理商品信息： */
-		startTime = System.currentTimeMillis();
-		List<ShoppingCartListDto> allShoppingCartAfterHandler  = handleProductInfo(allShoppingCart,iProductDubboManageService,iPromotionDubboManageService);
-		endTime = System.currentTimeMillis();
-		logger.info("购物车页面-处理所有商品的数据(包含处理每个商品调用Dubbo服务的时间),耗时："+ (endTime - startTime) +"毫秒");
+		List<ShoppingCartListDto> allShoppingCartAfterHandler = null;
+		if(UtilHelper.isEmpty(productSearchInterface) || UtilHelper.isEmpty(iCustgroupmanageDubbo)){
+			logger.error("进货单列表接口---Dobbo服务异常! productSearchInterface = " + productSearchInterface + ",iCustgroupmanageDubbo=" + iCustgroupmanageDubbo);
+			allShoppingCartAfterHandler = allShoppingCart;
+		}else{
+			/* 处理商品信息： */
+			startTime = System.currentTimeMillis();
+			allShoppingCartAfterHandler  = handleProductInfo(allShoppingCart,userDto,productSearchInterface,iCustgroupmanageDubbo);
+			endTime = System.currentTimeMillis();
+			logger.info("购物车列表接口---处理完所有商品的详细数据(含调用Dubbo服务时间),耗时："+ (endTime - startTime) +"毫秒，返回数据 allShoppingCartAfterHandler = " + allShoppingCartAfterHandler);
+		}
 		return allShoppingCartAfterHandler;
 
 	}
@@ -1061,36 +1076,65 @@ public class ShoppingCartService {
 	/**
 	 * 处理商品信息
 	 * @param allShoppingCart
-	 * @param iProductDubboManageService
+	 * @param productSearchInterface
      * @return
      */
-	private List<ShoppingCartListDto> handleProductInfo(List<ShoppingCartListDto> allShoppingCart, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
-		if(UtilHelper.isEmpty(allShoppingCart)){
+	private List<ShoppingCartListDto> handleProductInfo(List<ShoppingCartListDto> allShoppingCart,UserDto userDto,
+														ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
+		if(UtilHelper.isEmpty(allShoppingCart) || UtilHelper.isEmpty(userDto)){
 			return allShoppingCart;
 		}
 		long startTime ,endTime;
-		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart){
-			if(UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) ||
-					UtilHelper.isEmpty(shoppingCartListDto.getSeller())){
+
+		/* 调用批量搜索商品详情信息接口前，组装请求参数 */
+		Set<String> productCodeSet = new HashSet<String>();
+		String productCodeKey = "";
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart) {
+			if (UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) || UtilHelper.isEmpty(shoppingCartListDto.getSeller())) {
+				continue;
+			}
+			for (ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()) {
+				if (UtilHelper.isEmpty(shoppingCartDto)) continue;
+				productCodeKey = shoppingCartDto.getSpuCode() + "-" + shoppingCartDto.getSupplyId();
+				productCodeSet.add(productCodeKey);
+			}
+		}
+
+		/* 查询买家的客户组编码 */
+		String custGroupCode = orderManage.getCustGroupCode(userDto.getCustId(),iCustgroupmanageDubbo);
+
+		/* 批量搜索商品详情信息 */
+		Map<String,ProductDrug> productMap = orderManage.searchBatchProduct(productSearchInterface,userDto.getCustId()+"",custGroupCode,productCodeSet);
+
+		if(UtilHelper.isEmpty(productMap)){
+			return allShoppingCart;
+		}
+
+		/* 处理批量搜索商品详情信息 */
+		for(ShoppingCartListDto shoppingCartListDto : allShoppingCart) {
+			if (UtilHelper.isEmpty(shoppingCartListDto) || UtilHelper.isEmpty(shoppingCartListDto.getShoppingCartDtoList()) || UtilHelper.isEmpty(shoppingCartListDto.getSeller())) {
 				continue;
 			}
 			BigDecimal productPriceCount = new BigDecimal(0);
-			startTime = System.currentTimeMillis();
-			for(ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()){
-				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
+			for (ShoppingCartDto shoppingCartDto : shoppingCartListDto.getShoppingCartDtoList()) {
+				if (UtilHelper.isEmpty(shoppingCartDto) || UtilHelper.isEmpty(shoppingCartDto.getSpuCode()) || UtilHelper.isEmpty(shoppingCartDto.getSupplyId())){
+					continue;
+				}
+				productCodeKey = shoppingCartDto.getSpuCode() + "-" + shoppingCartDto.getSupplyId();
+				if( !productMap.containsKey(productCodeKey)){
+					continue;
+				}
 
-				shoppingCartDto = handleProductInfo(shoppingCartDto,iProductDubboManageService,iPromotionDubboManageService);
+				shoppingCartDto = handleProductInfo(shoppingCartDto,productMap.get(productCodeKey));
 
-				if(UtilHelper.isEmpty(shoppingCartDto)) continue;
-
+				if(UtilHelper.isEmpty(shoppingCartDto)){
+					continue;
+				}
 				/* 如果该商品没有缺货、没有下架、价格合法等，则统计该供应商下的已买商品总额 */
 				if( shoppingCartDto.isNormalStatus()){
 					productPriceCount = productPriceCount.add(shoppingCartDto.getProductSettlementPrice());
 				}
 			}
-			endTime = System.currentTimeMillis();
-			logger.info("购物车页面-处理商品信息：该供应商(enterprizeCode =" + shoppingCartListDto.getSeller().getEnterpriseId() +",企业名称="+ shoppingCartListDto.getSeller().getEnterpriseName()+")下的所有商品处理，耗时："+(endTime-startTime)+"毫秒");
-
 			/* 计算是否符合订单起售金额 */
 			shoppingCartListDto.setProductPriceCount(productPriceCount);
 			logger.info("购物车页面-计算是否符合订单起售金额:供应商[" + shoppingCartListDto.getSeller().getEnterpriseName() + "]("+shoppingCartListDto.getSeller().getEnterpriseId()+")的订单起售金额="
@@ -1147,8 +1191,25 @@ public class ShoppingCartService {
 		long endTime = System.currentTimeMillis();
 		logger.info("查询图片接口:处理完成！耗时" + (endTime - startTime) + "毫秒");
 		return  MyConfigUtil.IMG_DOMAIN + file_path;
+	}
 
+	private String getProductImgUrl(String file_path) {
+		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		if(UtilHelper.isEmpty(file_path) ){
+			return filePath;
+		}
 
+		/* 图片中文处理，只针对特定部位URL编码 */
+		String head =  file_path.substring(0,file_path.lastIndexOf("/")+1);
+		String body =  file_path.substring(file_path.lastIndexOf("/")+1,file_path.lastIndexOf("."));
+		String foot =  file_path.substring(file_path.lastIndexOf("."),file_path.length());
+		try {
+			file_path =  head + URLEncoder.encode(body,"UTF-8") + foot;
+		} catch (UnsupportedEncodingException e) {
+			logger.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
+			return filePath;
+		}
+		return  MyConfigUtil.IMG_DOMAIN + file_path;
 	}
 
 	/**
@@ -1183,7 +1244,7 @@ public class ShoppingCartService {
 				cartProductBean.setStockCount(scd.getProductInventory());
 				cartProductBean.setBaseCount(scd.getSaleStart());
 				cartProductBean.setStepCount(scd.getUpStep());
-				cartProductBean.setStatusDesc(scd.getPutawayStatus());
+				cartProductBean.setStatusDesc(scd.getStatusEnum());
 				cartProductBean.setFactoryName(scd.getManufactures());
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
 				cartProductBean.setVendorName(scds.getSeller().getEnterpriseName());
@@ -1218,7 +1279,7 @@ public class ShoppingCartService {
 	 * @param shoppingCartIds
 	 * @return
 	 */
-	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService){
+	public  Map<String,Object> deleteShopCarts(Integer custId,List<Integer> shoppingCartIds, ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo){
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		UserDto userDto = new UserDto();
 		userDto.setCustId(custId);
@@ -1232,10 +1293,11 @@ public class ShoppingCartService {
 
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService,iPromotionDubboManageService);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, productSearchInterface,iCustgroupmanageDubbo);
 		CartData cartData = this.changeShopCartDtosToApp(shoppingCartListDtos);
 		resultMap.put("statusCode", "0");
 		resultMap.put("data", cartData);
+		resultMap.put("message","success");
 		return resultMap;
 	}
 	/**
@@ -1261,7 +1323,7 @@ public class ShoppingCartService {
 		}
 		ShoppingCart sc = new ShoppingCart();
 		sc.setCustId(custId);
-		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, iProductDubboManageService,iPromotionDubboManageService);
+		List<ShoppingCartListDto> shoppingCartListDtos = this.index(userDto, productSearchInterface,iCustgroupmanageDubbo);
 		if(UtilHelper.isEmpty(shoppingCartListDtos)){
 			resultMap.put("statusCode","0");
 			return resultMap;
@@ -1272,8 +1334,8 @@ public class ShoppingCartService {
 		return resultMap;
 	}
 
-	public Map<String,Object> getShopCartList(UserDto userDto, IProductDubboManageService iProductDubboManageService,IPromotionDubboManageService iPromotionDubboManageService) {
-		List<ShoppingCartListDto> allShoppingCart = this.index(userDto,iProductDubboManageService,iPromotionDubboManageService);
+	public Map<String,Object> getShopCartList(UserDto userDto, ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
+		List<ShoppingCartListDto> allShoppingCart = this.index(userDto,productSearchInterface,iCustgroupmanageDubbo);
 		CartData cartData = changeShopCartDtosToApp(allShoppingCart);
 		Map<String,Object> resultMap = new HashMap<String,Object>();
 		resultMap.put("statusCode", "0");
@@ -1362,130 +1424,106 @@ public class ShoppingCartService {
 		return shoppingCartDto;
 	}
 
+
 	/**
-	 * 处理单个商品的信息
+	 * 处理单个商品的信息(重构后)
 	 * @param shoppingCartDto
-	 * @param iProductDubboManageService
+	 * @param productDrug
      * @return
      */
-	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto, IProductDubboManageService iProductDubboManageService,
-											  IPromotionDubboManageService iPromotionDubboManageService ) {
-		long startTime = System.currentTimeMillis();
-		long start,end;
+	private ShoppingCartDto handleProductInfo(ShoppingCartDto shoppingCartDto ,ProductDrug productDrug) {
+
 		if(UtilHelper.isEmpty(shoppingCartDto)){
 			return null;
 		}
-		if(UtilHelper.isEmpty(iProductDubboManageService)){
-			logger.error("购物车页面-查询商品信息失败,iProductDubboManageService = " + iProductDubboManageService);
-			return null;
-		}
 
-		/* 查询商品库存 */
-		ProductInventory productInventory = new ProductInventory();
-		productInventory.setSupplyId(shoppingCartDto.getSupplyId());
-		productInventory.setSpuCode(shoppingCartDto.getSpuCode());
-		productInventory.setFrontInventory(shoppingCartDto.getProductCount());
-		logger.info("购物车页面-检查商品库存,请求参数productInventory=" + productInventory);
-		Map<String, Object> resultMap = productInventoryManage.findInventoryNumber(productInventory);
-		logger.info("购物车页面-检查商品库存,响应参数resultMap=" + resultMap);
-
-		String frontInventory = resultMap.get("frontInventory") + "";
-		shoppingCartDto.setProductInventory(UtilHelper.isEmpty(frontInventory) ? 0 : Integer.valueOf(frontInventory));
-		String code = resultMap.get("code").toString();
-		if("0".equals(code) || "1".equals(code)){
-			shoppingCartDto.setExistProductInventory(false);
-		}else{
-			shoppingCartDto.setExistProductInventory(true);
+		if(!shoppingCartDto.getSpuCode().equals(productDrug.getSpu_code()) ){
+			logger.error("处理单个商品的信息，spuCode不一致!");
+			return shoppingCartDto;
 		}
 
 		/* 获取商品图片 */
-		String productImgUrl = getProductImgUrl(shoppingCartDto.getSpuCode(),iProductDubboManageService);
+		String productImgUrl = getProductImgUrl(productDrug.getPic_path());
 		shoppingCartDto.setProductImageUrl(productImgUrl);
 
+		int minimumPacking = UtilHelper.isEmpty(productDrug.getMinimum_packing()) ? 1 : Integer.valueOf( productDrug.getMinimum_packing());
+		int saleStart = UtilHelper.isEmpty(productDrug.getWholesale_num()) ? 1 : Integer.valueOf(productDrug.getWholesale_num()) ;
+		String unit = UtilHelper.isEmpty(productDrug.getUnit()) ? "" : productDrug.getUnit();
+		int status = UtilHelper.isEmpty(productDrug.getState()) ? 0 : Integer.valueOf( productDrug.getState());
 
-		/* 最小起批量、最小拆零包装   */
-		Map map = new HashMap();
-		map.put("spu_code", shoppingCartDto.getSpuCode());
-		map.put("seller_code", shoppingCartDto.getSupplyId());
-
-		int minimumPacking = 1;
-		String unit = "";
-		Integer saleStart = 1;
-		List productList = null;
-		Integer putaway_status = 0; //（客户组）商品上下架状态：t_product_putaway表中的state字段 （上下架状态 0未上架  1上架  2本次下架  3非本次下架 ）
-		try{
-
-			logger.info("购物车页面-查询商品信息,请求参数:" + map);
-			start = System.currentTimeMillis();
-			productList = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(map);
-			end = System.currentTimeMillis();
-			logger.info("购物车页面-查询商品信息,耗时"+(end - start)+"毫秒，响应参数:" + JSONArray.fromObject(productList));
-
-		}catch (Exception e){
-			logger.error("购物车页面-查询商品信息失败:" + e.getMessage());
-		}
-		if(UtilHelper.isEmpty(productList) || productList.size() != 1){
-			logger.error("购物车页面-查询的商品信息异常" );
-		}else{
-			JSONObject productJson = JSONObject.fromObject(productList.get(0));
-			minimumPacking = UtilHelper.isEmpty(productJson.get("minimum_packing")+"") ? 1 : (int) productJson.get("minimum_packing");
-			saleStart = UtilHelper.isEmpty(productJson.get("wholesale_num")+"") ? 1 : Integer.valueOf(productJson.get("wholesale_num")+"") ;
-			unit = UtilHelper.isEmpty(productJson.get("unit")+"") ? "" : productJson.get("unit")+"";
-			putaway_status = UtilHelper.isEmpty(productJson.get("putaway_status")+"") ? 0 : Integer.valueOf( productJson.get("putaway_status")+"");
-		}
+		//商品渠道审核状态：0:待审核，1：审核通过，2：审核不通过
+		int isChannel = UtilHelper.isEmpty(productDrug.getIs_channel()) ? 0 : Integer.valueOf( productDrug.getIs_channel());
+		int channelId = UtilHelper.isEmpty(productDrug.getChannel_id()) ? 0 : Integer.valueOf( productDrug.getChannel_id());
+		int applyChannelStatus = UtilHelper.isEmpty(productDrug.getApplyChannelStatus()) ? 0 : Integer.valueOf( productDrug.getApplyChannelStatus());
 
 		shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
 		shoppingCartDto.setUnit(unit);//最小拆零包装单位
 		shoppingCartDto.setSaleStart(saleStart);//起售量
 		shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
-		shoppingCartDto.setPutawayStatus(putaway_status); //上下架状态
+		shoppingCartDto.setPutawayStatus(status); //上下架状态
 
 
-		ProductPromotionDto productPromotionDto  = null;
-		if(!UtilHelper.isEmpty(iPromotionDubboManageService) && !UtilHelper.isEmpty(shoppingCartDto.getPromotionId())){
-			logger.info("购物车页面-查询商品参加活动信息,请求参数:" + shoppingCartDto);
-			productPromotionDto = orderManage.queryProductWithPromotion(iPromotionDubboManageService,shoppingCartDto.getSpuCode(),shoppingCartDto.getSupplyId()+"",
-					shoppingCartDto.getPromotionId(),shoppingCartDto.getCustId() + "");
-			logger.info("购物车页面-查询商品参加活动信息,响应参数:" + productPromotionDto);
+		/* 查询商品库存 */
+		int stockAmount = UtilHelper.isEmpty(productDrug.getStock_amount()) ? 0 : Integer.valueOf(productDrug.getStock_amount());
+		if(stockAmount <= 0 || stockAmount < minimumPacking || stockAmount < shoppingCartDto.getProductCount()){
+			shoppingCartDto.setExistProductInventory(false);
+			shoppingCartDto.setProductInventory(0);
 		}else{
-			logger.error("购物车页面-查询商品参加活动信息,接口iPromotionDubboManageService:" + iPromotionDubboManageService);
+			shoppingCartDto.setExistProductInventory(true);
+			shoppingCartDto.setProductInventory(stockAmount);
 		}
 
-		if(!UtilHelper.isEmpty(productPromotionDto)){
-			shoppingCartDto.setPromotionPrice(productPromotionDto.getPromotionPrice());
-			shoppingCartDto.setPromotionMinimumPacking(productPromotionDto.getMinimumPacking());
-			shoppingCartDto.setPromotionLimitNum(productPromotionDto.getLimitNum());
-			shoppingCartDto.setPromotionSumInventory(productPromotionDto.getSumInventory());
-			shoppingCartDto.setPromotionCurrentInventory(productPromotionDto.getCurrentInventory());
-			shoppingCartDto.setPromotionType(productPromotionDto.getPromotionType());
+		com.search.model.yhyc.ProductPromotion productPromotion  = productDrug.getProductPromotion();
+		int promotionId = UtilHelper.isEmpty(productPromotion) || UtilHelper.isEmpty(productPromotion.getPromotion_id()) ? 0 : Integer.valueOf(productPromotion.getPromotion_id());
+
+		if( promotionId > 0 && shoppingCartDto.getPromotionId().equals(promotionId)) {
+			shoppingCartDto.setPromotionPrice(productPromotion.getPromotion_price());
+			shoppingCartDto.setPromotionMinimumPacking(productPromotion.getMinimum_packing());
+			shoppingCartDto.setPromotionLimitNum(productPromotion.getLimit_num());
+			shoppingCartDto.setPromotionSumInventory(productPromotion.getSum_inventory());
+			shoppingCartDto.setPromotionCurrentInventory(productPromotion.getCurrent_inventory());
+			shoppingCartDto.setPromotionType(UtilHelper.isEmpty(productPromotion.getPromotion_type()) ? 0 : Integer.valueOf(productPromotion.getPromotion_type()));
 		}
 
 		/**
 		 * 商品(含活动商品)的正常、异常情况处理
 		 */
 
+		/* 商品渠道审核状态(applyChannelStatus) ：0:待审核，1：审核通过，2：审核不通过*/
+		if( 1 == isChannel && channelId == 0 ) {
+			if(applyChannelStatus == 0 ){
+				shoppingCartDto.setNormalStatus(false);
+				shoppingCartDto.setUnNormalStatusReason("商品渠道待审核");
+				shoppingCartDto.setStatusEnum(ProductStatusEnum.ChannelNotCheck.getStatus());
+			}else if(applyChannelStatus != 1 ){
+				shoppingCartDto.setNormalStatus(false);
+				shoppingCartDto.setUnNormalStatusReason("商品需加入渠道");
+				shoppingCartDto.setStatusEnum(ProductStatusEnum.NotAddChannel.getStatus());
+			}
 		/* 没库存 */
-		if( !shoppingCartDto.isExistProductInventory()){
+		}else if( !shoppingCartDto.isExistProductInventory()){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品库存不足");
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.Shortage.getStatus());
 		/* 没价格 */
 		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) == 0){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品价格异常");
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
 		/* 已下架 */
 		}else if(shoppingCartDto.getPutawayStatus() == null || shoppingCartDto.getPutawayStatus() != 1){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品已下架");
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.OffTheShelf.getStatus());
 		/* 活动商品参加的活动已失效 : 进货单中保存了活动id, 但接口中查询不到活动信息 */
 		}else if( (!UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && shoppingCartDto.getPromotionId() > 0 )  && UtilHelper.isEmpty(shoppingCartDto.getPromotionPrice())  ) {
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("活动商品参加的活动已失效");
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
 		}else{
 			shoppingCartDto.setNormalStatus(true);
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.Normal.getStatus());
 		}
-
-		long endTime = System.currentTimeMillis();
-		logger.info("处理单个商品的信息,总耗时："+(endTime - startTime)+"毫秒，返回处理后的数据 shoppingCartDto = " + shoppingCartDto);
 		return shoppingCartDto;
 	}
 

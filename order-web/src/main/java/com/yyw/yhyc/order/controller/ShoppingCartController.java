@@ -135,7 +135,12 @@ public class ShoppingCartController extends BaseJsonController {
 	public ModelAndView index() throws Exception {
 		ModelAndView model = new ModelAndView();
 		UserDto userDto = super.getLoginUser();
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,iProductDubboManageService,iPromotionDubboManageService);
+
+		Long startTime = System.currentTimeMillis();
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,productSearchInterface,iCustgroupmanageDubbo);
+		Long endTime = System.currentTimeMillis();
+		logger.info("-----------------进货单列表Rest接口-----------------\n获取数据、处理所有数据总耗时：" + (endTime -  startTime) + "毫秒");
+
 		model.addObject("allShoppingCart",allShoppingCart);
 		model.setViewName("shoppingCart/index");
 		return model;

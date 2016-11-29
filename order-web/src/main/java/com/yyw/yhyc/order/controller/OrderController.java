@@ -375,7 +375,7 @@ public class OrderController extends BaseJsonController {
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,productDubboManageService,creditDubboService,iPromotionDubboManageService);
+			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,creditDubboService,productSearchInterface,iCustgroupmanageDubbo);
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
 
