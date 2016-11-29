@@ -10,6 +10,9 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.UtilHelper;
@@ -169,6 +173,90 @@ public class OrderIssuedService {
 	{
 		return orderIssuedMapper.findByCount(orderIssued);
 	}
+	
+	
+	/**
+	 * 根据供应商的id,查询该供应商的已付款的订单，是最近一个月的，或者根据指定的日期和订单编号集合查询该订单
+	 * @param supplyId
+	 * @param startDate
+	 * @param endDate
+	 * @param orderIdList
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> queryOrderIssuedBySupplyIdAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList)throws Exception{
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		
+		Map<String,Object> paramterMap=new HashMap<String,Object>();
+		
+		if(supplyListIds==null || supplyListIds.size()==0){
+			resultMap.put("code","0");
+			resultMap.put("message","供应商为空");
+			return resultMap;
+		}else{
+			
+			StringBuffer sql=new StringBuffer();
+			for(int i=0;i<supplyListIds.size();i++){
+				int supplyId=supplyListIds.get(i);
+				if(i!=supplyListIds.size()-1){
+					sql.append(supplyId+",");
+				}else{
+					sql.append(supplyId);
+				}
+			}
+			log.info("传递的supplyId集合："+sql.toString());
+			paramterMap.put("supplyListIds", sql.toString());
+		}
+		if(StringUtils.hasText(startDate) && StringUtils.hasText(endDate)){
+			paramterMap.put("startDate",startDate);
+			paramterMap.put("endDate",endDate);
+		}else{
+			Date currentDate=new Date();
+			SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
+			
+			String endDateStr=formate.format(currentDate);
+			
+		   Calendar calendar=Calendar.getInstance();  
+		   calendar.setTime(currentDate);
+		   calendar.add(Calendar.DAY_OF_YEAR,-30);//日期减30天
+		   
+		   Date startDateFromConvert=calendar.getTime();
+		   
+		   String startDateStr=formate.format(startDateFromConvert);
+		   
+		    paramterMap.put("startDate",startDateStr);
+			paramterMap.put("endDate",endDateStr);
+		}
+		
+		 if(StringUtils.hasText(orderIdList)){
+			 log.info("当前查询下发的订单集合列表orderIdList==[："+orderIdList+"]");
+			 StringBuffer idSql=new StringBuffer();
+			 String[] orderList=orderIdList.split(",");
+			 
+			 if(orderList!=null && orderList.length>0){
+				 
+				 for(int i=0;i<orderList.length;i++){
+					 String orderFlowId=orderList[i];
+					 if(i!=orderList.length-1){
+						 idSql.append("'"+orderFlowId+"',");
+					 }else{
+						 idSql.append("'"+orderFlowId+"'");
+					 }
+				 }
+				 
+				 log.info("转换后的订单查询集合["+idSql.toString()+"]");
+			     paramterMap.put("orderIdList",idSql.toString());
+				 
+			 }
+	
+		 }
+		 
+		List<OrderIssuedDto> orderIssuedDtoList =this.orderIssuedMapper.findOrderIssuedListBySupplyIdAndOrderDate(paramterMap);
+	    resultMap.put("code","1");
+		resultMap.put("orderIssuedDtoList",orderIssuedDtoList);
+		return resultMap;
+	}
+	
 
 	/**
 	 * 根据供应商Id查询 该供应商状态为已付款的订单 进行下发

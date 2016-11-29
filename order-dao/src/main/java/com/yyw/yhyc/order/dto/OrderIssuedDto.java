@@ -26,6 +26,7 @@ public class OrderIssuedDto implements Serializable {
 	  *	供应商名称
 	  */
 	private java.lang.String supplyName;
+	private  Integer supplyId; //
     private String createTime;      //下单时间
 
     private OrderDelivery orderDelivery;    //收货信息
@@ -127,4 +128,14 @@ public class OrderIssuedDto implements Serializable {
 	public void setCustId(String custId) {
 		this.custId = custId;
 	}
+
+	public Integer getSupplyId() {
+		return supplyId;
+	}
+
+	public void setSupplyId(Integer supplyId) {
+		this.supplyId = supplyId;
+	}
+	
+	
 }

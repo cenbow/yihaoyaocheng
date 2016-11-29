@@ -45,6 +45,7 @@
 		<result column="leave_message" property="leaveMessage"/>
 		<result column="order_id" property="orderId"/>
 		<result column="cust_id" property="customerId"/>
+		<result column="supply_id" property="supplyId"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="orderItemList" column="order_id"
@@ -227,6 +228,51 @@
 		SELECT count(1) AS totalcount FROM t_order_issued WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+	
+	<select id="findOrderIssuedListBySupplyIdAndOrderDate" parameterType="java.util.Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+		   SELECT
+			    O.FLOW_ID,
+			    O.ORG_TOTAL,
+			    O.SUPPLY_ID,
+			    O.SUPPLY_NAME,
+			    date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
+			    O.LEAVE_MESSAGE,
+			    O.ORDER_ID,
+			    PUO.cust_code_erp AS CUST_ID
+			FROM
+			    T_ORDER O,
+			    t_cust_erp_relation PUO,
+			    T_SYSTEM_PAY_TYPE SPT
+			WHERE
+			    1=1
+			AND O.CUST_ID = PUO.cust_code_yc
+			AND PUO.relation_status='2'
+			AND O.SUPPLY_ID = PUO.seller_code
+			AND SPT.PAY_TYPE_ID = O.pay_type_id
+			AND SPT.PAY_TYPE = 1
+			AND O.ORDER_STATUS = '5'
+			<if test="supplyListIds!= null"> 
+			    <![CDATA[
+					AND O.SUPPLY_ID in (${supplyListIds})
+				]]>
+			</if>
+			<if test="orderIdList!= null"> 
+			    <![CDATA[
+				 AND O.flow_id in (${orderIdList})
+				]]>
+			</if>
+			<if test="startDate!= null">
+			    <![CDATA[
+				AND O.create_time>=#{startDate}
+				]]>
+			</if>
+			<if test="endDate!= null">
+			    <![CDATA[
+				AND O.create_time<=#{endDate}
+				]]>
+			</if>
+	</select>
+	
 	<select id="findOrderIssuedListBySupplyId" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
 			O.FLOW_ID,
