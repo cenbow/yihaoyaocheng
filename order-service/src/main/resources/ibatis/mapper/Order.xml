@@ -729,6 +729,9 @@
 		<if test="supplyName!= null and supplyName!= ''">
 			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
 		</if>
+		<if test="adviserName != null and adviserName != ''">
+			AND T1.adviser_name LIKE CONCAT('%', #{adviserName},'%')
+		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
 		</if>
@@ -1054,6 +1057,9 @@
 		<if test="district!= null and district!= ''">
 			AND T2.DISTRICT = #{district}
 		</if>
+		<if test="adviserCode != null and adviserCode != ''">
+			AND T1.adviser_code = #{adviserCode}
+		</if>
 		ORDER BY T1.ORDER_ID DESC
 	</select>
 
@@ -1138,7 +1144,7 @@
 			AND T2.CITY = #{city}
 		</if>
 		<if test="district!= null and district!= ''">
-			AND T2.DISTRICT = #{district}
+			AND T1.DISTRICT = #{district}
 		</if>
 		AND T1.ORG_TOTAL IS NOT NULL
 	</select>
