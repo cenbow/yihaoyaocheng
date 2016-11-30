@@ -2292,6 +2292,7 @@ public class OrderService {
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
+		orderDto.setAdviserName(data.get("adviserName"));
 		
 		if(StringUtils.isNotBlank(data.get("payFlag"))){
 			orderDto.setPayFlag(Integer.valueOf(data.get("payFlag")));

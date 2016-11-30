@@ -1296,8 +1296,6 @@
 			${id}
 		</foreach>
 	</update>
-
-
 	<select id="listPaginationOperationsOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,T2.PAY_TYPE,T2.PAY_TYPE_NAME
@@ -1310,6 +1308,9 @@
 		</if>
 		<if test="supplyName!= null and supplyName!= ''">
 			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="adviserName != null and adviserName != ''">
+			AND T1.adviser_name LIKE CONCAT('%', #{adviserName},'%')
 		</if>
 		<if test="custName!= null and custName!= ''">
 			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
