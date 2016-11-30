@@ -2287,6 +2287,7 @@ public class OrderService {
 		orderDto.setCreateEndTime(data.get("createEndTime"));
 		orderDto.setOrderStatus(data.get("orderStatus"));
 		orderDto.setFlowId(data.get("flowId"));
+		orderDto.setAdviserName(data.get("adviserName"));
 		
 		if(StringUtils.isNotBlank(data.get("payFlag"))){
 			orderDto.setPayFlag(Integer.valueOf(data.get("payFlag")));
@@ -2857,7 +2858,8 @@ public class OrderService {
 		int unRejRep = 0;      //拒收/补货
 		OrderDto orderDto = new OrderDto();
 		orderDto.setCustId(custId);
-		List<OrderDto> orderCountList = orderMapper.findOrderStatusCount(orderDto);
+		orderDto.setPayType(1);
+		List<OrderDto> orderCountList = orderMapper.findAppOrderStatusCount(orderDto);
 		if(!UtilHelper.isEmpty(orderCountList)){
 			BuyerOrderStatusEnum buyerorderstatusenum;
 			//统计订单状态
