@@ -2846,7 +2846,8 @@ public class OrderService {
 		int unRejRep = 0;      //拒收/补货
 		OrderDto orderDto = new OrderDto();
 		orderDto.setCustId(custId);
-		List<OrderDto> orderCountList = orderMapper.findOrderStatusCount(orderDto);
+		orderDto.setPayType(1);
+		List<OrderDto> orderCountList = orderMapper.findAppOrderStatusCount(orderDto);
 		if(!UtilHelper.isEmpty(orderCountList)){
 			BuyerOrderStatusEnum buyerorderstatusenum;
 			//统计订单状态

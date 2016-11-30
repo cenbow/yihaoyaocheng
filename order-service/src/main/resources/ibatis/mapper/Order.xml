@@ -706,6 +706,34 @@
 		GROUP BY ORDERSTATUS,T4.PAY_TYPE
 	</select>
 
+
+	<select id="findAppOrderStatusCount" parameterType="OrderDto" resultType="OrderDto" useCache="false">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T4.PAY_TYPE AS payType
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		GROUP BY ORDERSTATUS,T4.PAY_TYPE
+	</select>
+
+
 	<resultMap id="buyerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
 		<result column="NOWTIME" property="nowTime"/>
 		<result column="PAY_TYPE" property="payType"/>
