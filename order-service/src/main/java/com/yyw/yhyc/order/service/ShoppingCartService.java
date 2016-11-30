@@ -1448,7 +1448,7 @@ public class ShoppingCartService {
 
 		int minimumPacking = UtilHelper.isEmpty(productDrug.getMinimum_packing()) ? 1 : Integer.valueOf( productDrug.getMinimum_packing());
 		int saleStart = UtilHelper.isEmpty(productDrug.getWholesale_num()) ? 1 : Integer.valueOf(productDrug.getWholesale_num()) ;
-		String unit = UtilHelper.isEmpty(productDrug.getUnit()) ? "" : productDrug.getUnit();
+		String unitCN = UtilHelper.isEmpty(productDrug.getUnit_cn()) ? "" : productDrug.getUnit_cn();
 		int status = UtilHelper.isEmpty(productDrug.getState()) ? 0 : Integer.valueOf( productDrug.getState());
 
 		//商品渠道审核状态：0:待审核，1：审核通过，2：审核不通过
@@ -1457,7 +1457,7 @@ public class ShoppingCartService {
 		int applyChannelStatus = UtilHelper.isEmpty(productDrug.getApplyChannelStatus()) ? 0 : Integer.valueOf( productDrug.getApplyChannelStatus());
 
 		shoppingCartDto.setMinimumPacking(minimumPacking); //最小拆零包装数量
-		shoppingCartDto.setUnit(unit);//最小拆零包装单位
+		shoppingCartDto.setUnit(unitCN);//最小拆零包装单位
 		shoppingCartDto.setSaleStart(saleStart);//起售量
 		shoppingCartDto.setUpStep(minimumPacking); //每次增加、减少的 递增数量
 		shoppingCartDto.setPutawayStatus(status); //上下架状态
