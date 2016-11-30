@@ -1476,7 +1476,7 @@ public class ShoppingCartService {
 		com.search.model.yhyc.ProductPromotion productPromotion  = productDrug.getProductPromotion();
 		int promotionId = UtilHelper.isEmpty(productPromotion) || UtilHelper.isEmpty(productPromotion.getPromotion_id()) ? 0 : Integer.valueOf(productPromotion.getPromotion_id());
 
-		if( promotionId > 0 && promotionId == shoppingCartDto.getPromotionId()) {
+		if( promotionId > 0 && !UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && promotionId == shoppingCartDto.getPromotionId()) {
 			shoppingCartDto.setPromotionPrice(productPromotion.getPromotion_price());
 			shoppingCartDto.setPromotionMinimumPacking(productPromotion.getMinimum_packing());
 			shoppingCartDto.setPromotionLimitNum(productPromotion.getLimit_num());
@@ -1489,37 +1489,45 @@ public class ShoppingCartService {
 		 * 商品(含活动商品)的正常、异常情况处理
 		 */
 
-		/* 商品渠道审核状态(applyChannelStatus) ：0:待审核，1：审核通过，2：审核不通过*/
-		if( 1 == isChannel && channelId == 0 ) {
-			if(applyChannelStatus == 0 ){
-				shoppingCartDto.setNormalStatus(false);
-				shoppingCartDto.setUnNormalStatusReason("商品渠道待审核");
-				shoppingCartDto.setStatusEnum(ProductStatusEnum.ChannelNotCheck.getStatus());
-			}else if(applyChannelStatus != 1 ){
-				shoppingCartDto.setNormalStatus(false);
-				shoppingCartDto.setUnNormalStatusReason("商品需加入渠道");
-				shoppingCartDto.setStatusEnum(ProductStatusEnum.NotAddChannel.getStatus());
-			}
-		/* 没库存 */
-		}else if( !shoppingCartDto.isExistProductInventory()){
+		/* 库存校验 */
+		if( !shoppingCartDto.isExistProductInventory()){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品库存不足");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Shortage.getStatus());
-		/* 没价格 */
+
+		/* 价格校验 */
 		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) == 0){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品价格异常");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
+
 		/* 已下架 */
 		}else if(shoppingCartDto.getPutawayStatus() == null || shoppingCartDto.getPutawayStatus() != 1){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品已下架");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.OffTheShelf.getStatus());
+
 		/* 活动商品参加的活动已失效 : 进货单中保存了活动id, 但接口中查询不到活动信息 */
 		}else if( (!UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && shoppingCartDto.getPromotionId() > 0 )  && UtilHelper.isEmpty(shoppingCartDto.getPromotionPrice())  ) {
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("活动商品参加的活动已失效");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
+
+		}else if( 1 == isChannel && channelId == 0 ) {
+			/* 商品渠道审核状态(applyChannelStatus) ：0:待审核，1：审核通过，2：审核不通过*/
+			if(applyChannelStatus == 0 ){
+				shoppingCartDto.setNormalStatus(false);
+				shoppingCartDto.setUnNormalStatusReason("商品渠道待审核");
+				shoppingCartDto.setStatusEnum(ProductStatusEnum.ChannelNotCheck.getStatus());
+			}else if(applyChannelStatus == 1 ){
+				/* 商品已加入渠道 */
+				shoppingCartDto.setNormalStatus(true);
+				shoppingCartDto.setStatusEnum(ProductStatusEnum.Normal.getStatus());
+			}else{
+				shoppingCartDto.setNormalStatus(false);
+				shoppingCartDto.setUnNormalStatusReason("商品需加入渠道");
+				shoppingCartDto.setStatusEnum(ProductStatusEnum.NotAddChannel.getStatus());
+			}
 		}else{
 			shoppingCartDto.setNormalStatus(true);
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Normal.getStatus());

@@ -82,7 +82,7 @@
                         <c:when test="${shoppingCartListDto != null && fn:length(shoppingCartListDto.shoppingCartDtoList) gt 0}">
                             <c:forEach var="shoppingCartDto" items="${shoppingCartListDto.shoppingCartDtoList}"  varStatus="shoppingCartDtoVarStatus">
                                 <div class="holder-list <c:if test="${!shoppingCartDto.normalStatus}"> no-stock </c:if> ">
-                                    <input type="hidden" value="${shoppingCartDto.unNormalStatusReason}">
+                                    <input type="hidden" value="${shoppingCartDto.unNormalStatusReason}" normalStatus="${shoppingCartDto.normalStatus}" statusEnum = ${shoppingCartDto.statusEnum}>
                                     <ul>
                                         <li class="fl td-chk">
                                             <c:if test="${shoppingCartDto.normalStatus}">
