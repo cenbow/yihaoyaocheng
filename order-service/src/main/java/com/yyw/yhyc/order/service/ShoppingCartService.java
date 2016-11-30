@@ -296,6 +296,15 @@ public class ShoppingCartService {
 			throw new Exception("非法参数");
 		}
 
+		/* 商品来源的字段：如果该字段没有，则默认添加商品的来源是进货单 */
+		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
+			shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
+		}
+
+		if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
+			shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
+		}
+
 		/* 查询已添加商品的品种总数 */
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
@@ -311,16 +320,6 @@ public class ShoppingCartService {
 			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
 			throw  new Exception("购买数量不能大于9999999");
 		}
-
-		if(UtilHelper.isEmpty(shoppingCart.getProductCodeCompany())){
-			shoppingCart.setProductCodeCompany(shoppingCart.getSpuCode());
-		}
-
-		/* 商品来源的字段：如果该字段没有，则默认添加商品的来源是进货单 */
-		if(UtilHelper.isEmpty(shoppingCart.getFromWhere())){
-			shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
-		}
-		logger.info("加入进货单总入口，shoppingCart = " + shoppingCart);
 
 
 		long startTime = System.currentTimeMillis();
@@ -1241,9 +1240,9 @@ public class ShoppingCartService {
 				cartProductBean.setSpec(scd.getSpecification());
 				cartProductBean.setUnit(scd.getUnit());
 				cartProductBean.setProductPrice(scd.getProductPrice());
-				cartProductBean.setStockCount(scd.getProductInventory());
-				cartProductBean.setBaseCount(scd.getSaleStart());
-				cartProductBean.setStepCount(scd.getUpStep());
+				cartProductBean.setStockCount(UtilHelper.isEmpty(scd.getProductInventory())? 0 : scd.getProductInventory());
+				cartProductBean.setBaseCount(UtilHelper.isEmpty(scd.getSaleStart()) ? 0 :scd.getSaleStart());
+				cartProductBean.setStepCount(UtilHelper.isEmpty(scd.getUpStep()) ? 0 :scd.getUpStep());
 				cartProductBean.setStatusDesc(scd.getStatusEnum());
 				cartProductBean.setFactoryName(scd.getManufactures());
 				cartProductBean.setVendorId(Integer.valueOf(scds.getSeller().getEnterpriseId()));
@@ -1465,7 +1464,7 @@ public class ShoppingCartService {
 
 		/* 查询商品库存 */
 		int stockAmount = UtilHelper.isEmpty(productDrug.getStock_amount()) ? 0 : Integer.valueOf(productDrug.getStock_amount());
-		if(stockAmount <= 0 || stockAmount < minimumPacking || stockAmount < shoppingCartDto.getProductCount()){
+		if(stockAmount <= 0 || stockAmount < minimumPacking || UtilHelper.isEmpty(shoppingCartDto.getProductCount()) || stockAmount < shoppingCartDto.getProductCount()){
 			shoppingCartDto.setExistProductInventory(false);
 			shoppingCartDto.setProductInventory(0);
 		}else{
@@ -1496,7 +1495,7 @@ public class ShoppingCartService {
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Shortage.getStatus());
 
 		/* 价格校验 */
-		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) == 0){
+		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) >= 0){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setUnNormalStatusReason("商品价格异常");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
