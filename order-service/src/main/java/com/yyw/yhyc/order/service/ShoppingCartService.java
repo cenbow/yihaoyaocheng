@@ -263,7 +263,7 @@ public class ShoppingCartService {
 				String key = shoppingCartDto.getSpuCode() + "-" + shoppingCartDto.getSpuCode();
 				productSet.add(key);
 				Map<String,ProductDrug> productDrugMap =  orderManage.searchBatchProduct(productSearchInterface,shoppingCartDto.getCustId()+"",custGroupCode,productSet);
-				if(productDrugMap.containsKey(key)){
+				if(!UtilHelper.isEmpty(productDrugMap)){
 					shoppingCartDto = handleProductInfo(shoppingCartDto,productDrugMap.get(key));
 				}
 
@@ -1120,10 +1120,6 @@ public class ShoppingCartService {
 					continue;
 				}
 				productCodeKey = shoppingCartDto.getSpuCode() + "-" + shoppingCartDto.getSupplyId();
-				if( !productMap.containsKey(productCodeKey)){
-					continue;
-				}
-
 				shoppingCartDto = handleProductInfo(shoppingCartDto,productMap.get(productCodeKey));
 
 				if(UtilHelper.isEmpty(shoppingCartDto)){
@@ -1434,6 +1430,13 @@ public class ShoppingCartService {
 
 		if(UtilHelper.isEmpty(shoppingCartDto)){
 			return null;
+		}
+
+		if(UtilHelper.isEmpty(productDrug)){
+			shoppingCartDto.setNormalStatus(false);
+			shoppingCartDto.setUnNormalStatusReason("不在销售区域范围内");
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
+			return shoppingCartDto;
 		}
 
 		if(!shoppingCartDto.getSpuCode().equals(productDrug.getSpu_code()) ){

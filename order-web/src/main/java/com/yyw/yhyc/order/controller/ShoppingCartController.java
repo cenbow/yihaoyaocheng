@@ -12,6 +12,7 @@
 package com.yyw.yhyc.order.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSONObject;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
@@ -28,6 +29,7 @@ import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.product.service.ProductInventoryService;
+import com.yyw.yhyc.utils.CacheUtil;
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +38,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.yyw.yhyc.order.inteceptor.GetUserInteceptor.CACHE_PREFIX;
 
 @Controller
 @RequestMapping(value = "/shoppingCart")
@@ -187,11 +192,22 @@ public class ShoppingCartController extends BaseJsonController {
 	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
 
 		/* 获取登陆用户的企业信息 */
-		UserDto userDto = super.getLoginUser();
+		UserDto userDto = getUserDto(request);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw  new Exception("登陆超时");
 		}
-		return shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+
+		Map<String, Object> resultMap = null;
+		try{
+			resultMap = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+		}catch (Exception e){
+			logger.error("添加进货单失败! msg = " + e.getMessage(),e);
+			resultMap = new HashMap<>();
+			resultMap.put("state", "F");
+			resultMap.put("message",e.getMessage());
+			return resultMap;
+		}
+		return resultMap;
 	}
 
 
@@ -265,5 +281,33 @@ public class ShoppingCartController extends BaseJsonController {
 		}
 		resultMap.put("result",true);
 		return resultMap;
+	}
+
+	/**
+	 * 获取当前登陆的用户信息
+	 * @param request
+	 * @return
+	 */
+	private UserDto getUserDto(HttpServletRequest request){
+		logger.info("request.getHeader(\"mySessionId\")=" + request.getHeader("mySessionId"));
+		String sessionId = request.getHeader("mySessionId");
+		if(UtilHelper.isEmpty(sessionId)){
+			return null;
+		}
+		String user = CacheUtil.getSingleton().get(CACHE_PREFIX + sessionId);
+		logger.info("user-->" + user);
+		//用户信息
+		if(!UtilHelper.isEmpty(user)) {
+			Map userMap = JSONObject.parseObject(user, HashMap.class);
+			if(UtilHelper.isEmpty(userMap)){
+				return null;
+			}
+			UserDto userDto = new UserDto();
+			userDto.setUser(userMap);
+			userDto.setUserName(userMap.get("username")+"");
+			userDto.setCustId(Integer.valueOf(userMap.get("enterprise_id")+""));
+			return userDto;
+		}
+		return null;
 	}
 }
