@@ -209,7 +209,11 @@ public class OrderController extends BaseController {
 		UserDto user = super.getLoginUser();
        if(!UtilHelper.isEmpty(orderStatus)){
 		   OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
-		   orderExceptionDto.setFlowId(orderId);
+		   if("900".equals(orderStatus)){ //补货订单的时候传递exceptionOrderId
+			   orderExceptionDto.setExceptionOrderId(orderId);
+		   }else{
+			   orderExceptionDto.setFlowId(orderId);
+		   }
 		   orderExceptionDto.setCustId(user.getCustId());
 		   return ok(orderExceptionService.getAbnormalOrderDetails(orderExceptionDto,Integer.parseInt(orderStatus),iProductDubboManageService));
 	   }else

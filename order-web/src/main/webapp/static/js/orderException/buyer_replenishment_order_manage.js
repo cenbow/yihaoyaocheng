@@ -178,7 +178,7 @@ function fillTableJson(data) {
     for (var i = 0; i < list.length; i++) {
         var order = list[i];
         var tr = "<tr>";
-        tr += "<td><a href='"+ctx+"/orderException/getReplenishmentDetails-1/" + order.flowId + "' class='undeline'>"+order.exceptionOrderId+"</a></td>";
+        tr += "<td><a href='"+ctx+"/orderException/getReplenishmentDetails-1/" +order.exceptionOrderId + "' class='undeline'>"+order.exceptionOrderId+"</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -259,6 +259,21 @@ function repListPg(ExceptionOrderId) {
             });
         }
     });
+}
+
+
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
 }
 
 

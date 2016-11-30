@@ -260,6 +260,8 @@ function fillSendDataTableJson(data) {
     var list = data.resultList;
     $(".table-box2 tbody").html("");
     var trs = "";
+    //保存部分发货未发货的金额
+    var orderSendObj={};
     for (var i = 0; i < list.length; i++) {
         var orderDeliveryDetail = list[i];
         var recieveCount=orderDeliveryDetail.recieveCount;
@@ -281,8 +283,25 @@ function fillSendDataTableJson(data) {
         tr += "<td>" + recieveCount + "</td>";
         tr += "</tr>";
         trs += tr;
+        
+        //处理部分发货的未发货的金额
+        if(i==0){
+         var currentObject=list[0];
+         orderSendObj.partDelivery=currentObject['partDelivery'];
+         orderSendObj.cancelmMoney=currentObject['cancelmMoney'];
+        }
+        
+        
     }
     $(".table-box2 tbody").append(trs);
+    
+    if(orderSendObj.partDelivery){
+    	  if(orderSendObj.cancelmMoney){
+    		  $('#showProductMoneyDiv').show();
+    		  $('#showMoney').html(orderSendObj.cancelmMoney);
+    	  }
+    	
+    }
     $("#myModal2").modal();
 }
 

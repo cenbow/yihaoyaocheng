@@ -638,7 +638,7 @@ public class OrderExceptionController extends BaseJsonController{
 	public ModelAndView getReplenishmentDetails(@PathVariable("userType") int userType,@PathVariable("flowId")String flowId) throws Exception {
 		UserDto user = super.getLoginUser();
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
-		orderExceptionDto.setFlowId(flowId);
+		orderExceptionDto.setExceptionOrderId(flowId);
 		orderExceptionDto.setUserType(userType);
 		if (userType == 1) {
 			orderExceptionDto.setCustId(user.getCustId());
@@ -727,7 +727,8 @@ public class OrderExceptionController extends BaseJsonController{
 		OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
 		orderExceptionDto.setUserType(3);
 		orderExceptionDto.setSupplyId(user.getCustId());
-		orderExceptionDto.setFlowId(flowId);
+		//orderExceptionDto.setFlowId(flowId);
+		orderExceptionDto.setExceptionOrderId(flowId);
 		orderExceptionDto = orderExceptionService.getReplenishmentDetails(orderExceptionDto);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.addObject("orderExceptionDto",orderExceptionDto);

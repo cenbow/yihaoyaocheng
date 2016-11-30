@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yao.trade.interfaces.credit.model.CreditDubboResult;
+import com.yao.trade.interfaces.credit.model.CreditParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDelivery;
@@ -542,24 +545,22 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
 			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 			
 			if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()) && !UtilHelper.isEmpty(creditDubboService)){
-				/*CreditParams creditParams = new CreditParams();
-				//creditParams.setSourceFlowId(oe.getFlowId());//拒收时，拒收单对应的源订单单号
-				creditParams.setBuyerCode(oe.getCustId() + "");
-				creditParams.setSellerCode(oe.getSupplyId() + "");
-				creditParams.setBuyerName(oe.getCustName());
-				creditParams.setSellerName(oe.getSupplyName());
-				if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
-					creditParams.setOrderTotal(order.getOrderTotal().subtract(oe.getOrderMoney()));//订单金额
-				else
-					creditParams.setOrderTotal(order.getOrderTotal());//订单金额
-				creditParams.setFlowId(oe.getFlowId());//订单编码
-				creditParams.setStatus("2");
+				CreditParams creditParams = new CreditParams();
+				
+				creditParams.setBuyerCode(order.getCustId()+"");
+				creditParams.setSellerCode(order.getSupplyId()+"");
+				creditParams.setBuyerName(order.getCustName());
+				creditParams.setSellerName(order.getSupplyName());
+				BigDecimal noSendMoney=this.computerNoDeliveryMoney(orderDeliveryDto);
+				creditParams.setOrderTotal(noSendMoney);//订单金额
+				creditParams.setFlowId(order.getFlowId());//订单编码
+				creditParams.setStatus("5");
 				creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 				if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
-					logger.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
+					log.error("creditDubboResult error:"+(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！"));
 					throw new RuntimeException(creditDubboResult !=null?creditDubboResult.getMessage():"接口调用失败！");
-				}*/
+				}
 			}
 			
 		} catch (Exception e) {

@@ -232,7 +232,7 @@ function fillTableJson(data) {
         var order = list[i];
         var operate = getOperateHtml(order.flowId,order.orderStatus,order.exceptionId,order.exceptionOrderId);
         var tr = "<tr>";
-        tr += "<td><a href='"+ctx+"/orderException/getReplenishmentDetails-2/" + order.flowId + "' class='undeline'>"+order.exceptionOrderId+"</a></td>";
+        tr += "<td><a href='"+ctx+"/orderException/getReplenishmentDetails-2/" + order.exceptionOrderId + "' class='undeline'>"+order.exceptionOrderId+"</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -249,7 +249,7 @@ function fillTableJson(data) {
 function getOperateHtml(_flowId,_orderStatus,_exceptionId,_exceptionOrderId){
     var result = "";
     if ( _orderStatus == "1") {
-        result = "<a href='"+ctx+"/orderException/getReviewReplenishmentDetails/"+_flowId+"' class='btn btn-info btn-sm margin-r-10'>审核</a>";
+        result = "<a href='"+ctx+"/orderException/getReviewReplenishmentDetails/"+_exceptionOrderId+"' class='btn btn-info btn-sm margin-r-10'>审核</a>";
     } else if( _orderStatus == "2") {
         result = "<a href='javascript:sendDelivery(\""+_exceptionOrderId+"\");' class='btn btn-info btn-sm margin-r-10')'>发货</a>";
     }
@@ -424,6 +424,20 @@ function sendDeliverysubmit(){
         }
     });
 
+}
+
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
 }
 
 function totab(tab){
