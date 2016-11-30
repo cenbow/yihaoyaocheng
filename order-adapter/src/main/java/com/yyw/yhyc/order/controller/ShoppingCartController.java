@@ -244,7 +244,7 @@ public class ShoppingCartController extends BaseController {
 	 * @return
 	 * @throws Exception
      */
-	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET , headers = {"version=v1.0","version=v1"})
+	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET )
 	@ResponseBody
 	public Map<String, Object> getShopCartList() throws Exception {
 		/* 获取登陆用户的企业信息 */
