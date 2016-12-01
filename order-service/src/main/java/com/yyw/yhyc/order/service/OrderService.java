@@ -992,7 +992,7 @@ public class OrderService {
 			int stockAmount = UtilHelper.isEmpty(productDrug.getStock_amount()) ? 0 : Integer.valueOf(productDrug.getStock_amount());
 			int minimumPacking = UtilHelper.isEmpty(productDrug.getMinimum_packing()) ? 1 : Integer.valueOf( productDrug.getMinimum_packing());
 			if(stockAmount <= 0 || stockAmount < minimumPacking || stockAmount < productInfoDto.getProductCount()){
-				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfo.getSpuCode() + ")库存校验失败! " +
+				log.info("统一校验订单商品接口 ：商品(spuCode=" + productInfoDto.getSpuCode() + ")库存校验失败! " +
 						"\n stockAmount = " + stockAmount + ",minimumPacking=" + minimumPacking + ",productInfoDto.getProductCount()=" + productInfoDto.getProductCount() );
 				return returnFalse("您的进货单中，有部分商品缺货或下架了，请返回" + productFromWhere + "查看",productFromFastOrderCount);
 			}
