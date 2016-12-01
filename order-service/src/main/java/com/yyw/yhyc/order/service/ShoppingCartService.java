@@ -1439,7 +1439,7 @@ public class ShoppingCartService {
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setPutawayStatus(2);
 			shoppingCartDto.setUnNormalStatusReason("已下架");
-			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
+			shoppingCartDto.setStatusEnum(ProductStatusEnum.OffTheShelf.getStatus());
 			shoppingCartDto.setProductImageUrl(productImageUrl);
 			return shoppingCartDto;
 		}
