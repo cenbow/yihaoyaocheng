@@ -194,20 +194,24 @@ public class ShoppingCartController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/addShoppingCart", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
+	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart){
 		logger.info("_________________加入进货单(唯一http入口)________________________,\n原始数据：shoppingCart = " + shoppingCart);
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = getUserDto(request);
-		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
-			throw  new Exception("登陆超时");
+		Map<String, Object> resultMap = new HashMap<>();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId()) || userDto.getCustId() <= 0){
+			resultMap.put("state", "F");
+			resultMap.put("loginFlag",0);
+			resultMap.put("message","登陆超时");
+			return resultMap;
+		}else{
+			resultMap.put("loginFlag",1);
 		}
-		Map<String, Object> resultMap = null;
 
 		/* 加入进货单前，校验用户、商品是否在销售区域范围内 */
 		boolean checkUserAndProductResult = checkUserAndProduct(userDto,shoppingCart.getSpuCode(),shoppingCart.getSupplyId());
 		if(!checkUserAndProductResult){
-			logger.error("添加进货单失败! 用户或者商品不在销售区域范围内" );
-			resultMap = new HashMap<>();
+			logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 用户或者商品不在销售区域范围内" );
 			resultMap.put("state", "F");
 			resultMap.put("message","不好意思，您的所在地无法购买此商品，去官网看看其他商品吧。");
 			return resultMap;
@@ -216,12 +220,12 @@ public class ShoppingCartController extends BaseJsonController {
 		try{
 			resultMap = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}catch (Exception e){
-			logger.error("添加进货单失败! msg = " + e.getMessage(),e);
-			resultMap = new HashMap<>();
+			logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 报错信息：" + e.getMessage(),e);
 			resultMap.put("state", "F");
-			resultMap.put("message",e.getMessage());
+			resultMap.put("message","添加进货单失败!");
 			return resultMap;
 		}
+		logger.info("_________________加入进货单(唯一http入口)________________________,\n 返回数据：resultMap = " + resultMap);
 		return resultMap;
 	}
 
