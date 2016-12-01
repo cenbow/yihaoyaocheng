@@ -15,7 +15,9 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONObject;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.IUsermanageAuditDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.UsermanageDrugScope;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
@@ -71,6 +73,9 @@ public class ShoppingCartController extends BaseJsonController {
 
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
+
+	@Reference
+	private IUsermanageAuditDubbo usermanageAudit;
 
 
 	/**
@@ -190,14 +195,24 @@ public class ShoppingCartController extends BaseJsonController {
 	@RequestMapping(value = "/addShoppingCart", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
-
+		logger.info("_________________加入进货单(唯一http入口)________________________,\n原始数据：shoppingCart = " + shoppingCart);
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = getUserDto(request);
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
 			throw  new Exception("登陆超时");
 		}
-
 		Map<String, Object> resultMap = null;
+
+		/* 加入进货单前，校验用户、商品是否在销售区域范围内 */
+		boolean checkUserAndProductResult = checkUserAndProduct(userDto,shoppingCart.getSpuCode(),shoppingCart.getSupplyId());
+		if(!checkUserAndProductResult){
+			logger.error("添加进货单失败! 用户或者商品不在销售区域范围内" );
+			resultMap = new HashMap<>();
+			resultMap.put("state", "F");
+			resultMap.put("message","不好意思，您的所在地无法购买此商品，去官网看看其他商品吧。");
+			return resultMap;
+		}
+
 		try{
 			resultMap = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}catch (Exception e){
@@ -309,5 +324,82 @@ public class ShoppingCartController extends BaseJsonController {
 			return userDto;
 		}
 		return null;
+	}
+
+
+	/**
+	 * 加入进货单前，校验用户、商品是否在销售区域范围内
+	 * @param userDto
+	 * @param spuCode
+	 * @param sellerCode
+     */
+	private boolean checkUserAndProduct(UserDto userDto,String spuCode, Integer sellerCode) {
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(sellerCode)){
+			return false;
+		}
+		List<String> sellerList = new ArrayList<String>();
+		Map<String, Object> enInfo = usermanageAudit.querySellerByBuyerCode(String.valueOf(userDto.getCustId()));
+		if ("success".equals(enInfo.get("status"))) {
+			if (enInfo.get("data") != null) {
+				List<Map<String, Object>> sellerMapList  = (List<Map<String, Object>>)((Map)enInfo.get("data")).get("sellerList");
+				for (Map<String, Object> temp : sellerMapList) {
+					sellerList.add(String.valueOf(temp.get("seller_code")));
+				}
+			}
+		}
+
+		logger.info("sellerList =====>" + sellerList);
+		if (!sellerList.contains(String.valueOf(sellerCode))) {
+			logger.error("加入进货单前，校验用户、商品是否在销售区域范围内-----不好意思，您的所在地无法购买此商品，去官网看看其他商品吧。\n sellerCode= " + sellerCode + ",sellerList = " + sellerList);
+			return false;
+		} else {
+			String scope = getUseProductScope(userDto);
+			String drugSecondCategory = "";
+			Map paramMap = new HashMap();
+			paramMap.put("spu_code", spuCode);
+			paramMap.put("seller_code", sellerCode);
+			logger.info("加入进货单前，校验用户、商品是否在销售区域范围内-----调用iProductDubboManageService.selectProductBySPUCodeAndSellerCode接口,请求参数：" + paramMap.toString());
+			List<Map<String,Object>> list = iProductDubboManageService.selectProductBySPUCodeAndSellerCode(paramMap);
+			logger.info("加入进货单前，校验用户、商品是否在销售区域范围内-----调用iProductDubboManageService.selectProductBySPUCodeAndSellerCode接口,响应参数：" + list.toString());
+			if(list != null && list.size() > 0){
+				drugSecondCategory = String.valueOf(list.get(0).get("drug_second_category"));
+			}
+			logger.info("checkShoppingCart ：scope = " + scope + ", drugSecondCategory = " + drugSecondCategory);
+			if (UtilHelper.isEmpty(scope) || UtilHelper.isEmpty(drugSecondCategory) || scope.indexOf(drugSecondCategory) < 0) {
+				logger.error("不好意思，您的所在地无法购买此商品，去官网看看其他商品吧。\n scope = " + scope + ",drugSecondCategory = " + drugSecondCategory + ",scope.indexOf(drugSecondCategory) = " + scope.indexOf(drugSecondCategory));
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 加入进货单前，校验用户是否在销售区域范围内
+	 * @param userDto
+	 * @return
+     */
+	private String getUseProductScope(UserDto userDto) {
+		String scope = "";
+		if ( UtilHelper.isEmpty(userDto) || userDto.getCustId() <= 0) {
+			return scope;
+		}
+		logger.info("加入进货单前，校验用户是否在销售区域范围内-----调用usermanageAudit.loadEnterpriseInfoForAudit接口,请求参数：" + userDto.getCustId());
+		Map<String, Object> useInfor = usermanageAudit.loadEnterpriseInfoForAudit(userDto.getCustId());
+		logger.info("加入进货单前，校验用户是否在销售区域范围内-----调用usermanageAudit.loadEnterpriseInfoForAudit接口,响应参数：" + useInfor);
+		if (useInfor != null && "success".equals(useInfor.get("status"))) {
+			Map<String, Object> data = (Map<String, Object>)useInfor.get("data");
+			if(UtilHelper.isEmpty(data) || UtilHelper.isEmpty(data.get("drugScopeList"))){
+				return scope;
+			}
+			List<UsermanageDrugScope> drugScopes = (List<UsermanageDrugScope>)data.get("drugScopeList");
+			for (UsermanageDrugScope drugScope : drugScopes) {
+				scope = scope + drugScope.getDrugScopeId() + ",";
+			}
+			if (!"".equals(scope)) {
+				scope = scope.substring(0, scope.length() - 1);
+			}
+		}
+		logger.info("加入进货单前，校验用户是否在销售区域范围内-----返回结果：scope = " + scope);
+		return scope;
 	}
 }

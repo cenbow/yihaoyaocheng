@@ -1432,9 +1432,11 @@ public class ShoppingCartService {
 			return null;
 		}
 
+		/* 搜索结果里面搜不到该商品，表示该商品已下架 */
 		if(UtilHelper.isEmpty(productDrug)){
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("不在销售区域范围内");
+			shoppingCartDto.setPutawayStatus(2);
+			shoppingCartDto.setUnNormalStatusReason("已下架");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
 			return shoppingCartDto;
 		}

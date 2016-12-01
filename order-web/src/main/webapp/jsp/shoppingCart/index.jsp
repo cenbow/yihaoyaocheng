@@ -95,10 +95,9 @@
 
                                         <li class="fl td-pic" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
                                             <c:choose>
-                                                <c:when test="${shoppingCartDto.productPrice <= 0}"><span class="inside-icon">失效</span></c:when>
-                                                <c:when test="${!shoppingCartDto.existProductInventory}"><span class="inside-icon">缺货</span></c:when>
-                                                <c:when test="${ shoppingCartDto.putawayStatus != 1}"><span class="inside-icon">下架</span></c:when>
-                                                <c:when test="${ shoppingCartDto.promotionId > 0  &&  (shoppingCartDto.promotionPrice == null || shoppingCartDto.promotionPrice < 0 )  }"><span class="inside-icon">失效</span></c:when>
+                                                <c:when test="${!shoppingCartDto.normalStatus && shoppingCartDto.putawayStatus != 1}"><span class="inside-icon">下架</span></c:when>
+                                                <c:when test="${!shoppingCartDto.normalStatus && shoppingCartDto.productInventory <= 0}"><span class="inside-icon">缺货</span></c:when>
+                                                <c:when test="${!shoppingCartDto.normalStatus }"><span class="inside-icon">失效</span></c:when>
                                             </c:choose>
                                             <img  src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}" onerror="this.src='http://oms.yaoex.com/static/images/product_default_img.jpg'">
