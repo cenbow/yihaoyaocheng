@@ -19,6 +19,7 @@ import com.search.model.yhyc.*;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yyw.yhyc.exception.ServiceException;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.appdto.*;
 import com.yyw.yhyc.order.appdto.ProductPromotion;
@@ -289,11 +290,11 @@ public class ShoppingCartService {
 	 * @throws Exception
 	 */
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,
-											   IProductDubboManageService iProductDubboManageService,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception{
+											   IProductDubboManageService iProductDubboManageService,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws ServiceException {
 		logger.info("_________________加入进货单(公用、核心逻辑)________________________,\n原始数据：shoppingCart = " + shoppingCart);
 
 		if(UtilHelper.isEmpty(shoppingCart)){
-			throw new Exception("非法参数");
+			throw new ServiceException("非法参数");
 		}
 
 		/* 商品来源的字段：如果该字段没有，则默认添加商品的来源是进货单 */
@@ -312,13 +313,13 @@ public class ShoppingCartService {
 		int count = shoppingCartMapper.findByCount(condition);
 		if (count >= 100) {
 			logger.info("查询已添加商品的品种总数:已购买的品种总数为" + count);
-			throw new Exception("最多只能添加100个品种，请先下单。");
+			throw new ServiceException("最多只能添加100个品种，请先下单。");
 		}
 
 		/* 单个商品的最大数量限制 */
 		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
 			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
-			throw  new Exception("购买数量不能大于9999999");
+			throw  new ServiceException("购买数量不能大于9999999");
 		}
 
 
@@ -353,7 +354,7 @@ public class ShoppingCartService {
 	 * @param shoppingCart 外部传递过来的原始数据
 	 * @return
 	 */
-	private Map<String,Object> addNormalProduct(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+	private Map<String,Object> addNormalProduct(ShoppingCart shoppingCart,UserDto userDto) throws ServiceException {
 
 		logger.info("添加进货单接口--添加普通商品到进货单:shoppingCart=" + shoppingCart +",userDto="+ userDto);
 
@@ -384,10 +385,10 @@ public class ShoppingCartService {
 	 * @return
 	 */
 	private Map<String, Object> addActivityProduct(ShoppingCart shoppingCart,UserDto userDto,IPromotionDubboManageService iPromotionDubboManageService,
-												   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception {
+												   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws ServiceException {
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0){
 			logger.error("加进货单接口--添加活动商品到进货单：非法参数过滤 ，shoppingCart=" + shoppingCart);
-			throw new Exception("非法参数");
+			throw new ServiceException("非法参数");
 		}
 
 		/*获取活动商品 实际上还能购买的数量*/
@@ -402,7 +403,7 @@ public class ShoppingCartService {
 					shoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
 			if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0"))<= 0 ){
 				logger.error("加进货单接口--添加活动商品到进货单：不能再以活动价添加，查询商品原价productPrice = " + productPrice);
-				throw new Exception("查询商品价格失败");
+				throw new ServiceException("查询商品价格失败");
 			}
 			ShoppingCart normalProductShoppingCart = new ShoppingCart();
 			BeanUtils.copyProperties(shoppingCart,normalProductShoppingCart);
@@ -451,7 +452,7 @@ public class ShoppingCartService {
 			BigDecimal productPrice = orderManage.getProductPrice(shoppingCart.getSpuCode(),shoppingCart.getCustId(),shoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
 			if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0"))<= 0){
 				logger.error("加进货单接口--添加活动商品到进货单：不能再以活动价格增加数量，查询商品原价productPrice = " + productPrice);
-				throw new Exception("查询商品价格失败");
+				throw new ServiceException("查询商品价格失败");
 			}
 			ShoppingCart normalProductShoppingCart = new ShoppingCart();
 			BeanUtils.copyProperties(shoppingCart,normalProductShoppingCart);
@@ -473,7 +474,7 @@ public class ShoppingCartService {
 			logger.info("加进货单接口--添加活动商品到进货单：购买数量小于限购，直接更新shoppingCart=" + shoppingCart);
 			shoppingCartMapper.save(shoppingCart);
 		}else{
-			throw new Exception("非法参数");
+			throw new ServiceException("非法参数");
 		}
 		return null;
 
@@ -489,10 +490,10 @@ public class ShoppingCartService {
 	 * 		    "shoppingCart" 表示获取活动信息后的 ShoppingCart实体
 	 * @throws Exception
      */
-	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) throws Exception {
+	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) throws ServiceException {
 		logger.info(" _______________获取活动商品 实际上还能购买的数量_______________\n外部传过来的shoppingCart="+ shoppingCart);
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0){
-			throw new Exception("非法参数");
+			throw new ServiceException("非法参数");
 		}
 		Map<String,Object> resultMap = new HashMap<>();
 		int stillCanBuy = 0;
@@ -513,7 +514,7 @@ public class ShoppingCartService {
 
 		if(UtilHelper.isEmpty(shoppingCart.getProductPrice()) || shoppingCart.getProductPrice().compareTo(new BigDecimal(0)) <= 0){
 			logger.info("非法商品价格! 传来的商品活动价格shoppingCart.getProductPrice() = " + shoppingCart.getProductPrice());
-			throw new Exception("非法商品价格");
+			throw new ServiceException("非法商品价格");
 		}
 
 		/* 活动价格异常 处理 */
@@ -542,7 +543,7 @@ public class ShoppingCartService {
 		/* 当前购买的数量 < 最小起批量(minimumPacking)，  则不能购买 */
 		if(shoppingCart.getProductCount() < productPromotionDto.getMinimumPacking()){
 			logger.error("该活动商品的购买数量("+ shoppingCart.getProductCount() +")小于活动最小起批量("+ productPromotionDto.getMinimumPacking()+")");
-			throw new Exception("该活动商品的购买数量("+ shoppingCart.getProductCount() +")小于活动最小起批量("+ productPromotionDto.getMinimumPacking()+")");
+			throw new ServiceException("该活动商品的购买数量("+ shoppingCart.getProductCount() +")小于活动最小起批量("+ productPromotionDto.getMinimumPacking()+")");
 		}
 
 		/*查询该商品在该活动中的历史购买量*/
@@ -612,10 +613,10 @@ public class ShoppingCartService {
 	 * @param shoppingCart  外部传递过来的原始数据
 	 * @return
 	 */
-	private Map<String, Object> increaseNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+	private Map<String, Object> increaseNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws ServiceException {
 		logger.info("更新购物车中数量接口--增加普通商品数量:shoppingCart=" + shoppingCart +",userDto=" + userDto);
 		if(UtilHelper.isEmpty(shoppingCart)  || UtilHelper.isEmpty(shoppingCart.getProductCount()) || shoppingCart.getProductCount() <= 0){
-			throw new Exception("非法参数");
+			throw new ServiceException("非法参数");
 		}
 		Map<String, Object>  resultMap = new HashMap<>();
 
@@ -637,7 +638,7 @@ public class ShoppingCartService {
 				oldShoppingCart = shoppingCartList.get(0);
 			}
 			if(UtilHelper.isEmpty(oldShoppingCart)){
-				throw new Exception("非法数据");
+				throw new ServiceException("非法数据");
 			}
 			shoppingCart.setProductCount(oldShoppingCart.getProductCount() + shoppingCart.getProductCount());
 			shoppingCart.setProductPrice(oldShoppingCart.getProductPrice());
@@ -653,7 +654,7 @@ public class ShoppingCartService {
 		/* 当前加入商品的数量 + 购物车中已经加入的数量 > 可见库存, 则只能买当前最大库存 */
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(oldShoppingCart.getSupplyId(), oldShoppingCart.getSpuCode());
 		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
-			throw new Exception("商品没有库存");
+			throw new ServiceException("商品没有库存");
 		}
 		if( shoppingCart.getProductCount() > product.getFrontInventory()){
 			shoppingCart.setProductCount(product.getFrontInventory());
@@ -672,10 +673,10 @@ public class ShoppingCartService {
      * @return
      */
 	private Map<String, Object> increaseActivityProductNum(ShoppingCart shoppingCart,UserDto userDto,
-														   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws Exception {
+														   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws ServiceException {
 		logger.error("加进货单接口--增加活动商品在进货单的数量：传入参数shoppingCart=" + shoppingCart +",userDto=" + userDto);
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0 ){
-			throw new Exception("非法参数");
+			throw new ServiceException("非法参数");
 		}
 
 		/* 获取该活动商品 实际上还能购买的数量 */
@@ -688,7 +689,7 @@ public class ShoppingCartService {
 					shoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
 			if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0"))<= 0 ){
 				logger.error("加进货单接口--增加活动商品在进货单的数量：不能再以活动价格增加数量，查询商品原价productPrice = " + productPrice);
-				throw new Exception("查询商品价格失败");
+				throw new ServiceException("查询商品价格失败");
 			}
 			ShoppingCart normalProductShoppingCart = new ShoppingCart();
 			BeanUtils.copyProperties(shoppingCart,normalProductShoppingCart);
@@ -730,7 +731,7 @@ public class ShoppingCartService {
 				oldShoppingCart = shoppingCarts.get(0);
 			}
 			if(UtilHelper.isEmpty(oldShoppingCart)){
-				throw new Exception("非法数据");
+				throw new ServiceException("非法数据");
 			}
 			shoppingCart.setShoppingCartId(oldShoppingCart.getShoppingCartId());
 			shoppingCart.setProductCount(oldShoppingCart.getProductCount() + shoppingCart.getProductCount());
@@ -768,7 +769,7 @@ public class ShoppingCartService {
 		/* 超过限购量的部分，则以原价新增一条数据(saveOrUpdate) */
 		BigDecimal productPrice = orderManage.getProductPrice(oldShoppingCart.getSpuCode(),oldShoppingCart.getCustId(),oldShoppingCart.getSupplyId(),iCustgroupmanageDubbo,productSearchInterface);
 		if(UtilHelper.isEmpty(productPrice) || productPrice.compareTo(new BigDecimal("0"))<= 0){
-			throw new Exception("查询商品价格失败");
+			throw new ServiceException("查询商品价格失败");
 		}
 		ShoppingCart normalProductShoppingCart = new ShoppingCart();
 		BeanUtils.copyProperties(oldShoppingCart,normalProductShoppingCart);
@@ -910,7 +911,7 @@ public class ShoppingCartService {
 	 * @param shoppingCart  外部传递过来的原始数据
 	 * @return
 	 */
-	private Map<String, Object> update(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+	private Map<String, Object> update(ShoppingCart shoppingCart,UserDto userDto) {
 		logger.info("更新购物车中数量接口--更新商品数量:传入参数shoppingCart=" + shoppingCart +",userDto= " + userDto);
 		Map<String, Object>  resultMap = new HashMap<>();
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getShoppingCartId()) || UtilHelper.isEmpty(shoppingCart.getProductCount())){
@@ -944,26 +945,26 @@ public class ShoppingCartService {
 	 * @param shoppingCart  外部传递过来的原始数据
 	 * @return
 	 */
-	private Map<String,Object> saveNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws Exception {
+	private Map<String,Object> saveNormalProductNum(ShoppingCart shoppingCart,UserDto userDto) throws ServiceException {
 		logger.info("购物车中数量新增一条普通商品数据:传入参数shoppingCart=" + shoppingCart +",userDto= " + userDto);
 		/* 查询已添加商品的品种总数 */
 		ShoppingCart condition = new ShoppingCart();
 		condition.setCustId(shoppingCart.getCustId());
 		condition.setFromWhere(shoppingCart.getFromWhere());
 		int count = shoppingCartMapper.findByCount(condition);
-		if (count >= 100)  throw new Exception("最多只能添加100个品种，请先下单。");
+		if (count >= 100)  throw new ServiceException("最多只能添加100个品种，请先下单。");
 
 		/* 单个商品的最大数量限制 */
 		if(!UtilHelper.isEmpty(shoppingCart.getProductCount()) && shoppingCart.getProductCount() > 9999999 ){
 			logger.info("更新进货单商品数量超过限制！购买数量不能大于9999999，shoppingCart.getProductCount() = " + shoppingCart.getProductCount());
-			throw  new Exception("购买数量不能大于9999999");
+			throw  new ServiceException("购买数量不能大于9999999");
 		}
 
 		/* 校验商品库存 */
 		/* 当前加入商品的数量 > 可见库存, 则只能买当前最大库存 */
 		ProductInventory product = productInventoryMapper.findBySupplyIdSpuCode(shoppingCart.getSupplyId(), shoppingCart.getSpuCode());
 		if(UtilHelper.isEmpty(product) || UtilHelper.isEmpty(product.getFrontInventory()) || product.getFrontInventory() <= 0){
-			throw new Exception("商品没有库存");
+			throw new ServiceException("商品没有库存");
 		}
 
 		if((shoppingCart.getProductCount())>product.getFrontInventory()){
@@ -1431,6 +1432,7 @@ public class ShoppingCartService {
 		if(UtilHelper.isEmpty(shoppingCartDto)){
 			return null;
 		}
+		String productImageUrl = getProductImgUrl("");
 
 		/* 搜索结果里面搜不到该商品，表示该商品已下架 */
 		if(UtilHelper.isEmpty(productDrug)){
@@ -1438,11 +1440,13 @@ public class ShoppingCartService {
 			shoppingCartDto.setPutawayStatus(2);
 			shoppingCartDto.setUnNormalStatusReason("已下架");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
+			shoppingCartDto.setProductImageUrl(productImageUrl);
 			return shoppingCartDto;
 		}
 
 		if(!shoppingCartDto.getSpuCode().equals(productDrug.getSpu_code()) ){
 			logger.error("处理单个商品的信息，spuCode不一致!");
+			shoppingCartDto.setProductImageUrl(productImageUrl);
 			return shoppingCartDto;
 		}
 

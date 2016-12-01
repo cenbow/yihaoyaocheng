@@ -22,6 +22,7 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.exception.ServiceException;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.OrderDto;
@@ -219,6 +220,11 @@ public class ShoppingCartController extends BaseJsonController {
 
 		try{
 			resultMap = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+		}catch (ServiceException e){
+			logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 报错信息：" + e.getMessage(),e);
+			resultMap.put("state", "F");
+			resultMap.put("message",e.getMessage());
+			return resultMap;
 		}catch (Exception e){
 			logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 报错信息：" + e.getMessage(),e);
 			resultMap.put("state", "F");
