@@ -43,7 +43,7 @@ public class OrderManage {
 	}
 
 	/**
-	 * 查询单个商品的详细信息(含活动信息)
+	 * 查询单个商品的详细信息(含活动信息)(调用批量搜索商品的接口)
 	 * @param productSearchInterface
 	 * @param iCustgroupmanageDubbo
 	 *@param spuCode                    商品的spu编码
@@ -52,8 +52,9 @@ public class OrderManage {
 	 * @param buyerEnterpriseId        采购商企业id     @return
 	 */
 	public ProductPromotionDto queryProductWithPromotion(ProductSearchInterface productSearchInterface,
-														 ICustgroupmanageDubbo iCustgroupmanageDubbo, String spuCode, int sellerEnterpriseId, Integer promotionId, int buyerEnterpriseId) {
-		if(UtilHelper.isEmpty(productSearchInterface) || UtilHelper.isEmpty(iCustgroupmanageDubbo)|| UtilHelper.isEmpty(spuCode)
+														 ICustgroupmanageDubbo iCustgroupmanageDubbo, IPromotionDubboManageService iPromotionDubboManageService,
+														 String spuCode, int sellerEnterpriseId, Integer promotionId, int buyerEnterpriseId) {
+		if(UtilHelper.isEmpty(productSearchInterface) || UtilHelper.isEmpty(iCustgroupmanageDubbo) || UtilHelper.isEmpty(iPromotionDubboManageService)|| UtilHelper.isEmpty(spuCode)
 				|| sellerEnterpriseId <= 0 || sellerEnterpriseId <= 0 || UtilHelper.isEmpty(promotionId)) {
 			return null;
 		}
@@ -78,12 +79,83 @@ public class OrderManage {
 			productPromotionDto.setMinimumPacking(UtilHelper.isEmpty(productPromotion.getMinimum_packing()) ? 0 : productPromotion.getMinimum_packing());
 			productPromotionDto.setLimitNum(UtilHelper.isEmpty(productPromotion.getLimit_num()) ? 0 : productPromotion.getLimit_num());
 			productPromotionDto.setSumInventory(UtilHelper.isEmpty(productPromotion.getSum_inventory()) ? 0 : productPromotion.getSum_inventory());
-			productPromotionDto.setCurrentInventory(UtilHelper.isEmpty(productPromotion.getCurrent_inventory()) ? 0 : productPromotion.getCurrent_inventory());
+
+//			productPromotionDto.setCurrentInventory(UtilHelper.isEmpty(productPromotion.getCurrent_inventory()) ? 0 : productPromotion.getCurrent_inventory());
+			/* 活动实时库存字段，如果走搜索接口，可能会有问题(比如该字段同步失败)。所以改用活动的dubbo接口去获取该字段的值 */
+			ProductPromotionDto temp = queryProductWithPromotion(iPromotionDubboManageService,spuCode,sellerEnterpriseId+"",promotionId,buyerEnterpriseId+"");
+			productPromotionDto.setCurrentInventory(getPromotionCurrentInventory(temp));
+
 			productPromotionDto.setSort(UtilHelper.isEmpty(productPromotion.getSort()) ? 0 : Short.parseShort(productPromotion.getSort()+""));
 			productPromotionDto.setPromotionType(UtilHelper.isEmpty(productPromotion.getPromotion_type()) ? 0 : Integer.parseInt(productPromotion.getPromotion_type()+""));
 			productPromotionDto.setPromotionName(UtilHelper.isEmpty(productPromotion.getPromotion_name()) ? "" : productPromotion.getPromotion_name());
 		}
-		logger.info("查询商品参加活动的信息,productPromotionDto=" + productPromotionDto);
+		logger.info("查询单个商品的详细信息(含活动信息)(调用批量搜索商品的接口),productPromotionDto=" + productPromotionDto);
+		return productPromotionDto;
+	}
+
+
+	/**
+	 *
+	 * @param promotionDto
+	 * @return
+     */
+	private int getPromotionCurrentInventory(ProductPromotionDto promotionDto){
+		if(UtilHelper.isEmpty(promotionDto) || UtilHelper.isEmpty(promotionDto.getCurrentInventory())){
+			return 0;
+		}
+		return promotionDto.getCurrentInventory();
+	}
+
+	/**
+	 * 查询单个商品参加活动的信息(调用活动的dubbo接口)
+	 * @param iPromotionDubboManageService
+	 * @param spuCode                    商品的spu编码
+	 * @param sellerEnterpriseId       供应商企业id
+	 * @param promotionId               活动id
+	 * @param buyerEnterpriseId        采购商企业id
+	 * @return
+	 */
+	private ProductPromotionDto queryProductWithPromotion(IPromotionDubboManageService iPromotionDubboManageService,
+														 String spuCode, String sellerEnterpriseId, Integer promotionId, String buyerEnterpriseId) {
+		if(UtilHelper.isEmpty(iPromotionDubboManageService) || UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(sellerEnterpriseId) || UtilHelper.isEmpty(promotionId)){
+			return null;
+		}
+
+		Map map = null;
+		try{
+			Map params=new HashMap();
+			params.put("spuCode",spuCode);
+			params.put("promotionId", promotionId);
+			params.put("buyerCode", buyerEnterpriseId);
+			params.put("sellerCode", sellerEnterpriseId);
+//			params.put("spuCode", "1000500BBBH240001");
+//			params.put("promotionId", 3);
+//			params.put("buyerCode", "8859");
+//			params.put("sellerCode", "11905");
+			logger.info("查询单个商品参加活动的信息(调用活动的dubbo接口),请求参数params：" + params);
+			long startTime = System.currentTimeMillis();
+			map = iPromotionDubboManageService.getProductGroupBySpuCodeAndSellerCode(params);
+			long endTime = System.currentTimeMillis();
+			logger.info("查询单个商品参加活动的信息(调用活动的dubbo接口),耗时" + (endTime - startTime) + "毫秒，响应参数：map=" + map);
+		}catch (Exception e){
+			logger.error("查询单个商品参加活动的信息(调用活动的dubbo接口),dubbo服务查询异常：errorMesssage = " + e.getMessage(),e);
+			return null;
+		}
+		if(UtilHelper.isEmpty(map) ){
+			return null;
+		}
+		ProductPromotionDto productPromotionDto = new ProductPromotionDto();
+		productPromotionDto.setPromotionId(UtilHelper.isEmpty(map.get("promotionId")+"") ? 0 : Integer.parseInt(map.get("promotionId")+""));
+		productPromotionDto.setSpuCode(UtilHelper.isEmpty(map.get("spuCode")+"") ? "" : map.get("spuCode")+"");
+		productPromotionDto.setPromotionPrice(UtilHelper.isEmpty(map.get("promotionPrice")+"") ? new BigDecimal("0") : new BigDecimal(map.get("promotionPrice")+""));
+		productPromotionDto.setMinimumPacking(UtilHelper.isEmpty(map.get("minimumPacking")+"") ? 0 : Integer.parseInt(map.get("minimumPacking")+""));
+		productPromotionDto.setLimitNum(UtilHelper.isEmpty(map.get("limitNum")+"") ? 0 : Integer.parseInt(map.get("limitNum")+""));
+		productPromotionDto.setSumInventory(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Integer.parseInt(map.get("sumInventory")+""));
+		productPromotionDto.setCurrentInventory(UtilHelper.isEmpty(map.get("currentInventory")+"") ? 0 : Integer.parseInt(map.get("currentInventory")+""));
+		productPromotionDto.setSort(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Short.parseShort(map.get("sumInventory")+""));
+		productPromotionDto.setPromotionType(UtilHelper.isEmpty(map.get("promotionType")+"") ? 0 : Integer.parseInt(map.get("promotionType")+""));
+		productPromotionDto.setPromotionName(UtilHelper.isEmpty(map.get("promotionName")+"") ? "" : map.get("promotionName")+"");
+		logger.info("查询单个商品参加活动的信息(调用活动的dubbo接口),productPromotionDto=" + productPromotionDto);
 		return productPromotionDto;
 	}
 

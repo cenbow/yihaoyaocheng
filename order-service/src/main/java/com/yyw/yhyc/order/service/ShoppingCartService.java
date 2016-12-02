@@ -392,7 +392,7 @@ public class ShoppingCartService {
 		}
 
 		/*获取活动商品 实际上还能购买的数量*/
-		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo,iPromotionDubboManageService);
 		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 		shoppingCart = (ShoppingCart) queryMap.get("shoppingCart");
 
@@ -431,7 +431,7 @@ public class ShoppingCartService {
 		/* 场景：商品详情页或搜索列表页，页面上多次调用的添加购物车接口，达到累加商品数量的目的*/
 		/* 1、购物车中再次次添加活动商品 */
 		if(!UtilHelper.isEmpty(shoppingCarts)){
-			return this.increaseActivityProductNum(shoppingCart,userDto,iCustgroupmanageDubbo,productSearchInterface);
+			return this.increaseActivityProductNum(shoppingCart,userDto,iCustgroupmanageDubbo,productSearchInterface,iPromotionDubboManageService);
 		}
 
 
@@ -490,7 +490,7 @@ public class ShoppingCartService {
 	 * 		    "shoppingCart" 表示获取活动信息后的 ShoppingCart实体
 	 * @throws Exception
      */
-	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) throws ServiceException {
+	private Map<String,Object> queryPromotionProductInfo(ShoppingCart shoppingCart,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo,IPromotionDubboManageService iPromotionDubboManageService) throws ServiceException {
 		logger.info(" _______________获取活动商品 实际上还能购买的数量_______________\n外部传过来的shoppingCart="+ shoppingCart);
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0){
 			throw new ServiceException("非法参数");
@@ -504,7 +504,7 @@ public class ShoppingCartService {
 			return resultMap;
 		}
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,请求参数:" + shoppingCart);
-		ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(productSearchInterface,iCustgroupmanageDubbo,shoppingCart.getSpuCode(),
+		ProductPromotionDto productPromotionDto = orderManage.queryProductWithPromotion(productSearchInterface,iCustgroupmanageDubbo,iPromotionDubboManageService,shoppingCart.getSpuCode(),
 				shoppingCart.getSupplyId(),shoppingCart.getPromotionId(),shoppingCart.getCustId());
 		logger.info("购物车查询商品参加活动信息-获取该活动商品 理论上还能购买的数量,响应参数:" + productPromotionDto);
 		if(UtilHelper.isEmpty(productPromotionDto)){
@@ -543,7 +543,7 @@ public class ShoppingCartService {
 		/* 当前购买的数量 < 最小起批量(minimumPacking)，  则不能购买 */
 		if(shoppingCart.getProductCount() < productPromotionDto.getMinimumPacking()){
 			logger.error("该活动商品的购买数量("+ shoppingCart.getProductCount() +")小于活动最小起批量("+ productPromotionDto.getMinimumPacking()+")");
-			throw new ServiceException("该活动商品的购买数量("+ shoppingCart.getProductCount() +")小于活动最小起批量("+ productPromotionDto.getMinimumPacking()+")");
+			throw new ServiceException("该活动商品最少起售量为" + productPromotionDto.getMinimumPacking() + "件");
 		}
 
 		/*查询该商品在该活动中的历史购买量*/
@@ -602,7 +602,7 @@ public class ShoppingCartService {
 
 		/* 判断是否是活动商品 还是普通商品 */
 		if (!UtilHelper.isEmpty(oldShoppingCart.getPromotionId()) && oldShoppingCart.getPromotionId() > 0 ) {
-			return  this.increaseActivityProductNum(shoppingCart,userDto,iCustgroupmanageDubbo,productSearchInterface);
+			return  this.increaseActivityProductNum(shoppingCart,userDto,iCustgroupmanageDubbo,productSearchInterface,iPromotionDubboManageService);
 		} else {
 			return  this.increaseNormalProductNum(shoppingCart,userDto);
 		}
@@ -673,14 +673,14 @@ public class ShoppingCartService {
      * @return
      */
 	private Map<String, Object> increaseActivityProductNum(ShoppingCart shoppingCart,UserDto userDto,
-														   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws ServiceException {
+														   ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface,IPromotionDubboManageService iPromotionDubboManageService) throws ServiceException {
 		logger.error("加进货单接口--增加活动商品在进货单的数量：传入参数shoppingCart=" + shoppingCart +",userDto=" + userDto);
 		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getPromotionId()) || shoppingCart.getPromotionId() <= 0 ){
 			throw new ServiceException("非法参数");
 		}
 
 		/* 获取该活动商品 实际上还能购买的数量 */
-		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo,iPromotionDubboManageService);
 		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 
 		/* 如果不能再以特价购买改活动商品，则查询该商品的原价，并以原价购买 */
@@ -871,7 +871,7 @@ public class ShoppingCartService {
 			throw new Exception("查询活动商品信息失败");
 		}
 		/* 获取该活动商品 实际上还能购买的数量 */
-		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo);
+		Map<String,Object> queryMap = queryPromotionProductInfo(shoppingCart,productSearchInterface,iCustgroupmanageDubbo,iPromotionDubboManageService);
 		int promotionProductNumStillCanBuy = (int) queryMap.get("stillCanBuy");
 
 		Map<String,Object> map = new HashMap<>();
