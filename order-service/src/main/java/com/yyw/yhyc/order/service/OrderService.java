@@ -1078,6 +1078,10 @@ public class OrderService {
 						"件,还能购买" + canBuyByPromotionPrice +"件。",productFromFastOrderCount);
 			}
 
+			/* 活动实时库存字段，如果走搜索接口，可能会有问题(比如该字段同步失败)。所以改用活动的dubbo接口去获取该字段的值 */
+			ProductPromotionDto temp = orderManage.queryProductWithPromotion(iPromotionDubboManageService,productInfoDto.getSpuCode(),orderDto.getSupplyId()+"",productInfoDto.getPromotionId(),orderDto.getCustId()+"");
+			productPromotion.setCurrent_inventory(orderManage.getPromotionCurrentInventory(temp));
+
 			/* 5、若还能以特价购买，则根据活动实时库存判断能买多少 */
 
 			if(productPromotion.getLimit_num() > 0){ //如果有个人限购

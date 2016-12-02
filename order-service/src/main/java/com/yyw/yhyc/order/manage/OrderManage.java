@@ -99,7 +99,7 @@ public class OrderManage {
 	 * @param promotionDto
 	 * @return
      */
-	private int getPromotionCurrentInventory(ProductPromotionDto promotionDto){
+	public int getPromotionCurrentInventory(ProductPromotionDto promotionDto){
 		if(UtilHelper.isEmpty(promotionDto) || UtilHelper.isEmpty(promotionDto.getCurrentInventory())){
 			return 0;
 		}
@@ -115,7 +115,7 @@ public class OrderManage {
 	 * @param buyerEnterpriseId        采购商企业id
 	 * @return
 	 */
-	private ProductPromotionDto queryProductWithPromotion(IPromotionDubboManageService iPromotionDubboManageService,
+	public ProductPromotionDto queryProductWithPromotion(IPromotionDubboManageService iPromotionDubboManageService,
 														 String spuCode, String sellerEnterpriseId, Integer promotionId, String buyerEnterpriseId) {
 		if(UtilHelper.isEmpty(iPromotionDubboManageService) || UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(sellerEnterpriseId) || UtilHelper.isEmpty(promotionId)){
 			return null;
