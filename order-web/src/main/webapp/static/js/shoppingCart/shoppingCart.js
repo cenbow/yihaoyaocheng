@@ -859,7 +859,6 @@ function convertValidNumber(_inputValue, _preValue, _upStep,_productInventory) {
             }else{
                 return finalValue;
             }
-            return finalValue > Number(_productInventory) ? Number(_productInventory) - Number(_upStep) : finalValue;
         }
 
         //递减逻辑
