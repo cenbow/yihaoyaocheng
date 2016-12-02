@@ -572,6 +572,11 @@ $(function() {
             value = Number($(this).parent().find('.its-buy-num').val()) - Number(upStep);
         }
         var _preValue =   $(this).parent().find('.its-buy-num').attr("preValue");
+        var _productInventory = $(this).parent().find('.its-buy-num').attr("productInventory");//库存
+        
+        /* 控制用户输入的商品数量，是以最小可拆零包装量的整数倍进行递增或者递减 */
+        value = convertValidNumber(value,_preValue,upStep,_productInventory);
+        console.info("转换后的value=" + value);
         updateNumInShoppingCart(shoppingCartId,value,this,'minusitem');
     });
 
@@ -588,6 +593,12 @@ $(function() {
             $(this).parent().find('.its-btn-reduce').removeClass('its-btn-gray');
         }
         var value =  Number($(this).parent().find('.its-buy-num').val()) + Number(upStep);
+        var _preValue =   $(this).parent().find('.its-buy-num').attr("preValue");
+        var _productInventory = $(this).parent().find('.its-buy-num').attr("productInventory");//库存
+
+        /* 控制用户输入的商品数量，是以最小可拆零包装量的整数倍进行递增或者递减 */
+        value = convertValidNumber(value,_preValue,upStep,_productInventory);
+        console.info("转换后的value=" + value);
         updateNumInShoppingCart(shoppingCartId,value,this,'add');
     });
 
@@ -842,7 +853,13 @@ function convertValidNumber(_inputValue, _preValue, _upStep,_productInventory) {
             return _inputValue;
         }else{
             var finalValue = Number(_inputValue) - mod + Number(_upStep);
-            return finalValue > Number(_productInventory) ? Number(_productInventory) : finalValue;
+            if(finalValue > Number(_productInventory)){
+                //如果最终期望值 超过了库存
+                return Number(_productInventory) % Number(_upStep) == 0 ? Number(_productInventory) - Number(_upStep) : finalValue - Number(_upStep);
+            }else{
+                return finalValue;
+            }
+            return finalValue > Number(_productInventory) ? Number(_productInventory) - Number(_upStep) : finalValue;
         }
 
         //递减逻辑
