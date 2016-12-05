@@ -85,7 +85,7 @@ public class OrderManage {
 			ProductPromotionDto temp = queryProductWithPromotion(iPromotionDubboManageService,spuCode,sellerEnterpriseId+"",promotionId,buyerEnterpriseId+"");
 			productPromotionDto.setCurrentInventory(getPromotionCurrentInventory(temp));
 
-			productPromotionDto.setSort(UtilHelper.isEmpty(productPromotion.getSort()) ? 0 : Short.parseShort(productPromotion.getSort()+""));
+			productPromotionDto.setSort(UtilHelper.isEmpty(productPromotion.getSort()) ? 0 : Integer.parseInt(productPromotion.getSort()+""));
 			productPromotionDto.setPromotionType(UtilHelper.isEmpty(productPromotion.getPromotion_type()) ? 0 : Integer.parseInt(productPromotion.getPromotion_type()+""));
 			productPromotionDto.setPromotionName(UtilHelper.isEmpty(productPromotion.getPromotion_name()) ? "" : productPromotion.getPromotion_name());
 		}
@@ -152,7 +152,7 @@ public class OrderManage {
 		productPromotionDto.setLimitNum(UtilHelper.isEmpty(map.get("limitNum")+"") ? 0 : Integer.parseInt(map.get("limitNum")+""));
 		productPromotionDto.setSumInventory(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Integer.parseInt(map.get("sumInventory")+""));
 		productPromotionDto.setCurrentInventory(UtilHelper.isEmpty(map.get("currentInventory")+"") ? 0 : Integer.parseInt(map.get("currentInventory")+""));
-		productPromotionDto.setSort(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Short.parseShort(map.get("sumInventory")+""));
+		productPromotionDto.setSort(UtilHelper.isEmpty(map.get("sort")+"") ? 0 : Integer.parseInt(map.get("sort")+""));
 		productPromotionDto.setPromotionType(UtilHelper.isEmpty(map.get("promotionType")+"") ? 0 : Integer.parseInt(map.get("promotionType")+""));
 		productPromotionDto.setPromotionName(UtilHelper.isEmpty(map.get("promotionName")+"") ? "" : map.get("promotionName")+"");
 		logger.info("查询单个商品参加活动的信息(调用活动的dubbo接口),productPromotionDto=" + productPromotionDto);
