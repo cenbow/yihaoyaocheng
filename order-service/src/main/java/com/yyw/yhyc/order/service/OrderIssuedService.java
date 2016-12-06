@@ -335,6 +335,8 @@ public class OrderIssuedService {
 			orderIssuedException.setDealStatus(2);
 			orderIssuedExceptionMapper.updateBySelective(orderIssuedException);
 		}
+		orderIssuedDtoList.addAll(issuedlist);
+		
 		// 扫描此供应商没有对码的单
 		orderIssuedExceptionService.downNoRelationshipJob(supplyId);
 
