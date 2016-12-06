@@ -23,6 +23,7 @@ public interface OrderIssuedMapper extends GenericIBatisMapper<OrderIssued, java
 
 	public List<OrderIssued> listPaginationByProperty(Pagination<OrderIssued> pagination, OrderIssued orderIssued);
 	public List<OrderIssuedDto> findOrderIssuedListBySupplyId(Integer supplyId);
+	public List<OrderIssuedDto> findOrderIssuedListBySupplyIdAndOrderDate(Map<String,Object> paramterMap);
 	public List<OrderIssuedItemDto> getItemsById(Integer orderId);
 	public OrderIssued findByFlowId(String flowId);
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId);
