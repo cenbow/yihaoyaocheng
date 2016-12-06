@@ -334,6 +334,14 @@ public class OrderIssuedService {
 			orderIssuedException.setFlowId(one.getOrderCode());
 			orderIssuedException.setDealStatus(2);
 			orderIssuedExceptionMapper.updateBySelective(orderIssuedException);
+			
+			// 下发日志
+			OrderIssuedLog orderIssuedLog = new OrderIssuedLog();
+			orderIssuedLog.setFlowId(one.getOrderCode());
+			orderIssuedLog.setOperateName("下发");
+			orderIssuedLog.setOperator(one.getSupplyName());
+			orderIssuedLog.setOperateTime(now);
+			orderIssuedLogMapper.save(orderIssuedLog);
 		}
 		orderIssuedDtoList.addAll(issuedlist);
 		
