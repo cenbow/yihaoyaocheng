@@ -292,6 +292,7 @@ public class OrderIssuedService {
 					orderIssued
 							.setIssuedCount(orderIssued.getIssuedCount() + 1);// 设置调用次数，值为原次数+1
 					orderIssued.setIssuedStatus("1");// 设置下发状态，默认为成功
+					orderIssued.setCusRelationship(1);
 					orderIssued.setUpdateTime(now);
 					orderIssuedMapper.update(orderIssued);
 				} else {
