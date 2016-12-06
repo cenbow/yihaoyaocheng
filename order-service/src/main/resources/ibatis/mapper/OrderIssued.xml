@@ -251,25 +251,31 @@
 			AND SPT.PAY_TYPE_ID = O.pay_type_id
 			AND SPT.PAY_TYPE = 1
 			AND O.ORDER_STATUS = '5'
-			<if test="supplyListIds!= null"> 
+			<if test="supplyId != null and supplyId != ''"> 
 			    <![CDATA[
-					AND O.SUPPLY_ID in (${supplyListIds})
+					AND O.SUPPLY_ID = #{supplyId}
 				]]>
 			</if>
 			<if test="orderIdList!= null"> 
-			    <![CDATA[
-				 AND O.flow_id in (${orderIdList})
-				]]>
+				 AND O.flow_id in
+		        <foreach item="flowId" index="index" collection="orderIdList" open="(" separator="," close=")">
+		            #{flowId}
+		        </foreach>
 			</if>
-			<if test="startDate!= null">
-			    <![CDATA[
-				AND O.create_time>=#{startDate}
-				]]>
+			<if test="endDate != null and endDate != ''">
+			 <![CDATA[
+				AND O.create_time < DATE_SUB(STR_TO_DATE( #{endDate} ,'%Y-%m-%d'),INTERVAL 1 DAY)
+			 ]]>
 			</if>
-			<if test="endDate!= null">
-			    <![CDATA[
-				AND O.create_time<=#{endDate}
-				]]>
+			<if test="startDate != null and startDate != ''">
+				 <![CDATA[
+				AND O.create_time >= STR_TO_DATE( #{startDate} ,'%Y-%m-%d')
+			 ]]>
+			</if>
+			<if test="startDate == null and endDate == null ">
+				 <![CDATA[
+				AND O.create_time >= date_sub(curdate(), interval 1 month)
+			 ]]>
 			</if>
 	</select>
 	

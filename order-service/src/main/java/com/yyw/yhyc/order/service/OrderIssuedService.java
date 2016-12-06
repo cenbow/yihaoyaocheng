@@ -10,21 +10,19 @@
  **/
 package com.yyw.yhyc.order.service;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.yyw.yhyc.order.bo.OrderIssuedLog;
 import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.UtilHelper;
@@ -38,71 +36,76 @@ import com.yyw.yhyc.order.mapper.SystemDateMapper;
 @Service("orderIssuedService")
 public class OrderIssuedService {
 
-	private OrderIssuedMapper	orderIssuedMapper;
+	private OrderIssuedMapper orderIssuedMapper;
 	private SystemDateMapper systemDateMapper;
 	private OrderIssuedLogMapper orderIssuedLogMapper;
 	private Log log = LogFactory.getLog(OrderIssuedService.class);
+
 	@Autowired
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
 		this.systemDateMapper = systemDateMapper;
 	}
 
 	@Autowired
-	public void setOrderIssuedMapper(OrderIssuedMapper orderIssuedMapper)
-	{
+	public void setOrderIssuedMapper(OrderIssuedMapper orderIssuedMapper) {
 		this.orderIssuedMapper = orderIssuedMapper;
 	}
+
 	@Autowired
 	private OrderIssuedExceptionMapper orderIssuedExceptionMapper;
 
 	@Autowired
 	private OrderIssuedExceptionService orderIssuedExceptionService;
-	
+
 	@Autowired
-	public void setOrderIssuedLogMapper(OrderIssuedLogMapper orderIssuedLogMapper) {
+	public void setOrderIssuedLogMapper(
+			OrderIssuedLogMapper orderIssuedLogMapper) {
 		this.orderIssuedLogMapper = orderIssuedLogMapper;
 	}
 
 	/**
 	 * 通过主键查询实体对象
+	 * 
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
 	 */
-	public OrderIssued getByPK(java.lang.Integer primaryKey) throws Exception
-	{
+	public OrderIssued getByPK(java.lang.Integer primaryKey) throws Exception {
 		return orderIssuedMapper.getByPK(primaryKey);
 	}
 
 	/**
 	 * 查询所有记录
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public List<OrderIssued> list() throws Exception
-	{
+	public List<OrderIssued> list() throws Exception {
 		return orderIssuedMapper.list();
 	}
 
 	/**
 	 * 根据查询条件查询所有记录
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
 	public List<OrderIssued> listByProperty(OrderIssued orderIssued)
-			throws Exception
-	{
+			throws Exception {
 		return orderIssuedMapper.listByProperty(orderIssued);
 	}
 
 	/**
 	 * 根据查询条件查询分页记录
+	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public Pagination<OrderIssued> listPaginationByProperty(Pagination<OrderIssued> pagination, OrderIssued orderIssued) throws Exception
-	{
-		List<OrderIssued> list = orderIssuedMapper.listPaginationByProperty(pagination, orderIssued);
+	public Pagination<OrderIssued> listPaginationByProperty(
+			Pagination<OrderIssued> pagination, OrderIssued orderIssued)
+			throws Exception {
+		List<OrderIssued> list = orderIssuedMapper.listPaginationByProperty(
+				pagination, orderIssued);
 
 		pagination.setResultList(list);
 
@@ -111,72 +114,73 @@ public class OrderIssuedService {
 
 	/**
 	 * 根据主键删除记录
+	 * 
 	 * @param primaryKey
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteByPK(java.lang.Integer primaryKey) throws Exception
-	{
+	public int deleteByPK(java.lang.Integer primaryKey) throws Exception {
 		return orderIssuedMapper.deleteByPK(primaryKey);
 	}
 
 	/**
 	 * 根据多个主键删除记录
+	 * 
 	 * @param primaryKeys
 	 * @throws Exception
 	 */
-	public void deleteByPKeys(List<java.lang.Integer> primaryKeys) throws Exception
-	{
+	public void deleteByPKeys(List<java.lang.Integer> primaryKeys)
+			throws Exception {
 		orderIssuedMapper.deleteByPKeys(primaryKeys);
 	}
 
 	/**
 	 * 根据传入参数删除记录
+	 * 
 	 * @param orderIssued
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteByProperty(OrderIssued orderIssued) throws Exception
-	{
+	public int deleteByProperty(OrderIssued orderIssued) throws Exception {
 		return orderIssuedMapper.deleteByProperty(orderIssued);
 	}
 
 	/**
 	 * 保存记录
+	 * 
 	 * @param orderIssued
 	 * @return
 	 * @throws Exception
 	 */
-	public void save(OrderIssued orderIssued) throws Exception
-	{
+	public void save(OrderIssued orderIssued) throws Exception {
 		orderIssuedMapper.save(orderIssued);
 	}
 
 	/**
 	 * 更新记录
+	 * 
 	 * @param orderIssued
 	 * @return
 	 * @throws Exception
 	 */
-	public int update(OrderIssued orderIssued) throws Exception
-	{
+	public int update(OrderIssued orderIssued) throws Exception {
 		return orderIssuedMapper.update(orderIssued);
 	}
 
 	/**
 	 * 根据条件查询记录条数
+	 * 
 	 * @param orderIssued
 	 * @return
 	 * @throws Exception
 	 */
-	public int findByCount(OrderIssued orderIssued) throws Exception
-	{
+	public int findByCount(OrderIssued orderIssued) throws Exception {
 		return orderIssuedMapper.findByCount(orderIssued);
 	}
-	
-	
+
 	/**
 	 * 根据供应商的id,查询该供应商的已付款的订单，是最近一个月的，或者根据指定的日期和订单编号集合查询该订单
+	 * 
 	 * @param supplyId
 	 * @param startDate
 	 * @param endDate
@@ -184,118 +188,126 @@ public class OrderIssuedService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> queryOrderIssuedBySupplyIdAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList)throws Exception{
-		Map<String,Object> resultMap = new HashMap<String,Object>();
-		
-		Map<String,Object> paramterMap=new HashMap<String,Object>();
-		
-		if(supplyListIds==null || supplyListIds.size()==0){
-			resultMap.put("code","0");
-			resultMap.put("message","供应商为空");
+	public Map<String, Object> queryOrderIssuedBySupplyIdAndOrderDate(
+			List<Integer> supplyListIds, String startDate, String endDate,
+			String orderIdList) throws Exception {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+
+		Map<String, Object> paramterMap = new HashMap<String, Object>();
+
+		if (supplyListIds == null || supplyListIds.size() == 0) {
+			resultMap.put("code", "0");
+			resultMap.put("message", "供应商为空");
 			return resultMap;
-		}else{
-			
-			StringBuffer sql=new StringBuffer();
-			for(int i=0;i<supplyListIds.size();i++){
-				int supplyId=supplyListIds.get(i);
-				if(i!=supplyListIds.size()-1){
-					sql.append(supplyId+",");
-				}else{
-					sql.append(supplyId);
+		} //else {
+
+			/*
+			 * StringBuffer sql=new StringBuffer(); for(int
+			 * i=0;i<supplyListIds.size();i++){ int
+			 * supplyId=supplyListIds.get(i); if(i!=supplyListIds.size()-1){
+			 * sql.append(supplyId+","); }else{ sql.append(supplyId); } }
+			 * log.info("传递的supplyId集合："+sql.toString());
+			 */
+		//}
+		/*
+		 * if(StringUtils.hasText(startDate) && StringUtils.hasText(endDate)){
+		 * paramterMap.put("startDate",startDate);
+		 * paramterMap.put("endDate",endDate); }else{ Date currentDate=new
+		 * Date(); SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
+		 * 
+		 * String endDateStr=formate.format(currentDate);
+		 * 
+		 * Calendar calendar=Calendar.getInstance();
+		 * calendar.setTime(currentDate);
+		 * calendar.add(Calendar.DAY_OF_YEAR,-30);//日期减30天
+		 * 
+		 * Date startDateFromConvert=calendar.getTime();
+		 * 
+		 * String startDateStr=formate.format(startDateFromConvert);
+		 * 
+		 * paramterMap.put("startDate",startDateStr);
+		 * paramterMap.put("endDate",endDateStr); }
+		 */
+
+		/*if (StringUtils.hasText(orderIdList)) {
+			log.info("当前查询下发的订单集合列表orderIdList==[：" + orderIdList + "]");
+			StringBuffer idSql = new StringBuffer();
+			String[] orderList = orderIdList.split(",");
+
+			if (orderList != null && orderList.length > 0) {
+
+				for (int i = 0; i < orderList.length; i++) {
+					String orderFlowId = orderList[i];
+					if (i != orderList.length - 1) {
+						idSql.append("'" + orderFlowId + "',");
+					} else {
+						idSql.append("'" + orderFlowId + "'");
+					}
 				}
+
+				log.info("转换后的订单查询集合[" + idSql.toString() + "]");
+				paramterMap.put("orderIdList", idSql.toString());
+
 			}
-			log.info("传递的supplyId集合："+sql.toString());
-			paramterMap.put("supplyListIds", sql.toString());
-		}
-		if(StringUtils.hasText(startDate) && StringUtils.hasText(endDate)){
-			paramterMap.put("startDate",startDate);
-			paramterMap.put("endDate",endDate);
-		}else{
-			Date currentDate=new Date();
-			SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
-			
-			String endDateStr=formate.format(currentDate);
-			
-		   Calendar calendar=Calendar.getInstance();  
-		   calendar.setTime(currentDate);
-		   calendar.add(Calendar.DAY_OF_YEAR,-30);//日期减30天
-		   
-		   Date startDateFromConvert=calendar.getTime();
-		   
-		   String startDateStr=formate.format(startDateFromConvert);
-		   
-		    paramterMap.put("startDate",startDateStr);
-			paramterMap.put("endDate",endDateStr);
-		}
-		
-		 if(StringUtils.hasText(orderIdList)){
-			 log.info("当前查询下发的订单集合列表orderIdList==[："+orderIdList+"]");
-			 StringBuffer idSql=new StringBuffer();
-			 String[] orderList=orderIdList.split(",");
-			 
-			 if(orderList!=null && orderList.length>0){
-				 
-				 for(int i=0;i<orderList.length;i++){
-					 String orderFlowId=orderList[i];
-					 if(i!=orderList.length-1){
-						 idSql.append("'"+orderFlowId+"',");
-					 }else{
-						 idSql.append("'"+orderFlowId+"'");
-					 }
-				 }
-				 
-				 log.info("转换后的订单查询集合["+idSql.toString()+"]");
-			     paramterMap.put("orderIdList",idSql.toString());
-				 
-			 }
-	
-		 }
-		 
-		List<OrderIssuedDto> orderIssuedDtoList =this.orderIssuedMapper.findOrderIssuedListBySupplyIdAndOrderDate(paramterMap);
-	    resultMap.put("code","1");
-		resultMap.put("orderIssuedDtoList",orderIssuedDtoList);
+
+		}*/
+		log.info("传递的supplyId：" + supplyListIds.get(0));
+		paramterMap.put("supplyId", supplyListIds.get(0));
+		paramterMap.put("startDate", startDate);
+		paramterMap.put("endDate", endDate);
+		log.info("传递的orderIdList：" + orderIdList);
+		if(StringUtils.isNotBlank(orderIdList))
+			paramterMap.put("orderIdList", orderIdList.split(","));
+		List<OrderIssuedDto> orderIssuedDtoList = this.orderIssuedMapper
+				.findOrderIssuedListBySupplyIdAndOrderDate(paramterMap);
+		resultMap.put("code", "1");
+		resultMap.put("orderIssuedDtoList", orderIssuedDtoList);
 		return resultMap;
 	}
-	
 
 	/**
 	 * 根据供应商Id查询 该供应商状态为已付款的订单 进行下发
+	 * 
 	 * @param supplyId
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> editOrderIssuedListBySupplyId(Integer supplyId) throws Exception{
+	public Map<String, Object> editOrderIssuedListBySupplyId(Integer supplyId)
+			throws Exception {
 		String now = systemDateMapper.getSystemDate();
-		Map<String,Object> resultMap = new HashMap<String,Object>();
-		if(UtilHelper.isEmpty(supplyId)){
-			resultMap.put("code","0");
-			resultMap.put("message","供应商为空");
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		if (UtilHelper.isEmpty(supplyId)) {
+			resultMap.put("code", "0");
+			resultMap.put("message", "供应商为空");
 			return resultMap;
 		}
-		List<OrderIssuedDto> orderIssuedDtoList = orderIssuedMapper.findOrderIssuedListBySupplyId(supplyId);
-		if(!UtilHelper.isEmpty(orderIssuedDtoList)){
-			for(OrderIssuedDto orderIssuedDto :orderIssuedDtoList){
+		List<OrderIssuedDto> orderIssuedDtoList = orderIssuedMapper
+				.findOrderIssuedListBySupplyId(supplyId);
+		if (!UtilHelper.isEmpty(orderIssuedDtoList)) {
+			for (OrderIssuedDto orderIssuedDto : orderIssuedDtoList) {
 				String flowId = orderIssuedDto.getOrderCode();
-				OrderIssued orderIssued = orderIssuedMapper.findByFlowId(flowId);
-				if(!UtilHelper.isEmpty(orderIssued)){
-					orderIssued.setIssuedCount(orderIssued.getIssuedCount()+1);//设置调用次数，值为原次数+1
-					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+				OrderIssued orderIssued = orderIssuedMapper
+						.findByFlowId(flowId);
+				if (!UtilHelper.isEmpty(orderIssued)) {
+					orderIssued
+							.setIssuedCount(orderIssued.getIssuedCount() + 1);// 设置调用次数，值为原次数+1
+					orderIssued.setIssuedStatus("1");// 设置下发状态，默认为成功
 					orderIssued.setUpdateTime(now);
 					orderIssuedMapper.update(orderIssued);
-				}else{
+				} else {
 					orderIssued = new OrderIssued();
-					orderIssued.setFlowId(orderIssuedDto.getOrderCode());//设置订单编号
-					orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
+					orderIssued.setFlowId(orderIssuedDto.getOrderCode());// 设置订单编号
+					orderIssued.setIssuedCount(1);// 设置调用次数，初始化为1
 					orderIssued.setSupplyId(supplyId);
 					orderIssued.setSupplyName(orderIssuedDto.getSupplyName());
 					orderIssued.setCreateTime(now);
-					orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+					orderIssued.setIssuedStatus("1");// 设置下发状态，默认为成功
 					orderIssued.setCusRelationship(1);
 					orderIssued.setIsScan(0);
 					orderIssuedMapper.save(orderIssued);
 				}
-				//下发日志
-				OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
+				// 下发日志
+				OrderIssuedLog orderIssuedLog = new OrderIssuedLog();
 				orderIssuedLog.setFlowId(orderIssuedDto.getOrderCode());
 				orderIssuedLog.setOperateName("下发");
 				orderIssuedLog.setOperator(orderIssuedDto.getSupplyName());
@@ -304,76 +316,84 @@ public class OrderIssuedService {
 			}
 		}
 		//
-		List<OrderIssuedDto> issuedlist = orderIssuedMapper.findOrderIssuedHasRelationshipList(supplyId);
-		for(OrderIssuedDto one:issuedlist ){
-			log.error("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********"+one.getOrderCode());
-			OrderIssued orderIssued = orderIssuedMapper.findByFlowId(one.getOrderCode());
+		List<OrderIssuedDto> issuedlist = orderIssuedMapper
+				.findOrderIssuedHasRelationshipList(supplyId);
+		for (OrderIssuedDto one : issuedlist) {
+			log.error("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********"
+					+ one.getOrderCode());
+			OrderIssued orderIssued = orderIssuedMapper.findByFlowId(one
+					.getOrderCode());
 			orderIssued.setCusRelationship(1);
 			orderIssued.setIsScan(0);
-			orderIssued.setIssuedCount(1);//设置调用次数，初始化为1
-			orderIssued.setIssuedStatus("1");//设置下发状态，默认为成功
+			orderIssued.setIssuedCount(1);// 设置调用次数，初始化为1
+			orderIssued.setIssuedStatus("1");// 设置下发状态，默认为成功
 			orderIssued.setUpdateTime(now);
 			orderIssuedMapper.updateBySelective(orderIssued);
-			
+
 			OrderIssuedException orderIssuedException = new OrderIssuedException();
 			orderIssuedException.setFlowId(one.getOrderCode());
 			orderIssuedException.setDealStatus(2);
-			orderIssuedExceptionMapper.updateBySelective(orderIssuedException );
+			orderIssuedExceptionMapper.updateBySelective(orderIssuedException);
 		}
-		//扫描此供应商没有对码的单
+		// 扫描此供应商没有对码的单
 		orderIssuedExceptionService.downNoRelationshipJob(supplyId);
-		
-		resultMap.put("code","1");
-		resultMap.put("orderIssuedDtoList",orderIssuedDtoList);
-		log.error("orderIssuedDtoList"+orderIssuedDtoList.toString());
+
+		resultMap.put("code", "1");
+		resultMap.put("orderIssuedDtoList", orderIssuedDtoList);
+		log.error("orderIssuedDtoList" + orderIssuedDtoList.toString());
 		return resultMap;
 	}
 
 	/**
 	 * 获取下发失败列表集合，更改状态为失败，准备重发
+	 * 
 	 * @param flowList
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> updateOrderIssuedStatus(List<String> flowList) throws Exception{
-		Map<String,Object> resultMap = new HashMap<String,Object>();
-		if(UtilHelper.isEmpty(flowList)){
-			resultMap.put("code","0");
-			resultMap.put("message","订单集合为空");
+	public Map<String, Object> updateOrderIssuedStatus(List<String> flowList)
+			throws Exception {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		if (UtilHelper.isEmpty(flowList)) {
+			resultMap.put("code", "0");
+			resultMap.put("message", "订单集合为空");
 			return resultMap;
 		}
 		String now = systemDateMapper.getSystemDate();
-		for(String flowId:flowList){
+		for (String flowId : flowList) {
 			OrderIssued orderIssued = orderIssuedMapper.findByFlowId(flowId);
-			orderIssued.setIssuedStatus("0");//设置下发状态，为失败
+			orderIssued.setIssuedStatus("0");// 设置下发状态，为失败
 			orderIssued.setUpdateTime(now);
 			orderIssuedMapper.update(orderIssued);
 
-			//下发日志
-			OrderIssuedLog orderIssuedLog=new OrderIssuedLog();
+			// 下发日志
+			OrderIssuedLog orderIssuedLog = new OrderIssuedLog();
 			orderIssuedLog.setFlowId(flowId);
 			orderIssuedLog.setOperateName("下发失败");
 			orderIssuedLog.setOperator(orderIssued.getSupplyName());
 			orderIssuedLog.setOperateTime(now);
 			orderIssuedLogMapper.save(orderIssuedLog);
 		}
-		resultMap.put("code","1");
+		resultMap.put("code", "1");
 		return resultMap;
 	}
 
-	public List<OrderIssued> getManufacturerOrder(Integer supplyId){
-		log.info("供应商编码："+supplyId+"订单编码集合：" + orderIssuedMapper.getManufacturerOrder(supplyId));
+	public List<OrderIssued> getManufacturerOrder(Integer supplyId) {
+		log.info("供应商编码：" + supplyId + "订单编码集合："
+				+ orderIssuedMapper.getManufacturerOrder(supplyId));
 		return orderIssuedMapper.getManufacturerOrder(supplyId);
 	}
-	
+
 	/**
 	 * 
 	 * 查询没有对码的订单记录
 	 */
-	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(Integer supplyId){
+	public List<Map<String, Object>> findOrderIssuedNoRelationshipList(
+			Integer supplyId) {
 		return orderIssuedMapper.findOrderIssuedNoRelationshipList(supplyId);
 	}
-	//根据flowId给更新
+
+	// 根据flowId给更新
 	public int updateBySelective(OrderIssued orderIssued) {
 		return orderIssuedMapper.updateBySelective(orderIssued);
 	}
