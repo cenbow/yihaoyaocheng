@@ -279,7 +279,7 @@
 			</if>
 	</select>
 	
-	<select id="findOrderIssuedListBySupplyId" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+	<select id="findOrderIssuedListBySupplyId" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
 			O.FLOW_ID,
 			O.ORG_TOTAL,
@@ -303,7 +303,12 @@
 		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-		AND SPT.PAY_TYPE = 1
+		<if test="payType != null"> 
+			 AND SPT.PAY_TYPE in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if>
 	</select>
 	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
 		SELECT
@@ -337,7 +342,7 @@
 		AND O.ORDER_STATUS = '5'
 	</select>
 	
-	<select id="findOrderIssuedNoRelationshipList" parameterType="java.lang.Integer" resultType="java.util.Map" useCache="false">
+	<select id="findOrderIssuedNoRelationshipList" parameterType="Map" resultType="java.util.Map" useCache="false">
 		SELECT
 		   O.FLOW_ID,
 		   O.SUPPLY_ID,
@@ -349,10 +354,15 @@
 		   ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE O.SUPPLY_ID = #{supplyId}
 		AND   O.ORDER_STATUS = '5'
-			AND SPT.PAY_TYPE = 1  
+		<if test="payType != null"> 
+			 AND SPT.PAY_TYPE in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if> 
 			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
-	<select id="findOrderIssuedHasRelationshipList" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+	<select id="findOrderIssuedHasRelationshipList" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
 			O.FLOW_ID,
 			O.ORG_TOTAL,
@@ -376,7 +386,12 @@
 		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 = OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-		AND SPT.PAY_TYPE = 1
 		and OI.cus_relationship = 0
+		<if test="payType != null"> 
+			 AND SPT.PAY_TYPE in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if> 
 	</select>
 </mapper>

@@ -140,8 +140,8 @@ public class OrderIssuedFacadeImpl implements OrderIssuedFacade {
 		return orderIssuedService.findByCount(orderIssued);
 	}
 
-	public Map<String, Object> findOrderIssuedListBySupplyId(Integer supplyId) throws Exception {
-		return orderIssuedService.editOrderIssuedListBySupplyId(supplyId);
+	public Map<String, Object> findOrderIssuedListBySupplyId(Integer supplyId,String payType) throws Exception {
+		return orderIssuedService.editOrderIssuedListBySupplyId(supplyId,  payType);
 	}
 
 	public Map<String, Object> updateOrderIssuedStatus(List<String> flowList) throws Exception {

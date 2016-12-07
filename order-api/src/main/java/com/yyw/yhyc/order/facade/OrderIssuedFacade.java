@@ -101,7 +101,7 @@ public interface OrderIssuedFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> findOrderIssuedListBySupplyId(Integer supplyId) throws Exception;
+	public Map<String,Object> findOrderIssuedListBySupplyId(Integer supplyId , String payType) throws Exception;
 	
 	
 	

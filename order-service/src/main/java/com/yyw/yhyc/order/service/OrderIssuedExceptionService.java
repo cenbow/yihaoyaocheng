@@ -401,9 +401,9 @@ public class OrderIssuedExceptionService {
 	 * 
 	 * @throws Exception
 	 */
-	public void downNoRelationshipJob(Integer supplyId) throws Exception {
+	public void downNoRelationshipJob(Map<String, Object> params) throws Exception {
 		List<Map<String, Object>> list = orderIssuedService
-				.findOrderIssuedNoRelationshipList(supplyId);
+				.findOrderIssuedNoRelationshipList(params);
 
 		for (Map<String, Object> param : list) {
 			OrderIssued orderIssued = new OrderIssued();
