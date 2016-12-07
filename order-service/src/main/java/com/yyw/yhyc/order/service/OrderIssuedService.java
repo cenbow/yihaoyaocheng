@@ -393,10 +393,13 @@ public class OrderIssuedService {
 		return resultMap;
 	}
 
-	public List<OrderIssued> getManufacturerOrder(Integer supplyId) {
-		log.info("供应商编码：" + supplyId + "订单编码集合："
-				+ orderIssuedMapper.getManufacturerOrder(supplyId));
-		return orderIssuedMapper.getManufacturerOrder(supplyId);
+	public List<OrderIssued> getManufacturerOrder(Integer supplyId, String payType) {
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("supplyId", supplyId);
+		if(StringUtils.isNotBlank(payType))
+			params.put("payType", payType.split(","));
+		log.info("供应商编码：" + supplyId + "支付方式："+ payType);
+		return orderIssuedMapper.getManufacturerOrder(params);
 	}
 
 	/**

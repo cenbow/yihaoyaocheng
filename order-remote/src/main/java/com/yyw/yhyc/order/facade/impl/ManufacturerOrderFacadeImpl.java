@@ -39,8 +39,8 @@ public class ManufacturerOrderFacadeImpl implements ManufacturerOrderFacade {
     }
 
     @Override
-    public List<OrderIssued> getManufacturerOrder(Integer supplyId) {
-        return orderIssuedService.getManufacturerOrder(supplyId);
+    public List<OrderIssued> getManufacturerOrder(Integer supplyId,String payType) {
+        return orderIssuedService.getManufacturerOrder(supplyId,payType);
     }
 
     @Override
