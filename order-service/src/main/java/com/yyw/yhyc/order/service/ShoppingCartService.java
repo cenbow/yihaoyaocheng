@@ -293,7 +293,7 @@ public class ShoppingCartService {
 											   IProductDubboManageService iProductDubboManageService,ICustgroupmanageDubbo iCustgroupmanageDubbo,  ProductSearchInterface productSearchInterface) throws ServiceException {
 		logger.info("_________________加入进货单(公用、核心逻辑)________________________,\n原始数据：shoppingCart = " + shoppingCart);
 
-		if(UtilHelper.isEmpty(shoppingCart)){
+		if(UtilHelper.isEmpty(shoppingCart) || UtilHelper.isEmpty(shoppingCart.getCustId()) || UtilHelper.isEmpty(shoppingCart.getSupplyId())){
 			throw new ServiceException("非法参数");
 		}
 

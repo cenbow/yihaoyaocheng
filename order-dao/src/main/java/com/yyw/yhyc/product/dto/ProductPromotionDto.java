@@ -31,7 +31,7 @@ public class ProductPromotionDto implements Serializable {
     private Integer currentInventory;
 
     /* 优先级 */
-    private Short sort;
+    private Integer sort;
 
     /* 活动类型：1表示特价促销活动 */
     private int promotionType;
@@ -95,11 +95,11 @@ public class ProductPromotionDto implements Serializable {
         this.currentInventory = currentInventory;
     }
 
-    public Short getSort() {
+    public Integer getSort() {
         return sort;
     }
 
-    public void setSort(Short sort) {
+    public void setSort(Integer sort) {
         this.sort = sort;
     }
 

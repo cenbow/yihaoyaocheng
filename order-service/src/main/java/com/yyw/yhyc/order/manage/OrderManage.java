@@ -85,7 +85,7 @@ public class OrderManage {
 			ProductPromotionDto temp = queryProductWithPromotion(iPromotionDubboManageService,spuCode,sellerEnterpriseId+"",promotionId,buyerEnterpriseId+"");
 			productPromotionDto.setCurrentInventory(getPromotionCurrentInventory(temp));
 
-			productPromotionDto.setSort(UtilHelper.isEmpty(productPromotion.getSort()) ? 0 : Short.parseShort(productPromotion.getSort()+""));
+			productPromotionDto.setSort(UtilHelper.isEmpty(productPromotion.getSort()) ? 0 : Integer.parseInt(productPromotion.getSort()+""));
 			productPromotionDto.setPromotionType(UtilHelper.isEmpty(productPromotion.getPromotion_type()) ? 0 : Integer.parseInt(productPromotion.getPromotion_type()+""));
 			productPromotionDto.setPromotionName(UtilHelper.isEmpty(productPromotion.getPromotion_name()) ? "" : productPromotion.getPromotion_name());
 		}
@@ -152,7 +152,7 @@ public class OrderManage {
 		productPromotionDto.setLimitNum(UtilHelper.isEmpty(map.get("limitNum")+"") ? 0 : Integer.parseInt(map.get("limitNum")+""));
 		productPromotionDto.setSumInventory(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Integer.parseInt(map.get("sumInventory")+""));
 		productPromotionDto.setCurrentInventory(UtilHelper.isEmpty(map.get("currentInventory")+"") ? 0 : Integer.parseInt(map.get("currentInventory")+""));
-		productPromotionDto.setSort(UtilHelper.isEmpty(map.get("sumInventory")+"") ? 0 : Short.parseShort(map.get("sumInventory")+""));
+		productPromotionDto.setSort(UtilHelper.isEmpty(map.get("sort")+"") ? 0 : Integer.parseInt(map.get("sort")+""));
 		productPromotionDto.setPromotionType(UtilHelper.isEmpty(map.get("promotionType")+"") ? 0 : Integer.parseInt(map.get("promotionType")+""));
 		productPromotionDto.setPromotionName(UtilHelper.isEmpty(map.get("promotionName")+"") ? "" : map.get("promotionName")+"");
 		logger.info("查询单个商品参加活动的信息(调用活动的dubbo接口),productPromotionDto=" + productPromotionDto);
@@ -170,53 +170,28 @@ public class OrderManage {
 	 */
 	public BigDecimal getProductPrice(String spuCode, Integer buyerEnterprizeId, Integer sellerEnterprizeId,
 									   ICustgroupmanageDubbo iCustgroupmanageDubbo, ProductSearchInterface productSearchInterface){
-		if(UtilHelper.isEmpty(iCustgroupmanageDubbo)){
-			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息，iCustgroupmanageDubbo = " + iCustgroupmanageDubbo);
-			return null;
-		}
-		long startTime,endTime;
-		CustGroupDubboRet custGroupDubboRet = null;
-		try{
-			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，请求参数 buyerEnterprizeId = " + buyerEnterprizeId);
-			startTime = System.currentTimeMillis();
-			custGroupDubboRet = iCustgroupmanageDubbo.queryGroupBycustId(buyerEnterprizeId+"");
-			endTime = System.currentTimeMillis();
-			logger.info("统一校验订单商品接口,查询商品价格前先获取客户组信息，耗时:"+(endTime - startTime)+"毫秒，响应参数= " + custGroupDubboRet + ",data=" + custGroupDubboRet.getData());
-		}catch (Exception e){
-			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+		if(UtilHelper.isEmpty(productSearchInterface) || UtilHelper.isEmpty(iCustgroupmanageDubbo) || UtilHelper.isEmpty(spuCode)
+				|| UtilHelper.isEmpty(buyerEnterprizeId) || UtilHelper.isEmpty(sellerEnterprizeId)) {
 			return null;
 		}
 
-		String custGroupCode = null;//客户组编码
-		if(UtilHelper.isEmpty(custGroupDubboRet) ||  custGroupDubboRet.getIsSuccess() != 1){
-			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + (custGroupDubboRet == null ? "custGroupDubboRet is null " :custGroupDubboRet.getMessage()));
-			return null;
-		}else{
-			custGroupCode = getCustGroupCode(custGroupDubboRet.getData());
-		}
-
-		logger.info("统一校验订单商品接口,查询商品价格(调用搜索接口 productSearchInterface= "+ productSearchInterface +")");
-		if(UtilHelper.isEmpty(productSearchInterface)){
-			return null;
-		}
-
-		//调用搜索的接口
-		Double productPrice = null;
-		try{
-			logger.info("统一校验订单商品接口,查询商品价格，请求参数:\n buyerEnterprizeId=" + buyerEnterprizeId +
-					",sellerEnterprizeId=" + sellerEnterprizeId +",custGroupName="+custGroupCode +",spuCode="+spuCode);
-			startTime = System.currentTimeMillis();
-			productPrice = productSearchInterface.findProductShowPrice(buyerEnterprizeId+"",sellerEnterprizeId+"",spuCode,custGroupCode);
-			endTime = System.currentTimeMillis();
-			logger.info("统一校验订单商品接口,查询商品价格，耗时:"+(endTime - startTime)+"毫秒，响应参数：" + productPrice );
-		}catch (Exception e){
-			logger.error("统一校验订单商品接口,查询商品价格前先获取客户组信息异常：" + e.getMessage(),e);
+		logger.info("调用接口查询商品价格(调用批量搜索商品的接口),iCustgroupmanageDubbo=" + iCustgroupmanageDubbo + "，productSearchInterface = " + productSearchInterface);
+		String custGroupCode = this.getCustGroupCode(buyerEnterprizeId,iCustgroupmanageDubbo);
+		Set<String> productCodeSet = new HashSet<>();
+		String key = spuCode + "-" + sellerEnterprizeId;
+		productCodeSet.add( key );
+		Map<String,ProductDrug> productDrugMap = this.searchBatchProduct(productSearchInterface,buyerEnterprizeId+"",custGroupCode,productCodeSet);
+		logger.info("调用接口查询商品价格(调用批量搜索商品的接口) productDrugMap = " + productDrugMap);
+		if(UtilHelper.isEmpty(productDrugMap) ||  !productDrugMap.containsKey(key)){
+			logger.error("调用接口查询商品价格(调用批量搜索商品的接口) productDrugMap = " + productDrugMap);
 			return null;
 		}
-		if(UtilHelper.isEmpty(productPrice)){
+		ProductDrug productDrug = productDrugMap.get(key);
+		if(UtilHelper.isEmpty(productDrug.getShowPrice())){
+			logger.error("调用接口查询商品价格(调用批量搜索商品的接口) productDrug.getShowPrice() = " + productDrug.getShowPrice());
 			return null;
 		}
-		return new BigDecimal(productPrice + "");
+		return new BigDecimal(productDrug.getShowPrice() + "");
 	}
 
 	/**

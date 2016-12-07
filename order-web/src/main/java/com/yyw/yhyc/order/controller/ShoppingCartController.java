@@ -208,6 +208,9 @@ public class ShoppingCartController extends BaseJsonController {
 		}else{
 			resultMap.put("loginFlag",1);
 		}
+		if(UtilHelper.isEmpty(shoppingCart.getCustId()) || shoppingCart.getCustId() <= 0){
+			shoppingCart.setCustId(userDto.getCustId());
+		}
 
 		/* 加入进货单前，校验用户、商品是否在销售区域范围内 */
 		boolean checkUserAndProductResult = checkUserAndProduct(userDto,shoppingCart.getSpuCode(),shoppingCart.getSupplyId());
