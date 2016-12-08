@@ -128,7 +128,7 @@ public class ShoppingCart extends Model{
 	/** 
 	 * 其他活动id，如果有多个则用","拼接，不包括特价活动
 	 */
-	private String promotion_collection_id;
+	private String promotionCollectionId;
 
 	/**
 	  *	
@@ -427,12 +427,12 @@ public class ShoppingCart extends Model{
 		this.promotionName = promotionName;
 	}
 
-	public String getPromotion_collection_id() {
-		return promotion_collection_id;
+	public String getPromotionCollectionId() {
+		return promotionCollectionId;
 	}
 
-	public void setPromotion_collection_id(String promotion_collection_id) {
-		this.promotion_collection_id = promotion_collection_id;
+	public void setPromotionCollectionId(String promotionCollectionId) {
+		this.promotionCollectionId = promotionCollectionId;
 	}
 
 	@Override
@@ -459,7 +459,7 @@ public class ShoppingCart extends Model{
 				", fromWhere=" + fromWhere +
 				", promotionId=" + promotionId +
 				", promotionName=" + promotionName +
-				", promotion_collection_id=" + promotion_collection_id +
+				", promotionCollectionId=" + promotionCollectionId +
 				"} ";
 
 	}
