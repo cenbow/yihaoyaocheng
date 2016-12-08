@@ -410,7 +410,7 @@ public class ShoppingCart extends Model{
 	public void setFromWhere(Integer fromWhere) {
 		this.fromWhere = fromWhere;
 	}
-
+	
 	public Integer getPromotionId() {
 		return promotionId;
 	}
@@ -461,6 +461,7 @@ public class ShoppingCart extends Model{
 				", promotionName=" + promotionName +
 				", promotion_collection_id=" + promotion_collection_id +
 				"} ";
+
 	}
 }
 

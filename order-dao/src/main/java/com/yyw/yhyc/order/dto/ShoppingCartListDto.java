@@ -24,6 +24,11 @@ public class ShoppingCartListDto implements Serializable{
 
     /* 购买当前供应商下所有商品的总金额*/
     private BigDecimal productPriceCount;
+    
+    /**
+     * 购买当前供应商下所有商品的优惠金额
+     */
+    private BigDecimal orderFullReductionMoney;
 
     /* 购买当前供应商下 低于订单起售量 的金额*/
     private BigDecimal needPrice;
@@ -119,20 +124,17 @@ public class ShoppingCartListDto implements Serializable{
     }
 
     @Override
-    public String toString() {
-        return "ShoppingCartListDto{" +
-                "buyer=" + buyer +
-                ", seller=" + seller +
-                ", shoppingCartDtoList=" + shoppingCartDtoList +
-                ", productPriceCount=" + productPriceCount +
-                ", needPrice=" + needPrice +
-                ", periodProductPriceCount=" + periodProductPriceCount +
-                ", nonPeriodProductPriceCount=" + nonPeriodProductPriceCount +
-                ", paymentTermCus=" + paymentTermCus +
-                ", accountAmount=" + accountAmount +  
-                ", adviserList=" + adviserList +
-                '}';
-    }
+	public String toString() {
+		return "ShoppingCartListDto [buyer=" + buyer + ", seller=" + seller
+				+ ", shoppingCartDtoList=" + shoppingCartDtoList
+				+ ", productPriceCount=" + productPriceCount
+				+ ", orderFullReductionMoney=" + orderFullReductionMoney
+				+ ", needPrice=" + needPrice + ", periodProductPriceCount="
+				+ periodProductPriceCount + ", nonPeriodProductPriceCount="
+				+ nonPeriodProductPriceCount + ", paymentTermCus="
+				+ paymentTermCus + ", accountAmount=" + accountAmount
+				+ ", adviserList=" + adviserList + "]";
+	}
 
 	/**
 	 * @return the adviserList
@@ -147,5 +149,15 @@ public class ShoppingCartListDto implements Serializable{
 	public void setAdviserList(List<AdviserDto> adviserList) {
 		this.adviserList = adviserList;
 	}
+
+	public BigDecimal getOrderFullReductionMoney() {
+		return orderFullReductionMoney;
+	}
+
+	public void setOrderFullReductionMoney(BigDecimal orderFullReductionMoney) {
+		this.orderFullReductionMoney = orderFullReductionMoney;
+	}
+	
+	
 
 }

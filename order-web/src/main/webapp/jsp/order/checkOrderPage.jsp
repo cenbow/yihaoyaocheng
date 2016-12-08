@@ -94,6 +94,7 @@
             <input type="hidden" name="custId" id="custId" value="${userDto.custId}"/>
             <input type="hidden" name="receiveAddressId" id="receiveAddressId" />
             <input type="hidden" name="billType" id="billType" value="2"/>
+            <input type="hidden" name="allOrderShareMoney" id="allOrderShareMoney" value="${dataMap.allOrderShareMoney}"/>
 
         <%--遍历每个供应商的信息  开始--%>
             <c:choose>
@@ -104,7 +105,7 @@
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.enterpriseId}" value="${shoppingCart.seller.enterpriseId}"/>
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].paymentTerm" value="${shoppingCart.paymentTermCus}"/>
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].accountAmount" value="${shoppingCart.accountAmount}"/>
-
+                                <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].orderFullReductionMoney" value="${shoppingCart.orderFullReductionMoney}"/>
                                 <input type="hidden" name="supplyId" value="${shoppingCart.seller.enterpriseId}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                 <table class="common-table f14">
                                     <tr>
@@ -128,6 +129,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].manufactures" value="${shoppingCartDto.manufactures}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].fromWhere" value="${shoppingCartDto.fromWhere}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionId" value="${shoppingCartDto.promotionId}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].specialPromotionId" value="${shoppingCartDto.specialPromotionId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionName" value="${shoppingCartDto.promotionName}"/>
                                                     <tr>
                                                         <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">

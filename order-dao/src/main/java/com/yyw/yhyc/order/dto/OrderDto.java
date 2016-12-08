@@ -6,6 +6,7 @@ import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -32,8 +33,18 @@ public class OrderDto extends Order {
     private List<ProductInfoDto> productInfoDtoList;
 
     private OrderDelivery orderDelivery;//订单发货信息
+    
+    private BigDecimal orderFullReductionMoney; //该订单的优惠金额
 
-    /* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
+    public BigDecimal getOrderFullReductionMoney() {
+		return orderFullReductionMoney;
+	}
+
+	public void setOrderFullReductionMoney(BigDecimal orderFullReductionMoney) {
+		this.orderFullReductionMoney = orderFullReductionMoney;
+	}
+
+	/* 供应商对采供商设置的账期额度，1 表示账期额度可以用。  0 表示账期额度已用完 或 没有设置账期额度 */
     private int accountAmount ;
 
     /*打款状态说明*/
@@ -43,6 +54,8 @@ public class OrderDto extends Order {
     private UsermanageEnterprise seller;
 
 
+    private String promotionName;
+    
     public int getOrderCount() {
         return orderCount;
     }
@@ -197,30 +210,20 @@ public class OrderDto extends Order {
 
 
     @Override
-    public String toString() {
-        return "OrderDto{" +
-                "orderCount=" + orderCount +
-                ", payType=" + payType +
-                ", payTypeName='" + payTypeName + '\'' +
-                ", orderStatusName='" + orderStatusName + '\'' +
-                ", orderDetailList=" + orderDetailList +
-                ", createBeginTime='" + createBeginTime + '\'' +
-                ", createEndTime='" + createEndTime + '\'' +
-                ", nowTime='" + nowTime + '\'' +
-                ", residualTime=" + residualTime +
-                ", receivedTime=" + receivedTime +
-                ", province='" + province + '\'' +
-                ", city='" + city + '\'' +
-                ", district='" + district + '\'' +
-                ", productInfoDtoList=" + productInfoDtoList +
-                ", orderDelivery=" + orderDelivery +
-                ", accountAmount=" + accountAmount +
-                ", payFlagName='" + payFlagName + '\'' +
-                ", buyer=" + buyer +
-                ", seller=" + seller +
-                ", source=" + source +
-                "} " + super.toString();
-    }
+	public String toString() {
+		return "OrderDto [orderCount=" + orderCount + ", payType=" + payType
+				+ ", payTypeName=" + payTypeName + ", orderStatusName="
+				+ orderStatusName + ", orderDetailList=" + orderDetailList
+				+ ", createBeginTime=" + createBeginTime + ", createEndTime="
+				+ createEndTime + ", nowTime=" + nowTime + ", residualTime="
+				+ residualTime + ", receivedTime=" + receivedTime
+				+ ", province=" + province + ", city=" + city + ", district="
+				+ district + ", source=" + source + ", productInfoDtoList="
+				+ productInfoDtoList + ", orderDelivery=" + orderDelivery
+				+ ", accountAmount=" + accountAmount + ", payFlagName="
+				+ payFlagName + ", buyer=" + buyer + ", seller=" + seller 
+				+ ", promotionName='" + promotionName + "']";
+	}
 
     public int getSource() {
         return source;
@@ -229,4 +232,18 @@ public class OrderDto extends Order {
     public void setSource(int source) {
         this.source = source;
     }
+
+	/**
+	 * @return the promotionName
+	 */
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	/**
+	 * @param promotionName the promotionName to set
+	 */
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
+	}
 }

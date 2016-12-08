@@ -25,6 +25,13 @@ public interface ManufacturerOrderFacade {
      * @return
      */
     public List<ManufacturerOrder> sendOrderDelivery(List<ManufacturerOrder> manufacturerOrderList);
+    
+    /**
+     * 发货，包含发货的商品信息
+     * @param manufacturerOrderList
+     * @return
+     */
+    public Map<String,Object> sendProductToOrderDelivery(List<ManufacturerOrder> manufacturerOrderList)throws Exception;
 
 
 }

@@ -9,6 +9,34 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.search.remote.yhyc.ProductSearchInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -20,7 +48,9 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yyw.yhyc.bo.Pagination;import com.yyw.yhyc.bo.RequestListModel;
+import com.yaoex.usermanage.model.adviser.AdviserModel;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
@@ -29,36 +59,26 @@ import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.SystemPayType;
-import com.yyw.yhyc.order.dto.*;
+import com.yyw.yhyc.order.dto.AdviserDto;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yyw.yhyc.order.service.*;
+import com.yyw.yhyc.order.service.OrderExportService;
+import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.service.ShoppingCartService;
+import com.yyw.yhyc.order.service.SystemDateService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
 import com.yyw.yhyc.utils.CacheUtil;
 import com.yyw.yhyc.utils.DateUtils;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.search.remote.yhyc.ProductSearchInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.ServletOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order")
@@ -375,7 +395,7 @@ public class OrderController extends BaseJsonController {
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,productDubboManageService,creditDubboService,iPromotionDubboManageService);
+			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,creditDubboService,productSearchInterface,iCustgroupmanageDubbo);
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
 
@@ -716,4 +736,24 @@ public class OrderController extends BaseJsonController {
 		}
     }
 
+    @RequestMapping(value = "/queryAdviser",method = RequestMethod.POST)
+	@ResponseBody
+	public List<AdviserDto>  queryAdviser(HttpServletRequest request) throws Exception{
+    	UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
+		}
+		//查询供应商的销售顾问信息
+		List<AdviserDto> adviserList = new ArrayList<AdviserDto>();
+		List<AdviserModel> list = iAdviserManageDubbo.queryByEnterId(userDto.getCustId());
+		for(AdviserModel one : list){
+			AdviserDto adviserDto = new AdviserDto();
+			adviserDto.setAdviserCode(one.getAdviser_code());
+			adviserDto.setAdviserName(one.getAdviser_name());
+			adviserDto.setAdviserPhoneNumber(one.getPhone_number());
+			adviserDto.setAdviserRemark(one.getRemark());
+			adviserList.add(adviserDto);
+		}
+		return adviserList;
+	}
 }

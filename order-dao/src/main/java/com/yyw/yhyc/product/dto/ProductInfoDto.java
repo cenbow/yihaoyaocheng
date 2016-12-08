@@ -203,15 +203,15 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.promotionCurrentInventory = promotionCurrentInventory;
     }
 
-    public Integer getPromotionId() {
-        return promotionId;
-    }
+	public Integer getPromotionId() {
+		return promotionId;
+	}
 
-    public void setPromotionId(Integer promotionId) {
-        this.promotionId = promotionId;
-    }
+	public void setPromotionId(Integer promotionId) {
+		this.promotionId = promotionId;
+	}
 
-    public String getPromotionName() {
+	public String getPromotionName() {
         return promotionName;
     }
 
@@ -219,27 +219,21 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.promotionName = promotionName;
     }
 
-    @Override
-    public String toString() {
-        return "ProductInfoDto{" +
-                "productPrice=" + productPrice +
-                ", productCount=" + productCount +
-                ", totalPrice=" + totalPrice +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", periodProduct=" + periodProduct +
-                ", paymentTerm=" + paymentTerm +
-                ", productCodeCompany='" + productCodeCompany + '\'' +
-                ", isChannel=" + isChannel +
-                ", manufactures='" + manufactures + '\'' +
-                ", manufactureId='" + manufactureId + '\'' +
-                ", fromWhere=" + fromWhere +
-                ", promotionId=" + promotionId +
-                ", promotionName=" + promotionName +
-                ", promotionPrice=" + promotionPrice +
-                ", promotionMinimumPacking=" + promotionMinimumPacking +
-                ", promotionLimitNum=" + promotionLimitNum +
-                ", promotionSumInventory=" + promotionSumInventory +
-                ", promotionCurrentInventory=" + promotionCurrentInventory +
-                "} " + super.toString();
-    }
+	@Override
+	public String toString() {
+		return "ProductInfoDto [productPrice=" + productPrice
+				+ ", productCount=" + productCount + ", totalPrice="
+				+ totalPrice + ", imageUrl=" + imageUrl + ", periodProduct="
+				+ periodProduct + ", paymentTerm=" + paymentTerm
+				+ ", productCodeCompany=" + productCodeCompany + ", isChannel="
+				+ isChannel + ", manufactures=" + manufactures
+				+ ", manufactureId=" + manufactureId + ", fromWhere="
+				+ fromWhere + ", promotionId=" + promotionId
+				+ ", promotionName=" + promotionName + ", promotionPrice="
+				+ promotionPrice + ", promotionMinimumPacking="
+				+ promotionMinimumPacking + ", promotionLimitNum="
+				+ promotionLimitNum + ", promotionSumInventory="
+				+ promotionSumInventory + ", promotionCurrentInventory="
+				+ promotionCurrentInventory + "]";
+	}
 }
