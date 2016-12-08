@@ -3,11 +3,8 @@ package com.yyw.yhyc.order.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +50,7 @@ public class OrderFullReductionService {
 			return allShoppingCart;
 		}
 	
+		//组装调doubble的服务参数
 		List<Map<String,Object>> promotionIdList=this.getAllOrderPromotionId(allShoppingCart);
 		if(UtilHelper.isEmpty(promotionIdList)){
 			return allShoppingCart;
@@ -159,6 +157,21 @@ public class OrderFullReductionService {
 					
 					orderPromotionDto.setPromotionRuleList(orderPromitionRuleList);	
 					
+					//该促销下的商品信息
+				    List<String> productCodeList=promotionBean.getSpuCode();
+				    if(!UtilHelper.isEmpty(productCodeList)){
+				    	
+				    	List<OrderPromotionProductDto> promotionProductDtoList=new ArrayList<OrderPromotionProductDto>();
+				    	
+				    	for(String spuCode : productCodeList){
+				    		OrderPromotionProductDto productDto=new OrderPromotionProductDto();
+				    		productDto.setSpuCode(spuCode);
+				    		promotionProductDtoList.add(productDto);
+				    	}
+				    	
+				    	orderPromotionDto.setPromotionProductDtoList(promotionProductDtoList);
+				    }
+					
 				}
 				
 				returnMap.put(promotionId, orderPromotionDto);
@@ -184,13 +197,12 @@ public class OrderFullReductionService {
 		}
 		
 		
+		List<Map<String,Object>> returnList=new ArrayList<Map<String,Object>>();
 		
 		for(ShoppingCartListDto shoppingCartDto : allShoppingCart){
 			
 			  UsermanageEnterprise sellerBean=shoppingCartDto.getSeller();
-			  UsermanageEnterprise buyerBean=shoppingCartDto.getBuyer();
 			  String supplyId=sellerBean.getEnterpriseId(); //提供商的id
-			  String custId=buyerBean.getEnterpriseId(); //采购商的id
 			  
 			 //该订单买的商品
 			 List<ShoppingCartDto> buyProductList=shoppingCartDto.getShoppingCartDtoList();
@@ -199,40 +211,35 @@ public class OrderFullReductionService {
 				  
 				  for(ShoppingCartDto buyerProductBean : buyProductList){
 					  
+					  OrderProductInfoDto productInfoBean=new OrderProductInfoDto();
 					  
+					   String supCode=buyerProductBean.getSpuCode();
+					   
+					   productInfoBean.setSpuCode(supCode);
+					   productInfoBean.setSellerCode(supplyId);
 					  
 					   Map<String,Object>  currentMap=new HashMap<String,Object>();
+					   
+					   List<String> promitionIdList=new ArrayList<String>();
 						
-						 String promotionIdList=buyerProductBean.getPromotionId(); //该商品参与的活动
+						 String promotionIdList=buyerProductBean.getPromotionCollectionId(); //该商品参与的活动
 						 
 						  if(!UtilHelper.isEmpty(promotionIdList)){
 							  
 							  String[] promotionIdArray=promotionIdList.split(",");
 							  for(String currentPromotionId : promotionIdArray){
-								  
+								  promitionIdList.add(currentPromotionId);
 							  }
 						  }
 						  
+						  currentMap.put("productInfoBean", productInfoBean);
+						  currentMap.put("promotionList", promitionIdList);
+						  
+						  returnList.add(currentMap);
 				  }
 			  }
 		}
-		
-		/*if(UtilHelper.isEmpty(promotionMap)){
-			return null;
-		}else{
-			
-			List<String> promotionList=new ArrayList<String>();
-			
-			Iterator<String> iterator=promotionMap.iterator();
-			while(iterator.hasNext()){
-				String promotionKey=iterator.next();
-				promotionList.add(promotionKey);
-			}
-			
-			return promotionList;
-		}*/
-		
-		return null;
+		return returnList;
 	}
 	
 	
@@ -391,7 +398,7 @@ public class OrderFullReductionService {
 			   
 			   for(ShoppingCartDto currentCartDto : buyProductList){
 				   
-				   String promotionIdList=currentCartDto.getPromotionId();
+				   String promotionIdList=currentCartDto.getPromotionCollectionId();
 				   if(!UtilHelper.isEmpty(promotionIdList)){
 					   List<OrderPromotionDto> fullReductionPromotionList=new ArrayList<OrderPromotionDto>();
 					   String[] currentPromotionIdArray=promotionIdList.split(",");
@@ -412,17 +419,17 @@ public class OrderFullReductionService {
 								    }
 							   }
 							   
-							  /*  boolean productPartPromotionState=this.checkProcutInfoPartPromotionState(currentCartDto.getSpuCode(), orderPromotionDto);
+							   boolean productPartPromotionState=this.checkProcutInfoPartPromotionState(currentCartDto.getSpuCode(), orderPromotionDto);
 							   if(productPartPromotionState){
 								   log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!");
 								   continue;
-							   }*/
+							   }
 							   
 						    	Integer promotionType=orderPromotionDto.getPromotionType();
 						    	
 						    	 if(promotionType!=null && promotionType.intValue()==1){ //说明该商品参加了特价活动
 						    		 currentCartDto.setSpecailPromotionDto(orderPromotionDto);
-						    		 currentCartDto.setSpecialPromotionId(orderPromotionDto.getPromotionId());
+						    		 currentCartDto.setPromotionId(orderPromotionDto.getPromotionId());
 						    		 
 						    	 }else if(promotionType!=null && (promotionType.intValue()==2 || promotionType.intValue()==3)){
 						    		 //商品参加了单品满减或者多品满减
@@ -450,7 +457,7 @@ public class OrderFullReductionService {
 	 * @return
 	 */
 	private boolean checkProcutInfoPartPromotionState(String spuCode,OrderPromotionDto orderPromotionDto){
-		 boolean flag=false;
+		 boolean flag=true;
 		 List<OrderPromotionProductDto> promotionProductDtoList=orderPromotionDto.getPromotionProductDtoList();
 		 if(UtilHelper.isEmpty(promotionProductDtoList)){
 			flag=true;
@@ -459,13 +466,10 @@ public class OrderFullReductionService {
 		 
 		 for(OrderPromotionProductDto currentProductBean : promotionProductDtoList){
 			 String currentSupCode=currentProductBean.getSpuCode();
-			 Integer state=currentProductBean.getStatus();
-			 if(currentSupCode.equals(spuCode) && state.intValue()==1){
-				 flag=true;
+			 if(currentSupCode.equals(spuCode)){
+				 flag=false;
 			 }
 		 }
-		 
-		 
 		 return flag;
 		 
 		 
@@ -503,7 +507,7 @@ public class OrderFullReductionService {
 			
 			for(ShoppingCartDto buyerProductBean : buyProductList){
 				
-				 String promotionIdList=buyerProductBean.getPromotionId(); //该商品参与的活动
+				 String promotionIdList=buyerProductBean.getPromotionCollectionId(); //该商品参与的活动
 				  if(!UtilHelper.isEmpty(promotionIdList)){
 					  
 					  String[] promotionIdArray=promotionIdList.split(",");
@@ -514,9 +518,6 @@ public class OrderFullReductionService {
 						   if(paramterMap.get(currentPromotionIntegerValue)!=null){
 							   
 							   OrderProductInfoDto currentPomotionBean=new OrderProductInfoDto();
-							   currentPomotionBean.setCustId(Integer.valueOf(custId));
-							   currentPomotionBean.setSupplyId(Integer.valueOf(supplyId));
-							   currentPomotionBean.setProductName(buyerProductBean.getProductName());
 							   currentPomotionBean.setSpuCode(buyerProductBean.getSpuCode());
 							   paramterMap.get(currentPromotionIntegerValue).add(currentPomotionBean);
 							   
@@ -525,11 +526,7 @@ public class OrderFullReductionService {
 							   List<OrderProductInfoDto> promotionProductList=new ArrayList<OrderProductInfoDto>();
 							   
 							   OrderProductInfoDto currentPomotionBean=new OrderProductInfoDto();
-							   currentPomotionBean.setCustId(Integer.valueOf(custId));
-							   currentPomotionBean.setSupplyId(Integer.valueOf(supplyId));
-							   currentPomotionBean.setProductName(buyerProductBean.getProductName());
 							   currentPomotionBean.setSpuCode(buyerProductBean.getSpuCode());
-							   
 							     promotionProductList.add(currentPomotionBean);
 							     paramterMap.put(currentPromotionIntegerValue, promotionProductList);
 							   
