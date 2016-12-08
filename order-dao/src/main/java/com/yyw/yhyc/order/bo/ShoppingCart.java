@@ -114,7 +114,7 @@ public class ShoppingCart extends Model{
 	private Integer fromWhere;
 
 	/* 活动ID（商品所参加活动的活动id） */
-	private Integer promotionId;
+	private String promotionId;
 
 	/* 活动名称（商品所参加活动的活动名称） */
 	private String promotionName;
@@ -410,11 +410,13 @@ public class ShoppingCart extends Model{
 		this.fromWhere = fromWhere;
 	}
 
-	public Integer getPromotionId() {
+	
+
+	public String getPromotionId() {
 		return promotionId;
 	}
 
-	public void setPromotionId(Integer promotionId) {
+	public void setPromotionId(String promotionId) {
 		this.promotionId = promotionId;
 	}
 
@@ -428,29 +430,19 @@ public class ShoppingCart extends Model{
 
 	@Override
 	public String toString() {
-		return "ShoppingCart{" +
-				"shoppingCartId=" + shoppingCartId +
-				", custId=" + custId +
-				", skuId=" + skuId +
-				", specification='" + specification + '\'' +
-				", supplyId=" + supplyId +
-				", productId=" + productId +
-				", productCodeCompany='" + productCodeCompany + '\'' +
-				", spuCode='" + spuCode + '\'' +
-				", productName='" + productName + '\'' +
-				", manufactures='" + manufactures + '\'' +
-				", productPrice=" + productPrice +
-				", productSettlementPrice=" + productSettlementPrice +
-				", productCount=" + productCount +
-				", remark='" + remark + '\'' +
-				", createUser='" + createUser + '\'' +
-				", createTime='" + createTime + '\'' +
-				", updateUser='" + updateUser + '\'' +
-				", updateTime='" + updateTime + '\'' +
-				", fromWhere=" + fromWhere +
-				", promotionId=" + promotionId +
-				", promotionName=" + promotionName +
-				"} ";
+		return "ShoppingCart [shoppingCartId=" + shoppingCartId + ", custId="
+				+ custId + ", skuId=" + skuId + ", specification="
+				+ specification + ", supplyId=" + supplyId + ", productId="
+				+ productId + ", productCodeCompany=" + productCodeCompany
+				+ ", spuCode=" + spuCode + ", productName=" + productName
+				+ ", manufactures=" + manufactures + ", productPrice="
+				+ productPrice + ", productSettlementPrice="
+				+ productSettlementPrice + ", productCount=" + productCount
+				+ ", remark=" + remark + ", createUser=" + createUser
+				+ ", createTime=" + createTime + ", updateUser=" + updateUser
+				+ ", updateTime=" + updateTime + ", fromWhere=" + fromWhere
+				+ ", promotionId=" + promotionId + ", promotionName="
+				+ promotionName + "]";
 	}
 }
 

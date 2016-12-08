@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.dto;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by lizhou on 2016/8/2
@@ -74,6 +75,26 @@ public class ShoppingCartDto extends ShoppingCart  {
 
     /* 商品状态是不正常的原因*/
     private String unNormalStatusReason;
+
+    /* 状态枚举值 */
+    private int statusEnum ;
+    
+    /**
+     * 如果参加了满减活动那么均摊的钱
+     */
+    private BigDecimal shareMoney;
+    
+    /**
+     * 如果该商品参加了特价活动，那么该属性有值，且是特价活动的实体
+     */
+    private OrderPromotionDto specailPromotionDto;
+    
+    private Integer specialPromotionId; //如果该商品参加了特价活动，那么该属性就是保存特价活动的ID
+    
+    /**
+     * 如果该商品参加了满减活动，那么该属性有值，且可以参加多个满减
+     */
+    private List<OrderPromotionDto> fullReductionPromotionList;
 
     public Integer getSaleStart() {
         return saleStart;
@@ -227,28 +248,71 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.unNormalStatusReason = unNormalStatusReason;
     }
 
-    @Override
-    public String toString() {
-        return "ShoppingCartDto{" +
-                "productImageUrl='" + productImageUrl + '\'' +
-                ", periodProduct=" + periodProduct +
-                ", paymentTerm=" + paymentTerm +
-                ", unit='" + unit + '\'' +
-                ", minimumPacking=" + minimumPacking +
-                ", saleStart=" + saleStart +
-                ", upStep=" + upStep +
-                ", existProductInventory=" + existProductInventory +
-                ", productInventory=" + productInventory +
-                ", putawayStatus=" + putawayStatus +
-                ", isChannel=" + isChannel +
-                ", promotionPrice=" + promotionPrice +
-                ", promotionMinimumPacking=" + promotionMinimumPacking +
-                ", promotionLimitNum=" + promotionLimitNum +
-                ", promotionSumInventory=" + promotionSumInventory +
-                ", promotionCurrentInventory=" + promotionCurrentInventory +
-                ", promotionType=" + promotionType +
-                ", normalStatus=" + normalStatus +
-                ", unNormalStatusReason=" + unNormalStatusReason +
-                "} " + super.toString();
+    public int getStatusEnum() {
+        return statusEnum;
     }
+
+    public void setStatusEnum(int statusEnum) {
+        this.statusEnum = statusEnum;
+    }
+    
+    
+
+    public BigDecimal getShareMoney() {
+		return shareMoney;
+	}
+
+	public void setShareMoney(BigDecimal shareMoney) {
+		this.shareMoney = shareMoney;
+	}
+
+	public OrderPromotionDto getSpecailPromotionDto() {
+		return specailPromotionDto;
+	}
+
+	public void setSpecailPromotionDto(OrderPromotionDto specailPromotionDto) {
+		this.specailPromotionDto = specailPromotionDto;
+	}
+
+	public List<OrderPromotionDto> getFullReductionPromotionList() {
+		return fullReductionPromotionList;
+	}
+
+	public void setFullReductionPromotionList(
+			List<OrderPromotionDto> fullReductionPromotionList) {
+		this.fullReductionPromotionList = fullReductionPromotionList;
+	}
+	
+	
+
+	public Integer getSpecialPromotionId() {
+		return specialPromotionId;
+	}
+
+	public void setSpecialPromotionId(Integer specialPromotionId) {
+		this.specialPromotionId = specialPromotionId;
+	}
+
+	@Override
+	public String toString() {
+		return "ShoppingCartDto [productImageUrl=" + productImageUrl
+				+ ", periodProduct=" + periodProduct + ", paymentTerm="
+				+ paymentTerm + ", unit=" + unit + ", minimumPacking="
+				+ minimumPacking + ", saleStart=" + saleStart + ", upStep="
+				+ upStep + ", existProductInventory=" + existProductInventory
+				+ ", productInventory=" + productInventory + ", putawayStatus="
+				+ putawayStatus + ", isChannel=" + isChannel
+				+ ", promotionPrice=" + promotionPrice
+				+ ", promotionMinimumPacking=" + promotionMinimumPacking
+				+ ", promotionLimitNum=" + promotionLimitNum
+				+ ", promotionSumInventory=" + promotionSumInventory
+				+ ", promotionCurrentInventory=" + promotionCurrentInventory
+				+ ", promotionType=" + promotionType + ", normalStatus="
+				+ normalStatus + ", unNormalStatusReason="
+				+ unNormalStatusReason + ", statusEnum=" + statusEnum
+				+ ", shareMoney=" + shareMoney + ", specailPromotionDto="
+				+ specailPromotionDto + ", specialPromotionId="
+				+ specialPromotionId + ", fullReductionPromotionList="
+				+ fullReductionPromotionList + "]";
+	}
 }

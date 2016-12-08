@@ -49,7 +49,9 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
 
     /* 活动id */
-    private Integer promotionId;
+    private String promotionId;
+    
+    private Integer specialPromotionId; //如果该商品参加了特价活动，那么该属性就是保存特价活动的ID
 
     /* 活动活动名称 */
     private String promotionName;
@@ -200,43 +202,49 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.promotionCurrentInventory = promotionCurrentInventory;
     }
 
-    public Integer getPromotionId() {
-        return promotionId;
-    }
 
-    public void setPromotionId(Integer promotionId) {
-        this.promotionId = promotionId;
-    }
+    public String getPromotionId() {
+		return promotionId;
+	}
 
-    public String getPromotionName() {
+	public void setPromotionId(String promotionId) {
+		this.promotionId = promotionId;
+	}
+
+	public String getPromotionName() {
         return promotionName;
     }
 
     public void setPromotionName(String promotionName) {
         this.promotionName = promotionName;
     }
+    
+    
 
-    @Override
-    public String toString() {
-        return "ProductInfoDto{" +
-                "productPrice=" + productPrice +
-                ", productCount=" + productCount +
-                ", totalPrice=" + totalPrice +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", periodProduct=" + periodProduct +
-                ", paymentTerm=" + paymentTerm +
-                ", productCodeCompany='" + productCodeCompany + '\'' +
-                ", isChannel=" + isChannel +
-                ", manufactures='" + manufactures + '\'' +
-                ", manufactureId='" + manufactureId + '\'' +
-                ", fromWhere=" + fromWhere +
-                ", promotionId=" + promotionId +
-                ", promotionName=" + promotionName +
-                ", promotionPrice=" + promotionPrice +
-                ", promotionMinimumPacking=" + promotionMinimumPacking +
-                ", promotionLimitNum=" + promotionLimitNum +
-                ", promotionSumInventory=" + promotionSumInventory +
-                ", promotionCurrentInventory=" + promotionCurrentInventory +
-                "} " + super.toString();
-    }
+    public Integer getSpecialPromotionId() {
+		return specialPromotionId;
+	}
+
+	public void setSpecialPromotionId(Integer specialPromotionId) {
+		this.specialPromotionId = specialPromotionId;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductInfoDto [productPrice=" + productPrice
+				+ ", productCount=" + productCount + ", totalPrice="
+				+ totalPrice + ", imageUrl=" + imageUrl + ", periodProduct="
+				+ periodProduct + ", paymentTerm=" + paymentTerm
+				+ ", productCodeCompany=" + productCodeCompany + ", isChannel="
+				+ isChannel + ", manufactures=" + manufactures
+				+ ", manufactureId=" + manufactureId + ", fromWhere="
+				+ fromWhere + ", promotionId=" + promotionId
+				+ ", specialPromotionId=" + specialPromotionId
+				+ ", promotionName=" + promotionName + ", promotionPrice="
+				+ promotionPrice + ", promotionMinimumPacking="
+				+ promotionMinimumPacking + ", promotionLimitNum="
+				+ promotionLimitNum + ", promotionSumInventory="
+				+ promotionSumInventory + ", promotionCurrentInventory="
+				+ promotionCurrentInventory + "]";
+	}
 }

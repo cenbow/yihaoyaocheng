@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-12-8 9:28:10
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderPromotionHistoryMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderPromotionHistoryResultMapper" type="OrderPromotionHistory">
+		<result column="id" property="id"/>
+		<result column="cust_id" property="custId"/>
+		<result column="cust_name" property="custName"/>
+		<result column="promotion_id" property="promotionId"/>
+		<result column="use_num" property="useNum"/>
+		<result column="create_time" property="createTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 id
+		, cust_id
+		, cust_name
+		, promotion_id
+		, use_num
+		, create_time
+		, create_user
+		, update_time
+		, update_user
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+				 cust_id
+				, cust_name
+				, promotion_id
+				, use_num
+				, create_time
+				, create_user
+				, update_time
+				, update_user
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 id
+		, cust_id
+		, cust_name
+		, promotion_id
+		, use_num
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, create_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+		, update_user
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="id!= null and id!= ''"> 
+			AND id=#{id}
+		</if>
+		<if test="custId!= null and custId!= ''"> 
+			AND cust_id=#{custId}
+		</if>
+		<if test="custName!= null and custName!= ''"> 
+			AND cust_name=#{custName}
+		</if>
+		<if test="promotionId!= null and promotionId!= ''"> 
+			AND promotion_id=#{promotionId}
+		</if>
+		<if test="useNum!= null and useNum!= ''"> 
+			AND use_num=#{useNum}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderPromotionHistory">
+		<![CDATA[ INSERT INTO t_order_promotion_history ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES ( 
+				 #{custId}
+				, #{custName}
+				, #{promotionId}
+				, #{useNum}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{createUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderPromotionHistory">
+		<![CDATA[ UPDATE t_order_promotion_history SET 
+			 id=#{id} 
+			, cust_id=#{custId} 
+			, cust_name=#{custName} 
+			, promotion_id=#{promotionId} 
+			, use_num=#{useNum} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, create_user=#{createUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+		WHERE id = #{id}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.Long">
+		<![CDATA[ DELETE FROM t_order_promotion_history WHERE id = #{id}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_promotion_history WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderPromotionHistory">
+		DELETE FROM t_order_promotion_history WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.Long" resultMap="OrderPromotionHistoryResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_promotion_history WHERE id = #{id}  
+	</select>
+	<select id="list" resultMap="OrderPromotionHistoryResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_promotion_history
+	</select>
+	<select id="listByProperty" parameterType="OrderPromotionHistory" resultMap="OrderPromotionHistoryResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_promotion_history WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderPromotionHistory" resultMap="OrderPromotionHistoryResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_promotion_history WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderPromotionHistory" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_promotion_history WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>
