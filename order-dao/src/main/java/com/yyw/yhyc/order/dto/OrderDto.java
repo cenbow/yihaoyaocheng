@@ -54,6 +54,8 @@ public class OrderDto extends Order {
     private UsermanageEnterprise seller;
 
 
+    private String promotionName;
+    
     public int getOrderCount() {
         return orderCount;
     }
@@ -219,7 +221,8 @@ public class OrderDto extends Order {
 				+ district + ", source=" + source + ", productInfoDtoList="
 				+ productInfoDtoList + ", orderDelivery=" + orderDelivery
 				+ ", accountAmount=" + accountAmount + ", payFlagName="
-				+ payFlagName + ", buyer=" + buyer + ", seller=" + seller + "]";
+				+ payFlagName + ", buyer=" + buyer + ", seller=" + seller 
+				+ ", promotionName='" + promotionName + "']";
 	}
 
     public int getSource() {
@@ -229,4 +232,18 @@ public class OrderDto extends Order {
     public void setSource(int source) {
         this.source = source;
     }
+
+	/**
+	 * @return the promotionName
+	 */
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	/**
+	 * @param promotionName the promotionName to set
+	 */
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
+	}
 }

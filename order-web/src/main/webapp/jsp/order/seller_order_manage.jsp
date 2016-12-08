@@ -69,6 +69,17 @@
                             </div>
 
                         </div>
+                         <div class="form-group">
+                        	<label for="adviser" class="col-xs-2 control-label">销售顾问</label>
+                            <div class="col-xs-3">
+                                <select class="form-control" name="adviserCode" id="adviserCode">
+                                </select>
+                            </div>
+                            <label for="promotionName" class="col-xs-2 control-label">促销活动</label>
+                            <div class="col-xs-3">
+                                <input type="text" class="form-control" id="promotionName" name="promotionName" placeholder="">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-xs-2 control-label">下单时间</label>
                             <div class="col-xs-3">
@@ -82,7 +93,8 @@
                                 <p class="padding-t-10">[ <a class="blue" onclick="selectDate(-3)">最近三天</a> <a class="blue" onclick="selectDate(-7)">最近1周</a> <a
                                         class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
-                            <div class="col-xs-5 text-left">
+                            <label class="col-xs-2 control-label"></label>
+                            <div class="col-xs-3">
                                 <input type="button" class="btn btn-info" value="搜索">
                             </div>
                         </div>
