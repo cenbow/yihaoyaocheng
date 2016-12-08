@@ -217,7 +217,7 @@ public class OrderFullReductionService {
 			  }
 		}
 		
-		if(UtilHelper.isEmpty(promotionMap)){
+		/*if(UtilHelper.isEmpty(promotionMap)){
 			return null;
 		}else{
 			
@@ -230,7 +230,9 @@ public class OrderFullReductionService {
 			}
 			
 			return promotionList;
-		}
+		}*/
+		
+		return null;
 	}
 	
 	
