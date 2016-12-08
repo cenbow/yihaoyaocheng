@@ -102,6 +102,22 @@ public interface OrderIssuedFacade {
 	 * @throws Exception
 	 */
 	public Map<String,Object> findOrderIssuedListBySupplyId(Integer supplyId) throws Exception;
+	
+	
+	
+	
+	/**
+	 * 根据订单号集合以及提供商的id和日期查询订单
+	 * @param supplyId
+	 * @param startDate
+	 * @param endDate
+	 * @param orderIdList
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> findOrderIssuedListBySupplyAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList)throws Exception;
+	
+	
 	/**
 	 * 获取下发失败列表集合，更改状态为失败，准备重发
 	 * @param flowList

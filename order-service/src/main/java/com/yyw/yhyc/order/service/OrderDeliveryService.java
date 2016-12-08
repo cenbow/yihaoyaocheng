@@ -13,6 +13,8 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
@@ -24,6 +26,7 @@ import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.mapper.*;
+import com.yyw.yhyc.product.dto.ProductBeanDto;
 import com.yyw.yhyc.product.manage.ProductInventoryManage;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
@@ -34,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.bo.Pagination;
@@ -64,6 +68,11 @@ public class OrderDeliveryService {
     private OrderTraceService orderTraceService;
 
     private ProductInventoryManage productInventoryManage;
+    
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private OrderCancelService orderCancelService;
 
     @Autowired
     public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
@@ -1233,6 +1242,379 @@ public class OrderDeliveryService {
             log.info(e.getMessage());
         }
         return map;
+    }
+    
+    
+    /**
+     * 对接erp的时候，给erp提供的接口服务方法
+     * @param manufacturerOrderList
+     * @param filePath
+     * @return
+     */
+    public Map<String,Object> updateSendProductToOrderDelivery(List<ManufacturerOrder> manufacturerOrderList, String filePath,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService){
+    	      Map<String,Object> returnMap=new HashMap<String,Object>();
+    	      
+    	      if(UtilHelper.isEmpty(manufacturerOrderList)){
+    	    	  log.info("manufacturerOrderList 参数不能为空");
+    	    	  returnMap.put("code","0");
+    	    	  returnMap.put("message","manufacturerOrderList 参数不能为空");
+    	    	  return returnMap;
+    	      }
+    	      
+    	      List<ManufacturerOrder> confirmManufacturerSendOrderList=new ArrayList<ManufacturerOrder>(); //合格的且发货的
+    	      List<ManufacturerOrder> confirmManufacturerCancelOrderList=new ArrayList<ManufacturerOrder>(); //合格的且取消订单
+    	      List<ManufacturerOrder> errorManufacturerOrderList=new ArrayList<ManufacturerOrder>(); //不合格的
+    	      
+    	      
+    	      for (ManufacturerOrder manufacturerOrder : manufacturerOrderList) {
+    	    	  
+    	    	   Map<String,Object> resutMap=this.checkSendDelivery(manufacturerOrder);
+    	    	   boolean flag=(boolean) resutMap.get("flag");
+    	    	   if(flag){
+    	    		   
+    	    		   String code=(String) resutMap.get("code");
+    	    		   if("1".equals(code)){ //发货的
+    	    			   confirmManufacturerSendOrderList.add(manufacturerOrder);
+    	    		   }else if("0".equals(code)){ //取消订单
+    	    			   confirmManufacturerCancelOrderList.add(manufacturerOrder);
+    	    		   }else{
+    	    			   log.info("*****出错误了*****");
+    	    			   errorManufacturerOrderList.add(manufacturerOrder);
+    	    		   }
+    	    		   
+    	    	   }else{
+    	    		   String errorMsg=(String) resutMap.get("errorMsg");
+    	    		   manufacturerOrder.setErrorMsg(errorMsg);
+    	    		   errorManufacturerOrderList.add(manufacturerOrder);
+    	    	   }
+    	    	   
+    	      }
+    	      
+    	      
+    	      if(errorManufacturerOrderList!=null && errorManufacturerOrderList.size()==manufacturerOrderList.size()){
+    	    	  
+    	    	  returnMap.put("code","0");
+   	    	      returnMap.put("errorList",errorManufacturerOrderList);
+   	    	      return returnMap;
+    	    	 
+    	    	  
+    	      }
+    	      
+    	      if(errorManufacturerOrderList!=null && errorManufacturerOrderList.size()==0){
+    	    	   //1.处理正常发货
+	       	       this.updateConfirmOrder(confirmManufacturerSendOrderList, filePath);
+	       	       //处理取消订单
+	       	       this.updateCancelOrder(confirmManufacturerCancelOrderList, iPromotionDubboManageService,creditDubboService);
+	       	      returnMap.put("code","1");
+	 	          returnMap.put("message","成功处理发货个数："+confirmManufacturerSendOrderList.size()+",成功处理取消订单个数："+confirmManufacturerCancelOrderList.size());
+	 	         
+	 	          List<ManufacturerOrder> successList=new ArrayList<ManufacturerOrder>();
+	 	          successList.addAll(confirmManufacturerSendOrderList);
+	 	          successList.addAll(confirmManufacturerCancelOrderList);
+	 	          returnMap.put("successList", successList);
+	 	          return returnMap;
+	 	          
+    	      }else{
+    	    	  
+    	    	  //1.处理正常发货
+	       	       this.updateConfirmOrder(confirmManufacturerSendOrderList, filePath);
+	       	       //处理取消订单
+	       	       this.updateCancelOrder(confirmManufacturerCancelOrderList, iPromotionDubboManageService,creditDubboService);
+	       	      returnMap.put("code","2");
+	 	          returnMap.put("message","成功处理发货个数："+confirmManufacturerSendOrderList.size()+",成功处理取消订单个数："+confirmManufacturerCancelOrderList.size()+",失败订单个数:"+errorManufacturerOrderList.size());
+	 	         
+	 	          List<ManufacturerOrder> successList=new ArrayList<ManufacturerOrder>();
+	 	          successList.addAll(confirmManufacturerSendOrderList);
+	 	          successList.addAll(confirmManufacturerCancelOrderList);
+	 	          
+	 	          returnMap.put("successList", successList);
+	 	          returnMap.put("errorList", errorManufacturerOrderList);
+	 	          return returnMap;
+    	    	  
+    	      }
+    	      
+    }
+    
+    /**
+     * 处理合格的验证通过的且是要求发货的
+     * @param confirmManufacturerSendOrderList
+     * @return
+     */
+    private void updateConfirmOrder(List<ManufacturerOrder> confirmManufacturerSendOrderList,String filePath){
+    	if(confirmManufacturerSendOrderList!=null && confirmManufacturerSendOrderList.size()>0){
+    		 String now = systemDateMapper.getSystemDate();
+    		for(ManufacturerOrder manufacturerOrder : confirmManufacturerSendOrderList){
+    		
+    			  Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
+    			  manufacturerOrder.setSupplyName(order.getSupplyName());
+    			  List<OrderDetail> orderDetailList = orderDetailMapper.listOrderDetailInfoByOrderId(order.getOrderId());
+    			   
+    			 String path = writeExcel(orderDetailList, order.getFlowId(), filePath);
+                 int i = 1;
+                 for (OrderDetail orderDetail : orderDetailList) {
+                     OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+                     orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, order.getFlowId()));
+                     orderDeliveryDetail.setOrderId(order.getOrderId());
+                     orderDeliveryDetail.setFlowId(order.getFlowId());
+                     orderDeliveryDetail.setDeliveryStatus(1);
+                     orderDeliveryDetail.setBatchNumber("1001");
+                     orderDeliveryDetail.setOrderDetailId(orderDetail.getOrderDetailId());
+                     orderDeliveryDetail.setDeliveryProductCount(orderDetail.getProductCount());
+                     orderDeliveryDetail.setImportFileUrl(path);
+                     orderDeliveryDetail.setCreateTime(now);
+                     orderDeliveryDetail.setUpdateTime(now);
+                     orderDeliveryDetail.setCreateUser(manufacturerOrder.getSupplyName());
+                     orderDeliveryDetail.setUpdateUser(manufacturerOrder.getSupplyName());
+                     orderDeliveryDetailMapper.save(orderDeliveryDetail);
+                     i++;
+                 }
+                 //修改发货人地址
+                 UsermanageReceiverAddress receiverAddress = receiverAddressMapper.findByEnterpriseId(manufacturerOrder.getSupplyId().toString());  //根据供应商编码查询最新的地址
+                 OrderDelivery orderDelivery = orderDeliveryMapper.getByFlowId(order.getFlowId());
+                 orderDelivery.setDeliveryMethod(manufacturerOrder.getDeliveryMethod());
+                 if (manufacturerOrder.getDeliveryMethod() == 1) {
+                     orderDelivery.setDeliveryContactPerson(receiverAddress.getReceiverName());
+                     orderDelivery.setDeliveryExpressNo(receiverAddress.getContactPhone());
+                 }
+                 orderDelivery.setDeliveryDate(manufacturerOrder.getDeliverTime());
+                 orderDelivery.setUpdateDate(now);
+                 orderDelivery.setDeliveryAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+                 orderDelivery.setDeliveryPerson(receiverAddress.getReceiverName());
+                 orderDelivery.setDeliveryContactPhone(receiverAddress.getContactPhone());
+                 orderDelivery.setUpdateUser(manufacturerOrder.getSupplyName());
+                 orderDelivery.setUpdateTime(now);
+                 orderDeliveryMapper.update(orderDelivery);
+                 //修改订单状态
+                 order.setOrderStatus(SystemOrderStatusEnum.SellerDelivered.getType());
+                 order.setDeliverTime(manufacturerOrder.getDeliverTime());
+                 order.setUpdateTime(now);
+                 order.setUpdateUser(manufacturerOrder.getSupplyName());
+                 orderMapper.update(order);
+                 //插入日志表
+                 OrderTrace orderTrace = new OrderTrace();
+                 orderTrace.setOrderId(order.getOrderId());
+                 orderTrace.setNodeName("ERP对接卖家已发货");
+                 orderTrace.setCreateUser(manufacturerOrder.getSupplyName());
+                 orderTrace.setCreateTime(now);
+                 orderTrace.setOrderStatus(order.getOrderStatus());
+                 orderTraceMapper.save(orderTrace);
+                 //扣减冻结库存(发货)
+                 productInventoryManage.deductionInventory(orderDetailList, manufacturerOrder.getSupplyName());
+    			
+    		}
+    	}
+    }
+    
+    
+    /**
+     * 处理ERP对接中，需要取消的订单
+     * @param confirmManufacturerCancelOrderList
+     * @return
+     */
+    private void updateCancelOrder(List<ManufacturerOrder> confirmManufacturerCancelOrderList,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService){
+    	
+    	if(confirmManufacturerCancelOrderList!=null && confirmManufacturerCancelOrderList.size()>0){
+    		for(ManufacturerOrder orderBean : confirmManufacturerCancelOrderList){
+    			Order currentOrder=this.orderMapper.getOrderbyFlowId(orderBean.getFlowId());
+    			if(currentOrder==null){
+    				continue;
+    			}else{
+    				Integer orderId=currentOrder.getOrderId();
+    				UserDto userDto=new UserDto();
+    				userDto.setUserName(currentOrder.getSupplyName());
+    				userDto.setCustId(currentOrder.getSupplyId());
+    				this.orderCancelService.updateOrderStatusForSeller(userDto, orderId, "erp对接卖家取消订单", iPromotionDubboManageService, creditDubboService);
+    			}
+    			
+    		}
+    		
+    	}
+    	
+    }
+    
+    /**
+     *判断manufacturerOrder 是否符合
+     * @param manufacturerOrder true:合格，false:不合法
+     * @return
+     */
+    private Map<String,Object> checkSendDelivery(ManufacturerOrder manufacturerOrder){
+    	
+    	  StringBuffer errorMsg=new StringBuffer();
+    	  
+    	  Map<String,Object> returnMap=new HashMap<String,Object>();
+    	  
+    	  if(UtilHelper.isEmpty(manufacturerOrder.getOrderStatus())){
+    		  errorMsg.append("参数orderStatus不能为空,");
+    		  returnMap.put("code","-1");
+    	  }else{
+    		   if(manufacturerOrder.getOrderStatus().equals("1")){ //发货
+    			   
+    			    if(UtilHelper.isEmpty(manufacturerOrder.getFlowId())){
+    			    	 errorMsg.append("参数flowId不能为空,");
+    			    }else{
+    			        Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
+                        if (UtilHelper.isEmpty(order)) {
+                        	  errorMsg.append("该订单flowId="+manufacturerOrder.getFlowId()+"不存在,");
+                        }else{
+                        	
+                        	 if (!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())) {
+                        		 errorMsg.append("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态,");
+                             }
+                        	
+                        }
+    			    }
+    			    if(UtilHelper.isEmpty(manufacturerOrder.getSupplyId())){
+   			    	      errorMsg.append("参数SupplyId不能为空,");
+   			        }
+    			    if(UtilHelper.isEmpty(manufacturerOrder.getDeliverTime())){
+ 			    	      errorMsg.append("参数DeliverTime不能为空,");
+ 			        }
+    			    if(UtilHelper.isEmpty(manufacturerOrder.getDeliveryMethod())){
+			    	      errorMsg.append("参数DeliveryMethod不能为空,");
+			        }
+    			    
+    			    if(errorMsg.length()==0){ //校验该发货的商品是否合格
+    			    	
+    			    	String message=this.checkProcutisRight(manufacturerOrder);
+    			    	
+    			    	if(StringUtils.hasText(message)){
+    			    		errorMsg.append(message);
+    			    	}
+    			    }
+    			
+    			    returnMap.put("code","1");
+    			   
+    		   }else if(manufacturerOrder.getOrderStatus().equals("0")){ //取消订单
+    			   
+    			   if(UtilHelper.isEmpty(manufacturerOrder.getSupplyId())){
+			    	      errorMsg.append("参数SupplyId不能为空,");
+			        }
+    			   
+    			    if(UtilHelper.isEmpty(manufacturerOrder.getFlowId())){
+   			    	   errorMsg.append("参数flowId不能为空,");
+   			         }else{
+   			        	Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
+                        if (UtilHelper.isEmpty(order)) {
+                        	  errorMsg.append("该订单flowId="+manufacturerOrder.getFlowId()+"不存在,");
+                        }else{
+                        	//判断该订单是否可以取消
+                        	if(order.getSupplyId().intValue()!=manufacturerOrder.getSupplyId().intValue()){
+                        		 errorMsg.append("该订单flowId="+manufacturerOrder.getFlowId()+"不属于供应商["+manufacturerOrder.getSupplyId()+"],");
+                        	}else if( !( (SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) || SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus()) ) ){
+                        		 errorMsg.append("该订单flowId="+manufacturerOrder.getFlowId()+"不能取消,只有已下单订单+买家已付款订单才可以取消订单,");
+                        	}
+                        }
+   			         }
+   			        
+   			        
+   			        returnMap.put("code","0");
+    			   
+    		   }else{
+    			   errorMsg.append("参数orderStatus值只能是1:发货和0:取消订单,");
+    			   returnMap.put("code","-1");
+    		   }
+    		  
+    		  
+    	  }
+    	  
+    	  if(errorMsg.length()>0){
+    		  returnMap.put("flag", false);
+    		  returnMap.put("errorMsg",errorMsg.toString());
+    	  }else{
+    		  returnMap.put("flag", true);
+    	  }
+    	  
+    	  return  returnMap;
+    	  
+    }
+    
+    /**
+     * 判断该发货的商品是否和合格，要求发货的商品在数据库里面，同时必须全量发货
+     * @param manufacturerOrder
+     * @return
+     */
+    private String checkProcutisRight(ManufacturerOrder manufacturerOrder){
+    	StringBuffer errorMsg=new StringBuffer();
+    	List<ProductBeanDto> productBeanList=manufacturerOrder.getSendProductList();
+    	if(productBeanList!=null && productBeanList.size()>0){
+    		
+    	  Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
+		 
+    	  List<OrderDetail> orderDetailList = orderDetailMapper.listOrderDetailInfoByOrderId(order.getOrderId());
+		  
+          if (UtilHelper.isEmpty(orderDetailList)) {
+        	  errorMsg.append("该订单" + manufacturerOrder.getFlowId() + "的商品信息为空,");
+          }else{
+        	  
+        	  //key=productCode,value=sendNum,统计发货的商品个数
+        	  Map<String,Integer> sendProductMap=new HashMap<String,Integer>();
+        	  //统计orderDetail的商品数量
+        	  Map<String,Integer> orderDetailProductMap=new HashMap<String,Integer>();
+        	  
+        	  for(ProductBeanDto productBean : productBeanList){
+        		   String productCode=productBean.getProduceCode();
+        		   int sendNum=productBean.getSendNum();
+        		   
+        		   if (UtilHelper.isEmpty(sendProductMap.get(productCode))) {
+        			   sendProductMap.put(productCode, sendNum);
+                   } else {
+                	   sendProductMap.put(productCode,sendProductMap.get(productCode)+sendNum);
+                   }
+        	  }
+        	  
+        	  for(OrderDetail orderDetailBean : orderDetailList){
+        		  
+        		  String detailProductCode=orderDetailBean.getProductCode();
+        		  int   detailProductNum=orderDetailBean.getProductCount();
+        		  
+        		  if (UtilHelper.isEmpty(orderDetailProductMap.get(detailProductCode))) {
+        			  orderDetailProductMap.put(detailProductCode, detailProductNum);
+                  } else {
+                	  orderDetailProductMap.put(detailProductCode,orderDetailProductMap.get(detailProductCode)+detailProductNum);
+                  }
+        		  
+        	  }
+        	  
+        	  if(orderDetailProductMap.keySet().size()!=sendProductMap.keySet().size()){
+        		  errorMsg.append("发货商品种类数量和实际的不一致,请确认后,再发货,");
+        	  }else{
+        		  
+        		  //判断发货的code在实际的商品中是否存在
+        		  for(String code: sendProductMap.keySet()){
+        			  
+        			   int sendNum=sendProductMap.get(code);
+        			   
+        			   if(orderDetailProductMap.containsKey(code)){
+        				   
+        				   int detailNum=orderDetailProductMap.get(code);
+        				    if(sendNum!=detailNum){
+        				       errorMsg.append("商品code=="+code+"的发货量不等于实际买家的数量,不能发货,");
+               				   break;
+        				    }
+        				    
+        			   }else{
+        				   errorMsg.append("商品code=="+code+" 在该订单的详情表中不存在,");
+        				   break;
+        			   }
+        			   
+        			   
+        		  }
+        	  }
+        	  
+        	 
+          }
+    		
+    		
+    		
+    	}else{
+    		errorMsg.append("发货的商品不能为空,");
+    	}
+    	
+    	if(errorMsg.length()>0){
+    		return errorMsg.toString();
+    	}else{
+    		return null;
+    	}
     }
 
     /**

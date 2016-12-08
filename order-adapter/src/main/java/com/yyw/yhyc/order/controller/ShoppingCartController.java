@@ -19,15 +19,14 @@ import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.appdto.AdviserBean;
-import com.yyw.yhyc.order.appdto.OrderBean;
-import com.yyw.yhyc.order.appdto.OrderCreateBean;
+import com.yyw.yhyc.order.appdto.*;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
+import com.yyw.yhyc.order.enmu.ProductStatusEnum;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
@@ -42,6 +41,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +140,30 @@ public class ShoppingCartController extends BaseController {
 	public Map<String,Object> deleteShopCarts(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		int custId = userDto.getCustId();
-		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),iProductDubboManageService,iPromotionDubboManageService);
+		Map<String, Object>  resultMap = shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),productSearchInterface,iCustgroupmanageDubbo);
+		if(UtilHelper.isEmpty(resultMap)){
+			return resultMap;
+		}
+		CartData cartData = UtilHelper.isEmpty(resultMap.get("data")) ? null : (CartData) resultMap.get("data");
+		if (UtilHelper.isEmpty(cartData)){
+			return resultMap;
+		}
+		cartData = convertVersion11( cartData);
+		resultMap.put("data",cartData);
+		return resultMap;
+	}
+
+
+	/**
+	 * 根据多条主键值删除记录
+	 * @return
+	 */
+	@RequestMapping(value = "/deleteShopCarts", method = RequestMethod.POST, headers = "version=v1.1")
+	@ResponseBody
+	public Map<String,Object> deleteShopCartsVersion11(@RequestBody Map<String,List<Integer>> shoppingCartIdList) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		int custId = userDto.getCustId();
+		return shoppingCartService.deleteShopCarts(custId,shoppingCartIdList.get("shoppingCartIdList"),productSearchInterface,iCustgroupmanageDubbo);
 	}
 
 	/**
@@ -150,6 +173,30 @@ public class ShoppingCartController extends BaseController {
 	@RequestMapping(value = "/updateShopCart", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> updateShopCart(@RequestBody Map<String,Integer> shoppingCart) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		int custId = userDto.getCustId();
+		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
+		Integer quantity = shoppingCart.get("quantity");
+		Map<String, Object>  resultMap = shoppingCartService.updateShopCart(custId,shoppingCartId,quantity,iProductDubboManageService,iPromotionDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
+		if(UtilHelper.isEmpty(resultMap)){
+			return resultMap;
+		}
+		CartData cartData = UtilHelper.isEmpty(resultMap.get("data")) ? null : (CartData) resultMap.get("data");
+		if (UtilHelper.isEmpty(cartData)){
+			return resultMap;
+		}
+		cartData = convertVersion11( cartData);
+		resultMap.put("data",cartData);
+		return resultMap;
+	}
+
+	/**
+	 * 更新进货单数量
+	 * @return
+	 */
+	@RequestMapping(value = "/updateShopCart", method = RequestMethod.POST, headers = "version=v1.1")
+	@ResponseBody
+	public Map<String,Object> updateShopCartVersion11(@RequestBody Map<String,Integer> shoppingCart) throws Exception {
 		UserDto userDto = super.getLoginUser();
 		int custId = userDto.getCustId();
 		Integer shoppingCartId = shoppingCart.get("shoppingCartId");
@@ -244,12 +291,75 @@ public class ShoppingCartController extends BaseController {
 	 * @return
 	 * @throws Exception
      */
-	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET)
+	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET )
 	@ResponseBody
 	public Map<String, Object> getShopCartList() throws Exception {
 		/* 获取登陆用户的企业信息 */
 		UserDto userDto = super.getLoginUser();
-		return shoppingCartService.getShopCartList(userDto,iProductDubboManageService,iPromotionDubboManageService);
+		Map<String, Object>  resultMap = shoppingCartService.getShopCartList(userDto,productSearchInterface,iCustgroupmanageDubbo);
+
+		/* 商品状态翻译成老版本 */
+		/* 以下代码只会使用一段时间，若要修改，请咨询原作者 */
+		if(UtilHelper.isEmpty(resultMap)){
+			return resultMap;
+		}
+		CartData cartData = UtilHelper.isEmpty(resultMap.get("data")) ? null : (CartData) resultMap.get("data");
+		if (UtilHelper.isEmpty(cartData)){
+			return resultMap;
+		}
+		cartData = convertVersion11( cartData);
+		resultMap.put("data",cartData);
+		return resultMap;
+	}
+
+
+	/**
+	 * 进货单列表
+	 * @return
+	 * @throws Exception
+	 * @author liz
+	 */
+	@RequestMapping(value = "/getShopCartList", method = RequestMethod.GET, headers = "version=v1.1")
+	@ResponseBody
+	public Map<String, Object> getShopCartListVersion11() throws Exception {
+		/* 获取登陆用户的企业信息 */
+		UserDto userDto = super.getLoginUser();
+		return shoppingCartService.getShopCartList(userDto,productSearchInterface,iCustgroupmanageDubbo);
+	}
+
+	private CartData  convertVersion11(CartData cartData){
+		if (UtilHelper.isEmpty(cartData)){
+			return cartData;
+		}
+		List<CartGroupData> cartGroupDataList = cartData.getShopCartList();
+		if(UtilHelper.isEmpty(cartGroupDataList)){
+			return cartData;
+		}
+		for(CartGroupData cartGroupData : cartGroupDataList){
+			if(UtilHelper.isEmpty(cartGroupData) || UtilHelper.isEmpty(cartGroupData.getProducts())){
+				continue;
+			}
+			for(CartProductBean cartProductBean : cartGroupData.getProducts()){
+				if(UtilHelper.isEmpty(cartProductBean)){
+					continue;
+				}
+				if(ProductStatusEnum.OffTheShelf.getStatus() == cartProductBean.getStatusDesc()){
+					cartProductBean.setStatusDesc(0);
+					continue;
+				}
+
+				if(ProductStatusEnum.NotDisplayPrice.getStatus() == cartProductBean.getStatusDesc()){
+					cartProductBean.setProductPrice(new BigDecimal("-1"));
+					continue;
+				}
+
+				if(ProductStatusEnum.Normal.getStatus() == cartProductBean.getStatusDesc()){
+					cartProductBean.setStatusDesc(1);
+					continue;
+				}
+			}
+		}
+		return cartData;
 	}
 
 	/**

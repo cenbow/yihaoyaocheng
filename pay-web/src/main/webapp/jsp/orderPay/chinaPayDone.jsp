@@ -5,6 +5,12 @@
 <%@page import="com.yyw.yhyc.pay.chinapay.httpClient.*"%>
 <%@page import="com.yyw.yhyc.pay.chinapay.pay.*"%>
 <%@page import="com.yyw.yhyc.pay.chinapay.utils.*"%>
+<%@ page import="org.slf4j.Logger" %>
+<%@ page import="org.slf4j.LoggerFactory" %>
+<%@ page import="com.yyw.yhyc.helper.UtilHelper" %>
+<%!
+	private static final Logger logger = LoggerFactory.getLogger("jsp.orderPay.chinaPayDone.jsp");
+%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <br>
 <head>
@@ -48,12 +54,12 @@ for(Map.Entry<String, String> entry:r.entrySet()){
 	//request.setAttribute(entry.getKey(), entry.getValue());
 	String params = "TranReserved;MerId;MerOrderNo;OrderAmt;CurryNo;TranDate;SplitMethod;BusiType;MerPageUrl;MerBgUrl;SplitType;MerSplitMsg;PayTimeOut;MerResv;Version;BankInstNo;CommodityMsg;Signature;AccessType;AcqCode;OrderExpiryTime;TranType;RemoteAddr;Referred;TranTime;TimeStamp;CardTranData:fromWhere";
 	//if(params.contains(entry.getKey())){
-%>	
+%>
 	分账操作操作结果 ：<input type="txt" name = '<%=entry.getKey() %>' value ='<%=entry.getValue()%>'/></br>
-<%	
-	
+<%
+
 }
-	
+
   if(!request.getParameter("ReMerSplitMsg").equals("")&&!request.getParameter("RefundAmt").equals("")){
 	sendMap = new HashMap<String, Object>();
 	sendMap.put("OriOrderNo", request.getParameter("OriOrderNo").trim());//原定单号 需要传输
@@ -70,10 +76,10 @@ for(Map.Entry<String, String> entry:r.entrySet()){
 		System.out.println("退款操作结果："+entry.getKey()+"=="+entry.getValue());
 	}
    }
-	
+
  }
 }else{
-	System.out.println("提示：请输入 正确的操作密码。。。。。。。。。。");
+	logger.error("1号药城-银联分账退款(手动操作)-----提示：请输入 正确的操作密码。。。。。。。。。。");
 }
 %>
 
@@ -86,15 +92,16 @@ for(Map.Entry<String, String> entry:r.entrySet()){
 <form name="payConfirm" action="chinaPayDone.jsp" method="post">
 支付类型：
 <select name="fromWhere">
-	<option value ="1">b2c</option>
-	<option value ="2">手机</option>
-	<option value="3">企业</option>
+	<option value ="<%= ChinaPayUtil.B2C %>">银联B2C支付</option>
+	<option value ="<%= ChinaPayUtil.NOCARD %>">银联无卡支付</option>
+	<option value="<%= ChinaPayUtil.B2B %>">银联B2B支付</option>
+	<option value="<%= ChinaPayUtil.MOBILE %>">银联手机支付</option>
 </select>
 </br>
 分账序号：<input type="txt" size=50 name = 'num' value =''/></br>
-原订单号：<input type="txt" size=50 name = 'OriOrderNo' value =''/></br>
+支付流水号：<input type="txt" size=50 name = 'OriOrderNo' value =''/></br>
 订单支付日期：<input type="txt" size=44  name = 'OriTranDate' value =''/></br>
-实付金额：<input type="txt"  size=50  name = 'OrderAmt' value =''/></br>
+实付金额(单位：分)：<input type="txt"  size=50  name = 'OrderAmt' value =''/></br>
 分账信息：<input type="txt" size=50  name = 'MerSplitMsg' value =''/></br>
 退款金额：<input type="txt" size=50  name = 'RefundAmt' value =''/></br>
 退款分账信息：<input type="txt" size=44  name = 'ReMerSplitMsg' value =''/></br>

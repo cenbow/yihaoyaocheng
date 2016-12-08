@@ -56,10 +56,6 @@
                             <label for="payType" class="col-xs-2 control-label">支付方式</label>
                             <div class="col-xs-3">
                                 <select class="form-control" name="payType" id="payType">
-                                    <option value="">全部</option>
-                                    <option value="1">在线支付</option>
-                                    <option value="2">账期支付</option>
-                                    <option value="3">线下支付</option>
                                 </select>
                             </div>
 
@@ -69,18 +65,12 @@
                             </div>
 
                         </div>
-                         <div class="form-group">
+                        <div class="form-group">
                         	<label for="adviser" class="col-xs-2 control-label">销售顾问</label>
                             <div class="col-xs-3">
                                 <select class="form-control" name="adviserCode" id="adviserCode">
                                 </select>
                             </div>
-                            <label for="promotionName" class="col-xs-2 control-label">促销活动</label>
-                            <div class="col-xs-3">
-                                <input type="text" class="form-control" id="promotionName" name="promotionName" placeholder="">
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-xs-2 control-label">下单时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
@@ -93,10 +83,7 @@
                                 <p class="padding-t-10">[ <a class="blue" onclick="selectDate(-3)">最近三天</a> <a class="blue" onclick="selectDate(-7)">最近1周</a> <a
                                         class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
-                            <label class="col-xs-2 control-label"></label>
-                            <div class="col-xs-3">
-                                <input type="button" class="btn btn-info" value="搜索">
-                            </div>
+                            <input type="button" class="btn btn-info" value="搜索">
                         </div>
                     </div>
                 </form>

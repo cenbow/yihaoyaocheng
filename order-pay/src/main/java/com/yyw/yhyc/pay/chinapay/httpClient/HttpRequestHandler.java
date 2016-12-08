@@ -56,7 +56,9 @@ public class HttpRequestHandler {
 			// 对执行状态需做判定
 			int status = client.executeMethod(post);
 			returnStrOld = post.getResponseBodyAsString();
+			log.info("_________向银联发起请求_________银联响应结果(UTF-8编码前)：" + returnStrOld);
 			returnStr = URLDecoder.decode(returnStrOld, "utf-8");
+			log.info("_________向银联发起请求_________银联响应结果(UTF-8编码后)：" + returnStr);
 			
 			//后台http请求状态
 			if(status!=200){
@@ -188,7 +190,7 @@ public class HttpRequestHandler {
 		if(busiType.equals("9908")){
 			sendMap.put(PayUtil.MerBgUrl, MerBgUrls);
 		}
-		System.out.print("银联支付请求参数："+sendMap);
+		System.out.println("银联支付请求参数："+sendMap);
 		return sendMap;
 	}
 

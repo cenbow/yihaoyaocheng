@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,7 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import com.yaoex.usermanage.model.adviser.AdviserModel;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
@@ -57,6 +59,7 @@ import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.AdviserDto;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
@@ -68,7 +71,6 @@ import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderExportService;
-import com.yyw.yhyc.order.service.OrderFullReductionService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
@@ -118,9 +120,6 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
-	
-	@Autowired
-	private OrderFullReductionService orderFullReductionService;
 
     /**
      * 通过主键查询实体对象
@@ -396,27 +395,9 @@ public class OrderController extends BaseJsonController {
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,productDubboManageService,creditDubboService,iPromotionDubboManageService);
+			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,creditDubboService,productSearchInterface,iCustgroupmanageDubbo);
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
-		
-		/***********以下处理订单的满减促销**************/
-		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
-			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart=this.orderFullReductionService.processFullReduction(allShoppingCart);
-			Map<String,Object> returnMap=this.orderFullReductionService.processCalculationOrderShareMoney(allShoppingCart);
-			allShoppingCart=(List<ShoppingCartListDto>) returnMap.get("allShoppingCart");
-			
-			BigDecimal allOrderShareMoney=(BigDecimal) returnMap.get("allOrderShareMoney");
-			//无优惠的金额
-			BigDecimal orderPriceCount=(BigDecimal) dataMap.get("orderPriceCount"); 
-			
-			orderPriceCount=orderPriceCount.subtract(allOrderShareMoney);
-			dataMap.put("orderPriceCount",orderPriceCount);
-			dataMap.put("allShoppingCart",allShoppingCart);
-			dataMap.put("allOrderShareMoney",allOrderShareMoney);//所有订单的优惠金额
-		}
-
 
 		model.addObject("dataMap",dataMap);
 		model.setViewName("order/checkOrderPage");
@@ -545,7 +526,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus,String promotionName,String adviserCode){
+	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
@@ -557,8 +538,6 @@ public class OrderController extends BaseJsonController {
 		orderDto.setDistrict(district);
 		orderDto.setFlowId(flowId);
 		orderDto.setCustName(custName);
-		orderDto.setAdviserCode(adviserCode);
-		orderDto.setPromotionName(promotionName);
 		if(!UtilHelper.isEmpty(payType)) {
 			orderDto.setPayType(payType);
 		}
@@ -757,4 +736,24 @@ public class OrderController extends BaseJsonController {
 		}
     }
 
+    @RequestMapping(value = "/queryAdviser",method = RequestMethod.POST)
+	@ResponseBody
+	public List<AdviserDto>  queryAdviser(HttpServletRequest request) throws Exception{
+    	UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
+		}
+		//查询供应商的销售顾问信息
+		List<AdviserDto> adviserList = new ArrayList<AdviserDto>();
+		List<AdviserModel> list = iAdviserManageDubbo.queryByEnterId(userDto.getCustId());
+		for(AdviserModel one : list){
+			AdviserDto adviserDto = new AdviserDto();
+			adviserDto.setAdviserCode(one.getAdviser_code());
+			adviserDto.setAdviserName(one.getAdviser_name());
+			adviserDto.setAdviserPhoneNumber(one.getPhone_number());
+			adviserDto.setAdviserRemark(one.getRemark());
+			adviserList.add(adviserDto);
+		}
+		return adviserList;
+	}
 }

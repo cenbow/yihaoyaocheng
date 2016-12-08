@@ -198,6 +198,7 @@ public class OrderDeliveryDetailController extends BaseController {
 			productMap.put("buyNumber",dto.getProductCount());
 			productMap.put("batchNumber",dto.getBatchNumber());
 			productMap.put("batchId",dto.getOrderDeliveryDetailId());
+            productMap.put("orderDeliveryDetailId",dto.getOrderDeliveryDetailId());
 			productMap.put("orderDetailId",dto.getOrderDetailId());
 			productList.add(productMap);
 		}

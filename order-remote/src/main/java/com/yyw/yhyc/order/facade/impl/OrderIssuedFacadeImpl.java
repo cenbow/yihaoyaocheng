@@ -147,4 +147,12 @@ public class OrderIssuedFacadeImpl implements OrderIssuedFacade {
 	public Map<String, Object> updateOrderIssuedStatus(List<String> flowList) throws Exception {
 		return orderIssuedService.updateOrderIssuedStatus(flowList);
 	}
+
+	@Override
+	public Map<String, Object> findOrderIssuedListBySupplyAndOrderDate(
+			List<Integer> supplyListIds, String startDate, String endDate,
+			String orderIdList) throws Exception {
+	
+		return this.orderIssuedService.queryOrderIssuedBySupplyIdAndOrderDate(supplyListIds, startDate, endDate, orderIdList);
+	}
 }

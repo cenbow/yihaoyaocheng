@@ -1,6 +1,9 @@
 package com.yyw.yhyc.order.bo;
 
+import java.util.List;
+
 import com.yyw.yhyc.bo.Model;
+import com.yyw.yhyc.product.dto.ProductBeanDto;
 
 /**
  * Created by liqiang on 2016/9/9.
@@ -43,9 +46,38 @@ public class ManufacturerOrder extends Model {
      *	订单状态  1、发货 0、取消
      */
     private String orderStatus;
+    
+    
+    /**
+     * 所发的商品的信息
+     */
+    private List<ProductBeanDto> sendProductList;
+    
+    /**
+     * 错误信息
+     */
+    private String errorMsg;
+    
+    
+     
 
+    public List<ProductBeanDto> getSendProductList() {
+		return sendProductList;
+	}
 
-    public String getFlowId() {
+	public void setSendProductList(List<ProductBeanDto> sendProductList) {
+		this.sendProductList = sendProductList;
+	}
+
+	public String getErrorMsg() {
+		return errorMsg;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+	}
+
+	public String getFlowId() {
         return flowId;
     }
 
@@ -102,15 +134,12 @@ public class ManufacturerOrder extends Model {
     }
 
     @Override
-    public String toString() {
-        return "ManufacturerOrder{" +
-                "flowId='" + flowId + '\'' +
-                ", supplyId=" + supplyId +
-                ", supplyName='" + supplyName + '\'' +
-                ", deliverTime='" + deliverTime + '\'' +
-                ", deliveryDate='" + deliveryDate + '\'' +
-                ", deliveryMethod=" + deliveryMethod +
-                ", orderStatus='" + orderStatus + '\'' +
-                '}';
-    }
+	public String toString() {
+		return "ManufacturerOrder [flowId=" + flowId + ", supplyId=" + supplyId
+				+ ", supplyName=" + supplyName + ", deliverTime=" + deliverTime
+				+ ", deliveryDate=" + deliveryDate + ", deliveryMethod="
+				+ deliveryMethod + ", orderStatus=" + orderStatus
+				+ ", sendProductList=" + sendProductList + ", errorMsg="
+				+ errorMsg + "]";
+	}
 }
