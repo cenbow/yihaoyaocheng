@@ -110,24 +110,25 @@ public class ShoppingCart extends Model{
 	  */
 	private java.lang.String updateTime;
 
-	/* 来源表示字段（0：来自进货单，1：来自极速下单) */
+	/** 
+	 * 来源表示字段（0：来自进货单，1：来自极速下单) 
+	 */
 	private Integer fromWhere;
 
-	/* 活动ID（商品所参加活动的活动id） */
+	/** 
+	 * 特价活动id
+	 */
 	private Integer promotionId;
 
-	/* 活动名称（商品所参加活动的活动名称） */
+	/** 
+	 * 特价活动名称
+	 */
 	private String promotionName;
-
-/*
-	数据库中t_shopping_cart中新增字段
-	ALTER TABLE `t_shopping_cart`
-	ADD COLUMN `promotion_id`  int(11) NULL DEFAULT NULL COMMENT '活动ID' AFTER `from_where`,
-	ADD COLUMN `promotion_name`  varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '活动名称' AFTER `promotion_id`;
-
-*/
-
-
+	
+	/** 
+	 * 其他活动id，如果有多个则用","拼接，不包括特价活动
+	 */
+	private String promotion_collection_id;
 
 	/**
 	  *	
@@ -426,6 +427,14 @@ public class ShoppingCart extends Model{
 		this.promotionName = promotionName;
 	}
 
+	public String getPromotion_collection_id() {
+		return promotion_collection_id;
+	}
+
+	public void setPromotion_collection_id(String promotion_collection_id) {
+		this.promotion_collection_id = promotion_collection_id;
+	}
+
 	@Override
 	public String toString() {
 		return "ShoppingCart{" +
@@ -450,6 +459,7 @@ public class ShoppingCart extends Model{
 				", fromWhere=" + fromWhere +
 				", promotionId=" + promotionId +
 				", promotionName=" + promotionName +
+				", promotion_collection_id=" + promotion_collection_id +
 				"} ";
 	}
 }

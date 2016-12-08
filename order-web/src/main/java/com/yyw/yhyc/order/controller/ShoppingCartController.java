@@ -188,10 +188,7 @@ public class ShoppingCartController extends BaseJsonController {
 		}
 		return shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 	}
-
-
-
-
+	
 
 	/**
 	 * 检查购物车中的商品合法信息
