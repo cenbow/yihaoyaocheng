@@ -140,5 +140,10 @@
         <filter-name>cors</filter-name>
         <url-pattern>/fastOrder/*</url-pattern>
     </filter-mapping>
+    <filter-mapping>
+        <filter-name>cors</filter-name>
+        <url-pattern>/shoppingCart/addShoppingCart</url-pattern>
+    </filter-mapping>
+
     <!-- 极速下单业务(前后端分离)需要允许跨域请求 -->
 </web-app>

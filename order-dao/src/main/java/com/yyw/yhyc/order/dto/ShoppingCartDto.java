@@ -75,6 +75,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 商品状态是不正常的原因*/
     private String unNormalStatusReason;
 
+    /* 状态枚举值 */
+    private int statusEnum ;
+
     public Integer getSaleStart() {
         return saleStart;
     }
@@ -227,6 +230,14 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.unNormalStatusReason = unNormalStatusReason;
     }
 
+    public int getStatusEnum() {
+        return statusEnum;
+    }
+
+    public void setStatusEnum(int statusEnum) {
+        this.statusEnum = statusEnum;
+    }
+
     @Override
     public String toString() {
         return "ShoppingCartDto{" +
@@ -249,6 +260,7 @@ public class ShoppingCartDto extends ShoppingCart  {
                 ", promotionType=" + promotionType +
                 ", normalStatus=" + normalStatus +
                 ", unNormalStatusReason=" + unNormalStatusReason +
+                ", statusEnum=" + statusEnum +
                 "} " + super.toString();
     }
 }
