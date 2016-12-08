@@ -1256,7 +1256,7 @@ public class OrderDeliveryService {
     	      
     	      if(UtilHelper.isEmpty(manufacturerOrderList)){
     	    	  log.info("manufacturerOrderList 参数不能为空");
-    	    	  returnMap.put("code","0");
+    	    	  returnMap.put("code","-1");
     	    	  returnMap.put("message","manufacturerOrderList 参数不能为空");
     	    	  return returnMap;
     	      }
