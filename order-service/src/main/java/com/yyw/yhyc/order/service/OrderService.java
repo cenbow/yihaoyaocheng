@@ -1759,7 +1759,7 @@ public class OrderService {
 				productTotal+=totalPrice.doubleValue();
 			}
 			dataset.add(new Object[]{"商品金额（元）styleColor", productTotal, "优惠券（元）styleColor", order.getPreferentialMoney(), "订单金额（元）styleColor", order.getOrderTotal(), "实付金额（元）styleColor", order.getSettlementMoney()});
-			dataset.add(new Object[]{"买家留言styleColor", order.getLeaveMessage(), "满立减金额（元）styleColor", order.getPreferentialMoney(), "促销备注", order.getPreferentialRemark(), "", ""});
+			dataset.add(new Object[]{"买家留言styleColor", order.getLeaveMessage(), "满立减金额（元）styleColor", order.getPreferentialMoney(), "促销备注styleColor", order.getPreferentialRemark(), "", ""});
 			dataset.add(new Object[]{});
 		}
 		return  ExcelUtil.exportExcel("订单信息", dataset);
