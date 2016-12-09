@@ -115,7 +115,7 @@ public interface OrderIssuedFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> findOrderIssuedListBySupplyAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList)throws Exception;
+	public Map<String,Object> findOrderIssuedListBySupplyAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList,String payType)throws Exception;
 	
 	
 	/**

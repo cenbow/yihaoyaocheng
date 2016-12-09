@@ -190,7 +190,7 @@ public class OrderIssuedService {
 	 */
 	public Map<String, Object> queryOrderIssuedBySupplyIdAndOrderDate(
 			List<Integer> supplyListIds, String startDate, String endDate,
-			String orderIdList) throws Exception {
+			String orderIdList,String payType) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 
 		Map<String, Object> paramterMap = new HashMap<String, Object>();
@@ -255,6 +255,7 @@ public class OrderIssuedService {
 		paramterMap.put("supplyId", supplyListIds.get(0));
 		paramterMap.put("startDate", startDate);
 		paramterMap.put("endDate", endDate);
+		paramterMap.put("payType", payType.split(","));
 		log.info("传递的orderIdList：" + orderIdList);
 		if(StringUtils.isNotBlank(orderIdList))
 			paramterMap.put("orderIdList", orderIdList.split(","));

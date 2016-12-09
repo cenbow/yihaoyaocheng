@@ -151,8 +151,8 @@ public class OrderIssuedFacadeImpl implements OrderIssuedFacade {
 	@Override
 	public Map<String, Object> findOrderIssuedListBySupplyAndOrderDate(
 			List<Integer> supplyListIds, String startDate, String endDate,
-			String orderIdList) throws Exception {
+			String orderIdList,String payType) throws Exception {
 	
-		return this.orderIssuedService.queryOrderIssuedBySupplyIdAndOrderDate(supplyListIds, startDate, endDate, orderIdList);
+		return this.orderIssuedService.queryOrderIssuedBySupplyIdAndOrderDate(supplyListIds, startDate, endDate, orderIdList,payType);
 	}
 }
