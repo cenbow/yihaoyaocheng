@@ -11,25 +11,6 @@
  **/
 package com.yyw.yhyc.order.controller;
 
-import com.yyw.yhyc.controller.BaseJsonController;
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.bo.OrderDelivery;
-import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.bo.RequestListModel;
-import com.yyw.yhyc.bo.RequestModel;
-import com.yyw.yhyc.order.dto.OrderDeliveryDto;
-import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.service.OrderDeliveryService;
-import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
-import com.yyw.yhyc.utils.MyConfigUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,11 +19,38 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
+import com.yyw.yhyc.controller.BaseJsonController;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.OrderDelivery;
+import com.yyw.yhyc.order.dto.OrderDeliveryDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.service.OrderDeliveryService;
+import com.yyw.yhyc.order.service.OrderLogService;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.utils.MyConfigUtil;
+
 @Controller
 @RequestMapping(value = "/order/orderDelivery")
 public class OrderDeliveryController extends BaseJsonController {
 	private static final Logger logger = LoggerFactory.getLogger(OrderDeliveryController.class);
 
+	@Autowired
+	private OrderLogService orderLogService;
 	@Autowired
 	private OrderDeliveryService orderDeliveryService;
 
@@ -125,6 +133,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId() );
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 	/**
@@ -137,6 +146,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId() );
 		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
 	}
 
@@ -150,6 +160,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId());
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -192,6 +203,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
+        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId() );
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 

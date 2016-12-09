@@ -11,36 +11,40 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yao.trade.interfaces.credit.model.CreditDubboResult;
 import com.yao.trade.interfaces.credit.model.CreditParams;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
+import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.DateHelper;
 import com.yyw.yhyc.helper.JsonHelper;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
-import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.bo.RequestListModel;
-import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderDeliveryDetailService;
+import com.yyw.yhyc.order.service.OrderLogService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order/orderDeliveryDetail")
@@ -59,7 +63,8 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	@Autowired
 	private OrderService orderService;
 
-
+	@Autowired
+	private OrderLogService orderLogService;
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -145,6 +150,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 
+		orderLogService.insertOrderLog(this.request,"3",user.getCustId(),flowId );
 		// TODO: 2016/8/23  待联调
 		//当没有异常流程订单结束的时候调用账期结算接口
 		if(null==returnType||"".equals(returnType)){
