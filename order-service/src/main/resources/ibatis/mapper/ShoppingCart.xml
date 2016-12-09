@@ -477,7 +477,7 @@
 		, sc.from_where
 		, sc.promotion_id
 		, sc.promotion_name
-		, sv.promotion_collection_id
+		, sc.promotion_collection_id
 		FROM t_shopping_cart sc
 		WHERE from_where = 0
 		<if test="shoppingCartId!= null and shoppingCartId!= ''">
