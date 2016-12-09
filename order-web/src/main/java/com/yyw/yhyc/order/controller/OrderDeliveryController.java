@@ -41,6 +41,7 @@ import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
 import com.yyw.yhyc.order.service.OrderLogService;
+import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
 import com.yyw.yhyc.utils.MyConfigUtil;
 
@@ -53,7 +54,8 @@ public class OrderDeliveryController extends BaseJsonController {
 	private OrderLogService orderLogService;
 	@Autowired
 	private OrderDeliveryService orderDeliveryService;
-
+	@Autowired
+	private OrderService orderService;
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -133,7 +135,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId() );
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 	/**
@@ -146,7 +148,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId() );
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
 		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
 	}
 
@@ -160,7 +162,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId());
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -203,7 +205,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
-        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId() );
+        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 

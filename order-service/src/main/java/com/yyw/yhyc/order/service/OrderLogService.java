@@ -151,8 +151,9 @@ public class OrderLogService {
 	 * @param platform 
 	 * @param orderCode 
 	 * @param userid 
+	 * @param platform 
 	 */
-	public void insertOrderLog(HttpServletRequest request,String type, int userid, String orderCode) {
+	public void insertOrderLog(HttpServletRequest request,String type, int userid, String orderCode, int platform) {
 		
 		OrderLog orderLog = new OrderLog();
 		
@@ -167,7 +168,7 @@ public class OrderLogService {
 		orderLog.setUserAgent(request.getHeader("User-Agent"));
 		orderLog.setUserid(userid);
 		orderLog.setOrderCode(orderCode);
-		orderLog.setPlatform("");
+		orderLog.setPlatform(String.valueOf(platform));
 		orderLog.setType(Integer.valueOf(type));
 		try {
 			this.save(orderLog);

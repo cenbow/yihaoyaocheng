@@ -150,7 +150,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 
-		orderLogService.insertOrderLog(this.request,"3",user.getCustId(),flowId );
+		orderLogService.insertOrderLog(this.request,"3",user.getCustId(),flowId ,orderService.getOrderbyFlowId(flowId).getSource() );
 		// TODO: 2016/8/23  待联调
 		//当没有异常流程订单结束的时候调用账期结算接口
 		if(null==returnType||"".equals(returnType)){
