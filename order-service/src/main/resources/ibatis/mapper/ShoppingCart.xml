@@ -230,6 +230,7 @@
 				, #{fromWhere}
 				, #{promotionId}
 				, #{promotionName}
+				, #{promotionCollectionId}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
