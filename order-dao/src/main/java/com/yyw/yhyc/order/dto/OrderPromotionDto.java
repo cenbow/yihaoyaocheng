@@ -1,5 +1,6 @@
 package com.yyw.yhyc.order.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ import java.util.List;
  * @author wangkui01
  *
  */
-public class OrderPromotionDto {
+public class OrderPromotionDto implements Serializable{
 	/**
 	 * 促销的id
 	 */

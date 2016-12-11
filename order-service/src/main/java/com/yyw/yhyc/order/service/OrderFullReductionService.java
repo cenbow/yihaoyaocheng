@@ -100,7 +100,40 @@ public class OrderFullReductionService {
 			try{
 				log.info("查询所有订单中参加促销的商品信息调iPromotionDubboManageService服务接口,请求参数params：" + promotionList);
 				long startTime = System.currentTimeMillis();
-				responsePromotionList= promotionDubboManageService.queryPromotionByList(promotionList);
+				
+				
+				//responsePromotionList= promotionDubboManageService.queryPromotionByList(promotionList);
+				
+				//模拟数据
+				PromotionDto test1=new PromotionDto();
+				test1.setId(123);
+				test1.setPromotionName("test123");
+				test1.setEnterpriseId("79397");
+				test1.setPromotionType((byte)2);//活动类型;1:特价活动;2:单品满减;3:多品满减;4:满送积分;5:满赠
+				test1.setLevelIncre((byte)0);
+				test1.setLimitNum(2);
+				test1.setPromotionMethod((byte)0);//满减方式;0:减总金额;1:减每件金额
+				test1.setPromotionPre((byte)0); //活动条件;0:按金额;1:按件数
+				
+				List<PromotionRuleDto> promotionRureList=new ArrayList<PromotionRuleDto>();
+				
+				PromotionRuleDto rule1=new PromotionRuleDto();
+				rule1.setPromotionId(123);
+				rule1.setPromotionSum(20);
+				rule1.setPromotionMinu("5");
+				
+				promotionRureList.add(rule1);
+				
+				 List<String> spuCodeList=new ArrayList<String>();
+				 spuCodeList.add("116224");
+				
+				 
+				 test1.setPromotionRules(promotionRureList);
+				 test1.setSpuCode(spuCodeList);
+				
+				 responsePromotionList=new ArrayList<PromotionDto>();
+				 responsePromotionList.add(test1);
+				
 				long endTime = System.currentTimeMillis();
 				log.info("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),耗时" + (endTime - startTime) + "毫秒，响应参数：responsePromotionList=" + responsePromotionList);
 			}catch (Exception e){
@@ -333,7 +366,7 @@ public class OrderFullReductionService {
 	 * 2.分开计算单品和多品，多品的话需要均摊到每个商品，而单品不需要均摊
 	 *
 	 */
-	private void calculationProductPromotionShareMoney(List<ShoppingCartDto> buyProductList,Map<Integer,OrderPromotionDto> responseMap){
+	public void calculationProductPromotionShareMoney(List<ShoppingCartDto> buyProductList,Map<Integer,OrderPromotionDto> responseMap){
 		 if(UtilHelper.isEmpty(buyProductList)){
 			 return;
 		 }
@@ -450,7 +483,7 @@ public class OrderFullReductionService {
 	 * @param orderPromotionDto
 	 * @return
 	 */
-	private boolean checkProcutInfoPartPromotionState(String spuCode,OrderPromotionDto orderPromotionDto){
+	public boolean checkProcutInfoPartPromotionState(String spuCode,OrderPromotionDto orderPromotionDto){
 		 boolean flag=true;
 		 List<OrderPromotionProductDto> promotionProductDtoList=orderPromotionDto.getPromotionProductDtoList();
 		 if(UtilHelper.isEmpty(promotionProductDtoList)){
@@ -475,7 +508,7 @@ public class OrderFullReductionService {
 	 * @param promotionId
 	 * @return
 	 */
-	private int getUserPartPromotionNum(String custId,Integer promotionId){
+	public int getUserPartPromotionNum(String custId,Integer promotionId){
 		
 		/**
 		 * to do
@@ -492,7 +525,7 @@ public class OrderFullReductionService {
 	 * @param custId
 	 * @return
 	 */
-	private Map<Integer,List<OrderProductInfoDto>> getPromotionParamter( List<ShoppingCartDto> buyProductList,String supplyId,String custId){
+	public Map<Integer,List<OrderProductInfoDto>> getPromotionParamter( List<ShoppingCartDto> buyProductList,String supplyId,String custId){
 		
 		 if(!UtilHelper.isEmpty(buyProductList)){
 			

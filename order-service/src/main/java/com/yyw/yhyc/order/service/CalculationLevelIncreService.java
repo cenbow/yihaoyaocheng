@@ -1,6 +1,7 @@
 package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -8,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.dto.OrderPromotionDetailDto;
 import com.yyw.yhyc.order.dto.OrderPromotionDto;
 import com.yyw.yhyc.order.dto.OrderPromotionRuleDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
@@ -21,6 +23,27 @@ import com.yyw.yhyc.order.dto.ShoppingCartDto;
 public class CalculationLevelIncreService {
 	
 	private Log log = LogFactory.getLog(CalculationLevelIncreService.class);
+	
+	private void saveOrderPromotionDetailInfo(OrderPromotionDto promotionDto,ShoppingCartDto cartDto,BigDecimal shareMoney){
+		
+		if(cartDto.getPromotionDetailInfoList()==null){
+			List<OrderPromotionDetailDto> list=new ArrayList<OrderPromotionDetailDto>();
+			OrderPromotionDetailDto dto=new OrderPromotionDetailDto();
+			dto.setPromotionId(promotionDto.getPromotionId());
+			dto.setPromotionType(promotionDto.getPromotionType());
+			dto.setShareMoney(shareMoney);
+			list.add(dto);
+			cartDto.setPromotionDetailInfoList(list);
+		}else{
+			OrderPromotionDetailDto dto=new OrderPromotionDetailDto();
+			dto.setPromotionId(promotionDto.getPromotionId());
+			dto.setPromotionType(promotionDto.getPromotionType());
+			dto.setShareMoney(shareMoney);
+			cartDto.getPromotionDetailInfoList().add(dto);
+			
+		}
+		
+	}
 	
 	/***********************************以下是按照单品-金额*********************************************/
 	
@@ -61,8 +84,11 @@ public class CalculationLevelIncreService {
 					double timesValue=produceAllMoney.doubleValue()/promotionSum.doubleValue();
 					double inceNum=Math.floor(timesValue);
 				    BigDecimal subtractMoney=promotionMinuMoney.multiply(new BigDecimal(inceNum));
-					shareMoney=shareMoney.add(subtractMoney);
+					
+				    shareMoney=shareMoney.add(subtractMoney);
 					shoppingCartBean.setShareMoney(shareMoney);
+					
+					this.saveOrderPromotionDetailInfo(promotionDto, shoppingCartBean, subtractMoney);
 				}
 				
 				
@@ -119,6 +145,8 @@ public class CalculationLevelIncreService {
 					shareMoney=shareMoney.add(new BigDecimal(currentShareMoney));
 					
 					shoppingCartBean.setShareMoney(shareMoney);
+					
+					this.saveOrderPromotionDetailInfo(promotionDto, shoppingCartBean, new BigDecimal(currentShareMoney));
 				}
 				
 				
@@ -170,6 +198,8 @@ public class CalculationLevelIncreService {
 					shareMoney=shareMoney.add(subtractMoney);
 					
 					shoppingCartBean.setShareMoney(shareMoney);
+					
+					this.saveOrderPromotionDetailInfo(promotionDto, shoppingCartBean, subtractMoney);
 				}
 				
 				
@@ -225,6 +255,8 @@ public class CalculationLevelIncreService {
 					shareMoney=shareMoney.add(new BigDecimal(currentShareMoney));
 					
 					shoppingCartBean.setShareMoney(shareMoney);
+					
+					this.saveOrderPromotionDetailInfo(promotionDto, shoppingCartBean, new BigDecimal(currentShareMoney));
 				}
 				
 				
@@ -303,11 +335,18 @@ public class CalculationLevelIncreService {
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
 						reallyShareMoney=reallyShareMoney.add(currentShareMoney);
+						
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, currentShareMoney);
+						
 					}else{
 						BigDecimal subValue=shareAllMoney.subtract(lastShareMoney);
 						reallyShareMoney=reallyShareMoney.add(subValue);
+						
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean,subValue);
 					}
 					currentShoppingCartBean.setShareMoney(reallyShareMoney);
+					
+					
 				}
 			}
 			
@@ -384,11 +423,16 @@ public class CalculationLevelIncreService {
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
 						reallyShareMoney=reallyShareMoney.add(currentShareMoney);
+						
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, currentShareMoney);
 					}else{
 						BigDecimal subValue=shareAllMoney.subtract(lastShareMoney);
 						reallyShareMoney=reallyShareMoney.add(subValue);
+						
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, subValue);
 					}
 					currentShoppingCartBean.setShareMoney(reallyShareMoney);
+					
 				}
 			}
 			
@@ -456,11 +500,15 @@ public class CalculationLevelIncreService {
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
 						reallyShareMoney=reallyShareMoney.add(currentShareMoney);
+						
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, currentShareMoney);
 					}else{
 						BigDecimal subValue=shareAllMoney.subtract(lastShareMoney);
 						reallyShareMoney=reallyShareMoney.add(subValue);
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, subValue);
 					}
 					currentShoppingCartBean.setShareMoney(reallyShareMoney);
+					
 				}
 			}
 			
@@ -537,11 +585,16 @@ public class CalculationLevelIncreService {
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
 						reallyShareMoney=reallyShareMoney.add(currentShareMoney);
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, currentShareMoney);
 					}else{
 						BigDecimal subValue=shareAllMoney.subtract(lastShareMoney);
 						reallyShareMoney=reallyShareMoney.add(subValue);
+						
+						this.saveOrderPromotionDetailInfo(promotionDto, currentShoppingCartBean, subValue);
 					}
 					currentShoppingCartBean.setShareMoney(reallyShareMoney);
+					
+					
 				}
 			}
 			

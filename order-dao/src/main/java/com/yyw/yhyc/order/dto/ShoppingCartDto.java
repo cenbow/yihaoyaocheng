@@ -94,8 +94,10 @@ public class ShoppingCartDto extends ShoppingCart  {
      */
     private OrderPromotionDto specailPromotionDto;
     
-    
-    
+    /**
+     * 保存商品参加的满减信息，什么类型的满减以及每个满减优惠了多少钱
+     */
+    private List<OrderPromotionDetailDto> promotionDetailInfoList;
     
 
     public OrderPromotionDto getSpecailPromotionDto() {
@@ -282,8 +284,19 @@ public class ShoppingCartDto extends ShoppingCart  {
     public void setStatusEnum(int statusEnum) {
         this.statusEnum = statusEnum;
     }
+    
+    
 
-    @Override
+    public List<OrderPromotionDetailDto> getPromotionDetailInfoList() {
+		return promotionDetailInfoList;
+	}
+
+	public void setPromotionDetailInfoList(
+			List<OrderPromotionDetailDto> promotionDetailInfoList) {
+		this.promotionDetailInfoList = promotionDetailInfoList;
+	}
+
+	@Override
 	public String toString() {
 		return "ShoppingCartDto [productImageUrl=" + productImageUrl
 				+ ", periodProduct=" + periodProduct + ", paymentTerm="
@@ -302,6 +315,7 @@ public class ShoppingCartDto extends ShoppingCart  {
 				+ unNormalStatusReason + ", statusEnum=" + statusEnum
 				+ ", shareMoney=" + shareMoney
 				+ ", fullReductionPromotionList=" + fullReductionPromotionList
-				+ ", specailPromotionDto=" + specailPromotionDto + "]";
+				+ ", specailPromotionDto=" + specailPromotionDto
+				+ ", promotionDetailInfoList=" + promotionDetailInfoList + "]";
 	}
 }

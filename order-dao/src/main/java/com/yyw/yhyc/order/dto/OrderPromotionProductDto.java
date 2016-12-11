@@ -1,6 +1,8 @@
 package com.yyw.yhyc.order.dto;
 
-public class OrderPromotionProductDto {
+import java.io.Serializable;
+
+public class OrderPromotionProductDto implements Serializable{
 	/**
 	 * 商品spu编码
 	 */

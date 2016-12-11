@@ -1,5 +1,6 @@
 package com.yyw.yhyc.order.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -7,7 +8,7 @@ import java.math.BigDecimal;
  * @author wangkui01
  *
  */
-public class OrderPromotionSpecialProductDto {
+public class OrderPromotionSpecialProductDto implements Serializable{
 	/**
 	 * 促销id
 	 */

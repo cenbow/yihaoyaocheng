@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.yyw.yhyc.order.dto.OrderPromotionDetailDto;
 import com.yyw.yhyc.product.bo.ProductInfo;
 
 /**
@@ -80,8 +81,25 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
 	 */
 	private String promotionCollectionId;
 	
+	
+    /**
+     * 保存商品参加的满减信息，什么类型的满减以及每个满减优惠了多少钱
+     */
+    private List<OrderPromotionDetailDto> promotionDetailInfoList;
+    
+    
+	
 
-    public BigDecimal getProductPrice() {
+    public List<OrderPromotionDetailDto> getPromotionDetailInfoList() {
+		return promotionDetailInfoList;
+	}
+
+	public void setPromotionDetailInfoList(
+			List<OrderPromotionDetailDto> promotionDetailInfoList) {
+		this.promotionDetailInfoList = promotionDetailInfoList;
+	}
+
+	public BigDecimal getProductPrice() {
         return productPrice;
     }
 
@@ -251,6 +269,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
 				+ promotionLimitNum + ", promotionSumInventory="
 				+ promotionSumInventory + ", promotionCurrentInventory="
 				+ promotionCurrentInventory + ", promotionCollectionId="
-				+ promotionCollectionId + "]";
+				+ promotionCollectionId + ", promotionDetailInfoList="
+				+ promotionDetailInfoList + "]";
 	}
 }

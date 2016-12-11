@@ -1,8 +1,9 @@
 package com.yyw.yhyc.order.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class OrderPromotionRuleDto {
+public class OrderPromotionRuleDto implements Serializable{
 	/**
 	 * 满多少元（件）
 	 */

@@ -1,6 +1,8 @@
 package com.yyw.yhyc.order.dto;
 
-public class OrderProductInfoDto {
+import java.io.Serializable;
+
+public class OrderProductInfoDto implements Serializable{
 	private String spuCode;
 	private String sellerCode;
 	

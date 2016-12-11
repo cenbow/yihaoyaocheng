@@ -18,6 +18,7 @@ import java.util.*;
 
 import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotion;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -36,7 +37,6 @@ import com.yao.trade.interfaces.credit.model.PeriodParams;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
-
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;import com.yaoex.usermanage.model.adviser.AdviserModel;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.helper.DateHelper;
@@ -64,6 +64,7 @@ import com.yyw.yhyc.order.dto.OrderDetailsDto;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.OrderLogDto;
+import com.yyw.yhyc.order.dto.OrderPromotionDetailDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -666,19 +667,34 @@ public class OrderService {
 		if(null == orderDto || null == orderDto.getProductInfoDtoList()) return null;
 
 		BigDecimal orderTotal = new BigDecimal(0);
+		BigDecimal orderShareMoney=new BigDecimal(0);//改订单的参加的满减促销的优惠金额
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			if(null == productInfoDto) continue;
 			orderTotal = orderTotal.add(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
+			
+			List<OrderPromotionDetailDto> promotionDetailInfoList=productInfoDto.getPromotionDetailInfoList();
+			if(!UtilHelper.isEmpty(promotionDetailInfoList)){
+				for(OrderPromotionDetailDto promotionDetailBean : promotionDetailInfoList){
+					BigDecimal currentDetailShareMoney=promotionDetailBean.getShareMoney();
+					 if(currentDetailShareMoney!=null){
+						 orderShareMoney=orderShareMoney.add(currentDetailShareMoney);
+					 }
+					
+				}
+			}
 		}
 		if(!UtilHelper.isEmpty(orderTotal)){
 			orderTotal = orderTotal.setScale(2,BigDecimal.ROUND_HALF_UP);
 		}
+		
+		
 		/* 计算订单相关的金额 */
 		orderDto.setOrderTotal(orderTotal);//订单总金额
 		orderDto.setFreight(new BigDecimal(0));//运费
-		orderDto.setPreferentialMoney(new BigDecimal(0));//优惠了的金额(如果使用了优惠)
-		orderDto.setOrgTotal(orderTotal);//订单优惠后的金额(如果使用了优惠)
-		orderDto.setSettlementMoney(orderTotal);//结算金额
+		orderDto.setPreferentialMoney(orderShareMoney);//优惠了的金额(如果使用了优惠)
+		BigDecimal subOrgTotalMoney=orderTotal.subtract(orderShareMoney);
+		orderDto.setOrgTotal(subOrgTotalMoney);//订单优惠后的金额(如果使用了优惠)
+		orderDto.setSettlementMoney(subOrgTotalMoney);//结算金额
 		return orderDto;
 	}
 
@@ -801,6 +817,7 @@ public class OrderService {
 		order.setSettlementMoney(orderDto.getSettlementMoney());//结算金额
 		order.setPaymentTermStatus(0);//账期还款状态 0 未还款  1 已还款
 		order.setSource(orderDto.getSource());//订单来源
+		
 		/**
 		 * 销售顾问信息
 		 */
@@ -874,7 +891,46 @@ public class OrderService {
 			}else{
 				orderDetail.setManufactures(productInfoDto.getManufactures());//厂家名称
 			}
-
+			
+			
+			
+			//处理订单详情总的满减促销
+			 if(productInfoDto.getPromotionDetailInfoList()!=null){
+				 
+				 StringBuilder promotionidStr=new StringBuilder();
+				 StringBuilder promotionTypeStr=new StringBuilder();
+				 StringBuilder promotionShareMoney=new StringBuilder();
+				 StringBuilder promotionNameStr=new StringBuilder();
+				 
+				 for(int i=0;i<productInfoDto.getPromotionDetailInfoList().size();i++){
+					 OrderPromotionDetailDto promotionDetailDto=productInfoDto.getPromotionDetailInfoList().get(i);
+					   Integer promotionId=promotionDetailDto.getPromotionId();
+					   Integer promotionType=promotionDetailDto.getPromotionType();
+					   BigDecimal shareMoney=promotionDetailDto.getShareMoney();
+					   String promotionName=promotionDetailDto.getPromotionName();
+					   
+					   
+					   if(i!=productInfoDto.getPromotionDetailInfoList().size()-1){
+						   promotionidStr.append(promotionId+",");
+						   promotionTypeStr.append(promotionType+",");
+						   promotionShareMoney.append(shareMoney+",");
+						   promotionNameStr.append(promotionName+",");
+					   }else{
+						   promotionidStr.append(promotionId);
+						   promotionTypeStr.append(promotionType);
+						   promotionShareMoney.append(shareMoney);
+						   promotionNameStr.append(promotionName);
+					   }
+					 
+				 }
+				 
+				 if(promotionidStr.length()>0 && promotionTypeStr.length()>0 && promotionShareMoney.length()>0 && promotionNameStr.length()>0){
+					 orderDetail.setPromotionCollectionId(promotionidStr.toString());
+					 orderDetail.setPromotionCollectionType(promotionTypeStr.toString());
+					 orderDetail.setPreferentialCollectionMoney(promotionShareMoney.toString());
+					 orderDetail.setPromotionName(promotionNameStr.toString());
+				 }
+			 }
 
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());

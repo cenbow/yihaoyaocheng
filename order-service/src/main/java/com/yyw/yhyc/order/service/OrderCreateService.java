@@ -1,6 +1,7 @@
 package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,10 @@ import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.OrderProductInfoDto;
+import com.yyw.yhyc.order.dto.OrderPromotionDetailDto;
+import com.yyw.yhyc.order.dto.OrderPromotionDto;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.order.manage.OrderManage;
@@ -96,6 +101,8 @@ public class OrderCreateService {
 	private  OrderSettlementService orderSettlementService;
 	@Autowired
 	private OrderManage orderManage;
+	@Autowired
+	private OrderFullReductionService orderFullReductionService;
 	
 	/**
 	 * 该方法只用来处理创建订单的时候，校验订单的合法性
@@ -317,7 +324,11 @@ public class OrderCreateService {
 		
 		/********************以下处理验证商品参加满减活动的验证**********************/
 		
-		this.processValidateFullDesc(userDto, orderDto, productFromFastOrderCount);
+		Map<String,Object> returnResult=this.processValidateFullDesc(userDto, orderDto, productFromFastOrderCount);
+		
+		if(!UtilHelper.isEmpty(returnResult)){
+			return returnResult;
+		}
 
 		log.info("统一校验订单商品接口 ：校验成功" );
 		map.put("result", true);
@@ -330,13 +341,214 @@ public class OrderCreateService {
 	 * @param orderDto
 	 * @param productFromFastOrderCount
 	 */
-	private void processValidateFullDesc(UserDto userDto, OrderDto orderDto,int productFromFastOrderCount){
+	private Map<String,Object> processValidateFullDesc(UserDto userDto, OrderDto orderDto,int productFromFastOrderCount){
 		
+		
+		Map<String,Object> returnResult=null;
+		
+		Integer supplyId=orderDto.getSupplyId();
+		Integer custId=userDto.getCustId();
+		
+		List<Map<String,Object>> returnList=new ArrayList<Map<String,Object>>();
+		
+		//组装该订单商品是否参加了满减促销活动和其他活动
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			
-			
+			 OrderProductInfoDto productInfoParamterBean=new OrderProductInfoDto();
+			  
+			   String supCode=productInfoDto.getSpuCode();
+			   
+			   productInfoParamterBean.setSpuCode(supCode);
+			   productInfoParamterBean.setSellerCode(orderDto.getSupplyId()+"");
+			   Map<String,Object>  currentMap=new HashMap<String,Object>();
+			   
+			   List<String> promitionIdList=new ArrayList<String>();
+				
+				 String promotionIdList=productInfoDto.getPromotionCollectionId(); //该商品参与的活动
+				 
+				  if(!UtilHelper.isEmpty(promotionIdList)){
+					  
+					  String[] promotionIdArray=promotionIdList.split(",");
+					  for(String currentPromotionId : promotionIdArray){
+						  promitionIdList.add(currentPromotionId);
+					  }
+				  }
+				  
+				  currentMap.put("productInfoBean", productInfoParamterBean);
+				  currentMap.put("promotionList", promitionIdList);
+				  returnList.add(currentMap);
+		}
+		if(UtilHelper.isEmpty(returnList)){
+			return null;
 		}
 		
+		//1.以下是处理该笔订单参与了商品的满减活动,将组装好的请求参数掉dubbo服务，然后组装成key:促销id,value:促销的实体
+		 Map<Integer,OrderPromotionDto> responseMap=this.orderFullReductionService.processPormotionDubboMethodByAllPromotionCollection(returnList);
+		
+		 //2.将productInfoDt转换成对应的shoppingCartDto
+		 List<ShoppingCartDto> returnShoppingCartDtoList=this.productInfoConvertShoppingCartDto(orderDto.getProductInfoDtoList(), supplyId, custId);
+		 
+		 
+		 //3.将该笔验证订单中商品组装成key:促销id,value:商品集合,为后面的计算做准备
+		 Map<Integer,List<OrderProductInfoDto>> currentOrderParamterMap=this.orderFullReductionService.getPromotionParamter(returnShoppingCartDtoList, supplyId+"", custId+"");
+		
+		 
+		 //4.开始校验和计算金额
+		 if(currentOrderParamterMap!=null && currentOrderParamterMap.keySet().size()>0){
+			   
+			      if(!UtilHelper.isEmpty(responseMap)){
+			    	  //开始校验
+			    	  returnResult=this.processMakeUpShoppingCartDto(returnShoppingCartDtoList, responseMap,custId+"",productFromFastOrderCount);
+			    	  
+			    	  this.orderFullReductionService.calculationProductPromotionShareMoney(returnShoppingCartDtoList, responseMap);
+			    	   //计算该笔订单的总优惠金额
+		    	     BigDecimal orderMoney=new BigDecimal(0);
+					 if(!UtilHelper.isEmpty(returnShoppingCartDtoList)){
+						 for(ShoppingCartDto currentBuyProduct :  returnShoppingCartDtoList){
+							 BigDecimal shareMoney=currentBuyProduct.getShareMoney();
+							 if(shareMoney!=null){
+								 orderMoney=orderMoney.add(shareMoney);
+							 }
+						 }
+					 }
+					 BigDecimal orderFullReductionMoney=orderDto.getOrderFullReductionMoney();
+					 if(orderFullReductionMoney!=null && orderFullReductionMoney.compareTo(orderMoney)!=0){
+						 returnResult=returnFalse("优惠金额有问题,请重新下单",productFromFastOrderCount);
+					 }
+					 
+					 if(returnResult==null){ //当前验证无错误,将shoppingCart的promotionDetailInfoList 赋值给对应的ProductInfoDto
+						 if(!UtilHelper.isEmpty(returnShoppingCartDtoList)){
+							 
+							 for(ShoppingCartDto currentDto :  returnShoppingCartDtoList){
+								 
+								  List<OrderPromotionDetailDto> detailList=currentDto.getPromotionDetailInfoList();
+								     String spuCode=currentDto.getSpuCode();
+								     for(ProductInfoDto currentProductInfo : orderDto.getProductInfoDtoList()){
+								    	 
+								    	   String currentSpuCode=currentProductInfo.getSpuCode();
+								    	    if(currentSpuCode.equals(spuCode)){
+								    	    	currentProductInfo.setPromotionDetailInfoList(detailList);
+								    	    }
+								    	 
+								     }
+								  
+								  
+							 }
+						 }
+						 
+					 }
+			      }
+			   
+		   }
+		 
+		 return returnResult;
+		
+		
+		
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 将对应的返回促销的信息赋值给买的每个商品上去,也就是如果该商品参加了多个促销，那么需要将对应促销赋值到该购物商品的属性上去
+	 * @param buyProductList
+	 * @param responseMap
+	 */
+	private Map<String,Object> processMakeUpShoppingCartDto(List<ShoppingCartDto> buyProductList,Map<Integer,OrderPromotionDto> responseMap,String custId,int productFromFastOrderCount){
+		 
+		Map<String,Object> returnResult=null;
+		
+		if(!UtilHelper.isEmpty(buyProductList)){
+			   
+			   for(ShoppingCartDto currentCartDto : buyProductList){
+				   
+				   String promotionIdList=currentCartDto.getPromotionCollectionId();
+				   
+				    boolean flag=false;
+				    
+				   if(!UtilHelper.isEmpty(promotionIdList)){
+					   List<OrderPromotionDto> fullReductionPromotionList=new ArrayList<OrderPromotionDto>();
+					   String[] currentPromotionIdArray=promotionIdList.split(",");
+					   
+					   
+					   for(String innerPromotionId : currentPromotionIdArray){
+						   
+						   Integer promotionIdInteger=Integer.valueOf(innerPromotionId);
+						   OrderPromotionDto orderPromotionDto=responseMap.get(promotionIdInteger);
+						   
+						   if(orderPromotionDto!=null){
+							   
+							   //验证该用户是否已经达到最大参与次数
+							   if(orderPromotionDto.getLimitNum()!=null && orderPromotionDto.getLimitNum().intValue()!=-1){
+								    
+								    int partNum=this.orderFullReductionService.getUserPartPromotionNum(custId, orderPromotionDto.getPromotionId());
+								    if(partNum>=orderPromotionDto.getLimitNum().intValue()){
+								       log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
+								       returnResult=returnFalse("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]",productFromFastOrderCount);
+								       flag=true;
+								       break;
+								    }
+							   }
+							   
+							   boolean productPartPromotionState=this.orderFullReductionService.checkProcutInfoPartPromotionState(currentCartDto.getSpuCode(), orderPromotionDto);
+							   if(productPartPromotionState){
+								   log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!");
+								   returnResult=returnFalse("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!",productFromFastOrderCount);
+							       flag=true;
+							       break;
+							   }
+						    	Integer promotionType=orderPromotionDto.getPromotionType();
+						    	if(promotionType!=null && (promotionType.intValue()==2 || promotionType.intValue()==3)){
+						    		 //商品参加了单品满减或者多品满减
+						    		 fullReductionPromotionList.add(orderPromotionDto);
+						    	 }
+						    	
+						    }
+						   
+					   }
+					   if(flag){
+						   break;
+					   }
+					   
+					   currentCartDto.setFullReductionPromotionList(fullReductionPromotionList);
+					   
+				   }
+				   
+			   }
+		   }
+		
+		
+		return returnResult;
+		
+	}
+	
+	/**
+	 * 将productInfoDto转换成对应的shoppingCartDTo，然后获取对应的促销key-vaue商品信息
+	 * @param productInfoList
+	 * @param supplyId
+	 * @param custId
+	 * @return
+	 */
+	private  List<ShoppingCartDto> productInfoConvertShoppingCartDto(List<ProductInfoDto> productInfoList,Integer supplyId,Integer custId){
+		      
+		List<ShoppingCartDto> returnShoppingCartDtoList=new ArrayList<ShoppingCartDto>();
+		      
+		      for(ProductInfoDto currentBean : productInfoList){
+		    	  
+		    	  ShoppingCartDto cartDto=new ShoppingCartDto();
+		    	  cartDto.setProductCount(currentBean.getProductCount());
+		    	  cartDto.setProductPrice(currentBean.getProductPrice());
+		    	  cartDto.setProductName(currentBean.getProductName());
+		    	  cartDto.setSpuCode(currentBean.getSpuCode());
+		    	  cartDto.setPromotionCollectionId(currentBean.getPromotionCollectionId());
+		    	  
+		    	  returnShoppingCartDtoList.add(cartDto);
+		    	  
+		      }
+		      
+		 return returnShoppingCartDtoList;
 	}
 	
 	private Map<String,Object> returnFalse(String message,Integer productFromFastOrderCount){

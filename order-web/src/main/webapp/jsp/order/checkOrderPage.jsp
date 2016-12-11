@@ -206,8 +206,13 @@
                                           </span>
                                     </label>
                                 </div>
-                                <div class="fr f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
                             </div>
+                              <div class="fr">
+                                <div class="f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
+                                <c:if test="${shoppingCart.orderFullReductionMoney != null && shoppingCart.orderFullReductionMoney > 0 }">
+                                   <div class="f14">满立减金额：<span class="red">¥ -<fmt:formatNumber value="${shoppingCart.orderFullReductionMoney}" minFractionDigits="2"/></span></div>                 
+                                </c:if>
+                              </div>
                             <p class="pt30">
 						                            给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" style="margin-right: 100px;">
 						       

@@ -140,6 +140,20 @@ public class OrderDetail extends Model{
 	* 活动名称
      */
 	private java.lang.String promotionName;
+	
+	/**
+	 * 该字段保存商品参加的所有促销的id,格式a,b,c
+	 */
+	private String promotionCollectionId;
+	/**
+	 * 该字段保存商品参加的所有促销的类型,格式a,b,c
+	 */
+	private String promotionCollectionType;
+	
+	/**
+	 * 该字段保存参加满减优惠的金额,格式12,23,45
+	 */
+	private String preferentialCollectionMoney;
 
 
 	/**
@@ -510,36 +524,54 @@ public class OrderDetail extends Model{
 		this.promotionName = promotionName;
 	}
 
-	public String toString()
-	{
-		return "OrderDetail [" + 
-					"orderDetailId=" + orderDetailId + 
-					", orderId=" + orderId + 
-					", skuId=" + skuId + 
-					", specification=" + specification + 
-					", supplyId=" + supplyId + 
-					", productId=" + productId + 
-					", brandName=" + brandName + 
-					", formOfDrug=" + formOfDrug + 
-					", productName=" + productName + 
-					", productCode=" + productCode + 
-					", manufacturesId=" + manufacturesId + 
-					", manufactures=" + manufactures + 
-					", productPrice=" + productPrice + 
-					", productSettlementPrice=" + productSettlementPrice + 
-					", productCount=" + productCount + 
-					", recieveCount=" + recieveCount + 
-					", remark=" + remark + 
-					", createUser=" + createUser + 
-					", createTime=" + createTime + 
-					", updateUser=" + updateUser + 
-					", updateTime=" + updateTime +
-					", shortName=" + shortName +
-					", spuCode=" + spuCode +
-			    	", promotionId=" + promotionId +
-				    ", promotionName=" + promotionName +
-				"]";
+	@Override
+	public String toString() {
+		return "OrderDetail [orderDetailId=" + orderDetailId + ", orderId="
+				+ orderId + ", skuId=" + skuId + ", specification="
+				+ specification + ", supplyId=" + supplyId + ", productId="
+				+ productId + ", brandName=" + brandName + ", formOfDrug="
+				+ formOfDrug + ", productName=" + productName
+				+ ", productCode=" + productCode + ", manufacturesId="
+				+ manufacturesId + ", manufactures=" + manufactures
+				+ ", productPrice=" + productPrice
+				+ ", productSettlementPrice=" + productSettlementPrice
+				+ ", productCount=" + productCount + ", recieveCount="
+				+ recieveCount + ", remark=" + remark + ", createUser="
+				+ createUser + ", createTime=" + createTime + ", updateUser="
+				+ updateUser + ", updateTime=" + updateTime + ", shortName="
+				+ shortName + ", spuCode=" + spuCode + ", promotionId="
+				+ promotionId + ", promotionName=" + promotionName
+				+ ", promotionCollectionId=" + promotionCollectionId
+				+ ", promotionCollectionType=" + promotionCollectionType
+				+ ", preferentialCollectionMoney="
+				+ preferentialCollectionMoney + "]";
 	}
+
+	public String getPromotionCollectionId() {
+		return promotionCollectionId;
+	}
+
+	public void setPromotionCollectionId(String promotionCollectionId) {
+		this.promotionCollectionId = promotionCollectionId;
+	}
+
+	public String getPromotionCollectionType() {
+		return promotionCollectionType;
+	}
+
+	public void setPromotionCollectionType(String promotionCollectionType) {
+		this.promotionCollectionType = promotionCollectionType;
+	}
+
+	public String getPreferentialCollectionMoney() {
+		return preferentialCollectionMoney;
+	}
+
+	public void setPreferentialCollectionMoney(String preferentialCollectionMoney) {
+		this.preferentialCollectionMoney = preferentialCollectionMoney;
+	}
+	
+	
 
 
 }
