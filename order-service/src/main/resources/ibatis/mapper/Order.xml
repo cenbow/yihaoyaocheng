@@ -1205,12 +1205,8 @@
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		left join t_order_detail t3 on t1.order_id = t3.order_id
-		left join t_order_detail t3 on t1.order_id = t3.order_id
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
-		<if test="promotionName != null and promotionName != ''">
-			AND T3.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
-		</if>
 		<if test="promotionName != null and promotionName != ''">
 			AND T3.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
 		</if>
