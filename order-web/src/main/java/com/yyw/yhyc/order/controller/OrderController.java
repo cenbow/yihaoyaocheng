@@ -70,7 +70,9 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.service.OrderCreateService;
 import com.yyw.yhyc.order.service.OrderExportService;
+import com.yyw.yhyc.order.service.OrderFullReductionService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
@@ -120,6 +122,11 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
+	
+	@Autowired
+	private OrderFullReductionService orderFullReductionService;
+	@Autowired
+	private OrderCreateService orderCreateService;
 
     /**
      * 通过主键查询实体对象
@@ -232,8 +239,12 @@ public class OrderController extends BaseJsonController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
-					productSearchInterface,iPromotionDubboManageService);
+			
+			/*map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+					productSearchInterface,iPromotionDubboManageService);*/
+			
+			map = this.orderCreateService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+			productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
@@ -397,6 +408,23 @@ public class OrderController extends BaseJsonController {
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
 			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,creditDubboService,productSearchInterface,iCustgroupmanageDubbo);
 			dataMap.put("allShoppingCart",allShoppingCart);
+		}
+		
+		/***********以下处理订单的满减促销**************/
+		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
+			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
+			allShoppingCart=this.orderFullReductionService.processFullReduction(allShoppingCart);
+			Map<String,Object> returnMap=this.orderFullReductionService.processCalculationOrderShareMoney(allShoppingCart);
+			allShoppingCart=(List<ShoppingCartListDto>) returnMap.get("allShoppingCart");
+			
+			BigDecimal allOrderShareMoney=(BigDecimal) returnMap.get("allOrderShareMoney");
+			//无优惠的金额
+			BigDecimal orderPriceCount=(BigDecimal) dataMap.get("orderPriceCount"); 
+			
+			orderPriceCount=orderPriceCount.subtract(allOrderShareMoney);
+			dataMap.put("orderPriceCount",orderPriceCount);
+			dataMap.put("allShoppingCart",allShoppingCart);
+			dataMap.put("allOrderShareMoney",allOrderShareMoney);//所有订单的优惠金额
 		}
 
 		model.addObject("dataMap",dataMap);

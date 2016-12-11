@@ -1695,6 +1695,7 @@ public class OrderService {
 					shoppingCartDto.setFromWhere(temp.getFromWhere());
 					shoppingCartDto.setPromotionId(temp.getPromotionId());
 					shoppingCartDto.setPromotionName(temp.getPromotionName());
+					shoppingCartDto.setPromotionCollectionId(temp.getPromotionCollectionId());
 					shoppingCartDtoList.add(shoppingCartDto);
 
 					productPriceCount = productPriceCount.add(temp.getProductPrice().multiply(new BigDecimal(temp.getProductCount())));
