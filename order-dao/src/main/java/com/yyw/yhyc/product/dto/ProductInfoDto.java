@@ -74,6 +74,12 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
      * 2016-12-08 增加满减、满赠、满 活动商品相关信息 ，对应 t_promotion、t_promotion_rule表
      */
     //private List<ProductPromotionInfo> list;
+    
+    /** 
+	 * 其他活动id，如果有多个则用","拼接，不包括特价活动
+	 */
+	private String promotionCollectionId;
+	
 
     public BigDecimal getProductPrice() {
         return productPrice;
@@ -218,6 +224,16 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     public void setPromotionName(String promotionName) {
         this.promotionName = promotionName;
     }
+    
+    
+
+	public String getPromotionCollectionId() {
+		return promotionCollectionId;
+	}
+
+	public void setPromotionCollectionId(String promotionCollectionId) {
+		this.promotionCollectionId = promotionCollectionId;
+	}
 
 	@Override
 	public String toString() {
@@ -234,6 +250,7 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
 				+ promotionMinimumPacking + ", promotionLimitNum="
 				+ promotionLimitNum + ", promotionSumInventory="
 				+ promotionSumInventory + ", promotionCurrentInventory="
-				+ promotionCurrentInventory + "]";
+				+ promotionCurrentInventory + ", promotionCollectionId="
+				+ promotionCollectionId + "]";
 	}
 }

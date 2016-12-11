@@ -172,7 +172,6 @@ public class OrderCreateService {
 		/* 该供应商下所有商品的总金额（用于判断是否符合供应商的订单起售金额） */
 		BigDecimal productPriceCount = new BigDecimal(0);
 
-		ProductInfo productInfo = null;
 		//校验库存数量，是否可以购买
 		ProductInventory productInventory = new ProductInventory();
 		productInventory.setSupplyId(orderDto.getSupplyId());
@@ -315,10 +314,29 @@ public class OrderCreateService {
 		if(!UtilHelper.isEmpty(seller.getOrderSamount()) && productPriceCount.compareTo(seller.getOrderSamount()) < 0 ){
 			return returnFalse("你有部分商品金额低于供货商的发货标准，此商品无法结算",productFromFastOrderCount);
 		}
+		
+		/********************以下处理验证商品参加满减活动的验证**********************/
+		
+		this.processValidateFullDesc(userDto, orderDto, productFromFastOrderCount);
 
 		log.info("统一校验订单商品接口 ：校验成功" );
 		map.put("result", true);
 		return map;
+	}
+	
+	/**
+	 * 验证商品参加的满减促销需要减的钱
+	 * @param userDto
+	 * @param orderDto
+	 * @param productFromFastOrderCount
+	 */
+	private void processValidateFullDesc(UserDto userDto, OrderDto orderDto,int productFromFastOrderCount){
+		
+		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+			
+			
+		}
+		
 	}
 	
 	private Map<String,Object> returnFalse(String message,Integer productFromFastOrderCount){

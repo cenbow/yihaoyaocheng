@@ -129,7 +129,7 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].manufactures" value="${shoppingCartDto.manufactures}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].fromWhere" value="${shoppingCartDto.fromWhere}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionId" value="${shoppingCartDto.promotionId}"/>
-                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].specialPromotionId" value="${shoppingCartDto.specialPromotionId}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionCollectionId" value="${shoppingCartDto.promotionCollectionId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionName" value="${shoppingCartDto.promotionName}"/>
                                                     <tr>
                                                         <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">

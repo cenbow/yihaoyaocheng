@@ -72,7 +72,7 @@ public class OrderFullReductionService {
 		   if(currentOrderParamterMap!=null && currentOrderParamterMap.keySet().size()>0){
 			   
 			      if(!UtilHelper.isEmpty(responseMap)){
-			    	  this.processMakeUpShoppingCartDto(buyProductList, responseMap,buyerBean);
+			    	  this.processMakeUpShoppingCartDto(buyProductList, responseMap,custId);
 			    	  this.calculationProductPromotionShareMoney(buyProductList, responseMap);
 			      }
 			   
@@ -84,6 +84,7 @@ public class OrderFullReductionService {
 		return allShoppingCart;
 		
 	}
+	
 	
 	/**
 	 * 将所有订单的参加的商品促销的id ,掉服务获取对应的实体对象
@@ -393,7 +394,7 @@ public class OrderFullReductionService {
 	 * @param buyProductList
 	 * @param responseMap
 	 */
-	private void processMakeUpShoppingCartDto(List<ShoppingCartDto> buyProductList,Map<Integer,OrderPromotionDto> responseMap,UsermanageEnterprise buyerBean){
+	private void processMakeUpShoppingCartDto(List<ShoppingCartDto> buyProductList,Map<Integer,OrderPromotionDto> responseMap,String custId){
 		   if(!UtilHelper.isEmpty(buyProductList)){
 			   
 			   for(ShoppingCartDto currentCartDto : buyProductList){
@@ -412,7 +413,7 @@ public class OrderFullReductionService {
 							   //验证该用户是否已经达到最大参与次数
 							   if(orderPromotionDto.getLimitNum()!=null && orderPromotionDto.getLimitNum().intValue()!=-1){
 								    
-								    int partNum=this.getUserPartPromotionNum(buyerBean, orderPromotionDto.getPromotionId());
+								    int partNum=this.getUserPartPromotionNum(custId, orderPromotionDto.getPromotionId());
 								    if(partNum>=orderPromotionDto.getLimitNum().intValue()){
 								       log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
 								       continue;
@@ -424,17 +425,10 @@ public class OrderFullReductionService {
 								   log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!");
 								   continue;
 							   }
-							   
 						    	Integer promotionType=orderPromotionDto.getPromotionType();
-						    	
-						    	 if(promotionType!=null && promotionType.intValue()==1){ //说明该商品参加了特价活动
-						    		 currentCartDto.setSpecailPromotionDto(orderPromotionDto);
-						    		 currentCartDto.setPromotionId(orderPromotionDto.getPromotionId());
-						    		 
-						    	 }else if(promotionType!=null && (promotionType.intValue()==2 || promotionType.intValue()==3)){
+						    	if(promotionType!=null && (promotionType.intValue()==2 || promotionType.intValue()==3)){
 						    		 //商品参加了单品满减或者多品满减
 						    		 fullReductionPromotionList.add(orderPromotionDto);
-						    		 
 						    	 }
 						    	
 						    }
@@ -481,7 +475,7 @@ public class OrderFullReductionService {
 	 * @param promotionId
 	 * @return
 	 */
-	private int getUserPartPromotionNum(UsermanageEnterprise buyerBean,Integer promotionId){
+	private int getUserPartPromotionNum(String custId,Integer promotionId){
 		
 		/**
 		 * to do
