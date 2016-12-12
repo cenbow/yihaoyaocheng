@@ -71,6 +71,7 @@ import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderExportService;
+import com.yyw.yhyc.order.service.OrderLogService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
@@ -121,6 +122,8 @@ public class OrderController extends BaseJsonController {
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
 
+	@Autowired
+	private OrderLogService orderLogService;
     /**
      * 通过主键查询实体对象
      * @return
@@ -264,6 +267,8 @@ public class OrderController extends BaseJsonController {
 				}else{
 					orderIdStr += ","+order.getOrderId();
 				}
+				
+				orderLogService.insertOrderLog(this.request,"1",userDto.getCustId(),order.getFlowId(),orderCreateDto.getSource());
 			}
 		}
 		map = new HashMap<String,Object>();
