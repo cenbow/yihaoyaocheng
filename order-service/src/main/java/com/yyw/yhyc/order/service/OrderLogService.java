@@ -10,22 +10,26 @@
  **/
 package com.yyw.yhyc.order.service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.esotericsoftware.minlog.Log;
+import com.alibaba.fastjson.JSON;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.order.bo.OrderLog;
 import com.yyw.yhyc.order.mapper.OrderLogMapper;
 
 @Service("orderLogService")
 public class OrderLogService {
-
+	private static final Logger logger = LoggerFactory.getLogger(OrderLogService.class);
 	private OrderLogMapper	orderLogMapper;
 
 	@Autowired
@@ -163,7 +167,7 @@ public class OrderLogService {
             	orderLog.setGuid(cookies[i].getValue());
         }  
 		orderLog.setUuid("");
-		orderLog.setClientIp(request.getRemoteAddr());
+		orderLog.setClientIp(getIpAddr(request));
 		orderLog.setReferer(request.getHeader("Referer"));
 		orderLog.setUserAgent(request.getHeader("User-Agent"));
 		orderLog.setUserid(userid);
@@ -171,11 +175,43 @@ public class OrderLogService {
 		orderLog.setPlatform(String.valueOf(platform));
 		orderLog.setType(Integer.valueOf(type));
 		try {
+			logger.info("********插入orderLog"+JSON.toJSONString(orderLog));
 			this.save(orderLog);
 		} catch (Exception e) {
-			Log.error("********插入orderLog失败*********", e);
+			logger.error("********插入orderLog失败*********", e);
 		}
 	}
-	
+	private String getIpAddr(HttpServletRequest request) {   
+	     String ipAddress = null;   
+	     ipAddress = request.getHeader("x-forwarded-for");   
+	     if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {   
+	      ipAddress = request.getHeader("Proxy-Client-IP");   
+	     }   
+	     if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {   
+	         ipAddress = request.getHeader("WL-Proxy-Client-IP");   
+	     }   
+	     if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {   
+	      ipAddress = request.getRemoteAddr();   
+	      if(ipAddress.equals("127.0.0.1")){   
+	       //根据网卡取本机配置的IP   
+	       InetAddress inet=null;   
+	    try {   
+	     inet = InetAddress.getLocalHost();   
+	    } catch (UnknownHostException e) {   
+	     e.printStackTrace();   
+	    }   
+	    ipAddress= inet.getHostAddress();   
+	      }   
+	            
+	     }   
+	  
+	     //对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割   
+	     if(ipAddress!=null && ipAddress.length()>15){ //"***.***.***.***".length() = 15   
+	         if(ipAddress.indexOf(",")>0){   
+	             ipAddress = ipAddress.substring(0,ipAddress.indexOf(","));   
+	         }   
+	     }   
+	     return ipAddress;    
+	  }   
 	 
 }
