@@ -16,12 +16,14 @@ import com.yaoex.druggmp.dubbo.service.bean.PromotionDto;
 import com.yaoex.druggmp.dubbo.service.bean.PromotionRuleDto;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.OrderPromotionHistory;
 import com.yyw.yhyc.order.dto.OrderProductInfoDto;
 import com.yyw.yhyc.order.dto.OrderPromotionDto;
 import com.yyw.yhyc.order.dto.OrderPromotionProductDto;
 import com.yyw.yhyc.order.dto.OrderPromotionRuleDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.mapper.OrderPromotionHistoryMapper;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 
 /**
@@ -36,6 +38,8 @@ public class OrderFullReductionService {
 	private CalculationPromotionShareService calculationPromotionShareService;
 	@Reference
 	private IPromotionDubboManageService promotionDubboManageService;
+	@Autowired
+	private OrderPromotionHistoryMapper orderPromotionHistoryMapper;
 	
 	
 	/**
@@ -510,10 +514,20 @@ public class OrderFullReductionService {
 	 */
 	public int getUserPartPromotionNum(String custId,Integer promotionId){
 		
-		/**
-		 * to do
-		 */
-		   return 0;
+		Map<String,Object> paramterMap=new HashMap<String,Object>();
+		paramterMap.put("custId",custId);
+		paramterMap.put("promotionId",promotionId);
+		
+		OrderPromotionHistory promotionHistory=this.orderPromotionHistoryMapper.getObjectByCustIdAndPromotiondId(paramterMap);
+		if(promotionHistory!=null){
+			  if(promotionHistory.getUseNum()==null){
+				  return 0;
+			  }else{
+				  return promotionHistory.getUseNum();
+			  }
+		}else{
+			return 0;
+		}
 	}
 	
 	

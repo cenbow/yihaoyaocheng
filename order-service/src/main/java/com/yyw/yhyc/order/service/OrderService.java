@@ -53,6 +53,7 @@ import com.yyw.yhyc.order.bo.OrderDelivery;
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderPromotionHistory;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.order.bo.ShoppingCart;
@@ -65,6 +66,7 @@ import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
 import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderPromotionDetailDto;
+import com.yyw.yhyc.order.dto.OrderPromotionDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
@@ -89,6 +91,7 @@ import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
 import com.yyw.yhyc.order.mapper.OrderMapper;
 import com.yyw.yhyc.order.mapper.OrderPayMapper;
+import com.yyw.yhyc.order.mapper.OrderPromotionHistoryMapper;
 import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
 import com.yyw.yhyc.order.mapper.OrderTraceMapper;
 import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
@@ -126,6 +129,8 @@ public class OrderService {
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
+	@Autowired
+	private OrderPromotionHistoryMapper orderPromotionHistory;
 
 	@Autowired
 	private OrderPayManage orderPayManage;
@@ -852,6 +857,8 @@ public class OrderService {
 			if(UtilHelper.isEmpty(productInfo)) {
 				continue;
 			}
+			
+			
 			orderDetail = new OrderDetail();
 			orderDetail.setOrderId(order.getOrderId());
 			orderDetail.setSupplyId(order.getSupplyId());//供应商ID
@@ -931,6 +938,44 @@ public class OrderService {
 					 orderDetail.setPromotionName(promotionNameStr.toString());
 				 }
 			 }
+			 
+			 //处理满减促销参加的次数
+			 if(productInfoDto.getPromotionDetailInfoList()!=null){
+				 
+				 for(OrderPromotionDetailDto currentPromotionDetailBean : productInfoDto.getPromotionDetailInfoList()){
+					 
+					 OrderPromotionDto currentOrderPromotionDto=currentPromotionDetailBean.getPromotionDto();
+					 
+					 if(currentOrderPromotionDto.getLimitNum()!=null && currentOrderPromotionDto.getLimitNum()!=-1){
+						 
+						 Map<String,Object> paramterMap=new HashMap<String,Object>();
+						 paramterMap.put("custId", userDto.getCustId());
+						 paramterMap.put("promotionId",currentOrderPromotionDto.getPromotionId());
+						 
+						 OrderPromotionHistory history=this.orderPromotionHistory.getObjectByCustIdAndPromotiondId(paramterMap);
+						 if(history==null){
+							 OrderPromotionHistory orderPromotionHistory=new OrderPromotionHistory();
+								orderPromotionHistory.setCustId(userDto.getCustId());
+								orderPromotionHistory.setCustName(userDto.getCustName());
+								orderPromotionHistory.setPromotionId(currentOrderPromotionDto.getPromotionId());
+								orderPromotionHistory.setUseNum(1);
+								orderPromotionHistory.setCreateTime(systemDateMapper.getSystemDate());
+								orderPromotionHistory.setCreateUser(userDto.getUserName());
+								orderPromotionHistory.setUpdateTime(systemDateMapper.getSystemDate());
+								orderPromotionHistory.setUpdateUser(userDto.getUserName());
+								this.orderPromotionHistory.save(orderPromotionHistory);
+						 }else{
+							 int num=history.getUseNum();
+							 history.setUseNum(num+1);
+							 history.setUpdateTime(systemDateMapper.getSystemDate());
+							 history.setUpdateUser(userDto.getUserName());
+							 this.orderPromotionHistory.update(history);
+						 }
+							
+					 }
+				 }
+			 }
+			 
 
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());

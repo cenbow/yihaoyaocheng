@@ -8,9 +8,15 @@ public class OrderPromotionDetailDto implements Serializable{
 	private Integer promotionType;
 	private BigDecimal shareMoney;
 	private String promotionName;
+	private OrderPromotionDto promotionDto;
 	
 	
-	
+	public OrderPromotionDto getPromotionDto() {
+		return promotionDto;
+	}
+	public void setPromotionDto(OrderPromotionDto promotionDto) {
+		this.promotionDto = promotionDto;
+	}
 	public String getPromotionName() {
 		return promotionName;
 	}
@@ -39,7 +45,8 @@ public class OrderPromotionDetailDto implements Serializable{
 	public String toString() {
 		return "OrderPromotionDetailDto [promotionId=" + promotionId
 				+ ", promotionType=" + promotionType + ", shareMoney="
-				+ shareMoney + ", promotionName=" + promotionName + "]";
+				+ shareMoney + ", promotionName=" + promotionName
+				+ ", promotionDto=" + promotionDto + "]";
 	}
 	
 

@@ -32,6 +32,8 @@ public class CalculationLevelIncreService {
 			dto.setPromotionId(promotionDto.getPromotionId());
 			dto.setPromotionType(promotionDto.getPromotionType());
 			dto.setShareMoney(shareMoney);
+			dto.setPromotionName(promotionDto.getPromotionName());
+			dto.setPromotionDto(promotionDto);
 			list.add(dto);
 			cartDto.setPromotionDetailInfoList(list);
 		}else{
@@ -39,6 +41,8 @@ public class CalculationLevelIncreService {
 			dto.setPromotionId(promotionDto.getPromotionId());
 			dto.setPromotionType(promotionDto.getPromotionType());
 			dto.setShareMoney(shareMoney);
+			dto.setPromotionName(promotionDto.getPromotionName());
+			dto.setPromotionDto(promotionDto);
 			cartDto.getPromotionDetailInfoList().add(dto);
 			
 		}

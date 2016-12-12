@@ -161,4 +161,10 @@
 		SELECT count(1) AS totalcount FROM t_order_promotion_history WHERE 1=1 
 		<include refid="commonCondition"/>
 	</select>
+	
+    <select id="getObjectByCustIdAndPromotiondId" parameterType="java.util.Map" resultMap="OrderPromotionHistoryResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_promotion_history WHERE 1=1 and cust_id=#{custId} and promotion_id=#{promotionId}
+	</select>
 </mapper>

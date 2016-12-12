@@ -482,7 +482,6 @@ public class OrderCreateService {
 							   
 							   //验证该用户是否已经达到最大参与次数
 							   if(orderPromotionDto.getLimitNum()!=null && orderPromotionDto.getLimitNum().intValue()!=-1){
-								    
 								    int partNum=this.orderFullReductionService.getUserPartPromotionNum(custId, orderPromotionDto.getPromotionId());
 								    if(partNum>=orderPromotionDto.getLimitNum().intValue()){
 								       log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
