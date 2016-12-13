@@ -89,11 +89,14 @@ public class BaseController {
         return result;
     }
 
-    protected <T> T getLoginUser(){
-        T t = (T) session.getAttribute(UserDto.REQUEST_KEY);
+    protected <T> UserDto getLoginUser(){
+           /*  T t = (T) session.getAttribute("loginUserDto");
         if(UtilHelper.isEmpty(t))
-            t = (T) request.getAttribute(UserDto.REQUEST_KEY);
-        return t;
+            t = (T) request.getAttribute("loginUserDto");*/
+        UserDto userDto=new UserDto();
+        userDto.setCustId(6066);
+        userDto.setCustName("qqq");
+        return userDto;
     }
 }
 
