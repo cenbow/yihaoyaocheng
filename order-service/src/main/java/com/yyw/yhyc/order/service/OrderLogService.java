@@ -10,20 +10,22 @@
  **/
 package com.yyw.yhyc.order.service;
 
-import com.alibaba.fastjson.JSON;
-import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.bo.OrderLog;
-import com.yyw.yhyc.order.mapper.OrderLogMapper;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
+import com.alibaba.fastjson.JSON;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.order.bo.OrderLog;
+import com.yyw.yhyc.order.mapper.OrderLogMapper;
 
 @Service("orderLogService")
 public class OrderLogService {
@@ -42,7 +44,7 @@ public class OrderLogService {
 	 * @return
 	 * @throws Exception
 	 */
-	public OrderLog getByPK(Long primaryKey) throws Exception
+	public OrderLog getByPK(java.lang.Long primaryKey) throws Exception
 	{
 		return orderLogMapper.getByPK(primaryKey);
 	}
@@ -88,7 +90,7 @@ public class OrderLogService {
 	 * @return
 	 * @throws Exception
 	 */
-	public int deleteByPK(Long primaryKey) throws Exception
+	public int deleteByPK(java.lang.Long primaryKey) throws Exception
 	{
 		return orderLogMapper.deleteByPK(primaryKey);
 	}
@@ -98,7 +100,7 @@ public class OrderLogService {
 	 * @param primaryKeys
 	 * @throws Exception
 	 */
-	public void deleteByPKeys(List<Long> primaryKeys) throws Exception
+	public void deleteByPKeys(List<java.lang.Long> primaryKeys) throws Exception
 	{
 		orderLogMapper.deleteByPKeys(primaryKeys);
 	}

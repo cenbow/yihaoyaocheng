@@ -22,57 +22,57 @@ public class OrderLog extends Model{
 	/**
 	  *	主键
 	  */
-	private Long id;
+	private java.lang.Long id;
 
 	/**
 	  *	登陆客户编码
 	  */
-	private Integer userid;
+	private java.lang.Integer userid;
 
 	/**
 	  *	通用唯一标识符
 	  */
-	private String uuid;
+	private java.lang.String uuid;
 
 	/**
 	  *	全球唯一编码
 	  */
-	private String guid;
+	private java.lang.String guid;
 
 	/**
 	  *	订单编号
 	  */
-	private String orderCode;
+	private java.lang.String orderCode;
 
 	/**
 	  *	请求IP
 	  */
-	private String clientIp;
+	private java.lang.String clientIp;
 
 	/**
 	  *	页面的来源URL
 	  */
-	private String referer;
+	private java.lang.String referer;
 
 	/**
 	  *	用户代理
 	  */
-	private String userAgent;
+	private java.lang.String userAgent;
 
 	/**
 	  *	运行硬件平台
 	  */
-	private String platform;
+	private java.lang.String platform;
 
 	/**
 	  *	1登录、2下单、3发货、4收货
 	  */
-	private Integer type;
+	private java.lang.Integer type;
 
 	/**
 	  *	主键
 	  */
-	public Long getId()
+	public java.lang.Long getId()
 	{
 		return id;
 	}
@@ -80,7 +80,7 @@ public class OrderLog extends Model{
 	/**
 	  *	主键
 	  */
-	public void setId(Long id)
+	public void setId(java.lang.Long id)
 	{
 		this.id = id;
 	}
@@ -88,7 +88,7 @@ public class OrderLog extends Model{
 	/**
 	  *	登陆客户编码
 	  */
-	public Integer getUserid()
+	public java.lang.Integer getUserid()
 	{
 		return userid;
 	}
@@ -96,7 +96,7 @@ public class OrderLog extends Model{
 	/**
 	  *	登陆客户编码
 	  */
-	public void setUserid(Integer userid)
+	public void setUserid(java.lang.Integer userid)
 	{
 		this.userid = userid;
 	}
@@ -104,7 +104,7 @@ public class OrderLog extends Model{
 	/**
 	  *	通用唯一标识符
 	  */
-	public String getUuid()
+	public java.lang.String getUuid()
 	{
 		return uuid;
 	}
@@ -112,7 +112,7 @@ public class OrderLog extends Model{
 	/**
 	  *	通用唯一标识符
 	  */
-	public void setUuid(String uuid)
+	public void setUuid(java.lang.String uuid)
 	{
 		this.uuid = uuid;
 	}
@@ -120,7 +120,7 @@ public class OrderLog extends Model{
 	/**
 	  *	全球唯一编码
 	  */
-	public String getGuid()
+	public java.lang.String getGuid()
 	{
 		return guid;
 	}
@@ -128,7 +128,7 @@ public class OrderLog extends Model{
 	/**
 	  *	全球唯一编码
 	  */
-	public void setGuid(String guid)
+	public void setGuid(java.lang.String guid)
 	{
 		this.guid = guid;
 	}
@@ -136,7 +136,7 @@ public class OrderLog extends Model{
 	/**
 	  *	订单编号
 	  */
-	public String getOrderCode()
+	public java.lang.String getOrderCode()
 	{
 		return orderCode;
 	}
@@ -144,7 +144,7 @@ public class OrderLog extends Model{
 	/**
 	  *	订单编号
 	  */
-	public void setOrderCode(String orderCode)
+	public void setOrderCode(java.lang.String orderCode)
 	{
 		this.orderCode = orderCode;
 	}
@@ -152,7 +152,7 @@ public class OrderLog extends Model{
 	/**
 	  *	请求IP
 	  */
-	public String getClientIp()
+	public java.lang.String getClientIp()
 	{
 		return clientIp;
 	}
@@ -160,7 +160,7 @@ public class OrderLog extends Model{
 	/**
 	  *	请求IP
 	  */
-	public void setClientIp(String clientIp)
+	public void setClientIp(java.lang.String clientIp)
 	{
 		this.clientIp = clientIp;
 	}
@@ -168,7 +168,7 @@ public class OrderLog extends Model{
 	/**
 	  *	页面的来源URL
 	  */
-	public String getReferer()
+	public java.lang.String getReferer()
 	{
 		return referer;
 	}
@@ -176,7 +176,7 @@ public class OrderLog extends Model{
 	/**
 	  *	页面的来源URL
 	  */
-	public void setReferer(String referer)
+	public void setReferer(java.lang.String referer)
 	{
 		this.referer = referer;
 	}
@@ -184,7 +184,7 @@ public class OrderLog extends Model{
 	/**
 	  *	用户代理
 	  */
-	public String getUserAgent()
+	public java.lang.String getUserAgent()
 	{
 		return userAgent;
 	}
@@ -192,7 +192,7 @@ public class OrderLog extends Model{
 	/**
 	  *	用户代理
 	  */
-	public void setUserAgent(String userAgent)
+	public void setUserAgent(java.lang.String userAgent)
 	{
 		this.userAgent = userAgent;
 	}
@@ -200,7 +200,7 @@ public class OrderLog extends Model{
 	/**
 	  *	运行硬件平台
 	  */
-	public String getPlatform()
+	public java.lang.String getPlatform()
 	{
 		return platform;
 	}
@@ -208,7 +208,7 @@ public class OrderLog extends Model{
 	/**
 	  *	运行硬件平台
 	  */
-	public void setPlatform(String platform)
+	public void setPlatform(java.lang.String platform)
 	{
 		this.platform = platform;
 	}
@@ -216,7 +216,7 @@ public class OrderLog extends Model{
 	/**
 	  *	1登录、2下单、3发货、4收货
 	  */
-	public Integer getType()
+	public java.lang.Integer getType()
 	{
 		return type;
 	}
@@ -224,7 +224,7 @@ public class OrderLog extends Model{
 	/**
 	  *	1登录、2下单、3发货、4收货
 	  */
-	public void setType(Integer type)
+	public void setType(java.lang.Integer type)
 	{
 		this.type = type;
 	}
