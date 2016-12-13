@@ -190,7 +190,7 @@ public class OrderIssuedService {
 	 */
 	public Map<String, Object> queryOrderIssuedBySupplyIdAndOrderDate(
 			List<Integer> supplyListIds, String startDate, String endDate,
-			String orderIdList) throws Exception {
+			String orderIdList,String payType) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 
 		Map<String, Object> paramterMap = new HashMap<String, Object>();
@@ -255,6 +255,7 @@ public class OrderIssuedService {
 		paramterMap.put("supplyId", supplyListIds.get(0));
 		paramterMap.put("startDate", startDate);
 		paramterMap.put("endDate", endDate);
+		paramterMap.put("payType", payType.split(","));
 		log.info("传递的orderIdList：" + orderIdList);
 		if(StringUtils.isNotBlank(orderIdList))
 			paramterMap.put("orderIdList", orderIdList.split(","));
@@ -272,7 +273,7 @@ public class OrderIssuedService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> editOrderIssuedListBySupplyId(Integer supplyId)
+	public Map<String, Object> editOrderIssuedListBySupplyId(Integer supplyId,String payType)
 			throws Exception {
 		String now = systemDateMapper.getSystemDate();
 		Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -281,8 +282,12 @@ public class OrderIssuedService {
 			resultMap.put("message", "供应商为空");
 			return resultMap;
 		}
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("supplyId", supplyId);
+		if(StringUtils.isNotBlank(payType))
+			params.put("payType", payType.split(","));
 		List<OrderIssuedDto> orderIssuedDtoList = orderIssuedMapper
-				.findOrderIssuedListBySupplyId(supplyId);
+				.findOrderIssuedListBySupplyId(params);
 		if (!UtilHelper.isEmpty(orderIssuedDtoList)) {
 			for (OrderIssuedDto orderIssuedDto : orderIssuedDtoList) {
 				String flowId = orderIssuedDto.getOrderCode();
@@ -318,7 +323,7 @@ public class OrderIssuedService {
 		}
 		//
 		List<OrderIssuedDto> issuedlist = orderIssuedMapper
-				.findOrderIssuedHasRelationshipList(supplyId);
+				.findOrderIssuedHasRelationshipList(params);
 		for (OrderIssuedDto one : issuedlist) {
 			log.error("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********"
 					+ one.getOrderCode());
@@ -347,7 +352,7 @@ public class OrderIssuedService {
 		orderIssuedDtoList.addAll(issuedlist);
 		
 		// 扫描此供应商没有对码的单
-		orderIssuedExceptionService.downNoRelationshipJob(supplyId);
+		orderIssuedExceptionService.downNoRelationshipJob(params);
 
 		resultMap.put("code", "1");
 		resultMap.put("orderIssuedDtoList", orderIssuedDtoList);
@@ -389,10 +394,13 @@ public class OrderIssuedService {
 		return resultMap;
 	}
 
-	public List<OrderIssued> getManufacturerOrder(Integer supplyId) {
-		log.info("供应商编码：" + supplyId + "订单编码集合："
-				+ orderIssuedMapper.getManufacturerOrder(supplyId));
-		return orderIssuedMapper.getManufacturerOrder(supplyId);
+	public List<OrderIssued> getManufacturerOrder(Integer supplyId, String payType) {
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("supplyId", supplyId);
+		if(StringUtils.isNotBlank(payType))
+			params.put("payType", payType.split(","));
+		log.info("供应商编码：" + supplyId + "支付方式："+ payType);
+		return orderIssuedMapper.getManufacturerOrder(params);
 	}
 
 	/**
@@ -400,8 +408,8 @@ public class OrderIssuedService {
 	 * 查询没有对码的订单记录
 	 */
 	public List<Map<String, Object>> findOrderIssuedNoRelationshipList(
-			Integer supplyId) {
-		return orderIssuedMapper.findOrderIssuedNoRelationshipList(supplyId);
+			Map<String, Object> params) {
+		return orderIssuedMapper.findOrderIssuedNoRelationshipList(params);
 	}
 
 	// 根据flowId给更新
