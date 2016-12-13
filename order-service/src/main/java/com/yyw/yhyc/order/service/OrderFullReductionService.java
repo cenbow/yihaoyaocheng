@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.yaoex.druggmp.dubbo.service.bean.PromotionDto;
 import com.yaoex.druggmp.dubbo.service.bean.PromotionRuleDto;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
@@ -36,8 +37,6 @@ public class OrderFullReductionService {
 	private Log log = LogFactory.getLog(OrderFullReductionService.class);
 	@Autowired
 	private CalculationPromotionShareService calculationPromotionShareService;
-	@Reference
-	private IPromotionDubboManageService promotionDubboManageService;
 	@Autowired
 	private OrderPromotionHistoryMapper orderPromotionHistoryMapper;
 	
@@ -48,7 +47,7 @@ public class OrderFullReductionService {
 	 * @param allShoppingCart
 	 * @return
 	 */
-	public List<ShoppingCartListDto> processFullReduction(List<ShoppingCartListDto> allShoppingCart){
+	public List<ShoppingCartListDto> processFullReduction(List<ShoppingCartListDto> allShoppingCart,IPromotionDubboManageService promotionDubboManageService){
 		
 		if(UtilHelper.isEmpty(allShoppingCart)){
 			return allShoppingCart;
@@ -60,7 +59,7 @@ public class OrderFullReductionService {
 			return allShoppingCart;
 		}
 		
-	  Map<Integer,OrderPromotionDto> responseMap=this.processPormotionDubboMethodByAllPromotionCollection(promotionIdList);
+	  Map<Integer,OrderPromotionDto> responseMap=this.processPormotionDubboMethodByAllPromotionCollection(promotionIdList,promotionDubboManageService);
 		
 		
 	  for(ShoppingCartListDto shoppingCartDto : allShoppingCart){
@@ -95,21 +94,25 @@ public class OrderFullReductionService {
 	 * @param promotionList
 	 * @return
 	 */
-	public Map<Integer,OrderPromotionDto> processPormotionDubboMethodByAllPromotionCollection(List<Map<String,Object>> promotionList){
+	public Map<Integer,OrderPromotionDto> processPormotionDubboMethodByAllPromotionCollection(List<Map<String,Object>> promotionList,IPromotionDubboManageService promotionDubboManageService){
 			 if(UtilHelper.isEmpty(promotionList)){
 				 return null;
 			 }
 			 
+			 if(UtilHelper.isEmpty(promotionDubboManageService)){
+					log.error("promotionDubboManageService服务为空");
+					return null;
+			 }
 		 List<PromotionDto> responsePromotionList=null;
 			try{
-				log.info("查询所有订单中参加促销的商品信息调iPromotionDubboManageService服务接口,请求参数params：" + promotionList);
+				String json=JSON.toJSONString(promotionList);
+				log.info("查询所有订单中参加促销的商品信息调iPromotionDubboManageService服务接口,请求参数params：" + json);
 				long startTime = System.currentTimeMillis();
 				
-				
-				//responsePromotionList= promotionDubboManageService.queryPromotionByList(promotionList);
+				responsePromotionList= promotionDubboManageService.queryPromotionByList(promotionList);
 				
 				//模拟数据
-				PromotionDto test1=new PromotionDto();
+				/*PromotionDto test1=new PromotionDto();
 				test1.setId(123);
 				test1.setPromotionName("test123");
 				test1.setEnterpriseId("79397");
@@ -136,10 +139,12 @@ public class OrderFullReductionService {
 				 test1.setSpuCode(spuCodeList);
 				
 				 responsePromotionList=new ArrayList<PromotionDto>();
-				 responsePromotionList.add(test1);
+				 responsePromotionList.add(test1);*/
+				
+				String responseJson=JSON.toJSONString(responsePromotionList);
 				
 				long endTime = System.currentTimeMillis();
-				log.info("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),耗时" + (endTime - startTime) + "毫秒，响应参数：responsePromotionList=" + responsePromotionList);
+				log.info("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),耗时" + (endTime - startTime) + "毫秒，响应参数：responsePromotionList=" + responseJson);
 			}catch (Exception e){
 				log.error("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),dubbo服务查询异常：errorMesssage = " + e.getMessage(),e);
 				return null;
@@ -172,7 +177,12 @@ public class OrderFullReductionService {
 				orderPromotionDto.setPromotionPre(promotionPre);
 				orderPromotionDto.setPromotionMethod(promotionMethod);
 				orderPromotionDto.setLevelIncre(levelIncre);
-				orderPromotionDto.setLimitNum(limitNum);
+				if(limitNum==null){
+					orderPromotionDto.setLimitNum(-1); //无限制
+				}else{
+					orderPromotionDto.setLimitNum(limitNum);
+				}
+				
 				
 				if(promotionType!=1){ //该促销是非特价活动那么取出规则
 					
@@ -268,12 +278,15 @@ public class OrderFullReductionService {
 							  for(String currentPromotionId : promotionIdArray){
 								  promitionIdList.add(currentPromotionId);
 							  }
+							  
+							  
+							  currentMap.put("productInfoBean", productInfoBean);
+							  currentMap.put("promotionList", promitionIdList);
+							  
+							  returnList.add(currentMap);
 						  }
 						  
-						  currentMap.put("productInfoBean", productInfoBean);
-						  currentMap.put("promotionList", promitionIdList);
-						  
-						  returnList.add(currentMap);
+						
 				  }
 			  }
 		}

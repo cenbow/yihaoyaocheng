@@ -127,6 +127,9 @@ public class OrderController extends BaseJsonController {
 	private OrderFullReductionService orderFullReductionService;
 	@Autowired
 	private OrderCreateService orderCreateService;
+	
+	@Reference
+	private IPromotionDubboManageService promotionDubboManageService;
 
     /**
      * 通过主键查询实体对象
@@ -413,7 +416,7 @@ public class OrderController extends BaseJsonController {
 		/***********以下处理订单的满减促销**************/
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart=this.orderFullReductionService.processFullReduction(allShoppingCart);
+			allShoppingCart=this.orderFullReductionService.processFullReduction(allShoppingCart,promotionDubboManageService);
 			Map<String,Object> returnMap=this.orderFullReductionService.processCalculationOrderShareMoney(allShoppingCart);
 			allShoppingCart=(List<ShoppingCartListDto>) returnMap.get("allShoppingCart");
 			

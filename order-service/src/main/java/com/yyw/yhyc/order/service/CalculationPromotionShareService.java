@@ -1,5 +1,8 @@
 package com.yyw.yhyc.order.service;
 
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -24,10 +27,39 @@ public class CalculationPromotionShareService {
 	@Autowired
 	private CalculationNoLevelIncrePromotion normalPromotionService;//计算不是递增的满减规则
 	
+	
+	
+	/**
+	 * 根据买的商品总钱数，从小到大排序
+	 * @param shoppingCartDtoList
+	 * @return
+	 */
+	private void processShoppingCartDtoSort(List<ShoppingCartDto> shoppingCartDtoList){
+		
+		  Collections.sort(shoppingCartDtoList,new Comparator(){
+			  
+			@Override
+			public int compare(Object o1, Object o2) {
+				ShoppingCartDto fistBean=(ShoppingCartDto)o1;
+				ShoppingCartDto secondBean=(ShoppingCartDto)o2;
+				
+				BigDecimal fistMoney=fistBean.getProductPrice().multiply(new BigDecimal(fistBean.getProductCount()));
+				BigDecimal secondMoney=secondBean.getProductPrice().multiply(new BigDecimal(secondBean.getProductCount()));
+				
+				return fistMoney.compareTo(secondMoney);
+			}
+			  
+		  });  
+		
+	}
+	
 	/**
 	 * 开始计算促销分摊金额
 	 */
 	public void calculationPromotionByPromitionBean(OrderPromotionDto promotionDto,List<ShoppingCartDto> promotionProductList){
+		
+		   //将需要的商品进行排序从小到大
+		   this.processShoppingCartDtoSort(promotionProductList);
 		
 		    int levelIncre=promotionDto.getLevelIncre();
 		    if(levelIncre==1){ //层级递减

@@ -324,7 +324,7 @@ public class OrderCreateService {
 		
 		/********************以下处理验证商品参加满减活动的验证**********************/
 		
-		Map<String,Object> returnResult=this.processValidateFullDesc(userDto, orderDto, productFromFastOrderCount);
+		Map<String,Object> returnResult=this.processValidateFullDesc(userDto, orderDto, productFromFastOrderCount,iPromotionDubboManageService);
 		
 		if(!UtilHelper.isEmpty(returnResult)){
 			return returnResult;
@@ -341,7 +341,7 @@ public class OrderCreateService {
 	 * @param orderDto
 	 * @param productFromFastOrderCount
 	 */
-	private Map<String,Object> processValidateFullDesc(UserDto userDto, OrderDto orderDto,int productFromFastOrderCount){
+	private Map<String,Object> processValidateFullDesc(UserDto userDto, OrderDto orderDto,int productFromFastOrderCount,IPromotionDubboManageService promotionDubboManageService){
 		
 		
 		Map<String,Object> returnResult=null;
@@ -383,7 +383,7 @@ public class OrderCreateService {
 		}
 		
 		//1.以下是处理该笔订单参与了商品的满减活动,将组装好的请求参数掉dubbo服务，然后组装成key:促销id,value:促销的实体
-		 Map<Integer,OrderPromotionDto> responseMap=this.orderFullReductionService.processPormotionDubboMethodByAllPromotionCollection(returnList);
+		 Map<Integer,OrderPromotionDto> responseMap=this.orderFullReductionService.processPormotionDubboMethodByAllPromotionCollection(returnList,promotionDubboManageService);
 		
 		 //2.将productInfoDt转换成对应的shoppingCartDto
 		 List<ShoppingCartDto> returnShoppingCartDtoList=this.productInfoConvertShoppingCartDto(orderDto.getProductInfoDtoList(), supplyId, custId);
@@ -399,6 +399,10 @@ public class OrderCreateService {
 			      if(!UtilHelper.isEmpty(responseMap)){
 			    	  //开始校验
 			    	  returnResult=this.processMakeUpShoppingCartDto(returnShoppingCartDtoList, responseMap,custId+"",productFromFastOrderCount);
+			    	  
+			    	  if(returnResult!=null){
+			    		  return returnResult;
+			    	  }
 			    	  
 			    	  this.orderFullReductionService.calculationProductPromotionShareMoney(returnShoppingCartDtoList, responseMap);
 			    	   //计算该笔订单的总优惠金额
@@ -485,7 +489,7 @@ public class OrderCreateService {
 								    int partNum=this.orderFullReductionService.getUserPartPromotionNum(custId, orderPromotionDto.getPromotionId());
 								    if(partNum>=orderPromotionDto.getLimitNum().intValue()){
 								       log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
-								       returnResult=returnFalse("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]",productFromFastOrderCount);
+								       returnResult=returnFalse("[商品"+currentCartDto.getSpuCode()+",不能参加"+orderPromotionDto.getPromotionName()+"促销],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]",productFromFastOrderCount);
 								       flag=true;
 								       break;
 								    }
@@ -494,7 +498,7 @@ public class OrderCreateService {
 							   boolean productPartPromotionState=this.orderFullReductionService.checkProcutInfoPartPromotionState(currentCartDto.getSpuCode(), orderPromotionDto);
 							   if(productPartPromotionState){
 								   log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!");
-								   returnResult=returnFalse("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!",productFromFastOrderCount);
+								   returnResult=returnFalse("[商品"+currentCartDto.getSpuCode()+",不能参加"+orderPromotionDto.getPromotionName()+"促销],因为该商品已经从该促销中删除掉了!",productFromFastOrderCount);
 							       flag=true;
 							       break;
 							   }
