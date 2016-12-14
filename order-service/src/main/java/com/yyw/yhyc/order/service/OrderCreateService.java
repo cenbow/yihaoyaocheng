@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +15,10 @@ import org.search.remote.yhyc.ProductSearchInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.esotericsoftware.kryo.util.Util;
 import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotion;
+import com.search.model.yhyc.ProductPromotionInfo;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
@@ -242,6 +245,42 @@ public class OrderCreateService {
 					return returnFalse("存在价格变化的商品，请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
 				}
 			}
+			
+			/*************以下验证商品的满减促销最大力度是否发生了变化****************/
+			Set<ProductPromotionInfo> currentPromotionInfoList=productDrug.getProductPromotionInfos();
+			if(currentPromotionInfoList!=null && currentPromotionInfoList.size()>0){
+				StringBuilder promotionIdString=new StringBuilder();
+				StringBuilder promotionNameString=new StringBuilder();
+				
+				Iterator<ProductPromotionInfo> iteratorList=currentPromotionInfoList.iterator();
+				int size=currentPromotionInfoList.size();
+				int i=0;
+				while(iteratorList.hasNext()){
+					ProductPromotionInfo fullDescPromotion=iteratorList.next();
+					String currentPromotionId=fullDescPromotion.getId();
+					String currentPromotionName=fullDescPromotion.getPromotion_name();
+					if(i!=size-1){
+						promotionIdString.append(currentPromotionId+",");
+						promotionNameString.append(currentPromotionName+",");
+					}else{
+						promotionIdString.append(currentPromotionId);
+						promotionNameString.append(currentPromotionName);
+					}
+					i++;
+				}
+				log.info("当前商品从搜索接口获取到的最大优惠力度的满减促销id=="+promotionIdString.toString());
+				
+				if(!UtilHelper.isEmpty(productInfoDto.getPromotionCollectionId())){
+					//不相等，说明该商品的满减促销的id发生了变化，需要重新下单
+					 if(!productInfoDto.getPromotionCollectionId().equals(promotionIdString.toString())){
+						     log.error("校验满减促销最大优惠力度,促销的id发生了变化,原来的id="+productInfoDto.getPromotionCollectionId()+" 变化后的id="+promotionIdString.toString());
+						     updateProductPromotionCollectionId(userDto,orderDto.getSupplyId(),productInfoDto.getSpuCode(),productInfoDto.getFromWhere(),promotionNameString.toString(),promotionIdString.toString());
+							return returnFalse("存在满减促销变化的商品,请返回" + productFromWhere + "重新结算",productFromFastOrderCount);
+					 }
+				}
+			}
+			
+			
 
 			/* 校验活动商品相关的限购逻辑 */
 			ProductPromotion productPromotion = productDrug.getProductPromotion();
@@ -597,6 +636,31 @@ public class OrderCreateService {
 			shoppingCart.setUpdateUser(userDto.getUserName());
 			shoppingCart.setUpdateTime(systemDateMapper.getSystemDate());
 			log.info("统一校验订单商品接口,查询商品价格后价格发生变化，更新数据：" + shoppingCart);
+			shoppingCartMapper.update(shoppingCart);
+		}
+	}
+	
+	private void updateProductPromotionCollectionId(UserDto userDto, Integer supplyId, String spuCode, Integer fromWhere,String promotionName,String promotionCollectionId){
+		ShoppingCart shoppingCart = new ShoppingCart();
+		shoppingCart.setCustId(userDto.getCustId());
+		shoppingCart.setSupplyId(supplyId);
+		shoppingCart.setSpuCode(spuCode);
+		if( !UtilHelper.isEmpty(fromWhere) && (ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere() == fromWhere || ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere() == fromWhere)){
+			shoppingCart.setFromWhere(fromWhere);
+		}
+
+		List<ShoppingCart> shoppingCartList = shoppingCartMapper.listByProperty(shoppingCart);
+		if(!UtilHelper.isEmpty(shoppingCartList) && shoppingCartList.size() == 1){
+			shoppingCart = shoppingCartList.get(0);
+			if(!UtilHelper.isEmpty(promotionCollectionId)){
+				shoppingCart.setPromotionCollectionId(promotionCollectionId);
+			}
+			if(!UtilHelper.isEmpty(promotionName)){
+				shoppingCart.setPromotionName(promotionName);
+			}
+			shoppingCart.setUpdateUser(userDto.getUserName());
+			shoppingCart.setUpdateTime(systemDateMapper.getSystemDate());
+			log.info("校验商品的满减促销最大优惠力度的变化后的购物车信息：" + shoppingCart);
 			shoppingCartMapper.update(shoppingCart);
 		}
 	}
