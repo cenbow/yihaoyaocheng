@@ -249,8 +249,13 @@
 			AND PUO.relation_status='2'
 			AND O.SUPPLY_ID = PUO.seller_code
 			AND SPT.PAY_TYPE_ID = O.pay_type_id
-			AND SPT.PAY_TYPE = 1
 			AND O.ORDER_STATUS = '5'
+			<if test="payType != null"> 
+				 AND SPT.PAY_TYPE in
+		        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+		            #{type}
+		        </foreach>
+			</if>
 			<if test="supplyId != null and supplyId != ''"> 
 			    <![CDATA[
 					AND O.SUPPLY_ID = #{supplyId}
@@ -279,7 +284,7 @@
 			</if>
 	</select>
 	
-	<select id="findOrderIssuedListBySupplyId" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+	<select id="findOrderIssuedListBySupplyId" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
 			O.FLOW_ID,
 			O.ORG_TOTAL,
@@ -303,7 +308,12 @@
 		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-		AND SPT.PAY_TYPE = 1
+		<if test="payType != null"> 
+			 AND SPT.PAY_TYPE in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if>
 	</select>
 	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
 		SELECT
@@ -328,16 +338,22 @@
 		SELECT PA.PRODUCTCODE_COMPANY FROM T_PRODUCT_AUDIT PA WHERE PA.SELLER_CODE = #{supplyId} AND PA.SPU_CODE = #{spuCode}
 	</select>-->
 
-	<select id="getManufacturerOrder" parameterType="java.lang.Integer"  resultMap="OrderIssuedResultMapper" useCache="false">
+	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedResultMapper" useCache="false">
 		SELECT OI.FLOW_ID FROM T_ORDER_ISSUED OI
 		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
 		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON O.pay_type_id=TP.PAY_TYPE_ID
 		WHERE
-		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1' AND TP.pay_type=1
+		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1'  
 		AND O.ORDER_STATUS = '5'
+		<if test="payType != null"> 
+			 AND TP.pay_type in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if> 
 	</select>
 	
-	<select id="findOrderIssuedNoRelationshipList" parameterType="java.lang.Integer" resultType="java.util.Map" useCache="false">
+	<select id="findOrderIssuedNoRelationshipList" parameterType="Map" resultType="java.util.Map" useCache="false">
 		SELECT
 		   O.FLOW_ID,
 		   O.SUPPLY_ID,
@@ -349,10 +365,15 @@
 		   ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE O.SUPPLY_ID = #{supplyId}
 		AND   O.ORDER_STATUS = '5'
-			AND SPT.PAY_TYPE = 1  
+		<if test="payType != null"> 
+			 AND SPT.PAY_TYPE in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if> 
 			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
-	<select id="findOrderIssuedHasRelationshipList" parameterType="java.lang.Integer"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+	<select id="findOrderIssuedHasRelationshipList" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
 		SELECT
 			O.FLOW_ID,
 			O.ORG_TOTAL,
@@ -376,7 +397,12 @@
 		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 = OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-		AND SPT.PAY_TYPE = 1
 		and OI.cus_relationship = 0
+		<if test="payType != null"> 
+			 AND SPT.PAY_TYPE in
+	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
+	            #{type}
+	        </foreach>
+		</if> 
 	</select>
 </mapper>

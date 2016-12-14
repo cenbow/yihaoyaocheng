@@ -17,7 +17,7 @@ public interface ManufacturerOrderFacade {
      * @param supplyId
      * @return
      */
-    public List<OrderIssued> getManufacturerOrder(Integer supplyId);
+    public List<OrderIssued> getManufacturerOrder(Integer supplyId,String payType);
 
     /**
      * 发货
