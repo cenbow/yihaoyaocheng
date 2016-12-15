@@ -34,5 +34,7 @@
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.pay" level="INFO"/>
+        <logger name="com.alibaba.dubbo" level="ERROR"/>
+        <logger name="druid.sql" level="ERROR"/>
     </loggers>
 </configuration>

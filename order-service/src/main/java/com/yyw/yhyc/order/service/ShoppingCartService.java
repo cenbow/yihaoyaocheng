@@ -1007,32 +1007,32 @@ public class ShoppingCartService {
 
 
 
-	/**
-	 * 极速下单 获取商品列表
-	 * @param userDto
-	 * @param productSearchInterface
-	 * @param fromWhere
-     * @return
-     */
-	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, int fromWhere,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
-		if(UtilHelper.isEmpty(userDto)){
-			logger.info("当前登陆人的信息,userDto=" + userDto);
-			return null;
-		}
-		/* 获取极速下单中的商品信息 */
-		ShoppingCart shoppingCart = new ShoppingCart();
-		shoppingCart.setCustId(userDto.getCustId());
-		shoppingCart.setFromWhere(fromWhere);
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
-		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
-
-		if(UtilHelper.isEmpty(allShoppingCart)){
-			return allShoppingCart;
-		}
-
-		/* 处理商品信息： */
-		return handleProductInfo(allShoppingCart,userDto, productSearchInterface,iCustgroupmanageDubbo);
-	}
+//	/**
+//	 * 极速下单 获取商品列表
+//	 * @param userDto
+//	 * @param productSearchInterface
+//	 * @param fromWhere
+//     * @return
+//     */
+//	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, int fromWhere,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
+//		if(UtilHelper.isEmpty(userDto)){
+//			logger.info("当前登陆人的信息,userDto=" + userDto);
+//			return null;
+//		}
+//		/* 获取极速下单中的商品信息 */
+//		ShoppingCart shoppingCart = new ShoppingCart();
+//		shoppingCart.setCustId(userDto.getCustId());
+//		shoppingCart.setFromWhere(fromWhere);
+//		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
+//		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
+//
+//		if(UtilHelper.isEmpty(allShoppingCart)){
+//			return allShoppingCart;
+//		}
+//
+//		/* 处理商品信息： */
+//		return handleProductInfo(allShoppingCart,userDto, productSearchInterface,iCustgroupmanageDubbo);
+//	}
 
 	/**
 	 * 进货单列表接口(PC端、App端、H5通用逻辑)
@@ -1049,8 +1049,10 @@ public class ShoppingCartService {
 		/* 获取购物车中的商品信息 */
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
+		shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
 		long startTime = System.currentTimeMillis();
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
+		
 		long endTime = System.currentTimeMillis();
 		logger.info("购物车列表接口---从DB获取数据,耗时："+ (endTime - startTime) +"毫秒，allShoppingCart=" + allShoppingCart);
 
