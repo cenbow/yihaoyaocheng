@@ -36,9 +36,9 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
-import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.ProductStatusEnum;
 import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
+import com.yyw.yhyc.order.utils.StringUtil;
 import com.yyw.yhyc.product.bo.ProductInventory;
 import com.yyw.yhyc.product.dto.ProductPromotionDto;
 import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
@@ -159,7 +159,7 @@ public class FastOrderService {
 		shoppingCartDto.setPutawayStatus( Integer.valueOf(productDrug.getState()) ); //上下架状态
 
 		//3、查询商品库存 
-		int stockAmount = UtilHelper.strToInt(productDrug.getStock_amount());
+		int stockAmount = StringUtil.strToInt(productDrug.getStock_amount());
 		if(stockAmount <= 0 || stockAmount < minimumPacking || UtilHelper.isEmpty(shoppingCartDto.getProductCount()) || stockAmount < shoppingCartDto.getProductCount()){
 			shoppingCartDto.setExistProductInventory(false);
 			shoppingCartDto.setProductInventory(0);

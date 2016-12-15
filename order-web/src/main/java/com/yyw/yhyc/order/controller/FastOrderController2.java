@@ -110,10 +110,15 @@ public class FastOrderController2 extends BaseJsonController {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     public  Map<String,Object>  delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
-    	logger.info("start delete ShoppingCart");
-    	fastOrderService.deleteByPKeys(requestListModel.getList());
-    	logger.info("success delete ShoppingCart");
-        return ok("删除成功",null);
+    	try{
+	    	logger.info("start delete ShoppingCart");
+	    	fastOrderService.deleteByPKeys(requestListModel.getList());
+	    	logger.info("success delete ShoppingCart");
+	        return ok("删除成功",null);
+	    }catch (Exception e){
+	        logger.error("exception when delete",e);
+	        throw  new Exception(e.getMessage());
+	    }
     }
 
     /**
@@ -128,13 +133,18 @@ public class FastOrderController2 extends BaseJsonController {
     @RequestMapping(value = "/updateNum", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
-        UserDto userDto = getUserDto(request);
-        logger.info("start updateNum for ["+shoppingCart+"]");
-        shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
-        shoppingCart.setUpdateUser(userDto.getUserName());
-        fastOrderService.updateNum(shoppingCart);
-        logger.info("success updateNum for ["+shoppingCart+"]");
-        return ok("修改成功",null);
+    	try{
+    		 UserDto userDto = getUserDto(request);
+	        logger.info("start updateNum for ["+shoppingCart+"]");
+	        shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+	        shoppingCart.setUpdateUser(userDto.getUserName());
+	        fastOrderService.updateNum(shoppingCart);
+	        logger.info("success updateNum for ["+shoppingCart+"]");
+	        return ok("修改成功",null);
+	    }catch (Exception e){
+	        logger.error("exception when updateNum",e);
+	        throw  new Exception(e.getMessage());
+	    }
     }
 
 	/**
@@ -144,11 +154,17 @@ public class FastOrderController2 extends BaseJsonController {
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> list() throws Exception {
-        UserDto userDto = getUserDto(request);
-        logger.info("start listShoppingCart for [CustId="+userDto.getCustId()+"]");
-        List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
-        logger.info("success listShoppingCart , allShoppingCart=" + allShoppingCart);
-        return ok("success",allShoppingCart);
+    	try{
+    		UserDto userDto = getUserDto(request);
+            logger.info("start listShoppingCart for [CustId="+userDto.getCustId()+"]");
+            List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+            logger.info("success listShoppingCart , allShoppingCart=" + allShoppingCart);
+            return ok("success",allShoppingCart);
+	    }catch (Exception e){
+	        logger.error("exception when list",e);
+	        throw  new Exception(e.getMessage());
+	    }
+        
     }
 
 //    /**
