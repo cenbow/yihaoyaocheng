@@ -146,8 +146,6 @@ public class ShoppingCartController extends BaseJsonController {
 	public ModelAndView index() throws Exception {
 		ModelAndView model = new ModelAndView();
 		UserDto userDto = super.getLoginUser();
-		userDto = new UserDto();
-		userDto.setCustId(33173);
 
 		Long startTime = System.currentTimeMillis();
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartService.index(userDto,productSearchInterface,iCustgroupmanageDubbo);
