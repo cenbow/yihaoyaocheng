@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.dto.ShoppingCartDto;
 @Service("calculationNoLevelIncrePromotion")
 public class CalculationNoLevelIncrePromotion {
 	private Log log = LogFactory.getLog(CalculationNoLevelIncrePromotion.class);
+	private double zheKou=0.1d;
 	
 	private void saveOrderPromotionDetailInfo(OrderPromotionDto promotionDto,ShoppingCartDto cartDto,BigDecimal shareMoney){
 		
@@ -168,7 +169,7 @@ public class CalculationNoLevelIncrePromotion {
 					  
 					  String subMoney=ruleDto.getPromotionMinu();
 					  BigDecimal subShareMoney=new BigDecimal(subMoney);
-					  subShareMoney=subShareMoney.multiply(new BigDecimal(0.01));
+					  subShareMoney=subShareMoney.multiply(new BigDecimal(zheKou));
 					  
 					  BigDecimal  oneValue=new BigDecimal(1);
 					  //实际的优惠的金额
@@ -265,7 +266,7 @@ public class CalculationNoLevelIncrePromotion {
 					  String subMoney=ruleDto.getPromotionMinu();
 					  BigDecimal subShareMoney=new BigDecimal(subMoney);
 					  
-                      subShareMoney=subShareMoney.multiply(new BigDecimal(0.01));
+                      subShareMoney=subShareMoney.multiply(new BigDecimal(zheKou));
 					  
 					  BigDecimal  oneValue=new BigDecimal(1);
 					  //实际的优惠的金额
@@ -381,7 +382,7 @@ public class CalculationNoLevelIncrePromotion {
 				  String subMoney=ruleDto.getPromotionMinu();
 				  BigDecimal discountValue=new BigDecimal(subMoney); //当前订单优惠的折扣
 				  
-				  discountValue=discountValue.multiply(new BigDecimal(0.01));
+				  discountValue=discountValue.multiply(new BigDecimal(zheKou));
 				  BigDecimal oneValue=new BigDecimal(1);
 				  
 				  //总商品优惠的金额
@@ -518,7 +519,7 @@ public class CalculationNoLevelIncrePromotion {
 				  String subMoney=ruleDto.getPromotionMinu();
 				  BigDecimal discountValue=new BigDecimal(subMoney); //当前订单优惠折扣
 				  
-				  discountValue=discountValue.multiply(new BigDecimal(0.01));
+				  discountValue=discountValue.multiply(new BigDecimal(zheKou));
 				  BigDecimal oneValue=new BigDecimal(1);
 				  
 				  //总商品优惠的金额

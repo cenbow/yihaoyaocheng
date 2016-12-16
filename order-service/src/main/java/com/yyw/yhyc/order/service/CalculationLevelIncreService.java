@@ -26,6 +26,7 @@ import com.yyw.yhyc.order.dto.ShoppingCartDto;
 public class CalculationLevelIncreService {
 	
 	private Log log = LogFactory.getLog(CalculationLevelIncreService.class);
+	private double zheKou=0.1d;
 	
 	private void saveOrderPromotionDetailInfo(OrderPromotionDto promotionDto,ShoppingCartDto cartDto,BigDecimal shareMoney){
 		
@@ -141,7 +142,7 @@ public class CalculationLevelIncreService {
 					//打多少折扣
 					String promotionMinu=ruleBean.getPromotionMinu();
 					BigDecimal promotionMinuMoney=new BigDecimal(promotionMinu);
-					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(0.01));
+					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(zheKou));
 					//算出商品总金额是满减金额的多少倍数
 					double subValue=produceAllMoney.doubleValue()/promotionSum.doubleValue();
 					double inceNum=Math.floor(subValue);
@@ -251,7 +252,7 @@ public class CalculationLevelIncreService {
 					//打多少折扣
 					String promotionMinu=ruleBean.getPromotionMinu();
 					BigDecimal promotionMinuMoney=new BigDecimal(promotionMinu);
-					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(0.01));
+					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(zheKou));
 					//算出商品总件数需要减去的钱数
 					double subValue=productCountNum.doubleValue()/promotionSum.doubleValue();
 					double inceNum=Math.floor(subValue);
@@ -398,7 +399,7 @@ public class CalculationLevelIncreService {
 					//打多少折
 					String promotionMinu=ruleBean.getPromotionMinu();
 					BigDecimal promotionMinuMoney=new BigDecimal(promotionMinu);
-					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(0.01));
+					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(zheKou));
 					//算出商品总金额需要减去的钱数
 					double subValue=orderAllMoney.doubleValue()/promotionSum.doubleValue();
 					double inceNum=Math.floor(subValue);
@@ -561,7 +562,7 @@ public class CalculationLevelIncreService {
 					//每件打多少折扣
 					String promotionMinu=ruleBean.getPromotionMinu();
 					BigDecimal promotionMinuMoney=new BigDecimal(promotionMinu);
-					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(0.01));
+					promotionMinuMoney=promotionMinuMoney.multiply(new BigDecimal(zheKou));
 					//算出商品总件数需要减去的钱数
 					double subValue=orderAllCount.doubleValue()/promotionSum.doubleValue();
 					double inceNum=Math.floor(subValue);
