@@ -1,9 +1,10 @@
 package com.yyw.yhyc.order.dto;
 
-import com.yyw.yhyc.order.bo.ShoppingCart;
-
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
+
+import com.yyw.yhyc.order.bo.ShoppingCart;
 
 /**
  * Created by lizhou on 2016/8/2
@@ -69,6 +70,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     private int promotionType;
 
 //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
+    
+    //搜索出来的满减活动信息集合
+    private Set productPromotionInfos;
 
     /* 商品状态是否正常*/
     private boolean normalStatus ;
@@ -304,6 +308,14 @@ public class ShoppingCartDto extends ShoppingCart  {
 
 	public void setRule(String rule) {
 		this.rule = rule;
+	}
+	
+	public Set getProductPromotionInfos() {
+		return productPromotionInfos;
+	}
+
+	public void setProductPromotionInfos(Set productPromotionInfos) {
+		this.productPromotionInfos = productPromotionInfos;
 	}
 
 	@Override
