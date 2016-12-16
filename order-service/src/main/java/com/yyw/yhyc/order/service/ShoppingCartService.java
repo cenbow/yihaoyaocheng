@@ -1600,6 +1600,8 @@ public class ShoppingCartService {
 			}
 		}
 		shoppingCartDto.setRule(rule);
-		shoppingCartDto.setPromotionCollectionId(info.getId().toString());
+		shoppingCartDto.setGroupCode(info.getGroup_codes());
+		shoppingCartDto.setSupplyId(Integer.parseInt(info.getEnterprise_id()));
+		shoppingCartDto.setPromotionCollectionId(info.getPromotion_id().toString());
 	}
 }

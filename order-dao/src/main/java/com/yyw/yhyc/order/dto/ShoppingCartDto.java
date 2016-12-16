@@ -105,6 +105,8 @@ public class ShoppingCartDto extends ShoppingCart  {
     
     private String rule;
     
+    private String groupCode;
+    
 
     public OrderPromotionDto getSpecailPromotionDto() {
 		return specailPromotionDto;
@@ -316,6 +318,14 @@ public class ShoppingCartDto extends ShoppingCart  {
 
 	public void setProductPromotionInfos(Set productPromotionInfos) {
 		this.productPromotionInfos = productPromotionInfos;
+	}
+
+	public String getGroupCode() {
+		return groupCode;
+	}
+
+	public void setGroupCode(String groupCode) {
+		this.groupCode = groupCode;
 	}
 
 	@Override
