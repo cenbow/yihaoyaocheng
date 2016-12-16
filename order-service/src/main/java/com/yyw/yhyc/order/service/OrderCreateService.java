@@ -257,7 +257,7 @@ public class OrderCreateService {
 				int i=0;
 				while(iteratorList.hasNext()){
 					ProductPromotionInfo fullDescPromotion=iteratorList.next();
-					String currentPromotionId=fullDescPromotion.getId();
+					String currentPromotionId=fullDescPromotion.getPromotion_id();
 					String currentPromotionName=fullDescPromotion.getPromotion_name();
 					if(i!=size-1){
 						promotionIdString.append(currentPromotionId+",");
@@ -459,6 +459,24 @@ public class OrderCreateService {
 						 returnResult=returnFalse("优惠金额有问题,请重新下单",productFromFastOrderCount);
 					 }
 					 
+					 //该笔订单总金额不能和优惠总金额相等
+					 if(!UtilHelper.isEmpty(orderDto.getProductInfoDtoList())){
+							BigDecimal orderTotal = new BigDecimal(0);
+							
+						 for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
+								if(null == productInfoDto){
+									continue;
+								}
+							 orderTotal = orderTotal.add(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
+						if(!UtilHelper.isEmpty(orderTotal)){
+								orderTotal = orderTotal.setScale(2,BigDecimal.ROUND_HALF_UP);
+								if(orderTotal.compareTo(orderMoney)==0){
+									 returnResult=returnFalse("优惠后的订单金额不能为零,请重新下单",productFromFastOrderCount);
+								}
+						 }
+						 
+					    }
+					 }
 					 if(returnResult==null){ //当前验证无错误,将shoppingCart的promotionDetailInfoList 赋值给对应的ProductInfoDto
 						 if(!UtilHelper.isEmpty(returnShoppingCartDtoList)){
 							 
