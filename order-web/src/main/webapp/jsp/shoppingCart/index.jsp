@@ -103,6 +103,15 @@
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}" onerror="this.src='http://oms.yaoex.com/static/images/product_default_img.jpg'">
                                         </li>
                                         <li class="fl td-item">
+                                        	<c:choose>
+	                                        	<c:when test="${shoppingCartDto.rule != null}">
+	                                               <p class="special_price">
+	                                                  <a title="${shoppingCartDto.rule}" href="http://www.baidu.com"><span>满减活动</span></a>
+	                                               </p>
+	                                            </c:when>
+	                                            <c:otherwise>
+                                                </c:otherwise>
+	                                        </c:choose>
                                             <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
                                             </p>
@@ -113,11 +122,6 @@
                                                 <c:when test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
                                                     <p class="special_price">
                                                        <span>限时特价</span>
-                                                    </p>
-                                                </c:when>
-                                                <c:when test="${shoppingCartDto.rule != null}">
-                                                    <p class="special_price">
-                                                       <a title="${shoppingCartDto.rule}" href="http://www.baidu.com"><span>满减活动</span></a>
                                                     </p>
                                                 </c:when>
                                                 <c:otherwise>

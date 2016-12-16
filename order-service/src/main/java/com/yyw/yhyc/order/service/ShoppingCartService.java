@@ -1562,9 +1562,8 @@ public class ShoppingCartService {
 		}
 		
 		
-		//获取满减活动与规则
-		Set<ProductPromotionInfo> productPromotionInfos = productDrug.getProductPromotionInfos();
-		if(productPromotionInfos!=null){//存在满减活动
+		if(!UtilHelper.isEmpty(shoppingCartDto.getPromotionCollectionId())){//存在满减活动,获取满减活动与规则
+			Set<ProductPromotionInfo> productPromotionInfos = productDrug.getProductPromotionInfos();
 			List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
 			if(infoList.size()==1){//只有一个满减活动
 				getRule(shoppingCartDto,infoList.get(0));
@@ -1591,6 +1590,9 @@ public class ShoppingCartService {
 		for (ProductPromotionRule promotionRule : ruleList) {
 			rule+=info.getPromotion_pre().equals("0")?promotionRule.getPromotion_sum()+"元,":promotionRule.getPromotion_sum()+"件,";
 			rule+=info.getPromotion_method().equals("0")?"立减"+promotionRule.getPromotion_minu()+"元":"可享受"+promotionRule.getPromotion_minu()+"折";
+			if(info.getLevel_incre().equals("1")){
+				rule+=",层级递增";
+			}
 			if(info.getLimit_num()!=null){
 				rule+=",每个用户限参与"+info.getLimit_num()+"次;";
 			}else{
