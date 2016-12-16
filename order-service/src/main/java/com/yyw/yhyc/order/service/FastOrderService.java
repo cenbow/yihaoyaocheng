@@ -27,6 +27,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.search.model.dto.ProductSearchParamDto;
 import com.search.model.yhyc.ProductDrug;
+import com.search.model.yhyc.ProductPromotionInfo;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
@@ -34,6 +35,7 @@ import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
 import com.yyw.yhyc.exception.ServiceException;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.OrderPromotionDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.enmu.ProductStatusEnum;
@@ -168,9 +170,9 @@ public class FastOrderService {
 			shoppingCartDto.setProductInventory(stockAmount);
 		}
 
+		//4、填充特价活动
 		com.search.model.yhyc.ProductPromotion productPromotion  = productDrug.getProductPromotion();
 		int promotionId = UtilHelper.isEmpty(productPromotion) || UtilHelper.isEmpty(productPromotion.getPromotion_id()) ? 0 : Integer.valueOf(productPromotion.getPromotion_id());
-
 		if( promotionId > 0 && !UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && promotionId == shoppingCartDto.getPromotionId()) {
 			shoppingCartDto.setPromotionPrice(productPromotion.getPromotion_price());
 			shoppingCartDto.setPromotionMinimumPacking(productPromotion.getMinimum_packing());
@@ -179,8 +181,11 @@ public class FastOrderService {
 			shoppingCartDto.setPromotionCurrentInventory(productPromotion.getCurrent_inventory());
 			shoppingCartDto.setPromotionType(UtilHelper.isEmpty(productPromotion.getPromotion_type()) ? 0 : Integer.valueOf(productPromotion.getPromotion_type()));
 		}
-
-		//4、各种校验
+		
+		//5、填充满减活动
+		shoppingCartDto.setProductPromotionInfos(productDrug.getProductPromotionInfos());
+		
+		//6、各种校验
 		//商品渠道审核状态：0:待审核，1：审核通过，2：审核不通过
 		int isChannel = UtilHelper.isEmpty(productDrug.getIs_channel()) ? 0 : Integer.valueOf( productDrug.getIs_channel());
 		int channelId = UtilHelper.isEmpty(productDrug.getChannel_id()) ? 0 : Integer.valueOf( productDrug.getChannel_id());
@@ -227,7 +232,7 @@ public class FastOrderService {
 		}
 		return shoppingCartDto;
 	}
-	
+
 	/**
 	 * 加入进货单
 	 * @param shoppingCart 进货单对象
