@@ -1426,7 +1426,7 @@ public class OrderService {
 		if(userDto.getCustId() == order.getCustId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
 				//查询该订单是否是线下支付并且下发erp系统成功，则不能取消。
-				if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOffline.getPayType())){
+				if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOffline.getPayType())||order.getPayTypeId().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
 					OrderIssued orderIssued = orderIssuedMapper.findByFlowId(order.getFlowId());
 					if(!UtilHelper.isEmpty(orderIssued)&&orderIssued.getIssuedStatus().equals("1")){
 						log.error("已经下发的订单："+order.getFlowId());
