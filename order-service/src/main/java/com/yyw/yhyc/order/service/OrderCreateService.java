@@ -481,7 +481,7 @@ public class OrderCreateService {
 							 orderTotal = orderTotal.add(productInfoDto.getProductPrice().multiply(new BigDecimal(productInfoDto.getProductCount())));
 						if(!UtilHelper.isEmpty(orderTotal)){
 								orderTotal = orderTotal.setScale(2,BigDecimal.ROUND_HALF_UP);
-								if(orderTotal.compareTo(orderMoney)==0){
+								if(orderTotal.compareTo(orderMoney)<=0){
 									 returnResult=returnFalse("优惠后的订单金额不能为零,请重新下单",productFromFastOrderCount);
 								}
 						 }
