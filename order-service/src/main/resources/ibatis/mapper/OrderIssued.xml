@@ -46,6 +46,7 @@
 		<result column="order_id" property="orderId"/>
 		<result column="cust_id" property="customerId"/>
 		<result column="supply_id" property="supplyId"/>
+		<result column="pay_type" property="payType"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="orderItemList" column="order_id"
@@ -238,7 +239,8 @@
 			    date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
 			    O.LEAVE_MESSAGE,
 			    O.ORDER_ID,
-			    PUO.cust_code_erp AS CUST_ID
+			    PUO.cust_code_erp AS CUST_ID,
+				SPT.PAY_TYPE
 			FROM
 			    T_ORDER O,
 			    t_cust_erp_relation PUO,
@@ -323,7 +325,8 @@
 			date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.cust_code_erp AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID,
+			SPT.PAY_TYPE
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
@@ -505,7 +508,8 @@
 			O.CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.cust_code_erp AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID,
+			SPT.PAY_TYPE
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
