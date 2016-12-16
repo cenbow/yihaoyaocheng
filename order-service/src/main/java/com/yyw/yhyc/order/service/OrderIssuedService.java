@@ -16,6 +16,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.yyw.yhyc.order.bo.OrderIssuedLog;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
 
 import org.apache.commons.lang.StringUtils;
@@ -255,7 +256,17 @@ public class OrderIssuedService {
 		paramterMap.put("supplyId", supplyListIds.get(0));
 		paramterMap.put("startDate", startDate);
 		paramterMap.put("endDate", endDate);
-		paramterMap.put("payType", payType.split(","));
+		if(StringUtils.isNotBlank(payType)){
+			paramterMap.put("payType",payType);
+			for(String type : payType.split(",")){
+				if(type.equals("1"))
+					paramterMap.put("payOnline", SystemPayTypeEnum.PayOnline.getPayType());
+				else if(type.equals("2"))
+					paramterMap.put("PayPeriodTerm", SystemPayTypeEnum.PayPeriodTerm.getPayType());
+				else if(type.equals("3"))
+					paramterMap.put("PayOffline", SystemPayTypeEnum.PayOffline.getPayType());
+			}
+		}
 		log.info("传递的orderIdList：" + orderIdList);
 		if(StringUtils.isNotBlank(orderIdList))
 			paramterMap.put("orderIdList", orderIdList.split(","));
@@ -284,8 +295,18 @@ public class OrderIssuedService {
 		}
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("supplyId", supplyId);
-		if(StringUtils.isNotBlank(payType))
-			params.put("payType", payType.split(","));
+		if(StringUtils.isNotBlank(payType)){
+			params.put("payType",payType);
+			for(String type : payType.split(",")){
+				if(type.equals("1"))
+					params.put("payOnline", SystemPayTypeEnum.PayOnline.getPayType());
+				else if(type.equals("2"))
+					params.put("PayPeriodTerm", SystemPayTypeEnum.PayPeriodTerm.getPayType());
+				else if(type.equals("3"))
+					params.put("PayOffline", SystemPayTypeEnum.PayOffline.getPayType());
+			}
+		}
+
 		List<OrderIssuedDto> orderIssuedDtoList = orderIssuedMapper
 				.findOrderIssuedListBySupplyId(params);
 		if (!UtilHelper.isEmpty(orderIssuedDtoList)) {
@@ -397,8 +418,17 @@ public class OrderIssuedService {
 	public List<OrderIssued> getManufacturerOrder(Integer supplyId, String payType) {
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("supplyId", supplyId);
-		if(StringUtils.isNotBlank(payType))
-			params.put("payType", payType.split(","));
+		if(StringUtils.isNotBlank(payType)){
+			params.put("payType", payType);
+			for(String type : payType.split(",")){
+				if(type.equals("1"))
+					params.put("payOnline", SystemPayTypeEnum.PayOnline.getPayType());
+				else if(type.equals("2"))
+					params.put("PayPeriodTerm", SystemPayTypeEnum.PayPeriodTerm.getPayType());
+				else if(type.equals("3"))
+					params.put("PayOffline", SystemPayTypeEnum.PayOffline.getPayType());
+			}
+		}
 		log.info("供应商编码：" + supplyId + "支付方式："+ payType);
 		return orderIssuedMapper.getManufacturerOrder(params);
 	}
