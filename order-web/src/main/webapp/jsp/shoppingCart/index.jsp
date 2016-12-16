@@ -112,7 +112,12 @@
                                             <c:choose>
                                                 <c:when test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
                                                     <p class="special_price">
-                                                        <span>限时特价</span>
+                                                       <span>限时特价</span>
+                                                    </p>
+                                                </c:when>
+                                                <c:when test="${shoppingCartDto.rule != null}">
+                                                    <p class="special_price">
+                                                       <a title="${shoppingCartDto.rule}" href="http://www.baidu.com"><span>满减活动</span></a>
                                                     </p>
                                                 </c:when>
                                                 <c:otherwise>

@@ -99,6 +99,8 @@ public class ShoppingCartDto extends ShoppingCart  {
      */
     private List<OrderPromotionDetailDto> promotionDetailInfoList;
     
+    private String rule;
+    
 
     public OrderPromotionDto getSpecailPromotionDto() {
 		return specailPromotionDto;
@@ -294,6 +296,14 @@ public class ShoppingCartDto extends ShoppingCart  {
 	public void setPromotionDetailInfoList(
 			List<OrderPromotionDetailDto> promotionDetailInfoList) {
 		this.promotionDetailInfoList = promotionDetailInfoList;
+	}
+
+	public String getRule() {
+		return rule;
+	}
+
+	public void setRule(String rule) {
+		this.rule = rule;
 	}
 
 	@Override
