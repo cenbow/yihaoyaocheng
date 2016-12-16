@@ -267,7 +267,7 @@ public class OrderController extends BaseJsonController {
 				}else{
 					orderIdStr += ","+order.getOrderId();
 				}
-
+				
 				orderLogService.insertOrderLog(this.request,"1",userDto.getCustId(),order.getFlowId(),orderCreateDto.getSource());
 			}
 		}
