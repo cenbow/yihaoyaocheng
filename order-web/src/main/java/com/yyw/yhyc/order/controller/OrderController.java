@@ -425,7 +425,12 @@ public class OrderController extends BaseJsonController {
 			BigDecimal orderPriceCount=(BigDecimal) dataMap.get("orderPriceCount"); 
 			
 			orderPriceCount=orderPriceCount.subtract(allOrderShareMoney);
-			dataMap.put("orderPriceCount",orderPriceCount);
+			if(orderPriceCount.compareTo(new BigDecimal(0))==-1){
+				dataMap.put("orderPriceCount",0);
+			}else{
+				dataMap.put("orderPriceCount",orderPriceCount);
+			}
+		
 			dataMap.put("allShoppingCart",allShoppingCart);
 			dataMap.put("allOrderShareMoney",allOrderShareMoney);//所有订单的优惠金额
 		}

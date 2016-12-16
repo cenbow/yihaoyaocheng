@@ -448,10 +448,21 @@ public class OrderCreateService {
 		    	     BigDecimal orderMoney=new BigDecimal(0);
 					 if(!UtilHelper.isEmpty(returnShoppingCartDtoList)){
 						 for(ShoppingCartDto currentBuyProduct :  returnShoppingCartDtoList){
+							 Integer productCount=currentBuyProduct.getProductCount();
+							 BigDecimal productPrice=currentBuyProduct.getProductPrice();
+							 String productName=currentBuyProduct.getProductName();
+							 
+							 BigDecimal currentProductMoney=productPrice.multiply(new BigDecimal(productCount));
+							 
 							 BigDecimal shareMoney=currentBuyProduct.getShareMoney();
 							 if(shareMoney!=null){
 								 orderMoney=orderMoney.add(shareMoney);
+								 if(currentProductMoney.compareTo(shareMoney)<=0){
+									 returnResult=returnFalse("名称为["+productName+"]的商品优惠后的金额不能小于等于零,请重新下单",productFromFastOrderCount);
+									 break;
+								 }
 							 }
+							
 						 }
 					 }
 					 BigDecimal orderFullReductionMoney=orderDto.getOrderFullReductionMoney();
@@ -545,8 +556,8 @@ public class OrderCreateService {
 							   if(orderPromotionDto.getLimitNum()!=null && orderPromotionDto.getLimitNum().intValue()!=-1){
 								    int partNum=this.orderFullReductionService.getUserPartPromotionNum(custId, orderPromotionDto.getPromotionId());
 								    if(partNum>=orderPromotionDto.getLimitNum().intValue()){
-								       log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
-								       returnResult=returnFalse("[商品"+currentCartDto.getSpuCode()+",不能参加"+orderPromotionDto.getPromotionName()+"促销],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]",productFromFastOrderCount);
+								       log.error("商品名称["+currentCartDto.getProductName()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
+								       returnResult=returnFalse("[商品名称["+currentCartDto.getProductName()+"],不能参加"+orderPromotionDto.getPromotionName()+"促销],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]",productFromFastOrderCount);
 								       flag=true;
 								       break;
 								    }
@@ -555,7 +566,7 @@ public class OrderCreateService {
 							   boolean productPartPromotionState=this.orderFullReductionService.checkProcutInfoPartPromotionState(currentCartDto.getSpuCode(), orderPromotionDto);
 							   if(productPartPromotionState){
 								   log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!");
-								   returnResult=returnFalse("[商品"+currentCartDto.getSpuCode()+",不能参加"+orderPromotionDto.getPromotionName()+"促销],因为该商品已经从该促销中删除掉了!",productFromFastOrderCount);
+								   returnResult=returnFalse("[商品"+currentCartDto.getProductName()+"],不能参加"+orderPromotionDto.getPromotionName()+"促销],因为该商品已经从该促销中删除掉了!",productFromFastOrderCount);
 							       flag=true;
 							       break;
 							   }
