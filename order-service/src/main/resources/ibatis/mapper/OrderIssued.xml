@@ -402,7 +402,7 @@
 	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedResultMapper" useCache="false">
 		SELECT OI.FLOW_ID FROM T_ORDER_ISSUED OI
 		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
-		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON O.pay_type_id=TP.PAY_TYPE_ID
+		LEFT JOIN  T_SYSTEM_PAY_TYPE SPT ON O.pay_type_id=SPT.PAY_TYPE_ID
 		WHERE
 		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1'
 
