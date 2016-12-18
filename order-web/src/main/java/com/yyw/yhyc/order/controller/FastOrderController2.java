@@ -2,6 +2,7 @@ package com.yyw.yhyc.order.controller;
 
 import static com.yyw.yhyc.order.inteceptor.GetUserInteceptor.CACHE_PREFIX;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +26,12 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
 import com.yyw.yhyc.order.service.FastOrderService;
+import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.utils.CacheUtil;
 
 /**
@@ -167,76 +170,73 @@ public class FastOrderController2 extends BaseJsonController {
         
     }
 
-//    /**
-//     * 检查极速下单中的商品合法信息
-//     * 请求参数：
-//     [
-//     {"shoppingCartId":123,"supplyId":6065},
-//     {"shoppingCartId":1234,"supplyId":6548}
-//     ]
-//     * @param shoppingCartList
-//     * @throws Exception
-//     */
-//    @RequestMapping(value = "/check", method = RequestMethod.POST)
-//    @ResponseBody
-//    public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
-//        UserDto userDto = getUserDto(request);
-//        logger.info("当前登陆的用户信息userDto=" + userDto);
-//
-//        Map<String,Object> resultMap = new HashMap<>();
-//        if(UtilHelper.isEmpty(shoppingCartList)){
-//            resultMap.put("result",false);
-//            resultMap.put("message","您的进货单中没有商品");
-//            return resultMap;
-//        }
-//		/* 查找出当前买家的进货单里面，有哪些供应商 */
-//        List<ShoppingCart> custIdAndSupplyIdList = shoppingCartService.listDistinctCustIdAndSupplyId(userDto.getCustId());
-//        if(UtilHelper.isEmpty(custIdAndSupplyIdList)){
-//            resultMap.put("result",false);
-//            resultMap.put("message","您的进货单中没有商品");
-//            return resultMap;
-//        }
-//
-//        OrderDto orderDto = null;
-//        List<ProductInfoDto> productInfoDtoList = null;
-//        ProductInfoDto productInfoDto = null;
-//        for(ShoppingCart custIdAndSupplyId : custIdAndSupplyIdList){
-//            if(UtilHelper.isEmpty(custIdAndSupplyId)) continue;
-//            orderDto = new OrderDto();
-//            orderDto.setCustId(custIdAndSupplyId.getCustId());
-//            orderDto.setSupplyId(custIdAndSupplyId.getSupplyId());
-//
-//			/* 遍历进货单中 选中的商品 */
-//            productInfoDtoList = new ArrayList<>();
-//            for( ShoppingCart shoppingCart : shoppingCartList){
-//                if(UtilHelper.isEmpty(shoppingCart)) continue;
-//                if(custIdAndSupplyId.getSupplyId().equals(shoppingCart.getSupplyId())){
-//                    productInfoDto = new ProductInfoDto();
-//                    ShoppingCart temp = shoppingCartService.getByPK(shoppingCart.getShoppingCartId());
-//                    if(UtilHelper.isEmpty(temp)) continue;
-//                    productInfoDto.setId(temp.getProductId());
-//                    productInfoDto.setSpuCode(temp.getSpuCode());
-//                    productInfoDto.setProductPrice(temp.getProductPrice());
-//                    productInfoDto.setProductCount(temp.getProductCount());
-//                    productInfoDto.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
-//                    productInfoDto.setPromotionId(temp.getPromotionId());
-//                    productInfoDto.setPromotionName(temp.getPromotionName());
-//                    productInfoDtoList.add(productInfoDto);
-//                }
-//            }
-//            if(productInfoDtoList.size() == 0) continue;
-//            orderDto.setProductInfoDtoList(productInfoDtoList);
-//
-//			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-//            resultMap = orderService.validateProducts(userDto, orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
-//            boolean result = (boolean) resultMap.get("result");
-//            if(!result){
-//                return ok("success",resultMap);
-//            }
-//        }
-//        resultMap.put("result",true);
-//        return ok("success",resultMap);
-//    }
+    /**
+     * 检查极速下单中的商品合法信息
+     * 请求参数：
+     [
+     {"shoppingCartId":123,"supplyId":6065},
+     {"shoppingCartId":1234,"supplyId":6548}
+     ]
+     * @param shoppingCartList
+     * @throws Exception
+     */
+    @RequestMapping(value = "/check", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
+        UserDto userDto = getUserDto(request);
+        
+        //1、参数校验
+        if(UtilHelper.isEmpty(shoppingCartList)){
+            throw new Exception("您没有选择商品！");
+        }
+        
+        //2、查找出当前买家的进货单里面，有哪些供应商 
+        List<ShoppingCart> custIdAndSupplyIdList = fastOrderService.listDistinctCustIdAndSupplyId(userDto.getCustId());
+        if(UtilHelper.isEmpty(custIdAndSupplyIdList)){
+            throw new Exception("您的进货单中没有商品！");
+        }
+        //3、按供应商分组，检查商品信息
+		for(ShoppingCart custIdAndSupplyId : custIdAndSupplyIdList){
+			//1、获取商品信息
+        	List<ProductInfoDto>  productInfoDtoList = new ArrayList<>();
+            for( ShoppingCart shoppingCart : shoppingCartList){
+                if( custIdAndSupplyId.getSupplyId().equals(shoppingCart.getSupplyId()) ){
+                	ProductInfoDto productInfoDto = new ProductInfoDto();
+                    ShoppingCart temp = fastOrderService.getByPK(shoppingCart.getShoppingCartId());
+                    if(UtilHelper.isEmpty(temp)){
+                    	throw new Exception("极速订单数据有变化，请刷新页面！");
+                    }
+                    productInfoDto.setId(temp.getProductId());
+                    productInfoDto.setSpuCode(temp.getSpuCode());
+                    productInfoDto.setProductPrice(temp.getProductPrice());
+                    productInfoDto.setProductCount(temp.getProductCount());
+                    productInfoDto.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+                    productInfoDto.setPromotionId(temp.getPromotionId());
+                    productInfoDto.setPromotionName(temp.getPromotionName());
+                    productInfoDtoList.add(productInfoDto);
+                }
+            }
+            OrderDto orderDto = new OrderDto();
+            if(productInfoDtoList.isEmpty()){
+            	continue;
+            }
+            orderDto.setProductInfoDtoList(productInfoDtoList);
+        	
+         	//2、商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 
+            orderDto.setCustId(custIdAndSupplyId.getCustId());
+            orderDto.setSupplyId(custIdAndSupplyId.getSupplyId());
+            String message = fastOrderService.validateProducts(userDto, orderDto);
+            //3、校验失败，直接返回失败原因
+ 			if( !"success".equals(message) ){
+ 				 throw new Exception(message);
+ 			}
+		}
+
+        //4、全部校验通过，返回成功
+		Map<String,Object> resultMap = new HashMap<>();
+        resultMap.put("result",true);
+        return ok("success",resultMap);
+    }
 
     /**
      * 返回结果

@@ -517,9 +517,8 @@
 		<if test="promotionId!= null and promotionId!= ''">
 			AND od.promotion_id=#{promotionId}
 		</if>
-		<if test="promotionCollectionId!= null and promotionCollectionId!= ''">
+		<!-- <if test="promotionCollectionId!= null and promotionCollectionId!= ''">
 			AND od.promotion_collection_id=#{promotionCollectionId}
-		</if>
-		
+		</if> -->
 	</select>
 </mapper>
