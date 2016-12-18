@@ -906,6 +906,7 @@ public class ShoppingCartService {
 		if(shoppingCart.getProductCount() > 0 && shoppingCart.getProductCount() <= promotionProductNumStillCanBuy){
 			/* 允许减少数量 */
 			shoppingCart.setUpdateUser(userDto.getUserName());
+			shoppingCart.setProductSettlementPrice(oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 			logger.info("更新购物车中数量接口--减少活动商品数量:准备更新shoppingCart=" + shoppingCart );
 			resultCount = shoppingCartMapper.update(shoppingCart);
 			map.put("activityProduct",shoppingCart.getShoppingCartId());
@@ -1564,14 +1565,16 @@ public class ShoppingCartService {
 		
 		if(!UtilHelper.isEmpty(shoppingCartDto.getPromotionCollectionId())){//存在满减活动,获取满减活动与规则
 			Set<ProductPromotionInfo> productPromotionInfos = productDrug.getProductPromotionInfos();
-			List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
-			if(infoList.size()==1){//只有一个满减活动
-				getRule(shoppingCartDto,infoList.get(0));
-			}else if(infoList.size()==2){//存在2个满减活动（单品和多品）,只需展示单品的满减规则
-				if(infoList.get(0).getPromotion_type().equals("2")){//单品
+			if(!UtilHelper.isEmpty(productPromotionInfos)){//如果活动过期或者失效
+				List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
+				if(infoList.size()==1){//只有一个满减活动
 					getRule(shoppingCartDto,infoList.get(0));
-				}else{
-					getRule(shoppingCartDto,infoList.get(1));
+				}else if(infoList.size()==2){//存在2个满减活动（单品和多品）,只需展示单品的满减规则
+					if(infoList.get(0).getPromotion_type().equals("2")){//单品
+						getRule(shoppingCartDto,infoList.get(0));
+					}else{
+						getRule(shoppingCartDto,infoList.get(1));
+					}
 				}
 			}
 		}
