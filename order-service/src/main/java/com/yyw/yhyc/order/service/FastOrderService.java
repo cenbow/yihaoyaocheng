@@ -83,6 +83,20 @@ public class FastOrderService {
 	}
 	
 	/**
+	 * 查询进货单列表
+	 * @param custId
+	 * @param fromWhere
+	 * @return
+	 */
+	public List<ShoppingCartListDto> listShoppingCart(ShoppingCart shoppingCart) {
+		if(UtilHelper.isEmpty(shoppingCart)){
+			return null;
+		}
+		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
+		return allShoppingCart;
+	}
+	
+	/**
 	 * 查询进货单的买卖双方企业ID
 	 * @param custId
 	 * @return

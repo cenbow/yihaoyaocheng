@@ -445,6 +445,9 @@
 
 	<select id="listAllShoppingCart" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartListDtoResultMapper" useCache="false">
 		SELECT	DISTINCT  CUST_ID,SUPPLY_ID,FROM_WHERE FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId } AND SC.from_where = #{fromWhere }
+			<if test="supplyId!= null">
+				AND SC.supply_id=#{supplyId}
+			</if>
 	</select>
 
 	<select id="listDistinctCustIdAndSupplyId" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper" useCache="false">

@@ -159,15 +159,32 @@ public class FastOrderController2 extends BaseJsonController {
     public Map<String,Object> list() throws Exception {
     	try{
     		UserDto userDto = getUserDto(request);
-            logger.info("start listShoppingCart for [CustId="+userDto.getCustId()+"]");
+            logger.info("start list for [CustId="+userDto.getCustId()+"]");
             List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
-            logger.info("success listShoppingCart , allShoppingCart=" + allShoppingCart);
+            logger.info("success list , allShoppingCart=" + allShoppingCart);
             return ok("success",allShoppingCart);
 	    }catch (Exception e){
 	        logger.error("exception when list",e);
 	        throw  new Exception(e.getMessage());
 	    }
-        
+    }
+    
+	/**
+     * 查询进货单列表
+     * @return
+     */
+    @RequestMapping(value = "/listShoppingCart", method = RequestMethod.POST)
+    @ResponseBody
+    public List<ShoppingCartListDto> listShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
+    	try{
+            logger.info("start listShoppingCart for ["+shoppingCart+"");
+            List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(shoppingCart);
+            logger.info("success listShoppingCart , allShoppingCart=" + allShoppingCart);
+            return allShoppingCart;
+	    }catch (Exception e){
+	        logger.error("exception when listShoppingCart",e);
+	        throw  new Exception(e.getMessage());
+	    }
     }
 
     /**
