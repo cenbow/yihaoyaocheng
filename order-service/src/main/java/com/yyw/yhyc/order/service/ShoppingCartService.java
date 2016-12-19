@@ -1589,18 +1589,18 @@ public class ShoppingCartService {
 	private void getRule(ShoppingCartDto shoppingCartDto,ProductPromotionInfo info){
 		Set<ProductPromotionRule> productPromotionRules = info.getProductPromotionRules();
 		List<ProductPromotionRule> ruleList = new ArrayList<ProductPromotionRule>(productPromotionRules);
-		String rule = "满";
+		String rule = "";
 		for (ProductPromotionRule promotionRule : ruleList) {
-			rule+=info.getPromotion_pre().equals("0")?promotionRule.getPromotion_sum()+"元,":promotionRule.getPromotion_sum()+"件,";
-			rule+=info.getPromotion_method().equals("0")?"立减"+promotionRule.getPromotion_minu()+"元":"可享受"+promotionRule.getPromotion_minu()+"折";
-			if(info.getLevel_incre().equals("1")){
-				rule+=",层级递增";
-			}
-			if(info.getLimit_num()!=null){
-				rule+=",每个用户限参与"+info.getLimit_num()+"次;";
-			}else{
-				rule+=";";
-			}
+			rule+=info.getPromotion_pre().equals("0")?"满"+promotionRule.getPromotion_sum()+"元,":"满"+promotionRule.getPromotion_sum()+"件,";
+			rule+=info.getPromotion_method().equals("0")?"减"+promotionRule.getPromotion_minu()+"元,&#10;":"每件打"+promotionRule.getPromotion_minu()+"折,&#10;";
+		}
+		if(info.getLevel_incre().equals("1")){
+			rule+="按层级递增,&#10;";
+		}
+		if(info.getLimit_num()!=null){
+			rule+="每个用户可参加该活动"+info.getLimit_num()+"次;";
+		}else{
+			rule += "每个用户不限购"; 
 		}
 		shoppingCartDto.setRule(rule);
 		shoppingCartDto.setGroupCode(info.getGroup_codes());

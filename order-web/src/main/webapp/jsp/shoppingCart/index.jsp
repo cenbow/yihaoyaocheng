@@ -106,7 +106,7 @@
                                         	<c:choose>
 	                                        	<c:when test="${shoppingCartDto.rule != null}">
 	                                        	<p class="special_price">
-	                                        		<a href="javascript:void(0);" onclick="goFullActivity(${shoppingCartDto.promotionCollectionId},33291);"  
+	                                        		<a href="javascript:void(0);" onclick="goFullActivity(${shoppingCartDto.promotionCollectionId},${shoppingCartDto.supplyId});"  
 	                                        			title="${shoppingCartDto.rule}"><span>满减活动</span></a>
                                         		</p> 
 		                                        	<form id="activity${shoppingCartDto.promotionCollectionId}" method="post" target="_blank" >
