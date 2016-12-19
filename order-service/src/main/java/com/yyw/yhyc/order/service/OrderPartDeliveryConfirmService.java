@@ -671,7 +671,7 @@ private BigDecimal computerNoDeliveryMoney(OrderDeliveryDto orderDeliveryDto){
  */
 private void savePartDeliveryException(OrderDeliveryDto orderDeliveryDto,String now,Order order){
 	    //根据类型生产异常订单号
-		String exceptionOrderId="BH"+orderDeliveryDto.getFlowId();
+		String exceptionOrderId="BH"+orderDeliveryDto.getFlowId()+"01";
 		
 		UserDto userDto=orderDeliveryDto.getUserDto();
 		
