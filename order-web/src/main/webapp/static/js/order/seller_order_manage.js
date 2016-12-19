@@ -386,7 +386,8 @@ function typeToOperate(order) {
     }
 
     if (order && order.orderStatus && order.orderStatus == '10') {//补货中
-        result += '<a href="'+ctx+'/orderException/getReplenishmentDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+    	  //<a href="${ctx}/orderException/sellerReplenishmentOrderManage?flowId=${orderDetailsDto.flowId}" class="undeline">查看补货订单</a>
+        result += '<a href="'+ctx+'/orderException/sellerReplenishmentOrderManage?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     return result;
