@@ -200,60 +200,11 @@ public class OrderIssuedService {
 			resultMap.put("code", "0");
 			resultMap.put("message", "供应商为空");
 			return resultMap;
-		} //else {
-
-			/*
-			 * StringBuffer sql=new StringBuffer(); for(int
-			 * i=0;i<supplyListIds.size();i++){ int
-			 * supplyId=supplyListIds.get(i); if(i!=supplyListIds.size()-1){
-			 * sql.append(supplyId+","); }else{ sql.append(supplyId); } }
-			 * log.info("传递的supplyId集合："+sql.toString());
-			 */
-		//}
-		/*
-		 * if(StringUtils.hasText(startDate) && StringUtils.hasText(endDate)){
-		 * paramterMap.put("startDate",startDate);
-		 * paramterMap.put("endDate",endDate); }else{ Date currentDate=new
-		 * Date(); SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
-		 * 
-		 * String endDateStr=formate.format(currentDate);
-		 * 
-		 * Calendar calendar=Calendar.getInstance();
-		 * calendar.setTime(currentDate);
-		 * calendar.add(Calendar.DAY_OF_YEAR,-30);//日期减30天
-		 * 
-		 * Date startDateFromConvert=calendar.getTime();
-		 * 
-		 * String startDateStr=formate.format(startDateFromConvert);
-		 * 
-		 * paramterMap.put("startDate",startDateStr);
-		 * paramterMap.put("endDate",endDateStr); }
-		 */
-
-		/*if (StringUtils.hasText(orderIdList)) {
-			log.info("当前查询下发的订单集合列表orderIdList==[：" + orderIdList + "]");
-			StringBuffer idSql = new StringBuffer();
-			String[] orderList = orderIdList.split(",");
-
-			if (orderList != null && orderList.length > 0) {
-
-				for (int i = 0; i < orderList.length; i++) {
-					String orderFlowId = orderList[i];
-					if (i != orderList.length - 1) {
-						idSql.append("'" + orderFlowId + "',");
-					} else {
-						idSql.append("'" + orderFlowId + "'");
-					}
-				}
-
-				log.info("转换后的订单查询集合[" + idSql.toString() + "]");
-				paramterMap.put("orderIdList", idSql.toString());
-
-			}
-
-		}*/
-		log.info("传递的supplyId：" + supplyListIds.get(0));
-		paramterMap.put("supplyId", supplyListIds.get(0));
+		} 
+		
+		String json=JSON.toJSONString(supplyListIds);
+		log.info("传递的supplyIdList：" + json);
+		paramterMap.put("supplyIdList", supplyListIds.toArray());
 		paramterMap.put("startDate", startDate);
 		paramterMap.put("endDate", endDate);
 		if(StringUtils.isNotBlank(payType)){

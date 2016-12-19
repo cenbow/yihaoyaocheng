@@ -288,10 +288,11 @@
 				</choose>
 				)
 			</if>
-			<if test="supplyId != null and supplyId != ''"> 
-			    <![CDATA[
-					AND O.SUPPLY_ID = #{supplyId}
-				]]>
+			<if test="supplyIdList != null"> 
+					AND O.SUPPLY_ID in 
+					<foreach item="supplyId" index="index" collection="supplyIdList" open="(" separator="," close=")">
+		                 #{supplyId}
+		            </foreach>
 			</if>
 			<if test="orderIdList!= null"> 
 				 AND O.flow_id in
