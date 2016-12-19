@@ -155,4 +155,10 @@ public class OrderIssuedFacadeImpl implements OrderIssuedFacade {
 	
 		return this.orderIssuedService.queryOrderIssuedBySupplyIdAndOrderDate(supplyListIds, startDate, endDate, orderIdList);
 	}
+
+	@Override
+	public Map<String, Object> updateOrderIssuedForWsdl(
+			List<OrderIssued> orderIssuedList) throws Exception {
+		return this.orderIssuedService.updateOrderIssuedForWsdl(orderIssuedList);
+	}
 }

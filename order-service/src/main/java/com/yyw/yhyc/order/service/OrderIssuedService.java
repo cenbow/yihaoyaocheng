@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.yaoex.framework.core.model.util.StringUtil;
 import com.yyw.yhyc.order.bo.OrderIssuedLog;
 import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
 
@@ -384,6 +385,46 @@ public class OrderIssuedService {
 			orderIssuedLog.setOperator(orderIssued.getSupplyName());
 			orderIssuedLog.setOperateTime(now);
 			orderIssuedLogMapper.save(orderIssuedLog);
+		}
+		resultMap.put("code", "1");
+		return resultMap;
+	}
+	
+	/**
+	 * 更新订单下发表
+	 * @param orderIssuedList
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> updateOrderIssuedForWsdl(List<OrderIssued> orderIssuedList) throws Exception {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		if (UtilHelper.isEmpty(orderIssuedList)) {
+			resultMap.put("code", "0");
+			resultMap.put("message", "订单集合为空");
+			return resultMap;
+		}
+		String now = systemDateMapper.getSystemDate();
+		for (OrderIssued order : orderIssuedList) {
+			OrderIssued orderIssued = orderIssuedMapper.findByFlowId(order.getFlowId());
+			if (orderIssued != null) {
+				if (StringUtil.isEmpty(order.getErpOrderCode())) {//erp订单编号为空的记录为下发失败的记录
+					orderIssued.setIssuedStatus("0");// 设置下发状态，为失败
+				} else {
+					orderIssued.setErpOrderCode(order.getErpOrderCode());
+				}
+				orderIssued.setUpdateTime(now);
+				orderIssuedMapper.update(orderIssued);
+
+				if (StringUtil.isEmpty(order.getErpOrderCode())) {
+					// 下发日志
+					OrderIssuedLog orderIssuedLog = new OrderIssuedLog();
+					orderIssuedLog.setFlowId(order.getFlowId());
+					orderIssuedLog.setOperateName("下发失败");
+					orderIssuedLog.setOperator(orderIssued.getSupplyName());
+					orderIssuedLog.setOperateTime(now);
+					orderIssuedLogMapper.save(orderIssuedLog);
+				}
+			}
 		}
 		resultMap.put("code", "1");
 		return resultMap;
