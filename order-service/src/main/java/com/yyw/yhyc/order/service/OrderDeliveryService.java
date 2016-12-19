@@ -1457,8 +1457,8 @@ public class OrderDeliveryService {
                         	  errorMsg.append("该订单flowId="+manufacturerOrder.getFlowId()+"不存在,");
                         }else{
                         	
-                        	 if (!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())) {
-                        		 errorMsg.append("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态,");
+                        	 if (!(SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()))) {
+                        		 errorMsg.append("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态或者买家已下单状态,");
                              }
                         	
                         }
