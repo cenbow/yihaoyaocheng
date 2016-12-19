@@ -1014,6 +1014,6 @@ function gotoProductDetail(_spuCode,_supplyId){
 
 function goFullActivity(id,sellerCode){
 	var obj = $('#activity'+id);
-	obj.attr("action","http://10.25.30.39:8070/front-web/shop/fullActivity/"+sellerCode);
+	obj.attr("action","http://mall.yaoex.com/shop/fullActivity/"+sellerCode);
 	obj.submit();
 }
