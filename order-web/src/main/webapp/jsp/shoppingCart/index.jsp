@@ -65,7 +65,9 @@
             <c:forEach var="shoppingCartListDto"  items="${allShoppingCart}" varStatus="shoppingCartListDtoVarStatus">
                 <div class="order-holder" supplyId="${shoppingCartListDto.seller.enterpriseId}" id="${shoppingCartListDto.seller.enterpriseId}">
                     <div class="holder-top">
-                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>"  supplyId="${shoppingCartListDto.seller.enterpriseId}"  ><span class="inside-icon">全选所有商品</span></div>
+                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>"  supplyId="${shoppingCartListDto.seller.enterpriseId}"  >
+                        	<span class="inside-icon">全选所有商品</span>
+                        </div>
                         <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
                         <a class="lts-shop-icon f12" href="${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
                         <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
@@ -109,16 +111,16 @@
 	                                        		<a href="javascript:void(0);" onclick="goFullActivity(${shoppingCartDto.promotionCollectionId},${shoppingCartDto.supplyId});"  
 	                                        			title="${shoppingCartDto.rule}"><span>满减活动</span></a>
                                         		</p> 
-		                                        	<form id="activity${shoppingCartDto.promotionCollectionId}" method="post" target="_blank" >
-														<input type="hidden" name="groupCodes" value="${shoppingCartDto.groupCode}"/>
-														<input type="hidden" name="protitle" value="encodeURI(${shoppingCartDto.rule})"/>
-														<input type="hidden" name="activityId" value="${shoppingCartDto.promotionCollectionId}"/>
-													</form>
+	                                        	<form id="activity${shoppingCartDto.promotionCollectionId}" method="post" target="_blank" >
+													<input type="hidden" name="groupCodes" value="${shoppingCartDto.groupCode}"/>
+													<input type="hidden" name="protitle" value="encodeURI(${shoppingCartDto.rule})"/>
+													<input type="hidden" name="activityId" value="${shoppingCartDto.promotionCollectionId}"/>
+												</form>
 	                                            </c:when>
 	                                            <c:otherwise>
                                                 </c:otherwise>
 	                                        </c:choose>
-                                            <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
+                                            <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
                                             </p>
                                             <p>${shoppingCartDto.manufactures}</p>
@@ -138,7 +140,7 @@
                                             </div>
                                         </li>
                                         <li class="fl td-amount">
-                                            <div class="it-sort-col5 clearfix pr" style="width: 120px;">
+                                            <div class="it-sort-col5 clearfix pr" style="width: 124px;">
                                                 <div class="clearfix" style="padding-left: 20px;">
                                                     <div class="its-choose-amount fl">
                                                         <div class="its-input">
