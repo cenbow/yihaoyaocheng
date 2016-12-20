@@ -22,12 +22,12 @@ import com.yyw.yhyc.order.dto.OrderIssuedItemDto;
 public interface OrderIssuedMapper extends GenericIBatisMapper<OrderIssued, java.lang.Integer> {
 
 	public List<OrderIssued> listPaginationByProperty(Pagination<OrderIssued> pagination, OrderIssued orderIssued);
-	public List<OrderIssuedDto> findOrderIssuedListBySupplyId(Integer supplyId);
+	public List<OrderIssuedDto> findOrderIssuedListBySupplyId(Map<String, Object> params);
 	public List<OrderIssuedDto> findOrderIssuedListBySupplyIdAndOrderDate(Map<String,Object> paramterMap);
 	public List<OrderIssuedItemDto> getItemsById(Integer orderId);
 	public OrderIssued findByFlowId(String flowId);
-	public List<OrderIssued> getManufacturerOrder(Integer supplyId);
-	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(Integer supplyId);
-	public List<OrderIssuedDto> findOrderIssuedHasRelationshipList(Integer supplyId);
+	public List<OrderIssued> getManufacturerOrder(Map<String, Object> params);
+	public List<Map<String,Object>> findOrderIssuedNoRelationshipList(Map<String, Object> params);
+	public List<OrderIssuedDto> findOrderIssuedHasRelationshipList(Map<String, Object> params);
 	public int updateBySelective(OrderIssued orderIssued);
 }

@@ -18,6 +18,8 @@ import java.util.*;
 
 import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotion;
+import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.mapper.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -46,17 +48,6 @@ import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderProductBean;
-import com.yyw.yhyc.order.bo.CommonType;
-import com.yyw.yhyc.order.bo.Order;
-import com.yyw.yhyc.order.bo.OrderCombined;
-import com.yyw.yhyc.order.bo.OrderDelivery;
-import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
-import com.yyw.yhyc.order.bo.OrderDetail;
-import com.yyw.yhyc.order.bo.OrderException;
-import com.yyw.yhyc.order.bo.OrderSettlement;
-import com.yyw.yhyc.order.bo.OrderTrace;
-import com.yyw.yhyc.order.bo.ShoppingCart;
-import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.AdviserDto;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
@@ -81,18 +72,6 @@ import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
-import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
-import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
-import com.yyw.yhyc.order.mapper.OrderDetailMapper;
-import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
-import com.yyw.yhyc.order.mapper.OrderMapper;
-import com.yyw.yhyc.order.mapper.OrderPayMapper;
-import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
-import com.yyw.yhyc.order.mapper.OrderTraceMapper;
-import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
-import com.yyw.yhyc.order.mapper.SystemPayTypeMapper;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
 import com.yyw.yhyc.product.bo.ProductInfo;
@@ -125,6 +104,7 @@ public class OrderService {
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
 	private UsermanageEnterpriseMapper enterpriseMapper;
 	private OrderExceptionMapper  orderExceptionMapper;
+	private OrderIssuedMapper orderIssuedMapper;
 
 	@Autowired
 	private OrderPayManage orderPayManage;
@@ -143,6 +123,11 @@ public class OrderService {
 
     @Autowired
     private OrderExceptionService orderExceptionService;
+
+	@Autowired
+	public void setOrderIssuedMapper(OrderIssuedMapper orderIssuedMapper) {
+		this.orderIssuedMapper = orderIssuedMapper;
+	}
 
 	@Autowired
 	public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper)
@@ -1440,6 +1425,14 @@ public class OrderService {
 		//判断订单是否属于该买家
 		if(userDto.getCustId() == order.getCustId()){
 			if(SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){//已下单订单
+				//查询该订单是否是线下支付并且下发erp系统成功，则不能取消。
+				if(order.getPayTypeId().equals(SystemPayTypeEnum.PayOffline.getPayType())||order.getPayTypeId().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
+					OrderIssued orderIssued = orderIssuedMapper.findByFlowId(order.getFlowId());
+					if(!UtilHelper.isEmpty(orderIssued)&&orderIssued.getIssuedStatus().equals("1")){
+						log.error("已经下发的订单："+order.getFlowId());
+						throw new RuntimeException("该订单已下发ERP系统，不能取消。");
+					}
+				}
 				order.setOrderStatus(SystemOrderStatusEnum.BuyerCanceled.getType());//标记订单为用户取消状态
 				String now = systemDateMapper.getSystemDate();
 				order.setUpdateUser(userDto.getUserName());

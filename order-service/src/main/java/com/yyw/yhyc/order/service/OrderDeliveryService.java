@@ -1256,7 +1256,7 @@ public class OrderDeliveryService {
     	      
     	      if(UtilHelper.isEmpty(manufacturerOrderList)){
     	    	  log.info("manufacturerOrderList 参数不能为空");
-    	    	  returnMap.put("code","0");
+    	    	  returnMap.put("code","-1");
     	    	  returnMap.put("message","manufacturerOrderList 参数不能为空");
     	    	  return returnMap;
     	      }
@@ -1640,9 +1640,9 @@ public class OrderDeliveryService {
                         log.info("该订单" + manufacturerOrder.getFlowId() + "不是该" + manufacturerOrder.getSupplyId() + "供应商");
                         continue;
                     }
-                    if (!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())) {
+                    if (!(SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()))) {
                         list.add(manufacturerOrder);
-                        log.info("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态");
+                        log.info("该订单" + manufacturerOrder.getFlowId() + "状态错误");
                         continue;
                     }
                     List<OrderDetail> orderDetailList = orderDetailMapper.listOrderDetailInfoByOrderId(order.getOrderId());

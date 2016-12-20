@@ -35,7 +35,15 @@ public class OrderIssuedDto implements Serializable {
 
     private String custId;
 
-  
+    private Integer payType; //支付类型
+
+    public Integer getPayType() {
+        return payType;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
+    }
 
     public Integer getOrderId() {
         return orderId;
