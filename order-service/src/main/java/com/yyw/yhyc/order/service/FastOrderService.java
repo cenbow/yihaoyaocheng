@@ -241,28 +241,28 @@ public class FastOrderService {
 		/* 库存校验 */
 		if( !shoppingCartDto.isExistProductInventory()){
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("商品库存不足");
+			shoppingCartDto.setUnNormalStatusReason("库存不足");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Shortage.getStatus());
 		/* 价格校验 */
 		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) >= 0){
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("商品价格异常");
+			shoppingCartDto.setUnNormalStatusReason("价格异常");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
 		/* 已下架 */
 		}else if(shoppingCartDto.getPutawayStatus() == null || shoppingCartDto.getPutawayStatus() != 1){
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("商品已下架");
+			shoppingCartDto.setUnNormalStatusReason("已下架");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.OffTheShelf.getStatus());
 		/* 活动商品参加的活动已失效 : 进货单中保存了活动id, 但接口中查询不到活动信息 */
 		}else if( (!UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && shoppingCartDto.getPromotionId() > 0 )  && UtilHelper.isEmpty(shoppingCartDto.getPromotionPrice())  ) {
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("活动商品参加的活动已失效");
+			shoppingCartDto.setUnNormalStatusReason("特价活动失效");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
 		}else if( 1 == isChannel && channelId == 0 ) {
 			/* 商品渠道审核状态(applyChannelStatus) ：0:待审核，1：审核通过，2：审核不通过*/
 			if(applyChannelStatus == 0 ){
 				shoppingCartDto.setNormalStatus(false);
-				shoppingCartDto.setUnNormalStatusReason("商品渠道待审核");
+				shoppingCartDto.setUnNormalStatusReason("渠道待审核");
 				shoppingCartDto.setStatusEnum(ProductStatusEnum.ChannelNotCheck.getStatus());
 			}else if(applyChannelStatus == 1 ){
 				/* 商品已加入渠道 */
@@ -270,7 +270,7 @@ public class FastOrderService {
 				shoppingCartDto.setStatusEnum(ProductStatusEnum.Normal.getStatus());
 			}else{
 				shoppingCartDto.setNormalStatus(false);
-				shoppingCartDto.setUnNormalStatusReason("商品需加入渠道");
+				shoppingCartDto.setUnNormalStatusReason("待加入渠道");
 				shoppingCartDto.setStatusEnum(ProductStatusEnum.NotAddChannel.getStatus());
 			}
 		}else{

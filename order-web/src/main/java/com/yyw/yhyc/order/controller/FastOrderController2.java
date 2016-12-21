@@ -171,6 +171,13 @@ public class FastOrderController2 extends BaseJsonController {
     
 	/**
      * 查询进货单列表
+     * 
+      {
+	    "custId": "33173",
+	    "supplyId": "33182",
+	    "fromWhere": 1
+	  } 
+     * 
      * @return
      */
     @RequestMapping(value = "/listShoppingCart", method = RequestMethod.POST)
