@@ -22,6 +22,21 @@
         <dependent-module archiveName="base-pay-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/base-pay/base-pay">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="usermanage-interfaces-1.4-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/usermanage-interfaces/usermanage-interfaces">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="usermanage-common-1.4-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/usermanage-common/usermanage-common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="passport-interfaces-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/passport-interfaces/passport-interfaces">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="passport-common-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/passport-common/passport-common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="passport-model-1.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/passport-model/passport-model">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="pay-web"/>
         <property name="java-output-path" value="/pay-web/target/classes"/>
     </wb-module>
