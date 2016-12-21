@@ -2311,7 +2311,7 @@ public class OrderExceptionService {
      * @return
      */
     private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
-        String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+        String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
         String file_path ="";
         Map map = new HashMap();
         map.put("spu_code", spuCode);

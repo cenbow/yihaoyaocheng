@@ -160,6 +160,7 @@ public class ProductInventoryManage {
      * @throws Exception
      */
     public void releaseInventory(int OrderId, String supplyName, String operator, IPromotionDubboManageService iPromotionDubboManageService){
+        log.info("------释放冻结库存(取消)------，入参：OrderId = " + OrderId + ",supplyName=" + supplyName +",operator=" + operator +",iPromotionDubboManageService=" + iPromotionDubboManageService);
         try {
             List<OrderDetail> list=orderDetailMapper.listOrderDetailInfoByOrderId(OrderId);
             if (!UtilHelper.isEmpty(list)) {
@@ -171,6 +172,7 @@ public class ProductInventoryManage {
                     productInventory.setBlockedInventory(orderDetail.getProductCount());
                     productInventory.setUpdateUser(operator);
                     productInventory.setUpdateTime(nowTime);
+                    log.info("------释放冻结库存(取消)------，更新数据：productInventory=" + productInventory);
                     productInventoryMapper.updateReleaseInventory(productInventory);
                     saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.release.getType(), nowTime, supplyName, operator);
                     
@@ -251,6 +253,7 @@ public class ProductInventoryManage {
             productInventoryLog.setUpdateUser(supplyName);
         }
         productInventoryLog.setRemark(orderDetail.getOrderId()+"的订单" + ProductInventoryLogTypeEnum.getName(logType) +"库存"+ orderDetail.getProductCount());
+        log.info("------释放冻结库存(取消)------，保存库存操作日志的数据：productInventoryLog=" + productInventoryLog);
         productInventoryLogMapper.save(productInventoryLog);
     }
 

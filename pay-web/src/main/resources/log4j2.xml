@@ -33,5 +33,6 @@
         <logger name="com.yyw.yhyc.cache" level="INFO"/>
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.pay" level="INFO"/>
     </loggers>
 </configuration>

@@ -92,8 +92,8 @@ for(Map.Entry<String, String> entry:r.entrySet()){
 <form name="payConfirm" action="chinaPayDone.jsp" method="post">
 支付类型：
 <select name="fromWhere">
-	<option value ="<%= ChinaPayUtil.B2C %>">银联B2C支付</option>
-	<option value ="<%= ChinaPayUtil.NOCARD %>">银联无卡支付</option>
+	<option value="<%= ChinaPayUtil.B2C %>">银联B2C支付</option>
+	<option value="<%= ChinaPayUtil.NOCARD %>">银联无卡支付</option>
 	<option value="<%= ChinaPayUtil.B2B %>">银联B2B支付</option>
 	<option value="<%= ChinaPayUtil.MOBILE %>">银联手机支付</option>
 </select>
@@ -101,12 +101,12 @@ for(Map.Entry<String, String> entry:r.entrySet()){
 分账序号：<input type="txt" size=50 name = 'num' value =''/></br>
 支付流水号：<input type="txt" size=50 name = 'OriOrderNo' value =''/></br>
 订单支付日期：<input type="txt" size=44  name = 'OriTranDate' value =''/></br>
-实付金额(单位：分)：<input type="txt"  size=50  name = 'OrderAmt' value =''/></br>
-分账信息：<input type="txt" size=50  name = 'MerSplitMsg' value =''/></br>
-退款金额：<input type="txt" size=50  name = 'RefundAmt' value =''/></br>
-退款分账信息：<input type="txt" size=44  name = 'ReMerSplitMsg' value =''/></br>
+分账金额(单位：分)：<input type="txt"  size=50  name = 'OrderAmt' value =''/></br>
+分账的详细信息：<input type="txt" size=50  name = 'MerSplitMsg' value =''/></br>
+退款金额(单位：分)：<input type="txt" size=50  name = 'RefundAmt' value =''/></br>
+退款的详细信息：<input type="txt" size=44  name = 'ReMerSplitMsg' value =''/></br>
 操作密码：<input type="txt" size=50  name = 'passwords' value =''/></br>
 
-<input type="submit" value="确认分账及退款">
+<input type="submit" value="确认分账或退款">
 </form>
 </html>
