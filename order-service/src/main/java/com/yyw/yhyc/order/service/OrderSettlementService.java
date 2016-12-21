@@ -332,7 +332,7 @@ public class OrderSettlementService {
 			orderSettlement.setCustId(null);
 			orderSettlement.setSupplyId(supplyId);
 			orderSettlement.setConfirmSettlement("0");
-			orderSettlement.setSettlementMoney(order.getOrderTotal());
+			orderSettlement.setSettlementMoney(order.getOrgTotal());
 			break;
 		case 3:
 			orderSettlement.setCustId(custId);
