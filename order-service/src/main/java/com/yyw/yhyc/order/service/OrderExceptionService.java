@@ -338,7 +338,8 @@ public class OrderExceptionService {
             orderSettlement.setFlowId(order.getFlowId());//支付宝方式加
             orderSettlement.setCustId(null);
             orderSettlement.setSupplyId(order.getSupplyId());
-            orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
+            log.info("存的卖家金额:" + order.getOrgTotal()+"-"+orderException.getOrderMoney());
+            orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(orderException.getOrderMoney()));
             //当全部拒收时不生成卖家结算 适用所有
             if(!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
                 orderSettlement.setRefunSettlementMoney(null);
