@@ -1012,8 +1012,8 @@ function gotoProductDetail(_spuCode,_supplyId){
 }
 
 
-function goFullActivity(id,sellerCode){
+function goFullActivity(id,sellerCode,promotionCollectionId){
 	var obj = $('#activity'+id);
-	obj.attr("action","http://mall.yaoex.com/shop/fullActivity/"+sellerCode);
+	obj.attr("action","http://mall.yaoex.com/shop/fullActivity/"+sellerCode+"/"+promotionCollectionId);
 	obj.submit();
 }
