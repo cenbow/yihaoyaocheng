@@ -241,7 +241,7 @@ public class FastOrderService {
 		/* 库存校验 */
 		if( !shoppingCartDto.isExistProductInventory()){
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("库存不足");
+			shoppingCartDto.setUnNormalStatusReason("缺货");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Shortage.getStatus());
 		/* 价格校验 */
 		}else if(UtilHelper.isEmpty(shoppingCartDto.getProductPrice()) || new BigDecimal("0").compareTo(shoppingCartDto.getProductPrice()) >= 0){
@@ -251,12 +251,12 @@ public class FastOrderService {
 		/* 已下架 */
 		}else if(shoppingCartDto.getPutawayStatus() == null || shoppingCartDto.getPutawayStatus() != 1){
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("已下架");
+			shoppingCartDto.setUnNormalStatusReason("下架");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.OffTheShelf.getStatus());
 		/* 活动商品参加的活动已失效 : 进货单中保存了活动id, 但接口中查询不到活动信息 */
 		}else if( (!UtilHelper.isEmpty(shoppingCartDto.getPromotionId()) && shoppingCartDto.getPromotionId() > 0 )  && UtilHelper.isEmpty(shoppingCartDto.getPromotionPrice())  ) {
 			shoppingCartDto.setNormalStatus(false);
-			shoppingCartDto.setUnNormalStatusReason("特价活动失效");
+			shoppingCartDto.setUnNormalStatusReason("失效");
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.NotDisplayPrice.getStatus());
 		}else if( 1 == isChannel && channelId == 0 ) {
 			/* 商品渠道审核状态(applyChannelStatus) ：0:待审核，1：审核通过，2：审核不通过*/
