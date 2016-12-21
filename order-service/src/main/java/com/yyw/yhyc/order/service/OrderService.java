@@ -920,6 +920,7 @@ public class OrderService {
 					   Integer promotionId=promotionDetailDto.getPromotionId();
 					   Integer promotionType=promotionDetailDto.getPromotionType();
 					   BigDecimal shareMoney=promotionDetailDto.getShareMoney();
+					   shareMoney=shareMoney.setScale(2,BigDecimal.ROUND_HALF_UP);
 					   String promotionName=promotionDetailDto.getPromotionName();
 					   
 					   
