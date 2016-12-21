@@ -832,11 +832,17 @@ public class OrderService {
 		order.setAdviserRemark(orderDto.getAdviserRemark());
 		orderMapper.save(order);
 		log.info("插入数据到订单表：order参数=" + order);
-		List<Order> orders = orderMapper.listByProperty(order);
+		
+		Integer orderId=order.getOrderId();
+		order =this.orderMapper.getByPK(orderId);
+		if(UtilHelper.isEmpty(order)){
+			throw new Exception("订单不存在");
+		}
+		/*List<Order> orders = orderMapper.listByProperty(order);
 		if (UtilHelper.isEmpty(orders) || orders.size() > 1) {
 			throw new Exception("订单不存在");
 		}
-		order = orders.get(0);
+		order = orders.get(0);*/
 		/* 创建订单编号 */
 		String orderFlowId = RandomUtil.createOrderFlowId(systemDateMapper.getSystemDateByformatter("%Y%m%d%H%i%s"),order.getOrderId() +"", orderFlowIdPrefix);
 		order.setFlowId(orderFlowId);

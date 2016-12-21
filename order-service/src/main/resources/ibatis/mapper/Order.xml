@@ -458,7 +458,7 @@
 		</if>
 	</sql>
 
-	<insert id="save" parameterType="Order">
+	<insert id="save" parameterType="Order" useGeneratedKeys="true" keyProperty="orderId">
 		<![CDATA[ INSERT INTO t_order ( ]]>
 			<include refid="commonColumnsNotPK"/>
 		<![CDATA[

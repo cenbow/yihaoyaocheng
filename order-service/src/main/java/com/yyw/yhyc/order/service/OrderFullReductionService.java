@@ -110,39 +110,7 @@ public class OrderFullReductionService {
 				long startTime = System.currentTimeMillis();
 				
 				responsePromotionList= promotionDubboManageService.queryPromotionByList(promotionList);
-				
-				//模拟数据
-				/*PromotionDto test1=new PromotionDto();
-				test1.setId(123);
-				test1.setPromotionName("test123");
-				test1.setEnterpriseId("79397");
-				test1.setPromotionType((byte)2);//活动类型;1:特价活动;2:单品满减;3:多品满减;4:满送积分;5:满赠
-				test1.setLevelIncre((byte)0);
-				test1.setLimitNum(2);
-				test1.setPromotionMethod((byte)0);//满减方式;0:减总金额;1:减每件金额
-				test1.setPromotionPre((byte)0); //活动条件;0:按金额;1:按件数
-				
-				List<PromotionRuleDto> promotionRureList=new ArrayList<PromotionRuleDto>();
-				
-				PromotionRuleDto rule1=new PromotionRuleDto();
-				rule1.setPromotionId(123);
-				rule1.setPromotionSum(20);
-				rule1.setPromotionMinu("5");
-				
-				promotionRureList.add(rule1);
-				
-				 List<String> spuCodeList=new ArrayList<String>();
-				 spuCodeList.add("116224");
-				
-				 
-				 test1.setPromotionRules(promotionRureList);
-				 test1.setSpuCode(spuCodeList);
-				
-				 responsePromotionList=new ArrayList<PromotionDto>();
-				 responsePromotionList.add(test1);*/
-				
 				String responseJson=JSON.toJSONString(responsePromotionList);
-				
 				long endTime = System.currentTimeMillis();
 				log.info("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),耗时" + (endTime - startTime) + "毫秒，响应参数：responsePromotionList=" + responseJson);
 			}catch (Exception e){
