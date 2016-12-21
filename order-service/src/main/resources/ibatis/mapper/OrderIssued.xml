@@ -27,6 +27,7 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="cus_relationship" property="cusRelationship"/>
 		<result column="is_scan" property="isScan"/>
+		<result column="erp_order_code" property="erpOrderCode"/>
 	</resultMap>
 	<resultMap id="OrderIssuedItemsResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedItemDto">
 		<result column="product_id" property="productId"/>
@@ -89,6 +90,7 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, cus_relationship
 		, is_scan
+		, erp_order_code
 	</sql>
 	
 	<sql id="commonCondition">
@@ -152,6 +154,7 @@
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, cus_relationship=#{cusRelationship} 
 			, is_scan=#{isScan} 
+			, erp_order_code=#{erpOrderCode} 
 		WHERE order_issued_id = #{orderIssuedId}  ]]>
 	</update>
 	
@@ -404,7 +407,7 @@
 	</select>-->
 
 	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
-		SELECT OI.FLOW_ID,O.ORDER_ID FROM T_ORDER_ISSUED OI
+		SELECT OI.FLOW_ID,O.ORDER_ID,OI.erp_order_code FROM T_ORDER_ISSUED OI
 		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
 		LEFT JOIN  T_SYSTEM_PAY_TYPE SPT ON O.pay_type_id=SPT.PAY_TYPE_ID
 		WHERE
