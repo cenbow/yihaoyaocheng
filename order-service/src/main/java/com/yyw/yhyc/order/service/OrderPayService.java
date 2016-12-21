@@ -232,10 +232,10 @@ public class OrderPayService {
 			if(UtilHelper.isEmpty(order.getCustId()) || !order.getCustId().equals(userDto.getCustId())){
 				continue;
 			}
-			orderTotal = orderTotal.add(order.getOrderTotal());
-			freightTotal = freightTotal.add(order.getFreight());
-			needToPayTotal = needToPayTotal.add(order.getOrgTotal());
-			orderCount++;
+			orderTotal = orderTotal.add(order.getOrderTotal()); //订单总额(原始金额)
+			freightTotal = freightTotal.add(order.getFreight()); //运费
+			needToPayTotal = needToPayTotal.add(order.getOrgTotal());//订单优惠后的金额，
+			orderCount++; //合并支付的订单数量
 			orderIdList.add(order.getOrderId());
 		}
 
@@ -277,7 +277,7 @@ public class OrderPayService {
 			orderPay = new OrderPay();
 			orderPay.setPayFlowId(payFlowId);
 			orderPay.setPayTypeId(payTypeId);
-			orderPay.setOrderMoney(orderTotal);//（实际上需要支付的）订单金额
+			orderPay.setOrderMoney(needToPayTotal);//（实际上需要支付的）金额
 			orderPay.setPayStatus(OrderPayStatusEnum.UN_PAYED.getPayStatus()); //支付状态：未支付
 			orderPay.setCreateUser(userDto.getUserName());
 			orderPay.setCreateTime(systemDateMapper.getSystemDate());
