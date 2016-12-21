@@ -308,7 +308,7 @@ public class OrderExceptionService {
             orderSettlement.setBusinessType(1);
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setSupplyId(orderException.getSupplyId());
-            orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
+            orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(orderException.getOrderMoney()));
         } else if (SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())) {
             //线下支付
             orderSettlement.setCustId(orderException.getCustId());
@@ -319,7 +319,7 @@ public class OrderExceptionService {
             orderSettlement.setBusinessType(1);
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setSupplyId(orderException.getSupplyId());
-            orderSettlement.setSettlementMoney(order.getOrderTotal().subtract(orderException.getOrderMoney()));
+            orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(orderException.getOrderMoney()));
         }
         //加上省市区
         log.info("account-yes-create-done:systemPayType.getPayType():" + systemPayType.getPayType());
