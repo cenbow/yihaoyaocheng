@@ -366,7 +366,7 @@ public class OrderIssuedService {
 		return resultMap;
 	}
 
-	public List<OrderIssued> getManufacturerOrder(Integer supplyId, String payType) {
+	public List<OrderIssuedDto> getManufacturerOrder(Integer supplyId, String payType) {
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("supplyId", supplyId);
 		if(StringUtils.isNotBlank(payType)){

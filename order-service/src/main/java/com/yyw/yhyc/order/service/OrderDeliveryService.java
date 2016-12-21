@@ -1629,7 +1629,16 @@ public class OrderDeliveryService {
             List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
             for (ManufacturerOrder manufacturerOrder : manufacturerOrderList) {
                 if (!UtilHelper.isEmpty(manufacturerOrder.getFlowId()) && !UtilHelper.isEmpty(manufacturerOrder.getSupplyId()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliverTime()) && !UtilHelper.isEmpty(manufacturerOrder.getOrderStatus()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliveryMethod())) {
+                    //根据erp对接用户传递的可能是订单编号也可能是订单ID，如果订单编号查不到，则查订单ID
                     Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
+                    if(UtilHelper.isEmpty(order)){
+                        try{
+                            order = orderMapper.getByPK(Integer.parseInt(manufacturerOrder.getFlowId()));
+                        }catch (Exception e){
+                            log.info("该订单" + manufacturerOrder.getFlowId() + "查询出错");
+                            continue;
+                        }
+                    }
                     if (UtilHelper.isEmpty(order)) {
                         list.add(manufacturerOrder);
                         log.info("该订单" + manufacturerOrder.getFlowId() + "为空");

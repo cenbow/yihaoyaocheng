@@ -403,8 +403,8 @@
 		SELECT PA.PRODUCTCODE_COMPANY FROM T_PRODUCT_AUDIT PA WHERE PA.SELLER_CODE = #{supplyId} AND PA.SPU_CODE = #{spuCode}
 	</select>-->
 
-	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedResultMapper" useCache="false">
-		SELECT OI.FLOW_ID FROM T_ORDER_ISSUED OI
+	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+		SELECT OI.FLOW_ID,O.ORDER_ID FROM T_ORDER_ISSUED OI
 		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
 		LEFT JOIN  T_SYSTEM_PAY_TYPE SPT ON O.pay_type_id=SPT.PAY_TYPE_ID
 		WHERE
