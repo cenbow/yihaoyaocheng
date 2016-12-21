@@ -22,6 +22,7 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderCombined;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.dto.OrderPayDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
@@ -451,4 +452,13 @@ public class OrderPayService {
 		return orderPay;
 	}
 
+
+	/**
+	 * 根据 payTypeId 和 payFlowId 查询该笔支付订单 的供应商 是否配置了相应的收款银行账号
+	 * @param orderPay
+	 * @return
+     */
+	public List<OrderPayDto> listOrderPayDtoByProperty(OrderPay orderPay) {
+		return orderPayMapper.listOrderPayDtoByProperty(orderPay);
+	}
 }
