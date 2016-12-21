@@ -48,6 +48,7 @@
 		<result column="cust_id" property="customerId"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="pay_type" property="payType"/>
+		<result column="erp_order_code" property="erpOrderCode"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="orderItemList" column="order_id"
@@ -407,7 +408,7 @@
 	</select>-->
 
 	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
-		SELECT OI.FLOW_ID,O.ORDER_ID,OI.erp_order_code FROM T_ORDER_ISSUED OI
+		SELECT OI.FLOW_ID,O.ORDER_ID,OI.ERP_ORDER_CODE FROM T_ORDER_ISSUED OI
 		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
 		LEFT JOIN  T_SYSTEM_PAY_TYPE SPT ON O.pay_type_id=SPT.PAY_TYPE_ID
 		WHERE
