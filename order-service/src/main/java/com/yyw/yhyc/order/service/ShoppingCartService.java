@@ -1167,7 +1167,7 @@ public class ShoppingCartService {
 
 		
 	public String getProductImgUrl(String spuCode, IProductDubboManageService iProductDubboManageService) {
-		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
 		if(UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(iProductDubboManageService)){
 			return filePath;
 		}
@@ -1211,7 +1211,7 @@ public class ShoppingCartService {
 	}
 
 	private String getProductImgUrl(String file_path) {
-		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
 		if(UtilHelper.isEmpty(file_path) ){
 			return filePath;
 		}

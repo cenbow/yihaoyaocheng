@@ -1670,7 +1670,7 @@ public class OrderService {
 		Order order =  orderMapper.getByPK(orderId);
 		log.debug(order);
 		if(UtilHelper.isEmpty(order)){
-			log.error("can not find order ,orderId:"+orderId);
+			log.error("--------供应商取消订单-------- 非法参数  orderId = " + orderId  + ",order = " + order);
 			throw new RuntimeException("未找到订单");
 		}
 		//判断订单是否属于该卖家
@@ -1683,9 +1683,10 @@ public class OrderService {
 				order.setUpdateUser(userDto.getUserName());
 				order.setUpdateTime(now);
 				order.setCancelTime(now);
+				log.info("--------供应商取消订单-------- 更新订单表数据 ， order=" + order);
 				int count = orderMapper.update(order);
 				if(count == 0){
-					log.error("order info :"+order);
+					log.error("--------供应商取消订单-------- 更新订单表数据失败， order=" + order);
 					throw new RuntimeException("订单取消失败");
 				}
 
@@ -1698,13 +1699,15 @@ public class OrderService {
 						||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 					OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,userDto.getUserName(),null,order);
+					log.info("--------供应商取消订单-------- 保存(取消订单的)结算数据 ，orderSettlement = " + orderSettlement);
 					orderSettlementMapper.save(orderSettlement);
 				}
 
 				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+					log.info("--------供应商取消订单-------- 根据不同的在线支付方式，发起退款请求....");
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 					payService.handleRefund(userDto, 1, order.getFlowId(), "卖家主动取消订单");
-
+					log.info("--------供应商取消订单-------- 根据不同的在线支付方式，发起退款请求 完成!");
 				}
 
 
@@ -1713,10 +1716,12 @@ public class OrderService {
 				orderLog.setOrderId(order.getOrderId());
 				orderLog.setNodeName("卖家取消订单");
 				orderLog.setOrderStatus(order.getOrderStatus());
+				log.info("--------供应商取消订单-------- 保存操作日志到orderTrace表，orderLog = " + orderLog);
 				this.orderTraceService.saveOrderLog(orderLog);
 
 				//释放冻结库存
 				productInventoryManage.releaseInventory(order.getOrderId(),order.getSupplyName(),userDto.getUserName(),iPromotionDubboManageService);
+				log.info("--------供应商取消订单-------- 释放冻结库存完成");
 			}else{
 				log.error("order status error ,orderStatus:"+order.getOrderStatus());
 				throw new RuntimeException("订单状态不正确");
@@ -3191,7 +3196,7 @@ public class OrderService {
      * @return
      */
 	private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
-		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
 		String file_path ="";
 		Map map = new HashMap();
 		map.put("spu_code", spuCode);

@@ -20,3 +20,4 @@ log/
 *.project
 *.classpath
 .setting/
+.settings/

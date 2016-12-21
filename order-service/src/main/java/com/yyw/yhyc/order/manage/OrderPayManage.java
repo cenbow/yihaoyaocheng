@@ -188,8 +188,8 @@ public class OrderPayManage {
             }
 
             if(OrderPayStatusEnum.PAYED.getPayStatus().equals(orderPay.getPayStatus())){
-                log.info("在线支付成功后，更新支付状态等信息----该订单已支付,orderPay = " + orderPay);
-                throw new Exception("该订单已支付！");
+                log.info("在线支付成功后，更新支付状态等信息----该订单已支付,无需再次更新支付状态等信息，直接返回,\n orderPay = " + orderPay);
+                return;
             }
 
             if( !OrderPayStatusEnum.UN_PAYED.getPayStatus().equals(orderPay.getPayStatus())){
@@ -260,6 +260,14 @@ public class OrderPayManage {
     public void updateTakeConfirmOrderInfos(String payFlowId, boolean orderSettlementStatus) throws Exception {
         log.info(payFlowId + "----- 分账成功后更新信息  update orderInfo start ----");
 
+        OrderPay orderPay = orderPayMapper.getByPayFlowId(payFlowId);
+        if(UtilHelper.isEmpty(orderPay)){
+            // 商户数据异常
+            log.info("根据订单流水号查询OrderPay不存在");
+            throw new Exception("支付信息异常！");
+        }
+
+
         List<Order> listOrder = orderMapper.listOrderByPayFlowId(payFlowId);
 
         if (UtilHelper.isEmpty(listOrder)||listOrder.size()==0) {
@@ -276,7 +284,7 @@ public class OrderPayManage {
                     order.setPayFlag(SystemOrderPayFlag.PlayMoneySuccess.getType());
                     orderMapper.update( order);
                     //生产订单日志
-                    createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款成功.");
+                    createOrderTrace(order, OnlinePayTypeEnum.getPayName(orderPay.getPayTypeId()) + "确认收货回调", now, 2, "确认收货打款成功.");
                     //更新结算信息为已结算
                     orderSettlementService.updateSettlementByMap(order.getFlowId(),1,payFlowId+"FZ",order.getSupplyId());
                 //}
@@ -288,7 +296,7 @@ public class OrderPayManage {
                     order.setPayFlag(SystemOrderPayFlag.PlayMoneyError.getType());
                     orderMapper.update(order);
                     //生产订单日志
-                    createOrderTrace(order, "银联确认收货回调", now, 2, "确认收货打款失败.");
+                    createOrderTrace(order, OnlinePayTypeEnum.getPayName(orderPay.getPayTypeId()) + "确认收货回调", now, 2, "确认收货打款失败.");
                // }
             }
         }
