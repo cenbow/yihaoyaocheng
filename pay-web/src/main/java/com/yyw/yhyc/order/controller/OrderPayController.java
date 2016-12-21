@@ -22,6 +22,7 @@ import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderCombined;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.bo.SystemPayType;
+import com.yyw.yhyc.order.dto.OrderPayDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
@@ -40,6 +41,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.yyw.yhyc.order.inteceptor.GetUserInteceptor.CACHE_PREFIX;
@@ -120,7 +122,7 @@ public class OrderPayController extends BaseJsonController {
 	@RequestMapping(value = "/pay", method = RequestMethod.GET)
 	public ModelAndView pay(@RequestParam("flowIds") String flowIds,@RequestParam("payTypeId") int payTypeId) throws Exception {
 		UserDto userDto = super.getLoginUser();
-		if(userDto == null ){
+		if(userDto == null || UtilHelper.isEmpty(userDto.getCustId()) || userDto.getCustId() <= 0){
 			throw new Exception("登陆超时");
 		}
 		SystemPayType systemPayType = systemPayTypeService.getByPK(payTypeId);
@@ -130,6 +132,26 @@ public class OrderPayController extends BaseJsonController {
 
 		if(!SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType()))throw new Exception("非法参数");
 		if(UtilHelper.isEmpty(flowIds)) throw new Exception("非法参数");
+
+		String [] flowIdArray = flowIds.split(",");
+		Order order = null;
+		for(String s : flowIdArray){
+			if(UtilHelper.isEmpty(s)) continue;
+			order = orderService.getOrderbyFlowId(s.trim());
+			if(UtilHelper.isEmpty(order)) continue;
+			/* 过滤掉不是在线支付类型的订单 */
+			if(OnlinePayTypeEnum.getPayName(order.getPayTypeId()) == null ){
+				throw new Exception("非法参数");
+			}
+			/* 过滤掉不是待付款的订单 */
+			if(!SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())){
+				throw new Exception("不是待付款的订单");
+			}
+			/* 过滤掉不是自己下的单 */
+			if(UtilHelper.isEmpty(order.getCustId()) || !order.getCustId().equals(userDto.getCustId())){
+				throw new Exception("不能支付不是自己的订单");
+			}
+		}
 
 		ModelAndView modelAndView = new ModelAndView();
 		if(OnlinePayTypeEnum.MerchantBank.getPayTypeId() == payTypeId){
@@ -283,8 +305,9 @@ public class OrderPayController extends BaseJsonController {
 
 
 	/**
-	 * 招行E+支付： 支付前,校验收款人的银行卡信息
-	 * 按照招行E+的接口要求：如果用户使用了招行E+支付订单，则订单供应商的银行卡信息必须是完整、无误的.
+	 * 在线支付： 支付前,校验收款人的银行卡信息
+	 * 银联支付要求：必须先配置供应商的银联商户号
+	 * 招行E+支付要求：如果用户使用了招行E+支付订单，则订单供应商的银行卡信息必须是完整、无误的.
 	 * @return
 	 */
 	@RequestMapping(value = "/validateBankCard", method = RequestMethod.GET)
@@ -314,10 +337,26 @@ public class OrderPayController extends BaseJsonController {
 			if( UtilHelper.isEmpty(order)) continue;
 			if( ! SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) continue;
 
+			OrderCombined orderCombined = orderCombinedService.getByPK(order.getOrderCombinedId());
+			if(UtilHelper.isEmpty(orderCombined) || UtilHelper.isEmpty(orderCombined.getPayFlowId())) continue;
+			OrderPay orderPay = orderPayService.getByPayFlowId(orderCombined.getPayFlowId());
+
 			/* 招行E+支付 */
 //			if(OnlinePayTypeEnum.CmbEPlus.getPayTypeId() == payTypeId){
 //				return validateBankCardForCmbEPlusPay(order);
 //			}
+
+			/* 银联支付 */
+			if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId() == payTypeId ||
+					OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId ){
+				List<OrderPayDto> list = orderPayService.listOrderPayDtoByProperty(orderPay);
+				if (UtilHelper.isEmpty(list)) {
+					resultMap.put("statusCode","100");
+					resultMap.put("message","订单编号为" + order.getFlowId() + "的订单收款账号配置有误，请联系平台客服！");
+					break;
+				}
+
+			}
 		}
 		logger.info("[在线支付]---支付前校验收款人的银行卡信息，返回数据resultMap = " + resultMap );
 		if(UtilHelper.isEmpty(resultMap) || !resultMap.containsKey("statusCode")){
