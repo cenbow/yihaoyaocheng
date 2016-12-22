@@ -486,6 +486,8 @@
                         <p>优惠券：- 0.00元
 
                         <p>
+                        
+                        <p>满减金额： ￥-<fmt:formatNumber value="${orderDetailsDto.preferentialMoney}" minFractionDigits="2"/>元
 
                         <p class="red">订单金额：￥<fmt:formatNumber value="${orderDetailsDto.orgTotal}" minFractionDigits="2"/>元
 
