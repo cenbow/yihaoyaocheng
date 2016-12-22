@@ -29,7 +29,7 @@
         <div class="mt30 f14 ci-hank-info">
             <p>供应商：${order.supplyName}</p>
             <p>订单号：${order.flowId}</p>
-            <p class="red f18">订单金额： ¥ ${order.orderTotal}</p>
+            <p class="red f18">订单金额： ¥ ${order.orgTotal}</p>
         </div>
         <div class="pay-type mt30">
             <p class="pay-type-top">请选择在线支付方式：</p>
