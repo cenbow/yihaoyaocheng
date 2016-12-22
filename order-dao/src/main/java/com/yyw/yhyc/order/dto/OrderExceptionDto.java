@@ -40,6 +40,8 @@ public class OrderExceptionDto extends OrderException {
 
     /* 订单总金额 */
     private BigDecimal orderPriceCount;
+    
+    private BigDecimal orderShareMoney; //订单满减金额
 
     /* 异常订单状态 */
     private String orderStatusName;
@@ -67,7 +69,15 @@ public class OrderExceptionDto extends OrderException {
     
     
 
-    public int getPayTypeId() {
+    public BigDecimal getOrderShareMoney() {
+		return orderShareMoney;
+	}
+
+	public void setOrderShareMoney(BigDecimal orderShareMoney) {
+		this.orderShareMoney = orderShareMoney;
+	}
+
+	public int getPayTypeId() {
 		return payTypeId;
 	}
 

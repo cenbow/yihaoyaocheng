@@ -19,8 +19,19 @@ public class OrderReturnDto extends OrderReturn {
     private String formOfDrug;              //剂型
     private String spuCode;                 //商品spu编码
     private String shortName;               //通用名
+    private BigDecimal productAllMoney; //商品总的金额
     
-    /**
+    
+    
+    public BigDecimal getProductAllMoney() {
+		return productAllMoney;
+	}
+
+	public void setProductAllMoney(BigDecimal productAllMoney) {
+		this.productAllMoney = productAllMoney;
+	}
+
+	/**
 	  *	供应商ID
 	  */
 	private java.lang.Integer supplyId;
