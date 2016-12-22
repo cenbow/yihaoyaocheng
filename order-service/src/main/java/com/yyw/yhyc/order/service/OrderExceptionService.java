@@ -569,11 +569,29 @@ public class OrderExceptionService {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal productOrderMoney=new BigDecimal(0); //订单金额=商品金额-满减金额
+            
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto)) continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                
+            	BigDecimal price=orderReturnDto.getProductPrice();
+        		Integer productCount=orderReturnDto.getReturnCount();
+        		BigDecimal allMoney=price.multiply(new BigDecimal(productCount));
+        		orderReturnDto.setProductAllMoney(allMoney);
+        		
+        		productPriceCount=productPriceCount.add(allMoney);
+        		productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(productOrderMoney);
+            BigDecimal shareMoney=productPriceCount.subtract(productOrderMoney); //满减金额
+            
+            if(shareMoney.compareTo(new BigDecimal(0))>=0){
+            	orderExceptionDto.setOrderShareMoney(shareMoney);
+            }else{
+            	orderExceptionDto.setOrderShareMoney(new BigDecimal(0));
+            }
+            
             if (!"1".equals(orderExceptionDto.getReturnType()))
                 orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
             else
