@@ -7,6 +7,7 @@
 <%@ page import="com.yyw.yhyc.helper.UtilHelper" %>
 <%@ page import="com.yyw.yhyc.helper.SpringBeanHelper" %>
 <%@ page import="com.yyw.yhyc.order.manage.OrderPayManage" %>
+<%@ page import="org.springframework.http.HttpMethod" %>
 <%!
 	private static final Logger logger = LoggerFactory.getLogger("jsp.orderPay.chinaPayDone.jsp");
 %>
@@ -20,10 +21,13 @@
 <form name="payment"  method="POST" target="_blank">
 
 <%
-
-String passwords = request.getParameter("passwords");
-if( UtilHelper.isEmpty(passwords ) && "fkyqazsa2016".equals(passwords) ) {
-	logger.error("1号药城-银联分账退款(手动操作)-----提示：请输入 正确的操作密码。。。。。。。。。。");
+String method = request.getMethod();
+if ( HttpMethod.POST.toString().equals(method) ) {
+	String passwords = request.getParameter("passwords");
+	if( UtilHelper.isEmpty(passwords ) || !"fkyqazsa2016".equals(passwords) ) {
+		logger.error("1号药城-银联分账退款(手动操作)-----提示：请输入 正确的操作密码。。。。。。。。。。");
+		return;
+	}
 }
 
 
@@ -59,9 +63,12 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 		logger.error(" [ 银联支付----手动分账 ] 向银联发送 分账 请求后，银联无响应!!");
 		return;
 	}
+	%>
+	分账操作后，响应结果 ：</br>
+	<%
 	for ( Map.Entry<String, String> entry : r.entrySet()) {
 	%>
-		分账操作后，响应结果 ：<input type="txt" name = '<%=entry.getKey() %>' value ='<%=entry.getValue()%>'/></br>
+		<%=entry.getKey() %> ：<input type="text" name = '<%=entry.getKey() %>' value ='<%=entry.getValue()%>'/></br>
 	<%
 	}
 
@@ -111,10 +118,12 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 			logger.error(" [ 银联支付----手动退款 ] 向银联发送 退款 请求后，银联无响应!!");
 			return;
 		}
-
+		%>
+		</br></br>退款操作后，响应结果  ：</br>
+		<%
 		for(Map.Entry<String, String> entry:rs.entrySet()){
 		%>
-			退款操作后，响应结果  ：<input type="txt" name = '<%=entry.getKey() %>' value ='<%=entry.getValue()%>'/></br>
+			<%=entry.getKey() %>  ：<input type="text" name = '<%=entry.getKey() %>' value ='<%=entry.getValue()%>'/></br>
 		<%
 		}
 
@@ -142,11 +151,8 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 %>
 
 </form>
-<script language=JavaScript>
-	
-</script>	
 </body>
-</br></br></br>
+
 <form name="payConfirm" action="chinaPayDone.jsp" method="post">
 支付类型：
 <select name="fromWhere">
@@ -156,8 +162,8 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 	<option value="<%= ChinaPayUtil.MOBILE %>">银联手机支付</option>
 </select>
 </br>
-分账序号：<input type="txt" size=50 name = 'num' value =''/></br>
-支付流水号：<input type="txt" size=50 name = 'OriOrderNo' value =''/></br>
+分账序号(不能重复)：<input type="txt" size=50 name = 'num' value =''/></br>
+支付流水号(pay_flow_id)：<input type="txt" size=50 name = 'OriOrderNo' value =''/></br>
 订单支付日期：<input type="txt" size=44  name = 'OriTranDate' value =''/></br>
 分账金额(单位：分)：<input type="txt"  size=50  name = 'OrderAmt' value =''/></br>
 分账的详细信息：<input type="txt" size=50  name = 'MerSplitMsg' value =''/></br>
