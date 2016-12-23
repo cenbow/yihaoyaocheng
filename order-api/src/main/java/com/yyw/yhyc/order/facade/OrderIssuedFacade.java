@@ -101,7 +101,7 @@ public interface OrderIssuedFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> findOrderIssuedListBySupplyId(Integer supplyId) throws Exception;
+	public Map<String,Object> findOrderIssuedListBySupplyId(Integer supplyId , String payType) throws Exception;
 	
 	
 	
@@ -115,7 +115,7 @@ public interface OrderIssuedFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,Object> findOrderIssuedListBySupplyAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList)throws Exception;
+	public Map<String,Object> findOrderIssuedListBySupplyAndOrderDate(List<Integer> supplyListIds,String startDate,String endDate,String orderIdList,String payType)throws Exception;
 	
 	
 	/**
@@ -125,4 +125,12 @@ public interface OrderIssuedFacade {
 	 * @throws Exception
 	 */
 	public Map<String,Object> updateOrderIssuedStatus(List<String> flowList) throws Exception;
+	
+	/**
+	 * 更新订单下发表
+	 * @param orderIssuedList
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> updateOrderIssuedForWsdl(List<OrderIssued> orderIssuedList) throws Exception;
 }

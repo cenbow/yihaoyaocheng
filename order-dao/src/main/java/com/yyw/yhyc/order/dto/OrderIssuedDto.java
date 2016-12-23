@@ -35,7 +35,28 @@ public class OrderIssuedDto implements Serializable {
 
     private String custId;
 
-  
+    private Integer payType; //支付类型
+
+    public Integer getPayType() {
+        return payType;
+    }
+
+    /**
+     * erp订单编号
+     */
+    private java.lang.String erpOrderCode;
+
+    public String getErpOrderCode() {
+        return erpOrderCode;
+    }
+
+    public void setErpOrderCode(String erpOrderCode) {
+        this.erpOrderCode = erpOrderCode;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
+    }
 
     public Integer getOrderId() {
         return orderId;
