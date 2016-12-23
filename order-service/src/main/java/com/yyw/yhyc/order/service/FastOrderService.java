@@ -345,7 +345,7 @@ public class FastOrderService {
 			throw new ServiceException("非法参数, shoppingCartId can't be null");
 		}
         if( UtilHelper.isEmpty( shoppingCart.getProductCount()) ){
-			throw new ServiceException("非法参数, productCount can't be null");
+			throw new ServiceException("非法参数， productCount can't be null");
 		}
         //2、 单个商品的数量限制
   		if( shoppingCart.getProductCount()<=0||shoppingCart.getProductCount()>maxBuyNum ){
@@ -355,7 +355,7 @@ public class FastOrderService {
   		//3、查询已存在的记录
 		ShoppingCart oldShoppingCart =  shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
 		if( UtilHelper.isEmpty(oldShoppingCart) ){
-			throw new ServiceException("原始数据不存在,请刷新页面重试！");
+			throw new ServiceException("原始数据不存在，请刷新页面重试！");
 		}
 		String custId = oldShoppingCart.getCustId().toString();
 		String supplyId = oldShoppingCart.getSupplyId().toString();
@@ -363,11 +363,17 @@ public class FastOrderService {
 		String userName = shoppingCart.getUpdateUser();
 		int leftBuyNum = shoppingCart.getProductCount();
 		//4、查询商品信息
-		ProductDrug productDrug = searchProduct(custId,supplyId,spuCode);		
+		ProductDrug productDrug = searchProduct(custId,supplyId,spuCode);	
+		if(UtilHelper.isEmpty(productDrug)){
+			throw new ServiceException("商品下架，请刷新页面重试！");
+		}
 		//5、修改特价商品数量
 		if ( !UtilHelper.isEmpty(oldShoppingCart.getPromotionId()) ) {
 			//5.1、查询特价活动信息
 			ProductPromotionDto productPromotionDto = queryPromotionDto(custId,supplyId,spuCode,oldShoppingCart.getPromotionId());
+			if(UtilHelper.isEmpty(productPromotionDto)){
+				throw new ServiceException("活动失效，请刷新页面重试！");
+			}
 			//5.2、获取可以购买特价商品的数量
 			int canBuyNum = getCanBuyNum(productPromotionDto,oldShoppingCart,leftBuyNum);
 			//5.3、购买特价商品
