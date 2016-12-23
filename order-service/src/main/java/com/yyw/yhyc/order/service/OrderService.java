@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotion;
 
@@ -855,6 +856,11 @@ public class OrderService {
 		ProductInfo productInfo = null;
 		List<ProductInfoDto> productInfoDtoList = orderDto.getProductInfoDtoList();
 		List<OrderDetail> orderDetailList = new ArrayList<>();
+		
+		StringBuilder orderPromotionName=new StringBuilder();
+		//处理订单的促销名称
+		Set<String> orderPromotionNameSet=new HashSet<String>();
+		
 		for(ProductInfoDto productInfoDto : productInfoDtoList){
 			if(UtilHelper.isEmpty(productInfoDto)){
 				continue;
@@ -923,6 +929,8 @@ public class OrderService {
 					   shareMoney=shareMoney.setScale(2,BigDecimal.ROUND_HALF_UP);
 					   String promotionName=promotionDetailDto.getPromotionName();
 					   
+					   //去重复促销名称
+					   orderPromotionNameSet.add(promotionName);
 					   
 					   if(i!=productInfoDto.getPromotionDetailInfoList().size()-1){
 						   promotionidStr.append(promotionId+",");
@@ -983,16 +991,36 @@ public class OrderService {
 				 }
 			 }
 			 
-
 			orderDetail.setShortName(productInfo.getShortName());//商品通用名
 			orderDetail.setSpuCode(productInfo.getSpuCode());
 			log.info("更新数据到订单详情表：orderDetail参数=" + orderDetail);
 			orderDetailMapper.save(orderDetail);
 			orderDetailList.add(orderDetail);
 		}
+		if(orderDto.getSpecialPromotionDto()!=null){
+			orderPromotionNameSet.add(orderDto.getSpecialPromotionDto().getPromotionName());
+		}
+		if(!UtilHelper.isEmpty(orderPromotionNameSet)){
+
+			 Iterator<String> currentIterator=orderPromotionNameSet.iterator();
+			 int i=0;
+			 while(currentIterator.hasNext()){
+				 String value=currentIterator.next();
+				 if(i!=orderPromotionNameSet.size()-1){
+					 orderPromotionName.append(value+",");
+				 }else{
+					 orderPromotionName.append(value);
+				 }
+				 i++;
+			 }
+			order.setPromotionName(orderPromotionName.toString());
+			
+			this.orderMapper.update(order);
+		}
 		orderDto.setOrderDetailList(orderDetailList);
 		return order;
 	}
+	
 
 
 

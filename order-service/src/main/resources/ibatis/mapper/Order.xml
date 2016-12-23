@@ -60,6 +60,7 @@
 		<result column="adviser_name" property="adviserName"/>
 		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
 		<result column="adviser_remark" property="adviserRemark"/>
+		<result column="promotion_name" property="promotionName"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -107,6 +108,7 @@
 		<result column="adviser_name" property="adviserName"/>
 		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
 		<result column="adviser_remark" property="adviserRemark"/>
+		<result column="promotion_name" property="promotionName"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -157,6 +159,7 @@
 		,adviser_name
 		,adviser_phone_number
 		,adviser_remark
+		,promotion_name
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -202,6 +205,7 @@
 				,adviser_name
 				,adviser_phone_number
 				,adviser_remark
+				,promotion_name
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -248,6 +252,7 @@
 		,adviser_name
 		,adviser_phone_number
 		,adviser_remark
+		,promotion_name
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -294,6 +299,7 @@
 		, T1.adviser_name
 		, T1.adviser_phone_number
 		, T1.adviser_remark
+		,T1.promotion_name
 	</sql>
 
 
@@ -341,6 +347,7 @@
 		, o.adviser_name
 		, o.adviser_phone_number
 		, o.adviser_remark
+		, o.promotion_name
 	</sql>
 
 	<sql id="commonCondition">
@@ -456,6 +463,9 @@
 		<if test="payFlag!= null">
 			AND pay_flag=#{payFlag}
 		</if>
+		<if test="promotionName!= null">
+			AND promotion_name=#{promotionName}
+		</if>
 	</sql>
 
 	<insert id="save" parameterType="Order" useGeneratedKeys="true" keyProperty="orderId">
@@ -506,6 +516,7 @@
 				, #{adviserName}
 				, #{adviserPhoneNumber}
 				, #{adviserRemark}
+				,#{promotionName}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -635,6 +646,9 @@
 		</if>
 		<if test="adviserRemark!= null">
 			,adviser_remark=#{adviserRemark}
+		</if>
+		<if test="promotionName!= null">
+			,promotion_name=#{promotionName}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
@@ -925,11 +939,10 @@
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
-		left join t_order_detail t3 on t1.order_id = t3.order_id
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
 		<if test="promotionName != null and promotionName != ''">
-			AND T3.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
 		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
@@ -1013,11 +1026,10 @@
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
-		left join t_order_detail t3 on t1.order_id = t3.order_id
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
 		<if test="promotionName != null and promotionName != ''">
-			AND T3.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
 		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
@@ -1106,11 +1118,10 @@
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
-		left join t_order_detail t3 on t1.order_id = t3.order_id
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
 		<if test="promotionName != null and promotionName != ''">
-			AND T3.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
 		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
@@ -1204,11 +1215,10 @@
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
-		left join t_order_detail t3 on t1.order_id = t3.order_id
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
 		<if test="promotionName != null and promotionName != ''">
-			AND T3.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
 		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )

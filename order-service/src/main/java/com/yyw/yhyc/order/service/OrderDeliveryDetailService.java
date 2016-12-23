@@ -336,9 +336,13 @@ public class OrderDeliveryDetailService {
 						BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
 						BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
 						BigDecimal allRecord=new BigDecimal(orderDeliveryDetail.getDeliveryProductCount());
-						BigDecimal currentReturnMoneyTotal=bigDecimal.divide(allRecord,2,BigDecimal.ROUND_HALF_DOWN).multiply(lastOrderDetailShareMoney);
-						orderReturn.setReturnPay(currentReturnMoneyTotal);
-						moneyTotal=moneyTotal.add(currentReturnMoneyTotal);
+						
+						double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
+						BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);
+						currentReturnMoneyValue=currentReturnMoneyValue.setScale(2,BigDecimal.ROUND_HALF_UP);
+						
+						orderReturn.setReturnPay(currentReturnMoneyValue);
+						moneyTotal=moneyTotal.add(currentReturnMoneyValue);
 					}else{
 						BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
 						BigDecimal currentReturnMoney=orderDetail.getProductPrice().multiply(bigDecimal);
