@@ -14,11 +14,14 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import net.sf.json.JSONObject;
 
@@ -30,12 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSON;
+import com.search.model.comparator.ProductPromotionRuleComparator;
 import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotionInfo;
 import com.search.model.yhyc.ProductPromotionRule;
-import com.yaoex.druggmp.dubbo.service.bean.PromotionDto;
-import com.yaoex.druggmp.dubbo.service.bean.PromotionRuleDto;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
@@ -1565,6 +1566,7 @@ public class ShoppingCartService {
 		
 		if(!UtilHelper.isEmpty(shoppingCartDto.getPromotionCollectionId())){//存在满减活动,获取满减活动与规则
 			Set<ProductPromotionInfo> productPromotionInfos = productDrug.getProductPromotionInfos();
+
 			if(!UtilHelper.isEmpty(productPromotionInfos)){//如果活动过期或者失效
 				List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
 				if(infoList.size()==1){//只有一个满减活动
@@ -1581,14 +1583,15 @@ public class ShoppingCartService {
 		return shoppingCartDto;
 	}
 
-
-
 	/**
 	 * 根据活动生成满减规则
 	 */
 	private void getRule(ShoppingCartDto shoppingCartDto,ProductPromotionInfo info){
 		Set<ProductPromotionRule> productPromotionRules = info.getProductPromotionRules();
-		List<ProductPromotionRule> ruleList = new ArrayList<ProductPromotionRule>(productPromotionRules);
+		Comparator myComparator = new ProductPromotionRuleComparator();
+		Set<ProductPromotionRule> sortProductPromotionRules = new TreeSet<ProductPromotionRule>(myComparator);
+		sortProductPromotionRules.addAll(productPromotionRules);
+		List<ProductPromotionRule> ruleList = new ArrayList<ProductPromotionRule>(sortProductPromotionRules);
 		String rule = "";
 		for (ProductPromotionRule promotionRule : ruleList) {
 			rule+=info.getPromotion_pre().equals("0")?"满"+promotionRule.getPromotion_sum()+"元,":"满"+promotionRule.getPromotion_sum()+"件,";

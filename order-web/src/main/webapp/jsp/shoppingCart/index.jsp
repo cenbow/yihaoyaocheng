@@ -110,7 +110,7 @@
 	                                        	<c:when test="${shoppingCartDto.rule != null}">
 	                                        	<p class="special_price">
 	                                        		<a href="javascript:void(0);" onclick="goFullActivity(${shoppingCartDto.promotionCollectionId},${shoppingCartDto.supplyId},${shoppingCartDto.promotionCollectionId});"  
-	                                        			title="${shoppingCartDto.rule}"><span>满减活动</span></a>
+	                                        			title="${shoppingCartDto.rule}"><span>满减</span></a>
                                         		</p> 
 	                                        	<form id="activity${shoppingCartDto.promotionCollectionId}" method="post" target="_blank" >
 													<input type="hidden" name="groupCodes" value="${shoppingCartDto.groupCode}"/>
