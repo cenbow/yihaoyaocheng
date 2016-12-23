@@ -903,10 +903,5 @@ public class Order extends Model{
 		this.promotionName = promotionName;
 	}
 
-	public void setPayFlag(int payFlag) {
-		this.payFlag = payFlag;
-	}
-	
-	
 }
 
