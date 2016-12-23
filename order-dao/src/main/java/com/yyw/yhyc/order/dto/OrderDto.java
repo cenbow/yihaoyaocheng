@@ -35,6 +35,8 @@ public class OrderDto extends Order {
     private OrderDelivery orderDelivery;//订单发货信息
     
     private BigDecimal orderFullReductionMoney; //该订单的优惠金额
+    
+    private OrderPromotionDto specialPromotionDto; //保存特价促销实体
 
     public BigDecimal getOrderFullReductionMoney() {
 		return orderFullReductionMoney;
@@ -246,4 +248,15 @@ public class OrderDto extends Order {
 	public void setPromotionName(String promotionName) {
 		this.promotionName = promotionName;
 	}
+
+	public OrderPromotionDto getSpecialPromotionDto() {
+		return specialPromotionDto;
+	}
+
+	public void setSpecialPromotionDto(OrderPromotionDto specialPromotionDto) {
+		this.specialPromotionDto = specialPromotionDto;
+	}
+
+	
+	
 }

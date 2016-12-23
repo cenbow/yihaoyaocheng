@@ -284,6 +284,12 @@ public class OrderCreateService {
 
 			/* 校验活动商品相关的限购逻辑 */
 			ProductPromotion productPromotion = productDrug.getProductPromotion();
+			if(!UtilHelper.isEmpty(productPromotion)){
+				OrderPromotionDto currentDto=new OrderPromotionDto();
+				currentDto.setPromotionName(productPromotion.getPromotion_name());
+				currentDto.setPromotionId(Integer.valueOf(productPromotion.getPromotion_id()));
+				orderDto.setSpecialPromotionDto(currentDto);
+			}
 
 			/* 如果常规商品这种状态是正常的，或者活动商品的活动信息是有效的，则统计该供应商下的已买商品总额 */
 			if(  1 == status && productPrice.compareTo(new BigDecimal(0)) > 0 || (!UtilHelper.isEmpty(productPromotion) && new BigDecimal("0").compareTo(productPromotion.getPromotion_price()) < 0 )){

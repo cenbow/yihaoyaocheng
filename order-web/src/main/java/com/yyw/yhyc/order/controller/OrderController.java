@@ -471,7 +471,8 @@ public class OrderController extends BaseJsonController {
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
-		OrderDto orderDto = requestModel.getParam();
+        String jsonStr=JSON.toJSONString(requestModel.getParam());
+		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
         return orderService.listPgBuyerOrder(pagination, orderDto);
@@ -506,7 +507,8 @@ public class OrderController extends BaseJsonController {
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
-		OrderDto orderDto = requestModel.getParam();
+		String jsonStr=JSON.toJSONString(requestModel.getParam());
+		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
 		return orderService.listPgSellerOrder(pagination, orderDto);
