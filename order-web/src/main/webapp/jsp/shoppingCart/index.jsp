@@ -9,6 +9,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8" charset="utf-8"></script>
 
 <!doctype html>
 <html>
@@ -69,7 +70,7 @@
                         	<span class="inside-icon">全选所有商品</span>
                         </div>
                         <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
-                        <a class="lts-shop-icon f12" href="${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
+                        <a class="lts-shop-icon f12" href="javascript:void(0);" onclick="doMD('我的进货单','http://mall.yaoex.com/shoppingCart/index','shopcart_yc_gostore','${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}')">进入店铺</a>
                         <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
                             <input type="hidden" name="orderSamount" supplyId="${shoppingCartListDto.seller.enterpriseId}" supplyName="${shoppingCartListDto.seller.enterpriseName}"
                                    value="${shoppingCartListDto.seller.orderSamount}" buyPrice="${shoppingCartListDto.productPriceCount}" needPrice="${shoppingCartListDto.needPrice}">
@@ -219,7 +220,7 @@
         </div>
         <div class="btn">
             <a class="os-btn-pay tc" href="javascript:void(0);">立即结算</a>
-            <a class="os-btn-order tc" href="${mallDomain}">继续采购</a>
+            <a class="os-btn-order tc" onclick="doMD('我的进货单','http://mall.yaoex.com/shoppingCart/index','shopcart_yc_continue','${mallDomain}')">继续采购</a>
         </div>
     </div>
 

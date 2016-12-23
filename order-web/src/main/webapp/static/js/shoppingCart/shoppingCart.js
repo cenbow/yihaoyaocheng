@@ -803,6 +803,7 @@ $(function() {
                     }
                 });
             }else{
+                doMD("我的进货单","http://mall.yaoex.com/shoppingCart/index","shopcart_yc_settle");
                 submitCheckOrderPage();
             }
 
@@ -1016,4 +1017,105 @@ function goFullActivity(id,sellerCode,promotionCollectionId){
 	var obj = $('#activity'+id);
 	obj.attr("action","http://mall.yaoex.com/shop/fullActivity/"+sellerCode+"/"+promotionCollectionId);
 	obj.submit();
+}
+
+
+
+
+/**
+ * 发送埋点信息
+ */
+function doMD(name,cururl,itemId,url){
+    var loginIP = returnCitySN.cip
+    var os = detectOS();
+    var explortType = detectBrowser();
+    var uuid = getUuid();
+    var itemName = encodeURI(name);
+    var screenSize = window.screen.width+"*"+window.screen.height;
+    var paramValue = "site=b2b&browser=" + explortType + "&version=" + "" + "&os=" + os + "&os_version=" + "" + "&model=" + "" + "&operator=" + "" +
+        "&ip=" + loginIP + "&uuid=" + uuid + "&userid=" + enterpriseId + "&autumn=" + "pc" + "&channelId=" + "" + "&tracker_u=" + "" +
+        "&xy=" + "" + "&action=" + "click" + "&cururl=" + cururl + "&refer=" + "http://mall.yaoex.com/" + "&Page_type=" +
+        "list" + "&Page_value=" + "" + "&refer_Page_type=" + "" +
+        "&refer_Page_value=" + "" + "&floorId=" + "" + "&floorPosition=" + "" + "&floorName=" + "" + "&sectionId=" + "" + "&sectionPosition=" + "" +
+        "&sectionName=" + "" + "&itemId" + itemId + "&itemPosition=" + "" + "&itemName=" + itemName + "&srn=" + "" + "&keyword=" + "" + "&orderid=" + "" +
+        "&productId=" + "" + "&provinceId=" + "" + "&screensize=" + screenSize +
+        "&starttime=" + "" + "&endtime=" + Date.parse(new Date()) + "&Algorithm=" + "";
+    alert(paramValue);
+    // var requestUrl = "http://nest.111.com.cn?" + paramValue;
+    // jQuery.ajax({ type: "get", url: requestUrl, async: true, dataType: 'jsonp',
+    //     jsonpCallback: "cb"
+    // });
+    if(url!=null){
+        window.location.href = url;
+    }
+}
+
+/**
+ * 埋点
+ * 获取用户登录系统信息
+ */
+function detectOS() {
+    var sUserAgent = navigator.userAgent;
+    var isWin = (navigator.platform == "Win32") || (navigator.platform == "Windows");
+    var isMac = (navigator.platform == "Mac68K") || (navigator.platform == "MacPPC") || (navigator.platform == "Macintosh") || (navigator.platform == "MacIntel");
+    if (isMac) return "Mac";
+    var isUnix = (navigator.platform == "X11") && !isWin && !isMac;
+    if (isUnix) return "Unix";
+    var isLinux = (String(navigator.platform).indexOf("Linux") > -1);
+    if (isLinux) return "Linux";
+    if (isWin) {
+        var isWin2K = sUserAgent.indexOf("Windows NT 5.0") > -1 || sUserAgent.indexOf("Windows 2000") > -1;
+        if (isWin2K) return "Win2000";
+        var isWinXP = sUserAgent.indexOf("Windows NT 5.1") > -1 || sUserAgent.indexOf("Windows XP") > -1;
+        if (isWinXP) return "WinXP";
+        var isWin2003 = sUserAgent.indexOf("Windows NT 5.2") > -1 || sUserAgent.indexOf("Windows 2003") > -1;
+        if (isWin2003) return "Win2003";
+        var isWinVista = sUserAgent.indexOf("Windows NT 6.0") > -1 || sUserAgent.indexOf("Windows Vista") > -1;
+        if (isWinVista) return "WinVista";
+        var isWin7 = sUserAgent.indexOf("Windows NT 6.1") > -1 || sUserAgent.indexOf("Windows 7") > -1;
+        if (isWin7) return "Win7";
+        var isWin10 = sUserAgent.indexOf("Windows NT 10.0") > -1 || sUserAgent.indexOf("Windows 10") > -1;
+        if (isWin10) return "Win10";
+    }
+    return "None";
+}
+/**
+ * 埋点
+ * 获取用户登录浏览器信息
+ */
+function detectBrowser() {
+    var sUserAgent =navigator.userAgent;
+    if (sUserAgent.indexOf("MSIE") >= 0) return "IE";
+    else if (sUserAgent.indexOf("Firefox") >= 0) return "Firefox";
+    else if (sUserAgent.indexOf("Chrome") >= 0) return "Chrome";
+    else if (sUserAgent.indexOf("Opera") >= 0) return "Opera";
+    else if (sUserAgent.indexOf("Safari") >= 0) return "Safari";
+    else if (sUserAgent.indexOf("Netscape") >= 0) return "Netscape";
+    else return "None";
+}
+/**
+ * 埋点
+ * 获取UUID
+ */
+function getUuid() {
+    var len = 32; //32长度
+    var radix = 16; //16进制
+    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+    uuid = [];
+
+    radix = radix || chars.length;
+    if (len) {
+        for (var i = 0; i < len; i++) uuid[i] = chars[0 | Math.random() * radix];
+    } else {
+        var r;
+        uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+        uuid[14] = '4';
+        for (i = 0; i < 36; i++) {
+            if (!uuid[i]) {
+                r = 0 | Math.random() * 16;
+                uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
+            }
+        }
+    }
+    return uuid.join('');
 }
