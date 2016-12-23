@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.facade.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.yyw.yhyc.order.dto.OrderIssuedDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,8 @@ public class ManufacturerOrderFacadeImpl implements ManufacturerOrderFacade {
     }
 
     @Override
-    public List<OrderIssued> getManufacturerOrder(Integer supplyId) {
-        return orderIssuedService.getManufacturerOrder(supplyId);
+    public List<OrderIssuedDto> getManufacturerOrder(Integer supplyId,String payType) {
+        return orderIssuedService.getManufacturerOrder(supplyId,payType);
     }
 
     @Override

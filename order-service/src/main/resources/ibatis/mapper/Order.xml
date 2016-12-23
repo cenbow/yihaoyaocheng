@@ -1493,9 +1493,13 @@
 	<select id="getOnlinePaymentOrderbyFlowId" parameterType="java.lang.String" resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="T1commonProcessDateColumns"/>
+		FROM t_order T1		
+		WHERE flow_id = #{flowId} 
+		
+		<!-- 订单下发回传不再局限于在线支付订单，此条件去掉
 		FROM t_order T1
 		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON T1.pay_type_id=TP.PAY_TYPE_ID
-		WHERE flow_id = #{flowId} AND TP.pay_type=1
+		WHERE flow_id = #{flowId} AND TP.pay_type=1 -->
 	</select>
 
 </mapper>

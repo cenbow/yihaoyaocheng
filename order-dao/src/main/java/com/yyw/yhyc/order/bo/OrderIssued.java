@@ -66,6 +66,12 @@ public class OrderIssued extends Model{
 	 * 是否已扫描标识0否1是
 	 */
 	private java.lang.Integer isScan;
+	
+	/**
+	 * erp订单编号
+	 */
+	private java.lang.String erpOrderCode;
+	
 	/**
 	  *	订单下发ID主键
 	  */
@@ -191,6 +197,7 @@ public class OrderIssued extends Model{
 					", updateTime=" + updateTime + 
 					", cusRelationship=" + cusRelationship + 
 					", isScan=" + isScan + 
+					", erpOrderCode=" + erpOrderCode + 
 				"]";
 	}
 
@@ -235,5 +242,14 @@ public class OrderIssued extends Model{
 	public void setSupplyName(java.lang.String supplyName) {
 		this.supplyName = supplyName;
 	}
+
+	public java.lang.String getErpOrderCode() {
+		return erpOrderCode;
+	}
+
+	public void setErpOrderCode(java.lang.String erpOrderCode) {
+		this.erpOrderCode = erpOrderCode;
+	}
+	
 }
 

@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.yaoex.framework.core.model.util.StringUtil;
 import com.yyw.yhyc.order.bo.OrderIssuedLog;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.mapper.OrderIssuedLogMapper;
 
 import org.apache.commons.lang.StringUtils;
@@ -190,7 +192,7 @@ public class OrderIssuedService {
 	 */
 	public Map<String, Object> queryOrderIssuedBySupplyIdAndOrderDate(
 			List<Integer> supplyListIds, String startDate, String endDate,
-			String orderIdList) throws Exception {
+			String orderIdList,String payType) throws Exception {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 
 		Map<String, Object> paramterMap = new HashMap<String, Object>();
@@ -199,62 +201,24 @@ public class OrderIssuedService {
 			resultMap.put("code", "0");
 			resultMap.put("message", "供应商为空");
 			return resultMap;
-		} //else {
-
-			/*
-			 * StringBuffer sql=new StringBuffer(); for(int
-			 * i=0;i<supplyListIds.size();i++){ int
-			 * supplyId=supplyListIds.get(i); if(i!=supplyListIds.size()-1){
-			 * sql.append(supplyId+","); }else{ sql.append(supplyId); } }
-			 * log.info("传递的supplyId集合："+sql.toString());
-			 */
-		//}
-		/*
-		 * if(StringUtils.hasText(startDate) && StringUtils.hasText(endDate)){
-		 * paramterMap.put("startDate",startDate);
-		 * paramterMap.put("endDate",endDate); }else{ Date currentDate=new
-		 * Date(); SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
-		 * 
-		 * String endDateStr=formate.format(currentDate);
-		 * 
-		 * Calendar calendar=Calendar.getInstance();
-		 * calendar.setTime(currentDate);
-		 * calendar.add(Calendar.DAY_OF_YEAR,-30);//日期减30天
-		 * 
-		 * Date startDateFromConvert=calendar.getTime();
-		 * 
-		 * String startDateStr=formate.format(startDateFromConvert);
-		 * 
-		 * paramterMap.put("startDate",startDateStr);
-		 * paramterMap.put("endDate",endDateStr); }
-		 */
-
-		/*if (StringUtils.hasText(orderIdList)) {
-			log.info("当前查询下发的订单集合列表orderIdList==[：" + orderIdList + "]");
-			StringBuffer idSql = new StringBuffer();
-			String[] orderList = orderIdList.split(",");
-
-			if (orderList != null && orderList.length > 0) {
-
-				for (int i = 0; i < orderList.length; i++) {
-					String orderFlowId = orderList[i];
-					if (i != orderList.length - 1) {
-						idSql.append("'" + orderFlowId + "',");
-					} else {
-						idSql.append("'" + orderFlowId + "'");
-					}
-				}
-
-				log.info("转换后的订单查询集合[" + idSql.toString() + "]");
-				paramterMap.put("orderIdList", idSql.toString());
-
-			}
-
-		}*/
-		log.info("传递的supplyId：" + supplyListIds.get(0));
-		paramterMap.put("supplyId", supplyListIds.get(0));
+		} 
+		
+		String json=JSON.toJSONString(supplyListIds);
+		log.info("传递的supplyIdList：" + json);
+		paramterMap.put("supplyIdList", supplyListIds.toArray());
 		paramterMap.put("startDate", startDate);
 		paramterMap.put("endDate", endDate);
+		if(StringUtils.isNotBlank(payType)){
+			paramterMap.put("payType",payType);
+			for(String type : payType.split(",")){
+				if(type.equals("1"))
+					paramterMap.put("payOnline", SystemPayTypeEnum.PayOnline.getPayType());
+				else if(type.equals("2"))
+					paramterMap.put("PayPeriodTerm", SystemPayTypeEnum.PayPeriodTerm.getPayType());
+				else if(type.equals("3"))
+					paramterMap.put("PayOffline", SystemPayTypeEnum.PayOffline.getPayType());
+			}
+		}
 		log.info("传递的orderIdList：" + orderIdList);
 		if(StringUtils.isNotBlank(orderIdList))
 			paramterMap.put("orderIdList", orderIdList.split(","));
@@ -272,7 +236,7 @@ public class OrderIssuedService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> editOrderIssuedListBySupplyId(Integer supplyId)
+	public Map<String, Object> editOrderIssuedListBySupplyId(Integer supplyId,String payType)
 			throws Exception {
 		String now = systemDateMapper.getSystemDate();
 		Map<String, Object> resultMap = new HashMap<String, Object>();
@@ -281,8 +245,22 @@ public class OrderIssuedService {
 			resultMap.put("message", "供应商为空");
 			return resultMap;
 		}
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("supplyId", supplyId);
+		if(StringUtils.isNotBlank(payType)){
+			params.put("payType",payType);
+			for(String type : payType.split(",")){
+				if(type.equals("1"))
+					params.put("payOnline", SystemPayTypeEnum.PayOnline.getPayType());
+				else if(type.equals("2"))
+					params.put("PayPeriodTerm", SystemPayTypeEnum.PayPeriodTerm.getPayType());
+				else if(type.equals("3"))
+					params.put("PayOffline", SystemPayTypeEnum.PayOffline.getPayType());
+			}
+		}
+
 		List<OrderIssuedDto> orderIssuedDtoList = orderIssuedMapper
-				.findOrderIssuedListBySupplyId(supplyId);
+				.findOrderIssuedListBySupplyId(params);
 		if (!UtilHelper.isEmpty(orderIssuedDtoList)) {
 			for (OrderIssuedDto orderIssuedDto : orderIssuedDtoList) {
 				String flowId = orderIssuedDto.getOrderCode();
@@ -318,7 +296,7 @@ public class OrderIssuedService {
 		}
 		//
 		List<OrderIssuedDto> issuedlist = orderIssuedMapper
-				.findOrderIssuedHasRelationshipList(supplyId);
+				.findOrderIssuedHasRelationshipList(params);
 		for (OrderIssuedDto one : issuedlist) {
 			log.error("*********没有对码的订单又对码了，扫出来插入，对原纪录做更新********"
 					+ one.getOrderCode());
@@ -347,7 +325,7 @@ public class OrderIssuedService {
 		orderIssuedDtoList.addAll(issuedlist);
 		
 		// 扫描此供应商没有对码的单
-		orderIssuedExceptionService.downNoRelationshipJob(supplyId);
+		orderIssuedExceptionService.downNoRelationshipJob(params);
 
 		resultMap.put("code", "1");
 		resultMap.put("orderIssuedDtoList", orderIssuedDtoList);
@@ -388,11 +366,63 @@ public class OrderIssuedService {
 		resultMap.put("code", "1");
 		return resultMap;
 	}
+	
+	/**
+	 * 更新订单下发表
+	 * @param orderIssuedList
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> updateOrderIssuedForWsdl(List<OrderIssued> orderIssuedList) throws Exception {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		if (UtilHelper.isEmpty(orderIssuedList)) {
+			resultMap.put("code", "0");
+			resultMap.put("message", "订单集合为空");
+			return resultMap;
+		}
+		String now = systemDateMapper.getSystemDate();
+		for (OrderIssued order : orderIssuedList) {
+			OrderIssued orderIssued = orderIssuedMapper.findByFlowId(order.getFlowId());
+			if (orderIssued != null) {
+				if (StringUtil.isEmpty(order.getErpOrderCode())) {//erp订单编号为空的记录为下发失败的记录
+					orderIssued.setIssuedStatus("0");// 设置下发状态，为失败
+				} else {
+					orderIssued.setErpOrderCode(order.getErpOrderCode());
+				}
+				orderIssued.setUpdateTime(now);
+				orderIssuedMapper.update(orderIssued);
 
-	public List<OrderIssued> getManufacturerOrder(Integer supplyId) {
-		log.info("供应商编码：" + supplyId + "订单编码集合："
-				+ orderIssuedMapper.getManufacturerOrder(supplyId));
-		return orderIssuedMapper.getManufacturerOrder(supplyId);
+				if (StringUtil.isEmpty(order.getErpOrderCode())) {
+					// 下发日志
+					OrderIssuedLog orderIssuedLog = new OrderIssuedLog();
+					orderIssuedLog.setFlowId(order.getFlowId());
+					orderIssuedLog.setOperateName("下发失败");
+					orderIssuedLog.setOperator(orderIssued.getSupplyName());
+					orderIssuedLog.setOperateTime(now);
+					orderIssuedLogMapper.save(orderIssuedLog);
+				}
+			}
+		}
+		resultMap.put("code", "1");
+		return resultMap;
+	}
+
+	public List<OrderIssuedDto> getManufacturerOrder(Integer supplyId, String payType) {
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("supplyId", supplyId);
+		if(StringUtils.isNotBlank(payType)){
+			params.put("payType", payType);
+			for(String type : payType.split(",")){
+				if(type.equals("1"))
+					params.put("payOnline", SystemPayTypeEnum.PayOnline.getPayType());
+				else if(type.equals("2"))
+					params.put("PayPeriodTerm", SystemPayTypeEnum.PayPeriodTerm.getPayType());
+				else if(type.equals("3"))
+					params.put("PayOffline", SystemPayTypeEnum.PayOffline.getPayType());
+			}
+		}
+		log.info("供应商编码：" + supplyId + "支付方式："+ payType);
+		return orderIssuedMapper.getManufacturerOrder(params);
 	}
 
 	/**
@@ -400,8 +430,8 @@ public class OrderIssuedService {
 	 * 查询没有对码的订单记录
 	 */
 	public List<Map<String, Object>> findOrderIssuedNoRelationshipList(
-			Integer supplyId) {
-		return orderIssuedMapper.findOrderIssuedNoRelationshipList(supplyId);
+			Map<String, Object> params) {
+		return orderIssuedMapper.findOrderIssuedNoRelationshipList(params);
 	}
 
 	// 根据flowId给更新
