@@ -1040,11 +1040,11 @@ function doMD(name,cururl,itemId,url){
         "&sectionName=" + "" + "&itemId" + itemId + "&itemPosition=" + "" + "&itemName=" + itemName + "&srn=" + "" + "&keyword=" + "" + "&orderid=" + "" +
         "&productId=" + "" + "&provinceId=" + "" + "&screensize=" + screenSize +
         "&starttime=" + "" + "&endtime=" + Date.parse(new Date()) + "&Algorithm=" + "";
-    alert(paramValue);
-    // var requestUrl = "http://nest.111.com.cn?" + paramValue;
-    // jQuery.ajax({ type: "get", url: requestUrl, async: true, dataType: 'jsonp',
-    //     jsonpCallback: "cb"
-    // });
+    // alert(paramValue);
+    var requestUrl = "http://nest.111.com.cn?" + paramValue;
+    jQuery.ajax({ type: "get", url: requestUrl, async: true, dataType: 'jsonp',
+        jsonpCallback: "cb"
+    });
     if(url!=null){
         window.location.href = url;
     }

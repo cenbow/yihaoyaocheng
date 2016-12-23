@@ -337,9 +337,6 @@ public class OrderPayController extends BaseJsonController {
 			if( UtilHelper.isEmpty(order)) continue;
 			if( ! SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus())) continue;
 
-			OrderCombined orderCombined = orderCombinedService.getByPK(order.getOrderCombinedId());
-			if(UtilHelper.isEmpty(orderCombined) || UtilHelper.isEmpty(orderCombined.getPayFlowId())) continue;
-			OrderPay orderPay = orderPayService.getByPayFlowId(orderCombined.getPayFlowId());
 
 			/* 招行E+支付 */
 //			if(OnlinePayTypeEnum.CmbEPlus.getPayTypeId() == payTypeId){
@@ -349,20 +346,23 @@ public class OrderPayController extends BaseJsonController {
 			/* 银联支付 */
 			if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId() == payTypeId || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId() == payTypeId ||
 					OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId() == payTypeId ){
-				List<OrderPayDto> list = orderPayService.listOrderPayDtoByProperty(orderPay);
+				order.setPayTypeId(payTypeId);
+				List<OrderPayDto> list = orderPayService.getSupplyAccountPayInfo(order);
+				logger.info("[在线支付]---支付前校验收款人的银行卡信息：list = " + list );
 				if (UtilHelper.isEmpty(list)) {
 					resultMap.put("statusCode","100");
 					resultMap.put("message","订单编号为" + order.getFlowId() + "的订单收款账号配置有误，请联系平台客服！");
-					break;
+					return resultMap;
+
 				}
 
 			}
 		}
-		logger.info("[在线支付]---支付前校验收款人的银行卡信息，返回数据resultMap = " + resultMap );
 		if(UtilHelper.isEmpty(resultMap) || !resultMap.containsKey("statusCode")){
 			resultMap.put("statusCode","200");
 			resultMap.put("message","供应商银行卡信息正常");
 		}
+		logger.info("[在线支付]---支付前校验收款人的银行卡信息，返回数据resultMap = " + resultMap );
 		return resultMap;
 	}
 

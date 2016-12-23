@@ -189,6 +189,7 @@
             return;
         }
 
+
         var _url = "${PAY_DOMAIN}/orderPay/validateBankCard?flowIds="+flowIds+"&payTypeId="+payTypeId;
         $.ajax({
             url: _url,
