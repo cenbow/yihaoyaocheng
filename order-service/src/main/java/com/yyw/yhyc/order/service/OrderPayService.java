@@ -461,4 +461,13 @@ public class OrderPayService {
 	public List<OrderPayDto> listOrderPayDtoByProperty(OrderPay orderPay) {
 		return orderPayMapper.listOrderPayDtoByProperty(orderPay);
 	}
+
+	/**
+	 * 根据 flowId 和 payTypeId 查询该笔支付订单 的供应商 是否配置了相应的收款银行账号
+	 * @param order
+     * @return
+     */
+	public List<OrderPayDto> getSupplyAccountPayInfo(Order order) {
+		return orderPayMapper.getSupplyAccountPayInfo(order);
+	}
 }

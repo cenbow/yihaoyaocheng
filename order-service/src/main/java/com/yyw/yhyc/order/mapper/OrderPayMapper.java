@@ -12,6 +12,7 @@ package com.yyw.yhyc.order.mapper;
 
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.mapper.GenericIBatisMapper;
+import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.order.dto.OrderPayDto;
 
@@ -26,4 +27,6 @@ public interface OrderPayMapper extends GenericIBatisMapper<OrderPay, Integer> {
 	public OrderPay getPayFlowIdByPayAccountNo(String payaccountno);
 
 	public List<OrderPayDto> listOrderPayDtoByProperty(OrderPay orderPay);
+
+	List<OrderPayDto> getSupplyAccountPayInfo(Order order);
 }

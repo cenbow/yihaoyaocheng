@@ -273,5 +273,12 @@
 		AND p.pay_flow_id=#{payFlowId} AND a.pay_type_id=#{payTypeId}
 	</select>
 
+	<select id="getSupplyAccountPayInfo" parameterType="Order" resultMap="OrderPayDtoResultMapper">
+		SELECT o.supply_id,o.cust_id,o.org_total,a.receive_account_name,a.receive_account_no
+		FROM t_order o,t_account_pay_info a
+		WHERE o.supply_id = a.cust_id
+		AND a.account_status=1 AND o.flow_id=#{flowId} AND a.pay_type_id=#{payTypeId}
+	</select>
+
 
 </mapper>
