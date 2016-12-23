@@ -93,34 +93,37 @@
             return;
         }
 
-        var _url = "${PAY_DOMAIN}/orderPay/validateBankCard?flowIds="+flowIds+"&payTypeId="+payTypeId;
-        $.ajax({
-            url: _url,
-            async:false,
-            type:"get",
-            dataType:"json",   //返回参数类型
-            contentType :"application/json",   //请求参数类型
-            beforeSend:function(request){
-                request.setRequestHeader("mySessionId",$("#sessionId").val());
-            },
-            success:function(data){
-                console.info(data);
-                if("200" === data.statusCode){
-                    window.open("${PAY_DOMAIN}/orderPay/pay?flowIds="+flowIds+"&payTypeId="+payTypeId);
-                    setTimeout("openDialog(\""+flowIds+"\")","50");
-                }else{
-                    new Dialog({
-                        title:'提示',
-                        content:'<p class="mt60 f14">' + data.message + '</p>',
-                        cancel:'取消',
-                        ok:'确定'
-                    });
-                }
-            },
-            error:function(){
+        window.open("${PAY_DOMAIN}/orderPay/pay?flowIds="+flowIds+"&payTypeId="+payTypeId);
+        setTimeout("openDialog(\""+flowIds+"\")","50");
 
-            }
-        })
+        <%--var _url = "${PAY_DOMAIN}/orderPay/validateBankCard?flowIds="+flowIds+"&payTypeId="+payTypeId;--%>
+        <%--$.ajax({--%>
+            <%--url: _url,--%>
+            <%--async:false,--%>
+            <%--type:"get",--%>
+            <%--dataType:"json",   //返回参数类型--%>
+            <%--contentType :"application/json",   //请求参数类型--%>
+            <%--beforeSend:function(request){--%>
+                <%--request.setRequestHeader("mySessionId",$("#sessionId").val());--%>
+            <%--},--%>
+            <%--success:function(data){--%>
+                <%--console.info(data);--%>
+                <%--if("200" === data.statusCode){--%>
+                    <%--window.open("${PAY_DOMAIN}/orderPay/pay?flowIds="+flowIds+"&payTypeId="+payTypeId);--%>
+                    <%--setTimeout("openDialog(\""+flowIds+"\")","50");--%>
+                <%--}else{--%>
+                    <%--new Dialog({--%>
+                        <%--title:'提示',--%>
+                        <%--content:'<p class="mt60 f14">' + data.message + '</p>',--%>
+                        <%--cancel:'取消',--%>
+                        <%--ok:'确定'--%>
+                    <%--});--%>
+                <%--}--%>
+            <%--},--%>
+            <%--error:function(){--%>
+
+            <%--}--%>
+        <%--})--%>
     }
 
     /**
