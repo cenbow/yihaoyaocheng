@@ -11,11 +11,14 @@
 package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
@@ -25,9 +28,12 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.search.model.comparator.ProductPromotionRuleComparator;
 import com.search.model.dto.ProductSearchParamDto;
 import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotion;
+import com.search.model.yhyc.ProductPromotionInfo;
+import com.search.model.yhyc.ProductPromotionRule;
 import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
@@ -198,6 +204,9 @@ public class FastOrderService {
 //		//获取商品图片 
 //		String productImgUrl = getProductImgUrl(productDrug.getPic_path());
 //		shoppingCartDto.setProductImageUrl(productImgUrl);
+		
+		//给满减活动排序
+		sortProductPromotionInfos(productDrug.getProductPromotionInfos());
 
 		//2、填充其他值
 		int minimumPacking = Integer.valueOf(productDrug.getMinimum_packing());
@@ -278,6 +287,26 @@ public class FastOrderService {
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Normal.getStatus());
 		}
 		return shoppingCartDto;
+	}
+	
+	/**
+	 * 给满减活动排序
+	 * @param productPromotionInfos
+	 */
+	public static void sortProductPromotionInfos(Set<ProductPromotionInfo> productPromotionInfos){
+		if(productPromotionInfos==null){
+			return;
+		}
+		Comparator myComparator = new ProductPromotionRuleComparator();
+		Iterator<ProductPromotionInfo> iterator = productPromotionInfos.iterator();
+		while(iterator.hasNext()) {
+			ProductPromotionInfo productPromotionInfo = iterator.next();
+			if (productPromotionInfo != null && productPromotionInfo.getProductPromotionRules() != null) {
+				Set<ProductPromotionRule> productPromotionRules = new TreeSet<ProductPromotionRule>(myComparator);
+				productPromotionRules.addAll(productPromotionInfo.getProductPromotionRules());
+				productPromotionInfo.setProductPromotionRules(productPromotionRules);
+			}
+		}
 	}
 
 	/**
