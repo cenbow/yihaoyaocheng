@@ -53,13 +53,13 @@
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
     </bean>
 
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+   <!--  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
         <property name="rollbackOnCommitFailure" value="true" />
-    </bean>
+    </bean> -->
 
     <!-- 配置事务 -->
-    <aop:config proxy-target-class="true">
+   <!--  <aop:config proxy-target-class="true">
         <aop:advisor pointcut="execution(* com.yyw.yhyc.*.service..*Service*.*(..))" advice-ref="txAdvice" />
     </aop:config>
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
@@ -96,7 +96,7 @@
             <tx:method name="view*" rollback-for="Exception" read-only="true" />
             <tx:method name="query*" rollback-for="Exception" read-only="true" />
         </tx:attributes>
-    </tx:advice>
+    </tx:advice> -->
     
      <bean id="druid-stat-interceptor"
           class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
