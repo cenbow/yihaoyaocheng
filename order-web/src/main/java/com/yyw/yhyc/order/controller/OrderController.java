@@ -479,10 +479,16 @@ public class OrderController extends BaseJsonController {
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
+        logger.debug("参数requestModel.getParam()=="+requestModel.getParam());
         String jsonStr=JSON.toJSONString(requestModel.getParam());
 		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
+		
+	    logger.debug("参数处理结果==orderDto"+orderDto.toString());
+	    
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
+		
+		logger.debug("参数userDto=="+userDto.toString());
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 

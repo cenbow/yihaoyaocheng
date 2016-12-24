@@ -1388,7 +1388,7 @@ public class OrderService {
     public Map<String, Object> listPgBuyerOrder(Pagination<OrderDto> pagination, OrderDto orderDto) {
         if(UtilHelper.isEmpty(orderDto))
             throw new RuntimeException("参数错误");
-		log.debug("request orderDto :"+orderDto.toString());
+		log.debug("listPgBuyerOrder ******** request orderDto :"+orderDto.toString());
 		if(!UtilHelper.isEmpty(orderDto.getCreateEndTime())){
 			try {
 				Date endTime = DateUtils.formatDate(orderDto.getCreateEndTime(),"yyyy-MM-dd");
