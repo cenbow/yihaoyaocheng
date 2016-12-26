@@ -26,20 +26,36 @@ public class OrderIssuedDto implements Serializable {
 	  *	供应商名称
 	  */
 	private java.lang.String supplyName;
+	private  Integer supplyId; //
     private String createTime;      //下单时间
 
     private OrderDelivery orderDelivery;    //收货信息
 
     private Integer orderId;
 
-    private Integer custId;
+    private String custId;
 
-    public Integer getCustId() {
-        return custId;
+    private Integer payType; //支付类型
+
+    public Integer getPayType() {
+        return payType;
     }
 
-    public void setCustId(Integer custId) {
-        this.custId = custId;
+    /**
+     * erp订单编号
+     */
+    private java.lang.String erpOrderCode;
+
+    public String getErpOrderCode() {
+        return erpOrderCode;
+    }
+
+    public void setErpOrderCode(String erpOrderCode) {
+        this.erpOrderCode = erpOrderCode;
+    }
+
+    public void setPayType(Integer payType) {
+        this.payType = payType;
     }
 
     public Integer getOrderId() {
@@ -119,4 +135,28 @@ public class OrderIssuedDto implements Serializable {
 	public void setSupplyName(java.lang.String supplyName) {
 		this.supplyName = supplyName;
 	}
+
+	/**
+	 * @return the custId
+	 */
+	public String getCustId() {
+		return custId;
+	}
+
+	/**
+	 * @param custId the custId to set
+	 */
+	public void setCustId(String custId) {
+		this.custId = custId;
+	}
+
+	public Integer getSupplyId() {
+		return supplyId;
+	}
+
+	public void setSupplyId(Integer supplyId) {
+		this.supplyId = supplyId;
+	}
+	
+	
 }

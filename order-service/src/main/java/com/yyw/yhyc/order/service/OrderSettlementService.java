@@ -332,7 +332,7 @@ public class OrderSettlementService {
 			orderSettlement.setCustId(null);
 			orderSettlement.setSupplyId(supplyId);
 			orderSettlement.setConfirmSettlement("0");
-			orderSettlement.setSettlementMoney(order.getOrderTotal());
+			orderSettlement.setSettlementMoney(order.getOrgTotal());
 			break;
 		case 3:
 			orderSettlement.setCustId(custId);
@@ -384,7 +384,7 @@ public class OrderSettlementService {
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
 	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
-		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
+		log.info("同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
 		OrderSettlement condition=new OrderSettlement();
 		condition.setFlowId(flowId);
 		condition.setBusinessType(type);
@@ -403,7 +403,7 @@ public class OrderSettlementService {
 			condition.setSupplyId(supplyId);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}else{
-			log.info("银联同步回调->更新结算信息-传入空值参数");
+			log.info("更新结算信息更新结算信息表-传入空值参数");
 		}
 
 	}
@@ -453,36 +453,45 @@ public class OrderSettlementService {
 	}
 	
 
-	  /**
-	     * 退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
-	     * @param settleFlowId
-	     */
-	    public void updateSettlementByMapInfo(String settleFlowId,String tradeNo)
-	    {
-	    	log.error("更新结算状态updateSettlementByMapInfo method==" + settleFlowId+", "+tradeNo);
-	    	OrderException exceptionInfo = new OrderException();
-	  
-	    	exceptionInfo.setFlowId(settleFlowId);
-	    	List<OrderException> listInfo = orderExceptionMapper.listByProperty(exceptionInfo);
-	    	if (listInfo != null && listInfo.size() > 0) {
-	    		log.error("取出异常结算数据exception_order_id");
-	    		OrderException exception  = listInfo.get(0);
-	    	    OrderSettlement orderSettlement = null;
-	    	    Map<String,Object> condition = new HashedMap();
-	    	    condition.put("flowId",exception.getExceptionOrderId());
-	    	    orderSettlement = orderSettlementMapper.getByProperty(condition);
-	    	    if(orderSettlement != null)
-	            {
-	    	    	log.error("开始更新数据");
-	                orderSettlement.setSettleFlowId(tradeNo);
-	                orderSettlement.setConfirmSettlement("1");
-	                orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
-	            }
-	    		
-	    	} else {
-	    		log.error("无数据");
-	    	}
-	    	
-
-	    }
+	 /**
+     * 支付宝退款回调返回成功状态后修改  结算表 的 结算状态 为  1已结算（银行对账完毕）
+     * @param settleFlowId
+     */
+    public void updateSettlementByMapInfo(String settleFlowId,String tradeNo)
+    {
+    	log.error("更新结算状态updateSettlementByMapInfo method==" + settleFlowId+", "+tradeNo);
+    	Map<String,Object> conditionInfo = new HashedMap();
+    	conditionInfo.put("flowId",settleFlowId);
+    	conditionInfo.put("businessType",4);
+    	OrderSettlement orderSettlementInfo = orderSettlementMapper.getByProperty(conditionInfo);
+    	if (orderSettlementInfo != null) {
+	    		log.error("更新卖家取消结算信息");
+	    		orderSettlementInfo.setSettleFlowId(tradeNo);
+	    		orderSettlementInfo.setRefunSettlementMoney(orderSettlementInfo.getSettlementMoney());
+	    		orderSettlementInfo.setConfirmSettlement("1");
+	            orderSettlementMapper.updateSettlementPayFlowId(orderSettlementInfo);
+    	} else {
+		    	OrderException exceptionInfo = new OrderException();
+		    	exceptionInfo.setFlowId(settleFlowId);
+		    	List<OrderException> listInfo = orderExceptionMapper.listByProperty(exceptionInfo);
+		    	if (listInfo != null && listInfo.size() > 0) {
+		    		log.error("取出异常结算数据exception_order_id");
+		    		OrderException exception  = listInfo.get(0);
+		    	    OrderSettlement orderSettlement = null;
+		    	    Map<String,Object> condition = new HashedMap();
+		    	    condition.put("flowId",exception.getExceptionOrderId());
+		    	    orderSettlement = orderSettlementMapper.getByProperty(condition);
+		    	    if(orderSettlement != null)
+		            {
+		    	    	log.error("开始更新数据");
+		                orderSettlement.setSettleFlowId(tradeNo);
+		                orderSettlement.setConfirmSettlement("1");
+		                orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
+		            }
+		    		
+		    	} else {
+		    		log.error("无数据");
+		    	}
+    	}
+    }
 }

@@ -217,7 +217,7 @@ public class ShoppingCartFacadeImpl implements ShoppingCartFacade {
 			map.put("message", "商品数量不能为空！");
 			return map;
 		}
-
+		shoppingCart.setRemark("来源于Dubbo接口");
 		try {
 			//TODO Facade层 怎么获取当前登陆用户的信息呢？
 			logger.info("提供给外部使用的加入进货单接口，请求数据shoppingCart=" + shoppingCart);

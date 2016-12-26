@@ -35,7 +35,7 @@
 		<!-- 登录拦截 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
-			<mvc:exclude-mapping path="/version/**/*"/>
+			<mvc:exclude-mapping path="/api/version/**/*"/>
 			<bean class="com.yyw.yhyc.order.inteceptor.LoginInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>

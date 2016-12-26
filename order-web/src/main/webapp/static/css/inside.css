@@ -2550,7 +2550,7 @@ i {
 .shopping-cart .order-holder .holder-top p {
   float: right;
   color: #fe5050;
-  width: 450px;
+	padding-right:10px;
   text-align: center;
 }
 .shopping-cart .order-holder .holder-top .cart-checkbox {
@@ -2618,9 +2618,20 @@ i {
   width: 250px;
   padding: 40px 0 0 10px;
 }
+.shopping-cart .holder-list .td-item .special_price{
+  padding-bottom: 12px;
+}
+
+.shopping-cart .holder-list .td-item .special_price span {
+  color: #fff;
+  background: #fe5050;
+  padding: 4px 10px;
+}
 .shopping-cart .holder-list .td-item .item-title {
   font-size: 15px;
   font-weight: 400;
+  width:250px;
+  display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   color: #333;
   line-height: 30px;
 }

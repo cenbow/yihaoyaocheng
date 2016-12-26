@@ -64,4 +64,6 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public Order getOnlinePaymentOrderbyFlowId(String flowId);
 	
 	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto);
+
+	public List<OrderDto> findAppOrderStatusCount(OrderDto orderDto);
 }

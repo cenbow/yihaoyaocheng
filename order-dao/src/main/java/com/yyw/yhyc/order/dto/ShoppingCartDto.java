@@ -1,8 +1,10 @@
 package com.yyw.yhyc.order.dto;
 
-import com.yyw.yhyc.order.bo.ShoppingCart;
-
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
+
+import com.yyw.yhyc.order.bo.ShoppingCart;
 
 /**
  * Created by lizhou on 2016/8/2
@@ -68,6 +70,9 @@ public class ShoppingCartDto extends ShoppingCart  {
     private int promotionType;
 
 //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
+    
+    //搜索出来的满减活动信息集合
+    private Set productPromotionInfos;
 
     /* 商品状态是否正常*/
     private boolean normalStatus ;
@@ -75,7 +80,60 @@ public class ShoppingCartDto extends ShoppingCart  {
     /* 商品状态是不正常的原因*/
     private String unNormalStatusReason;
 
-    public Integer getSaleStart() {
+    /* 状态枚举值 */
+    private int statusEnum ;
+    
+    /**
+     * 如果参加了满减活动那么均摊的钱
+     */
+    private BigDecimal shareMoney;
+    
+    /**
+     * 如果该商品参加了满减活动，那么该属性有值，且可以参加多个满减
+     */
+    private List<OrderPromotionDto> fullReductionPromotionList;
+    
+    /**
+     * 如果该商品参加了特价活动，那么该属性有值，且是特价活动的实体
+     */
+    private OrderPromotionDto specailPromotionDto;
+    
+    /**
+     * 保存商品参加的满减信息，什么类型的满减以及每个满减优惠了多少钱
+     */
+    private List<OrderPromotionDetailDto> promotionDetailInfoList;
+    
+    private String rule;
+    
+    private String groupCode;
+    
+
+    public OrderPromotionDto getSpecailPromotionDto() {
+		return specailPromotionDto;
+	}
+
+	public void setSpecailPromotionDto(OrderPromotionDto specailPromotionDto) {
+		this.specailPromotionDto = specailPromotionDto;
+	}
+
+	public List<OrderPromotionDto> getFullReductionPromotionList() {
+		return fullReductionPromotionList;
+	}
+
+	public void setFullReductionPromotionList(
+			List<OrderPromotionDto> fullReductionPromotionList) {
+		this.fullReductionPromotionList = fullReductionPromotionList;
+	}
+
+	public BigDecimal getShareMoney() {
+		return shareMoney;
+	}
+
+	public void setShareMoney(BigDecimal shareMoney) {
+		this.shareMoney = shareMoney;
+	}
+
+	public Integer getSaleStart() {
         return saleStart;
     }
 
@@ -227,28 +285,69 @@ public class ShoppingCartDto extends ShoppingCart  {
         this.unNormalStatusReason = unNormalStatusReason;
     }
 
-    @Override
-    public String toString() {
-        return "ShoppingCartDto{" +
-                "productImageUrl='" + productImageUrl + '\'' +
-                ", periodProduct=" + periodProduct +
-                ", paymentTerm=" + paymentTerm +
-                ", unit='" + unit + '\'' +
-                ", minimumPacking=" + minimumPacking +
-                ", saleStart=" + saleStart +
-                ", upStep=" + upStep +
-                ", existProductInventory=" + existProductInventory +
-                ", productInventory=" + productInventory +
-                ", putawayStatus=" + putawayStatus +
-                ", isChannel=" + isChannel +
-                ", promotionPrice=" + promotionPrice +
-                ", promotionMinimumPacking=" + promotionMinimumPacking +
-                ", promotionLimitNum=" + promotionLimitNum +
-                ", promotionSumInventory=" + promotionSumInventory +
-                ", promotionCurrentInventory=" + promotionCurrentInventory +
-                ", promotionType=" + promotionType +
-                ", normalStatus=" + normalStatus +
-                ", unNormalStatusReason=" + unNormalStatusReason +
-                "} " + super.toString();
+    public int getStatusEnum() {
+        return statusEnum;
     }
+
+    public void setStatusEnum(int statusEnum) {
+        this.statusEnum = statusEnum;
+    }
+    
+    
+
+    public List<OrderPromotionDetailDto> getPromotionDetailInfoList() {
+		return promotionDetailInfoList;
+	}
+
+	public void setPromotionDetailInfoList(
+			List<OrderPromotionDetailDto> promotionDetailInfoList) {
+		this.promotionDetailInfoList = promotionDetailInfoList;
+	}
+
+	public String getRule() {
+		return rule;
+	}
+
+	public void setRule(String rule) {
+		this.rule = rule;
+	}
+	
+	public Set getProductPromotionInfos() {
+		return productPromotionInfos;
+	}
+
+	public void setProductPromotionInfos(Set productPromotionInfos) {
+		this.productPromotionInfos = productPromotionInfos;
+	}
+
+	public String getGroupCode() {
+		return groupCode;
+	}
+
+	public void setGroupCode(String groupCode) {
+		this.groupCode = groupCode;
+	}
+
+	@Override
+	public String toString() {
+		return "ShoppingCartDto [productImageUrl=" + productImageUrl
+				+ ", periodProduct=" + periodProduct + ", paymentTerm="
+				+ paymentTerm + ", unit=" + unit + ", minimumPacking="
+				+ minimumPacking + ", saleStart=" + saleStart + ", upStep="
+				+ upStep + ", existProductInventory=" + existProductInventory
+				+ ", productInventory=" + productInventory + ", putawayStatus="
+				+ putawayStatus + ", isChannel=" + isChannel
+				+ ", promotionPrice=" + promotionPrice
+				+ ", promotionMinimumPacking=" + promotionMinimumPacking
+				+ ", promotionLimitNum=" + promotionLimitNum
+				+ ", promotionSumInventory=" + promotionSumInventory
+				+ ", promotionCurrentInventory=" + promotionCurrentInventory
+				+ ", promotionType=" + promotionType + ", normalStatus="
+				+ normalStatus + ", unNormalStatusReason="
+				+ unNormalStatusReason + ", statusEnum=" + statusEnum
+				+ ", shareMoney=" + shareMoney
+				+ ", fullReductionPromotionList=" + fullReductionPromotionList
+				+ ", specailPromotionDto=" + specailPromotionDto
+				+ ", promotionDetailInfoList=" + promotionDetailInfoList + "]";
+	}
 }

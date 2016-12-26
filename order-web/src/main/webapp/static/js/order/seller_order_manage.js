@@ -10,12 +10,34 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
-
     //绑定省市区
     bindAreaData('province','city','district');
     //绑定下载批号模板
     blindDownLoadBatchTemplate();
+    //查询销售顾问
+    queryAdviser();
+
 })
+function queryAdviser(){
+	  $.ajax({
+	        url: ctx+"/order/queryAdviser",
+	        type: 'POST',
+	        contentType: "application/json;charset=UTF-8",
+	        success: function (data) {
+	            if (data != null && data.length > 0) {
+	            	var opt = "<option value=''></option>";
+	            	for(var i=0;i<data.length;i++){
+	            		opt +=  "<option value='"+ data[i].adviserCode +"'>"+ data[i].adviserName +"</option>"
+	            	}
+	               $('#adviserCode').append(opt);
+	            }
+	        },
+	        error: function (XMLHttpRequest, textStatus, errorThrown) {
+	            tipRemove();
+	            alertModal("查询销售顾问失败");
+	        }
+	    });
+}
 function fnInitPageUtil() {
     $("#J_pager").pager();
 }

@@ -204,13 +204,15 @@ public class Order extends Model{
 	 * @return
      */
 	private  Integer delayTimes;
+	
+	private String promotionName; //包含多个促销名称,用,分割
 
 
 	/**
 	 * 	订单支付标记 1：打款成功 2：打款失败 3：退款成功 4：退款失败'
 	 * @return
 	 */
-	private int payFlag;
+	private Integer payFlag;
 
 	/* 订单商品种类数量 */
 	private int productSortCount;
@@ -865,7 +867,6 @@ public class Order extends Model{
 		this.productSortCount = productSortCount;
 	}
 
-	@Override
 	public String toString() {
 		return "Order{" +
 				"orderId=" + orderId +
@@ -957,5 +958,14 @@ public class Order extends Model{
 	public void setAdviserRemark(String adviserRemark) {
 		this.adviserRemark = adviserRemark;
 	}
+
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
+	}
+
 }
 

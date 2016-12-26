@@ -38,6 +38,7 @@
 		<result column="from_where" property="fromWhere"/>
 		<result column="promotion_id" property="promotionId"/>
 		<result column="promotion_name" property="promotionName"/>
+		<result column="promotion_collection_id" property="promotionCollectionId"/>
 	</resultMap>
 	<resultMap id="ShoppingCartDtoResultMapper" extends="ShoppingCartResultMapper" type="com.yyw.yhyc.order.dto.ShoppingCartDto">
 		<result column="product_image_url" property="productImageUrl"/>
@@ -48,16 +49,8 @@
 		<association property="buyer" column="CUST_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"/>
 		<association property="seller" column="SUPPLY_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"/>
 		<collection property="shoppingCartDtoList" javaType="ArrayList" ofType="ShoppingCartDto"
-					column="{custId=CUST_ID,supplyId=SUPPLY_ID}"
+					column="{custId=CUST_ID,supplyId=SUPPLY_ID,fromWhere=FROM_WHERE}"
 					select="com.yyw.yhyc.order.mapper.ShoppingCartMapper.listShoppingCartDtoByProperty"/>
-	</resultMap>
-
-	<resultMap type="ShoppingCartListDto" id="ShoppingCartListDtoResultMapperForFastOrder">
-		<association property="buyer" column="CUST_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"/>
-		<association property="seller" column="SUPPLY_ID" select="com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper.getByEnterpriseId"/>
-		<collection property="shoppingCartDtoList" javaType="ArrayList" ofType="ShoppingCartDto"
-					column="{custId=CUST_ID,supplyId=SUPPLY_ID}"
-					select="com.yyw.yhyc.order.mapper.ShoppingCartMapper.listShoppingCartDtoByPropertyForFastOrder"/>
 	</resultMap>
 
 	<sql id="commonColumns">
@@ -82,6 +75,7 @@
 		, from_where
 		, promotion_id
 		, promotion_name
+		, promotion_collection_id
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -105,6 +99,7 @@
 				, from_where
 				, promotion_id
 				, promotion_name
+				, promotion_collection_id
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -129,6 +124,7 @@
 		, from_where
 		, promotion_id
 		, promotion_name
+		, promotion_collection_id
 	</sql>
 	
 	<sql id="commonCondition">
@@ -195,6 +191,10 @@
 		<if test="promotionName!= null and promotionName !=''">
 			AND promotion_name = #{promotionName}
 		</if>
+		<if test="promotionCollectionId!= null and promotionCollectionId !=''">
+			AND promotion_collection_id = #{promotionCollectionId}
+		</if>
+		
 	</sql>
 	
 	<insert id="save" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
@@ -222,6 +222,7 @@
 				, #{fromWhere}
 				, #{promotionId}
 				, #{promotionName}
+				, #{promotionCollectionId}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
@@ -285,6 +286,10 @@
 		<if test="promotionName!= null and promotionName !=''">
 			, promotion_name = #{promotionName}
 		</if>
+		<if test="promotionCollectionId!= null and promotionCollectionId !=''">
+			, promotion_collection_id = #{promotionCollectionId}
+		</if>
+		
 		<![CDATA[ WHERE shopping_cart_id = #{shoppingCartId}  ]]>
 		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
@@ -422,6 +427,10 @@
 		<if test="promotionName!= null and promotionName !=''">
 			AND promotion_name = #{promotionName}
 		</if>
+		<if test="promotionCollectionId!= null and promotionCollectionId !=''">
+			AND promotion_collection_id = #{promotionCollectionId}
+		</if>
+		
 	</select>
 	<select id="listPaginationByProperty" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper">
 		SELECT 
@@ -435,7 +444,10 @@
 	</select>
 
 	<select id="listAllShoppingCart" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartListDtoResultMapper" useCache="false">
-		SELECT	DISTINCT  CUST_ID,SUPPLY_ID ,FROM_WHERE FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId } and SC.from_where = 0
+		SELECT	DISTINCT  CUST_ID,SUPPLY_ID,FROM_WHERE FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId } AND SC.from_where = #{fromWhere }
+			<if test="supplyId!= null">
+				AND SC.supply_id=#{supplyId}
+			</if>
 	</select>
 
 	<select id="listDistinctCustIdAndSupplyId" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartResultMapper" useCache="false">
@@ -461,8 +473,12 @@
 		, sc.from_where
 		, sc.promotion_id
 		, sc.promotion_name
+		, sc.promotion_collection_id
 		FROM t_shopping_cart sc
-		WHERE from_where = 0
+		WHERE  1 = 1
+		<if test="fromWhere!= null ">
+			AND from_where=#{fromWhere}
+		</if>
 		<if test="shoppingCartId!= null and shoppingCartId!= ''">
 			AND shopping_cart_id=#{shoppingCartId}
 		</if>
@@ -475,44 +491,7 @@
 		<if test="spuCode!= null and spuCode!= ''">
 			AND spu_code=#{spuCode}
 		</if>
-		order by  sc.spu_code,sc.promotion_id desc
-	</select>
-
-
-	<select id="listShoppingCartDtoByPropertyForFastOrder" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartDtoResultMapper">
-		<![CDATA[ SELECT ]]>
-		sc.shopping_cart_id
-		, sc.cust_id
-		, sc.sku_id
-		, sc.specification
-		, sc.supply_id
-		, sc.product_id
-		, sc.spu_code
-		, sc.product_code_company
-		, sc.product_name
-		, sc.manufactures
-		, sc.product_price
-		, sc.product_settlement_price
-		, sc.product_count
-		, sc.product_code_company
-		, sc.from_where
-		, sc.promotion_id
-		, sc.promotion_name
-		FROM t_shopping_cart sc
-		WHERE from_where = 1
-		<if test="shoppingCartId!= null and shoppingCartId!= ''">
-			AND shopping_cart_id=#{shoppingCartId}
-		</if>
-		<if test="custId!= null and custId!= ''">
-			AND cust_id=#{custId}
-		</if>
-		<if test="supplyId!= null and supplyId!= ''">
-			AND supply_id=#{supplyId}
-		</if>
-		<if test="spuCode!= null and spuCode!= ''">
-			AND spu_code=#{spuCode}
-		</if>
-		order by  sc.spu_code,sc.promotion_id desc
+		order by  sc.spu_code,sc.promotion_id,sc.promotion_collection_id desc
 	</select>
 
 	<select id="queryShoppingCartStatistics" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="java.util.HashMap">
@@ -520,12 +499,6 @@
 		<if test="fromWhere!= null">
 			AND from_where = #{fromWhere}
 		</if>
-	</select>
-
-
-	<select id="listForFastOrder" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultMap="ShoppingCartListDtoResultMapperForFastOrder" useCache="false">
-		SELECT	DISTINCT  CUST_ID,SUPPLY_ID,FROM_WHERE  FROM T_SHOPPING_CART SC WHERE  SC.CUST_ID=#{custId }
-		and SC.from_where = 1
 	</select>
 
 	<select id="countBuyedNumInHistory" parameterType="com.yyw.yhyc.order.bo.ShoppingCart" resultType="int" useCache="false">
@@ -547,5 +520,8 @@
 		<if test="promotionId!= null and promotionId!= ''">
 			AND od.promotion_id=#{promotionId}
 		</if>
+		<!-- <if test="promotionCollectionId!= null and promotionCollectionId!= ''">
+			AND od.promotion_collection_id=#{promotionCollectionId}
+		</if> -->
 	</select>
 </mapper>

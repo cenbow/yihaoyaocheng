@@ -9,6 +9,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib  prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<script type="text/javascript" src="http://pv.sohu.com/cityjson?ie=utf-8" charset="utf-8"></script>
 
 <!doctype html>
 <html>
@@ -65,9 +66,11 @@
             <c:forEach var="shoppingCartListDto"  items="${allShoppingCart}" varStatus="shoppingCartListDtoVarStatus">
                 <div class="order-holder" supplyId="${shoppingCartListDto.seller.enterpriseId}" id="${shoppingCartListDto.seller.enterpriseId}">
                     <div class="holder-top">
-                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>"  supplyId="${shoppingCartListDto.seller.enterpriseId}"  ><span class="inside-icon">全选所有商品</span></div>
+                        <div class="cart-checkbox <c:if test='${shoppingCartListDto.needPrice == 0}'> select-all</c:if>"  supplyId="${shoppingCartListDto.seller.enterpriseId}"  >
+                        	<span class="inside-icon">全选所有商品</span>
+                        </div>
                         <div class="mark-supplier">供应商：${shoppingCartListDto.seller.enterpriseName}</div>
-                        <a class="lts-shop-icon f12" href="${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}">进入店铺</a>
+                        <a class="lts-shop-icon f12" href="javascript:void(0);" onclick="doMD('我的进货单','http://mall.yaoex.com/shoppingCart/index','shopcart_yc_gostore','${mallDomain}/shop/goShopHome?enterpriseId=${shoppingCartListDto.seller.enterpriseId}')">进入店铺</a>
                         <p <c:if test="${shoppingCartListDto.needPrice == 0}"> style="display: none" </c:if> >
                             <input type="hidden" name="orderSamount" supplyId="${shoppingCartListDto.seller.enterpriseId}" supplyName="${shoppingCartListDto.seller.enterpriseName}"
                                    value="${shoppingCartListDto.seller.orderSamount}" buyPrice="${shoppingCartListDto.productPriceCount}" needPrice="${shoppingCartListDto.needPrice}">
@@ -82,7 +85,7 @@
                         <c:when test="${shoppingCartListDto != null && fn:length(shoppingCartListDto.shoppingCartDtoList) gt 0}">
                             <c:forEach var="shoppingCartDto" items="${shoppingCartListDto.shoppingCartDtoList}"  varStatus="shoppingCartDtoVarStatus">
                                 <div class="holder-list <c:if test="${!shoppingCartDto.normalStatus}"> no-stock </c:if> ">
-                                    <input type="hidden" value="${shoppingCartDto.unNormalStatusReason}">
+                                    <input type="hidden" value="${shoppingCartDto.unNormalStatusReason}" normalStatus="${shoppingCartDto.normalStatus}" statusEnum = ${shoppingCartDto.statusEnum}>
                                     <ul>
                                         <li class="fl td-chk">
                                             <c:if test="${shoppingCartDto.normalStatus}">
@@ -95,16 +98,29 @@
 
                                         <li class="fl td-pic" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
                                             <c:choose>
-                                                <c:when test="${shoppingCartDto.productPrice <= 0}"><span class="inside-icon">失效</span></c:when>
-                                                <c:when test="${!shoppingCartDto.existProductInventory}"><span class="inside-icon">缺货</span></c:when>
-                                                <c:when test="${ shoppingCartDto.putawayStatus != 1}"><span class="inside-icon">下架</span></c:when>
-                                                <c:when test="${ shoppingCartDto.promotionId > 0  &&  (shoppingCartDto.promotionPrice == null || shoppingCartDto.promotionPrice < 0 )  }"><span class="inside-icon">失效</span></c:when>
+                                                <c:when test="${!shoppingCartDto.normalStatus && shoppingCartDto.putawayStatus != 1}"><span class="inside-icon">下架</span></c:when>
+                                                <c:when test="${!shoppingCartDto.normalStatus && shoppingCartDto.productInventory <= 0}"><span class="inside-icon">缺货</span></c:when>
+                                                <c:when test="${!shoppingCartDto.normalStatus }"><span class="inside-icon">失效</span></c:when>
                                             </c:choose>
                                             <img  src="${shoppingCartDto.productImageUrl}" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}"
                                                  alt="${shoppingCartDto.productName} ${shoppingCartDto.specification}" onerror="this.src='http://oms.yaoex.com/static/images/product_default_img.jpg'">
                                         </li>
                                         <li class="fl td-item">
-                                            <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')">
+                                        	<c:choose>
+	                                        	<c:when test="${shoppingCartDto.rule != null}">
+	                                        	<p class="special_price">
+	                                        		<a href="javascript:void(0);" onclick="goFullActivity(${shoppingCartDto.promotionCollectionId},${shoppingCartDto.supplyId},${shoppingCartDto.promotionCollectionId});"  
+	                                        			title="${shoppingCartDto.rule}"><span>满减</span></a>
+                                        		</p> 
+	                                        	<form id="activity${shoppingCartDto.promotionCollectionId}" method="post" target="_blank" >
+													<input type="hidden" name="groupCodes" value="${shoppingCartDto.groupCode}"/>
+													<input type="hidden" name="protitle" value="encodeURI(${shoppingCartDto.rule})"/>
+												</form>
+	                                            </c:when>
+	                                            <c:otherwise>
+                                                </c:otherwise>
+	                                        </c:choose>
+                                            <p class="item-title" style="cursor: pointer" onclick="gotoProductDetail('${shoppingCartDto.spuCode}','${shoppingCartDto.supplyId}')" title="${shoppingCartDto.productName} ${shoppingCartDto.specification}">
                                                 ${shoppingCartDto.productName} ${shoppingCartDto.specification}
                                             </p>
                                             <p>${shoppingCartDto.manufactures}</p>
@@ -113,7 +129,7 @@
                                             <c:choose>
                                                 <c:when test="${shoppingCartDto.promotionId != null && shoppingCartDto.promotionId > 0 }">
                                                     <p class="special_price">
-                                                        <span>限时特价</span>
+                                                       <span>限时特价</span>
                                                     </p>
                                                 </c:when>
                                                 <c:otherwise>
@@ -124,7 +140,7 @@
                                             </div>
                                         </li>
                                         <li class="fl td-amount">
-                                            <div class="it-sort-col5 clearfix pr" style="width: 120px;">
+                                            <div class="it-sort-col5 clearfix pr" style="width: 124px;">
                                                 <div class="clearfix" style="padding-left: 20px;">
                                                     <div class="its-choose-amount fl">
                                                         <div class="its-input">
@@ -204,7 +220,7 @@
         </div>
         <div class="btn">
             <a class="os-btn-pay tc" href="javascript:void(0);">立即结算</a>
-            <a class="os-btn-order tc" href="${mallDomain}">继续采购</a>
+            <a class="os-btn-order tc" onclick="doMD('我的进货单','http://mall.yaoex.com/shoppingCart/index','shopcart_yc_continue','${mallDomain}')">继续采购</a>
         </div>
     </div>
 

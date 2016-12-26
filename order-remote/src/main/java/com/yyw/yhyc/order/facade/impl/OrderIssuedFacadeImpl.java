@@ -140,11 +140,25 @@ public class OrderIssuedFacadeImpl implements OrderIssuedFacade {
 		return orderIssuedService.findByCount(orderIssued);
 	}
 
-	public Map<String, Object> findOrderIssuedListBySupplyId(Integer supplyId) throws Exception {
-		return orderIssuedService.editOrderIssuedListBySupplyId(supplyId);
+	public Map<String, Object> findOrderIssuedListBySupplyId(Integer supplyId,String payType) throws Exception {
+		return orderIssuedService.editOrderIssuedListBySupplyId(supplyId,  payType);
 	}
 
 	public Map<String, Object> updateOrderIssuedStatus(List<String> flowList) throws Exception {
 		return orderIssuedService.updateOrderIssuedStatus(flowList);
+	}
+
+	@Override
+	public Map<String, Object> findOrderIssuedListBySupplyAndOrderDate(
+			List<Integer> supplyListIds, String startDate, String endDate,
+			String orderIdList,String payType) throws Exception {
+	
+		return this.orderIssuedService.queryOrderIssuedBySupplyIdAndOrderDate(supplyListIds, startDate, endDate, orderIdList,payType);
+	}
+
+	@Override
+	public Map<String, Object> updateOrderIssuedForWsdl(
+			List<OrderIssued> orderIssuedList) throws Exception {
+		return this.orderIssuedService.updateOrderIssuedForWsdl(orderIssuedList);
 	}
 }

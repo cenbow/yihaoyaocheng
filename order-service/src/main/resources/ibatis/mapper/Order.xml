@@ -63,6 +63,7 @@
 		<result column="cancel_money" property="cancelMoney"/>
 		<result column="delivery_money" property="deliveryMoney"/>
 		<result column="is_part_delivery" property="isDartDelivery"/>
+		<result column="promotion_name" property="promotionName"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -113,6 +114,7 @@
 		<result column="cancel_money" property="cancelMoney"/>
 		<result column="delivery_money" property="deliveryMoney"/>
 		<result column="is_part_delivery" property="isDartDelivery"/>
+		<result column="promotion_name" property="promotionName"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="details" column="order_id"
@@ -166,6 +168,7 @@
 		,cancel_money
 		,delivery_money
 		,is_part_delivery
+		,promotion_name
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -214,6 +217,7 @@
 				,cancel_money
 				,delivery_money
 				,is_part_delivery
+				,promotion_name
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -263,6 +267,7 @@
 		,cancel_money
 		,delivery_money
 		,is_part_delivery
+		,promotion_name
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -312,6 +317,7 @@
 		,T1.cancel_money
 		,T1.delivery_money
 		,T1.is_part_delivery
+		,T1.promotion_name
 	</sql>
 
 
@@ -362,6 +368,7 @@
 		,o.cancel_money
 		,o.delivery_money
 		,o.is_part_delivery
+		, o.promotion_name
 	</sql>
 
 	<sql id="commonCondition">
@@ -477,9 +484,12 @@
 		<if test="payFlag!= null">
 			AND pay_flag=#{payFlag}
 		</if>
+		<if test="promotionName!= null">
+			AND promotion_name=#{promotionName}
+		</if>
 	</sql>
 
-	<insert id="save" parameterType="Order">
+	<insert id="save" parameterType="Order" useGeneratedKeys="true" keyProperty="orderId">
 		<![CDATA[ INSERT INTO t_order ( ]]>
 			<include refid="commonColumnsNotPK"/>
 		<![CDATA[
@@ -530,6 +540,7 @@
 				, #{cancelMoney}
 				, #{deliveryMoney}
 				, #{isDartDelivery}
+				,#{promotionName}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -668,6 +679,9 @@
 		</if>
 		<if test="isDartDelivery!= null">
 			,is_part_delivery=#{isDartDelivery}
+        </if>
+		<if test="promotionName!= null">
+			,promotion_name=#{promotionName}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
@@ -739,6 +753,34 @@
 		GROUP BY ORDERSTATUS,T4.PAY_TYPE
 	</select>
 
+
+	<select id="findAppOrderStatusCount" parameterType="OrderDto" resultType="OrderDto" useCache="false">
+		SELECT
+		T1.ORDER_STATUS AS orderStatus,COUNT(T1.ORDER_STATUS) AS orderCount,T4.PAY_TYPE AS payType
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		GROUP BY ORDERSTATUS,T4.PAY_TYPE
+	</select>
+
+
 	<resultMap id="buyerOrderResultMap" type="OrderDto" extends="OrderResultMapper">
 		<result column="NOWTIME" property="nowTime"/>
 		<result column="PAY_TYPE" property="payType"/>
@@ -761,6 +803,9 @@
 		</if>
 		<if test="supplyName!= null and supplyName!= ''">
 			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="adviserName != null and adviserName != ''">
+			AND T1.adviser_name LIKE CONCAT('%', #{adviserName},'%')
 		</if>
 		<if test="payType!= null and payType!= ''">
 			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
@@ -929,6 +974,9 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
+		<if test="promotionName != null and promotionName != ''">
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>
@@ -1013,6 +1061,9 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
+		<if test="promotionName != null and promotionName != ''">
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>
@@ -1086,6 +1137,9 @@
 		</if>
 		<if test="district!= null and district!= ''">
 			AND T2.DISTRICT = #{district}
+		</if>
+		<if test="adviserCode != null and adviserCode != ''">
+			AND T1.adviser_code = #{adviserCode}
 		</if>
 		ORDER BY T1.ORDER_ID DESC
 	</select>
@@ -1099,6 +1153,9 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
+		<if test="promotionName != null and promotionName != ''">
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>
@@ -1171,7 +1228,7 @@
 			AND T2.CITY = #{city}
 		</if>
 		<if test="district!= null and district!= ''">
-			AND T2.DISTRICT = #{district}
+			AND T1.DISTRICT = #{district}
 		</if>
 		AND T1.ORG_TOTAL IS NOT NULL
 	</select>
@@ -1193,6 +1250,9 @@
 		LEFT JOIN T_USERMANAGE_ENTERPRISE T2 ON T1.CUST_ID = T2.ENTERPRISE_ID
 		WHERE
 		T1.SUPPLY_ID = #{supplyId}
+		<if test="promotionName != null and promotionName != ''">
+			AND T1.promotion_name LIKE CONCAT('%',#{promotionName},'%' )
+		</if>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>
@@ -1323,8 +1383,6 @@
 			${id}
 		</foreach>
 	</update>
-
-
 	<select id="listPaginationOperationsOrder" parameterType="OrderDto" resultMap="sellerOrderResultMap" useCache="false">
 		SELECT
 		<include refid="T1commonProcessDateColumns"/>,T2.PAY_TYPE,T2.PAY_TYPE_NAME
@@ -1337,6 +1395,9 @@
 		</if>
 		<if test="supplyName!= null and supplyName!= ''">
 			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="adviserName != null and adviserName != ''">
+			AND T1.adviser_name LIKE CONCAT('%', #{adviserName},'%')
 		</if>
 		<if test="custName!= null and custName!= ''">
 			AND T1.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
@@ -1465,9 +1526,13 @@
 	<select id="getOnlinePaymentOrderbyFlowId" parameterType="java.lang.String" resultMap="OrderResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="T1commonProcessDateColumns"/>
+		FROM t_order T1		
+		WHERE flow_id = #{flowId} 
+		
+		<!-- 订单下发回传不再局限于在线支付订单，此条件去掉
 		FROM t_order T1
 		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON T1.pay_type_id=TP.PAY_TYPE_ID
-		WHERE flow_id = #{flowId} AND TP.pay_type=1
+		WHERE flow_id = #{flowId} AND TP.pay_type=1 -->
 	</select>
 
 </mapper>
