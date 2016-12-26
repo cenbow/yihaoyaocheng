@@ -230,7 +230,8 @@ function typeToOperate(order) {
     }
 
     if(order && order.orderStatus && order.orderStatus == '10'){//补货中
-        result += '<a href="'+ctx+'/orderException/getReplenishmentDetails-1/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+        //result += '<a href="'+ctx+'/orderException/getReplenishmentDetails-1/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+        result += '<a href="'+ctx+'/orderException/buyerReplenishmentOrderManage?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     if(order && order.orderStatus && (order.orderStatus == '8'||order.orderStatus == '11'||order.orderStatus == '14')){//补货中
