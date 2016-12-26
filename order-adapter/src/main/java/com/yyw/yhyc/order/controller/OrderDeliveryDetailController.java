@@ -172,7 +172,7 @@ public class OrderDeliveryDetailController extends BaseController {
 					JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
 					productPicUrl = (String) productJson.get("file_path");
 					if (UtilHelper.isEmpty(productPicUrl)) {
-						productPicUrl = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+						productPicUrl = "https://oms.yaoex.com/static/images/product_default_img.jpg";
 					}else{
 						/* 图片中文处理，只针对特定部位URL编码 */
 						String head =  productPicUrl.substring(0,productPicUrl.lastIndexOf("/")+1);
@@ -198,6 +198,7 @@ public class OrderDeliveryDetailController extends BaseController {
 			productMap.put("buyNumber",dto.getProductCount());
 			productMap.put("batchNumber",dto.getBatchNumber());
 			productMap.put("batchId",dto.getOrderDeliveryDetailId());
+            productMap.put("orderDeliveryDetailId",dto.getOrderDeliveryDetailId());
 			productMap.put("orderDetailId",dto.getOrderDetailId());
 			productList.add(productMap);
 		}

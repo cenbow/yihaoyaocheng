@@ -129,7 +129,7 @@ public class ChinaPayServiceImpl implements PayService {
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
             return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else if( 3 == type){
-            paramMap.put(RETURN_RESPONSE_URL,"http://tpay.yaoex.com/orderPay/chinaPayAppSubmitSuccess");
+            paramMap.put(RETURN_RESPONSE_URL,"https://tpay.yaoex.com/orderPay/chinaPayAppSubmitSuccess");
             paramMap.put(ASYNC_CALL_BACK_URL,PayUtil.getValue("payReturnHost") + "orderPay/chinaPayCallback");
             return findPayMapByPayFlowId(orderPay.getPayFlowId(),systemPayType,list,paramMap);
         }else{
@@ -421,6 +421,7 @@ public class ChinaPayServiceImpl implements PayService {
 
     /**
      * 银联分账退款
+     * 从江帅那里得知银联的退款策略 ： 必须先全部分账，然后再进行退款
      * @param
      * @return
      */

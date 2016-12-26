@@ -49,6 +49,13 @@
                                     <option value="3">线下支付</option>
                                 </select>
                             </div>
+                            <label for="adviser" class="col-xs-2 control-label">销售顾问</label>
+                            <div class="col-xs-3">
+                               <input type="text" class="form-control" id="adviserName" name="adviserName"
+                                       placeholder="">
+                            </div>
+                         </div>
+                         <div class="form-group">
                             <label class="col-xs-2 control-label">下单时间</label>
                             <div class="col-xs-3">
                                 <div class="input-group input-large">
@@ -61,7 +68,8 @@
                                 <p class="padding-t-10">[ <a class="blue" onclick="selectDate(-3)">最近三天</a> <a class="blue" onclick="selectDate(-7)">最近1周</a> <a
                                         class="blue" onclick="selectDate(-30)">最近1月</a> ]</p>
                             </div>
-                            <div class="col-xs-2 text-left">
+                            <label class="col-xs-2 control-label"></label>
+                            <div class="col-xs-3">
                                 <input type="button" class="btn btn-info" value="搜索" id="search">&nbsp;&nbsp;&nbsp;
                                 <input type="button" class="btn btn-info" value="订单导出" id="export">
                             </div>

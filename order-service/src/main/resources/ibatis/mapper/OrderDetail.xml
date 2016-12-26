@@ -43,6 +43,9 @@
 		<result column="promotion_id" property="promotionId"/>
 		<result column="promotion_name" property="promotionName"/>
 		<result column="cancel_produce_num" property="cancelProduceNum"/>
+		<result column="promotion_collection_id" property="promotionCollectionId"/>
+		<result column="promotion_collection_type" property="promotionCollectionType"/>
+		<result column="preferential_collection_money" property="preferentialCollectionMoney"/>
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -72,6 +75,9 @@
 		, promotion_id
 		, promotion_name
 		,cancel_produce_num
+		,promotion_collection_id
+		,promotion_collection_type
+		,preferential_collection_money
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -100,6 +106,9 @@
 				, promotion_id
 				, promotion_name
 				,cancel_produce_num
+				,promotion_collection_id
+				,promotion_collection_type
+				,preferential_collection_money
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -158,6 +167,9 @@
 		    c.promotion_id,
 		    c.promotion_name,
 		    c.cancel_produce_num
+			c.promotion_collection_id,
+			c.promotion_collection_type,
+			c.preferential_collection_money
 	</sql>
 	
 	<sql id="commonCondition">
@@ -263,6 +275,9 @@
 				, #{promotionId}
 				, #{promotionName}
 				, #{cancelProduceNum}
+				, #{promotionCollectionId}
+				, #{promotionCollectionType}
+				, #{preferentialCollectionMoney}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">

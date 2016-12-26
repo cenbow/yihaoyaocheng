@@ -9,6 +9,34 @@
  **/
 package com.yyw.yhyc.order.controller;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.search.remote.yhyc.ProductSearchInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -20,7 +48,9 @@ import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.framework.core.model.util.StringUtil;
 import com.yaoex.usermanage.interfaces.adviser.IAdviserManageDubbo;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yyw.yhyc.bo.Pagination;import com.yyw.yhyc.bo.RequestListModel;
+import com.yaoex.usermanage.model.adviser.AdviserModel;
+import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
@@ -29,36 +59,32 @@ import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.SystemPayType;
-import com.yyw.yhyc.order.dto.*;
+import com.yyw.yhyc.order.dto.AdviserDto;
+import com.yyw.yhyc.order.dto.OrderCreateDto;
+import com.yyw.yhyc.order.dto.OrderDetailsDto;
+import com.yyw.yhyc.order.dto.OrderDto;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yyw.yhyc.order.service.*;
+import com.yyw.yhyc.order.service.OrderCreateService;
+import com.yyw.yhyc.order.service.OrderExportService;
+
+import com.yyw.yhyc.order.service.OrderFullReductionService;
+
+import com.yyw.yhyc.order.service.OrderLogService;
+
+import com.yyw.yhyc.order.service.OrderService;
+import com.yyw.yhyc.order.service.ShoppingCartService;
+import com.yyw.yhyc.order.service.SystemDateService;
+import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
 import com.yyw.yhyc.utils.CacheUtil;
 import com.yyw.yhyc.utils.DateUtils;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.search.remote.yhyc.ProductSearchInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.ServletOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping(value = "/order")
@@ -100,7 +126,17 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
+	
+	@Autowired
+	private OrderFullReductionService orderFullReductionService;
+	@Autowired
+	private OrderCreateService orderCreateService;
+	
+	@Reference
+	private IPromotionDubboManageService promotionDubboManageService;
 
+	@Autowired
+	private OrderLogService orderLogService;
     /**
      * 通过主键查询实体对象
      * @return
@@ -212,8 +248,12 @@ public class OrderController extends BaseJsonController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
-					productSearchInterface,iPromotionDubboManageService);
+			
+			/*map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+					productSearchInterface,iPromotionDubboManageService);*/
+			
+			map = this.orderCreateService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+			productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
@@ -244,6 +284,8 @@ public class OrderController extends BaseJsonController {
 				}else{
 					orderIdStr += ","+order.getOrderId();
 				}
+				
+				orderLogService.insertOrderLog(this.request,"1",userDto.getCustId(),order.getFlowId(),orderCreateDto.getSource());
 			}
 		}
 		map = new HashMap<String,Object>();
@@ -375,8 +417,30 @@ public class OrderController extends BaseJsonController {
 		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
 			/* 账期订单拆单逻辑 */
 			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
-			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,productDubboManageService,creditDubboService,iPromotionDubboManageService);
+			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,creditDubboService,productSearchInterface,iCustgroupmanageDubbo);
 			dataMap.put("allShoppingCart",allShoppingCart);
+		}
+		
+		/***********以下处理订单的满减促销**************/
+		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
+			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
+			allShoppingCart=this.orderFullReductionService.processFullReduction(allShoppingCart,promotionDubboManageService);
+			Map<String,Object> returnMap=this.orderFullReductionService.processCalculationOrderShareMoney(allShoppingCart);
+			allShoppingCart=(List<ShoppingCartListDto>) returnMap.get("allShoppingCart");
+			
+			BigDecimal allOrderShareMoney=(BigDecimal) returnMap.get("allOrderShareMoney");
+			//无优惠的金额
+			BigDecimal orderPriceCount=(BigDecimal) dataMap.get("orderPriceCount"); 
+			
+			orderPriceCount=orderPriceCount.subtract(allOrderShareMoney);
+			if(orderPriceCount.compareTo(new BigDecimal(0))==-1){
+				dataMap.put("orderPriceCount",0);
+			}else{
+				dataMap.put("orderPriceCount",orderPriceCount);
+			}
+		
+			dataMap.put("allShoppingCart",allShoppingCart);
+			dataMap.put("allOrderShareMoney",allOrderShareMoney);//所有订单的优惠金额
 		}
 
 		model.addObject("dataMap",dataMap);
@@ -415,9 +479,16 @@ public class OrderController extends BaseJsonController {
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
-		OrderDto orderDto = requestModel.getParam();
+        logger.debug("参数requestModel.getParam()=="+requestModel.getParam());
+        String jsonStr=JSON.toJSONString(requestModel.getParam());
+		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
+		
+	    logger.debug("参数处理结果==orderDto"+orderDto.toString());
+	    
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
+		
+		logger.debug("参数userDto=="+userDto.toString());
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
@@ -450,7 +521,8 @@ public class OrderController extends BaseJsonController {
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
-		OrderDto orderDto = requestModel.getParam();
+		String jsonStr=JSON.toJSONString(requestModel.getParam());
+		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
 		return orderService.listPgSellerOrder(pagination, orderDto);
@@ -536,7 +608,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus){
+	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus,String promotionName,String adviserCode){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
@@ -548,6 +620,8 @@ public class OrderController extends BaseJsonController {
 		orderDto.setDistrict(district);
 		orderDto.setFlowId(flowId);
 		orderDto.setCustName(custName);
+		orderDto.setAdviserCode(adviserCode);
+		orderDto.setPromotionName(promotionName);
 		if(!UtilHelper.isEmpty(payType)) {
 			orderDto.setPayType(payType);
 		}
@@ -746,4 +820,24 @@ public class OrderController extends BaseJsonController {
 		}
     }
 
+    @RequestMapping(value = "/queryAdviser",method = RequestMethod.POST)
+	@ResponseBody
+	public List<AdviserDto>  queryAdviser(HttpServletRequest request) throws Exception{
+    	UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			throw new Exception("用户未登录");
+		}
+		//查询供应商的销售顾问信息
+		List<AdviserDto> adviserList = new ArrayList<AdviserDto>();
+		List<AdviserModel> list = iAdviserManageDubbo.queryByEnterId(userDto.getCustId());
+		for(AdviserModel one : list){
+			AdviserDto adviserDto = new AdviserDto();
+			adviserDto.setAdviserCode(one.getAdviser_code());
+			adviserDto.setAdviserName(one.getAdviser_name());
+			adviserDto.setAdviserPhoneNumber(one.getPhone_number());
+			adviserDto.setAdviserRemark(one.getRemark());
+			adviserList.add(adviserDto);
+		}
+		return adviserList;
+	}
 }

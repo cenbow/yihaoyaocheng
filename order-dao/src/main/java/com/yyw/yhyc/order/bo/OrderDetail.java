@@ -145,10 +145,19 @@ public class OrderDetail extends Model{
 	* 活动名称
      */
 	private java.lang.String promotionName;
+	/**
+	 * 该字段保存商品参加的所有促销的id,格式a,b,c
+	 */
+	private String promotionCollectionId;
+	/**
+	 * 该字段保存商品参加的所有促销的类型,格式a,b,c
+	 */
+	private String promotionCollectionType;
 	
-	
-	
-
+	/**
+	 * 该字段保存参加满减优惠的金额,格式12,23,45
+	 */
+	private String preferentialCollectionMoney;
 
 	public Integer getCancelProduceNum() {
 		return cancelProduceNum;
@@ -557,6 +566,32 @@ public class OrderDetail extends Model{
 				    ", cancelProduceNum=" + cancelProduceNum +
 				"]";
 	}
+
+	public String getPromotionCollectionId() {
+		return promotionCollectionId;
+	}
+
+	public void setPromotionCollectionId(String promotionCollectionId) {
+		this.promotionCollectionId = promotionCollectionId;
+	}
+
+	public String getPromotionCollectionType() {
+		return promotionCollectionType;
+	}
+
+	public void setPromotionCollectionType(String promotionCollectionType) {
+		this.promotionCollectionType = promotionCollectionType;
+	}
+
+	public String getPreferentialCollectionMoney() {
+		return preferentialCollectionMoney;
+	}
+
+	public void setPreferentialCollectionMoney(String preferentialCollectionMoney) {
+		this.preferentialCollectionMoney = preferentialCollectionMoney;
+	}
+	
+	
 
 
 }

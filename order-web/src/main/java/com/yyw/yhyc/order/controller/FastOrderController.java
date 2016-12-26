@@ -172,20 +172,20 @@ public class FastOrderController extends BaseJsonController {
         return ok("修改成功");
     }
 
-    /**
-     * 列表查询
-     * @return
-     */
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
-    @ResponseBody
-    public Map<String,Object> list() throws Exception {
-        UserDto userDto = getUserDto(request);
-        logger.info("当前登陆的用户信息userDto=" + userDto);
-        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,iProductDubboManageService,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),iPromotionDubboManageService);
-        logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
-        String message = UtilHelper.isEmpty(allShoppingCart) || allShoppingCart.size() == 0 ? "请添加商品" : "";
-        return ok(message,allShoppingCart);
-    }
+//    /**
+//     * 列表查询
+//     * @return
+//     */
+//    @RequestMapping(value = "/list", method = RequestMethod.POST)
+//    @ResponseBody
+//    public Map<String,Object> list() throws Exception {
+//        UserDto userDto = getUserDto(request);
+//        logger.info("当前登陆的用户信息userDto=" + userDto);
+//        List<ShoppingCartListDto> allShoppingCart = shoppingCartService.listForFastOrder(userDto,ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),productSearchInterface,iCustgroupmanageDubbo);
+//        logger.info("极速下单页面的商品数据，allShoppingCart=" + allShoppingCart);
+//        String message = UtilHelper.isEmpty(allShoppingCart) || allShoppingCart.size() == 0 ? "请添加商品" : "";
+//        return ok(message,allShoppingCart);
+//    }
 
 
 

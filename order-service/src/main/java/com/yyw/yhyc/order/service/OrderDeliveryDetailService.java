@@ -323,9 +323,34 @@ public class OrderDeliveryDetailService {
 					orderReturn.setOrderId(orderDeliveryDetail.getOrderId());
 					orderReturn.setCustId(user.getCustId());
 					orderReturn.setReturnCount(orderDeliveryDetail.getDeliveryProductCount() - orderDeliveryDetail.getRecieveCount());
-					BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
-					moneyTotal = moneyTotal.add(orderDetail.getProductPrice().multiply(bigDecimal));
-					orderReturn.setReturnPay(orderDetail.getProductPrice().multiply(bigDecimal));
+					
+					//如果该操作是拒收的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
+					if(returnType.equals("4") && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
+						String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
+						BigDecimal shareMoney=new BigDecimal(0);
+						for(String currentMoney : moneyList){
+							BigDecimal value=new BigDecimal(currentMoney);
+							shareMoney=shareMoney.add(value);
+						}
+						BigDecimal orderDetailMoney=orderDetail.getProductSettlementPrice(); //该笔商品的结算金额
+						BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
+						BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
+						BigDecimal allRecord=new BigDecimal(orderDeliveryDetail.getDeliveryProductCount());
+						
+						double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
+						BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);
+						currentReturnMoneyValue=currentReturnMoneyValue.setScale(2,BigDecimal.ROUND_HALF_UP);
+						
+						orderReturn.setReturnPay(currentReturnMoneyValue);
+						moneyTotal=moneyTotal.add(currentReturnMoneyValue);
+					}else{
+						BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
+						BigDecimal currentReturnMoney=orderDetail.getProductPrice().multiply(bigDecimal);
+						orderReturn.setReturnPay(currentReturnMoney);
+						moneyTotal=moneyTotal.add(currentReturnMoney);
+					}
+					
+					
 					orderReturn.setReturnType(returnType);
 					orderReturn.setReturnDesc(returnDesc);
 					orderReturn.setFlowId(flowId);
@@ -562,5 +587,27 @@ public class OrderDeliveryDetailService {
 		pagination.setResultList(list);
 
 		return pagination;
+	}
+
+
+	/**
+	 * 自动确认收货更新收货数量
+	 * @return
+	 * @throws Exception
+	 */
+	public void orderDeliveryDetailCount(Order od){
+		OrderDeliveryDetail ode=new OrderDeliveryDetail();
+		ode.setFlowId(od.getFlowId());
+		orderDeliveryDetailMapper.updateRecieveCount(ode);
+		List<OrderDeliveryDetail> list =orderDeliveryDetailMapper.listByProperty(ode);
+		for(OrderDeliveryDetail odetail:list){
+			OrderDetail orderDetail=orderDetailMapper.getByPK(odetail.getOrderDetailId());
+			orderDetail.setUpdateTime(systemDateMapper.getSystemDate());
+			if(UtilHelper.isEmpty(orderDetail.getRecieveCount())){
+				orderDetail.setRecieveCount(0);
+			}
+			orderDetail.setRecieveCount(orderDetail.getRecieveCount()+odetail.getRecieveCount());
+			orderDetailMapper.update(orderDetail);
+		}
 	}
 }

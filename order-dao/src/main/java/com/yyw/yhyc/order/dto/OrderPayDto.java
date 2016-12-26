@@ -79,4 +79,15 @@ public class OrderPayDto extends OrderPay{
     public void setSupplyId(Integer supplyId) {
         this.supplyId = supplyId;
     }
+
+    @Override
+    public String toString() {
+        return "OrderPayDto{" +
+                "receiveAccountNo='" + receiveAccountNo + '\'' +
+                ", receiveAccountName='" + receiveAccountName + '\'' +
+                ", orgTotal=" + orgTotal +
+                ", custId=" + custId +
+                ", supplyId=" + supplyId +
+                "} ";
+    }
 }
