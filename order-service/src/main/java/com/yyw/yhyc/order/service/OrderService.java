@@ -2067,6 +2067,8 @@ public class OrderService {
 			orderMapper.update(od);
 			//账期结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
+			//收货数量更新
+			orderDeliveryDetailService.orderDeliveryDetailCount(od);
 			//根据订单来源进行自动分账 三期 对接
 			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
@@ -2165,6 +2167,8 @@ public class OrderService {
 			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			od.setReceiveTime(now);
 			od.setReceiveType(2);
+			od.setUpdateTime(now);
+			od.setUpdateUser("admin");
 			orderMapper.update(od);
 			//生成结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);

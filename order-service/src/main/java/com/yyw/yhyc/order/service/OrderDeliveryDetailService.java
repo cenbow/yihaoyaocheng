@@ -623,4 +623,26 @@ public class OrderDeliveryDetailService {
 
 		return pagination;
 	}
+
+
+	/**
+	 * 自动确认收货更新收货数量
+	 * @return
+	 * @throws Exception
+	 */
+	public void orderDeliveryDetailCount(Order od){
+		OrderDeliveryDetail ode=new OrderDeliveryDetail();
+		ode.setFlowId(od.getFlowId());
+		orderDeliveryDetailMapper.updateRecieveCount(ode);
+		List<OrderDeliveryDetail> list =orderDeliveryDetailMapper.listByProperty(ode);
+		for(OrderDeliveryDetail odetail:list){
+			OrderDetail orderDetail=orderDetailMapper.getByPK(odetail.getOrderDetailId());
+			orderDetail.setUpdateTime(systemDateMapper.getSystemDate());
+			if(UtilHelper.isEmpty(orderDetail.getRecieveCount())){
+				orderDetail.setRecieveCount(0);
+			}
+			orderDetail.setRecieveCount(orderDetail.getRecieveCount()+odetail.getRecieveCount());
+			orderDetailMapper.update(orderDetail);
+		}
+	}
 }

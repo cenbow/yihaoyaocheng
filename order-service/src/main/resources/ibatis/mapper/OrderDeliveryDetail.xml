@@ -321,7 +321,6 @@
 		</if>
 	</select>
 
-
 	<select id="listPaginationOrderDeliveryDetailDto" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper">
 		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
 		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
@@ -337,4 +336,11 @@
 			AND O.supply_id=#{supplyId}
 		</if>
 	</select>
+	<update id="updateRecieve_count" parameterType="OrderDeliveryDetail">
+		<![CDATA[ UPDATE t_order_delivery_detail SET
+			  update_user='admin'
+			, update_time=now()
+			, recieve_count=deliveryProductCount
+		WHERE flow_id = #{flow_id}  ]]>
+	</update>
 </mapper>
