@@ -303,7 +303,7 @@
         <if test="warningInventory!= null and warningInventory!= ''">
             , warning_inventory=#{warningInventory}
         </if>
-        , front_inventory=#{currentInventory}-blocked_inventory
+        , front_inventory=${currentInventory}-blocked_inventory
         , update_user=#{updateUser}
         , update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
         WHERE id = #{id}
@@ -318,8 +318,8 @@
     <!--冻结库存-->
     <update id="updateFrozenInventory" parameterType="ProductInventory">
 		UPDATE t_product_inventory SET
-		  blocked_inventory=#{blockedInventory}+blocked_inventory
-		, front_inventory=front_inventory-#{blockedInventory}
+		  blocked_inventory=${blockedInventory}+blocked_inventory
+		, front_inventory=front_inventory-${blockedInventory}
 		, update_user=#{updateUser}
 		, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		WHERE spu_code=#{spuCode} AND supply_id=#{supplyId}
@@ -328,8 +328,8 @@
     <!--释放库存-->
     <update id="updateReleaseInventory" parameterType="ProductInventory">
 		UPDATE t_product_inventory SET
-		  blocked_inventory=blocked_inventory-#{blockedInventory}
-		, front_inventory=front_inventory+#{blockedInventory}
+		  blocked_inventory=blocked_inventory-${blockedInventory}
+		, front_inventory=front_inventory+${blockedInventory}
 		, update_user=#{updateUser}
 		, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		WHERE spu_code=#{spuCode} AND supply_id=#{supplyId}
@@ -338,8 +338,8 @@
     <!--扣减库存-->
     <update id="updateDeductionInventory" parameterType="ProductInventory">
         UPDATE t_product_inventory SET
-          current_inventory=current_inventory-#{blockedInventory}
-        ,blocked_inventory=blocked_inventory-#{blockedInventory}
+          current_inventory=current_inventory-${blockedInventory}
+        ,blocked_inventory=blocked_inventory-${blockedInventory}
         , update_user=#{updateUser}
         , update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
         WHERE spu_code=#{spuCode} AND supply_id=#{supplyId}
