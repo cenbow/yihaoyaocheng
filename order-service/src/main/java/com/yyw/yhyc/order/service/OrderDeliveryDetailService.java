@@ -26,6 +26,8 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
@@ -66,6 +68,11 @@ public class OrderDeliveryDetailService {
 
 	@Autowired
 	private OrderSettlementService orderSettlementService;
+	@Autowired
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
+	
+	 @Autowired
+	 private OrderReceiveService orderReceviveService;
 
 
 	@Autowired
@@ -242,6 +249,8 @@ public class OrderDeliveryDetailService {
 		String returnDesc = "";
 		String flowId = "";
 		String exceptionOrderId="";//异常订单号
+		String selectAddressId="";
+		Integer orderDeliveryDetailId=null;
 		 String now=systemDateMapper.getSystemDate();//系统当前时间
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
@@ -249,8 +258,12 @@ public class OrderDeliveryDetailService {
 			return returnMap;
 		}else{
 			flowId=list.get(0).getFlowId();
+			orderDeliveryDetailId=list.get(0).getOrderDeliveryDetailId();
 			returnType=list.get(0).getReturnType();
 			returnDesc=list.get(0).getReturnDesc();
+		    if(!UtilHelper.isEmpty(returnType) && returnType.equals("3")){//补货类型
+		    	selectAddressId=list.get(0).getSelectDeliveryAddressId();
+		    }
 		}
 
 		//统计退款总金额
@@ -378,10 +391,10 @@ public class OrderDeliveryDetailService {
 			OrderDetail orderDetail = orderDetailMapper.getByPK(orderdetailId);
 			orderDetail.setRecieveCount(map.get(orderdetailId));
 			orderDetailMapper.update(orderDetail);
-			if(orderDetail.getProductCount().intValue()!=orderDetail.getRecieveCount().intValue()){
+			/*if(orderDetail.getProductCount().intValue()!=orderDetail.getRecieveCount().intValue()){
 				if(UtilHelper.isEmpty(returnType)||returnType.equals(""))
 					 throw new Exception("采购商与收获数不同,拒收类型为空");
-			}
+			}*/
 		}
 
 
@@ -446,14 +459,36 @@ public class OrderDeliveryDetailService {
 			orderException.setUpdateTime(now);
 			orderException.setUpdateUser(user.getUserName());
 			orderExceptionMapper.save(orderException);
+			
+			//如果买家的是补货类型的那么，需要保存买家的选择的补货收货地址
+			 if(!UtilHelper.isEmpty(returnType) && returnType.equals("3") && !UtilHelper.isEmpty(selectAddressId)){//补货地址
+				 
+			     UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(Integer.valueOf(selectAddressId));
+			     
+			     OrderReceive orderReceiveBean=new OrderReceive();
+			     orderReceiveBean.setExceptionOrderId(exceptionOrderId);
+			     orderReceiveBean.setFlowId(flowId);
+			     orderReceiveBean.setBuyerReceiveAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+			     orderReceiveBean.setBuyerReceiveCity(receiverAddress.getCityCode());
+			     orderReceiveBean.setBuyerReceiveContactPhone(receiverAddress.getContactPhone());
+			     orderReceiveBean.setBuyerReceivePerson(receiverAddress.getReceiverName());
+			     orderReceiveBean.setBuyerReceiveProvince(receiverAddress.getProvinceCode());
+			     orderReceiveBean.setBuyerReceiveRegion(receiverAddress.getDistrictCode());
+			     orderReceiveBean.setCreateTime(now);
+			     orderReceiveBean.setCreateUser(user.getUserName());
+			     orderReceiveBean.setUpdateTime(now);
+			     orderReceiveBean.setUpdateUser(user.getUserName());
+			     this.orderReceviveService.save(orderReceiveBean);
+				 
+			 }
 
 			//插入异常订单日志
 			OrderLogDto exceptionOrderLogDto=new OrderLogDto();
 			exceptionOrderLogDto.setOrderId(order.getOrderId());
 			
-			if(returnType.equals("3")){
+			if(!UtilHelper.isEmpty(returnType) && returnType.equals("3")){
 				exceptionOrderLogDto.setNodeName("买家确认收货申请补货：" + SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getValue()+" flowId=="+orderException.getExceptionOrderId());
-			}else if(returnType.equals("4")){
+			}else if(!UtilHelper.isEmpty(returnType) && returnType.equals("4")){
 				exceptionOrderLogDto.setNodeName("买家确认收货申请拒收：" + SystemOrderExceptionStatusEnum.RejectApplying.getValue()+" flowId="+orderException.getExceptionOrderId());
 			}
 			exceptionOrderLogDto.setOrderStatus(orderException.getOrderStatus());

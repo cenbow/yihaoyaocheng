@@ -2705,5 +2705,10 @@ public class OrderExceptionService {
 	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto){
 		return orderExceptionMapper.getExportChangeOrder(orderExceptionDto);
 	}
+	
+	public OrderException getOrderExceptionByExceptionOrderId(String orderExceptionId){
+		
+		return this.orderExceptionMapper.getByExceptionOrderId(orderExceptionId);
+	}
     
 }

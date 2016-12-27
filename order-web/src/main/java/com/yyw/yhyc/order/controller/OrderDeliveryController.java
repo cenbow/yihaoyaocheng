@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.yao.trade.interfaces.credit.interfaces.CreditDubboServiceInterface;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
@@ -41,9 +42,11 @@ import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.controller.BaseJsonController;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.OrderDelivery;
+import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderPartDeliveryConfirmService;
 import com.yyw.yhyc.order.service.OrderPartDeliveryService;
 import com.yyw.yhyc.order.service.OrderLogService;
@@ -73,6 +76,8 @@ public class OrderDeliveryController extends BaseJsonController {
 	private CreditDubboServiceInterface creditDubboService;
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private OrderExceptionService orderExceptionService;
 
 	/**
 	* 通过主键查询实体对象
@@ -153,7 +158,14 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+		 if(orderDeliveryDto.getOrderType()==1){
+			 orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+		 }else{//异常订单发货
+			 
+			 OrderException bean=this.orderExceptionService.getByExceptionOrderId(orderDeliveryDto.getFlowId());
+			 orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(bean.getFlowId()).getSource() );
+		 }
+		
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 	
@@ -239,7 +251,8 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+		OrderException exceptionBean=this.orderExceptionService.getByPK(Integer.valueOf(orderDeliveryDto.getFlowId()));
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),exceptionBean.getExceptionOrderId(),orderService.getOrderbyFlowId(exceptionBean.getFlowId()).getSource());
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -282,7 +295,8 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
-        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+        OrderException orderException = this.orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderException.getExceptionOrderId(),orderService.getOrderbyFlowId(orderException.getFlowId()).getSource());
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 
