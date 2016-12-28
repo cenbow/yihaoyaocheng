@@ -186,6 +186,11 @@
                 </table>
                     <div class="modal-body" id="bodyDiv" style="display: none">
                         <div class="form-horizontal">
+                              <div class="form-group" id="buhuoAddressShow" style="display: none;">
+	                            <label for="scope" class="col-xs-3 control-label">请选择补货收货地址:</label>
+		                            <div class="col-xs-6 control-label text-center" id="buhuowarehouse" >
+		                            </div>
+                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-3 control-label">请选择对剩余商品的处理并确认，默认做为拒收处理：</label>
                                 <div class="col-xs-8" style="padding-top: 2%;">

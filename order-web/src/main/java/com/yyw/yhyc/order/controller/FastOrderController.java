@@ -67,6 +67,8 @@ public class FastOrderController extends BaseJsonController {
     @Reference
     private IPromotionDubboManageService iPromotionDubboManageService;
 
+
+
     /**
      * 添加商品到进货单
      * 请求数据格式如下：

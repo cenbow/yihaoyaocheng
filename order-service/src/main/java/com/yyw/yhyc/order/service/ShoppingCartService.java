@@ -79,9 +79,7 @@ public class ShoppingCartService {
 
 	@Autowired
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
-	
-	@Reference
-	private IPromotionDubboManageService iPromotionDubboManageService;
+
 
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
