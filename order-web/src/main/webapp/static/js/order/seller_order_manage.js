@@ -253,9 +253,9 @@ function fillTableJson(data) {
         var operation = typeToOperate(order);
         var tr = "<tr>";
         if(order.isDartDelivery && order.isDartDelivery=='1'){
-           tr += "<td><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a><div><a onclick=openSendProductInfo(\""+order.flowId+"\")>部分发货</a></div></td>";
+           tr += "<td style='text-align:right'><a onclick=openSendProductInfo(\""+order.flowId+"\")><span style='color:red;border-style:solid;border-width:1px;border-color:red;'>部分发货</span></a>&nbsp;&nbsp;<a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
         }else{
-        	tr += "<td><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</td>";
+        	tr += "<td style='text-align:right'><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</td>";
         }
         
         tr += "<td>" + order.createTime + "</td>";

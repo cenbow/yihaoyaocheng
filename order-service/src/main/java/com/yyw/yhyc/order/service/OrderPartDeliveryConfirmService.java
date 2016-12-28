@@ -416,6 +416,7 @@ private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto
        order.setDeliverTime(now);
        order.setUpdateTime(now);
        order.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+       order.setIsDartDelivery("1");
        orderMapper.update(order);
 
        //插入日志表
@@ -551,7 +552,7 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
 				creditParams.setSellerCode(order.getSupplyId()+"");
 				creditParams.setBuyerName(order.getCustName());
 				creditParams.setSellerName(order.getSupplyName());
-				BigDecimal noSendMoney=this.computerNoDeliveryMoney(orderDeliveryDto);
+				BigDecimal noSendMoney=this.computerNoDeliveryPreferentialMoney(orderDeliveryDto);
 				creditParams.setOrderTotal(noSendMoney);//订单金额
 				creditParams.setFlowId(order.getFlowId());//订单编码
 				creditParams.setStatus("5");
@@ -586,7 +587,13 @@ private void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String n
 		
 		  currentOrder.setIsDartDelivery("1");
 		  BigDecimal sendAllMoney=this.computerSendDeliveryMoney(orderDeliveryDto);
-		  currentOrder.setDeliveryMoney(sendAllMoney);		  
+		  BigDecimal preferentialSendAllMoney=this.computeSendPreferentialDeliveryMoney(orderDeliveryDto);
+		  currentOrder.setDeliveryMoney(sendAllMoney);
+		  currentOrder.setCancelMoney(new BigDecimal(0));
+		  
+		  currentOrder.setPreferentialCancelMoney(new BigDecimal(0));
+		  currentOrder.setPreferentialDeliveryMoney(preferentialSendAllMoney);
+		  
 		  this.orderMapper.update(currentOrder);
 		  //补发货物剩余货物的异常订单生成
 		  this.savePartDeliveryException(orderDeliveryDto,now,currentOrder);
@@ -616,7 +623,15 @@ private void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String n
 	       
 		  currentOrder.setIsDartDelivery("1");
 		  BigDecimal noSendAllMoney=this.computerNoDeliveryMoney(orderDeliveryDto);
+		  BigDecimal noSendPreferentialMoney=this.computerNoDeliveryPreferentialMoney(orderDeliveryDto);
 		  currentOrder.setCancelMoney(noSendAllMoney);
+		  currentOrder.setPreferentialCancelMoney(noSendPreferentialMoney);
+		  
+		  BigDecimal sendAllMoney=this.computerSendDeliveryMoney(orderDeliveryDto);
+		  BigDecimal preferentialSendAllMoney=this.computeSendPreferentialDeliveryMoney(orderDeliveryDto);
+		  
+		  currentOrder.setDeliveryMoney(sendAllMoney);
+		  currentOrder.setPreferentialDeliveryMoney(preferentialSendAllMoney);
 		  this.orderMapper.update(currentOrder);
 	}
 	
@@ -640,8 +655,105 @@ private BigDecimal computerSendDeliveryMoney(OrderDeliveryDto orderDeliveryDto){
 				  }
 				  
 			  }
-			  
 			  return sendAllMoney;
+}
+
+/**
+ * 计算发货的商品的优惠后的金额
+ * @param orderDeliveryDto
+ * @return
+ */
+private BigDecimal computeSendPreferentialDeliveryMoney(OrderDeliveryDto orderDeliveryDto){
+		  BigDecimal sendAllMoney=new BigDecimal(0);
+		    //计算所发货物的金额
+		 List<OrderPartDeliveryDto> sendDeliveryList=orderDeliveryDto.getSendDeliveryDtoList();
+		 if(sendDeliveryList!=null && sendDeliveryList.size()>0){
+			 
+			  for(OrderPartDeliveryDto bean : sendDeliveryList){
+				  
+				   int sendDeliveryNum=bean.getSendDeliveryNum();
+				   Integer orderDetailId=bean.getOrderDetailId();
+				   
+				   OrderDetail orderDetail=this.orderDetailMapper.getByPK(orderDetailId);
+				   
+				   if(!UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney())){
+					   
+					    String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
+						BigDecimal shareMoney=new BigDecimal(0);
+						for(String currentMoney : moneyList){
+							BigDecimal value=new BigDecimal(currentMoney);
+							shareMoney=shareMoney.add(value);
+						}
+						BigDecimal orderDetailMoney=orderDetail.getProductSettlementPrice(); //该笔商品的结算金额
+						BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
+						BigDecimal bigDecimal = new BigDecimal(sendDeliveryNum);
+						BigDecimal allRecord=new BigDecimal(orderDetail.getProductCount());
+						
+						double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
+						BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);
+						sendAllMoney=sendAllMoney.add(currentReturnMoneyValue);
+						
+					
+					   
+				   }else{
+					   BigDecimal currentAllMoney=bean.getProducePrice().multiply(new BigDecimal(sendDeliveryNum));
+					   sendAllMoney=sendAllMoney.add(currentAllMoney);
+				   }
+				   
+			  }
+			  
+		 }
+	     sendAllMoney=sendAllMoney.setScale(2,BigDecimal.ROUND_HALF_UP);
+		 return sendAllMoney;
+	
+}
+
+/**
+ * 计算未发货的优惠后的金额
+ * @param orderDeliveryDto
+ * @return
+ */
+private BigDecimal computerNoDeliveryPreferentialMoney(OrderDeliveryDto orderDeliveryDto){
+	  
+	List<OrderPartDeliveryDto> noDeliveryList=orderDeliveryDto.getPartDeliveryDtoList(); //剩下的商品
+      
+      BigDecimal noSendAllMoney=new BigDecimal(0);
+      for(OrderPartDeliveryDto partDeliveryDto: noDeliveryList){
+   	            //计算没发的货物金额
+   	              int noDeliveryNum=partDeliveryDto.getNoDeliveryNum();
+   	           
+   	              Integer orderDetailId=partDeliveryDto.getOrderDetailId();
+			   
+			   OrderDetail orderDetail=this.orderDetailMapper.getByPK(orderDetailId);
+			   
+			   if(!UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney())){
+				   
+				    String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
+					BigDecimal shareMoney=new BigDecimal(0);
+					for(String currentMoney : moneyList){
+						BigDecimal value=new BigDecimal(currentMoney);
+						shareMoney=shareMoney.add(value);
+					}
+					BigDecimal orderDetailMoney=orderDetail.getProductSettlementPrice(); //该笔商品的结算金额
+					BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
+					BigDecimal bigDecimal = new BigDecimal(noDeliveryNum);
+					BigDecimal allRecord=new BigDecimal(orderDetail.getProductCount());
+					
+					double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
+					BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);
+					noSendAllMoney=noSendAllMoney.add(currentReturnMoneyValue);
+				   
+			   }else{
+				   BigDecimal currentAllMoney=partDeliveryDto.getProducePrice().multiply(new BigDecimal(noDeliveryNum));
+				   noSendAllMoney=noSendAllMoney.add(currentAllMoney);
+			   }
+   	           
+   	           
+			  
+      }
+  	    noSendAllMoney=noSendAllMoney.setScale(2,BigDecimal.ROUND_HALF_UP);
+      return noSendAllMoney;
+	
 }
 
 /**
@@ -703,7 +815,7 @@ private void savePartDeliveryException(OrderDeliveryDto orderDeliveryDto,String 
 			orderException.setSupplyId(order.getSupplyId());
 			orderException.setSupplyName(order.getSupplyName());
 			orderException.setOrderCreateTime(now);
-			BigDecimal moneyTotal=this.computerNoDeliveryMoney(orderDeliveryDto);
+			BigDecimal moneyTotal=this.computerNoDeliveryPreferentialMoney(orderDeliveryDto); //未发货的优惠均摊金额
 			orderException.setOrderMoney(moneyTotal);
 			orderException.setOrderMoneyTotal(order.getOrderTotal());
 			orderException.setExceptionOrderId(exceptionOrderId);
@@ -751,9 +863,35 @@ private void  saveOrderReturn(OrderDeliveryDto orderDeliveryDto,String now,Order
 			orderReturn.setOrderId(order.getOrderId());
 			orderReturn.setCustId(userDto.getCustId());
 			orderReturn.setReturnCount(partBean.getNoDeliveryNum());
-			BigDecimal moneyTotal = new BigDecimal(0);
-			BigDecimal countBig=new BigDecimal(orderReturn.getReturnCount());
-			moneyTotal = moneyTotal.add(partBean.getProducePrice().multiply(countBig));
+			
+			       BigDecimal moneyTotal = new BigDecimal(0);
+                   Integer orderDetailId=partBean.getOrderDetailId();
+			   
+			       OrderDetail orderDetail=this.orderDetailMapper.getByPK(orderDetailId);
+			   
+			   if(!UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney())){
+				   
+				    String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
+					BigDecimal shareMoney=new BigDecimal(0);
+					for(String currentMoney : moneyList){
+						BigDecimal value=new BigDecimal(currentMoney);
+						shareMoney=shareMoney.add(value);
+					}
+					BigDecimal orderDetailMoney=orderDetail.getProductSettlementPrice(); //该笔商品的结算金额
+					BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
+					BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
+					BigDecimal allRecord=new BigDecimal(orderDetail.getProductCount());
+					
+					double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
+					BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);
+					moneyTotal=moneyTotal.add(currentReturnMoneyValue);
+				   
+			   }else{
+				   BigDecimal currentAllMoney=partBean.getProducePrice().multiply(new BigDecimal(orderReturn.getReturnCount()));
+				   moneyTotal=moneyTotal.add(currentAllMoney);
+			   }
+			   
+		     moneyTotal=moneyTotal.setScale(2,BigDecimal.ROUND_HALF_UP);
 			orderReturn.setReturnPay(moneyTotal);
 			orderReturn.setReturnType("3");
 			orderReturn.setReturnDesc("");

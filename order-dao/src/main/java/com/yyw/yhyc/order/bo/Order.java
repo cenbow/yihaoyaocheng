@@ -250,12 +250,38 @@ public class Order extends Model{
 	private BigDecimal deliveryMoney;
 	
 	/**
+	 * 卖家发货是部分发货,且不补发货物,剩下的货物均摊后的金额
+	 */
+	private BigDecimal preferentialCancelMoney;
+	
+	/**
+	 * 卖家发货是部分发货,所发货物均摊后的金额
+	 */
+	private BigDecimal preferentialDeliveryMoney;
+	
+	/**
 	 * 卖家是否部分发货,1-是,0-否
 	 */
 	private String isDartDelivery;
 	
 	
 	
+
+	public BigDecimal getPreferentialCancelMoney() {
+		return preferentialCancelMoney;
+	}
+
+	public void setPreferentialCancelMoney(BigDecimal preferentialCancelMoney) {
+		this.preferentialCancelMoney = preferentialCancelMoney;
+	}
+
+	public BigDecimal getPreferentialDeliveryMoney() {
+		return preferentialDeliveryMoney;
+	}
+
+	public void setPreferentialDeliveryMoney(BigDecimal preferentialDeliveryMoney) {
+		this.preferentialDeliveryMoney = preferentialDeliveryMoney;
+	}
 
 	public BigDecimal getCancelMoney() {
 		return cancelMoney;

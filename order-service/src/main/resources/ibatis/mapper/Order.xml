@@ -62,6 +62,8 @@
 		<result column="adviser_remark" property="adviserRemark"/>
 		<result column="cancel_money" property="cancelMoney"/>
 		<result column="delivery_money" property="deliveryMoney"/>
+		<result column="preferential_cancel_money" property="preferentialCancelMoney"/>
+		<result column="preferential_delivery_money" property="preferentialDeliveryMoney"/>
 		<result column="is_part_delivery" property="isDartDelivery"/>
 		<result column="promotion_name" property="promotionName"/>
 	</resultMap>
@@ -113,6 +115,8 @@
 		<result column="adviser_remark" property="adviserRemark"/>
 		<result column="cancel_money" property="cancelMoney"/>
 		<result column="delivery_money" property="deliveryMoney"/>
+		<result column="preferential_cancel_money" property="preferentialCancelMoney"/>
+		<result column="preferential_delivery_money" property="preferentialDeliveryMoney"/>
 		<result column="is_part_delivery" property="isDartDelivery"/>
 		<result column="promotion_name" property="promotionName"/>
 		<association property="orderDelivery" column="flow_id"
@@ -167,6 +171,8 @@
 		,adviser_remark
 		,cancel_money
 		,delivery_money
+		,preferential_cancel_money
+		,preferential_delivery_money
 		,is_part_delivery
 		,promotion_name
 	</sql>
@@ -216,6 +222,8 @@
 				,adviser_remark
 				,cancel_money
 				,delivery_money
+				,preferential_cancel_money
+		        ,preferential_delivery_money
 				,is_part_delivery
 				,promotion_name
     </sql>
@@ -266,6 +274,8 @@
 		,adviser_remark
 		,cancel_money
 		,delivery_money
+		,preferential_cancel_money
+		,preferential_delivery_money
 		,is_part_delivery
 		,promotion_name
 	</sql>
@@ -316,6 +326,8 @@
 		, T1.adviser_remark
 		,T1.cancel_money
 		,T1.delivery_money
+		,T1.preferential_cancel_money
+		,T1.preferential_delivery_money
 		,T1.is_part_delivery
 		,T1.promotion_name
 	</sql>
@@ -367,6 +379,8 @@
 		, o.adviser_remark
 		,o.cancel_money
 		,o.delivery_money
+		,o.preferential_cancel_money
+		,o.preferential_delivery_money
 		,o.is_part_delivery
 		, o.promotion_name
 	</sql>
@@ -539,6 +553,8 @@
 				, #{adviserRemark}
 				, #{cancelMoney}
 				, #{deliveryMoney}
+				, #{preferentialCancelMoney}
+				, #{preferentialDeliveryMoney}
 				, #{isDartDelivery}
 				,#{promotionName}
   ) ]]>
@@ -676,6 +692,12 @@
 		</if>
 		<if test="deliveryMoney!= null">
 			,delivery_money=#{deliveryMoney}
+		</if>
+		<if test="preferentialCancelMoney!= null">
+			,preferential_cancel_money=#{preferentialCancelMoney}
+		</if>
+		<if test="preferentialDeliveryMoney!= null">
+			,preferential_delivery_money=#{preferentialDeliveryMoney}
 		</if>
 		<if test="isDartDelivery!= null">
 			,is_part_delivery=#{isDartDelivery}

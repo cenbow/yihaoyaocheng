@@ -304,7 +304,7 @@ public class OrderController extends BaseJsonController {
 				creditParams = new CreditParams();
 				creditParams.setStatus("1");  //创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
 				creditParams.setFlowId(order.getFlowId());//订单编号
-				creditParams.setOrderTotal(order.getOrderTotal());//订单总金额
+				creditParams.setOrderTotal(order.getOrgTotal());//订单优惠后的金额
 				creditParams.setBuyerCode(order.getCustId() + "");
 				creditParams.setBuyerName(order.getCustName());
 				creditParams.setSellerCode(order.getSupplyId() + "");

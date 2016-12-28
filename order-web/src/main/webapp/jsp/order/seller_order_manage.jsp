@@ -130,11 +130,11 @@
                             </div>
                             <table class="table table-box">
                                 <colgroup>
-                                    <col style="width: 20%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 20%;"/>
-                                    <col style="width: 15%;"/>
-                                    <col style="width: 15%;"/>
+                                    <col style="width: 16%;"/>
+                                    <col style="width: 21%;"/>
+                                    <col style="width: 16%;"/>
+                                    <col style="width: 17%;"/>
                                     <col style="width: 15%;"/>
                                 </colgroup>
                                 <thead>

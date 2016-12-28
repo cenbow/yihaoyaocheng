@@ -1,5 +1,6 @@
 package com.yyw.yhyc.order.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -396,6 +397,11 @@ public class OrderPartDeliveryService {
             order.setDeliverTime(now);
             order.setUpdateTime(now);
             order.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+            order.setIsDartDelivery("0");
+            order.setCancelMoney(new BigDecimal(0));
+            order.setDeliveryMoney(order.getOrderTotal());
+            order.setPreferentialCancelMoney(new BigDecimal(0));
+            order.setPreferentialDeliveryMoney(order.getOrgTotal());
             orderMapper.update(order);
 
             //插入日志表
