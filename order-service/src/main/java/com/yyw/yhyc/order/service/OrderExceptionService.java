@@ -6,7 +6,7 @@
  * <p/>
  * Amended By       Amended On      Amendment Description
  * ------------     -----------     ---------------------------------------------
- */
+ **/
 package com.yyw.yhyc.order.service;
 
 import java.io.UnsupportedEncodingException;
@@ -233,36 +233,36 @@ public class OrderExceptionService {
             return orderExceptionDto;
         }
         orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
-
+        
         /* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0); //商品金额
-            BigDecimal productOrderMoney = new BigDecimal(0); //订单金额=商品金额-满减金额
-
+            BigDecimal productOrderMoney=new BigDecimal(0); //订单金额=商品金额-满减金额
+            
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
-                if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())) {
-                    continue;
-                }
-                BigDecimal price = orderReturnDto.getProductPrice();
-                Integer productCount = orderReturnDto.getReturnCount();
-                BigDecimal allMoney = price.multiply(new BigDecimal(productCount));
-                orderReturnDto.setProductAllMoney(allMoney);
-
-                productPriceCount = productPriceCount.add(allMoney);
-
-                productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
+            	if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())){
+            		continue;
+            	}
+            	BigDecimal price=orderReturnDto.getProductPrice();
+        		Integer productCount=orderReturnDto.getReturnCount();
+        		BigDecimal allMoney=price.multiply(new BigDecimal(productCount));
+        		orderReturnDto.setProductAllMoney(allMoney);
+        		
+        		productPriceCount=productPriceCount.add(allMoney);
+            	
+        		productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(productOrderMoney);
-            BigDecimal shareMoney = productPriceCount.subtract(productOrderMoney); //满减金额
-            if (shareMoney.compareTo(new BigDecimal(0)) >= 0) {
-                orderExceptionDto.setOrderShareMoney(shareMoney);
-            } else {
-                orderExceptionDto.setOrderShareMoney(new BigDecimal(0));
+            BigDecimal shareMoney=productPriceCount.subtract(productOrderMoney); //满减金额
+            if(shareMoney.compareTo(new BigDecimal(0))>=0){
+            	orderExceptionDto.setOrderShareMoney(shareMoney);
+            }else{
+            	orderExceptionDto.setOrderShareMoney(new BigDecimal(0));
             }
-
+            
         }
-
+        
 		/* 获得拒收订单的状态名 */
         if (userType == 1) {
             BuyerOrderExceptionStatusEnum buyerOrderExceptionStatusEnum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType());
@@ -290,7 +290,7 @@ public class OrderExceptionService {
         SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
         //当为账期支付时
         /*if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
-            //结算订单金额=原始订单金额-拒收订单金额
+			//结算订单金额=原始订单金额-拒收订单金额
 			OrderSettlement byFlowid=new OrderSettlement();
 			byFlowid.setFlowId(order.getFlowId());
 			List<OrderSettlement> ls=orderSettlementMapper.listByProperty(byFlowid);
@@ -319,7 +319,7 @@ public class OrderExceptionService {
         orderSettlement.setSettlementMoney(orderException.getOrderMoney());
         orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
         log.info("account-yes:systemPayType.getPayType():" + systemPayType.getPayType());
-        if (OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+        if (OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())||OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //如银联支付 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setConfirmSettlement("0");//生成结算信息 已结算
@@ -327,7 +327,8 @@ public class OrderExceptionService {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setConfirmSettlement("0");//生成结算信息 未结算
-        } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+        }
+        else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付
             log.info("account-yescreate:systemPayType.getPayType():" + systemPayType.getPayType());
             orderSettlement.setBusinessType(1);
@@ -352,9 +353,9 @@ public class OrderExceptionService {
         orderSettlementMapper.save(orderSettlement);
         //银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
         if ((OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())||
+                OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())||
+                OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())||
                 OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
                 OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId()))
                 && orderException.getOrderMoney() != null) {
@@ -363,10 +364,10 @@ public class OrderExceptionService {
             orderSettlement.setFlowId(order.getFlowId());//支付宝方式加
             orderSettlement.setCustId(null);
             orderSettlement.setSupplyId(order.getSupplyId());
-            log.info("存的卖家金额:" + order.getOrgTotal() + "-" + orderException.getOrderMoney());
+            log.info("存的卖家金额:" + order.getOrgTotal()+"-"+orderException.getOrderMoney());
             orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(orderException.getOrderMoney()));
             //当全部拒收时不生成卖家结算 适用所有
-            if (!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)) {
+            if(!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)){
                 orderSettlement.setRefunSettlementMoney(null);
                 orderSettlementMapper.save(orderSettlement);
             }
@@ -570,33 +571,33 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderExceptionDto getRejectOrderDetails(OrderExceptionDto orderExceptionDto, UserDto userDto) throws Exception {
+    public OrderExceptionDto getRejectOrderDetails(OrderExceptionDto orderExceptionDto,UserDto userDto) throws Exception {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
-            BigDecimal productOrderMoney = new BigDecimal(0); //订单金额=商品金额-满减金额
-
+            BigDecimal productOrderMoney=new BigDecimal(0); //订单金额=商品金额-满减金额
+            
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto)) continue;
-
-                BigDecimal price = orderReturnDto.getProductPrice();
-                Integer productCount = orderReturnDto.getReturnCount();
-                BigDecimal allMoney = price.multiply(new BigDecimal(productCount));
-                orderReturnDto.setProductAllMoney(allMoney);
-
-                productPriceCount = productPriceCount.add(allMoney);
-                productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
+                
+            	BigDecimal price=orderReturnDto.getProductPrice();
+        		Integer productCount=orderReturnDto.getReturnCount();
+        		BigDecimal allMoney=price.multiply(new BigDecimal(productCount));
+        		orderReturnDto.setProductAllMoney(allMoney);
+        		
+        		productPriceCount=productPriceCount.add(allMoney);
+        		productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(productOrderMoney);
-            BigDecimal shareMoney = productPriceCount.subtract(productOrderMoney); //满减金额
-
-            if (shareMoney.compareTo(new BigDecimal(0)) >= 0) {
-                orderExceptionDto.setOrderShareMoney(shareMoney);
-            } else {
-                orderExceptionDto.setOrderShareMoney(new BigDecimal(0));
+            BigDecimal shareMoney=productPriceCount.subtract(productOrderMoney); //满减金额
+            
+            if(shareMoney.compareTo(new BigDecimal(0))>=0){
+            	orderExceptionDto.setOrderShareMoney(shareMoney);
+            }else{
+            	orderExceptionDto.setOrderShareMoney(new BigDecimal(0));
             }
-
+            
             if (!"1".equals(orderExceptionDto.getReturnType()))
                 orderExceptionDto.setOrderStatusName(getSellerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
             else
@@ -642,7 +643,7 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderExceptionDto getChangeOrderDetails(OrderExceptionDto orderExceptionDto, UserDto userDto) throws Exception {
+    public OrderExceptionDto getChangeOrderDetails(OrderExceptionDto orderExceptionDto,UserDto userDto) throws Exception {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
@@ -787,12 +788,12 @@ public class OrderExceptionService {
         }
         //审核不通过时。在线支付调用相关支付接口，然后更新结算信息
         if (SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())
-                && systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+                &&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
             log.info("----------------卖家审核拒收订单:卖家审核不通过----------------");
             PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-            payService.handleRefund(userDto, 1, oe.getFlowId(), "卖家审核不通过拒收订单");
+            payService.handleRefund(userDto,1,oe.getFlowId(),"卖家审核不通过拒收订单");
         } else if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())
-                && systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+                &&systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
             log.info("----------------卖家审核拒收订单:卖家审核通过,进行退款操作,向【" + systemPayType.getPayName() + "】发起退款请求----------------");
             PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
             payService.handleRefund(userDto, 2, oe.getExceptionOrderId(), "卖家审核通过拒收订单");
@@ -848,9 +849,9 @@ public class OrderExceptionService {
         }
         //插入日志表
         //插入日志表
-        OrderLogDto orderLog = new OrderLogDto();
+        OrderLogDto orderLog=new OrderLogDto();
         orderLog.setOrderId(oe.getOrderId());
-        orderLog.setNodeName("卖家审核换货订单 状态=" + SystemChangeGoodsOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark() + " flowId=" + oe.getExceptionOrderId());
+        orderLog.setNodeName("卖家审核换货订单 状态="+SystemChangeGoodsOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark()+" flowId="+oe.getExceptionOrderId());
         orderLog.setOrderStatus(oe.getOrderStatus());
         orderLog.setRemark(orderException.toString());
         this.orderTraceService.saveOrderLog(orderLog);
@@ -867,44 +868,44 @@ public class OrderExceptionService {
         orderTraceMapper.save(orderTrace);*/
 
         //如果卖家审核通过，那么需要保存卖家换货收货地址
-        if (orderException.getOrderStatus().equals("4")) { //审核通过
-            UsermanageReceiverAddress addressBean = this.receiverAddressMapper.getByPK(orderException.getDelivery());
-            String addressMessage = addressBean.getProvinceName() + addressBean.getCityName() + addressBean.getDistrictName() + addressBean.getAddress();
-            String nowDate = this.systemDateMapper.getSystemDate();
-            try {
-                OrderReceive orderReceiveBean = this.orderReceiveService.getByPK(oe.getExceptionOrderId());
+        if(orderException.getOrderStatus().equals("4")){ //审核通过
+        	UsermanageReceiverAddress addressBean=this.receiverAddressMapper.getByPK(orderException.getDelivery());
+        	 String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
+        	 String nowDate=this.systemDateMapper.getSystemDate();
+        	 try {
+				OrderReceive orderReceiveBean=this.orderReceiveService.getByPK(oe.getExceptionOrderId());
 
-                if (orderReceiveBean != null) {
-                    orderReceiveBean.setSellerReceiveRegion(addressBean.getDistrictCode());
-                    orderReceiveBean.setSellerReceiveProvince(addressBean.getProvinceCode());
-                    orderReceiveBean.setSellerReceiveContactPhone(addressBean.getContactPhone());
-                    orderReceiveBean.setSellerReceiveCity(addressBean.getCityCode());
-                    orderReceiveBean.setSellerReceivePerson(addressBean.getReceiverName());
-                    orderReceiveBean.setSellerReceiveAddress(addressMessage);
-                    orderReceiveBean.setUpdateTime(nowDate);
-                    orderReceiveBean.setUpdateUser(userDto.getUserName());
-                    this.orderReceiveService.update(orderReceiveBean);
+				if(orderReceiveBean!=null){
+					 orderReceiveBean.setSellerReceiveRegion(addressBean.getDistrictCode());
+					 orderReceiveBean.setSellerReceiveProvince(addressBean.getProvinceCode());
+					 orderReceiveBean.setSellerReceiveContactPhone(addressBean.getContactPhone());
+					 orderReceiveBean.setSellerReceiveCity(addressBean.getCityCode());
+					 orderReceiveBean.setSellerReceivePerson(addressBean.getReceiverName());
+					 orderReceiveBean.setSellerReceiveAddress(addressMessage);
+					 orderReceiveBean.setUpdateTime(nowDate);
+					 orderReceiveBean.setUpdateUser(userDto.getUserName());
+					 this.orderReceiveService.update(orderReceiveBean);
 
-                } else {
-                    OrderReceive orderRecevieAddress = new OrderReceive();
-                    orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
-                    orderRecevieAddress.setFlowId(oe.getFlowId());
-                    orderRecevieAddress.setSellerReceiveAddress(addressMessage);
-                    orderRecevieAddress.setSellerReceiveCity(addressBean.getCityCode());
-                    orderRecevieAddress.setSellerReceiveProvince(addressBean.getProvinceCode());
-                    orderRecevieAddress.setSellerReceiveRegion(addressBean.getDistrictCode());
-                    orderRecevieAddress.setSellerReceivePerson(addressBean.getReceiverName());
-                    orderRecevieAddress.setSellerReceiveContactPhone(addressBean.getContactPhone());
-                    orderRecevieAddress.setCreateTime(nowDate);
-                    orderRecevieAddress.setCreateUser(userDto.getUserName());
-                    orderRecevieAddress.setUpdateTime(nowDate);
-                    orderRecevieAddress.setUpdateUser(userDto.getUserName());
-                    this.orderReceiveService.save(orderRecevieAddress);
-                }
+				 }else{
+						OrderReceive orderRecevieAddress=new OrderReceive();
+						orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
+						orderRecevieAddress.setFlowId(oe.getFlowId());
+						orderRecevieAddress.setSellerReceiveAddress(addressMessage);
+						orderRecevieAddress.setSellerReceiveCity(addressBean.getCityCode());
+						orderRecevieAddress.setSellerReceiveProvince(addressBean.getProvinceCode());
+						orderRecevieAddress.setSellerReceiveRegion(addressBean.getDistrictCode());
+						orderRecevieAddress.setSellerReceivePerson(addressBean.getReceiverName());
+						orderRecevieAddress.setSellerReceiveContactPhone(addressBean.getContactPhone());
+						orderRecevieAddress.setCreateTime(nowDate);
+						orderRecevieAddress.setCreateUser(userDto.getUserName());
+						orderRecevieAddress.setUpdateTime(nowDate);
+						orderRecevieAddress.setUpdateUser(userDto.getUserName());
+						 this.orderReceiveService.save(orderRecevieAddress);
+				 }
 
-            } catch (Exception e) {
-                log.info("处理卖家审核通过，保存卖家的收货地址失败");
-            }
+			} catch (Exception e) {
+				 log.info("处理卖家审核通过，保存卖家的收货地址失败");
+			}
         }
 
     }
@@ -1181,9 +1182,9 @@ public class OrderExceptionService {
         }
 
         //插入日志表
-        OrderLogDto orderLog = new OrderLogDto();
+        OrderLogDto orderLog=new OrderLogDto();
         orderLog.setOrderId(oe.getOrderId());
-        orderLog.setNodeName("卖家审核退货订单 状态=" + SystemRefundOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark() + " flowId=" + oe.getExceptionOrderId());
+        orderLog.setNodeName("卖家审核退货订单 状态="+SystemRefundOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark()+" flowId="+oe.getExceptionOrderId());
         orderLog.setOrderStatus(oe.getOrderStatus());
         orderLog.setRemark(orderException.toString());
         this.orderTraceService.saveOrderLog(orderLog);
@@ -1200,30 +1201,30 @@ public class OrderExceptionService {
         orderTraceMapper.save(orderTrace);*/
 
         //卖家审核通过退货信息需要插入卖家的收货地址
-        if (orderException.getOrderStatus().equals("3")) { //审核通过
-            UsermanageReceiverAddress addressBean = this.receiverAddressMapper.getByPK(orderException.getDelivery());
-            String addressMessage = addressBean.getProvinceName() + addressBean.getCityName() + addressBean.getDistrictName() + addressBean.getAddress();
-            String nowDate = this.systemDateMapper.getSystemDate();
+        if(orderException.getOrderStatus().equals("3")){ //审核通过
+	        	UsermanageReceiverAddress addressBean=this.receiverAddressMapper.getByPK(orderException.getDelivery());
+		       	 String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
+		       	 String nowDate=this.systemDateMapper.getSystemDate();
 
-            OrderReceive orderRecevieAddress = new OrderReceive();
-            orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
-            orderRecevieAddress.setFlowId(oe.getFlowId());
-            orderRecevieAddress.setSellerReceiveAddress(addressMessage);
-            orderRecevieAddress.setSellerReceiveCity(addressBean.getCityCode());
-            orderRecevieAddress.setSellerReceiveProvince(addressBean.getProvinceCode());
-            orderRecevieAddress.setSellerReceiveRegion(addressBean.getDistrictCode());
-            orderRecevieAddress.setSellerReceivePerson(addressBean.getReceiverName());
-            orderRecevieAddress.setSellerReceiveContactPhone(addressBean.getContactPhone());
-            orderRecevieAddress.setCreateTime(nowDate);
-            orderRecevieAddress.setCreateUser(userDto.getUserName());
-            orderRecevieAddress.setUpdateTime(nowDate);
-            orderRecevieAddress.setUpdateUser(userDto.getUserName());
-            try {
-                this.orderReceiveService.save(orderRecevieAddress);
-            } catch (Exception e) {
-                log.error("保存卖家退货收货地址失败:" + oe);
-                throw new RuntimeException("保存卖家退货收货地址失败");
-            }
+       		           OrderReceive orderRecevieAddress=new OrderReceive();
+						orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
+						orderRecevieAddress.setFlowId(oe.getFlowId());
+						orderRecevieAddress.setSellerReceiveAddress(addressMessage);
+						orderRecevieAddress.setSellerReceiveCity(addressBean.getCityCode());
+						orderRecevieAddress.setSellerReceiveProvince(addressBean.getProvinceCode());
+						orderRecevieAddress.setSellerReceiveRegion(addressBean.getDistrictCode());
+						orderRecevieAddress.setSellerReceivePerson(addressBean.getReceiverName());
+						orderRecevieAddress.setSellerReceiveContactPhone(addressBean.getContactPhone());
+						orderRecevieAddress.setCreateTime(nowDate);
+						orderRecevieAddress.setCreateUser(userDto.getUserName());
+						orderRecevieAddress.setUpdateTime(nowDate);
+						orderRecevieAddress.setUpdateUser(userDto.getUserName());
+						try {
+							this.orderReceiveService.save(orderRecevieAddress);
+						} catch (Exception e) {
+							log.error("保存卖家退货收货地址失败:" + oe);
+				            throw new RuntimeException("保存卖家退货收货地址失败");
+						}
         }
     }
 
@@ -1589,9 +1590,9 @@ public class OrderExceptionService {
                     throw new RuntimeException("订单取消失败");
                 }
                 //插入日志表
-                OrderLogDto orderLogDto = new OrderLogDto();
+                OrderLogDto orderLogDto=new OrderLogDto();
                 orderLogDto.setOrderId(orderException.getOrderId());
-                orderLogDto.setNodeName("买家取消退货订单 flowId=" + orderException.getExceptionOrderId());
+                orderLogDto.setNodeName("买家取消退货订单 flowId="+orderException.getExceptionOrderId());
                 orderLogDto.setOrderStatus(orderException.getOrderStatus());
                 orderLogDto.setRemark(orderException.toString());
                 this.orderTraceService.saveOrderLog(orderLogDto);
@@ -1819,20 +1820,20 @@ public class OrderExceptionService {
 
     public void createOrderTrace(Object order, UserDto userDto, String now, int type, String nodeName) {
         //插入日志表
-        OrderLogDto orderLog = new OrderLogDto();
+    	OrderLogDto orderLog=new OrderLogDto();
 
-        if (type == 1) {
-            OrderException orderException = (OrderException) order;
-            orderLog.setOrderId(orderException.getOrderId());
-            orderLog.setOrderStatus(orderException.getOrderStatus());
-            orderLog.setNodeName(nodeName + " flowId=" + orderException.getExceptionOrderId());
-        } else {
-            Order newOrder = (Order) order;
-            orderLog.setOrderId(newOrder.getOrderId());
-            orderLog.setOrderStatus(newOrder.getOrderStatus());
-            orderLog.setNodeName(nodeName + "flowId==" + newOrder.getFlowId());
-        }
-        this.orderTraceService.saveOrderLog(orderLog);
+    	  if (type == 1) {
+              OrderException orderException = (OrderException) order;
+              orderLog.setOrderId(orderException.getOrderId());
+              orderLog.setOrderStatus(orderException.getOrderStatus());
+              orderLog.setNodeName(nodeName+" flowId="+orderException.getExceptionOrderId());
+          } else {
+              Order newOrder = (Order) order;
+              orderLog.setOrderId(newOrder.getOrderId());
+              orderLog.setOrderStatus(newOrder.getOrderStatus());
+              orderLog.setNodeName(nodeName +"flowId=="+newOrder.getFlowId());
+          }
+    	  this.orderTraceService.saveOrderLog(orderLog);
 /*        OrderTrace orderTrace = new OrderTrace();
         orderTrace.setDealStaff(userDto.getUserName());
         orderTrace.setRecordDate(now);
@@ -1972,11 +1973,11 @@ public class OrderExceptionService {
             orderTrace1.setCreateUser(userDto.getUserName());
             orderTraceMapper.save(orderTrace);*/
 
-//            try {//审核不通过直接生成结算信息，通过的结算信息在买家确认收货时产生
-//                saveOrderSettlement(order);
-//            } catch (Exception e) {
-//                throw new RuntimeException("补货订单审核结算失败");
-//            }
+            try {//审核不通过直接生成结算信息，通过的结算信息在买家确认收货时产生
+                saveOrderSettlement(order);
+            } catch (Exception e) {
+                throw new RuntimeException("补货订单审核结算失败");
+            }
         }
     }
 
@@ -2049,7 +2050,7 @@ public class OrderExceptionService {
      */
     public String editConfirmReceiptReturn(String exceptionOrderId, UserDto userDto, CreditDubboServiceInterface creditDubboService) throws Exception {
         String msg = "false";
-        log.info("******************：进入退货订单确认收货，ID" + exceptionOrderId);
+        log.info("******************：进入退货订单确认收货，ID"+exceptionOrderId);
         OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
         if (UtilHelper.isEmpty(orderException) || userDto.getCustId() != orderException.getSupplyId()) {
             log.info("订单不存在，编号为：" + exceptionOrderId);
@@ -2060,7 +2061,7 @@ public class OrderExceptionService {
             String now = systemDateMapper.getSystemDate();
             orderException.setUpdateUser(userDto.getUserName());
             orderException.setUpdateTime(now);
-            //orderException.setReceiveTime(now);
+           //orderException.setReceiveTime(now);
             orderException.setSellerReceiveTime(now);
             int count = orderExceptionMapper.update(orderException);
             if (count == 0) {
@@ -2068,11 +2069,11 @@ public class OrderExceptionService {
                 throw new RuntimeException("订单收货失败");
             }
             //插入日志表
-            OrderLogDto logDto1 = new OrderLogDto();
+            OrderLogDto logDto1=new OrderLogDto();
             logDto1.setOrderId(orderException.getOrderId());
-            logDto1.setNodeName("退货订单收货->flowId=" + orderException.getExceptionOrderId());
+            logDto1.setNodeName("退货订单收货->flowId="+orderException.getExceptionOrderId());
             logDto1.setOrderStatus(orderException.getOrderStatus());
-            logDto1.setRemark("请求参数[" + orderException.toString() + "]");
+            logDto1.setRemark("请求参数["+orderException.toString()+"]");
             this.orderTraceService.saveOrderLog(logDto1);
 
            /* OrderTrace orderTrace = new OrderTrace();
@@ -2096,7 +2097,7 @@ public class OrderExceptionService {
                 throw new RuntimeException("未找到订单");
             }
             OrderService orderService = (OrderService) SpringBeanHelper.getBean("orderService");
-            log.info("******************：调用资信接口，参数：{creditDubboService:" + creditDubboService + "**systemPayType:" + systemPayType + ",orderException:" + orderException);
+            log.info("******************：调用资信接口，参数：{creditDubboService:"+creditDubboService+"**systemPayType:"+systemPayType+",orderException:"+orderException);
             orderService.sendReundCredit(creditDubboService, systemPayType, orderException);
             log.info("******************：调用资信接口,在OrderExceptionService中结束");
             msg = "true";
@@ -2167,11 +2168,11 @@ public class OrderExceptionService {
                 throw new RuntimeException("订单收货失败");
             }
             //插入日志表
-            OrderLogDto logDto1 = new OrderLogDto();
+            OrderLogDto logDto1=new OrderLogDto();
             logDto1.setOrderId(orderException.getOrderId());
-            logDto1.setNodeName("换货订单收货->flowId=" + orderException.getExceptionOrderId());
+            logDto1.setNodeName("换货订单收货->flowId="+orderException.getExceptionOrderId());
             logDto1.setOrderStatus(orderException.getOrderStatus());
-            logDto1.setRemark("请求参数[" + orderException.toString() + "]");
+            logDto1.setRemark("请求参数["+orderException.toString()+"]");
             this.orderTraceService.saveOrderLog(logDto1);
 
           /*  OrderTrace orderTrace = new OrderTrace();
@@ -2370,7 +2371,7 @@ public class OrderExceptionService {
      * @param orderStatus
      * @return
      */
-    public Map<String, Object> listBuyerExceptionOderForApp(Pagination<OrderExceptionDto> pagination, String orderStatus, int custId, IProductDubboManageService iProductDubboManageService) {
+    public Map<String, Object> listBuyerExceptionOderForApp(Pagination<OrderExceptionDto> pagination, String orderStatus, int custId,IProductDubboManageService iProductDubboManageService) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
         orderExceptionDto.setCustId(custId);
@@ -2391,18 +2392,20 @@ public class OrderExceptionService {
                     //获取买家视角订单状态
                     if (OrderExceptionTypeEnum.REPLENISHMENT.getType().equals(od.getReturnType())) {//补货
                         BuyerReplenishmentOrderStatusEnum buyerorderstatusenum = getBuyerReplenishmentOrderStatus(od.getOrderStatus());
-                        if (!UtilHelper.isEmpty(buyerorderstatusenum)) {
+                        if (!UtilHelper.isEmpty(buyerorderstatusenum)){
                             od.setOrderStatusName(buyerorderstatusenum.getValue());
                             od.setOrderStatus(buyerorderstatusenum.getType());
-                        } else
+                        }
+                        else
                             od.setOrderStatusName("未知类型");
                     }
                     if (OrderExceptionTypeEnum.REJECT.getType().equals(od.getReturnType())) {//拒收
-                        BuyerOrderExceptionStatusEnum buyerorderstatusenum = getBuyerOrderExceptionStatus(od.getOrderStatus(), od.getPayType());
-                        if (!UtilHelper.isEmpty(buyerorderstatusenum)) {
+                        BuyerOrderExceptionStatusEnum buyerorderstatusenum = getBuyerOrderExceptionStatus(od.getOrderStatus(),od.getPayType());
+                        if (!UtilHelper.isEmpty(buyerorderstatusenum)){
                             od.setOrderStatusName(buyerorderstatusenum.getValue());
                             od.setOrderStatus(buyerorderstatusenum.getType());
-                        } else
+                        }
+                        else
                             od.setOrderStatusName("未知类型");
 
                     }
@@ -2420,7 +2423,7 @@ public class OrderExceptionService {
                 temp.put("varietyNumber", UtilHelper.isEmpty(od.getOrderReturnList()) ? 0 : od.getOrderReturnList().size());//品种
                 temp.put("productNumber", sumProductNumber(od.getOrderReturnList()));//商品数量
                 temp.put("qq", "");
-                temp.put("productList", getProductList(od.getOrderReturnList(), iProductDubboManageService));
+                temp.put("productList", getProductList(od.getOrderReturnList(),iProductDubboManageService));
                 orderList.add(temp);
             }
         }
@@ -2435,11 +2438,11 @@ public class OrderExceptionService {
      * @param orderReturnDtoList
      * @return
      */
-    int sumProductNumber(List<OrderReturnDto> orderReturnDtoList) {
+    int sumProductNumber(List<OrderReturnDto> orderReturnDtoList){
         int sum = 0;
-        if (!UtilHelper.isEmpty(orderReturnDtoList)) {
-            for (OrderReturnDto oed : orderReturnDtoList)
-                sum += oed.getReturnCount();
+        if(!UtilHelper.isEmpty(orderReturnDtoList)){
+            for(OrderReturnDto oed :orderReturnDtoList)
+                sum +=  oed.getReturnCount();
         }
         return sum;
     }
@@ -2449,20 +2452,20 @@ public class OrderExceptionService {
      * @param orderReturnDtoList
      * @return
      */
-    List<Map<String, Object>> getProductList(List<OrderReturnDto> orderReturnDtoList, IProductDubboManageService iProductDubboManageService) {
-        List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-        Map<String, Object> map = null;
-        if (!UtilHelper.isEmpty(orderReturnDtoList)) {
-            for (OrderReturnDto od : orderReturnDtoList) {
-                map = new HashMap<String, Object>();
-                map.put("productId", od.getProductId());
-                map.put("productPicUrl", getProductImg(od.getSpuCode(), iProductDubboManageService));
-                map.put("productName", od.getProductName());
-                map.put("spec", od.getSpecification());
-                map.put("unit", "");
-                map.put("productPrice", od.getProductPrice());
-                map.put("factoryName", "");
-                map.put("quantity", od.getReturnCount());
+    List<Map<String,Object>> getProductList(List<OrderReturnDto> orderReturnDtoList,IProductDubboManageService iProductDubboManageService){
+        List<Map<String,Object>> resultList = new ArrayList<Map<String,Object>>();
+        Map<String,Object> map = null;
+        if(!UtilHelper.isEmpty(orderReturnDtoList)){
+            for(OrderReturnDto od : orderReturnDtoList){
+                map = new HashMap<String,Object>();
+                map.put("productId",od.getProductId());
+                map.put("productPicUrl",getProductImg(od.getSpuCode(),iProductDubboManageService));
+                map.put("productName",od.getProductName());
+                map.put("spec",od.getSpecification());
+                map.put("unit","");
+                map.put("productPrice",od.getProductPrice());
+                map.put("factoryName","");
+                map.put("quantity",od.getReturnCount());
                 resultList.add(map);
             }
         }
@@ -2476,36 +2479,36 @@ public class OrderExceptionService {
      * @param iProductDubboManageService
      * @return
      */
-    private String getProductImg(String spuCode, IProductDubboManageService iProductDubboManageService) {
+    private String getProductImg(String spuCode,IProductDubboManageService iProductDubboManageService){
         String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
-        String file_path = "";
+        String file_path ="";
         Map map = new HashMap();
         map.put("spu_code", spuCode);
         map.put("type_id", "1");
-        try {
+        try{
             List picUrlList = iProductDubboManageService.selectByTypeIdAndSPUCode(map);
-            if (UtilHelper.isEmpty(picUrlList))
+            if(UtilHelper.isEmpty(picUrlList))
                 return filePath;
             JSONObject productJson = JSONObject.fromObject(picUrlList.get(0));
-            file_path = (String) productJson.get("file_path");
-        } catch (Exception e) {
-            log.error("查询图片接口:调用异常," + e.getMessage(), e);
+            file_path = (String)productJson.get("file_path");
+        }catch (Exception e){
+            log.error("查询图片接口:调用异常," + e.getMessage(),e);
         }
 
-        if (UtilHelper.isEmpty(file_path)) {
+        if (UtilHelper.isEmpty(file_path)){
             return filePath;
-        } else {
+        }else{
             /* 图片中文处理，只针对特定部位URL编码 */
-            String head = file_path.substring(0, file_path.lastIndexOf("/") + 1);
-            String body = file_path.substring(file_path.lastIndexOf("/") + 1, file_path.lastIndexOf("."));
-            String foot = file_path.substring(file_path.lastIndexOf("."), file_path.length());
+            String head =  file_path.substring(0,file_path.lastIndexOf("/")+1);
+            String body =  file_path.substring(file_path.lastIndexOf("/")+1,file_path.lastIndexOf("."));
+            String foot =  file_path.substring(file_path.lastIndexOf("."),file_path.length());
             try {
-                file_path = head + URLEncoder.encode(body, "UTF-8") + foot;
+                file_path =  head + URLEncoder.encode(body,"UTF-8") + foot;
             } catch (UnsupportedEncodingException e) {
-                log.error("查询图片接口:URLEncoder编码(UTF-8)异常:" + e.getMessage(), e);
+                log.error("查询图片接口:URLEncoder编码(UTF-8)异常:"+e.getMessage(),e);
                 return filePath;
             }
-            return MyConfigUtil.IMG_DOMAIN + file_path;
+            return  MyConfigUtil.IMG_DOMAIN + file_path;
         }
     }
 
@@ -2518,7 +2521,7 @@ public class OrderExceptionService {
      * @return
      * @throws Exception
      */
-    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus, IProductDubboManageService iProductDubboManageService) throws Exception {
+    public OrderBean getAbnormalOrderDetails(OrderExceptionDto orderExceptionDto, Integer orderStatus,IProductDubboManageService iProductDubboManageService) throws Exception {
         if (orderStatus == 800) {  //拒收订单详情
             orderExceptionDto = orderExceptionMapper.getOrderExceptionDetails(orderExceptionDto);
             if (UtilHelper.isEmpty(orderExceptionDto)) {
@@ -2534,19 +2537,21 @@ public class OrderExceptionService {
         }
         OrderBean orderBean = new OrderBean();
         if (orderStatus == 800) {
-            BuyerOrderExceptionStatusEnum buyerorderstatusenum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType());
-            if (!UtilHelper.isEmpty(buyerorderstatusenum)) {
+            BuyerOrderExceptionStatusEnum buyerorderstatusenum = getBuyerOrderExceptionStatus(orderExceptionDto.getOrderStatus(),orderExceptionDto.getPayType());
+            if (!UtilHelper.isEmpty(buyerorderstatusenum)){
                 orderBean.setOrderStatusName(buyerorderstatusenum.getValue());
                 orderBean.setOrderStatus(buyerorderstatusenum.getType());
-            } else
+            }
+            else
                 orderBean.setOrderStatusName("未知类型");
         }
         if (orderStatus == 900) {
             BuyerReplenishmentOrderStatusEnum buyerorderstatusenum = getBuyerReplenishmentOrderStatus(orderExceptionDto.getOrderStatus());
-            if (!UtilHelper.isEmpty(buyerorderstatusenum)) {
+            if (!UtilHelper.isEmpty(buyerorderstatusenum)){
                 orderBean.setOrderStatusName(buyerorderstatusenum.getValue());
                 orderBean.setOrderStatus(buyerorderstatusenum.getType());
-            } else
+            }
+            else
                 orderBean.setOrderStatusName("未知类型");
         }
         orderBean.setOrderStatus(convertAppExceptionOrderStatus(orderBean.getOrderStatus(), orderExceptionDto.getReturnType()));
@@ -2731,21 +2736,21 @@ public class OrderExceptionService {
     }
 
     /**
-     * 异常订单导出
-     * @param orderExceptionDto
-     * @return
-     */
-    public List<Map<String, Object>> getExportExceptionOrder(OrderExceptionDto orderExceptionDto) {
-        return orderExceptionMapper.getExportExceptionOrder(orderExceptionDto);
-    }
-
-    /**
-     * 换货订单导出
-     * @param orderExceptionDto
-     * @return
-     */
-    public List<Map<String, Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto) {
-        return orderExceptionMapper.getExportChangeOrder(orderExceptionDto);
-    }
-
+	 * 异常订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportExceptionOrder(OrderExceptionDto orderExceptionDto){
+		return orderExceptionMapper.getExportExceptionOrder(orderExceptionDto);
+	}
+	
+   /**
+	 * 换货订单导出
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto){
+		return orderExceptionMapper.getExportChangeOrder(orderExceptionDto);
+	}
+    
 }

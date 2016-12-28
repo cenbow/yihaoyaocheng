@@ -492,7 +492,9 @@ public class OrderDeliveryService {
                                 for (Map<String, String> rowMap : list) {
                                     if (rowMap.get("2").equals(code)) {
                                         errorMap = rowMap;
-                                        errorMap.put("9", "商品编码为" + code + "的商品导入数量不等于采购数量");
+                                        int needNum=returnMap.get(code).intValue(); //实际需要的数量
+                                        int importNum=Integer.parseInt(codeMap.get(code));//导入的数量
+                                        errorMap.put("9", "商品编码为" + code + "的商品导入数量["+importNum+"]不等于采购数量["+needNum+"]");
                                         errorList.add(errorMap);
                                     }
                                 }
@@ -1315,36 +1317,40 @@ public class OrderDeliveryService {
                             }
 
                         }
+                        
+                        
+                        //验证商品数量是否相同
+                        for (String code : codeMap.keySet()) {
+                            Map<String, Integer> returnMap = new HashMap<String, Integer>();
+                            OrderReturn orderReturn = new OrderReturn();
+                            orderReturn.setProductCode(code);
+                            orderReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
+                            orderReturn.setReturnType("2");
+                            List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
+                            if (returnList.size() > 0) {
+                                detailMap.put(code, returnList.get(0));
+                                for (OrderReturn or : returnList) {
 
-                    }
-                }
-
-                //验证商品数量是否相同
-
-                for (String code : codeMap.keySet()) {
-                    Map<String, Integer> returnMap = new HashMap<String, Integer>();
-                    OrderReturn orderReturn = new OrderReturn();
-                    orderReturn.setProductCode(code);
-                    orderReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
-                    orderReturn.setReturnType("2");
-                    List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
-                    if (returnList.size() > 0) {
-                        detailMap.put(code, returnList.get(0));
-                        for (OrderReturn or : returnList) {
-
-                            if (UtilHelper.isEmpty(returnMap.get(or.getProductCode()))) {
-                                returnMap.put(or.getProductCode(), or.getReturnCount());
-                            } else {
-                                returnMap.put(or.getProductCode(), or.getReturnCount() + returnMap.get(or.getProductCode()));
+                                    if (UtilHelper.isEmpty(returnMap.get(or.getProductCode()))) {
+                                        returnMap.put(or.getProductCode(), or.getReturnCount());
+                                    } else {
+                                        returnMap.put(or.getProductCode(), or.getReturnCount() + returnMap.get(or.getProductCode()));
+                                    }
+                                }
+                                if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
+                                    errorMap = rowMap;
+                                    errorMap.put("9", "商品编码为" + code + "的商品导入数量不等于换货数量");
+                                    errorList.add(errorMap);
+                                }
                             }
                         }
-                        if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
-                            errorMap = new HashMap<String, String>();
-                            errorMap.put("9", "商品编码为" + code + "的商品导入数量不等于换货数量");
-                            errorList.add(errorMap);
-                        }
+                        
+                        
+
                     }
                 }
+
+       
             }
             //生成excel和订单发货信息
             filePath = createOrderdeliverDetailReturn(errorList, orderDeliveryDto, list, detailMap, excelPath, now);
