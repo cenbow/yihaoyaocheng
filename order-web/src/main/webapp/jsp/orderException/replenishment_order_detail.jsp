@@ -275,7 +275,7 @@
                                     <td>${orderReturnDto.batchNumber}</td>
                                     <td>¥ <fmt:formatNumber value="${orderReturnDto.productPrice}" minFractionDigits="2"/></td>
                                     <td>x ${orderReturnDto.returnCount}</td>
-                                    <td>¥ <fmt:formatNumber value="${orderReturnDto.returnPay}" minFractionDigits="2"/></td>
+                                    <td>¥ <fmt:formatNumber value="${orderReturnDto.productAllMoney}" minFractionDigits="2"/></td>
                                 </tr>
                             </c:forEach>
                         </c:when>
@@ -297,7 +297,8 @@
                 </c:if>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
-                    <p class="red">订单金额：￥${orderExceptionDto.orderMoney}元<p>
+                    <p>满减金额：-${orderExceptionDto.orderShareMoney}元<p>
+                    <p class="red">订单金额：￥${orderExceptionDto.orderPriceCount}元<p>
                 </div>
             </div>
 
