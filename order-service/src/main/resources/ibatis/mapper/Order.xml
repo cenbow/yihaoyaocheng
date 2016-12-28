@@ -1454,7 +1454,7 @@
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		WHERE
-		T1.CUST_ID = #{custId}
+		T1.CUST_ID = #{custId} <![CDATA[ AND T4.PAY_TYPE<>2 ]]>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>

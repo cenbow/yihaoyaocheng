@@ -3154,7 +3154,7 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderStatus))
 			throw new RuntimeException("订单状态不正确");
 		orderDto.setOrderStatus(orderStatus);
-		orderDto.setPayType(1);//只取在线支付订单
+//		orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
 		//获取订单列表
 		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
@@ -3203,6 +3203,9 @@ public class OrderService {
 						hideOrderStatus ="905";
 					}
 				}
+				//（20170106，APP接口增加查询线下支付订单，BY:LiuY）
+				//线下支付
+				temp.put("orderPayType",od.getPayType());
 				temp.put("orderStatus",hideOrderStatus);
 				temp.put("orderStatusName",od.getOrderStatusName());
 				temp.put("createTime",od.getCreateTime());
@@ -3216,6 +3219,7 @@ public class OrderService {
 				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
 				temp.put("qq","");
 				temp.put("productList",getProductList(od.getOrderDetailList(),iProductDubboManageService));
+
 				orderList.add(temp);
 			}
 		}

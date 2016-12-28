@@ -2363,8 +2363,9 @@ public class OrderExceptionService {
 
                     }
                 }
-
                 temp = new HashMap<String, Object>();
+                //（20170106，APP接口增加查询线下支付订单，BY:LiuY）
+                temp.put("orderPayType",od.getPayType());
                 temp.put("orderId", od.getFlowId());
                 temp.put("exceptionOrderId", od.getExceptionOrderId());
                 temp.put("orderStatus", convertAppExceptionOrderStatus(od.getOrderStatus(), od.getReturnType()));
@@ -2507,6 +2508,7 @@ public class OrderExceptionService {
             else
                 orderBean.setOrderStatusName("未知类型");
         }
+        orderBean.setPayType(orderExceptionDto.getPayType());
         orderBean.setOrderStatus(convertAppExceptionOrderStatus(orderBean.getOrderStatus(), orderExceptionDto.getReturnType()));
         orderBean.setOrderId(orderExceptionDto.getFlowId());
         orderBean.setCreateTime(orderExceptionDto.getCreateTime());
