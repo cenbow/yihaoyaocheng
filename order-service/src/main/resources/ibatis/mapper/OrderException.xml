@@ -1997,4 +1997,13 @@
 
 		ORDER  BY  e.exception_id DESC
 	</select>
+
+	<!--补货未完成订单补货未完成订单-->
+	<select id="findReplenishmentNotComplete" parameterType="java.lang.String" resultMap="OrderExceptionResultMapper">
+		<![CDATA[ SELECT ]]>
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_exception WHERE flow_id = #{flowId} and return_type=3 and order_status in(1,2,4)
+	</select>
+
+
 </mapper>

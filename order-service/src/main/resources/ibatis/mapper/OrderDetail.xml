@@ -138,9 +138,6 @@
 		, promotion_id
 		, promotion_name
 		,cancel_produce_num
-		,promotion_collection_id
-		,promotion_collection_type
-		,preferential_collection_money
 	</sql>
 	
 	<sql id="queryDetailByFlowIdCommonSql">

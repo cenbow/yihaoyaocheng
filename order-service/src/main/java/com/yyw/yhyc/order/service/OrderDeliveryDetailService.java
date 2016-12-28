@@ -68,12 +68,12 @@ public class OrderDeliveryDetailService {
 
 	@Autowired
 	private OrderSettlementService orderSettlementService;
+
 	@Autowired
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
-	
-	 @Autowired
-	 private OrderReceiveService orderReceviveService;
 
+	@Autowired
+	private OrderReceiveService orderReceviveService;
 
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
@@ -259,9 +259,6 @@ public class OrderDeliveryDetailService {
 			flowId=list.get(0).getFlowId();
 			returnType=list.get(0).getReturnType();
 			returnDesc=list.get(0).getReturnDesc();
-		    if(!UtilHelper.isEmpty(returnType) && returnType.equals("3")){//补货类型
-		    	selectAddressId=list.get(0).getSelectDeliveryAddressId();
-		    }
 		}
 
 		//统计退款总金额
@@ -335,8 +332,8 @@ public class OrderDeliveryDetailService {
 					orderReturn.setCustId(user.getCustId());
 					orderReturn.setReturnCount(orderDeliveryDetail.getDeliveryProductCount() - orderDeliveryDetail.getRecieveCount());
 					
-					//如果该操作是拒收或者补货的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
-					if((returnType.equals("4")||returnType.equals("3")) && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收和补货
+					//如果该操作是拒收的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
+					if(returnType.equals("4") && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
 						String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
 						BigDecimal shareMoney=new BigDecimal(0);
 						for(String currentMoney : moneyList){
@@ -484,9 +481,9 @@ public class OrderDeliveryDetailService {
 			OrderLogDto exceptionOrderLogDto=new OrderLogDto();
 			exceptionOrderLogDto.setOrderId(order.getOrderId());
 			
-			if(!UtilHelper.isEmpty(returnType) && returnType.equals("3")){
+			if(returnType.equals("3")){
 				exceptionOrderLogDto.setNodeName("买家确认收货申请补货：" + SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getValue()+" flowId=="+orderException.getExceptionOrderId());
-			}else if(!UtilHelper.isEmpty(returnType) && returnType.equals("4")){
+			}else if(returnType.equals("4")){
 				exceptionOrderLogDto.setNodeName("买家确认收货申请拒收：" + SystemOrderExceptionStatusEnum.RejectApplying.getValue()+" flowId="+orderException.getExceptionOrderId());
 			}
 			exceptionOrderLogDto.setOrderStatus(orderException.getOrderStatus());

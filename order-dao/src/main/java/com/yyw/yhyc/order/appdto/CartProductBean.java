@@ -2,6 +2,7 @@ package com.yyw.yhyc.order.appdto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by luweibin on 2016/9/6
@@ -28,6 +29,7 @@ public class CartProductBean implements Serializable,Cloneable {
     private String vendorName;//供应商名称
     private Integer vendorId;//供应商id
     private String spuCode;//商品SPU编码
+    private List<FullReductionPromotion> promotionList;//满减活动
 
     /* 促销商品活动信息 */
     private ProductPromotion productPromotion;
@@ -222,7 +224,16 @@ public class CartProductBean implements Serializable,Cloneable {
         this.unNormalStatusReason = unNormalStatusReason;
     }
 
-    @Override
+    
+    public List<FullReductionPromotion> getPromotionList() {
+		return promotionList;
+	}
+
+	public void setPromotionList(List<FullReductionPromotion> promotionList) {
+		this.promotionList = promotionList;
+	}
+
+	@Override
     public String toString() {
         return "CartProductBean{" +
                 "shoppingCartId=" + shoppingCartId +

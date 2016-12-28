@@ -47,7 +47,9 @@ import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.CartData;
 import com.yyw.yhyc.order.appdto.CartGroupData;
 import com.yyw.yhyc.order.appdto.CartProductBean;
+import com.yyw.yhyc.order.appdto.FullReductionPromotion;
 import com.yyw.yhyc.order.appdto.ProductPromotion;
+import com.yyw.yhyc.order.appdto.PromotionRule;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
@@ -77,7 +79,9 @@ public class ShoppingCartService {
 
 	@Autowired
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
-
+	
+	@Reference
+	private IPromotionDubboManageService iPromotionDubboManageService;
 
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
@@ -1280,6 +1284,40 @@ public class ShoppingCartService {
 					cartProductBean.setProductPromotion(productPromotion);
 				}
 
+				if(!UtilHelper.isEmpty(scd.getPromotionCollectionId())){//存在满减活动
+					Set<ProductPromotionInfo> productPromotionInfos = scd.getProductPromotionInfos();
+					if(!UtilHelper.isEmpty(productPromotionInfos)){
+						List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
+						List<FullReductionPromotion> promotionList = new ArrayList<FullReductionPromotion>();
+						for (ProductPromotionInfo info : infoList) {
+							FullReductionPromotion promotion = new FullReductionPromotion();
+							promotion.setPromotionId(Integer.parseInt(info.getPromotion_id()));
+							promotion.setPromotionMethod(Integer.parseInt(info.getPromotion_method()));
+							promotion.setPromotionPre(Integer.parseInt(info.getPromotion_pre()));
+							promotion.setLevelIncre(Integer.parseInt(info.getLevel_incre()));
+							promotion.setPromotionType(Integer.parseInt(info.getPromotion_type()));
+							promotion.setLimitNum(Integer.parseInt(info.getLimit_num()));
+							
+							//满减规则
+							Set<ProductPromotionRule> promotionRules = info.getProductPromotionRules();
+							Comparator myComparator = new ProductPromotionRuleComparator();
+							Set<ProductPromotionRule> sortProductPromotionRules = new TreeSet<ProductPromotionRule>(myComparator);
+							sortProductPromotionRules.addAll(promotionRules);
+							List<ProductPromotionRule> ruleList = new ArrayList<ProductPromotionRule>(sortProductPromotionRules);
+							List<PromotionRule> productPromotionRules = new ArrayList<PromotionRule>();
+							for (ProductPromotionRule productPromotionRule : ruleList) {
+								PromotionRule rule = new PromotionRule();
+								rule.setPromotionSum(productPromotionRule.getPromotion_sum());
+								rule.setPromotionMinu(productPromotionRule.getPromotion_minu());
+								productPromotionRules.add(rule);
+							}
+							promotion.setProductPromotionRules(productPromotionRules);
+							promotionList.add(promotion);
+					}
+						cartProductBean.setPromotionList(promotionList);
+				}
+			}
+				
 				products.add(cartProductBean);
 			}
 			cartGroupData.setProducts(products);
@@ -1564,7 +1602,7 @@ public class ShoppingCartService {
 		
 		if(!UtilHelper.isEmpty(shoppingCartDto.getPromotionCollectionId())){//存在满减活动,获取满减活动与规则
 			Set<ProductPromotionInfo> productPromotionInfos = productDrug.getProductPromotionInfos();
-
+			shoppingCartDto.setProductPromotionInfos(productPromotionInfos);
 			if(!UtilHelper.isEmpty(productPromotionInfos)){//如果活动过期或者失效
 				List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
 				if(infoList.size()==1){//只有一个满减活动

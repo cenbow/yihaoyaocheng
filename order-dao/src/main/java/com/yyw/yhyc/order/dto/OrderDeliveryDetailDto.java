@@ -25,19 +25,10 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private String spuCode; //spuCode
     private String partDelivery; //是否部分发货
     private BigDecimal cancelmMoney; //卖家发货是部分发货,且不补发货物,剩下的货物金额
-    private String selectDeliveryAddressId; //选择的补货的发货地址id
     
     
 
-    public String getSelectDeliveryAddressId() {
-		return selectDeliveryAddressId;
-	}
-
-	public void setSelectDeliveryAddressId(String selectDeliveryAddressId) {
-		this.selectDeliveryAddressId = selectDeliveryAddressId;
-	}
-
-	public String getPartDelivery() {
+    public String getPartDelivery() {
 		return partDelivery;
 	}
 

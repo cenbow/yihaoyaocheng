@@ -9,8 +9,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,19 +47,14 @@ public class FastOrderController2 extends BaseJsonController {
     @Autowired
     private FastOrderService fastOrderService;
 
+    @Reference
+    private IProductDubboManageService iProductDubboManageService;
+
     @Autowired
     private HttpServletRequest request;
 
     @Reference
-    private ICustgroupmanageDubbo iCustgroupmanageDubbo;				//客户组接口
-    @Reference
-    private ProductSearchInterface productSearchInterface;				//搜索接口
-    @Reference
-    private IPromotionDubboManageService iPromotionDubboManageService;	//搜索接口
-    @Reference
-    private IProductDubboManageService iProductDubboManageService;		//商品接口
-
-
+    private IPromotionDubboManageService iPromotionDubboManageService;
 
     /**
      * 添加商品到进货单
@@ -148,7 +141,7 @@ public class FastOrderController2 extends BaseJsonController {
 	        logger.info("start updateNum for ["+shoppingCart+"]");
 	        shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
 	        shoppingCart.setUpdateUser(userDto.getUserName());
-	        fastOrderService.updateNum(shoppingCart,iPromotionDubboManageService, productSearchInterface, iCustgroupmanageDubbo);
+	        fastOrderService.updateNum(shoppingCart);
 	        logger.info("success updateNum for ["+shoppingCart+"]");
 	        return ok("修改成功",null);
 	    }catch (Exception e){
@@ -167,7 +160,7 @@ public class FastOrderController2 extends BaseJsonController {
     	try{
     		UserDto userDto = getUserDto(request);
             logger.info("start list for [CustId="+userDto.getCustId()+"]");
-            List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),productSearchInterface,iCustgroupmanageDubbo);
+            List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
             logger.info("success list , allShoppingCart=" + allShoppingCart);
             return ok("success",allShoppingCart);
 	    }catch (Exception e){
@@ -256,7 +249,7 @@ public class FastOrderController2 extends BaseJsonController {
          	//2、商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 
             orderDto.setCustId(custIdAndSupplyId.getCustId());
             orderDto.setSupplyId(custIdAndSupplyId.getSupplyId());
-            String message = fastOrderService.validateProducts(userDto, orderDto, productSearchInterface, iCustgroupmanageDubbo, iPromotionDubboManageService);
+            String message = fastOrderService.validateProducts(userDto, orderDto);
             //3、校验失败，直接返回失败原因
  			if( !"success".equals(message) ){
  				 throw new Exception(message);
