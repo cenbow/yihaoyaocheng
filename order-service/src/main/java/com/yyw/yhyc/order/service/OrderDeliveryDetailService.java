@@ -69,6 +69,11 @@ public class OrderDeliveryDetailService {
 	@Autowired
 	private OrderSettlementService orderSettlementService;
 
+	@Autowired
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
+
+	@Autowired
+	private OrderReceiveService orderReceviveService;
 
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
@@ -244,6 +249,7 @@ public class OrderDeliveryDetailService {
 		String returnDesc = "";
 		String flowId = "";
 		String exceptionOrderId="";//异常订单号
+		String selectAddressId="";
 		 String now=systemDateMapper.getSystemDate();//系统当前时间
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
