@@ -138,6 +138,9 @@
 		, promotion_id
 		, promotion_name
 		,cancel_produce_num
+		,promotion_collection_id
+		,promotion_collection_type
+		,preferential_collection_money
 	</sql>
 	
 	<sql id="queryDetailByFlowIdCommonSql">
@@ -166,7 +169,7 @@
 		    c.spu_code,
 		    c.promotion_id,
 		    c.promotion_name,
-		    c.cancel_produce_num
+		    c.cancel_produce_num,
 			c.promotion_collection_id,
 			c.promotion_collection_type,
 			c.preferential_collection_money

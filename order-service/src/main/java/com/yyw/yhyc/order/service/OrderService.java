@@ -23,6 +23,7 @@ import com.search.model.yhyc.ProductPromotion;
 
 
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 
 import net.sf.json.JSONArray;
@@ -78,19 +79,6 @@ import com.yyw.yhyc.order.dto.OrderPromotionDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.BillTypeEnum;
-import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
-import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
-import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
-import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
-import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderPayFlag;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
 
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
@@ -2067,6 +2055,8 @@ public class OrderService {
 			orderMapper.update(od);
 			//账期结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
+			//收货数量更新
+			orderDeliveryDetailService.orderDeliveryDetailCount(od);
 			//根据订单来源进行自动分账 三期 对接
 			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
@@ -2162,9 +2152,29 @@ public class OrderService {
 		for(OrderException o:le1){
 			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
 			String now = systemDateMapper.getSystemDate();
-			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+
+			OrderException orderException2 = new OrderException();
+			String orderStatus = "";
+			orderException2.setFlowId(o.getFlowId());
+			orderException2.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+			List<OrderException> list = orderExceptionMapper.listByProperty(orderException2);
+			if (!UtilHelper.isEmpty(list)) { //存在拒收订单、最原始订单状态（拒收&补货中）
+				for (OrderException orderExceptionList : list) {
+					//判断补货订单是否完成，未完成的（如果仅拒收订单完成，更新状态订既系统状态为补货中，如果仅补货订单完成，更新订单系统状态为拒收中，如果拒收和补货订单都完成，更新订单系统状态为买家部分收货）
+					if (SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(orderExceptionList.getOrderStatus())) {
+						orderStatus = SystemOrderStatusEnum.Rejecting.getType();
+						break;
+					}
+					orderStatus=od.getOrderStatus();
+				}
+			}else{
+				orderStatus=SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType();
+			}
+			od.setOrderStatus(orderStatus);
 			od.setReceiveTime(now);
 			od.setReceiveType(2);
+			od.setUpdateTime(now);
+			od.setUpdateUser("admin");
 			orderMapper.update(od);
 			//生成结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);

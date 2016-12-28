@@ -26,6 +26,8 @@ import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.manage.OrderPayManage;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.interfaces.PayService;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
@@ -67,6 +69,11 @@ public class OrderDeliveryDetailService {
 	@Autowired
 	private OrderSettlementService orderSettlementService;
 
+	@Autowired
+	private UsermanageReceiverAddressMapper receiverAddressMapper;
+
+	@Autowired
+	private OrderReceiveService orderReceviveService;
 
 	@Autowired
 	public void setOrderTraceMapper(OrderTraceMapper orderTraceMapper) {
@@ -242,6 +249,7 @@ public class OrderDeliveryDetailService {
 		String returnDesc = "";
 		String flowId = "";
 		String exceptionOrderId="";//异常订单号
+		String selectAddressId="";
 		 String now=systemDateMapper.getSystemDate();//系统当前时间
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
@@ -325,7 +333,7 @@ public class OrderDeliveryDetailService {
 					orderReturn.setReturnCount(orderDeliveryDetail.getDeliveryProductCount() - orderDeliveryDetail.getRecieveCount());
 					
 					//如果该操作是拒收的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
-					if(returnType.equals("4") && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
+					if((returnType.equals("4") || returnType.equals("3")) && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
 						String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
 						BigDecimal shareMoney=new BigDecimal(0);
 						for(String currentMoney : moneyList){
@@ -378,19 +386,26 @@ public class OrderDeliveryDetailService {
 			OrderDetail orderDetail = orderDetailMapper.getByPK(orderdetailId);
 			orderDetail.setRecieveCount(map.get(orderdetailId));
 			orderDetailMapper.update(orderDetail);
-			if(orderDetail.getProductCount().intValue()!=orderDetail.getRecieveCount().intValue()){
+			/*if(orderDetail.getProductCount().intValue()!=orderDetail.getRecieveCount().intValue()){
 				if(UtilHelper.isEmpty(returnType)||returnType.equals(""))
 					 throw new Exception("采购商与收获数不同,拒收类型为空");
-			}
+			}*/
 		}
 
 
-		if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
-			if (returnType.equals("4"))
-				order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
-			else if (returnType.equals("3"))
+		if (!UtilHelper.isEmpty(returnType) && !returnType.equals("")) {
+			if (returnType.equals("4")) {
+				//补货未完成订单
+				List<OrderException> orderExceptionList=orderExceptionMapper.findReplenishmentNotComplete(flowId);
+				if(!UtilHelper.isEmpty(orderExceptionList)){     //生成拒收订单时,有未完成的补货订单,原订单状态修改为（拒收&补货中）则原订单状态修改为（拒收中）
+					order.setOrderStatus(SystemOrderStatusEnum.RejectAndReplenish.getType());
+				}else {
+					order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
+				}
+			} else if (returnType.equals("3")) {
 				order.setOrderStatus(SystemOrderStatusEnum.Replenishing.getType());
-		}else {
+			}
+		} else {
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
 		}
 		order.setReceiveTime(now);
@@ -446,6 +461,28 @@ public class OrderDeliveryDetailService {
 			orderException.setUpdateTime(now);
 			orderException.setUpdateUser(user.getUserName());
 			orderExceptionMapper.save(orderException);
+			
+			//如果买家的是补货类型的那么，需要保存买家的选择的补货收货地址
+			 if(!UtilHelper.isEmpty(returnType) && returnType.equals("3") && !UtilHelper.isEmpty(selectAddressId)){//补货地址
+				 
+			     UsermanageReceiverAddress receiverAddress = receiverAddressMapper.getByPK(Integer.valueOf(selectAddressId));
+			     
+			     OrderReceive orderReceiveBean=new OrderReceive();
+			     orderReceiveBean.setExceptionOrderId(exceptionOrderId);
+			     orderReceiveBean.setFlowId(flowId);
+			     orderReceiveBean.setBuyerReceiveAddress(receiverAddress.getProvinceName() + receiverAddress.getCityName() + receiverAddress.getDistrictName() + receiverAddress.getAddress());
+			     orderReceiveBean.setBuyerReceiveCity(receiverAddress.getCityCode());
+			     orderReceiveBean.setBuyerReceiveContactPhone(receiverAddress.getContactPhone());
+			     orderReceiveBean.setBuyerReceivePerson(receiverAddress.getReceiverName());
+			     orderReceiveBean.setBuyerReceiveProvince(receiverAddress.getProvinceCode());
+			     orderReceiveBean.setBuyerReceiveRegion(receiverAddress.getDistrictCode());
+			     orderReceiveBean.setCreateTime(now);
+			     orderReceiveBean.setCreateUser(user.getUserName());
+			     orderReceiveBean.setUpdateTime(now);
+			     orderReceiveBean.setUpdateUser(user.getUserName());
+			     this.orderReceviveService.save(orderReceiveBean);
+				 
+			 }
 
 			//插入异常订单日志
 			OrderLogDto exceptionOrderLogDto=new OrderLogDto();
@@ -587,5 +624,27 @@ public class OrderDeliveryDetailService {
 		pagination.setResultList(list);
 
 		return pagination;
+	}
+
+
+	/**
+	 * 自动确认收货更新收货数量
+	 * @return
+	 * @throws Exception
+	 */
+	public void orderDeliveryDetailCount(Order od){
+		OrderDeliveryDetail ode=new OrderDeliveryDetail();
+		ode.setFlowId(od.getFlowId());
+		orderDeliveryDetailMapper.updateRecieveCount(ode);
+		List<OrderDeliveryDetail> list =orderDeliveryDetailMapper.listByProperty(ode);
+		for(OrderDeliveryDetail odetail:list){
+			OrderDetail orderDetail=orderDetailMapper.getByPK(odetail.getOrderDetailId());
+			orderDetail.setUpdateTime(systemDateMapper.getSystemDate());
+			if(UtilHelper.isEmpty(orderDetail.getRecieveCount())){
+				orderDetail.setRecieveCount(0);
+			}
+			orderDetail.setRecieveCount(orderDetail.getRecieveCount()+odetail.getRecieveCount());
+			orderDetailMapper.update(orderDetail);
+		}
 	}
 }

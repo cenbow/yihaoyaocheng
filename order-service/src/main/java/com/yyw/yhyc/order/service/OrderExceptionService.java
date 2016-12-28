@@ -68,6 +68,8 @@ public class OrderExceptionService {
     private UsermanageReceiverAddressMapper receiverAddressMapper;
     @Autowired
     private OrderReceiveService orderReceiveService;
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
 
     @Autowired
     public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
@@ -621,12 +623,19 @@ public class OrderExceptionService {
     public OrderExceptionDto getReturnOrderDetails(OrderExceptionDto orderExceptionDto, Integer type) throws Exception {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReturn(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
-            BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal productPriceCount = new BigDecimal(0); //商品金额
+            BigDecimal orderPriceMoney=new BigDecimal(0); //订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                BigDecimal productMoney=orderReturnDto.getProductPrice().multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                orderReturnDto.setProductAllMoney(productMoney);
+                
+                orderPriceMoney = orderPriceMoney.add(orderReturnDto.getReturnPay());
+                productPriceCount = productPriceCount.add(productMoney);
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
             if (type == 1) { //买家视角
                 orderExceptionDto.setOrderStatusName(getBuyerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
             } else if (type == 2) {//卖家视角
@@ -647,11 +656,19 @@ public class OrderExceptionService {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReview(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal orderPriceMoney=new BigDecimal(0); //订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto)) continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+               
+                BigDecimal productMoney=orderReturnDto.getProductPrice().multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                orderReturnDto.setProductAllMoney(productMoney);
+                
+                orderPriceMoney = orderPriceMoney.add(orderReturnDto.getReturnPay());
+                productPriceCount = productPriceCount.add(productMoney);
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
             orderExceptionDto.setOrderStatusName(getSellerChangeGoodsOrderExceptionStatus(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
 
             UsermanageReceiverAddress receiverAddress = new UsermanageReceiverAddress();
@@ -705,9 +722,9 @@ public class OrderExceptionService {
         }
 
         //插入日志表
-        OrderLogDto orderLog=new OrderLogDto();
+        OrderLogDto orderLog = new OrderLogDto();
         orderLog.setOrderId(oe.getOrderId());
-        orderLog.setNodeName("卖家审核拒收订单 状态="+SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark()+" flowId="+oe.getExceptionOrderId());
+        orderLog.setNodeName("卖家审核拒收订单 状态=" + SystemOrderExceptionStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark() + " flowId=" + oe.getExceptionOrderId());
         orderLog.setOrderStatus(oe.getOrderStatus());
         orderLog.setRemark(orderException.toString());
         this.orderTraceService.saveOrderLog(orderLog);
@@ -723,23 +740,34 @@ public class OrderExceptionService {
         orderTrace.setCreateUser(userDto.getUserName());
         orderTraceMapper.save(orderTrace);*/
 
-        //卖家审核通过 则原订单部分确认收货 不能过则全部确认收货
         Order order;
+        String orderStatus = "";
+        //卖家审核通过 则原订单部分确认收货 不能过则全部确认收货
         if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(oe.getOrderStatus())) {
-            order = orderMapper.getOrderbyFlowId(oe.getFlowId());
-            order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
-            order.setUpdateTime(now);
-            order.setReceiveTime(now);
-            order.setUpdateUser(userDto.getUserName());
-            count = orderMapper.update(order);
-        } else {
-            order = orderMapper.getOrderbyFlowId(oe.getFlowId());
-            order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
-            order.setUpdateTime(now);
-            order.setReceiveTime(now);
-            order.setUpdateUser(userDto.getUserName());
-            count = orderMapper.update(order);
+            orderStatus=SystemOrderStatusEnum.BuyerPartReceived.getType();
+        }else{
+            orderStatus=SystemOrderStatusEnum.BuyerAllReceived.getType();
         }
+        //查询该订单是否有补货订单
+        OrderException orderException1 = new OrderException();
+        orderException1.setFlowId(oe.getFlowId());
+        orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
+        List<OrderException> list = orderExceptionMapper.listByProperty(orderException1);
+        if (!UtilHelper.isEmpty(list)) { //存在补货订单、最原始订单状态（拒收&补货中）
+            for (OrderException orderExceptionList : list) {
+                //判断补货订单是否完成，未完成的（如果仅拒收订单完成，更新状态订既系统状态为补货中，如果仅补货订单完成，更新订单系统状态为拒收中，如果拒收和补货订单都完成，更新订单系统状态为买家部分收货）
+                if (SystemReplenishmentOrderStatusEnum.BuyerRejectApplying.getType().equals(orderExceptionList.getOrderStatus()) || SystemReplenishmentOrderStatusEnum.SellerConfirmed.getType().equals(orderExceptionList.getOrderStatus()) || SystemReplenishmentOrderStatusEnum.SellerDelivered.getType().equals(orderExceptionList.getOrderStatus())) {
+                    orderStatus=SystemOrderStatusEnum.Replenishing.getType();
+                    break;
+                }
+            }
+        }
+        order = orderMapper.getOrderbyFlowId(oe.getFlowId());
+        order.setOrderStatus(orderStatus);
+        order.setUpdateTime(now);
+        order.setReceiveTime(now);
+        order.setUpdateUser(userDto.getUserName());
+        count = orderMapper.update(order);
 
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
 
@@ -765,7 +793,7 @@ public class OrderExceptionService {
                     || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
-                    ){
+                    ) {
                 orderSettlement.setConfirmSettlement("1");
             }
             orderSettlementMapper.save(orderSettlement);
@@ -1655,13 +1683,26 @@ public class OrderExceptionService {
         orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
 		/* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
-            BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal productPriceCount = new BigDecimal(0); //商品金额
+            BigDecimal orderPriceMoney=new BigDecimal(0); //订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
-                    continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                {
+                	  continue;
+                }
+                
+                BigDecimal currentOrderDetailPrice=orderReturnDto.getProductPrice();
+                BigDecimal resultMoney=currentOrderDetailPrice.multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                
+                orderReturnDto.setProductAllMoney(resultMoney);
+               
+                productPriceCount = productPriceCount.add(resultMoney);
+                orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
+                
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
         }
 
         return orderExceptionDto;
@@ -1742,7 +1783,7 @@ public class OrderExceptionService {
         return resultMap;
     }
 
-    //补货确认收货
+    //买家补货确认收货
     public void updateRepConfirmReceipt(String exceptionOrderId, UserDto userDto) throws Exception {
 
         OrderException orderException = orderExceptionMapper.getByExceptionOrderId(exceptionOrderId);
@@ -1766,7 +1807,25 @@ public class OrderExceptionService {
                 createOrderTrace(orderException, userDto, now, 1, "补货->买家已收货");
                 //更新原订单状态
                 Order order = orderMapper.getOrderbyFlowId(orderException.getFlowId());
-                order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
+
+                OrderException orderException2 = new OrderException();
+                String orderStatus = "";
+                orderException2.setFlowId(order.getFlowId());
+                orderException2.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+                List<OrderException> list = orderExceptionMapper.listByProperty(orderException2);
+                if (!UtilHelper.isEmpty(list)) { //存在拒收订单、最原始订单状态（拒收&补货中）
+                    for (OrderException orderExceptionList : list) {
+                        //判断补货订单是否完成，未完成的（如果仅拒收订单完成，更新状态订既系统状态为补货中，如果仅补货订单完成，更新订单系统状态为拒收中，如果拒收和补货订单都完成，更新订单系统状态为买家部分收货）
+                        if (SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(orderExceptionList.getOrderStatus())) {
+                            orderStatus = SystemOrderStatusEnum.Rejecting.getType();
+                            break;
+                        }
+                        orderStatus=order.getOrderStatus();
+                    }
+                }else{
+                    orderStatus=SystemOrderStatusEnum.BuyerPartReceived.getType();
+                }
+                order.setOrderStatus(orderStatus);
                 order.setUpdateTime(now);
                 order.setUpdateUser(userDto.getUserName());
                 orderMapper.update(order);
@@ -1863,7 +1922,7 @@ public class OrderExceptionService {
             log.info("原订单不属于该卖家,OrderException:" + oe + ",UserDto:" + userDto);
             throw new RuntimeException("未找到原订单");
         }
-        if (!SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())) {
+        if (!SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus()) && !SystemOrderStatusEnum.RejectAndReplenish.getType().equals(order.getOrderStatus())) {
             log.info("原订单不是补货中的订单");
             throw new RuntimeException("原订单不是补货中的订单");
         }
@@ -1880,11 +1939,11 @@ public class OrderExceptionService {
         }
 
         //插入日志表
-        OrderLogDto logDto=new OrderLogDto();
+        OrderLogDto logDto = new OrderLogDto();
         logDto.setOrderId(oe.getOrderId());
-        logDto.setNodeName("卖家审核补货订单->flowID="+oe.getExceptionOrderId()+SystemReplenishmentOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
+        logDto.setNodeName("卖家审核补货订单->flowID=" + oe.getExceptionOrderId() + SystemReplenishmentOrderStatusEnum.getName(oe.getOrderStatus()) + oe.getRemark());
         logDto.setOrderStatus(oe.getOrderStatus());
-        logDto.setRemark("请求参数["+orderException.toString()+"]");
+        logDto.setRemark("请求参数[" + orderException.toString() + "]");
         this.orderTraceService.saveOrderLog(logDto);
 
        /* OrderTrace orderTrace = new OrderTrace();
@@ -1900,7 +1959,25 @@ public class OrderExceptionService {
 
         //补货订单卖家审核不通过时、原订单状态改为买家全部收货
         if (SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())) {
-            order.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+            OrderException orderException1 = new OrderException();
+            String orderStatus = "";
+            orderException1.setFlowId(oe.getFlowId());
+            orderException1.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+            List<OrderException> list = orderExceptionMapper.listByProperty(orderException1);
+            if (!UtilHelper.isEmpty(list)) { //存在拒收订单、最原始订单状态（拒收&补货中）
+                for (OrderException orderExceptionList : list) {
+                    //判断补货订单是否完成，未完成的（如果仅拒收订单完成，更新状态订既系统状态为补货中，如果仅补货订单完成，更新订单系统状态为拒收中，如果拒收和补货订单都完成，更新订单系统状态为买家部分收货）
+                    if (SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(orderExceptionList.getOrderStatus())) {
+                        orderStatus = SystemOrderStatusEnum.Rejecting.getType();
+                        break;
+                    }
+                    orderStatus=order.getOrderStatus();
+                }
+            }else{
+                orderStatus=SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType();
+            }
+
+            order.setOrderStatus(orderStatus);
             order.setReceiveTime(systemDateMapper.getSystemDate());
             order.setReceiveType(2);//系统自动确认收货
             order.setUpdateTime(systemDateMapper.getSystemDate());
@@ -1908,11 +1985,11 @@ public class OrderExceptionService {
             orderMapper.update(order);
 
             //插入日志表
-            OrderLogDto logDto1=new OrderLogDto();
+            OrderLogDto logDto1 = new OrderLogDto();
             logDto1.setOrderId(oe.getOrderId());
             logDto1.setNodeName("系统自动确认收货");
             logDto1.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
-            logDto1.setRemark("请求参数["+orderException.toString()+"]");
+            logDto1.setRemark("请求参数[" + orderException.toString() + "]");
             this.orderTraceService.saveOrderLog(logDto1);
 
           /*  OrderTrace orderTrace1 = new OrderTrace();
@@ -2170,13 +2247,25 @@ public class OrderExceptionService {
 
 		/* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
-            BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal productPriceCount = new BigDecimal(0);//金额
+            BigDecimal orderPriceMoney = new BigDecimal(0);//订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
-                if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
-                    continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                
+            	if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())){
+                	 continue;
+                }
+                   
+                BigDecimal currentOrderDetailPrice=orderReturnDto.getProductPrice();
+                BigDecimal resultMoney=currentOrderDetailPrice.multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                
+                orderReturnDto.setProductAllMoney(resultMoney);
+               
+                productPriceCount = productPriceCount.add(resultMoney);
+                orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
         }
 
         return orderExceptionDto;
@@ -2200,12 +2289,25 @@ public class OrderExceptionService {
 		/* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal orderPriceMoney = new BigDecimal(0);//订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
-                    continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                {
+                	continue;
+                }
+                    
+                BigDecimal currentOrderDetailPrice=orderReturnDto.getProductPrice();
+                BigDecimal resultMoney=currentOrderDetailPrice.multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                
+                orderReturnDto.setProductAllMoney(resultMoney);
+               
+                productPriceCount = productPriceCount.add(resultMoney);
+                orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
+                
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
         }
 
         if (!UtilHelper.isEmpty(orderExceptionDto.getExceptionOrderId())) {
@@ -2706,6 +2808,11 @@ public class OrderExceptionService {
 	 */
 	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto){
 		return orderExceptionMapper.getExportChangeOrder(orderExceptionDto);
+	}
+	
+	public OrderException getOrderExceptionByExceptionOrderId(String orderExceptionId){
+		
+		return this.orderExceptionMapper.getByExceptionOrderId(orderExceptionId);
 	}
     
 }

@@ -680,7 +680,7 @@ public class OrderExceptionController extends BaseJsonController{
 		return orderExceptionService.listPgSellerRefundOrder(pagination, orderDto);
 	}
 	/**
-	 * 补货确认收货
+	 * 买家补货确认收货
 	 * @return
 	 */
 	@RequestMapping(value = {"/repConfirmReceipt/{exceptionOrderId}"}, method = RequestMethod.GET)

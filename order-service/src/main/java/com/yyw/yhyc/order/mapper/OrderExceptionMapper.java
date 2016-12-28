@@ -314,4 +314,11 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
 	 */
 	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto);
+
+	/**
+	 * 补货未完成订单
+	 * @param flowId
+	 * @return
+	 */
+	public List<OrderException>  findReplenishmentNotComplete(String flowId);
 }
