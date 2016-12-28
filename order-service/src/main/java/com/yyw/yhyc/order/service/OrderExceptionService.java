@@ -634,7 +634,7 @@ public class OrderExceptionService {
                 productPriceCount = productPriceCount.add(productMoney);
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
-            orderExceptionDto.setOrderMoney(orderPriceMoney);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
             orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
             if (type == 1) { //买家视角
                 orderExceptionDto.setOrderStatusName(getBuyerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
@@ -2773,6 +2773,11 @@ public class OrderExceptionService {
 	 */
 	public List<Map<String,Object>> getExportChangeOrder(OrderExceptionDto orderExceptionDto){
 		return orderExceptionMapper.getExportChangeOrder(orderExceptionDto);
+	}
+	
+	public OrderException getOrderExceptionByExceptionOrderId(String orderExceptionId){
+		
+		return this.orderExceptionMapper.getByExceptionOrderId(orderExceptionId);
 	}
     
 }

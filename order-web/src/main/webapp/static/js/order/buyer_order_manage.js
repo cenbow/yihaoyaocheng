@@ -12,6 +12,8 @@ $(function () {
     bindSearchBtn();
     //导出
     bindExportBtn();
+    
+    monitionRadionClick();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -440,6 +442,45 @@ function fillTable(data) {
 }
 
 
+function monitionRadionClick(){
+	$("input[type=radio][name=ownw]").change(function(){
+		var selectedvalue = $("input[type=radio][name=ownw]:checked").val();
+		 if(selectedvalue && selectedvalue==3){
+	            	$('#buhuoAddressShow').show();
+	                $.ajax({
+	                    url: ctx+"/order/orderDelivery/getReceiveAddressList",
+	                    type: 'GET',
+	                    success: function (data) {
+	                        tipRemove();
+	                        if (data!=null) {
+	                                $("#buhuowarehouse").html("");
+	                                var divs = "";
+	                                for (var i = 0; i < data.length; i++) {
+	                                    var delivery = data[i];
+	                                    var div = "<label class='radio-inline no-margin' style='margin-left:0px' >";
+	                                    if(delivery.defaultAddress==1){
+	                                        div += " <input type='radio' checked='true' name='buhuodelivery' value='"+delivery.id+"'/> "
+	                                    }else{
+	                                        div += " <input type='radio' name='buhuodelivery' value='"+delivery.id+"' /> "
+	                                    }
+	                                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+	                                    "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+	                                    divs += div;
+	                                }
+	                                $("#buhuowarehouse").append(divs);
+	                        }
+	                    },
+	                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+	                        tipRemove();
+	                        alertModal("加载失败");
+	                    }
+	                });
+		 }else{
+			 $('#buhuoAddressShow').hide();
+		 }
+	});
+}
+
 function confirmReceipt(){
     //确认收货
     var productCount = $("[name='list.productCount']");
@@ -494,7 +535,7 @@ function confirmReceipt(){
             }
 
             if(parseInt($(recieveCount[i]).val())>parseInt($(productCount[i]).val())){
-                alertModal("收货数量不能大于采购数量!");
+                alertModal("收货数量不能大于发货数量!");
                 return;
             }
 
@@ -512,6 +553,18 @@ function confirmReceipt(){
                 list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":"","returnDesc":"","recieveCount":$(recieveCount[i]).val()})
             }
         }
+    }
+    //处理选择的补货发货地址
+    if(ownw.val()==3){//补货
+    	 var delivery = $("input[type=radio][name=buhuodelivery]:checked").val();
+    	  if(delivery){
+    		 $.each(list,function(index,item){
+    			 item.selectDeliveryAddressId=delivery;
+    		 });
+    	  }else{
+    		  alertModal("请选择补货的收货地址");
+              return;
+    	  }
     }
     tipLoad();
     $.ajax({
