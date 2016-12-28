@@ -393,12 +393,19 @@ public class OrderDeliveryDetailService {
 		}
 
 
-		if(!UtilHelper.isEmpty(returnType) &&!returnType.equals("")){
-			if (returnType.equals("4"))
-				order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
-			else if (returnType.equals("3"))
+		if (!UtilHelper.isEmpty(returnType) && !returnType.equals("")) {
+			if (returnType.equals("4")) {
+				//补货未完成订单
+				List<OrderException> orderExceptionList=orderExceptionMapper.findReplenishmentNotComplete(flowId);
+				if(!UtilHelper.isEmpty(orderExceptionList)){     //生成拒收订单时,有未完成的补货订单,原订单状态修改为（拒收&补货中）则原订单状态修改为（拒收中）
+					order.setOrderStatus(SystemOrderStatusEnum.RejectAndReplenish.getType());
+				}else {
+					order.setOrderStatus(SystemOrderStatusEnum.Rejecting.getType());
+				}
+			} else if (returnType.equals("3")) {
 				order.setOrderStatus(SystemOrderStatusEnum.Replenishing.getType());
-		}else {
+			}
+		} else {
 			order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
 		}
 		order.setReceiveTime(now);
