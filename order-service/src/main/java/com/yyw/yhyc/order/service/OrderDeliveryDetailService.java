@@ -343,7 +343,7 @@ public class OrderDeliveryDetailService {
 						BigDecimal orderDetailMoney=orderDetail.getProductSettlementPrice(); //该笔商品的结算金额
 						BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
 						BigDecimal bigDecimal = new BigDecimal(orderReturn.getReturnCount());
-						BigDecimal allRecord=new BigDecimal(orderDeliveryDetail.getDeliveryProductCount());
+						BigDecimal allRecord=new BigDecimal(orderDetail.getProductCount());
 						
 						double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
 						BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);

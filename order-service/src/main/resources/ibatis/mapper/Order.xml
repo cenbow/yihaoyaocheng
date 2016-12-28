@@ -875,10 +875,10 @@
 				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
 			</if>
 			<if test='orderStatus == "4"'><!--拒收中-->
-				AND T1.ORDER_STATUS = '9'
+				AND T1.ORDER_STATUS in('9','15')
 			</if>
 			<if test='orderStatus == "5"'><!--补货中-->
-				AND T1.ORDER_STATUS = '10'
+				AND T1.ORDER_STATUS in('10','15')
 			</if>
 			<if test='orderStatus == "6"'><!--已取消-->
 				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
@@ -1139,10 +1139,10 @@
 				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
 			</if>
 			<if test='orderStatus == "4"'><!--拒收中-->
-				AND T1.ORDER_STATUS = '9'
+				AND T1.ORDER_STATUS in('9','15')
 			</if>
 			<if test='orderStatus == "5"'><!--补货中-->
-				AND T1.ORDER_STATUS = '10'
+				AND T1.ORDER_STATUS in('10','15')
 			</if>
 			<if test='orderStatus == "6"'><!--已取消-->
 				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->

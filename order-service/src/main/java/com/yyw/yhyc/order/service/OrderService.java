@@ -1505,6 +1505,9 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.Rejecting.getType())) {//拒收中
             return BuyerOrderStatusEnum.Rejecting;//拒收中
         }
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//拒收&补货中
+            return BuyerOrderStatusEnum.RejectAndReplenish;//拒收&补货中
+        }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.Replenishing.getType())) {//补货中
             return BuyerOrderStatusEnum.Replenishing;//补货中
         }

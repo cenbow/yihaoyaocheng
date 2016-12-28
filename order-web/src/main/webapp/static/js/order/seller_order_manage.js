@@ -403,11 +403,11 @@ function typeToOperate(order) {
         result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">收款确认</a>';
     }
 
-    if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
+    if (order && order.orderStatus && (order.orderStatus == '9' ||order.orderStatus == '15' )) {//拒收中
         result += '<a href="'+ctx+'/orderException/getDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }
 
-    if (order && order.orderStatus && order.orderStatus == '10') {//补货中
+    if (order && order.orderStatus && (order.orderStatus == '10' || order.orderStatus == '15')) {//补货中
     	  //<a href="${ctx}/orderException/sellerReplenishmentOrderManage?flowId=${orderDetailsDto.flowId}" class="undeline">查看补货订单</a>
         result += '<a href="'+ctx+'/orderException/sellerReplenishmentOrderManage?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
