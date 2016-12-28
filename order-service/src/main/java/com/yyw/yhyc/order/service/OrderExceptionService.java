@@ -254,6 +254,7 @@ public class OrderExceptionService {
             	
         		productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(productOrderMoney);
             BigDecimal shareMoney=productPriceCount.subtract(productOrderMoney); //满减金额
@@ -590,6 +591,7 @@ public class OrderExceptionService {
         		productPriceCount=productPriceCount.add(allMoney);
         		productOrderMoney = productOrderMoney.add(orderReturnDto.getReturnPay());
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(productOrderMoney);
             BigDecimal shareMoney=productPriceCount.subtract(productOrderMoney); //满减金额
@@ -633,6 +635,7 @@ public class OrderExceptionService {
                 orderPriceMoney = orderPriceMoney.add(orderReturnDto.getReturnPay());
                 productPriceCount = productPriceCount.add(productMoney);
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(orderPriceMoney);
             orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
@@ -666,6 +669,7 @@ public class OrderExceptionService {
                 orderPriceMoney = orderPriceMoney.add(orderReturnDto.getReturnPay());
                 productPriceCount = productPriceCount.add(productMoney);
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(orderPriceMoney);
             orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
@@ -1700,6 +1704,7 @@ public class OrderExceptionService {
                 orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
                 
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(orderPriceMoney);
             orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
@@ -2263,6 +2268,7 @@ public class OrderExceptionService {
                 productPriceCount = productPriceCount.add(resultMoney);
                 orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(orderPriceMoney);
             orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
@@ -2305,6 +2311,7 @@ public class OrderExceptionService {
                 orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
                 
             }
+            productPriceCount=productPriceCount.setScale(2,BigDecimal.ROUND_HALF_UP);
             orderExceptionDto.setProductPriceCount(productPriceCount);
             orderExceptionDto.setOrderPriceCount(orderPriceMoney);
             orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
