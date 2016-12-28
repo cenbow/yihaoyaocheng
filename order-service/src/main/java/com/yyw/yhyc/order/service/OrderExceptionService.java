@@ -68,6 +68,8 @@ public class OrderExceptionService {
     private UsermanageReceiverAddressMapper receiverAddressMapper;
     @Autowired
     private OrderReceiveService orderReceiveService;
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
 
     @Autowired
     public void setOrderExceptionMapper(OrderExceptionMapper orderExceptionMapper) {
@@ -621,9 +623,12 @@ public class OrderExceptionService {
     public OrderExceptionDto getReturnOrderDetails(OrderExceptionDto orderExceptionDto, Integer type) throws Exception {
         orderExceptionDto = orderExceptionMapper.getOrderExceptionDetailsForReturn(orderExceptionDto);
         if (!UtilHelper.isEmpty(orderExceptionDto) && !UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
-            BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal productPriceCount = new BigDecimal(0); //商品金额
+            BigDecimal orderPriceMoney=new BigDecimal(0); //订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
+                BigDecimal productMoney=orderReturnDto.getProductPrice().multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                orderReturnDto.setProductAllMoney(productMoney);
                 productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
@@ -1655,13 +1660,26 @@ public class OrderExceptionService {
         orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getBillType()));
 		/* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
-            BigDecimal productPriceCount = new BigDecimal(0);
+            BigDecimal productPriceCount = new BigDecimal(0); //商品金额
+            BigDecimal orderPriceMoney=new BigDecimal(0); //订单金额
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay()))
-                    continue;
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                {
+                	  continue;
+                }
+                
+                BigDecimal currentOrderDetailPrice=orderReturnDto.getProductPrice();
+                BigDecimal resultMoney=currentOrderDetailPrice.multiply(new BigDecimal(orderReturnDto.getReturnCount()));
+                
+                orderReturnDto.setProductAllMoney(resultMoney);
+               
+                productPriceCount = productPriceCount.add(resultMoney);
+                orderPriceMoney=orderPriceMoney.add(orderReturnDto.getReturnPay());
+                
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderPriceCount(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
         }
 
         return orderExceptionDto;
