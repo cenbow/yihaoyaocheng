@@ -629,9 +629,13 @@ public class OrderExceptionService {
                 if (UtilHelper.isEmpty(orderReturnDto) || UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
                 BigDecimal productMoney=orderReturnDto.getProductPrice().multiply(new BigDecimal(orderReturnDto.getReturnCount()));
                 orderReturnDto.setProductAllMoney(productMoney);
-                productPriceCount = productPriceCount.add(orderReturnDto.getReturnPay());
+                
+                orderPriceMoney = orderPriceMoney.add(orderReturnDto.getReturnPay());
+                productPriceCount = productPriceCount.add(productMoney);
             }
             orderExceptionDto.setProductPriceCount(productPriceCount);
+            orderExceptionDto.setOrderMoney(orderPriceMoney);
+            orderExceptionDto.setOrderShareMoney(productPriceCount.subtract(orderPriceMoney));
             if (type == 1) { //买家视角
                 orderExceptionDto.setOrderStatusName(getBuyerRefundOrderStatusEnum(orderExceptionDto.getOrderStatus(), orderExceptionDto.getPayType()).getValue());
             } else if (type == 2) {//卖家视角

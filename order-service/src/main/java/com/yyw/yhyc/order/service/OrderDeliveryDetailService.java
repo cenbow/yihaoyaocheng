@@ -333,7 +333,7 @@ public class OrderDeliveryDetailService {
 					orderReturn.setReturnCount(orderDeliveryDetail.getDeliveryProductCount() - orderDeliveryDetail.getRecieveCount());
 					
 					//如果该操作是拒收的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
-					if(returnType.equals("4") && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
+					if((returnType.equals("4") || returnType.equals("3")) && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
 						String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
 						BigDecimal shareMoney=new BigDecimal(0);
 						for(String currentMoney : moneyList){
