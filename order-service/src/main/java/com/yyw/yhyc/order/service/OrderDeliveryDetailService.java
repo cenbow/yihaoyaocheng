@@ -250,7 +250,6 @@ public class OrderDeliveryDetailService {
 		String flowId = "";
 		String exceptionOrderId="";//异常订单号
 		String selectAddressId="";
-		Integer orderDeliveryDetailId=null;
 		 String now=systemDateMapper.getSystemDate();//系统当前时间
 		if (UtilHelper.isEmpty(list)||list.size()==0){
 			returnMap.put("code","0");
@@ -258,7 +257,6 @@ public class OrderDeliveryDetailService {
 			return returnMap;
 		}else{
 			flowId=list.get(0).getFlowId();
-			orderDeliveryDetailId=list.get(0).getOrderDeliveryDetailId();
 			returnType=list.get(0).getReturnType();
 			returnDesc=list.get(0).getReturnDesc();
 		    if(!UtilHelper.isEmpty(returnType) && returnType.equals("3")){//补货类型
@@ -337,8 +335,8 @@ public class OrderDeliveryDetailService {
 					orderReturn.setCustId(user.getCustId());
 					orderReturn.setReturnCount(orderDeliveryDetail.getDeliveryProductCount() - orderDeliveryDetail.getRecieveCount());
 					
-					//如果该操作是拒收的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
-					if(returnType.equals("4") && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收
+					//如果该操作是拒收或者补货的，同时商品参加了满减活动，那么拒收的金额要减掉商品的优惠金额后，再算
+					if((returnType.equals("4")||returnType.equals("3")) && !UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney()) ){//拒收和补货
 						String[] moneyList=orderDetail.getPreferentialCollectionMoney().split(",");
 						BigDecimal shareMoney=new BigDecimal(0);
 						for(String currentMoney : moneyList){
