@@ -2631,16 +2631,25 @@ public class OrderExceptionService {
         orderBean.setReturnDesc(orderExceptionDto.getReturnDesc());
         orderBean.setMerchantDesc(orderExceptionDto.getRemark());
         orderBean.setExceptionOrderId(orderExceptionDto.getExceptionOrderId());
-        orderBean.setOrderTotal(Double.parseDouble(orderExceptionDto.getOrderMoney().toString()));
-        orderBean.setFinalPay(Double.parseDouble(orderExceptionDto.getOrderMoney().toString()));
+        orderBean.setFinalPay(orderExceptionDto.getOrderMoney().doubleValue()); //优惠后的订单金额
 
 		 /* 商品信息 */
+        BigDecimal productAllMoney=new BigDecimal(0); //商品的金额
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             List<OrderProductBean> productList = new ArrayList<OrderProductBean>();
             Integer productNumber = 0; //商品数量
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
                 if (UtilHelper.isEmpty(orderReturnDto.getReturnPay())) continue;
+                
+                Integer productCount=orderReturnDto.getReturnCount();
+                BigDecimal productPrice=orderReturnDto.getProductPrice();
+                
+                BigDecimal currentProductMoney=productPrice.multiply(new BigDecimal(productCount));
+                
+                productAllMoney=productAllMoney.add(currentProductMoney);
+                
                 OrderProductBean orderProductBean = new OrderProductBean();
+                
                 orderProductBean.setProductId(orderReturnDto.getSpuCode());
                 orderProductBean.setProductPicUrl(getProductImg(orderReturnDto.getSpuCode(), iProductDubboManageService));
                 orderProductBean.setProductName(orderReturnDto.getShortName());
@@ -2651,11 +2660,18 @@ public class OrderExceptionService {
                 orderProductBean.setQuantity(orderReturnDto.getReturnCount());
                 orderProductBean.setBatchNumber(orderReturnDto.getBatchNumber());
                 productNumber += orderReturnDto.getReturnCount();
+                
+                orderProductBean.setProductAllMoney(currentProductMoney);
+                orderProductBean.setProductReturnPay(orderReturnDto.getReturnPay());
+                orderProductBean.setProductShareMoney(currentProductMoney.subtract(orderReturnDto.getReturnPay()));
                 productList.add(orderProductBean);
             }
             orderBean.setProductList(productList);
             orderBean.setVarietyNumber(orderExceptionDto.getOrderReturnList().size());
             orderBean.setProductNumber(productNumber);
+            productAllMoney=productAllMoney.setScale(2,BigDecimal.ROUND_HALF_UP);
+            orderBean.setOrderTotal(productAllMoney.doubleValue()); //订单的商品金额
+            orderBean.setOrderFullReductionMoney(productAllMoney.subtract(orderExceptionDto.getOrderMoney())); //该订单的优惠金额多少
         }
         return orderBean;
     }

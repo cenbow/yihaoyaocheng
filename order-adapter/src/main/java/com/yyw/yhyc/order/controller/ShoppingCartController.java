@@ -28,11 +28,13 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.ProductStatusEnum;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import com.yyw.yhyc.order.service.OrderCreateService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.product.dto.ProductInfoDto;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.service.UsermanageEnterpriseService;
+
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +75,9 @@ public class ShoppingCartController extends BaseController {
 
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
+	
+	@Autowired
+	private OrderCreateService orderCreateService;
 
 	/**
 	* 通过主键查询实体对象
@@ -450,7 +456,7 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
+			map = orderCreateService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			String message = (String) map.get("message");
 			if(!result){
@@ -535,6 +541,7 @@ public class ShoppingCartController extends BaseController {
 				productInfoDto.setPromotionId(shoppingCart.getPromotionId());
 				productInfoDto.setPromotionName(shoppingCart.getPromotionName());
 				productInfoDto.setFromWhere(shoppingCart.getFromWhere());
+				productInfoDto.setPromotionCollectionId(shoppingCart.getPromotionCollectionId());
 				productInfoDtoList.add(productInfoDto);
 			}
 
@@ -548,6 +555,7 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setLeaveMessage(orderBean.getLeaveMsg());
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
+			orderDto.setOrderFullReductionMoney(orderBean.getOrderFullReductionMoney());
 
 			AdviserBean adviserBean = orderBean.getAdviser();
 			if(!UtilHelper.isEmpty(adviserBean)){
