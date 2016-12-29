@@ -537,7 +537,7 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
     			  
     		  }
     		  //释放没发货的库存
-    		  this.productInventoryManage.releaseInventoryByOrderDetail(currentOrderDetailNOSendList,order.getOrderId(),orderDeliveryDto.getUserDto().getCustName(), orderDeliveryDto.getUserDto().getCustName(), iPromotionDubboManageService);
+    		  this.productInventoryManage.releaseInventoryByOrderDetail(currentOrderDetailNOSendList,order.getOrderId(),orderDeliveryDto.getUserDto().getUserName(), orderDeliveryDto.getUserDto().getUserName(), iPromotionDubboManageService);
     		  
     	  }
     	  
