@@ -555,7 +555,7 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
 				BigDecimal noSendMoney=this.computerNoDeliveryPreferentialMoney(orderDeliveryDto);
 				creditParams.setOrderTotal(noSendMoney);//订单金额
 				creditParams.setFlowId(order.getFlowId());//订单编码
-				creditParams.setStatus("5");
+				creditParams.setStatus("6"); //退货
 				creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 				if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
