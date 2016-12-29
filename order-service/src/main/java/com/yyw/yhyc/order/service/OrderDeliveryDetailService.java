@@ -397,7 +397,7 @@ public class OrderDeliveryDetailService {
         if (null == returnType || "".equals(returnType)) {    //用户全部收货
             if ("1".equals(order.getIsDartDelivery())) {  //部分发货（全部收货）
                 //部分发货 剩余发货是否在发 是 //生成补货订单 则 取消剩余部分
-                if (order.getPreferentialCancelMoney().compareTo(BigDecimal.valueOf(0.00)) == 0) {
+                if (order.getPreferentialCancelMoney().compareTo(BigDecimal.valueOf(0)) == 0) {
                     List<OrderException> orderExceptionList = orderExceptionMapper.findReplenishmentNotComplete(flowId);
                     if (!UtilHelper.isEmpty(orderExceptionList)) {     //部分发货
                         order.setOrderStatus(SystemOrderStatusEnum.Replenishing.getType());

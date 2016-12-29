@@ -58,6 +58,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -297,7 +298,11 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewRejectOrder(@RequestBody OrderException orderException)  throws Exception {
 		UserDto userDto = super.getLoginUser();
-		orderExceptionService.modifyReviewRejectOrderStatus(userDto, orderException);
+		//20170106部分发货  订单完成时 才调用资信
+		BigDecimal orderTotal=orderExceptionService.modifyReviewRejectOrderStatus(userDto, orderException);
+		if(orderTotal.compareTo(BigDecimal.valueOf(0)) == 0){    //订单未完成
+			return;
+		}
 		OrderException oe;
 		Order order;
 		SystemPayType systemPayType;
