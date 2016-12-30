@@ -12,6 +12,7 @@
 package com.yyw.yhyc.order.controller;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -156,7 +157,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		//当没有异常流程订单结束的时候调用账期结算接口
 
 		//全部、部分发货20170106  liqiang
-		if("1".equals(map.get("code")) && !UtilHelper.isEmpty(map.get("orderTotal").toString()) && !map.get("orderTotal").toString().equals("")){
+		if("1".equals(map.get("code").toString()) && !UtilHelper.isEmpty(map.get("orderTotal").toString()) && !map.get("orderTotal").toString().equals("")){
 		//if(null==returnType||"".equals(returnType)){
 			try {
 				if(UtilHelper.isEmpty(creditDubboService)){

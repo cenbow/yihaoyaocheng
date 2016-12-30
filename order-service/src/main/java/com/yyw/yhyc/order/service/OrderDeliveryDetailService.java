@@ -543,12 +543,13 @@ public class OrderDeliveryDetailService {
             order.setOrgTotal(new BigDecimal(orderTotal));
             saveOrderSettlement(order, moneyTotal);
 
-            returnMap.put("code", "1");
             returnMap.put("order",order);
-            returnMap.put("orderTotal", orderTotal);
             returnMap.put("systemPayType", systemPayType);
-            returnMap.put("msg", "操作成功");
+
         }
+        returnMap.put("code", "1");
+        returnMap.put("orderTotal", orderTotal);
+        returnMap.put("msg", "操作成功");
 
         return returnMap;
     }
