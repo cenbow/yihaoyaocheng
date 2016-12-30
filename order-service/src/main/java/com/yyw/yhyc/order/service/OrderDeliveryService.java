@@ -1688,7 +1688,11 @@ public class OrderDeliveryService {
         updateErpDeductionInventory(orderDeliveryDto, order,iPromotionDubboManageService,creditDubboService);
         
         //处理剩余的货物
-        orderPartDeliveryConfirmService.updateAllDeliverYesAndNo(orderDeliveryDto,now);
+        try {
+        	 orderPartDeliveryConfirmService.updateAllDeliverYesAndNo(orderDeliveryDto,now);
+        } catch (Exception e) {
+        	logger.error(e.getMessage());
+        }
 
     }
    
