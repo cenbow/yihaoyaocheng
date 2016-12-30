@@ -53,7 +53,6 @@ import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderProductBean;
-
 import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderCombined;
@@ -66,7 +65,6 @@ import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.bo.SystemPayType;
-
 import com.yyw.yhyc.order.dto.AdviserDto;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
@@ -80,7 +78,6 @@ import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
-
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
@@ -1327,6 +1324,7 @@ public class OrderService {
 		for (OrderDetail detail:orderDetailsdto.getDetails())
 		{
 			BigDecimal proudcutCount=new BigDecimal(detail.getProductCount());
+			
 			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
 				BigDecimal count=new BigDecimal(detail.getRecieveCount());
 				total=total.add(detail.getProductPrice().multiply(count));
@@ -3462,8 +3460,11 @@ public class OrderService {
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
 		
-		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
+		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString())); //商品金额
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getOrgTotal()) ? "0" : orderDetailsDto.getOrgTotal().toString())); //商品优惠的的订单金额
+		BigDecimal orderShareMoney=new BigDecimal(0); //订单优惠金额
+		orderShareMoney=orderDetailsDto.getOrderTotal().subtract(orderDetailsDto.getOrgTotal());
+		orderBean.setOrderFullReductionMoney(orderShareMoney);
 		
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
@@ -3494,6 +3495,19 @@ public class OrderService {
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
 			ordeProductBean.setFactoryName(orderDetail.getManufactures());
+			//商品详情总金额
+			ordeProductBean.setProductAllMoney(orderDetail.getProductPrice().multiply(new BigDecimal(orderDetail.getProductCount())));
+			
+		    BigDecimal shareMoney = new BigDecimal(0);
+            if (!UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney())) {
+                String[] moneyList = orderDetail.getPreferentialCollectionMoney().split(",");
+                for (String currentMoney : moneyList) {
+                    BigDecimal value = new BigDecimal(currentMoney);
+                    shareMoney = shareMoney.add(value);
+                }
+            }
+            ordeProductBean.setProductShareMoney(shareMoney);
+            ordeProductBean.setProductReturnPay(ordeProductBean.getProductAllMoney().subtract(shareMoney));
 			//批次信息
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
 			orderDeliveryDetail.setFlowId(orderId);
