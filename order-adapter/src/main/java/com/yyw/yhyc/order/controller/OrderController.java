@@ -285,9 +285,9 @@ public class OrderController extends BaseController {
 			shoppingCartIdListValue.add(Integer.parseInt(str));
 		}
 		logger.info("开始调用App检查订单页接口...."+ JSONObject.toJSONString(shoppingCartIdList, SerializerFeature.WriteNullStringAsEmpty));
-		//UserDto userDto = super.getLoginUser();
-		UserDto userDto = new UserDto();
-		userDto.setCustId(33184);
+		UserDto userDto = super.getLoginUser();
+		/*UserDto userDto = new UserDto();
+		userDto.setCustId(33184);*/
 	
 		Map<String,Object> dataMap = null;
 		Map<String, Object>  resultMap  = new LinkedHashMap<String,Object>();
