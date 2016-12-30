@@ -148,7 +148,9 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+
+		//  线上BUG  元旦后吕红杰解决
+		// orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
 		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
 	}
 
