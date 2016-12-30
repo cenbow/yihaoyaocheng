@@ -419,7 +419,7 @@
 		WHERE
 			O.SUPPLY_ID = #{supplyId}
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
-		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
+		AND (3 = OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
 		AND OI.cus_relationship = 0
 		<include refid="payTypeJudge"/>
 	</select>
