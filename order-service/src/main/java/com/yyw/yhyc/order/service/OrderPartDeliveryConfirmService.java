@@ -581,7 +581,9 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
  * @param orderDeliveryDto
  * @throws Exception 
  */
-private void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String now) throws Exception{
+
+public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String now) throws Exception{
+
 	String selectIsPartDelivery=orderDeliveryDto.getSelectPartDeliverty();
 	
 	Order currentOrder=this.orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());

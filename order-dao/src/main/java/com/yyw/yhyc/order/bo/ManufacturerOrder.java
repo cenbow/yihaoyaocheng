@@ -58,10 +58,31 @@ public class ManufacturerOrder extends Model {
      */
     private String errorMsg;
     
+    /**
+     * 是否部分发货
+     */
+    private boolean isSomeSend = false;
     
-     
+    private String selectPartDeliverty; //剩余商品是否补发货物 1：是,0：否
+    
+    
+    public boolean isSomeSend() {
+		return isSomeSend;
+	}
 
-    public List<ProductBeanDto> getSendProductList() {
+	public void setSomeSend(boolean isSomeSend) {
+		this.isSomeSend = isSomeSend;
+	}
+
+	public String getSelectPartDeliverty() {
+		return selectPartDeliverty;
+	}
+
+	public void setSelectPartDeliverty(String selectPartDeliverty) {
+		this.selectPartDeliverty = selectPartDeliverty;
+	}
+
+	public List<ProductBeanDto> getSendProductList() {
 		return sendProductList;
 	}
 
