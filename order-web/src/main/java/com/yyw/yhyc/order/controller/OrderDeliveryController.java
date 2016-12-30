@@ -135,7 +135,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 	/**
@@ -164,7 +164,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -207,7 +207,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
-        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+      //  orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 
