@@ -131,6 +131,10 @@ public class OrderFullReductionService {
 				String promotionName=promotionBean.getPromotionName();
 				String enterpriseId=promotionBean.getEnterpriseId();
 				int promotionType=(int)promotionBean.getPromotionType();
+				if((promotionType!=2 && promotionType!=3)){
+					continue;
+				}
+				
 				int promotionPre=(int)promotionBean.getPromotionPre();
 				int promotionMethod=(int)promotionBean.getPromotionMethod();
 				int levelIncre=(int)promotionBean.getLevelIncre();
