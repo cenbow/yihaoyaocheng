@@ -25,6 +25,7 @@ import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 import com.yyw.yhyc.order.bo.OrderDetail;
 import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.bo.OrderReturn;
+import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
@@ -77,7 +78,8 @@ private OrderTraceMapper orderTraceMapper;
 private ProductInventoryManage productInventoryManage;
 @Autowired
 private SystemPayTypeService systemPayTypeService;
-
+@Autowired
+private OrderSettlementService orderSettlementService;
 /**
  * 部分发货确定按钮处理逻辑
  * @param orderDeliveryDto
@@ -537,7 +539,7 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
     			  
     		  }
     		  //释放没发货的库存
-    		  this.productInventoryManage.releaseInventoryByOrderDetail(currentOrderDetailNOSendList,order.getOrderId(),orderDeliveryDto.getUserDto().getCustName(), orderDeliveryDto.getUserDto().getCustName(), iPromotionDubboManageService);
+    		  this.productInventoryManage.releaseInventoryByOrderDetail(currentOrderDetailNOSendList,order.getOrderId(),orderDeliveryDto.getUserDto().getUserName(), orderDeliveryDto.getUserDto().getUserName(), iPromotionDubboManageService);
     		  
     	  }
     	  
@@ -555,7 +557,7 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
 				BigDecimal noSendMoney=this.computerNoDeliveryPreferentialMoney(orderDeliveryDto);
 				creditParams.setOrderTotal(noSendMoney);//订单金额
 				creditParams.setFlowId(order.getFlowId());//订单编码
-				creditParams.setStatus("5");
+				creditParams.setStatus("5"); //退货
 				creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
 				if(UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())){
@@ -577,8 +579,11 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
 /**
  * 当用户发货是部分发货，同时剩余货物选择了部分发货或者不发货的逻辑处理
  * @param orderDeliveryDto
+ * @throws Exception 
  */
-public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String now){
+
+public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String now) throws Exception{
+
 	String selectIsPartDelivery=orderDeliveryDto.getSelectPartDeliverty();
 	
 	Order currentOrder=this.orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
@@ -633,6 +638,28 @@ public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String no
 		  currentOrder.setDeliveryMoney(sendAllMoney);
 		  currentOrder.setPreferentialDeliveryMoney(preferentialSendAllMoney);
 		  this.orderMapper.update(currentOrder);
+		  
+		    SystemPayType systemPayType = this.systemPayTypeService.getByPK(currentOrder.getPayTypeId());
+			if(!SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+			         //剩余商品生产结算信息
+				OrderSettlement orderSettlement=new OrderSettlement();
+				orderSettlement.setBusinessType(5);
+				orderSettlement.setOrderId(currentOrder.getOrderId());
+				orderSettlement.setFlowId(currentOrder.getFlowId());
+				orderSettlement.setCustId(currentOrder.getCustId());
+				orderSettlement.setCustName(currentOrder.getCustName());
+				orderSettlement.setConfirmSettlement("0");
+				orderSettlement.setSettlementMoney(noSendPreferentialMoney);
+				orderSettlement.setRefunSettlementMoney(noSendPreferentialMoney);
+				orderSettlement.setSettlementTime(now);
+				orderSettlement.setOrderTime(currentOrder.getCreateTime());
+				orderSettlement.setCreateTime(now);
+				orderSettlement.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+				orderSettlement.setUpdateTime(now);
+				orderSettlement.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+				this.orderSettlementService.save(orderSettlement);
+			}
+		  
 	}
 	
 }

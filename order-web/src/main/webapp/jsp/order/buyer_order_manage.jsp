@@ -307,7 +307,7 @@
 
 
  <!-- 部分发货的收发货物清单 -->
-<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width: 1000px;">
         <div class="modal-content">
             <div class="modal-header">
@@ -315,7 +315,7 @@
                 <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
             </div>
             <div class="modal-body">
-                <table class="table table-box2">
+                <table class="table table-box4">
                     <colgroup>
                         <col style="width: 8%;">
                         <col style="width: 8%;">
@@ -356,7 +356,7 @@
                   </div>
                  
               
-                <div class="pager" id="J_pager2"></div>
+                <div class="pager" id="J_pager4"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>

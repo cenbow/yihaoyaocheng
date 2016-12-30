@@ -48,7 +48,7 @@
 		<result column="supply_id" property="supplyId"/>
 		<result column="spu_code" property="spuCode"/>
 		<result column="is_part_delivery" property="partDelivery"/>
-		<result column="cancel_money" property="cancelmMoney"/>
+		<result column="preferential_cancel_money" property="cancelmMoney"/>
 		
 	</resultMap>
 	
@@ -255,7 +255,7 @@
 		    ODD.recieve_count,
 		    OD.short_name,
 		    O.supply_id,
-		    O.cancel_money,
+		    O.preferential_cancel_money,
 		    O.is_part_delivery,
 		    OD.spu_code
 		FROM

@@ -3467,8 +3467,10 @@ public class OrderService {
 		}
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
+		
 		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
 		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
+		
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());

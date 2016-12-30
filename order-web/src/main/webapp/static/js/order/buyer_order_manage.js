@@ -230,10 +230,10 @@ function openSendProductInfo(flowId){
 	            var totalpage = data.totalPage;
 	            var nowpage = data.pageNo;
 	            var totalCount = data.total;
-	            $("#J_pager2").attr("current",nowpage);
-	            $("#J_pager2").attr("total",totalpage);
-	            $("#J_pager2").attr("url",requestUrl);
-	            $("#J_pager2").pager({
+	            $("#J_pager4").attr("current",nowpage);
+	            $("#J_pager4").attr("total",totalpage);
+	            $("#J_pager4").attr("url",requestUrl);
+	            $("#J_pager4").pager({
 	                data:requestParam,
 	                requestType:"post",
 	                asyn:1,
@@ -265,7 +265,7 @@ function fillSendDataTableJson(data) {
     if (!data || !data.resultList)
         return;
     var list = data.resultList;
-    $(".table-box2 tbody").html("");
+    $(".table-box4 tbody").html("");
     var trs = "";
     //保存部分发货未发货的金额
     var orderSendObj={};
@@ -300,7 +300,7 @@ function fillSendDataTableJson(data) {
         
         
     }
-    $(".table-box2 tbody").append(trs);
+    $(".table-box4 tbody").append(trs);
     
     if(orderSendObj.partDelivery){
     	  if(orderSendObj.cancelmMoney){
@@ -309,7 +309,7 @@ function fillSendDataTableJson(data) {
     	  }
     	
     }
-    $("#myModal2").modal();
+    $("#myModal4").modal();
 }
 
 function changeColor(){
