@@ -749,26 +749,27 @@ public class OrderExceptionController extends BaseJsonController{
 	@ResponseBody
 	public void sellerReviewReplenishmentOrder(@RequestBody OrderException orderException) throws Exception{
 		UserDto userDto = super.getLoginUser();
-			orderExceptionService.updateReviewReplenishmentOrderStatusForSeller(userDto, orderException);
-			if(SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())) {
+		//20170106  部分发货
+		Map<String, Object> resultMap=orderExceptionService.updateReviewReplenishmentOrderStatusForSeller(userDto, orderException);
+			if("1".equals(resultMap.get("code").toString())) {
 				try{
 					if (UtilHelper.isEmpty(creditDubboService)) {
 						logger.error("CreditDubboServiceInterface creditDubboService is null");
-//						throw new RuntimeException("CreditDubboServiceInterface creditDubboService is null"); TODO: 2016/8/25 暂时注释 不抛出异常
+						throw new RuntimeException("CreditDubboServiceInterface creditDubboService is null");
 					}
 					else {
-						OrderException oe = orderExceptionService.getByPK(orderException.getExceptionId());
-						Order order = orderService.getByPK(oe.getOrderId());
+					//	OrderException oe = orderExceptionService.getByPK(orderException.getExceptionId());
+						Order order =(Order)resultMap.get("order");
 						SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
 						if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
 							CreditParams creditParams = new CreditParams();
 							//creditParams.setSourceFlowId(oe.getFlowId());//源订单单号
-							creditParams.setBuyerCode(oe.getCustId() + "");
-							creditParams.setSellerCode(oe.getSupplyId() + "");
-							creditParams.setBuyerName(oe.getCustName());
-							creditParams.setSellerName(oe.getSupplyName());
+							creditParams.setBuyerCode(order.getCustId() + "");
+							creditParams.setSellerCode(order.getSupplyId() + "");
+							creditParams.setBuyerName(order.getCustName());
+							creditParams.setSellerName(order.getSupplyName());
 							creditParams.setOrderTotal(order.getOrgTotal());//订单金额
-							creditParams.setFlowId(oe.getFlowId());//订单编码
+							creditParams.setFlowId(order.getFlowId());//订单编码
 							creditParams.setStatus("2");
 							creditParams.setReceiveTime(DateHelper.parseTime(order.getReceiveTime()));
 							CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);

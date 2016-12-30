@@ -1915,7 +1915,9 @@ public class OrderExceptionService {
      * @param userDto
      * @param orderException
      */
-    public void updateReviewReplenishmentOrderStatusForSeller(UserDto userDto, OrderException orderException) {
+    public Map<String,Object> updateReviewReplenishmentOrderStatusForSeller(UserDto userDto, OrderException orderException) {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("code",0);
         if (UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
             throw new RuntimeException("参数异常");
 
@@ -1981,26 +1983,15 @@ public class OrderExceptionService {
         orderTrace.setCreateUser(userDto.getUserName());
         orderTraceMapper.save(orderTrace);*/
 
-        //补货订单卖家审核不通过时、原订单状态改为买家全部收货
+        //20170106   补货订单卖家审核不通过时
         if (SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())) {
-            OrderException orderException1 = new OrderException();
             String orderStatus = "";
-            orderException1.setFlowId(oe.getFlowId());
-            orderException1.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
-            List<OrderException> list = orderExceptionMapper.listByProperty(orderException1);
-            if (!UtilHelper.isEmpty(list)) { //存在拒收订单、最原始订单状态（拒收&补货中）
-                for (OrderException orderExceptionList : list) {
-                    //判断补货订单是否完成，未完成的（如果仅拒收订单完成，更新状态订既系统状态为补货中，如果仅补货订单完成，更新订单系统状态为拒收中，如果拒收和补货订单都完成，更新订单系统状态为买家部分收货）
-                    if (SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(orderExceptionList.getOrderStatus())) {
-                        orderStatus = SystemOrderStatusEnum.Rejecting.getType();
-                        break;
-                    }
-                    orderStatus = order.getOrderStatus();
-                }
+            List<OrderException> list = orderExceptionMapper.findReplenishmentNotComplete(oe.getFlowId()); //判断补货订单是否完成，未完成的
+            if (!UtilHelper.isEmpty(list)) {
+                orderStatus = SystemOrderStatusEnum.Replenishing.getType();
             } else {
                 orderStatus = SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType();
             }
-
             order.setOrderStatus(orderStatus);
             order.setReceiveTime(systemDateMapper.getSystemDate());
             order.setReceiveType(2);//系统自动确认收货
@@ -2027,12 +2018,17 @@ public class OrderExceptionService {
             orderTrace1.setCreateUser(userDto.getUserName());
             orderTraceMapper.save(orderTrace);*/
 
-            try {//审核不通过直接生成结算信息，通过的结算信息在买家确认收货时产生
-                saveOrderSettlement(order);
-            } catch (Exception e) {
-                throw new RuntimeException("补货订单审核结算失败");
+            if(orderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType())){
+                resultMap.put("code",1);
+                resultMap.put("order",order);
+                try {//审核不通过并且补货完成直接生成结算信息，通过的结算信息在买家确认收货时产生
+                    saveOrderSettlement(order);
+                } catch (Exception e) {
+                    throw new RuntimeException("补货订单审核结算失败");
+                }
             }
         }
+        return resultMap;
     }
 
     /**
