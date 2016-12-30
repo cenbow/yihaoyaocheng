@@ -68,6 +68,45 @@
 		, is_scan
 	</sql>
 
+	<sql id="payTypeJudge">
+		<if test="payType==null">
+			AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
+		</if>
+		<if test="payType != null">
+			AND(
+			<choose>
+				<when test="payOnline != null">
+					(SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
+					<if test="PayPeriodTerm != null">
+						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '5')
+					</if>
+					<if test="PayOffline != null">
+						OR (SPT.PAY_TYPE=#{PayOffline} AND (O.ORDER_STATUS = '1' or O.ORDER_STATUS = '5'))
+					</if>
+				</when>
+				<when test="PayPeriodTerm != null">
+					(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '5')
+					<if test="payOnline != null">
+						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
+					</if>
+					<if test="PayOffline != null">
+						OR (SPT.PAY_TYPE=#{PayOffline} AND (O.ORDER_STATUS = '1' or O.ORDER_STATUS = '5'))
+					</if>
+				</when>
+				<when test="PayOffline != null">
+					(SPT.PAY_TYPE=#{PayOffline} AND (O.ORDER_STATUS = '1' or O.ORDER_STATUS = '5'))
+					<if test="PayPeriodTerm != null">
+						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '5')
+					</if>
+					<if test="payOnline != null">
+						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
+					</if>
+				</when>
+
+			</choose>
+			)
+		</if>
+	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
 				, supply_id
@@ -255,43 +294,7 @@
 			AND PUO.relation_status='2'
 			AND O.SUPPLY_ID = PUO.seller_code
 			AND SPT.PAY_TYPE_ID = O.pay_type_id
-			<if test="payType==null">
-				AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
-			</if>
-			<if test="payType != null">
-				AND(
-				<choose>
-					<when test="payOnline != null">
-						(SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-						<if test="PayPeriodTerm != null">
-							OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-						</if>
-						<if test="PayOffline != null">
-							OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-						</if>
-					</when>
-					<when test="PayPeriodTerm != null">
-						(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-						<if test="PayPeriodTerm != null">
-							OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-						</if>
-						<if test="PayOffline != null">
-							OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-						</if>
-					</when>
-					<when test="PayOffline != null">
-						(SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-						<if test="PayPeriodTerm != null">
-							OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-						</if>
-						<if test="PayOffline != null">
-							OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-						</if>
-					</when>
-
-				</choose>
-				)
-			</if>
+			<include refid="payTypeJudge"/>
 			<if test="supplyIdList != null"> 
 					AND O.SUPPLY_ID in 
 					<foreach item="supplyId" index="index" collection="supplyIdList" open="(" separator="," close=")">
@@ -345,44 +348,7 @@
 			O.SUPPLY_ID = #{supplyId}
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-
-		<if test="payType==null">
-			AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
-		</if>
-		<if test="payType != null">
-			AND(
-			<choose>
-				<when test="payOnline != null">
-					   (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayPeriodTerm != null">
-					(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayOffline != null">
-					(SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-				</when>
-
-			</choose>
-			)
-		</if>
+		<include refid="payTypeJudge"/>
 	</select>
 	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
 		SELECT
@@ -413,44 +379,7 @@
 		LEFT JOIN  T_SYSTEM_PAY_TYPE SPT ON O.pay_type_id=SPT.PAY_TYPE_ID
 		WHERE
 		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1'
-
-		<if test="payType==null">
-			AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
-		</if>
-		<if test="payType != null">
-			AND(
-			<choose>
-				<when test="payOnline != null">
-					(SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayPeriodTerm != null">
-					(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayOffline != null">
-					(SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-				</when>
-
-			</choose>
-			)
-		</if>
+		<include refid="payTypeJudge"/>
 	</select>
 	
 	<select id="findOrderIssuedNoRelationshipList" parameterType="Map" resultType="java.util.Map" useCache="false">
@@ -464,44 +393,7 @@
 		   T_ORDER O  LEFT JOIN T_SYSTEM_PAY_TYPE SPT
 		   ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE O.SUPPLY_ID = #{supplyId}
-
-		<if test="payType==null">
-			AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
-		</if>
-		<if test="payType != null">
-			AND(
-			<choose>
-				<when test="payOnline != null">
-					 (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayPeriodTerm != null">
-					(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayOffline != null">
-					(SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-				</when>
-
-			</choose>
-			  )
-		</if>
+		<include refid="payTypeJudge"/>
 			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
 	<select id="findOrderIssuedHasRelationshipList" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
@@ -527,45 +419,8 @@
 		WHERE
 			O.SUPPLY_ID = #{supplyId}
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
-		AND (3 = OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
+		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
 		AND OI.cus_relationship = 0
-
-		<if test="payType==null">
-			AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
-		</if>
-		<if test="payType != null">
-			AND(
-			<choose>
-				<when test="payOnline != null">
-					(SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayPeriodTerm != null">
-					(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					</if>
-				</when>
-				<when test="PayOffline != null">
-					(SPT.PAY_TYPE=#{PayOffline} AND O.ORDER_STATUS = '1')
-					<if test="PayPeriodTerm != null">
-						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '1')
-					</if>
-					<if test="PayOffline != null">
-						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
-					</if>
-				</when>
-
-			</choose>
-			)
-		</if>
+		<include refid="payTypeJudge"/>
 	</select>
 </mapper>
