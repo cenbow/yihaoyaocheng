@@ -578,7 +578,7 @@ private void updateDeductionInventory(OrderDeliveryDto orderDeliveryDto,Order or
  * 当用户发货是部分发货，同时剩余货物选择了部分发货或者不发货的逻辑处理
  * @param orderDeliveryDto
  */
-private void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String now){
+public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String now){
 	String selectIsPartDelivery=orderDeliveryDto.getSelectPartDeliverty();
 	
 	Order currentOrder=this.orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());

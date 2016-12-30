@@ -1838,6 +1838,7 @@ public class OrderService {
 				if(UtilHelper.isEmpty(temp)) continue;
 				if(custIdAndSupplyId.getSupplyId().equals(temp.getSupplyId())){
 					shoppingCartDto = new ShoppingCartDto();
+					shoppingCartDto.setShoppingCartId(temp.getShoppingCartId());
 					shoppingCartDto.setCustId(temp.getCustId());
 					shoppingCartDto.setSupplyId(temp.getSupplyId());
 					shoppingCartDto.setSpuCode(temp.getSpuCode());
@@ -2838,6 +2839,11 @@ public class OrderService {
 				if(UtilHelper.isEmpty(productDrug)) continue;
 				isChannel = UtilHelper.isEmpty(productDrug.getIs_channel()) ? 0 : Integer.valueOf(productDrug.getIs_channel());
 				shoppingCartDto.setIsChannel(isChannel);
+				shoppingCartDto.setProductImageUrl(productDrug.getProductPicUrl());
+				shoppingCartDto.setSpec(productDrug.getSpec());
+				if (productDrug.getMinimum_packing() != null && productDrug.getMinimum_packing() != "" ) {
+					shoppingCartDto.setMinimumPacking(Integer.parseInt(productDrug.getMinimum_packing()));
+				}
 			}
 		}
 		return allShoppingCart;
