@@ -363,7 +363,11 @@
 				, a.supply_name
 				, a.supply_id
 				, c.order_status
-				,( case c.order_status 				
+				,( case c.order_status 	
+					WHEN 1 THEN
+						'买家已下单'
+					WHEN 2 THEN
+						'买家已取消'			
 					WHEN 3 THEN
 						'卖家已取消'
 					WHEN 4 THEN
