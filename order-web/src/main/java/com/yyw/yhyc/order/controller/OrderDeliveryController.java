@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +58,10 @@ public class OrderDeliveryController extends BaseJsonController {
 	private OrderDeliveryService orderDeliveryService;
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private OrderExceptionService orderExceptionService;
+
+
 	/**
 	* 通过主键查询实体对象
 	* @return
@@ -148,9 +154,15 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
+<<<<<<< HEAD
 
 		//  线上BUG  元旦后吕红杰解决
 		// orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+=======
+		//不需要刷单记录日志
+		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource()  );
+>>>>>>> 20170103
 		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
 	}
 
@@ -164,7 +176,13 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
+<<<<<<< HEAD
 	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+=======
+		//不需要刷单记录日志
+		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource());
+>>>>>>> 20170103
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -207,7 +225,13 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
+<<<<<<< HEAD
       //  orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+=======
+		//不需要刷单记录日志
+		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+        //orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource()  );
+>>>>>>> 20170103
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 
