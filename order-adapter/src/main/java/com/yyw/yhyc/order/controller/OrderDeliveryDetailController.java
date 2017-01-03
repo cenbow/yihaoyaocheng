@@ -239,9 +239,9 @@ public class OrderDeliveryDetailController extends BaseController {
 			returnType=list.get(0).getReturnType();
 		}
 		UserDto user = super.getLoginUser();
-		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
-		if(map.get("code").equals("0")){
-			return error(map.get("msg"));
+		Map<String,Object> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
+		if(map.get("code").toString().equals("0")){
+			return error(map.get("msg").toString());
 		}
 		//当没有异常流程订单结束的时候调用账期结算接口
 		if(null==returnType||"".equals(returnType)){
