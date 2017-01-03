@@ -400,12 +400,17 @@ public class OrderCreateService {
 		//组装该订单商品是否参加了满减促销活动和其他活动
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			
-			 OrderProductInfoDto productInfoParamterBean=new OrderProductInfoDto();
+			// OrderProductInfoDto productInfoParamterBean=new OrderProductInfoDto();
 			  
 			   String supCode=productInfoDto.getSpuCode();
 			   
-			   productInfoParamterBean.setSpuCode(supCode);
-			   productInfoParamterBean.setSellerCode(orderDto.getSupplyId()+"");
+			   //productInfoParamterBean.setSpuCode(supCode);
+			   //productInfoParamterBean.setSellerCode(orderDto.getSupplyId()+"");
+			   
+			   Map<String,Object>  productInfoParamterBeanMap=new HashMap<String,Object>();
+			   productInfoParamterBeanMap.put("spuCode", supCode);
+			   productInfoParamterBeanMap.put("sellerCode", orderDto.getSupplyId()+"");
+			   
 			   Map<String,Object>  currentMap=new HashMap<String,Object>();
 			   
 			   List<String> promitionIdList=new ArrayList<String>();
@@ -420,7 +425,7 @@ public class OrderCreateService {
 					  }
 				  }
 				  
-				  currentMap.put("productInfoBean", productInfoParamterBean);
+				  currentMap.put("productInfoBean", productInfoParamterBeanMap);
 				  currentMap.put("promotionList", promitionIdList);
 				  returnList.add(currentMap);
 		}

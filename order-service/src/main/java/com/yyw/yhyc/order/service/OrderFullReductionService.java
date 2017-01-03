@@ -231,12 +231,16 @@ public class OrderFullReductionService {
 				  
 				  for(ShoppingCartDto buyerProductBean : buyProductList){
 					  
-					  OrderProductInfoDto productInfoBean=new OrderProductInfoDto();
+					 // OrderProductInfoDto productInfoBean=new OrderProductInfoDto();
 					  
 					   String supCode=buyerProductBean.getSpuCode();
 					   
-					   productInfoBean.setSpuCode(supCode);
-					   productInfoBean.setSellerCode(supplyId);
+					   //productInfoBean.setSpuCode(supCode);
+					  // productInfoBean.setSellerCode(supplyId);
+					   
+					   Map<String,Object> productInfoBeanMap=new HashMap<String,Object>();
+					   productInfoBeanMap.put("spuCode", supCode);
+					   productInfoBeanMap.put("sellerCode", supplyId);
 					  
 					   Map<String,Object>  currentMap=new HashMap<String,Object>();
 					   
@@ -252,7 +256,7 @@ public class OrderFullReductionService {
 							  }
 							  
 							  
-							  currentMap.put("productInfoBean", productInfoBean);
+							  currentMap.put("productInfoBean", productInfoBeanMap);
 							  currentMap.put("promotionList", promitionIdList);
 							  
 							  returnList.add(currentMap);
