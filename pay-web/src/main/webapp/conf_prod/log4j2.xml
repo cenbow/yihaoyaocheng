@@ -18,6 +18,12 @@
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="/app/logs/tomcat7/" maxDepth="1">
+                    <IfFileName glob="pay-web.log*" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingRandomAccessFile>
     </appenders>
 
