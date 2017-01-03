@@ -1887,9 +1887,10 @@ public class OrderExceptionService {
                         payService.handleRefund(userDto, 3, orderException.getExceptionOrderId(), "买家补货确认收货");
                     }
 
-                    //补货买家确认收货时候，产生结算信息
-                    this.saveOrderSettlement(order);
 
+                    //补货买家确认收货时候，产生结算信息
+                    order.setOrgTotal(getSettlementMoney(order));
+                    this.saveOrderSettlement(order);
                     resultMap.put("code", 1);
                     resultMap.put("order", order);
                     resultMap.put("orderException", orderException);
@@ -2891,4 +2892,34 @@ public class OrderExceptionService {
         return this.orderExceptionMapper.getByExceptionOrderId(orderExceptionId);
     }
 
+    /**
+     * 获取订单完成时金额
+     * @param order
+     * @return
+     */
+    private BigDecimal getSettlementMoney(Order order) {
+        //订单完成时金额
+        BigDecimal orderTotal = new BigDecimal(0);
+        //拒收订单金额
+        BigDecimal rejectTotal = new BigDecimal(0);
+        if ("1".equals(order.getIsDartDelivery())) {  //1、部分发货0、全部发货
+            if (order.getPreferentialCancelMoney().compareTo(BigDecimal.valueOf(0)) == 0) {//部分发货 、剩余部分生成补货订单
+                orderTotal = order.getOrgTotal();
+            } else {   //部分发货 、剩余部分不发
+                orderTotal = order.getPreferentialDeliveryMoney();
+            }
+        } else {
+            orderTotal = order.getOrgTotal();
+        }
+        OrderException rejectOrder = new OrderException();
+        rejectOrder.setFlowId(order.getFlowId());
+        rejectOrder.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+        List<OrderException> rejectOrderList = orderExceptionMapper.listByProperty(rejectOrder); //查询拒收订单(暂只有一条拒收订单)
+        if(!UtilHelper.isEmpty(rejectOrderList)){   //该订单存在拒收订单、再减掉拒收订单金额
+            for (OrderException orderException : rejectOrderList) {
+                rejectTotal = rejectTotal.add(orderException.getOrderMoney());
+            }
+        }
+        return  orderTotal.subtract(rejectTotal);
+    }
 }

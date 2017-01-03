@@ -147,7 +147,7 @@ public class OrderDeliveryDetailFacadeImpl implements OrderDeliveryDetailFacade 
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception
+	public Map<String,Object> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception
 	{
 		return orderDeliveryDetailService.updateConfirmReceipt(list, user);
 	}

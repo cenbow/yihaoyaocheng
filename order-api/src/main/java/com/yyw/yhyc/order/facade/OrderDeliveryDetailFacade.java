@@ -102,7 +102,7 @@ public interface OrderDeliveryDetailFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String,String> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception;
+	public Map<String,Object> confirmReceipt(List<OrderDeliveryDetailDto> list,UserDto user) throws Exception;
 
 	/**
 	 * 补货、换货订单发货、収货商品列表
