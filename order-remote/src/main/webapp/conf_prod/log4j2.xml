@@ -30,7 +30,7 @@
         <logger name="org.springframework" level="INFO"/>
         <logger name="com.yyw.yhyc.order" level="INFO"/>
         <logger name="com.yyw.yhyc.product" level="INFO"/>
-        <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
-        <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.order.mapper" level="INFO"/>
+        <logger name="com.yyw.yhyc.product.mapper" level="INFO"/>
     </loggers>
 </configuration>
