@@ -675,12 +675,12 @@ public class ChinaPayServiceImpl implements PayService {
         Order order = null;
         if(orderType == 1){//原始订单
             order = orderMapper.getOrderbyFlowId(flowId);
-        }else if(orderType == 2 || orderType == 3 ){//异常订单
+        }else if(orderType == 2 || orderType == 3 ){//异常订单（20170106  部分发货）
             OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
             order = orderMapper.getByPK(orderException.getOrderId());
-            //拒收订单+买家已确认
+            //拒收订单+买家已确认+已退款
             if(OrderExceptionTypeEnum.REJECT.getType().equals(orderException.getReturnType())
-                    && SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())){
+                    && (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())  ||  SystemOrderExceptionStatusEnum.Refunded.getType().equals(orderException.getOrderStatus()) )){
                 orderMoney = orderException.getOrderMoney();
             }
 
