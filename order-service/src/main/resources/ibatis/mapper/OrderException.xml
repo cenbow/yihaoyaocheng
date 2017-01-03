@@ -1937,6 +1937,23 @@
 		AND	T1.CUST_ID = #{custId}
 		ORDER BY T1.EXCEPTION_ID DESC
 	</select>
+	
+   <select id="listPaginationBuyerExceptionOrderExceptReduce" parameterType="OrderExceptionDto" resultMap="orderExceptionSimpleDetailsResultMap">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>, T3.PAY_TYPE,
+		T3.PAY_TYPE_NAME
+		FROM
+		T_ORDER_EXCEPTION T1
+		LEFT JOIN T_ORDER T2 ON T1.ORDER_ID = T2.ORDER_ID
+		LEFT JOIN T_SYSTEM_PAY_TYPE T3 ON T2.PAY_TYPE_ID = T3.PAY_TYPE_ID
+		WHERE
+		 1=1
+		AND T2.org_total=T2.order_total
+		AND T2.is_part_delivery!=1
+		AND T1.RETURN_TYPE = #{returnType}
+		AND	T1.CUST_ID = #{custId}
+		ORDER BY T1.EXCEPTION_ID DESC
+	</select>
 
 	<select id="findExceptionCountApp" parameterType="java.lang.Integer" resultType="java.lang.Integer">
 		select count(1) from t_order_exception oe where oe.return_type in (3,4) and oe.cust_id =  #{custId}

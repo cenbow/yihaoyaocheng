@@ -3148,7 +3148,7 @@ public class OrderService {
 		orderDto.setOrderStatus(orderStatus);
 		orderDto.setPayType(1);//只取在线支付订单
 		//获取订单列表
-		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
+		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForAppExceptReduce(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
 		List<Map<String,Object>> orderList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> temp = null;

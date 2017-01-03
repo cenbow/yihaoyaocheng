@@ -60,6 +60,14 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public List<Order> listCancelOrderForNoPay();
 
 	public List<OrderDto> listPaginationBuyerOrderForApp(Pagination<OrderDto> pagination, OrderDto orderDto);
+	
+	/**
+	 * 该查询是去掉满减的，后期app端满减上去后，需要改成listPaginationBuyerOrderForApp
+	 * @param pagination
+	 * @param orderDto
+	 * @return
+	 */
+	public List<OrderDto> listPaginationBuyerOrderForAppExceptReduce(Pagination<OrderDto> pagination, OrderDto orderDto);
 
 	public Order getOnlinePaymentOrderbyFlowId(String flowId);
 	

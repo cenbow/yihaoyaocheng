@@ -1488,6 +1488,83 @@
 		</if>
 		ORDER BY T1.ORDER_ID DESC
 	</select>
+	
+	<select id="listPaginationBuyerOrderForAppExceptReduce" parameterType="OrderDto" resultMap="buyerOrderDetailResultMap" useCache="false">
+		SELECT
+		<include refid="T1commonProcessDateColumns"/>,SYSDATE() AS NOWTIME,T4.PAY_TYPE,T4.PAY_TYPE_NAME
+		FROM
+		T_ORDER T1
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE
+		T1.CUST_ID = #{custId}
+		AND T1.org_total=T1.order_total
+		AND T1.is_part_delivery!=1
+		<if test="flowId!= null and flowId!= ''">
+			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND T1.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND T1.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+		<if test="orderStatus!= null and orderStatus!= ''">
+			<if test='orderStatus == "1"'><!--待付款-->
+				<choose>
+					<when test='payType == 1'><!--在线支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test='payType == 3'><!--线下支付-->
+						AND T1.ORDER_STATUS = '1'
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND (T1.ORDER_STATUS = '1' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) <!--已下单订单+支付类型是在线支付或者线下转账-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "2"'><!--待发货-->
+				<choose>
+					<when test='payType == 1 || payType == 3'><!--在线支付+线下支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已付款-->
+					</when>
+					<when test='payType == 2'><!--账期支付-->
+						AND T1.ORDER_STATUS = '5'<!--买家已下单-->
+					</when>
+					<when test="payType== null || payType== ''"><!--未选择支付类型-->
+						AND ((T1.ORDER_STATUS = '5' AND (T4.PAY_TYPE='1' OR T4.PAY_TYPE='3')) OR (T1.ORDER_STATUS = '5' AND T4.PAY_TYPE='2' )) <!--已付款+支付类型是在线支付或者线下转账 or 已下单+账期支付-->
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
+			<if test='orderStatus == "3"'><!--待收货-->
+				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
+			</if>
+			<if test='orderStatus == "4"'><!--拒收中-->
+				AND T1.ORDER_STATUS = '9'
+			</if>
+			<if test='orderStatus == "5"'><!--补货中-->
+				AND T1.ORDER_STATUS = '10'
+			</if>
+			<if test='orderStatus == "6"'><!--已取消-->
+				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
+			</if>
+			<if test='orderStatus == "7"'><!--已完成-->
+				AND T1.ORDER_STATUS IN ('8','11','14')<!--买家全部收货+系统自动确认收货+买家部分收货-->
+			</if>
+		</if>
+		ORDER BY T1.ORDER_ID DESC
+	</select>
 
     <!--获取在线支付的订单-->
 	<select id="getOnlinePaymentOrderbyFlowId" parameterType="java.lang.String" resultMap="OrderResultMapper">
