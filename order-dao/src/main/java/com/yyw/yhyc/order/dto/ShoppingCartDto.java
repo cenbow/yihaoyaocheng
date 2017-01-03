@@ -36,6 +36,9 @@ public class ShoppingCartDto extends ShoppingCart  {
      * 递增数量
      */
     private Integer upStep;
+    
+    
+    private String spec;
 
     /* 是否还有商品库存 */
     private boolean existProductInventory;
@@ -273,7 +276,17 @@ public class ShoppingCartDto extends ShoppingCart  {
         return normalStatus;
     }
 
-    public void setNormalStatus(boolean normalStatus) {
+   
+
+	public String getSpec() {
+		return spec;
+	}
+
+	public void setSpec(String spec) {
+		this.spec = spec;
+	}
+
+	public void setNormalStatus(boolean normalStatus) {
         this.normalStatus = normalStatus;
     }
 

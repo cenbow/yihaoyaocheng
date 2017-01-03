@@ -241,9 +241,9 @@ public class OrderDeliveryDetailService {
      * @return
      * @throws Exception
      */
-    public Map<String, String> updateConfirmReceipt(List<OrderDeliveryDetailDto> list, UserDto user) throws Exception {
+    public Map<String, Object> updateConfirmReceipt(List<OrderDeliveryDetailDto> list, UserDto user) throws Exception {
 
-        Map<String, String> returnMap = new HashMap<String, String>();
+        Map<String, Object> returnMap = new HashMap<String, Object>();
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
         String returnType = "";
         String returnDesc = "";
@@ -430,8 +430,8 @@ public class OrderDeliveryDetailService {
         order.setUpdateUser(user.getUserName());
         orderMapper.update(order);
 
-        //生成结算信息 (补货不产生结算)
-        saveOrderSettlement(order, moneyTotal);
+//        //生成结算信息 (补货不产生结算)
+//        saveOrderSettlement(order, moneyTotal);
 
         //插入日志表
         OrderLogDto orderLogDto = new OrderLogDto();
@@ -536,9 +536,21 @@ public class OrderDeliveryDetailService {
             PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
             payService.handleRefund(user, 1, order.getFlowId(), "");
         }
+        //全部收货时候调用资信接口
+        if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
+
+            //生成结算信息
+            order.setOrgTotal(new BigDecimal(orderTotal));
+            saveOrderSettlement(order, moneyTotal);
+
+            returnMap.put("order",order);
+            returnMap.put("systemPayType", systemPayType);
+
+        }
         returnMap.put("code", "1");
         returnMap.put("orderTotal", orderTotal);
         returnMap.put("msg", "操作成功");
+
         return returnMap;
     }
 
@@ -557,8 +569,8 @@ public class OrderDeliveryDetailService {
         SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
         OrderSettlement orderSettlement = new OrderSettlement();
         if (SystemOrderStatusEnum.Rejecting.getType().equals(order.getOrderStatus()) ||
-                SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus())) {
-            //拒收 换货 会在审核，和买家确认收货时产生结算
+                SystemOrderStatusEnum.Replenishing.getType().equals(order.getOrderStatus()) ||  SystemOrderStatusEnum.RejectAndReplenish.getType().equals(order.getOrderStatus())) {
+            //9、拒收 10、补货中 15、拒收&补货中 会在审核，和买家确认收货时产生结算
             return;
         }
         boolean saveFlag = true;

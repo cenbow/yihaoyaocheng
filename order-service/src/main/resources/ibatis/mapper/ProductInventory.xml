@@ -299,9 +299,9 @@
     </select>
 
     <update id="updateInventory" parameterType="ProductInventory">
-        UPDATE t_product_inventory SET current_inventory=#{currentInventory}
+        UPDATE t_product_inventory SET current_inventory=${currentInventory}
         <if test="warningInventory!= null and warningInventory!= ''">
-            , warning_inventory=#{warningInventory}
+            , warning_inventory=${warningInventory}
         </if>
         , front_inventory=${currentInventory}-blocked_inventory
         , update_user=#{updateUser}

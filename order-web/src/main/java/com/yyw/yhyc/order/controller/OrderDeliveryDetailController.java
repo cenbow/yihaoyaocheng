@@ -12,6 +12,7 @@
 package com.yyw.yhyc.order.controller;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -138,7 +139,7 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 	 */
 	@RequestMapping(value = "/confirmReceipt", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,String> confirmReceipt(@RequestBody  String listStr) throws Exception
+	public Map<String,Object> confirmReceipt(@RequestBody  String listStr) throws Exception
 	{
 
 		String flowId="";
@@ -149,29 +150,29 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 			returnType=list.get(0).getReturnType();
 		}
 		UserDto user = super.getLoginUser();
-		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
+		Map<String,Object> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
 
 		orderLogService.insertOrderLog(this.request,"3",user.getCustId(),flowId ,orderService.getOrderbyFlowId(flowId).getSource() );
 		// TODO: 2016/8/23  待联调
 		//当没有异常流程订单结束的时候调用账期结算接口
 
 		//全部、部分发货20170106  liqiang
-		if("1".equals(map.get("code")) && !UtilHelper.isEmpty(map.get("orderTotal")) && !map.get("orderTotal").equals("")){
+		if("1".equals(map.get("code").toString()) && !UtilHelper.isEmpty(map.get("orderTotal").toString()) && !map.get("orderTotal").toString().equals("")){
 		//if(null==returnType||"".equals(returnType)){
 			try {
 				if(UtilHelper.isEmpty(creditDubboService)){
 					logger.error("CreditDubboServiceInterface creditDubboService is null");
 				}else{
-					Order od =  orderService.getOrderbyFlowId(flowId);
-					SystemPayType systemPayType= systemPayTypeService.getByPK(od.getPayTypeId());
-					if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+					Order od = (Order)map.get("order");
+					SystemPayType systemPayType= (SystemPayType)map.get("systemPayType");
+					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 						CreditParams creditParams = new CreditParams();
 						creditParams.setSourceFlowId(od.getFlowId());//订单编码
 						creditParams.setBuyerCode(od.getCustId() + "");
 						creditParams.setSellerCode(od.getSupplyId() + "");
 						creditParams.setBuyerName(od.getCustName());
 						creditParams.setSellerName(od.getSupplyName());
-						creditParams.setOrderTotal(new BigDecimal(map.get("orderTotal")));//订单金额  扣减后的
+						creditParams.setOrderTotal(new BigDecimal(map.get("orderTotal").toString()));//订单金额  扣减后的
 						creditParams.setFlowId(od.getFlowId());//订单编码
 						creditParams.setStatus("2");//创建订单设置为1，收货时设置2，已还款设置4，（取消订单）已退款设置为5，创建退货订单设置为6
 						creditParams.setReceiveTime(DateHelper.parseTime(od.getReceiveTime()));
