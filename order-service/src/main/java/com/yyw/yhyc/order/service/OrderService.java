@@ -1541,10 +1541,10 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.SellerDelivered.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerDeferredReceipt.getType())) {//卖家已发货+买家延期收货
             return SellerOrderStatusEnum.ReceiptOfGoods;//待收货
         }
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.Rejecting.getType())) {//拒收中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.Rejecting.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//拒收中
             return SellerOrderStatusEnum.Rejecting;//拒收中
         }
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.Replenishing.getType())) {//补货中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.Replenishing.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//补货中
             return SellerOrderStatusEnum.Replenishing;//补货中
         }
 
@@ -1675,7 +1675,11 @@ public class OrderService {
 			for(OrderDto od : sellerOrderList){
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//卖家视角订单状态
-					sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
+					 if (od.getOrderStatus().equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//拒收&补货中
+						 sellerOrderStatusEnum=SellerOrderStatusEnum.RejectAndReplenish;//拒收&补货中
+				     }else{
+				    	 sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
+				     }
 					if(!UtilHelper.isEmpty(sellerOrderStatusEnum))
 						od.setOrderStatusName(sellerOrderStatusEnum.getValue());
 					else
