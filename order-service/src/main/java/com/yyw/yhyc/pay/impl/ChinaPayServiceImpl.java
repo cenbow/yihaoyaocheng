@@ -550,24 +550,28 @@ public class ChinaPayServiceImpl implements PayService {
                 MerSplitMsg=MerSplitMsg+";"+MerId+"^"+o.getOrgTotal().multiply(multiple).intValue();
             }
 
-            //当已取消
-            if(status.equals(SystemOrderStatusEnum.BuyerCanceled.getType())
+            boolean isCancel=(status.equals(SystemOrderStatusEnum.BuyerCanceled.getType())
                     ||status.equals(SystemOrderStatusEnum.SellerCanceled.getType())
                     ||status.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType())
                     ||status.equals(SystemOrderStatusEnum.BackgroundCancellation.getType())
-                    ||status.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())){
+                    ||status.equals(SystemOrderStatusEnum.BuyerPartReceived.getType()));
+            boolean isCancelPreferentialCancelMoney=(!UtilHelper.isEmpty(o.getPreferentialCancelMoney())
+                     &&o.getPreferentialCancelMoney().doubleValue()>0);
+            //当已取消
+            if(isCancel||isCancelPreferentialCancelMoney){//判断当前是否有取消订单或取消发货
                 cancelNum=cancelNum+1;
-
                 BigDecimal payMoney=new BigDecimal(0);
                 //如果是拒收已同意需要给买家退款
                 if(!UtilHelper.isEmpty(orderMoney)){
                     payMoney=orderMoney;
-                }else {
+                    cancelMoney=cancelMoney.add(payMoney).add(o.getPreferentialCancelMoney());//把取消的不发货的商品金额也退回去
+                }else if(isCancel) {//订单被取消时
                     payMoney=o.getOrgTotal();
+                    cancelMoney=cancelMoney.add(payMoney);//当订单状态是取消时直接全部退款
+                }else if(isCancelPreferentialCancelMoney){//当订单部分发贫
+                    cancelMoney=cancelMoney.add(payMoney).add(o.getPreferentialCancelMoney());//把取消的不发货的商品金额也退回去
                 }
-                cancelMoney=cancelMoney.add(payMoney);
                 orderRefundList.add(o);
-
                 //组装退款分账信息
                 if(UtilHelper.isEmpty(RedundMerSplitMsg)){
                     RedundMerSplitMsg=MerId+"^"+cancelMoney.multiply(multiple).intValue();
@@ -675,8 +679,11 @@ public class ChinaPayServiceImpl implements PayService {
             OrderException orderException = orderExceptionMapper.getByExceptionOrderId(flowId);
             order = orderMapper.getByPK(orderException.getOrderId());
             //拒收订单+买家已确认
-            if(OrderExceptionTypeEnum.REJECT.getType().equals(orderException.getReturnType()) && SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()))
+            if(OrderExceptionTypeEnum.REJECT.getType().equals(orderException.getReturnType())
+                    && SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())){
                 orderMoney = orderException.getOrderMoney();
+            }
+
         }else{
             log.error("调用银联退款，orderType类型不正确，orderType="+orderType);
             throw new RuntimeException("orderType类型不正确");

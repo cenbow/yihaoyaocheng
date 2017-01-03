@@ -2043,6 +2043,40 @@ public class OrderService {
 	}
 
 	/**
+	 * 判断是否是正常订单状态已到最后一步
+	 */
+	public boolean isDoneOrder(Order od){
+		if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.Rejecting.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.Replenishing.getType().equals(od.getOrderStatus())
+				){
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	 * 判断补货订单是否完成
+	 */
+	public boolean isReplenishment(Order od){
+		OrderException orderException1=new OrderException();
+		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
+		orderException1.setFlowId(od.getFlowId());
+		List<OrderException> le1=orderExceptionMapper.listByProperty(orderException1);
+		for(OrderException oe:le1){
+			if(!SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(oe.getOrderStatus())
+				&&!SystemReplenishmentOrderStatusEnum.BuyerReceived.getType().equals(oe.getOrderStatus())
+				&& !SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(oe.getOrderStatus())
+					){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * 系统自动确认收货
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
@@ -2062,25 +2096,27 @@ public class OrderService {
 			orderDeliveryDetailService.orderDeliveryDetailCount(od);
 			//根据订单来源进行自动分账 三期 对接
 			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
-			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
+			if(isReplenishment(od)){
+			   SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
+			   if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
 
-				OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
-				if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
-					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-					UserDto userDto=new UserDto();
-					userDto.setCustName("admin");
-					payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
-					cal.add(od.getOrderId());
-				}
-			}else{
-				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
+				    OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
+				    if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
+					   PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+					   UserDto userDto=new UserDto();
+					   userDto.setCustName("admin");
+					   payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
+					   cal.add(od.getOrderId());
+				   }
+			   }else{
+				    if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
 					sendCredit(od,creditDubboService,"2");
-				}
+				    }
+			    }
 
 			}
 			
@@ -2155,7 +2191,6 @@ public class OrderService {
 		for(OrderException o:le1){
 			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
 			String now = systemDateMapper.getSystemDate();
-
 			OrderException orderException2 = new OrderException();
 			String orderStatus = "";
 			orderException2.setFlowId(o.getFlowId());
@@ -2183,32 +2218,31 @@ public class OrderService {
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
 			log.debug("补货异常订单自动确认=" + o.toString() + ";" + od.toString());
 			Integer payTypeId=od.getPayTypeId();
-			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
-			if(!UtilHelper.isEmpty(od)){
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
-				        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
-						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
-						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
-						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
-					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
-					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-					UserDto userDto=new UserDto();
-					userDto.setCustName("admin");
-					payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-					cal.add(od.getOrderId());
-				}else{
-					if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
-						sendCredit(od,creditDubboService,"2");
+			if(isDoneOrder(od)) {//当原始订单已确认收货
+				SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
+				if (!UtilHelper.isEmpty(od)) {
+					if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+							|| OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+							|| OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+							|| OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
+							|| OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)) {
+						OrderCombined orderCombined = orderCombinedMapper.getByPK(od.getOrderCombinedId());
+						PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+						UserDto userDto = new UserDto();
+						userDto.setCustName("admin");
+						payService.handleRefund(userDto, 3, o.getFlowId(), "补货自动确认收货");
+						cal.add(od.getOrderId());
+					} else {
+						if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())) {
+							sendCredit(od, creditDubboService, "2");
+						}
 					}
-
 				}
-
 			}
 			//异常订单收货
 			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
-			
 			//插入日志
 		     OrderTrace orderTrace=new OrderTrace();
 		     orderTrace.setOrderId(o.getOrderId());
