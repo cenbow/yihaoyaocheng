@@ -1291,12 +1291,34 @@ public class ShoppingCartService {
 						List<FullReductionPromotion> promotionList = new ArrayList<FullReductionPromotion>();
 						for (ProductPromotionInfo info : infoList) {
 							FullReductionPromotion promotion = new FullReductionPromotion();
-							promotion.setPromotionId(Integer.parseInt(info.getPromotion_id()));
-							promotion.setPromotionMethod(Integer.parseInt(info.getPromotion_method()));
-							promotion.setPromotionPre(Integer.parseInt(info.getPromotion_pre()));
-							promotion.setLevelIncre(Integer.parseInt(info.getLevel_incre()));
-							promotion.setPromotionType(Integer.parseInt(info.getPromotion_type()));
-							promotion.setLimitNum(Integer.parseInt(info.getLimit_num()));
+							if (info.getPromotion_id() != null && !"".equals(info.getPromotion_id())) {
+							  promotion.setPromotionId(Integer.parseInt(info.getPromotion_id()));
+							} else {
+								promotion.setPromotionId(null);
+							}
+							if (info.getPromotion_method() != null && !"".equals(info.getPromotion_method())) {
+								promotion.setPromotionMethod(Integer.parseInt(info.getPromotion_method()));
+							} else {
+								promotion.setPromotionMethod(null);
+							}
+							if (info.getPromotion_pre() != null && !"".equals(info.getPromotion_pre())) {
+							    promotion.setPromotionPre(Integer.parseInt(info.getPromotion_pre()));
+							} else {
+								promotion.setPromotionPre(null);
+							}
+							if (info.getLevel_incre() != null && !"".equals(info.getLevel_incre())) {
+							    promotion.setLevelIncre(Integer.parseInt(info.getLevel_incre()));
+							} else {
+								promotion.setLevelIncre(null);
+							}
+							if (info.getPromotion_type() != null && !"".equals(info.getPromotion_type())) {
+							   promotion.setPromotionType(Integer.parseInt(info.getPromotion_type()));
+							}
+							if (info.getLimit_num() != null && !"".equals(info.getLimit_num())) {
+							    promotion.setLimitNum(Integer.parseInt(info.getLimit_num()));
+							} else {
+								 promotion.setLimitNum(null);
+							}
 							
 							//满减规则
 							Set<ProductPromotionRule> promotionRules = info.getProductPromotionRules();
