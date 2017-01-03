@@ -41,7 +41,7 @@ String fDate = datefomet.format(date);
 
 if( !UtilHelper.isEmpty(OriOrderNo)) {
 	logger.info("———————————————————————— [ 银联支付----手动分账 ] 处理开始————————————————————————————————————");
-	OrderPayManage orderPayManage = (OrderPayManage) SpringBeanHelper.getBean("orderPayManage");
+	OrderPayManage orderPayManage = (OrderPayManage) SpringBeanHelper.getBean("orderPayMamage");
 
 	OriOrderNo = OriOrderNo.trim();
 	sendMap.put("MerOrderNo", request.getParameter("OriOrderNo").trim()+"FZ"+request.getParameter("num"));//确认收货定单号 需要传输，订单号规则     原父定单号+01
@@ -72,33 +72,12 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 	<%
 	}
 
-	/* 手动分账请求成功后  进行相关操作 */
-	boolean orderSettlementStatus = false;
-	if("0000".equals(r.get("respCode"))){
-		orderSettlementStatus = true;
-	}
-	try {
-		logger.info(" [ 银联支付----手动分账 ] 向银联发送 分账 请求成功后，进行相关操作");
-		orderPayManage.updateTakeConfirmOrderInfos(OriOrderNo, orderSettlementStatus);
-		%>
-		分账操作后，业务处理结果  ：	[ 银联支付----手动分账 ] 处理完成 !!!!
-		<%
-		logger.info("———————————————————————— [ 银联支付----手动分账 ] 处理完成————————————————————————————————————");
-	} catch (Exception e) {
-		logger.error(" [ 银联支付----手动分账 ] 向银联发送 分账 请求成功后，进行相关操作失败：" + e.getMessage(),e);
-		%>
-		分账操作后，业务处理结果  ：	[ 银联支付----手动分账 ] 处理失败.......
-		<%
-		return;
-	}
-
-
 
 
 
 	/* 如果有退款的情况，手动操作退款 */
 	if ( !UtilHelper.isEmpty(request.getParameter("ReMerSplitMsg")) && !UtilHelper.isEmpty(request.getParameter("RefundAmt"))) {
-		logger.info("———————————————————————— [ 银联支付----手动退款 ] 处理开始————————————————————————————————————");
+		logger.info("\n\n\n———————————————————————— [ 银联支付----手动退款 ] 处理开始————————————————————————————————————");
 		sendMap = new HashMap<String, Object>();
 		sendMap.put("OriOrderNo", OriOrderNo);//系统内部的 支付流水号
 		sendMap.put("OriTranDate",request.getParameter("OriTranDate").trim());//原定单交易日期 需要传输
@@ -135,18 +114,39 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 				orderPayManage.updateRedundOrderInfos(OriOrderNo,false,rs);//退款失败记录相关信息
 			}
 			%>
-			退款操作后，业务处理结果  ：	[ 银联支付----手动退款 ] 处理完成 !!!!
+			退款操作后，业务处理结果  ：	[ 银联支付----手动退款 ] 处理完成 !!!!</br></br>
 			<%
-			logger.info("———————————————————————— [ 银联支付----手动退款 ] 处理完成————————————————————————————————————");
+			logger.info("———————————————————————— [ 银联支付----手动退款 ] 处理完成————————————————————————————————————\n\n\n");
 		} catch (Exception e) {
 			logger.error(" [ 银联支付----手动分账 ] 发送 退款 请求成功后，进行相关操作失败：" + e.getMessage(),e);
 			%>
-			退款操作后，业务处理结果  ：	[ 银联支付----手动退款 ] 处理失败.......
+			退款操作后，业务处理结果  ：	[ 银联支付----手动退款 ] 处理失败.......</br></br>
 			<%
-			return;
 		}
 
 	}
+
+
+
+	/* 手动分账请求成功后  进行相关操作 */
+	boolean orderSettlementStatus = false;
+	if("0000".equals(r.get("respCode"))){
+		orderSettlementStatus = true;
+	}
+	try {
+		logger.info(" [ 银联支付----手动分账 ] 向银联发送 分账 请求成功后，进行相关操作");
+		orderPayManage.updateTakeConfirmOrderInfos(OriOrderNo, orderSettlementStatus);
+		%>
+		分账操作后，业务处理结果  ：	[ 银联支付----手动分账 ] 处理完成 !!!!</br></br>
+		<%
+		logger.info("———————————————————————— [ 银联支付----手动分账 ] 处理完成————————————————————————————————————");
+	} catch (Exception e) {
+	logger.error(" [ 银联支付----手动分账 ] 向银联发送 分账 请求成功后，进行相关操作失败：" + e.getMessage(),e);
+	%>
+	分账操作后，业务处理结果  ：	[ 银联支付----手动分账 ] 处理失败.......</br></br>
+	<%
+	}
+
 }
 %>
 

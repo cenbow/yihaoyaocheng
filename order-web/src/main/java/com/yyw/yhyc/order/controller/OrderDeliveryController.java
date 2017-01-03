@@ -158,14 +158,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
-		 if(orderDeliveryDto.getOrderType()==1){
-			 orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
-		 }else{//异常订单发货
-			 
-			 OrderException bean=this.orderExceptionService.getByExceptionOrderId(orderDeliveryDto.getFlowId());
-			 orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(bean.getFlowId()).getSource() );
-		 }
-		
+	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
 	
@@ -237,7 +230,9 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+
+		//  线上BUG  元旦后吕红杰解决
+		// orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
 		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
 	}
 
@@ -251,8 +246,7 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-		OrderException exceptionBean=this.orderExceptionService.getByPK(Integer.valueOf(orderDeliveryDto.getFlowId()));
-		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),exceptionBean.getExceptionOrderId(),orderService.getOrderbyFlowId(exceptionBean.getFlowId()).getSource());
+	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -295,8 +289,7 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
-        OrderException orderException = this.orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
-        orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderException.getExceptionOrderId(),orderService.getOrderbyFlowId(orderException.getFlowId()).getSource());
+      //  orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 
