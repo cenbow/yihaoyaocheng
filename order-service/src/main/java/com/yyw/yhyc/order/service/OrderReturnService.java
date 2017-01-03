@@ -254,6 +254,7 @@ public class OrderReturnService {
                     	 }else{
                     		returnPriceMap.put(odd.getOrderDeliveryDetailId(),od.getProductPrice().multiply(new BigDecimal(stractCount)));
      						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
+     						orderExceptionPayMoney=orderExceptionPayMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
                     	 }
                     	
                     }
