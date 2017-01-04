@@ -44,7 +44,7 @@
 
 	<!-- mvc 拦截器 -->
 	<mvc:interceptors>
-		<!-- 登录拦截-->
+		<!-- 登录拦截 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<mvc:exclude-mapping path="/static/**"/>
@@ -57,11 +57,11 @@
 			<mvc:exclude-mapping path="/orderPay/chinaPayOfAccountCallback"/>
 			<mvc:exclude-mapping path="/orderPay/validateBankCard"/>
 			<mvc:exclude-mapping path="/orderPay/checkOrderPayedStatus"/>
-
+			<!-- <mvc:exclude-mapping path="/api/aliappPay/getAppPayParams"/> -->
 			<bean class="com.yhyc.auth.LoginInterceptor" > </bean>
 		</mvc:interceptor>
 
-		<!-- 获取用户信息-->
+		<!-- 获取用户信息 -->
 		<mvc:interceptor>
 			<mvc:mapping path="/*/**" />
 			<mvc:exclude-mapping path="/static/**"/>
