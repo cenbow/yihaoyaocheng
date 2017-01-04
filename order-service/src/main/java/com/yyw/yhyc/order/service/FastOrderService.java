@@ -3,7 +3,7 @@
  * Created On: 2016-12-13 14:41:50
  *
  * Amendment History:
- * 
+ *
  * Amended By       Amended On      Amendment Description
  * ------------     -----------     ---------------------------------------------
  *
@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.search.model.comparator.ProductPromotionRuleComparator;
 import com.search.model.dto.ProductSearchParamDto;
@@ -34,7 +33,6 @@ import com.search.model.yhyc.ProductDrug;
 import com.search.model.yhyc.ProductPromotion;
 import com.search.model.yhyc.ProductPromotionInfo;
 import com.search.model.yhyc.ProductPromotionRule;
-import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
 import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
 import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yaoex.usermanage.model.custgroup.CustGroupDubboRet;
@@ -59,8 +57,8 @@ import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 @Service("fastOrderService")
 public class FastOrderService {
 	private static final Logger logger = LoggerFactory.getLogger(FastOrderService.class);
-	
-	private static final int maxBuyNum = 9999999; 
+
+	private static final int maxBuyNum = 9999999;
 
 	@Autowired
 	private ShoppingCartMapper shoppingCartMapper;
@@ -68,16 +66,9 @@ public class FastOrderService {
 	private ProductInventoryMapper productInventoryMapper;
 	@Autowired
 	private UsermanageEnterpriseMapper enterpriseMapper;
-	
-	@Reference 
-	private ICustgroupmanageDubbo iCustgroupmanageDubbo;				//客户组接口
-	@Reference 
-	private ProductSearchInterface productSearchInterface;				//搜索接口
-	@Reference 
-	private IPromotionDubboManageService iPromotionDubboManageService;	//搜索接口
-	@Reference 
-	private IProductDubboManageService iProductDubboManageService;		//商品接口 
-	
+
+
+
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey
@@ -87,11 +78,9 @@ public class FastOrderService {
 	public ShoppingCart getByPK(java.lang.Integer primaryKey) throws Exception {
 		return shoppingCartMapper.getByPK(primaryKey);
 	}
-	
+
 	/**
 	 * 查询进货单列表
-	 * @param custId
-	 * @param fromWhere
 	 * @return
 	 */
 	public List<ShoppingCartListDto> listShoppingCart(ShoppingCart shoppingCart) {
@@ -101,7 +90,7 @@ public class FastOrderService {
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
 		return allShoppingCart;
 	}
-	
+
 	/**
 	 * 查询进货单的买卖双方企业ID
 	 * @param custId
@@ -115,14 +104,14 @@ public class FastOrderService {
 		shoppingCart.setCustId(custId);
 		return shoppingCartMapper.listDistinctCustIdAndSupplyId(shoppingCart);
 	}
-	
+
 	/**
 	 * 查询进货单列表
 	 * @param custId
 	 * @param fromWhere
 	 * @return
 	 */
-	public List<ShoppingCartListDto> listShoppingCart(Integer custId, int fromWhere) {
+	public List<ShoppingCartListDto> listShoppingCart(Integer custId, int fromWhere,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
 		if(UtilHelper.isEmpty(custId)){
 			return null;
 		}
@@ -136,21 +125,19 @@ public class FastOrderService {
 			return allShoppingCart;
 		}
 		logger.info("success listForFastOrder step1 query, use " +( System.currentTimeMillis() - startTime) + "ms");
-		
+
 		//2、 返回极速下单数据
 		String enterpriseId = String.valueOf(custId);
-		List<ShoppingCartListDto> shoppingCartListList = handleShoppingCartList(allShoppingCart,enterpriseId);
+		List<ShoppingCartListDto> shoppingCartListList = handleShoppingCartList(allShoppingCart,enterpriseId, productSearchInterface, iCustgroupmanageDubbo);
 		logger.info("success listForFastOrder step2 filling, use " +( System.currentTimeMillis() - startTime) + "ms");
 		return shoppingCartListList;
 	}
-	
+
 	/**
 	 * 根据搜索结果填充商品详情信息，处理集合
-	 * @param allShoppingCart
-	 * @param productSearchInterface
-     * @return
-     */
-	private List<ShoppingCartListDto> handleShoppingCartList(List<ShoppingCartListDto> shoppingCartListList,String enterpriseId) {
+	 * @return
+	 */
+	private List<ShoppingCartListDto> handleShoppingCartList(List<ShoppingCartListDto> shoppingCartListList,String enterpriseId,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
 		if(UtilHelper.isEmpty(shoppingCartListList)){
 			return shoppingCartListList;
 		}
@@ -164,7 +151,7 @@ public class FastOrderService {
 			}
 		}
 		//2、 批量查询商品
-		List<ProductDrug> productDrugList = searchProductBatch(enterpriseId,productCodeSet);
+		List<ProductDrug> productDrugList = searchProductBatch(enterpriseId,productCodeSet, productSearchInterface, iCustgroupmanageDubbo);
 		//3、把List封装成Map
 		Map<String,ProductDrug> productDrugMap = new HashMap<>();
 		for(ProductDrug productDrug : productDrugList){
@@ -182,18 +169,18 @@ public class FastOrderService {
 		}
 		return shoppingCartListList;
 	}
-	
+
 	/**
 	 * 根据搜索结果填充商品详情信息，处理单条
 	 * @param shoppingCartDto
 	 * @param productDrug
-     * @return
-     */
+	 * @return
+	 */
 	private ShoppingCartDto handleShoppingCartDto(ShoppingCartDto shoppingCartDto ,ProductDrug productDrug) {
 		if(UtilHelper.isEmpty(shoppingCartDto)){
 			return null;
 		}
-		//1、搜索结果里面搜不到该商品，表示该商品已下架 
+		//1、搜索结果里面搜不到该商品，表示该商品已下架
 		if(UtilHelper.isEmpty(productDrug)){
 			shoppingCartDto.setNormalStatus(false);
 			shoppingCartDto.setPutawayStatus(2);
@@ -201,10 +188,10 @@ public class FastOrderService {
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.OffTheShelf.getStatus());
 			return shoppingCartDto;
 		}
-//		//获取商品图片 
+//		//获取商品图片
 //		String productImgUrl = getProductImgUrl(productDrug.getPic_path());
 //		shoppingCartDto.setProductImageUrl(productImgUrl);
-		
+
 		//给满减活动排序
 		sortProductPromotionInfos(productDrug.getProductPromotionInfos());
 
@@ -216,7 +203,7 @@ public class FastOrderService {
 		shoppingCartDto.setUpStep( minimumPacking ); 								//每次增加、减少的 递增数量
 		shoppingCartDto.setPutawayStatus( Integer.valueOf(productDrug.getState()) ); //上下架状态
 
-		//3、查询商品库存 
+		//3、查询商品库存
 		int stockAmount = StringUtil.strToInt(productDrug.getStock_amount());
 		if(stockAmount <= 0 || stockAmount < minimumPacking || UtilHelper.isEmpty(shoppingCartDto.getProductCount()) || stockAmount < shoppingCartDto.getProductCount()){
 			shoppingCartDto.setExistProductInventory(false);
@@ -237,10 +224,10 @@ public class FastOrderService {
 			shoppingCartDto.setPromotionCurrentInventory(productPromotion.getCurrent_inventory());
 			shoppingCartDto.setPromotionType(UtilHelper.isEmpty(productPromotion.getPromotion_type()) ? 0 : Integer.valueOf(productPromotion.getPromotion_type()));
 		}
-		
+
 		//5、填充满减活动
 		shoppingCartDto.setProductPromotionInfos(productDrug.getProductPromotionInfos());
-		
+
 		//6、各种校验
 		//商品渠道审核状态：0:待审核，1：审核通过，2：审核不通过
 		int isChannel = UtilHelper.isEmpty(productDrug.getIs_channel()) ? 0 : Integer.valueOf( productDrug.getIs_channel());
@@ -288,7 +275,7 @@ public class FastOrderService {
 		}
 		return shoppingCartDto;
 	}
-	
+
 	/**
 	 * 给满减活动排序
 	 * @param productPromotionInfos
@@ -318,10 +305,10 @@ public class FastOrderService {
 	public Map<String, Object> addShoppingCart(ShoppingCart shoppingCart) throws ServiceException {
 		long startTime = System.currentTimeMillis();
 		//1、参数校验
-        if( UtilHelper.isEmpty( shoppingCart.getSupplyId()) ){
+		if( UtilHelper.isEmpty( shoppingCart.getSupplyId()) ){
 			throw new ServiceException("非法参数, supplyId can't be null");
 		}
-        if( UtilHelper.isEmpty( shoppingCart.getSpuCode()) ){
+		if( UtilHelper.isEmpty( shoppingCart.getSpuCode()) ){
 			throw new ServiceException("非法参数, spuCode can't be null");
 		}
 		//2、校验商品总数是否超过100
@@ -338,7 +325,7 @@ public class FastOrderService {
 			logger.info("购买数量不能小于0，也不能大于"+maxBuyNum+"，你的数量是 " + shoppingCart.getProductCount());
 			throw new ServiceException("购买数量不能小于0，也不能大于"+maxBuyNum+"，你的数量是 " + shoppingCart.getProductCount());
 		}
-		//4、 校验商品库存 
+		//4、 校验商品库存
 		checkStock(shoppingCart.getSupplyId(), shoppingCart.getSpuCode(),shoppingCart.getProductCount());
 		//5、 执行新增操作
 		shoppingCart.setProductSettlementPrice(shoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
@@ -349,7 +336,7 @@ public class FastOrderService {
 		logger.info("success addShoppingCart , use " +( System.currentTimeMillis() - startTime) + "ms");
 		return map;
 	}
-	
+
 	/**
 	 * 根据多个主键删除记录
 	 * @param primaryKeys
@@ -362,26 +349,25 @@ public class FastOrderService {
 	/**
 	 * 修改进货单商品的数量
 	 * @param shoppingCart
-	 * @param userName
 	 * @return
 	 * @throws Exception
 	 */
-	public int updateNum(ShoppingCart shoppingCart) throws Exception{
+	public int updateNum(ShoppingCart shoppingCart,IPromotionDubboManageService iPromotionDubboManageService,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) throws Exception{
 		long startTime = System.currentTimeMillis();
 		int updateCount = 0;
 		//1、参数校验
-        if( UtilHelper.isEmpty( shoppingCart.getShoppingCartId()) ){
+		if( UtilHelper.isEmpty( shoppingCart.getShoppingCartId()) ){
 			throw new ServiceException("非法参数, shoppingCartId can't be null");
 		}
-        if( UtilHelper.isEmpty( shoppingCart.getProductCount()) ){
+		if( UtilHelper.isEmpty( shoppingCart.getProductCount()) ){
 			throw new ServiceException("非法参数， productCount can't be null");
 		}
-        //2、 单个商品的数量限制
-  		if( shoppingCart.getProductCount()<=0||shoppingCart.getProductCount()>maxBuyNum ){
-  			logger.info("商品数量不能小于0，也不能大于"+maxBuyNum+"，你的数量是 " + shoppingCart.getProductCount());
-  			throw new ServiceException("商品数量不能小于0，也不能大于"+maxBuyNum+"，你的数量是 " + shoppingCart.getProductCount());
-  		}
-  		//3、查询已存在的记录
+		//2、 单个商品的数量限制
+		if( shoppingCart.getProductCount()<=0||shoppingCart.getProductCount()>maxBuyNum ){
+			logger.info("商品数量不能小于0，也不能大于"+maxBuyNum+"，你的数量是 " + shoppingCart.getProductCount());
+			throw new ServiceException("商品数量不能小于0，也不能大于"+maxBuyNum+"，你的数量是 " + shoppingCart.getProductCount());
+		}
+		//3、查询已存在的记录
 		ShoppingCart oldShoppingCart =  shoppingCartMapper.getByPK(shoppingCart.getShoppingCartId());
 		if( UtilHelper.isEmpty(oldShoppingCart) ){
 			throw new ServiceException("原始数据不存在，请刷新页面重试！");
@@ -392,14 +378,14 @@ public class FastOrderService {
 		String userName = shoppingCart.getUpdateUser();
 		int leftBuyNum = shoppingCart.getProductCount();
 		//4、查询商品信息
-		ProductDrug productDrug = searchProduct(custId,supplyId,spuCode);	
+		ProductDrug productDrug = searchProduct(custId,supplyId,spuCode,productSearchInterface,iCustgroupmanageDubbo);
 		if(UtilHelper.isEmpty(productDrug)){
 			throw new ServiceException("商品下架，请刷新页面重试！");
 		}
 		//5、修改特价商品数量
 		if ( !UtilHelper.isEmpty(oldShoppingCart.getPromotionId()) ) {
 			//5.1、查询特价活动信息
-			ProductPromotionDto productPromotionDto = queryPromotionDto(custId,supplyId,spuCode,oldShoppingCart.getPromotionId());
+			ProductPromotionDto productPromotionDto = queryPromotionDto(custId,supplyId,spuCode,oldShoppingCart.getPromotionId(),iPromotionDubboManageService);
 			if(UtilHelper.isEmpty(productPromotionDto)){
 				throw new ServiceException("活动失效，请刷新页面重试！");
 			}
@@ -416,7 +402,7 @@ public class FastOrderService {
 			//5.4、购买原价商品的数量
 			int step = Integer.parseInt(productDrug.getMinimum_packing());
 			leftBuyNum = (leftBuyNum-canBuyNum)/step*step;
-		} 
+		}
 		//6、 修改原价商品数量
 		if(leftBuyNum>0){
 			//6.1、 校验原价商品库存
@@ -428,7 +414,7 @@ public class FastOrderService {
 			condition.setSpuCode(oldShoppingCart.getSpuCode());
 			condition.setFromWhere(oldShoppingCart.getFromWhere());
 			List<ShoppingCart> shoppingCarts = shoppingCartMapper.listByProperty(condition);
-			
+
 			//6.3、如果有则直接修改数量
 			if( !UtilHelper.isEmpty(shoppingCarts)){
 				ShoppingCart oldNormalShoppingCart = shoppingCarts.get(0);
@@ -437,7 +423,7 @@ public class FastOrderService {
 				oldNormalShoppingCart.setProductSettlementPrice(oldShoppingCart.getProductPrice().multiply(new BigDecimal(oldNormalShoppingCart.getProductCount())));
 				oldNormalShoppingCart.setUpdateUser(userName);
 				updateCount+=shoppingCartMapper.update(oldNormalShoppingCart);
-			//6.4、如果没有则新增一条记录
+				//6.4、如果没有则新增一条记录
 			}else{
 				ShoppingCart normalShoppingCart = new ShoppingCart();
 				normalShoppingCart.setCustId(oldShoppingCart.getCustId());
@@ -461,7 +447,7 @@ public class FastOrderService {
 		logger.info("success updateNum "+updateCount+" records, use " +( System.currentTimeMillis() - startTime) + "ms");
 		return updateCount;
 	}
-	
+
 	/**
 	 * 查询活动信息
 	 * @param buyerEnterpriseId        采购商企业id
@@ -471,7 +457,7 @@ public class FastOrderService {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	private ProductPromotionDto queryPromotionDto(String buyerEnterpriseId, String sellerEnterpriseId, String spuCode, Integer promotionId) {
+	private ProductPromotionDto queryPromotionDto(String buyerEnterpriseId, String sellerEnterpriseId, String spuCode, Integer promotionId,IPromotionDubboManageService iPromotionDubboManageService) {
 		try{
 			Map<String,Object> params=new HashMap<String,Object>();
 			params.put("spuCode",spuCode);
@@ -503,9 +489,8 @@ public class FastOrderService {
 
 	/**
 	 * 获取特价商品的可购买数量
-	 * 1、活动实时库存	2、剩余可购买数量=（每人限购数量 -已购买数量）	 3、本次购买数量		4、活动起批量 
+	 * 1、活动实时库存	2、剩余可购买数量=（每人限购数量 -已购买数量）	 3、本次购买数量		4、活动起批量
 	 * @param productPromotionDto
-	 * @param buyedInHistory
 	 * @return
 	 */
 	private int getCanBuyNum(ProductPromotionDto productPromotionDto , ShoppingCart oldShoppingCart , int buyNum) throws ServiceException {
@@ -520,15 +505,15 @@ public class FastOrderService {
 		int leftLimitNum =limitNum-buyedInHistory;//2、剩余可购买数量
 		int step = productPromotionDto.getMinimumPacking();					//4、活动起批量
 		//活动实时库存、剩余可购买数量、本次购买数量 三者取最小值
-		int minOne = currentNum < leftLimitNum ? currentNum : leftLimitNum; 
-		minOne = buyNum < minOne ? buyNum : minOne;	
+		int minOne = currentNum < leftLimitNum ? currentNum : leftLimitNum;
+		minOne = buyNum < minOne ? buyNum : minOne;
 //		if( minOne==leftLimitNum&&buyedInHistory!=0&&limitNum!=maxBuyNum ){
 //			throw new ServiceException(oldShoppingCart.getProductName()+"的特价活动，每人限购"+limitNum+"个，你已经购买了"
 //					+buyedInHistory+"个,还能买"+((limitNum-buyedInHistory)/step)*step+"个！");
 //		}
-		return (minOne/step)*step; 
+		return (minOne/step)*step;
 	}
-	
+
 	/**
 	 * 校验普通(原价)商品的库存
 	 * @param supplyId
@@ -545,34 +530,33 @@ public class FastOrderService {
 			throw new ServiceException("商品库存不足");
 		}
 	}
-	
+
 	/**
 	 * 搜索商品-单条
 	 * @param buyerEnterprizeId    买家企业id
 	 * @param sellerEnterprizeId   商家企业id
 	 * @param spuCode              商品spuCode
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	private ProductDrug searchProduct(String buyerEnterprizeId, String sellerEnterprizeId, String spuCode) throws Exception{
+	private ProductDrug searchProduct(String buyerEnterprizeId, String sellerEnterprizeId, String spuCode,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) throws Exception{
 		if( UtilHelper.isEmpty(spuCode)|| UtilHelper.isEmpty(buyerEnterprizeId) || UtilHelper.isEmpty(sellerEnterprizeId) ) {
 			throw new ServiceException("查询商品价格失败");
 		}
-		String groupParam = getGroupParam(buyerEnterprizeId); 
+		String groupParam = getGroupParam(buyerEnterprizeId,iCustgroupmanageDubbo);
 		return productSearchInterface.findProductShowPriceForProductDrug(buyerEnterprizeId, sellerEnterprizeId, spuCode, groupParam);
 	}
-	
+
 	/**
 	 * 搜索商品-批量
-	 * @param enterpriseId
 	 * @param productCodeSet
 	 * @return
 	 */
-	private List<ProductDrug> searchProductBatch(String buyerCode,Set<String> productCodeSet){
+	private List<ProductDrug> searchProductBatch(String buyerCode,Set<String> productCodeSet,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo){
 		ProductSearchParamDto productSearchParamDto = new ProductSearchParamDto();
 		productSearchParamDto.setProductCodes(productCodeSet);			//批量查询拼接的参数：productCode+“-”+sellerCode
 		productSearchParamDto.setBuyerCode(buyerCode);					//登录用户的企业ID
-		String groupParam = getGroupParam(buyerCode);
+		String groupParam = getGroupParam(buyerCode,iCustgroupmanageDubbo);
 		if ( !UtilHelper.isEmpty(groupParam) ) {
 			productSearchParamDto.setGroupCodes(groupParam);			//登录用户的用户组参数
 		}
@@ -587,7 +571,7 @@ public class FastOrderService {
 	 * @param custId
 	 * @return
 	 */
-	private String getGroupParam(String custId) {
+	private String getGroupParam(String custId,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
 		String groupParam = "";
 		CustGroupDubboRet ret = iCustgroupmanageDubbo.queryGroupBycustId(custId);
 		if (ret.getIsSuccess() == 1) {
@@ -601,7 +585,7 @@ public class FastOrderService {
 		}
 		return groupParam;
 	}
-	
+
 	/**
 	 * 提交订单时，若商品价格变动，则不让提交订单，且更新进货单里相关商品的价格
 	 * @param userDto
@@ -633,28 +617,28 @@ public class FastOrderService {
 			shoppingCartMapper.update(shoppingCart);
 		}
 	}
-	
+
 	/**
 	 * 校验要购买的商品
 	 * @param userDto 当前登陆人
 	 * @param orderDto 要提交订单的商品数据
 	 * @return
-     */
-	public String validateProducts(UserDto userDto, OrderDto orderDto){
-		//1、参数校验 
+	 */
+	public String validateProducts(UserDto userDto, OrderDto orderDto,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo,IPromotionDubboManageService iPromotionDubboManageService){
+		//1、参数校验
 		if( UtilHelper.isEmpty(orderDto)||UtilHelper.isEmpty(orderDto.getProductInfoDtoList()) ){
 			return "商品数据不能为空";
 		}
 		if ( orderDto.getSupplyId()==userDto.getCustId() ){
 			return "不能购买自己的商品";
 		}
-		
+
 		//2、 批量搜索商品
 		Set<String> productCodeSet = new HashSet<String>();
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()) {
 			productCodeSet.add(productInfoDto.getSpuCode() + "-" + orderDto.getSupplyId() );
 		}
-		List<ProductDrug> productDrugList = searchProductBatch( String.valueOf(userDto.getCustId()), productCodeSet);
+		List<ProductDrug> productDrugList = searchProductBatch( String.valueOf(userDto.getCustId()), productCodeSet,productSearchInterface,iCustgroupmanageDubbo);
 		//3、把List封装成Map
 		Map<String,ProductDrug> productDrugMap = new HashMap<>();
 		for(ProductDrug productDrug : productDrugList){
@@ -668,13 +652,13 @@ public class FastOrderService {
 		BigDecimal productPriceCount = new BigDecimal(0);//该供应商下所有商品的总金额（用于判断是否符合供应商的订单起售金额）
 		ProductDrug productDrug = null;
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
-			//1、 获取商品信息 
+			//1、 获取商品信息
 			productDrug = productDrugMap.get( productInfoDto.getSpuCode()+"-"+orderDto.getSupplyId() );
 			if( UtilHelper.isEmpty(productDrug)){
 				return "搜索不到"+productDrug.getShort_name();
 			}
 
-			//2、检查库存 
+			//2、检查库存
 			int stockAmount = UtilHelper.isEmpty(productDrug.getStock_amount()) ? 0 : Integer.valueOf(productDrug.getStock_amount());
 			int minimumPacking = UtilHelper.isEmpty(productDrug.getMinimum_packing()) ? 1 : Integer.valueOf( productDrug.getMinimum_packing());
 			if(stockAmount <= 0 || stockAmount < minimumPacking || stockAmount < productInfoDto.getProductCount()){
@@ -683,7 +667,7 @@ public class FastOrderService {
 				return productDrug.getShort_name()+"缺货或下架了，请返回极速下单查看";
 			}
 
-			//3、 查询商品上下架状态 
+			//3、 查询商品上下架状态
 			int status = UtilHelper.isEmpty(productDrug.getState()) ? 0 : Integer.valueOf( productDrug.getState());
 			int isChannel = UtilHelper.isEmpty(productDrug.getIs_channel()) ? 0 : Integer.valueOf( productDrug.getIs_channel());
 			if( 1 != status ){
@@ -708,7 +692,7 @@ public class FastOrderService {
 				}
 			}
 
-			//5、 校验活动商品相关的限购逻辑 
+			//5、 校验活动商品相关的限购逻辑
 			ProductPromotion productPromotion = productDrug.getProductPromotion();
 			/* 如果常规商品这种状态是正常的，或者活动商品的活动信息是有效的，则统计该供应商下的已买商品总额 */
 			if(  1 == status && productPrice.compareTo(new BigDecimal(0)) > 0 || (!UtilHelper.isEmpty(productPromotion) && new BigDecimal("0").compareTo(productPromotion.getPromotion_price()) < 0 )){
@@ -755,7 +739,7 @@ public class FastOrderService {
 			}
 
 			/* 活动实时库存字段，如果走搜索接口，可能会有问题(比如该字段同步失败)。所以改用活动的dubbo接口去获取该字段的值 */
-			ProductPromotionDto temp = queryPromotionDto(orderDto.getCustId().toString(),orderDto.getSupplyId().toString(),productInfoDto.getSpuCode(),productInfoDto.getPromotionId());
+			ProductPromotionDto temp = queryPromotionDto(orderDto.getCustId().toString(),orderDto.getSupplyId().toString(),productInfoDto.getSpuCode(),productInfoDto.getPromotionId(),iPromotionDubboManageService);
 			productPromotion.setCurrent_inventory(temp.getCurrentInventory());
 
 			/* 若还能以特价购买，则根据活动实时库存判断能买多少 */
