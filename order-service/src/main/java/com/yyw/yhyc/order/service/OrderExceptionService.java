@@ -846,8 +846,9 @@ public class OrderExceptionService {
      *
      * @param userDto
      * @param orderException
+     * @throws Exception 
      */
-    public void updateSellerReviewChangeOrder(UserDto userDto, OrderException orderException) {
+    public void updateSellerReviewChangeOrder(UserDto userDto, OrderException orderException) throws Exception {
         if (UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(orderException) || UtilHelper.isEmpty(orderException.getExceptionId()))
             throw new RuntimeException("订单是参数异常");
 
@@ -944,6 +945,7 @@ public class OrderExceptionService {
 
             } catch (Exception e) {
                 log.info("处理卖家审核通过，保存卖家的收货地址失败");
+                throw e;
             }
         }
 

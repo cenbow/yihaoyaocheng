@@ -329,10 +329,11 @@ public class OrderExceptionController extends BaseJsonController {
     /**
      * 供应商审核换货订单
      * @return
+     * @throws Exception 
      */
     @RequestMapping(value = "/sellerReviewChangeOrder", method = RequestMethod.POST)
     @ResponseBody
-    public void sellerReviewChangeOrder(@RequestBody OrderException orderException) {
+    public void sellerReviewChangeOrder(@RequestBody OrderException orderException) throws Exception {
         UserDto userDto = super.getLoginUser();
         orderExceptionService.updateSellerReviewChangeOrder(userDto, orderException);
     }
