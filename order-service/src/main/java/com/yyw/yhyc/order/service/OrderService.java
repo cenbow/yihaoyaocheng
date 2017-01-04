@@ -1411,6 +1411,32 @@ public class OrderService {
                 }
             }
         }
+        
+      //将拒收&补货中的状态数量增加到补货中或者拒收中
+      	if(orderStatusCountMap.containsKey(BuyerOrderStatusEnum.Rejecting.getType()) || orderStatusCountMap.containsKey(BuyerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+      			   Integer countRejecting=orderStatusCountMap.get(BuyerOrderStatusEnum.Rejecting.getType()); //拒收的数量
+      			   if(countRejecting==null){
+      				   countRejecting=0;
+      			   }
+      			   Integer countRejectAndReplenish=orderStatusCountMap.get(BuyerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+      			   if(countRejectAndReplenish==null){
+      				   countRejectAndReplenish=0;
+      			   }
+      			   int allCount=countRejecting+countRejectAndReplenish;
+      			   orderStatusCountMap.put(BuyerOrderStatusEnum.Rejecting.getType(),allCount);
+      		  }
+      		if(orderStatusCountMap.containsKey(BuyerOrderStatusEnum.Replenishing.getType()) || orderStatusCountMap.containsKey(BuyerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+      			   Integer countRejecting=orderStatusCountMap.get(BuyerOrderStatusEnum.Replenishing.getType()); //拒收的数量
+      				if(countRejecting==null){
+      					countRejecting=0;
+      				}
+      				Integer countRejectAndReplenish=orderStatusCountMap.get(BuyerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+      				if(countRejectAndReplenish==null){
+      					countRejectAndReplenish=0;
+      				}
+      			   int allCount=countRejecting+countRejectAndReplenish;
+      			   orderStatusCountMap.put(BuyerOrderStatusEnum.Replenishing.getType(),allCount);
+      		  }
 
         BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
         int orderCount = 0;
@@ -1541,13 +1567,16 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.SellerDelivered.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BuyerDeferredReceipt.getType())) {//卖家已发货+买家延期收货
             return SellerOrderStatusEnum.ReceiptOfGoods;//待收货
         }
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.Rejecting.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//拒收中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.Rejecting.getType())) {//拒收中
             return SellerOrderStatusEnum.Rejecting;//拒收中
         }
-        if (systemOrderStatus.equals(SystemOrderStatusEnum.Replenishing.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//补货中
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.Replenishing.getType())) {//补货中
             return SellerOrderStatusEnum.Replenishing;//补货中
         }
 
+        if(systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())){
+        	 return SellerOrderStatusEnum.RejectAndReplenish;//拒收&补货中
+        }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SellerCanceled.getType())) {//买家已取消+系统自动取消+后台取消+卖家已取消
             return SellerOrderStatusEnum.Canceled;//已取消
         }
@@ -1667,6 +1696,31 @@ public class OrderService {
 				}
 			}
 		}
+		//将拒收&补货中的状态数量增加到补货中或者拒收中
+		if(orderStatusCountMap.containsKey(SellerOrderStatusEnum.Rejecting.getType()) || orderStatusCountMap.containsKey(SellerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+			   Integer countRejecting=orderStatusCountMap.get(SellerOrderStatusEnum.Rejecting.getType()); //拒收的数量
+			   if(countRejecting==null){
+				   countRejecting=0;
+			   }
+			   Integer countRejectAndReplenish=orderStatusCountMap.get(SellerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+			   if(countRejectAndReplenish==null){
+				   countRejectAndReplenish=0;
+			   }
+			   int allCount=countRejecting+countRejectAndReplenish;
+			   orderStatusCountMap.put(SellerOrderStatusEnum.Rejecting.getType(),allCount);
+		  }
+		if(orderStatusCountMap.containsKey(SellerOrderStatusEnum.Replenishing.getType()) || orderStatusCountMap.containsKey(SellerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+			   Integer countRejecting=orderStatusCountMap.get(SellerOrderStatusEnum.Replenishing.getType()); //拒收的数量
+				if(countRejecting==null){
+					countRejecting=0;
+				}
+				Integer countRejectAndReplenish=orderStatusCountMap.get(SellerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+				if(countRejectAndReplenish==null){
+					countRejectAndReplenish=0;
+				}
+			   int allCount=countRejecting+countRejectAndReplenish;
+			   orderStatusCountMap.put(SellerOrderStatusEnum.Replenishing.getType(),allCount);
+		  }
 
 		BigDecimal orderTotalMoney = orderMapper.findSellerOrderTotal(orderDto);
 		int orderCount = 0;

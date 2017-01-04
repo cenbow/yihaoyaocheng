@@ -211,9 +211,14 @@ public class OrderDeliveryController extends BaseJsonController {
 		}else{
 			orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
 		}
-
-		returnMap=this.orderPartDeliveryConfirmService.updatePartDeliveryConfirmMethodInfo(orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
-
+        try{
+        	returnMap=this.orderPartDeliveryConfirmService.updatePartDeliveryConfirmMethodInfo(orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
+        }catch(Exception es){
+        	es.printStackTrace();
+        	logger.error(es.getMessage());
+        	returnMap.put("code", "0");
+        	returnMap.put("msg", "发货失败");
+        }
 		return returnMap;
 	}
 

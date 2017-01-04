@@ -119,15 +119,14 @@ public Map<String,String> updatePartDeliveryConfirmMethodInfo(OrderDeliveryDto o
        orderDeliveryDto.setOrderId(orderDelivery.getOrderId());
 
        //验证批次号并生成订单发货数据
-       this.readExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
-      
+       this.updateExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
        return map;
 	
 }
 
 
  //读取验证订单批次信息excel
-public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<String, String> map, OrderDeliveryDto orderDeliveryDto,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService) {
+public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<String, String> map, OrderDeliveryDto orderDeliveryDto,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService) {
    String now = systemDateMapper.getSystemDate();
    List<Map<String, String>> errorList = new ArrayList<Map<String, String>>();
    Map<String, String> errorMap = null;
@@ -272,11 +271,10 @@ public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<St
        
        //处理excel格式不正确的
        if(errorList!=null && errorList.size()>0){
-       	 filePath=this.processExcelWrong(errorList, orderDeliveryDto, now);
-       	 map.put("code", "2");
+       	 filePath=this.updateprocessExcelWrong(errorList, orderDeliveryDto, now);
+       	    map.put("code", "2");
             map.put("msg", "发货失败。");
             map.put("fileName", filePath);
-            
        }else{
        	
        	 if(orderDeliveryDto.isSomeSend()){ //该订单是部分发货
@@ -287,11 +285,7 @@ public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<St
        }
 
    } catch (Exception e) {
-       log.info("发货异常：");
-       log.error(e);
-       log.error(e.getMessage(), e);
-       map.put("code", "0");
-       map.put("msg", "发货失败");
+	   throw new RuntimeException("发货异常"+e.getMessage());
    }
    return map;
 }
@@ -300,7 +294,7 @@ public Map<String, String> readExcelOrderDeliveryDetail(String excelPath, Map<St
 * 处理excel错误的逻辑
 * @return
 */
-private String processExcelWrong(List<Map<String, String>> errorList, OrderDeliveryDto orderDeliveryDto,String now){
+private String updateprocessExcelWrong(List<Map<String, String>> errorList, OrderDeliveryDto orderDeliveryDto,String now){
   String filePath = "";
   String[] headers = {"序号", "订单编码", "商品编码","通用名","规格","厂商","批号","有效期至", "数量", "失败原因"};
   List<Object[]> dataset = new ArrayList<Object[]>();

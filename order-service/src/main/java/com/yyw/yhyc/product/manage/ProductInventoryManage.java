@@ -146,6 +146,7 @@ public class ProductInventoryManage {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
     
@@ -189,6 +190,7 @@ public class ProductInventoryManage {
               }
           } catch (Exception e) {
               e.printStackTrace();
+              throw new RuntimeException(e.getMessage());
           }
     }
 
@@ -237,6 +239,7 @@ public class ProductInventoryManage {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -264,6 +267,7 @@ public class ProductInventoryManage {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

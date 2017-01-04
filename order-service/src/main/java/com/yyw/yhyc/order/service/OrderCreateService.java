@@ -423,11 +423,13 @@ public class OrderCreateService {
 					  for(String currentPromotionId : promotionIdArray){
 						  promitionIdList.add(currentPromotionId);
 					  }
+					  
+					  currentMap.put("productInfoBean", productInfoParamterBeanMap);
+					  currentMap.put("promotionList", promitionIdList);
+					  returnList.add(currentMap);
 				  }
 				  
-				  currentMap.put("productInfoBean", productInfoParamterBeanMap);
-				  currentMap.put("promotionList", promitionIdList);
-				  returnList.add(currentMap);
+				 
 		}
 		if(UtilHelper.isEmpty(returnList)){
 			return null;
