@@ -2185,46 +2185,77 @@ public class OrderService {
 	/*
 	 *补货异常订单自动确认
 	 */
-	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService)throws Exception{
+	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService)throws Exception {
 
-		OrderException orderException1=new OrderException();
+		OrderException orderException1 = new OrderException();
 		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
 		orderException1.setOrderStatus(SystemReplenishmentOrderStatusEnum.SellerDelivered.getType());
-		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
-		for(OrderException o:le1){
-			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
-			String now = systemDateMapper.getSystemDate();
-			OrderException orderException2 = new OrderException();
+		List<OrderException> le1 = orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
+		for (OrderException o : le1) {
+
+			//异常订单收货
+			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
+			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
+			orderExceptionMapper.update(o);
+
+			Order od = orderMapper.getOrderbyFlowId(o.getFlowId());
+			//部分发货（收货）  20170106
 			String orderStatus = "";
-			orderException2.setFlowId(o.getFlowId());
-			orderException2.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
-			List<OrderException> list = orderExceptionMapper.listByProperty(orderException2);
-			if (!UtilHelper.isEmpty(list)) { //存在拒收订单、最原始订单状态（拒收&补货中）
-				for (OrderException orderExceptionList : list) {
-					//判断补货订单是否完成，未完成的（如果仅拒收订单完成，更新状态订既系统状态为补货中，如果仅补货订单完成，更新订单系统状态为拒收中，如果拒收和补货订单都完成，更新订单系统状态为买家部分收货）
-					if (SystemOrderExceptionStatusEnum.RejectApplying.getType().equals(orderExceptionList.getOrderStatus())) {
-						orderStatus = SystemOrderStatusEnum.Rejecting.getType();
-						break;
+			if (od.getOrderStatus().equals(SystemOrderStatusEnum.SellerDelivered.getType())) {   //部分发货 并且剩余部分发货 ---补货订单先收货的情况
+				orderStatus = SystemOrderStatusEnum.SellerDelivered.getType();
+			} else {
+				List<OrderException> orderExceptions = orderExceptionMapper.findReplenishmentNotComplete(o.getFlowId());  //查询是否还有补货没完成的异常订单
+
+				OrderException rejectOrder = new OrderException();
+				rejectOrder.setFlowId(o.getFlowId());
+				rejectOrder.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+				List<OrderException> rejectOrderList = orderExceptionMapper.listByProperty(rejectOrder); //查询拒收订单
+
+				if (!UtilHelper.isEmpty(rejectOrderList)) {                     // 拒收订单存在的情况
+					for (OrderException orderExceptionDto : rejectOrderList) {
+						if (orderExceptionDto.getOrderStatus().equals(SystemOrderExceptionStatusEnum.RejectApplying.getType())) {
+							if (UtilHelper.isEmpty(orderExceptions)) {          //不存在未完成的补货订单
+								orderStatus = SystemOrderStatusEnum.Rejecting.getType();
+							} else {
+								orderStatus = SystemOrderStatusEnum.RejectAndReplenish.getType();
+							}
+							break;
+						} else if (orderExceptionDto.getOrderStatus().equals(SystemOrderExceptionStatusEnum.SellerClosed.getType())) {
+							if (UtilHelper.isEmpty(orderExceptions)) {          //不存在未完成的补货订单
+								orderStatus = SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType();
+							} else {
+								orderStatus = SystemOrderStatusEnum.Replenishing.getType();
+							}
+						} else {
+							if (UtilHelper.isEmpty(orderExceptions)) {          //不存在未完成的补货订单
+								orderStatus = SystemOrderStatusEnum.BuyerPartReceived.getType();
+							} else {
+								orderStatus = SystemOrderStatusEnum.Replenishing.getType();
+							}
+						}
 					}
-					orderStatus=od.getOrderStatus();
+				} else {                                          //拒收订单不存在
+					if (UtilHelper.isEmpty(orderExceptions)) {
+						orderStatus = SystemOrderStatusEnum.BuyerAllReceived.getType();
+					} else {
+						orderStatus = SystemOrderStatusEnum.Replenishing.getType();
+					}
 				}
-			}else{
-				orderStatus=SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType();
+
+                //修改原订单状态
+				od.setOrderStatus(orderStatus);
+				od.setUpdateTime(systemDateMapper.getSystemDate());
+				od.setUpdateUser("admin");
+				orderMapper.update(od);
 			}
-			od.setOrderStatus(orderStatus);
-			od.setReceiveTime(now);
-			od.setReceiveType(2);
-			od.setUpdateTime(now);
-			od.setUpdateUser("admin");
-			orderMapper.update(od);
-			//生成结算信息
-			orderDeliveryDetailService.saveOrderSettlement(od,null);
-			log.debug("补货异常订单自动确认=" + o.toString() + ";" + od.toString());
-			Integer payTypeId=od.getPayTypeId();
-			if(isDoneOrder(od)) {//当原始订单已确认收货
+
+			//订单完成时生成结算信息
+			if (orderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || orderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || orderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())) {
+				Map<String,Object> map=getOrderTotal(od);  //计算结算金额
+				Integer payTypeId=od.getPayTypeId();
 				SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
-				if (!UtilHelper.isEmpty(od)) {
-					if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+				od.setOrgTotal(new BigDecimal(map.get("orderTotal").toString()));
+				if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
 							|| OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
 							|| OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
 							|| OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
@@ -2233,28 +2264,25 @@ public class OrderService {
 						PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
 						UserDto userDto = new UserDto();
 						userDto.setCustName("admin");
-						payService.handleRefund(userDto, 3, o.getFlowId(), "补货自动确认收货");
+						payService.handleRefund(userDto, Integer.parseInt(map.get("orderType").toString()), o.getFlowId(), "补货自动确认收货");
 						cal.add(od.getOrderId());
-					} else {
+				} else {
 						if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())) {
 							sendCredit(od, creditDubboService, "2");
 						}
-					}
 				}
+			    //生成结算信息
+			   orderDeliveryDetailService.saveOrderSettlement(od,null);
 			}
-			//异常订单收货
-			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
-			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
-			orderExceptionMapper.update(o);
-			//插入日志
+			 //插入日志
 		     OrderTrace orderTrace=new OrderTrace();
 		     orderTrace.setOrderId(o.getOrderId());
 		     orderTrace.setOrderStatus(o.getOrderStatus());
 		     orderTrace.setNodeName("补货异常订单自动确认");
 		     orderTrace.setRemark("OrderException=="+o.toString());
-		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateTime(systemDateMapper.getSystemDate());
 		     orderTrace.setCreateUser("admin");
-		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateTime(systemDateMapper.getSystemDate());
 		     orderTrace.setUpdateUser("admin");
 		     this.orderTraceMapper.save(orderTrace);
 		}
@@ -3575,5 +3603,42 @@ public class OrderService {
 
 	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
 		return orderMapper.getOrderDetailForExport(orderDto);
+	}
+
+	/**  20170106  部分发货
+	 * 获取订单完成时金额
+	 * @param order
+	 * @return
+	 */
+	private Map<String ,Object> getOrderTotal(Order order) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("orderType",1);  //正常订单
+		//订单完成时金额
+		BigDecimal orderTotal = new BigDecimal(0);
+		//拒收订单金额
+		BigDecimal rejectTotal = new BigDecimal(0);
+		if ("1".equals(order.getIsDartDelivery())) {  //1、部分发货0、全部发货
+			if (order.getPreferentialCancelMoney().compareTo(BigDecimal.valueOf(0)) == 0) {//部分发货 、剩余部分生成补货订单
+				orderTotal = order.getOrgTotal();
+			} else {   //部分发货 、剩余部分不发
+				orderTotal = order.getPreferentialDeliveryMoney();
+			}
+		} else {
+			orderTotal = order.getOrgTotal();
+		}
+		OrderException rejectOrder = new OrderException();
+		rejectOrder.setFlowId(order.getFlowId());
+		rejectOrder.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+		List<OrderException> rejectOrderList = orderExceptionMapper.listByProperty(rejectOrder); //查询拒收订单(暂只有一条拒收订单)
+		if(!UtilHelper.isEmpty(rejectOrderList)){    //该订单存在拒收订单、再减掉拒收订单金额
+			for (OrderException orderException : rejectOrderList) {
+				if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.Refunded.getType().equals(orderException.getOrderStatus())){  //完成的拒收订单
+					rejectTotal = rejectTotal.add(orderException.getOrderMoney());
+					resultMap.put("orderType",2);  //拒收订单（分账的时候需要）
+				}
+			}
+		}
+		resultMap.put("orderTotal",orderTotal.subtract(rejectTotal));
+		return  resultMap;
 	}
 }
