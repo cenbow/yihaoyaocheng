@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
+import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,33 +49,38 @@ public class FastOrderController2 extends BaseJsonController {
     @Autowired
     private FastOrderService fastOrderService;
 
-    @Reference
-    private IProductDubboManageService iProductDubboManageService;
-
     @Autowired
     private HttpServletRequest request;
 
     @Reference
-    private IPromotionDubboManageService iPromotionDubboManageService;
+    private ICustgroupmanageDubbo iCustgroupmanageDubbo;				//客户组接口
+    @Reference
+    private ProductSearchInterface productSearchInterface;				//搜索接口
+    @Reference
+    private IPromotionDubboManageService iPromotionDubboManageService;	//搜索接口
+    @Reference
+    private IProductDubboManageService iProductDubboManageService;		//商品接口
+
+
 
     /**
      * 添加商品到进货单
      * 请求数据格式如下：
-	{
-	    "custId": "33173",
-	    "supplyId": "33182",
-	    "spuCode": "SH00001CAAC80001",
-	    "productId": "114225",
-	    "productName": "dyy商品测试1103",
-	    "productCount": "3",
-	    "productPrice": "0.009",
-	    "productCodeCompany": "bgs1103",
-	    "specification": "12*12克",
-	    "manufactures": "dyy生产企业001",
-	    "promotionId": "12457",
-	    "promotionName": "特价活动测试-何丹均",
-	    "fromWhere": 1
-	}
+     {
+     "custId": "33173",
+     "supplyId": "33182",
+     "spuCode": "SH00001CAAC80001",
+     "productId": "114225",
+     "productName": "dyy商品测试1103",
+     "productCount": "3",
+     "productPrice": "0.009",
+     "productCodeCompany": "bgs1103",
+     "specification": "12*12克",
+     "manufactures": "dyy生产企业001",
+     "promotionId": "12457",
+     "promotionName": "特价活动测试-何丹均",
+     "fromWhere": 1
+     }
      * @param shoppingCart
      * @return
      * @throws Exception
@@ -81,12 +88,12 @@ public class FastOrderController2 extends BaseJsonController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> addShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
-    	 Map<String, Object> result = null;
-    	 try{
-			//1、获取登陆用户的企业信息 
-	        UserDto userDto = getUserDto(request);
-	        logger.info("start addShoppingCart for ["+shoppingCart+"]");
-	        //2、执行新增操作
+        Map<String, Object> result = null;
+        try{
+            //1、获取登陆用户的企业信息
+            UserDto userDto = getUserDto(request);
+            logger.info("start addShoppingCart for ["+shoppingCart+"]");
+            //2、执行新增操作
             shoppingCart.setCustId(userDto.getCustId());
             shoppingCart.setCreateUser(userDto.getUserName());
             shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
@@ -94,9 +101,9 @@ public class FastOrderController2 extends BaseJsonController {
             logger.info("success addShoppingCart , result=" + result);
             //3、返回结果
             if( "S".equals(result.get("state").toString())) {
-            	return ok("添加成功",result);
+                return ok("添加成功",result);
             }else{
-            	throw new Exception("添加失败");
+                throw new Exception("添加失败");
             }
         }catch (Exception e){
             logger.error(e.getMessage(),e);
@@ -113,85 +120,85 @@ public class FastOrderController2 extends BaseJsonController {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     public  Map<String,Object>  delete(@RequestBody RequestListModel<Integer> requestListModel) throws Exception {
-    	try{
-	    	logger.info("start delete ShoppingCart");
-	    	fastOrderService.deleteByPKeys(requestListModel.getList());
-	    	logger.info("success delete ShoppingCart");
-	        return ok("删除成功",null);
-	    }catch (Exception e){
-	        logger.error("exception when delete",e);
-	        throw  new Exception(e.getMessage());
-	    }
+        try{
+            logger.info("start delete ShoppingCart");
+            fastOrderService.deleteByPKeys(requestListModel.getList());
+            logger.info("success delete ShoppingCart");
+            return ok("删除成功",null);
+        }catch (Exception e){
+            logger.error("exception when delete",e);
+            throw  new Exception(e.getMessage());
+        }
     }
 
     /**
      * 更新商品数量
      * 请求数据格式如下：
      {
-	     "shoppingCartId": 117,
-	     "productCount": 1
+     "shoppingCartId": 117,
+     "productCount": 1
      }
      * @throws Exception
      */
     @RequestMapping(value = "/updateNum", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> updateNum(@RequestBody ShoppingCart shoppingCart) throws Exception {
-    	try{
-    		 UserDto userDto = getUserDto(request);
-	        logger.info("start updateNum for ["+shoppingCart+"]");
-	        shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
-	        shoppingCart.setUpdateUser(userDto.getUserName());
-	        fastOrderService.updateNum(shoppingCart);
-	        logger.info("success updateNum for ["+shoppingCart+"]");
-	        return ok("修改成功",null);
-	    }catch (Exception e){
-	        logger.error("exception when updateNum",e);
-	        throw  new Exception(e.getMessage());
-	    }
+        try{
+            UserDto userDto = getUserDto(request);
+            logger.info("start updateNum for ["+shoppingCart+"]");
+            shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+            shoppingCart.setUpdateUser(userDto.getUserName());
+            fastOrderService.updateNum(shoppingCart,iPromotionDubboManageService, productSearchInterface, iCustgroupmanageDubbo);
+            logger.info("success updateNum for ["+shoppingCart+"]");
+            return ok("修改成功",null);
+        }catch (Exception e){
+            logger.error("exception when updateNum",e);
+            throw  new Exception(e.getMessage());
+        }
     }
 
-	/**
+    /**
      * 列表查询
      * @return
      */
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public Map<String,Object> list() throws Exception {
-    	try{
-    		UserDto userDto = getUserDto(request);
+        try{
+            UserDto userDto = getUserDto(request);
             logger.info("start list for [CustId="+userDto.getCustId()+"]");
-            List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere());
+            List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(userDto.getCustId(),ShoppingCartFromWhereEnum.FAST_ORDER.getFromWhere(),productSearchInterface,iCustgroupmanageDubbo);
             logger.info("success list , allShoppingCart=" + allShoppingCart);
             return ok("success",allShoppingCart);
-	    }catch (Exception e){
-	        logger.error("exception when list",e);
-	        throw  new Exception(e.getMessage());
-	    }
+        }catch (Exception e){
+            logger.error("exception when list",e);
+            throw  new Exception(e.getMessage());
+        }
     }
-    
-	/**
+
+    /**
      * 查询进货单列表
-     * 
-      {
-	    "custId": "33173",
-	    "supplyId": "33182",
-	    "fromWhere": 1
-	  } 
-     * 
+     *
+     {
+     "custId": "33173",
+     "supplyId": "33182",
+     "fromWhere": 1
+     }
+     *
      * @return
      */
     @RequestMapping(value = "/listShoppingCart", method = RequestMethod.POST)
     @ResponseBody
     public List<ShoppingCartListDto> listShoppingCart(@RequestBody ShoppingCart shoppingCart) throws Exception {
-    	try{
+        try{
             logger.info("start listShoppingCart for ["+shoppingCart+"");
             List<ShoppingCartListDto> allShoppingCart = fastOrderService.listShoppingCart(shoppingCart);
             logger.info("success listShoppingCart , allShoppingCart=" + allShoppingCart);
             return allShoppingCart;
-	    }catch (Exception e){
-	        logger.error("exception when listShoppingCart",e);
-	        throw  new Exception(e.getMessage());
-	    }
+        }catch (Exception e){
+            logger.error("exception when listShoppingCart",e);
+            throw  new Exception(e.getMessage());
+        }
     }
 
     /**
@@ -208,27 +215,27 @@ public class FastOrderController2 extends BaseJsonController {
     @ResponseBody
     public Map<String,Object> check(@RequestBody List<ShoppingCart> shoppingCartList) throws Exception {
         UserDto userDto = getUserDto(request);
-        
+
         //1、参数校验
         if(UtilHelper.isEmpty(shoppingCartList)){
             throw new Exception("您没有选择商品！");
         }
-        
-        //2、查找出当前买家的进货单里面，有哪些供应商 
+
+        //2、查找出当前买家的进货单里面，有哪些供应商
         List<ShoppingCart> custIdAndSupplyIdList = fastOrderService.listDistinctCustIdAndSupplyId(userDto.getCustId());
         if(UtilHelper.isEmpty(custIdAndSupplyIdList)){
             throw new Exception("您的进货单中没有商品！");
         }
         //3、按供应商分组，检查商品信息
-		for(ShoppingCart custIdAndSupplyId : custIdAndSupplyIdList){
-			//1、获取商品信息
-        	List<ProductInfoDto>  productInfoDtoList = new ArrayList<>();
+        for(ShoppingCart custIdAndSupplyId : custIdAndSupplyIdList){
+            //1、获取商品信息
+            List<ProductInfoDto>  productInfoDtoList = new ArrayList<>();
             for( ShoppingCart shoppingCart : shoppingCartList){
                 if( custIdAndSupplyId.getSupplyId().equals(shoppingCart.getSupplyId()) ){
-                	ProductInfoDto productInfoDto = new ProductInfoDto();
+                    ProductInfoDto productInfoDto = new ProductInfoDto();
                     ShoppingCart temp = fastOrderService.getByPK(shoppingCart.getShoppingCartId());
                     if(UtilHelper.isEmpty(temp)){
-                    	throw new Exception("极速订单数据有变化，请刷新页面！");
+                        throw new Exception("极速订单数据有变化，请刷新页面！");
                     }
                     productInfoDto.setId(temp.getProductId());
                     productInfoDto.setSpuCode(temp.getSpuCode());
@@ -242,22 +249,22 @@ public class FastOrderController2 extends BaseJsonController {
             }
             OrderDto orderDto = new OrderDto();
             if(productInfoDtoList.isEmpty()){
-            	continue;
+                continue;
             }
             orderDto.setProductInfoDtoList(productInfoDtoList);
-        	
-         	//2、商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 
+
+            //2、商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息
             orderDto.setCustId(custIdAndSupplyId.getCustId());
             orderDto.setSupplyId(custIdAndSupplyId.getSupplyId());
-            String message = fastOrderService.validateProducts(userDto, orderDto);
+            String message = fastOrderService.validateProducts(userDto, orderDto, productSearchInterface, iCustgroupmanageDubbo, iPromotionDubboManageService);
             //3、校验失败，直接返回失败原因
- 			if( !"success".equals(message) ){
- 				 throw new Exception(message);
- 			}
-		}
+            if( !"success".equals(message) ){
+                throw new Exception(message);
+            }
+        }
 
         //4、全部校验通过，返回成功
-		Map<String,Object> resultMap = new HashMap<>();
+        Map<String,Object> resultMap = new HashMap<>();
         resultMap.put("result",true);
         return ok("success",resultMap);
     }
@@ -282,8 +289,8 @@ public class FastOrderController2 extends BaseJsonController {
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	private UserDto getUserDto(HttpServletRequest request){
-    	String sessionId = request.getHeader("mySessionId");
+    private UserDto getUserDto(HttpServletRequest request){
+        String sessionId = request.getHeader("mySessionId");
         String cacheUser = CacheUtil.getSingleton().get(CACHE_PREFIX + sessionId);
         logger.info("mySessionId=["+sessionId+"] , cacheUser=[" + cacheUser+"]");
         //用户信息
