@@ -1498,7 +1498,7 @@
 		WHERE
 		T1.CUST_ID = #{custId}
 		AND T1.org_total=T1.order_total
-		AND T1.is_part_delivery!=1
+		AND (T1.is_part_delivery is null or T1.is_part_delivery=0)
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>

@@ -1949,7 +1949,7 @@
 		WHERE
 		 1=1
 		AND T2.org_total=T2.order_total
-		AND T2.is_part_delivery!=1
+		AND (T2.is_part_delivery is null or T2.is_part_delivery=0)
 		AND T1.RETURN_TYPE = #{returnType}
 		AND	T1.CUST_ID = #{custId}
 		ORDER BY T1.EXCEPTION_ID DESC
