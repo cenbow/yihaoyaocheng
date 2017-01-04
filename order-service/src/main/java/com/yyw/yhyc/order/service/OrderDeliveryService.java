@@ -295,7 +295,7 @@ public class OrderDeliveryService {
         }
 
             //验证批次号并生成订单发货数据
-            readExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto);
+        readExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto);
 
         String code=map.get("code");
         if(code.equals("1") && orderDeliveryDto.isSomeSend()){ //发货成功了,且是部分发货
@@ -514,8 +514,7 @@ public class OrderDeliveryService {
             log.info("发货异常：");
             log.error(e);
             log.error(e.getMessage(), e);
-            map.put("code", "0");
-            map.put("msg", "发货失败");
+            throw new RuntimeException(e.getMessage());
         }
         return map;
     }
@@ -1360,9 +1359,8 @@ public class OrderDeliveryService {
             updateOrderDeliveryReturn(errorList, orderDeliveryDto, map, excelPath, now, filePath);
 
         } catch (Exception e) {
-            map.put("code", "0");
-            map.put("msg", "发货失败");
             log.info(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         return map;
     }

@@ -159,7 +159,15 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 		}
 		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
-		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
+		Map returnMap=new HashMap();
+		try{
+		    returnMap=orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
+		}catch(Exception es){
+			es.printStackTrace();
+			returnMap.put("code", "0");
+			returnMap.put("msg", "发货失败!");
+		}
+		return returnMap;
 	}
 
 
@@ -184,7 +192,14 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 		}
 
-		Map<String,String> returnMap=this.orderPartDeliveryService.updatePartDeliveryCheckInfo(orderDeliveryDto);
+		Map<String,String> returnMap=new HashMap<String,String>();
+		try{
+			returnMap=this.orderPartDeliveryService.updatePartDeliveryCheckInfo(orderDeliveryDto);
+		}catch(Exception es){
+			es.printStackTrace();
+			returnMap.put("code", "0");
+			returnMap.put("msg", "发货失败");
+		}
 		return returnMap;
 	}
 
@@ -239,7 +254,15 @@ public class OrderDeliveryController extends BaseJsonController {
 		//不需要刷单记录日志
 		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
 		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource()  );
-		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
+		Map<String,String> returnMap=new HashMap<String,String>();
+		try{
+			returnMap=orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
+		}catch(Exception es){
+			es.printStackTrace();  
+			returnMap.put("code", "0");
+			returnMap.put("msg", "发货失败");
+		}
+		return returnMap;
 	}
 
 	/**
@@ -255,7 +278,15 @@ public class OrderDeliveryController extends BaseJsonController {
 		//不需要刷单记录日志
 		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
 		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource());
-		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
+		Map<String,String> returnMap=new HashMap<String,String>();
+		try{
+			returnMap=orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
+		}catch(Exception es){
+			es.printStackTrace();  
+			returnMap.put("code", "0");
+			returnMap.put("msg", "发货失败");
+		}
+		return returnMap;
 	}
 
 	/**
@@ -300,7 +331,15 @@ public class OrderDeliveryController extends BaseJsonController {
 		//不需要刷单记录日志
 		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
         //orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource()  );
-        return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
+    	Map<String,String> returnMap=new HashMap<String,String>();
+		try{
+			returnMap=orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
+		}catch(Exception es){
+			es.printStackTrace();  
+			returnMap.put("code", "0");
+			returnMap.put("msg", "发货失败");
+		}
+        return returnMap;
     }
 
 
