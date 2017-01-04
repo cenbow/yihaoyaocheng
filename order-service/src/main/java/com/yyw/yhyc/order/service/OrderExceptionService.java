@@ -780,6 +780,11 @@ public class OrderExceptionService {
             log.error("原始订单更新失败,order info :" + order);
             throw new RuntimeException("原始订单更新失败");
         }
+        //拒收订单卖家审核通过生成结算记录
+        if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
+            Map<String,Object> map=getSettlementMoney(order);  //计算结算金额
+           this.saveRefuseOrderSettlement(userDto.getCustId(), oe,new BigDecimal(map.get("orderTotal").toString()));
+        }
         //20170106部分发货  订单完成时  计算结算金额
         if (SystemOrderStatusEnum.BuyerPartReceived.getType().equals(orderStatus) || SystemOrderStatusEnum.BuyerAllReceived.getType().equals(orderStatus)) {
             Map<String,Object> map=getSettlementMoney(order);  //计算结算金额
@@ -789,7 +794,7 @@ public class OrderExceptionService {
             log.info("account:systemPayType.getPayType():" + systemPayType.getPayType());
             log.info("account:SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()):" + SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()));
             if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
-                this.saveRefuseOrderSettlement(userDto.getCustId(), oe,new BigDecimal(map.get("orderTotal").toString()));
+             //   this.saveRefuseOrderSettlement(userDto.getCustId(), oe,new BigDecimal(map.get("orderTotal").toString()));
             } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
