@@ -16,12 +16,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.service.OrderExceptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +47,6 @@ import com.yyw.yhyc.order.bo.OrderException;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.service.OrderDeliveryService;
-import com.yyw.yhyc.order.service.OrderExceptionService;
-import com.yyw.yhyc.order.service.OrderPartDeliveryConfirmService;
-import com.yyw.yhyc.order.service.OrderPartDeliveryService;
 import com.yyw.yhyc.order.service.OrderLogService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
@@ -68,16 +66,17 @@ public class OrderDeliveryController extends BaseJsonController {
    private OrderPartDeliveryService orderPartDeliveryService;
 	@Autowired
    private OrderPartDeliveryConfirmService orderPartDeliveryConfirmService;
-	
+
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
-	
+
 	@Reference(timeout = 50000)
 	private CreditDubboServiceInterface creditDubboService;
 	@Autowired
 	private OrderService orderService;
 	@Autowired
 	private OrderExceptionService orderExceptionService;
+
 
 	/**
 	* 通过主键查询实体对象
@@ -139,7 +138,7 @@ public class OrderDeliveryController extends BaseJsonController {
 
 
 	/**
-	 * 确认发货--补货订单的发货
+	 * 确认发货
 	 * @return
 	 */
 	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)
@@ -158,11 +157,11 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
-	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+		orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
 		return orderDeliveryService.updateSendOrderDelivery(orderDeliveryDto);
 	}
-	
-	
+
+
 	/**
 	 * 确认发货--销售订单管理的发货,该发货只包含正常订单的发货，会出现部分发货的现象
 	 * @return
@@ -183,11 +182,11 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setFileName("");
 			orderDeliveryDto.setPath("");
 		}
-		
+
 		Map<String,String> returnMap=this.orderPartDeliveryService.updatePartDeliveryCheckInfo(orderDeliveryDto);
 		return returnMap;
 	}
-	
+
 
 	/**
 	 * 正常订单卖家发货，发现是部分发货的确定按钮
@@ -203,7 +202,7 @@ public class OrderDeliveryController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
 		Map<String,String> returnMap=new HashMap<String,String>();
-		
+
 		if(UtilHelper.isEmpty(orderDeliveryDto.getFileName())){
 			returnMap.put("code","0");
 			returnMap.put("msg","fileName不能为空");
@@ -211,15 +210,15 @@ public class OrderDeliveryController extends BaseJsonController {
 		}else{
 			orderDeliveryDto.setPath(MyConfigUtil.FILE_PATH);
 		}
-		
+
 		returnMap=this.orderPartDeliveryConfirmService.updatePartDeliveryConfirmMethodInfo(orderDeliveryDto,iPromotionDubboManageService,creditDubboService);
-		
+
 		return returnMap;
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 退货，买家确认发货
 	 * @return
@@ -231,8 +230,9 @@ public class OrderDeliveryController extends BaseJsonController {
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
 
-		//  线上BUG  元旦后吕红杰解决
-		// orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+		//不需要刷单记录日志
+		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource()  );
 		return orderDeliveryService.updateOrderDeliveryForRefund(orderDeliveryDto);
 	}
 
@@ -246,7 +246,9 @@ public class OrderDeliveryController extends BaseJsonController {
 	{
 		UserDto user = super.getLoginUser();
 		orderDeliveryDto.setUserDto(user);
-	//	orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource() );
+		//不需要刷单记录日志
+		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+		//orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource());
 		return orderDeliveryService.updateOrderDeliveryForChange(orderDeliveryDto);
 	}
 
@@ -289,7 +291,9 @@ public class OrderDeliveryController extends BaseJsonController {
 			orderDeliveryDto.setPath("");
 			orderDeliveryDto.setFileName("");
 		}
-      //  orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(orderDeliveryDto.getFlowId()).getSource()  );
+		//不需要刷单记录日志
+		//OrderException oe=orderExceptionService.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
+        //orderLogService.insertOrderLog(this.request,"2",user.getCustId(),orderDeliveryDto.getFlowId(),orderService.getOrderbyFlowId(oe.getFlowId()).getSource()  );
         return orderDeliveryService.updateSendOrderDeliveryReturn(orderDeliveryDto);
     }
 
