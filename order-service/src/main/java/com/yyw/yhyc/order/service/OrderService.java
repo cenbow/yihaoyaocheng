@@ -1402,6 +1402,10 @@ public class OrderService {
 				//获取买家视角订单状态
 				buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
                 if(buyerorderstatusenum != null){
+                	//统计待付款中，排除支付类型是账期支付的
+                	if(buyerorderstatusenum.getType().equals(BuyerOrderStatusEnum.PendingPayment.getType()) && od.getPayType()==SystemPayTypeEnum.PayPeriodTerm.getPayType()){
+                		continue;
+                	}
 					//统计买家视角订单数
                     if(orderStatusCountMap.containsKey(buyerorderstatusenum.getType())){
                         orderStatusCountMap.put(buyerorderstatusenum.getType(),orderStatusCountMap.get(buyerorderstatusenum.getType())+od.getOrderCount());
@@ -1688,6 +1692,11 @@ public class OrderService {
 				//卖家视角订单状态
 				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
 				if(sellerOrderStatusEnum != null){
+					//统计待付款中，排除支付类型是账期支付的
+                	if(sellerOrderStatusEnum.getType().equals(SellerOrderStatusEnum.PendingPayment.getType()) && od.getPayType()==SystemPayTypeEnum.PayPeriodTerm.getPayType()){
+                		continue;
+                	}
+					
 					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
 						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),orderStatusCountMap.get(sellerOrderStatusEnum.getType())+od.getOrderCount());
 					}else{
