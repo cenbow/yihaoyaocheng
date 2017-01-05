@@ -784,37 +784,46 @@ public class OrderExceptionService {
 
         Map<String, Object> map = getSettlementMoney(order);  //计算结算金额
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-        //拒收订单卖家审核通过生成结算记录
+        //拒收订单卖家审核通过生成拒收结算记录（线上、线下）
+        if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
+            if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType()) || systemPayType.getPayType().equals(SystemPayTypeEnum.PayOffline.getPayType())) {
+                this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
+            }
+        }
         log.info("account:systemPayType.getPayType():" + systemPayType.getPayType());
         log.info("account:SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()):" + SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()));
-        if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
-            this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
-        } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
-                || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
-                || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
-                || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
-                || OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
-                || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
-            //银联支付 拒收审核未通过，生成卖家结算信息，金额为全部订单金额
-            OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2, null, null, userDto.getUserName(), null, order);
-            //银联的默认 为已结算
-            if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+        if (SystemOrderStatusEnum.BuyerPartReceived.getType().equals(orderStatus) || SystemOrderStatusEnum.BuyerAllReceived.getType().equals(orderStatus)) {
+            if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
+
+            } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
-                    || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
-                    ) {
-                orderSettlement.setConfirmSettlement("1");
+                    || OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+                    || OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+                //银联支付 拒收审核未通过，生成卖家结算信息，金额为全部订单金额
+                OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(2, null, null, userDto.getUserName(), null, order);
+                //银联的默认 为已结算
+                if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
+                        || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+                        || OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+                        || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
+                        ) {
+                    orderSettlement.setConfirmSettlement("1");
+                }
+                orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
+                orderSettlementMapper.save(orderSettlement);
+            } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+
             }
-            orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
-            orderSettlementMapper.save(orderSettlement);
-        } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付
-            OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(6, null, null, userDto.getUserName(), null, order);
-            orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
-            orderSettlementMapper.save(orderSettlement);
-            log.info("account:create settlement账期审核不通过该生成结算");
-        }
-        if (SystemOrderStatusEnum.BuyerPartReceived.getType().equals(orderStatus) || SystemOrderStatusEnum.BuyerAllReceived.getType().equals(orderStatus)) {
+            if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+                OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(6, null, null, userDto.getUserName(), null, order);
+                orderSettlement.setRefunSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
+                orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
+                orderSettlementMapper.save(orderSettlement);
+            }
+
             //审核不通过时。在线支付调用相关支付接口，然后更新结算信息
             if (SystemOrderExceptionStatusEnum.SellerClosed.getType().equals(orderException.getOrderStatus())
                     && systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
@@ -2829,7 +2838,7 @@ public class OrderExceptionService {
             return orderExceptionDto;
         }
         orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getOrder().getBillType()));
-		/* 计算商品总额 */
+        /* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {
