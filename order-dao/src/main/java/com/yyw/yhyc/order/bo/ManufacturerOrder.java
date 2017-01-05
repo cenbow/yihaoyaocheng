@@ -61,16 +61,17 @@ public class ManufacturerOrder extends Model {
     /**
      * 是否部分发货
      */
-    private boolean isSomeSend = false;
+    private String isSomeSend = "0";//剩余商品是否补发货物 1：是,0：否
     
     private String selectPartDeliverty; //剩余商品是否补发货物 1：是,0：否
     
     
-    public boolean isSomeSend() {
+    
+	public String getIsSomeSend() {
 		return isSomeSend;
 	}
 
-	public void setSomeSend(boolean isSomeSend) {
+	public void setIsSomeSend(String isSomeSend) {
 		this.isSomeSend = isSomeSend;
 	}
 
