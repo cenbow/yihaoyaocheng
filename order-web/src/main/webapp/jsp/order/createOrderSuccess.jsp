@@ -61,7 +61,7 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <p class="tc os-text pt30 ">线下转账订单请进入订单中心获取收款账户信息后转账</p>
+                <p class="tc os-text pt30 "></p>
                 <c:choose>
                     <c:when test="${onLinePayOrderPriceCount > 0}">
                         <p class="f18 red fb tc mt30">在线支付金额： ¥ <fmt:formatNumber value="${onLinePayOrderPriceCount}" minFractionDigits="2"/></p>
