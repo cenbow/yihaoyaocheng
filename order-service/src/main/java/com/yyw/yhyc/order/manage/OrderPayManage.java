@@ -205,7 +205,15 @@ public class OrderPayManage {
             }
 
             // 更新订单支付信息
-            orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
+            if(OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(orderPay.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(orderPay.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(orderPay.getPayTypeId())
+                    || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(orderPay.getPayTypeId()) ){
+                orderPay.setPayMoney(finalPay.divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_EVEN));
+            }else{
+                orderPay.setPayMoney(finalPay);
+            }
+
             orderPay.setPayTime(now);
             //pay_type_id 7：支付宝PC端支付，8：支付宝APP端支付
             if(parameter.get("trade_no") != null && (orderPay.getPayTypeId() == 7 || orderPay.getPayTypeId() == 8)){
