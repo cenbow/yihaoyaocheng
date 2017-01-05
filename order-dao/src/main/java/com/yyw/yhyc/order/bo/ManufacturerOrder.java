@@ -61,7 +61,7 @@ public class ManufacturerOrder extends Model {
     /**
      * 是否部分发货
      */
-    private String isSomeSend = "0";//剩余商品是否补发货物 1：是,0：否
+    private String isSomeSend = "0";//是否部分发货 1：是,0：否
     
     private String selectPartDeliverty; //剩余商品是否补发货物 1：是,0：否
     
