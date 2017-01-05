@@ -18,6 +18,12 @@
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="/app/logs/tomcat7/" maxDepth="1">
+                    <IfFileName glob="order-remote.log*" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingRandomAccessFile>
     </appenders>
 
@@ -30,7 +36,7 @@
         <logger name="org.springframework" level="INFO"/>
         <logger name="com.yyw.yhyc.order" level="INFO"/>
         <logger name="com.yyw.yhyc.product" level="INFO"/>
-        <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
-        <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.order.mapper" level="INFO"/>
+        <logger name="com.yyw.yhyc.product.mapper" level="INFO"/>
     </loggers>
 </configuration>

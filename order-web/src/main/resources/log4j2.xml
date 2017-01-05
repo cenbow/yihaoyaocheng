@@ -18,6 +18,12 @@
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="../logs/" maxDepth="1">
+                    <IfFileName glob="order-web.log*" />
+                    <IfLastModified age="2d" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingRandomAccessFile>
     </appenders>
 
