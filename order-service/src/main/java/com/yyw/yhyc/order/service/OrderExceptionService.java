@@ -786,15 +786,19 @@ public class OrderExceptionService {
         SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
         //拒收订单卖家审核通过生成拒收结算记录（线上、线下）
         if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
-            if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType()) || systemPayType.getPayType().equals(SystemPayTypeEnum.PayOffline.getPayType())) {
-                this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
+            if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType()) || systemPayType.getPayType().equals(SystemPayTypeEnum.PayOffline.getPayType()))
+            {
+            this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
             }
         }
         log.info("account:systemPayType.getPayType():" + systemPayType.getPayType());
         log.info("account:SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()):" + SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()));
         if (SystemOrderStatusEnum.BuyerPartReceived.getType().equals(orderStatus) || SystemOrderStatusEnum.BuyerAllReceived.getType().equals(orderStatus)) {
             if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
-
+                //账期支付(通过的时候)
+                if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+                    this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
+                }
             } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
@@ -814,14 +818,11 @@ public class OrderExceptionService {
                 orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
                 orderSettlementMapper.save(orderSettlement);
             } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
-
-            }
-            //账期支付
-            if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+                //账期支付
                 OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(6, null, null, userDto.getUserName(), null, order);
-                orderSettlement.setRefunSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
                 orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
                 orderSettlementMapper.save(orderSettlement);
+                log.info("account:create settlement账期审核不通过该生成结算");
             }
 
             //审核不通过时。在线支付调用相关支付接口，然后更新结算信息
@@ -2838,7 +2839,7 @@ public class OrderExceptionService {
             return orderExceptionDto;
         }
         orderExceptionDto.setBillTypeName(BillTypeEnum.getBillTypeName(orderExceptionDto.getOrder().getBillType()));
-        /* 计算商品总额 */
+		/* 计算商品总额 */
         if (!UtilHelper.isEmpty(orderExceptionDto.getOrderReturnList())) {
             BigDecimal productPriceCount = new BigDecimal(0);
             for (OrderReturnDto orderReturnDto : orderExceptionDto.getOrderReturnList()) {

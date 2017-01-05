@@ -339,7 +339,7 @@ public class CalculationLevelIncreService {
 					//商品的总金额
 					BigDecimal produceAllMoney=currentShoppingCartBean.getProductPrice().multiply(productCountNum);
 					
-					BigDecimal currentShareMoney=produceAllMoney.divide(orderAllMoney,2,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
+					BigDecimal currentShareMoney=produceAllMoney.divide(orderAllMoney,10,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
 					
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
@@ -427,7 +427,7 @@ public class CalculationLevelIncreService {
 					//商品的总金额
 					BigDecimal produceAllMoney=currentShoppingCartBean.getProductPrice().multiply(productCountNum);
 					
-					BigDecimal currentShareMoney=produceAllMoney.divide(orderAllMoney,2,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
+					BigDecimal currentShareMoney=produceAllMoney.divide(orderAllMoney,10,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
 					
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
@@ -504,7 +504,7 @@ public class CalculationLevelIncreService {
 					//商品的数量
 					BigDecimal productCountNum=new BigDecimal(currentShoppingCartBean.getProductCount());
 					
-					BigDecimal currentShareMoney=productCountNum.divide(orderAllCount,2,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
+					BigDecimal currentShareMoney=productCountNum.divide(orderAllCount,10,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
 					
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
@@ -589,7 +589,7 @@ public class CalculationLevelIncreService {
 					//商品的数量
 					BigDecimal productCountNum=new BigDecimal(currentShoppingCartBean.getProductCount());
 					
-					BigDecimal currentShareMoney=productCountNum.divide(orderAllCount,2,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
+					BigDecimal currentShareMoney=productCountNum.divide(orderAllCount,10,BigDecimal.ROUND_HALF_UP).multiply(shareAllMoney);
 					
 					if(i!=promotionProductList.size()-1){
 						lastShareMoney=lastShareMoney.add(currentShareMoney);
