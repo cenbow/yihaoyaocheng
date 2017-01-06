@@ -642,10 +642,10 @@
                     </tbody>
                 </table>
                  <c:if test="${orderDetailsDto.isDartDelivery=='1'}">
-                          <c:if test="${orderDetailsDto.cancelMoney!=null}">
+                          <c:if test="${orderDetailsDto.preferentialCancelMoney!=null}">
                           <div class="form-group">
 	                        <label for="scope" class="col-xs-8 control-label"></label>
-	                        <label for="scope" class="col-xs-4 control-label">未发货商品金额:&yen${orderDetailsDto.cancelMoney}</label>
+	                        <label for="scope" class="col-xs-4 control-label">未发货商品金额:&yen${orderDetailsDto.preferentialCancelMoney}</label>
                            </div>
                           </c:if>
                  </c:if>
