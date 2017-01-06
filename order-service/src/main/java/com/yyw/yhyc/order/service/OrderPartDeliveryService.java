@@ -165,6 +165,8 @@ public class OrderPartDeliveryService {
                     	SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
                     	try{
                     		Date date=formate.parse(validDateStr);
+                    		String lastValue=formate.format(date);
+                    		rowMap.put("7", lastValue);
                     	}catch(Exception es){
                     		log.error("上传的excel有效期格式错误");
                     	    stringBuffer.append("有效期格式错误,");
