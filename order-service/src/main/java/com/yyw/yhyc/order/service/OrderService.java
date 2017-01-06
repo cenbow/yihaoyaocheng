@@ -13,8 +13,10 @@ package com.yyw.yhyc.order.service;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.sql.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
 import com.search.model.yhyc.ProductDrug;
@@ -2150,6 +2152,12 @@ public class OrderService {
 		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
+			if(!UtilHelper.isEmpty(od.getDelayTimes())){
+				//计算最后收货时间
+				Date dr=DateHelper.dateAddDay(DateHelper.parseDate(od.getDeliverTime()),7+3*od.getDelayTimes());
+				int i=DateHelper.compareDate(dr,new Date());
+				if(i==0) continue;
+			}
 			String now = systemDateMapper.getSystemDate();
 			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			od.setReceiveTime(now);
