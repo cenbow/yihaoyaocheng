@@ -2516,6 +2516,7 @@ public class OrderService {
 				log.debug("updateOrderStatus ld.size 还款接口调用="+ld.size());
                 for(OrderSettlement os:ld){
 					String now = systemDateMapper.getSystemDate();
+					os.setRefunSettlementMoney(os.getSettlementMoney());
 					os.setConfirmSettlement("1");
 					os.setSettlementTime(now);
 					os.setUpdateTime(now);
