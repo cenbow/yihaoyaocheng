@@ -33,8 +33,8 @@
 		<property name="removeAbandonedTimeout" value="120" />
         <property name="logAbandoned" value="true" />
         
-        <!--解密方式和解密密钥key序号，由运维提供，若不加密，则不需要配置 测试 生产环境开启
-        <property name="filters" value="config,stat,log4j,wall" />-->
+        <!--解密方式和解密密钥key序号，由运维提供，若不加密，则不需要配置 测试 生产环境开启-->
+        <property name="filters" value="config,stat,log4j,wall" />
         <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=${yihaoyaocheng.btobprod.key}" />
         <!-- 解密方式和解密密钥key序号，由运维提供，若不加密，则不需要配置-->
 

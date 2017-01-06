@@ -37,8 +37,8 @@
         <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=${xyydb.xyy.key}" />
         <解密方式和解密密钥key序号，由运维提供，若不加密，则不需要配置-->
         
-        <!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计
-        <property name="filters" value="stat,log4j,wall" />   -->
+        <!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计-->
+        <property name="filters" value="stat,log4j,wall" />
     </bean>
 
     <!-- SqlSessionFactoryBean  spring整合ibatis的入口 -->
