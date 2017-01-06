@@ -484,7 +484,8 @@
                 <div class="modify padding-20">
                     <table class="table table-box">
                         <colgroup>
-                            <col style="width: 30%;"/>
+                            <col style="width: 3%;"/>
+                            <col style="width: 27%;"/>
                             <col style="width: 15%;"/>
                             <col style="width: 15%;"/>
                             <col style="width: 15%;"/>
@@ -493,6 +494,7 @@
                         </colgroup>
                         <thead>
                         <tr>
+                            <th></th>
                             <th>商品</th>
                             <th>单价</th>
                             <th>数量</th>
@@ -510,13 +512,17 @@
                                 <c:forEach var="details" items="${orderDetailsDto.details}" varStatus="detailsVarStatus">
                                     <input type="hidden" name="productId" value="${details.orderDetailId}"/>
                                    <tr>
+                                       <td>${ detailsVarStatus.index + 1}</td>
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
+                                                    <a href='http://mall.yaoex.com/product/productDetail/${details.spuCode}/${details.supplyId}'>
                                                     <img alt="${details.shortName}" class="productImageUrl" spuCode="${details.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    </a>
                                                 </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${details.shortName}</p>
+                                                    <p class="title"><a href='http://mall.yaoex.com/product/productDetail/${details.spuCode}/${details.supplyId}'>
+                                                            ${details.shortName}</a></p>
 
                                                     <p class="text">${details.manufactures}</p>
 
@@ -543,6 +549,7 @@
                     </table>
                     <div><a class="undeline" onclick="listPg()">查看收发货商品清单</a></div>
                     <div class="text-right">
+                        <p>品种数：${orderDetailsDto.details.size()}</p>
                         <p>商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.productTotal}" minFractionDigits="2"/>元
 
                         <p>

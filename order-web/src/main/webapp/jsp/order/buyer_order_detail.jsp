@@ -457,7 +457,8 @@
                 <div class="modify padding-20">
                     <table class="table table-box">
                         <colgroup>
-                            <col style="width: 30%;"/>
+                            <col style="width: 3%;"/>
+                            <col style="width: 27%;"/>
                             <col style="width: 15%;"/>
                             <col style="width: 15%;"/>
                             <col style="width: 15%;"/>
@@ -466,6 +467,7 @@
                         </colgroup>
                         <thead>
                         <tr>
+                            <th></th>
                             <th>商品</th>
                             <th>单价</th>
                             <th>数量</th>
@@ -483,6 +485,7 @@
                                 <c:forEach var="details" items="${orderDetailsDto.details}" varStatus="detailsVarStatus">
                                     <input type="hidden" name="productId" value="${details.orderDetailId}"/>
                                    <tr>
+                                       <td>${ detailsVarStatus.index + 1}</td>
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
@@ -519,19 +522,20 @@
                         <a class="undeline" onclick="listPg()">查看收发货商品清单</a>
                     </div>
                     <div class="text-right">
+                        <p>品种数：${orderDetailsDto.details.size()}</p>
                         <p>商品金额：￥ <fmt:formatNumber value="${orderDetailsDto.productTotal}" minFractionDigits="2"/>元
 
-                        <p>
+                        </p>
 
                         <p>优惠券：￥- 0.00元
 
-                        <p>
+                        </p>
                         
-                        <p>满减金额： ￥-<fmt:formatNumber value="${orderDetailsDto.preferentialMoney}" minFractionDigits="2"/>元
+                        <p>满减金额： ￥-<fmt:formatNumber value="${orderDetailsDto.preferentialMoney}" minFractionDigits="2"/>元</p>
 
                         <p class="red">订单金额：￥<fmt:formatNumber value="${orderDetailsDto.orgTotal}" minFractionDigits="2"/>元
 
-                        <p>
+                        </p>
 
                     </div>
             </div>

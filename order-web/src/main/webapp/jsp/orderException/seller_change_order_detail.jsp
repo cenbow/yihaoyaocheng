@@ -270,7 +270,8 @@
             <div class="modify padding-20">
                 <table class="table table-box">
                     <colgroup>
-                        <col style="width: 30%;"/>
+                        <col style="width: 3%;"/>
+                        <col style="width: 27%;"/>
                         <col style="width: 15%;"/>
                         <col style="width: 15%;"/>
                         <col style="width: 15%;"/>
@@ -278,6 +279,7 @@
                     </colgroup>
                     <thead>
                     <tr>
+                        <th></th>
                         <th>商品</th>
                         <th>批次</th>
                         <th>单价</th>
@@ -289,15 +291,30 @@
                     <%--遍历该供应商的商品信息  开始--%>
                     <c:choose>
                         <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
+                            <c:set var="spuCount" value="0"></c:set>
+                            <c:set var="spuStr" value=","></c:set>
                             <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
+                                <c:set var="spuCodeThis" value="${orderReturnDto.spuCode}"></c:set>
+                                <c:choose>
+                                    <c:when test="${fn:contains(spuStr,spuCodeThis)}">
+                                    </c:when> <c:otherwise>
+                                    <c:set var="spuCount" value="${spuCount+1}"></c:set>
+                                </c:otherwise>
+                                </c:choose>
+                                <c:set var="spuStr" value="${spuCount}+','+${orderReturnDto.spuCode}"></c:set>
                                 <tr>
+                                    <td>${ detailsVarStatus.index + 1}</td>
                                     <td>
                                         <div class="clearfix">
                                             <div class="fl">
-                                                <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                    <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                </a>
                                             </div>
                                             <div class="fl fontbox">
-                                                <p class="title">${orderReturnDto.productName}</p>
+                                                <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                    <p class="title">${orderReturnDto.productName}</p>
+                                                </a>
                                                 <p class="text">${orderReturnDto.manufactures}</p>
                                                 <p class="text">${orderReturnDto.specification}</p>
                                             </div>
@@ -325,6 +342,7 @@
                     <div><a class="undeline" onclick="changeOrderDeliveryDetail('${orderExceptionDto.exceptionOrderId}')">已换货商品清单</a></div>
                <%--  </c:if> --%>
                 <div class="text-right">
+                    <p>品种数：${spuCount}</p>
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p>满减金额： -<fmt:formatNumber value="${orderExceptionDto.orderShareMoney}" minFractionDigits="2"/>元<p>
                     <p class="red">订单金额：￥${orderExceptionDto.orderPriceCount}元<p>
