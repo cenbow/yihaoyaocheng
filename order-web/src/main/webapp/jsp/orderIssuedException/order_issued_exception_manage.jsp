@@ -92,8 +92,8 @@
             </div>
             <div class="padding-t-20">
                 <button type="button" class="btn btn-info margin-r-10 editbtn" onclick="document.getElementById('form0').submit();">全部导出</button>
-                <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(1);">&nbsp;下发&nbsp;</button>
-                <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(2);">标记完成</button>
+             <!--    <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(1);">&nbsp;下发&nbsp;</button>
+                <button type="button" class="btn btn-info margin-r-10" onclick="batchModify(2);">标记完成</button> -->
             </div>
             <div class="row margin-t-10">
                 <div class="col-xs-12">
@@ -102,7 +102,6 @@
                             <div class="row">
                                 <table class="table table-box">
                                     <colgroup>
-                                        <col style="width: 2%;"/>
                                         <col style="width: 6%;"/>
                                         <col style="width: 8%;"/>
                                         <col style="width: 8%;"/>
@@ -112,11 +111,10 @@
                                         <col style="width: 7%;"/>
                                         <col style="width: 17%;"/>
                                         <col style="width: 8%;"/>
-                                        <col style="width: 21%;"/>
+                                        <col style="width: 23%;"/>
                                     </colgroup>
                                     <thead>
                                     <tr>
-                                        <th><input type="checkbox" id="checkboxTitle" /></th>
                                         <th>订单编号</th>
                                         <th>下单时间</th>
                                         <th>订单状态</th>
