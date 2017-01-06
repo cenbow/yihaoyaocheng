@@ -134,21 +134,23 @@
                     <table class="table table-box2">
                         <colgroup>
                             <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
+                            <col style="width: 9%;">
                         </colgroup>
                         <thead>
                         <tr>
                             <th>订单行号</th>
                             <th>商品编码</th>
                             <th>批号</th>
+                            <th>有效期至</th>
                             <th>商品名</th>
                             <th>通用名</th>
                             <th>规格</th>
