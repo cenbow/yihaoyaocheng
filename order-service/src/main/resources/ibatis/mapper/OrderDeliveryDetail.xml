@@ -312,7 +312,7 @@
 		    O.flow_id=ODD.flow_id
 		WHERE
 		  1=1
-		ANDODD.flow_id=#{flowId}
+		AND ODD.flow_id=#{flowId}
 		AND ODD.delivery_status=1
 		<if test="custId!= null and custId!= ''">
 			AND O.cust_id=#{custId}

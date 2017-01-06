@@ -248,6 +248,7 @@ public class OrderController extends BaseJsonController {
 			orderDto.setFlowId(order.getFlowId());
 			orderDto.setSupplyName(order.getSupplyName());
 			orderDto.setOrderTotal(order.getOrderTotal());
+			orderDto.setOrgTotal(order.getOrgTotal());
 			orderDto.setFinalPay(order.getFinalPay());
 			orderDto.setPayStatus(order.getPayStatus());
 			orderDto.setPayTypeId(order.getPayTypeId());
