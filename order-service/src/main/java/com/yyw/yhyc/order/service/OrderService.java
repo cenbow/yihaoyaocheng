@@ -2748,10 +2748,10 @@ public class OrderService {
 	 * @param cancelResult
      */
 	public void  updateOrder4Manage(String userName,String orderId,String cancelResult,IPromotionDubboManageService iPromotionDubboManageService){
-		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
+		if(UtilHelper.isEmpty(orderId)){
 			throw new RuntimeException("参数错误:订单编号为空");
 		}
-		if(  UtilHelper.isEmpty(cancelResult)){
+		if(UtilHelper.isEmpty(cancelResult)){
 			throw new RuntimeException("参数错误:取消原因为空");
 		}
 		Order order =  orderMapper.getByPK(Integer.parseInt(orderId));
@@ -2774,13 +2774,20 @@ public class OrderService {
 				throw new RuntimeException("订单取消失败");
 			}
 			//部分发货时，有可能产生补货单
-			OrderExceptionDto orderExceptionDto = new OrderExceptionDto();
+			OrderException orderExceptionDto = new OrderException();
 			orderExceptionDto.setFlowId(order.getFlowId());
-			orderExceptionDto.setOrderStatus(SystemOrderStatusEnum.BackgroundCancellation.getType());//标记订单为卖家取消状态
+			orderExceptionDto.setReturnType("3");//补货
+			
+			List<OrderException> exceptionList=this.orderExceptionMapper.listByProperty(orderExceptionDto);
+			if(!UtilHelper.isEmpty(exceptionList)){
+				log.error("订单编号=="+orderId+"存在补货订单,不能取消");
+				throw new RuntimeException("订单编号=="+orderId+"存在补货订单,不能取消");
+			}
+			/*orderExceptionDto.setOrderStatus(SystemOrderStatusEnum.BackgroundCancellation.getType());//标记订单为卖家取消状态
 			orderExceptionDto.setRemark(cancelResult);
 			orderExceptionDto.setUpdateUser(userName);
 			orderExceptionDto.setUpdateTime(now);
-			orderExceptionMapper.update(orderExceptionDto);
+			orderExceptionMapper.update(orderExceptionDto);*/
 
 			UserDto userDto = new UserDto();
 			userDto.setUserName(userName);
