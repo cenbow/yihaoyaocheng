@@ -282,10 +282,11 @@ public class OrderExceptionService {
      *
      * @param custId
      * @param orderTotal     订单金额 20170107 部分发货结算信息
+     * @param type            1、审核通过、或者账期支付2、审核通过并且订单完成（线上支付）
      * @param orderException
      * @throws Exception
      */
-    private void saveRefuseOrderSettlement(Integer custId, OrderException orderException, BigDecimal orderTotal) throws Exception {
+    private void saveRefuseOrderSettlement(Integer custId, OrderException orderException, BigDecimal orderTotal,Integer type) throws Exception {
         Order order = orderMapper.getOrderbyFlowId(orderException.getFlowId());
         if (UtilHelper.isEmpty(order) || !custId.equals(order.getSupplyId())) {
             throw new RuntimeException("未找到订单");
@@ -331,6 +332,7 @@ public class OrderExceptionService {
             //支付宝 只有买家看到
             orderSettlement.setCustId(orderException.getCustId());
             orderSettlement.setConfirmSettlement("0");//生成结算信息 未结算
+            log.info("zhifbaozhifurizhi:" + systemPayType.getPayType() + "aaaaaaaaaaaaaaaaaa" + orderSettlement.getBusinessType());
         } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
             //账期支付
             log.info("account-yescreate:systemPayType.getPayType():" + systemPayType.getPayType());
@@ -353,28 +355,33 @@ public class OrderExceptionService {
         //加上省市区
         log.info("account-yes-create-done:systemPayType.getPayType():" + systemPayType.getPayType());
         orderSettlementService.parseSettlementProvince(orderSettlement, orderException.getCustId() + "");
-        orderSettlementMapper.save(orderSettlement);
-        //银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
-        if ((OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
-                OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId()))
-                && orderException.getOrderMoney() != null) {
-            orderSettlement.setOrderSettlementId(null);
-            orderSettlement.setBusinessType(1);
-            orderSettlement.setFlowId(order.getFlowId());//支付宝方式加
-            orderSettlement.setCustId(null);
-            orderSettlement.setSupplyId(order.getSupplyId());
-            log.info("存的卖家金额:" + order.getOrgTotal() + "-" + orderException.getOrderMoney());
-            orderSettlement.setSettlementMoney(orderTotal);
-            //当全部拒收时不生成卖家结算 适用所有
-            if (!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)) {
-                orderSettlement.setRefunSettlementMoney(null);
-                orderSettlementMapper.save(orderSettlement);
-            }
+        //审核通过并且原订单完成的情况（20170106 部分发货）
+        if(type==1){
+            orderSettlementMapper.save(orderSettlement);
+        }
+        if(type==2) {
+            //银联支付生成一条订单金额为原订单金额-拒收退款金额的结算信息
+            if ((OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                    OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                    OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                    OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                    OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId()) ||
+                    OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId()))
+                    && orderException.getOrderMoney() != null) {
+                orderSettlement.setOrderSettlementId(null);
+                orderSettlement.setBusinessType(1);
+                orderSettlement.setFlowId(order.getFlowId());//支付宝方式加
+                orderSettlement.setCustId(null);
+                orderSettlement.setSupplyId(order.getSupplyId());
+                log.info("存的卖家金额:" + order.getOrgTotal() + "-" + orderException.getOrderMoney());
+                orderSettlement.setSettlementMoney(orderTotal);
+                //当全部拒收时不生成卖家结算 适用所有
+                if (!orderSettlement.getSettlementMoney().equals(BigDecimal.ZERO)) {
+                    orderSettlement.setRefunSettlementMoney(null);
+                    orderSettlementMapper.save(orderSettlement);
+                }
 
+            }
         }
     }
 
@@ -788,7 +795,7 @@ public class OrderExceptionService {
         if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
             if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType()) || systemPayType.getPayType().equals(SystemPayTypeEnum.PayOffline.getPayType()))
             {
-            this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
+            this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()),1);
             }
         }
         log.info("account:systemPayType.getPayType():" + systemPayType.getPayType());
@@ -797,7 +804,11 @@ public class OrderExceptionService {
             if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
                 //账期支付(通过的时候)
                 if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
-                    this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()));
+                    this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()),1);
+                }
+                //在线支付的时候
+                if (SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())) {
+                    this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()),2);
                 }
             } else if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
                     || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())
