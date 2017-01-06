@@ -173,6 +173,7 @@ function typeToOperate(order) {
     var result = '';
     if (order.isRelationship == 0) {//是否有客户关联关系，0否1是
         result += '<a href="javascript:showModal(\'' + order.custId + '\',\'' + order.custName + '\')"  class="btn btn-info btn-sm cancel_order margin-r-5">关联客户</a>';
+        result += '<a href="manage.yaoex.com/enterpriseAudit/modify?enterpriseId='+order.custId+'&sourceType=1"  class="btn btn-info btn-sm cancel_order margin-r-5">企业资质</a>';
     }
     if (order.isRelationship == 1 && order.dealStatus == 1 && (order.orderStatus == 5 || order.orderStatus == 1 )) {//是否有客户关联关系，0否1是
         result += '<a href="javascript:issued(\'' + order.flowId + '\')"  class="btn btn-info btn-sm cancel_order margin-r-5">下发</a>';
