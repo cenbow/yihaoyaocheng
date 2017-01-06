@@ -28,7 +28,7 @@
     </appenders>
 
     <loggers>
-        <root level="INFO">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="FILE" />
         </root>
@@ -37,8 +37,8 @@
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="com.yyw.yhyc.order" level="INFO"/>
         <logger name="com.yyw.yhyc.cache" level="INFO"/>
-        <logger name="com.yyw.yhyc.order.mapper" level="INFO"/>
-        <logger name="com.yyw.yhyc.product.mapper" level="INFO"/>
+        <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
+        <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.pay" level="INFO"/>
     </loggers>
 </configuration>
