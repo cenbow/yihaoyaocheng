@@ -418,7 +418,7 @@ public class OrderDeliveryService {
                                 orderDetail.setProductCode(rowMap.get("2"));
                                 orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
                                 List detailList = orderDetailMapper.listByProperty(orderDetail);
-                                if (detailList!=null && detailList.size() <=0) {
+                                if (detailList==null || detailList.size() <=0) {
                                     stringBuffer.append("商品编码不存在,");
                                 }
                                 if (stringBuffer.length() > 0) {
@@ -1336,7 +1336,7 @@ public class OrderDeliveryService {
                                 orderDetail.setProductCode(rowMap.get("2"));
                                 orderDetail.setSupplyId(orderDeliveryDto.getUserDto().getCustId());
                                 List detailList = orderDetailMapper.listByProperty(orderDetail);
-                                if (detailList.size() == 0) {
+                                if (detailList==null || detailList.size() == 0) {
                                     stringBuffer.append("商品编码不存在,");
                                 }
                                 if (stringBuffer.length() > 0) {
