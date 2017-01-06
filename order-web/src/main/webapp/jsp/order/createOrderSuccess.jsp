@@ -122,7 +122,7 @@
                         <tr>
                             <td>${orderDto.flowId}<input type="hidden" name="flowId" value="${orderDto.flowId}"></td>
                             <td>${orderDto.supplyName}</td>
-                            <td>¥ <fmt:formatNumber value="${orderDto.orderTotal}" minFractionDigits="2"/></td>
+                            <td>¥ <fmt:formatNumber value="${orderDto.orgTotal}" minFractionDigits="2"/></td>
                             <td>
                                 <c:choose>
                                     <c:when test="${orderDto.payTypeId == offlinePayType}">
