@@ -58,6 +58,13 @@ public class OrderSubmitService {
 				map.put("goToShoppingCart", true);
 				return map;
 			}
+			
+			//验证买家留言长度
+			String leaveMessage=orderDto.getLeaveMessage();
+			if(!UtilHelper.isEmpty(leaveMessage) && leaveMessage.length()>500){
+				leaveMessage=leaveMessage.substring(0, 499);
+				orderDto.setLeaveMessage(leaveMessage);
+			}
 			orderDto.setBuyer(buyer);
 			orderDto.setCustId(Integer.valueOf(buyer.getEnterpriseId()));
 			orderDto.setCustName(buyer.getEnterpriseName());

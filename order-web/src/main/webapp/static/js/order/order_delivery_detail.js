@@ -46,7 +46,7 @@ function listReplenishment(requestParam) {
     var requestUrl = ctx+"/order/orderDeliveryDetail/listReplenishment";
     var flowId=$("#flowId").val().trim();
     var userType=$("#userType").val().trim();
-    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId}};
+    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
     tipLoad();
     $.ajax({
         url : requestUrl,

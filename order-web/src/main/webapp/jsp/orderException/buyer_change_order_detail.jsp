@@ -306,9 +306,9 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <c:if test="${orderExceptionDto.orderStatus==8 || orderExceptionDto.orderStatus==9}">
+               <%--  <c:if test="${orderExceptionDto.orderStatus==8 || orderExceptionDto.orderStatus==9}"> --%>
                      <div><a class="undeline" onclick="listReplenishment()">已换货商品清单</a></div>
-                </c:if>
+                <%-- </c:if> --%>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>
                     <p>满减金额： -<fmt:formatNumber value="${orderExceptionDto.orderShareMoney}" minFractionDigits="2"/>元<p>

@@ -230,7 +230,14 @@ public class OrderDeliveryDetailController extends BaseJsonController {
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
 		OrderDeliveryDetailDto orderDeliveryDetailDto=requestModel.getParam();
-		orderDeliveryDetailDto.setCustId(userDto.getCustId());
+		if(orderDeliveryDetailDto.getUserType().equals("1")){//买家
+			orderDeliveryDetailDto.setCustId(userDto.getCustId());
+		}else if(orderDeliveryDetailDto.getUserType().equals("2")){//卖家
+			orderDeliveryDetailDto.setSupplyId(userDto.getCustId());
+		}else{
+			orderDeliveryDetailDto.setCustId(userDto.getCustId());
+		}
+		
 		return orderDeliveryDetailService.listPaginationReplenishment(pagination, orderDeliveryDetailDto);
 	}
 

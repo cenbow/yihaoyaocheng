@@ -1,7 +1,9 @@
 package com.yyw.yhyc.order.service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,6 +153,22 @@ public class OrderPartDeliveryService {
                     }
                     if (UtilHelper.isEmpty(rowMap.get("8"))) {
                         stringBuffer.append("数量为空,");
+                    }
+                    if(!UtilHelper.isEmpty(rowMap.get("6"))){
+                    	String batchNum=rowMap.get("6");
+                    	if(batchNum.length()>100){
+                    		 stringBuffer.append("批次号过长,");
+                    	}
+                    }
+                    if(!UtilHelper.isEmpty(rowMap.get("7"))){//有效期
+                    	String validDateStr=rowMap.get("7");
+                    	SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
+                    	try{
+                    		Date date=formate.parse(validDateStr);
+                    	}catch(Exception es){
+                    		log.error("上传的excel有效期格式错误");
+                    	    stringBuffer.append("有效期格式错误,");
+                    	}
                     }
                     if ((!UtilHelper.isEmpty(rowMap.get("1"))) && !rowMap.get("1").equals(orderDeliveryDto.getFlowId())) {
                         stringBuffer.append("订单编码与发货订单编码不相同,");

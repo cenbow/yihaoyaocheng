@@ -42,6 +42,7 @@ function createOrder(){
         return;
     }
     
+    
     /* 校验所有供应商下的支付类型是否选中 */
     var allPayTypeSelected = true;
     var _supplyName = ""; 
@@ -66,6 +67,36 @@ function createOrder(){
         });
         return;
     }
+    
+    
+    
+    
+    //验证买家留言长度
+    var inputArray=$('.goi-input');
+     if(inputArray){
+    	 var flag=true;
+    	 $.each(inputArray,function(index,item){
+    		var _text=$(this).val();
+    	      if(_text.length>500){
+    	    	  flag=false;
+    	    	  return false;
+    	      }
+    	 });
+    	 
+    	 if(!flag){
+    		 new Dialog({
+    	            title:'提示',
+    	            content:'<p class="mt60 f14">买家留言长度过长</p>',
+    	            ok:'确定',
+    	            afterOk:function(){
+    	                console.log('111');
+    	            }
+    	        });
+    	        return;
+    	 }
+    	 
+     }
+    
 
     /* 检查购物车是否有商品 */
     var productIdArray = new Array();

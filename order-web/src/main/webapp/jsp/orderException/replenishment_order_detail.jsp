@@ -252,7 +252,7 @@
                     <tbody>
                     <%--遍历该供应商的商品信息  开始--%>
                     <input type="hidden" id="flowId" name="flowId" value="${orderExceptionDto.exceptionOrderId}"/>
-                    <input type="hidden" id="userType" name="userType" value="1"/>
+                    <input type="hidden" id="userType" name="userType" value="${orderExceptionDto.userType}"/>
                     <c:choose>
                         <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
                             <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
@@ -290,10 +290,10 @@
                     <%--遍历该供应商的商品信息  结束--%>
                     </tbody>
                 </table>
-                <c:if test="${orderExceptionDto.userType==1}">
-                    <c:if test="${orderExceptionDto.orderStatus==5 || orderExceptionDto.orderStatus==6}">
+                <c:if test="${orderExceptionDto.userType==1 || orderExceptionDto.userType==2}">
+                    <%-- <c:if test="${orderExceptionDto.orderStatus==5 || orderExceptionDto.orderStatus==6}"> --%>
                         <div><a class="undeline" onclick="listReplenishment()">查看收发货商品清单</a></div>
-                    </c:if>
+                    <%-- </c:if> --%>
                 </c:if>
                 <div class="text-right">
                     <p>商品金额：${orderExceptionDto.productPriceCount}元<p>

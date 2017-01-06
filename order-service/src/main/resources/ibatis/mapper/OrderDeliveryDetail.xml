@@ -319,6 +319,9 @@
 		<if test="custId!=null and custId!=''">
 			AND O.cust_id=#{custId}
 		</if>
+		<if test="supplyId!=null and supplyId!=''">
+			AND O.supply_id=#{supplyId}
+		</if>
 	</select>
 
 	<select id="listPaginationOrderDeliveryDetailDto" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper">
