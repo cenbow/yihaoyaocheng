@@ -802,10 +802,6 @@ public class OrderExceptionService {
         log.info("account:SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()):" + SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType()));
         if (SystemOrderStatusEnum.BuyerPartReceived.getType().equals(orderStatus) || SystemOrderStatusEnum.BuyerAllReceived.getType().equals(orderStatus)) {
             if (SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus())) {
-                //账期支付(通过的时候)
-                if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
-                    this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()),1);
-                }
                 //在线支付的时候
                 if (SystemPayTypeEnum.PayOnline.getPayType().equals(systemPayType.getPayType())) {
                     this.saveRefuseOrderSettlement(userDto.getCustId(), oe, new BigDecimal(map.get("orderTotal").toString()),2);
@@ -829,11 +825,15 @@ public class OrderExceptionService {
                 orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
                 orderSettlementMapper.save(orderSettlement);
             } else if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+                log.info("account:create settlement账期审核不通过该生成结算");
+            }
+
+            //账期支付(订单完成的时候)
+            if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
                 //账期支付
                 OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(6, null, null, userDto.getUserName(), null, order);
                 orderSettlement.setSettlementMoney(new BigDecimal(map.get("orderTotal").toString()));
                 orderSettlementMapper.save(orderSettlement);
-                log.info("account:create settlement账期审核不通过该生成结算");
             }
 
             //审核不通过时。在线支付调用相关支付接口，然后更新结算信息
