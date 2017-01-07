@@ -2082,7 +2082,7 @@ public class OrderExceptionService {
             }
 
             order.setReceiveTime(systemDateMapper.getSystemDate());
-            order.setReceiveType(2);//系统自动确认收货
+            order.setReceiveType(1);//系统自动确认收货
             order.setUpdateTime(systemDateMapper.getSystemDate());
             order.setUpdateUser(userDto.getUserName());
             orderMapper.update(order);
@@ -2090,8 +2090,8 @@ public class OrderExceptionService {
             //插入日志表
             OrderLogDto logDto1 = new OrderLogDto();
             logDto1.setOrderId(oe.getOrderId());
-            logDto1.setNodeName("系统自动确认收货");
-            logDto1.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());
+            logDto1.setNodeName("确认收货");
+            logDto1.setOrderStatus(orderStatus);
             logDto1.setRemark("请求参数[" + orderException.toString() + "]");
             this.orderTraceService.saveOrderLog(logDto1);
 
