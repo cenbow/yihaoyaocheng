@@ -84,7 +84,6 @@ $.fn.serializeObject = function () {
     return json;
 };
 
-
 function goSubmit()
 {
     if(window.event.keyCode == 13)
