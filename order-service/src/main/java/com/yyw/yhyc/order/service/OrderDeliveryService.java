@@ -1643,6 +1643,8 @@ public class OrderDeliveryService {
     	  dtoInfo.setReceiverAddressId(receiverAddress.getId());
     	  dtoInfo.setDeliveryMethod(manufacturerOrder.getDeliveryMethod());
     	  dtoInfo.setOrderId(order.getOrderId());
+    	  UserDto userInfodto = new UserDto();
+    	  dtoInfo.setUserDto(userInfodto);
     	  dtoInfo.getUserDto().setUserName(manufacturerOrder.getSupplyName());
     	  dtoInfo.getUserDto().setCustId(manufacturerOrder.getSupplyId());
     	  dtoInfo.setSelectPartDeliverty(manufacturerOrder.getSelectPartDeliverty());
@@ -1656,6 +1658,8 @@ public class OrderDeliveryService {
     	          partDeliveryDto.setFlowId(manufacturerOrder.getFlowId());
     	          partDeliveryDto.setOrderId(order.getOrderId());
     	          partDeliveryDto.setProduceCode(code);
+    	          partDeliveryDto.setProducePrice(((OrderDetail)detailMap.get(code)).getProductPrice());
+    	         //partDeliveryDto.setProducePrice(producePrice);
     	          partDeliveryDto.setOrderDetailId(((OrderDetail)detailMap.get(code)).getOrderDetailId());
     	          partDeliveryDto.setNoDeliveryNum(detailProductCount - sendProductCount);
     	          partDeliveryDto.setSendDeliveryNum(sendProductCount);
@@ -2108,15 +2112,19 @@ public class OrderDeliveryService {
     */
      public List<ManufacturerOrder> updateOrderDeliverByAllOrPart(List<ManufacturerOrder> manufacturerOrderList, String filePath,IPromotionDubboManageService iPromotionDubboManageService,CreditDubboServiceInterface creditDubboService) {
     	 List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
+    	 logger.info("开始调用updateOrderDeliverByAllOrPart");
     	  String now = systemDateMapper.getSystemDate();
     	 if (!UtilHelper.isEmpty(manufacturerOrderList)) {
     		  for (ManufacturerOrder manufacturerOrder : manufacturerOrderList) {
     			  if (manufacturerOrder.getIsSomeSend() == null || "0".equals(manufacturerOrder.getIsSomeSend())) {
+    				  logger.info("调用updateOrderDeliverByAllOrPart全部发货");
     				  updateAllOrderDeliver(list,manufacturerOrder,filePath,now);
     			  } else {
+    				  logger.info("调用updateOrderDeliverByAllOrPart部分发货");
     				  updateErpOrderDeliver(list,manufacturerOrder,filePath,now,iPromotionDubboManageService,creditDubboService);
     			  }
     		  }
+    		  return list;
     	 }  
 		 return null; 
     }
