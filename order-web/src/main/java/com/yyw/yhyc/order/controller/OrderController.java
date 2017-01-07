@@ -67,6 +67,7 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.service.OrderBuyerExportService;
 import com.yyw.yhyc.order.service.OrderCreateService;
 import com.yyw.yhyc.order.service.OrderExportService;
 import com.yyw.yhyc.order.service.OrderFullReductionService;
@@ -133,6 +134,8 @@ public class OrderController extends BaseJsonController {
 	private OrderLogService orderLogService;
 	@Autowired
 	private OrderSubmitService orderSubmitService;
+	@Autowired
+	private OrderBuyerExportService orderBuyerExportService;
     /**
      * 通过主键查询实体对象
      * @return
@@ -695,7 +698,9 @@ public class OrderController extends BaseJsonController {
 			response.setHeader("Content-Disposition","attachment;filename=" + new String(fileName.getBytes("GBK"),"iso8859-1" ));
 
 			OutputStream os = response.getOutputStream();
-			HSSFWorkbook wb = orderExportService.exportSaleOrder(orderDto);
+			//HSSFWorkbook wb = orderExportService.exportSaleOrder(orderDto);
+			HSSFWorkbook wb = orderBuyerExportService.exportSaleOrder(orderDto);
+			
 
 			wb.write(os);
 			os.flush();
