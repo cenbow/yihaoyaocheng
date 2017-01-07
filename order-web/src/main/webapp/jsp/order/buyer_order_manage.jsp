@@ -153,10 +153,10 @@
                 <table class="table table-box2">
                     <colgroup>
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
                         <col style="width: 6%;">
                         <col style="width: 6%;">
+                        <col style="width:10%;">
+                        <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 6%;">
