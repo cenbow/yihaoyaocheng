@@ -308,7 +308,7 @@
                                         <div class="clearfix">
                                             <div class="fl">
                                                 <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
-                                                    <img src="${orderReturnDto.imageUrl}" alt="${orderReturnDto.productName}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    <img alt="${orderReturnDto.productName}" class="productImageUrl" spuCode="${orderReturnDto.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
                                                 </a>
                                             </div>
                                             <div class="fl fontbox">
