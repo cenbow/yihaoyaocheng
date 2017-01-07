@@ -238,6 +238,41 @@ public class OrderDeliveryController extends BaseJsonController {
 	}
 
 
+	@RequestMapping(value = "/checkPartFH",method = RequestMethod.GET)
+	 @ResponseBody
+	 public void checkPartFH() {
+		 //测试全部发货
+		 ManufacturerOrder order = new ManufacturerOrder();
+		 List<ManufacturerOrder> resList = new ArrayList<ManufacturerOrder>();
+		 ManufacturerOrder orderInfo = new ManufacturerOrder();
+		 SimpleDateFormat resInfo = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+		 //全部发货
+		 /*orderInfo.setDeliverTime(resInfo.format(new Date()));
+		 orderInfo.setDeliveryDate(resInfo.format(new Date()));
+		 orderInfo.setDeliveryMethod(0);
+		 orderInfo.setOrderStatus("0");
+		 orderInfo.setSupplyId(32495);
+		 orderInfo.setSupplyName("测试-药品生产企业");
+		 orderInfo.setFlowId("XXD201612080943322102");
+		 resList.add(orderInfo);
+		 
+		 List<ManufacturerOrder> valueRes = orderDeliveryService.updateOrderDeliverByAllOrPart(resList,"D:/232",iPromotionDubboManageService,creditDubboService);*/
+	     //部分发货
+		 orderInfo.setDeliverTime(resInfo.format(new Date()));
+		 orderInfo.setDeliveryDate(resInfo.format(new Date()));
+		 orderInfo.setDeliveryMethod(0);
+		 orderInfo.setOrderStatus("0");
+		 orderInfo.setSupplyId(32494);
+		 orderInfo.setSupplyName("测试-药品批发企业");
+		 orderInfo.setFlowId("XXD201701061113422402");
+		 ProductBeanDto dto = new ProductBeanDto();
+		 dto.setProduceCode("2010007");
+		 dto.setBatchNumber("34555");
+		 dto.setSendNum(2);
+		 List<ProductBeanDto> sendProductList = new ArrayList<ProductBeanDto>();
+		 //dto.s
+		 resList.add(orderInfo);	
+	 }
 
 
 	/**

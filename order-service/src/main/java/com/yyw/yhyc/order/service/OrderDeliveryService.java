@@ -1678,7 +1678,7 @@ public class OrderDeliveryService {
     	  }
     	  
     	 if(dtoInfo.isSomeSend()){ //该订单是部分发货
-        		 saveErpAllRightOrderDeliverDetail(dtoInfo, path, now);
+        		 saveErpAllRightOrderDeliverDetail(dtoInfo, path, now ,manufacturerOrder);
         		 updateErpAllRightOrderDeliveryMethod(dtoInfo,now,iPromotionDubboManageService,creditDubboService);
          }
     	  
@@ -1841,7 +1841,7 @@ public class OrderDeliveryService {
      * @param excelPath
      * @param now
      */
-     private void saveErpAllRightOrderDeliverDetail(OrderDeliveryDto orderDeliveryDto,String path,String now){
+     private void saveErpAllRightOrderDeliverDetail(OrderDeliveryDto orderDeliveryDto,String path,String now , ManufacturerOrder manufacturerOrder){
        
  	      OrderDeliveryDetail orderdel = new OrderDeliveryDetail();
  	      orderdel.setFlowId(orderDeliveryDto.getFlowId());
@@ -1859,29 +1859,35 @@ public class OrderDeliveryService {
  	          orderDeliveryDetailMapper.deleteByPKeys(idsList);
  	        }
  	        int i = 1;
- 	        if (resList != null) {
- 	          for (OrderDeliveryDetail info : orderDeliveryDetails) {
- 	        	  
- 	              OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
- 	              orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
- 	              orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
- 	              orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
- 	              orderDeliveryDetail.setDeliveryStatus(1);
- 	              orderDeliveryDetail.setBatchNumber(""); //批号
- 	              orderDeliveryDetail.setOrderDetailId(info.getOrderDetailId());
- 	              
- 	              orderDeliveryDetail.setDeliveryProductCount(info.getDeliveryProductCount());
- 	             
- 	              
- 	              orderDeliveryDetail.setImportFileUrl(path);
- 	              orderDeliveryDetail.setCreateTime(now);
- 	              orderDeliveryDetail.setUpdateTime(now);
- 	              orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
- 	              orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
- 	              i++;
- 	              orderDeliveryDetailMapper.save(orderDeliveryDetail);
- 	          }
- 	        }
+ 
+ 	           List<OrderDetail> orderDetails = orderDetailMapper.listOrderDetailInfoByOrderId(orderDeliveryDto.getOrderId());
+ 	            Map<String, Integer> detailMap = new LinkedHashMap<String, Integer> ();
+ 	            for (OrderDetail detail : orderDetails) {
+ 	        	   detailMap.put(detail.getProductCode(), detail.getOrderDetailId());
+ 	            }
+ 	           List<ProductBeanDto>  dtoList = manufacturerOrder.getSendProductList();
+ 	           if (dtoList != null && dtoList.size() > 0) {
+ 	        	   for (ProductBeanDto dto : dtoList) {
+ 	        		  OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
+ 	 	              orderDeliveryDetail.setOrderLineNo(createOrderLineNo(i, orderDeliveryDto.getFlowId()));
+ 	 	              orderDeliveryDetail.setOrderId(orderDeliveryDto.getOrderId());
+ 	 	              orderDeliveryDetail.setFlowId(orderDeliveryDto.getFlowId());
+ 	 	              orderDeliveryDetail.setDeliveryStatus(1);
+ 	 	              orderDeliveryDetail.setBatchNumber(dto.getBatchNumber()); //批号
+ 	 	              orderDeliveryDetail.setOrderDetailId(detailMap.get(dto.getProduceCode()));
+ 	 	              orderDeliveryDetail.setDeliveryProductCount(dto.getSendNum());
+ 	 	              orderDeliveryDetail.setImportFileUrl(path);
+ 	 	              orderDeliveryDetail.setCreateTime(now);
+ 	 	              orderDeliveryDetail.setUpdateTime(now);
+ 	 	              orderDeliveryDetail.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
+ 	 	              orderDeliveryDetail.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+ 	 	              i++;
+ 	 	              orderDeliveryDetailMapper.save(orderDeliveryDetail);
+ 	        		   
+ 	        	   }
+ 	           }
+ 	           
+ 	        
                
        
      }
