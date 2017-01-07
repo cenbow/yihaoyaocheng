@@ -406,7 +406,7 @@ public class OrderDeliveryDetailService {
                         orderTotal = order.getOrgTotal().toString();
                     }
                 } else {   //部分发货 、剩余部分不发
-                    order.setOrderStatus(SystemOrderStatusEnum.BuyerAllReceived.getType());  //（剩余不发的货物）
+                    order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());  //（剩余不发的货物、订单状态为部分收货）
                     orderTotal = order.getPreferentialDeliveryMoney().toString();
                 }
             } else {      //全部发货（全部收货）
@@ -529,20 +529,17 @@ public class OrderDeliveryDetailService {
 			orderTraceMapper.save(orderTrace1);*/
 
         }
-        //正常全部收货确认收货分账
-        SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
-        if (order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())
-                && systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
-            PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-            payService.handleRefund(user, 1, order.getFlowId(), "");
-        }
-        //全部收货时候调用资信接口
-        if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType())){
-
+        //全部收货时候调用资信接口、分账
+        if(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerPartReceived.getType())){
+           //正常全部收货确认收货分账
+            SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
+            if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
+             PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+             payService.handleRefund(user, 1, order.getFlowId(), "");
+             }
             //生成结算信息
             order.setOrgTotal(new BigDecimal(orderTotal));
             saveOrderSettlement(order, moneyTotal);
-
             returnMap.put("order",order);
             returnMap.put("systemPayType", systemPayType);
 
