@@ -621,7 +621,7 @@ public class OrderDeliveryService {
                         orderDeliveryDetail.setRecieveCount(orderDeliveryDetail.getDeliveryProductCount());
                         //补货发货把新的批次号更新进去
                         OrderReturn orderReturn = new OrderReturn();
-                        orderReturn.setOrderDetailId(orderDeliveryDetail.getOrderDetailId());
+                        orderReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
                         orderReturn.setReturnType("3");
                         List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
                         for (OrderReturn oReturn : returnList) {
