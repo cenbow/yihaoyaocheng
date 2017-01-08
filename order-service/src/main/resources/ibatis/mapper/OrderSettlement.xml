@@ -311,11 +311,13 @@
 			SELECT s.order_settlement_id AS order_settlement_id, 
 			CASE business_type 
 				WHEN 1 THEN s.flow_id
+				WHEN 5 THEN s.flow_id
 				WHEN 4 THEN s.flow_id
 				ELSE e.flow_id
 				END  AS org_flow_id ,
 			CASE business_type 
 				WHEN 1 THEN ""
+				WHEN 5 THEN ""
 				WHEN 4 THEN ""
 				ELSE s.flow_id
 				END  AS flow_id ,

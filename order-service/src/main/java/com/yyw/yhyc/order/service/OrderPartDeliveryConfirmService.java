@@ -716,6 +716,12 @@ public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String no
 				orderSettlement.setFlowId(currentOrder.getFlowId());
 				orderSettlement.setCustId(currentOrder.getCustId());
 				orderSettlement.setCustName(currentOrder.getCustName());
+                //lhj add
+                if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
+                    orderSettlement.setSupplyId(currentOrder.getSupplyId());
+                }
+                orderSettlement.setSupplyName(currentOrder.getSupplyName());
+                //
 				orderSettlement.setConfirmSettlement("0");
 				orderSettlement.setSettlementMoney(noSendPreferentialMoney);
 				orderSettlement.setRefunSettlementMoney(noSendPreferentialMoney);
@@ -725,6 +731,7 @@ public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String no
 				orderSettlement.setCreateUser(orderDeliveryDto.getUserDto().getUserName());
 				orderSettlement.setUpdateTime(now);
 				orderSettlement.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
+                orderSettlement.setPayTypeId(currentOrder.getPayTypeId());
 				this.orderSettlementService.save(orderSettlement);
 			}
 		  
