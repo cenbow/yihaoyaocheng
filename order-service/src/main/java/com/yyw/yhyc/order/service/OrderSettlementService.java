@@ -383,7 +383,7 @@ public class OrderSettlementService {
 	 * just for 在线-招行支付 退货退款成功回调 flowId order 的flowId 或者是 exceptionOrder 的
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
-	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
+	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId,BigDecimal payToMoney) {
 		log.info("同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
 		OrderSettlement condition=new OrderSettlement();
 		condition.setFlowId(flowId);
@@ -393,6 +393,7 @@ public class OrderSettlementService {
 				&&(type.intValue()==4||type.intValue()==3)){
 			condition.setCustId(supplyId);
 			condition.setSettleFlowId(settleFlowId);
+			condition.setRefunSettlementMoney(payToMoney);
 			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}else if(!UtilHelper.isEmpty(flowId)&&!UtilHelper.isEmpty(type)
@@ -401,6 +402,7 @@ public class OrderSettlementService {
 			condition.setSettleFlowId(settleFlowId);
 			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			condition.setSupplyId(supplyId);
+			condition.setRefunSettlementMoney(payToMoney);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}else{
 			log.info("更新结算信息更新结算信息表-传入空值参数");

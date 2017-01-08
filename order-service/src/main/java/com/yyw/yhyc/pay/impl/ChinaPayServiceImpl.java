@@ -471,7 +471,7 @@ public class ChinaPayServiceImpl implements PayService {
                 if("0000".equals(donePay.get("respCode"))){
                     orderSettlementStatus = true;
                 }
-                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus);
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus,orderPay.getPayMoney().subtract(cancelMoney));
 
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
@@ -483,10 +483,10 @@ public class ChinaPayServiceImpl implements PayService {
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
                         // //退款成功记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay);
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay,cancelMoney);
                     }else{
                         //退款失败记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay);
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay,cancelMoney);
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
