@@ -188,7 +188,7 @@
                         <div class="form-horizontal">
                               <div class="form-group" id="buhuoAddressShow" style="display: none;">
 	                            <label for="scope" class="col-xs-3 control-label">请选择补货收货地址:</label>
-		                            <div class="col-xs-6 control-label text-center" id="buhuowarehouse" >
+		                            <div class="col-xs-6 control-label" id="buhuowarehouse" style="text-align: left;">
 		                            </div>
                              </div>
                             <div class="form-group">
@@ -267,7 +267,7 @@
                         <div class="form-horizontal">
                               <div class="form-group" id="receviceAddressShow" style="display: none;">
 	                            <label for="scope" class="col-xs-3 control-label">请选择换货收货地址:</label>
-		                            <div class="col-xs-6 control-label text-center" id="warehouse" >
+		                            <div class="col-xs-6 control-label" id="warehouse"  style="text-align: left;">
 		                            </div>
                              </div>
                             <div class="form-group">

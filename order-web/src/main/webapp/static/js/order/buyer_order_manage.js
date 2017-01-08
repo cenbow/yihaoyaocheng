@@ -189,7 +189,7 @@ function fillTableJson(data) {
         var tr = "<tr>";
         
         if(order.isDartDelivery && order.isDartDelivery=='1'){
-            tr += "<td style='text-align:right'><a onclick=openSendProductInfo(\""+order.flowId+"\")><span style='color:red;border-style:solid;border-width:1px;border-color:red;'>部分发货</span></a>&nbsp;&nbsp;<a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
+            tr += "<td style='text-align:right'><a style='float: left' onclick=openSendProductInfo(\""+order.flowId+"\")><span style='color:red;border-style:solid;border-width:1px;border-color:red;'>部分发货</span></a>&nbsp;&nbsp;<a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
          }else{
          	tr += "<td style='text-align:right'><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</td>";
          }
