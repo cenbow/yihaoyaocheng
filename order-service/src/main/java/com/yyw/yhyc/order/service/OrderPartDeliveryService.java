@@ -64,6 +64,8 @@ public class OrderPartDeliveryService {
 	    private OrderTraceMapper orderTraceMapper;
 	    @Autowired
 	    private ProductInventoryManage productInventoryManage;
+        @Autowired
+        private  OrderPartDeliveryConfirmService orderPartDeliveryConfirmService;
 	
 	
 	public Map<String,String> updatePartDeliveryCheckInfo(OrderDeliveryDto orderDeliveryDto) throws Exception{
@@ -144,8 +146,6 @@ public class OrderPartDeliveryService {
                     return map;
                 }
 
-                List<OrderDetail> allDetailList=new ArrayList<OrderDetail>();// lhj add
-
                 for (Map<String, String> rowMap : list) {
                     StringBuffer stringBuffer = new StringBuffer();
                     if (UtilHelper.isEmpty(rowMap.get("1"))) {
@@ -178,17 +178,7 @@ public class OrderPartDeliveryService {
                     if ((!UtilHelper.isEmpty(rowMap.get("1"))) && !rowMap.get("1").equals(orderDeliveryDto.getFlowId())) {
                         stringBuffer.append("订单编码与发货订单编码不相同,");
                     }
-                    // lhj add  当发货品种数量小于订单品种时为部分发货
-                    if(allDetailList.size()==0){
-                        Order orderA = orderMapper.getOrderbyFlowId(rowMap.get("1"));
-                        orderId = orderA.getOrderId();
-                        OrderDetail orderDetailA = new OrderDetail();
-                        orderDetailA.setOrderId(orderId);
-                        allDetailList=orderDetailMapper.listByProperty(orderDetailA);
-                        if(allDetailList.size()>list.size()){
-                            orderDeliveryDto.setSomeSend(true);
-                        }
-                    }// lhj add
+
 
                     //如果有必填为空则记录错误返回下一次循环
                     if (stringBuffer.length() > 0) {
@@ -280,6 +270,9 @@ public class OrderPartDeliveryService {
                     }
                
             }
+
+            // lhj add 判断是否为部分发货
+            orderDeliveryDto.setSomeSend(orderPartDeliveryConfirmService.isPartSend(orderDeliveryDto,codeMap));
             
             //处理excel格式不正确的
             if(errorList!=null && errorList.size()>0){

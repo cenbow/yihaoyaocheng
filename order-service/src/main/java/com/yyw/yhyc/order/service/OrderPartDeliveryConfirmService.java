@@ -154,7 +154,7 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                map.put("msg", "读取模板失败");
                return map;
            }
-           List<OrderDetail> allDetailList=new ArrayList<OrderDetail>();// lhj add
+
            for (Map<String, String> rowMap : list) {
                StringBuffer stringBuffer = new StringBuffer();
                if (UtilHelper.isEmpty(rowMap.get("1"))) {
@@ -187,17 +187,7 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                if ((!UtilHelper.isEmpty(rowMap.get("1"))) && !rowMap.get("1").equals(orderDeliveryDto.getFlowId())) {
                    stringBuffer.append("订单编码与发货订单编码不相同,");
                }
-               // lhj add  当发货品种数量小于订单品种时为部分发货
-               if(allDetailList.size()==0){
-                   Order orderA = orderMapper.getOrderbyFlowId(rowMap.get("1"));
-                   orderId = orderA.getOrderId();
-                   OrderDetail orderDetailA = new OrderDetail();
-                   orderDetailA.setOrderId(orderId);
-                   allDetailList=orderDetailMapper.listByProperty(orderDetailA);
-                   if(allDetailList.size()>list.size()){
-                       orderDeliveryDto.setSomeSend(true);
-                   }
-               }// lhj add
+
 
                //如果有必填为空则记录错误返回下一次循环
                if (stringBuffer.length() > 0) {
@@ -317,7 +307,11 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                }
           
        }
-       
+
+
+       // lhj add 判断是否为部分发货
+       orderDeliveryDto.setSomeSend(isPartSend(orderDeliveryDto,codeMap));
+
        //处理excel格式不正确的
        if(errorList!=null && errorList.size()>0){
        	 filePath=this.updateprocessExcelWrong(errorList, orderDeliveryDto, now);
@@ -338,6 +332,37 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
    }
    return map;
 }
+
+   /*
+    * lhj add 判断是否为部分发货
+    * 需要考虑一个订单中两个订单详情可能是同一个商品编码情况
+    */
+ public boolean isPartSend(OrderDeliveryDto orderDeliveryDto, Map<String, String> codeMap){
+     List<OrderDetail> allDetailList=new ArrayList<OrderDetail>();// lhj add
+     // lhj add  当发货品种数量小于订单品种时为部分发货
+     Order orderA = orderMapper.getOrderbyFlowId(orderDeliveryDto.getFlowId());
+    Integer orderId = orderA.getOrderId();
+     OrderDetail orderDetailA = new OrderDetail();
+     orderDetailA.setOrderId(orderId);
+     allDetailList=orderDetailMapper.listByProperty(orderDetailA);
+     Map<String,Integer> orderDmap=new HashMap<String,Integer> ();
+     for(OrderDetail orderDetail:allDetailList){
+         if(UtilHelper.isEmpty(orderDmap.get(orderDetail.getProductCode()))){
+             orderDmap.put(orderDetail.getProductCode(),orderDetail.getProductCount());
+         }else{
+             orderDmap.put(orderDetail.getProductCode(),orderDetail.getProductCount()+orderDmap.get(orderDetail.getProductCode()));
+         }
+     }
+     for(String code:orderDmap.keySet()){
+         if(UtilHelper.isEmpty(codeMap.get(code))){
+             return true;
+         }else if(Integer.parseInt(codeMap.get(code))<orderDmap.get(code).intValue()) {
+             orderDeliveryDto.setSomeSend(true);
+             return true;
+         }
+     }
+     return false;
+ }
 
 /**
 * 处理excel错误的逻辑
