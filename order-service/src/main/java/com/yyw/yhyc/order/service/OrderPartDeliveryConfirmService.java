@@ -154,6 +154,7 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                map.put("msg", "读取模板失败");
                return map;
            }
+           List<OrderDetail> allDetailList=new ArrayList<OrderDetail>();// lhj add
            for (Map<String, String> rowMap : list) {
                StringBuffer stringBuffer = new StringBuffer();
                if (UtilHelper.isEmpty(rowMap.get("1"))) {
@@ -186,6 +187,17 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                if ((!UtilHelper.isEmpty(rowMap.get("1"))) && !rowMap.get("1").equals(orderDeliveryDto.getFlowId())) {
                    stringBuffer.append("订单编码与发货订单编码不相同,");
                }
+               // lhj add  当发货品种数量小于订单品种时为部分发货
+               if(allDetailList.size()==0){
+                   Order orderA = orderMapper.getOrderbyFlowId(rowMap.get("1"));
+                   orderId = orderA.getOrderId();
+                   OrderDetail orderDetailA = new OrderDetail();
+                   orderDetailA.setOrderId(orderId);
+                   allDetailList=orderDetailMapper.listByProperty(orderDetailA);
+                   if(allDetailList.size()>list.size()){
+                       orderDeliveryDto.setSomeSend(true);
+                   }
+               }// lhj add
 
                //如果有必填为空则记录错误返回下一次循环
                if (stringBuffer.length() > 0) {
