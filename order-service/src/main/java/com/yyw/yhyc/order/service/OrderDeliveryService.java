@@ -346,6 +346,15 @@ public class OrderDeliveryService {
                     }
                     if (UtilHelper.isEmpty(rowMap.get("8"))) {
                         stringBuffer.append("数量为空,");
+                    }else if(!UtilHelper.isEmpty(rowMap.get("8"))){
+                    	try{
+                    		Integer num=Integer.valueOf(rowMap.get("8"));
+                    		if(num<=0){
+                    			 stringBuffer.append("数量值有误,");
+                    		}
+                    	}catch(Exception es){
+                    		 stringBuffer.append("数量值有误,");
+                    	}
                     }
                     if(!UtilHelper.isEmpty(rowMap.get("6"))){
                     	String batchNum=rowMap.get("6");
@@ -1337,6 +1346,15 @@ public class OrderDeliveryService {
 
                     if (UtilHelper.isEmpty(rowMap.get("8"))) {
                         stringBuffer.append("数量为空,");
+                    }else if(!UtilHelper.isEmpty(rowMap.get("8"))){
+                    	try{
+                    		Integer num=Integer.valueOf(rowMap.get("8"));
+                    		if(num<=0){
+                    			 stringBuffer.append("数量值有误,");
+                    		}
+                    	}catch(Exception es){
+                    		 stringBuffer.append("数量值有误,");
+                    	}
                     }
 
                     if (!rowMap.get("1").equals(orderDeliveryDto.getFlowId())) {

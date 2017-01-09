@@ -184,7 +184,16 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                }
                if (UtilHelper.isEmpty(rowMap.get("8"))) {
                    stringBuffer.append("数量为空,");
-               }
+               }else if(!UtilHelper.isEmpty(rowMap.get("8"))){
+               	try{
+            		Integer num=Integer.valueOf(rowMap.get("8"));
+            		if(num<=0){
+            			 stringBuffer.append("数量值有误,");
+            		}
+            	}catch(Exception es){
+            		 stringBuffer.append("数量值有误,");
+            	}
+            }
                if ((!UtilHelper.isEmpty(rowMap.get("1"))) && !rowMap.get("1").equals(orderDeliveryDto.getFlowId())) {
                    stringBuffer.append("订单编码与发货订单编码不相同,");
                }
