@@ -311,8 +311,10 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
 
 
        // lhj add 判断是否为部分发货
-       orderDeliveryDto.setSomeSend(isPartSend(orderDeliveryDto,codeMap));
-
+       if(!UtilHelper.isEmpty(excelPath)){
+    	   orderDeliveryDto.setSomeSend(isPartSend(orderDeliveryDto,codeMap));
+       }
+       
        //处理excel格式不正确的
        if(errorList!=null && errorList.size()>0){
        	 filePath=this.updateprocessExcelWrong(errorList, orderDeliveryDto, now);
