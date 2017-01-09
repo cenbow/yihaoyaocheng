@@ -121,8 +121,12 @@ public class OrderSettlementService {
 						osd.setBusinessTypeName("退款货款");
 					} else if (osd.getBusinessType() == 3) {
 						osd.setBusinessTypeName("拒收退款");
-					} else {
+					} else if(osd.getBusinessType() == 4){
 						osd.setBusinessTypeName("取消订单退款");
+					}else if(osd.getBusinessType() == 5){
+						osd.setBusinessTypeName("取消发货退款");
+					}else{
+						osd.setBusinessTypeName("未知状态");
 					}
 				} else {// type =2 买家
 					if (osd.getBusinessType() == 1) {
@@ -131,8 +135,12 @@ public class OrderSettlementService {
 						osd.setBusinessTypeName("退款货款");
 					} else if (osd.getBusinessType() == 3) {
 						osd.setBusinessTypeName("拒收退款");
-					} else {
+					} else if (osd.getBusinessType() == 4){
 						osd.setBusinessTypeName("取消订单退款");
+					}else if(osd.getBusinessType() == 5){
+						osd.setBusinessTypeName("取消发货退款");
+					}else{
+						osd.setBusinessTypeName("未知状态");
 					}
 				}
 

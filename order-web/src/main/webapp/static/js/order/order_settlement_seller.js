@@ -193,7 +193,7 @@ function typeToshowMoney(businessType,money) {
 	if(money==null){
 		return "";
 	}
-	if(businessType==2||businessType==3||businessType==4){
+	if(businessType==2||businessType==3||businessType==4 ||businessType==5){
 		return "-"+money;
 	}
 	return money;
