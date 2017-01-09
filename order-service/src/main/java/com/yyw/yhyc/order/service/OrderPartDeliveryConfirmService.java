@@ -172,6 +172,7 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
                if(!UtilHelper.isEmpty(rowMap.get("7"))){//有效期
                	String validDateStr=rowMap.get("7");
                	SimpleDateFormat formate=new SimpleDateFormat("yyyy-MM-dd");
+               	formate.setLenient(false);
                	try{
                		Date date=formate.parse(validDateStr);
                		String lastValue=formate.format(date);
