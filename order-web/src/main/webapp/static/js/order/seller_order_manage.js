@@ -522,6 +522,11 @@ function partDeliveryConfirm(){
 	var deliveryContactPerson=$('#hiddenDeliveryContactPerson').val();
 	var deliveryExpressNo=$('#hiddenDeliveryExpressNo').val();
 	var partComent=$('#partComent').val();
+	if(partComent && partComent.length>200){
+		 alertModal("说明字段不能大于200字符");
+		 return;
+	}
+	
 	var dataParamter={
 			fileName:fileName,
 			receiverAddressId:receiverAddressId,
