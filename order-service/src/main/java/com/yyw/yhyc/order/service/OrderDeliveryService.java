@@ -543,7 +543,7 @@ public class OrderDeliveryService {
                                   if(!codeMap.containsKey(currentCode)){
                                 	  //此处说明了，上传的excel商品code不在发货的数据库中
                                 	  map.put("code", "0");
-                                      map.put("msg", "补货订单发货,需要全量发货，不能删除或者修改发货数量");
+                                      map.put("msg", "补货订单发货,需要全量发货,不能删除或者修改发货数量");
                                       return map;
                                   }
                             }
@@ -1426,6 +1426,29 @@ public class OrderDeliveryService {
                                     errorList.add(errorMap);
                                 }
                             }
+                            
+                            
+                            //判断换货订单在上传的excel文件是否删除掉某个商品
+                            OrderReturn currentOrderRetun = new OrderReturn();
+                            currentOrderRetun.setExceptionOrderId(orderDeliveryDto.getFlowId());
+                            currentOrderRetun.setReturnType("2");
+                            List<OrderReturn> curretntList = orderReturnMapper.listByProperty(currentOrderRetun);
+                            if(!UtilHelper.isEmpty(curretntList) && curretntList.size()>0){
+                                for (OrderReturn orBean : curretntList) {
+
+                                      String currentCode=orBean.getProductCode();
+                                      if(!codeMap.containsKey(currentCode)){
+                                    	  //此处说明了，上传的excel商品code不在发货的数据库中
+                                    	  map.put("code", "0");
+                                          map.put("msg", "换货订单发货,需要全量发货,不能删除或者修改发货数量");
+                                          return map;
+                                      }
+                                }
+                                
+                                
+                                
+                            }
+                            
                         }
                         
                         
