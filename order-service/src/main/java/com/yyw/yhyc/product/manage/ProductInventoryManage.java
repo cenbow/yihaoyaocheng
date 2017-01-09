@@ -130,6 +130,7 @@ public class ProductInventoryManage {
      * @throws Exception
      */
     public void frozenInventory(OrderDto orderDto){
+        log.info("------开始冻结库存（提交）------ 入参 orderDto:" + orderDto);
         try {
             if (!UtilHelper.isEmpty(orderDto)) {
                 String nowTime = systemDateMapper.getSystemDate();
@@ -140,14 +141,19 @@ public class ProductInventoryManage {
                     productInventory.setBlockedInventory(orderDetail.getProductCount());
                     productInventory.setUpdateUser(orderDto.getSupplyName());
                     productInventory.setUpdateTime(nowTime);
+                    log.info("------冻结库存（提交）------ 更新库存表数据：productInventory=" + productInventory);
                     productInventoryMapper.updateFrozenInventory(productInventory);
+                    log.info("------冻结库存（提交）------ 更新库存表成功!!");
                     saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.frozen.getType(), nowTime, orderDto.getSupplyName(), null);
                 }
+            }else{
+                log.info("------冻冻结库存（提交）失败!!------");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("------冻结库存（提交）发生异常!!------ message :" + e.getMessage(),e);
             throw new RuntimeException(e.getMessage());
         }
+        log.info("------开始冻结库存（提交）------ 完成!!");
     }
     
     
