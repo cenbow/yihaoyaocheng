@@ -2749,10 +2749,10 @@ public class OrderService {
      */
 	public void  updateOrder4Manage(String userName,String orderId,String cancelResult,IPromotionDubboManageService iPromotionDubboManageService){
 		if(UtilHelper.isEmpty(orderId)){
-			throw new RuntimeException("参数错误:订单编号为空");
+			throw new RuntimeException("订单编号不能为空");
 		}
 		if(UtilHelper.isEmpty(cancelResult)){
-			throw new RuntimeException("参数错误:取消原因为空");
+			throw new RuntimeException("取消原因不能为空");
 		}
 		Order order =  orderMapper.getByPK(Integer.parseInt(orderId));
 		log.debug(order);
