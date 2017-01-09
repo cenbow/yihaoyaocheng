@@ -521,6 +521,7 @@ private void updateAllRightOrderDeliveryMethod(OrderDeliveryDto orderDeliveryDto
        order.setUpdateTime(now);
        order.setUpdateUser(orderDeliveryDto.getUserDto().getUserName());
        order.setIsDartDelivery("1");
+       order.setPartDeliveryRemark(orderDeliveryDto.getPartComent());
        orderMapper.update(order);
 
        //插入日志表

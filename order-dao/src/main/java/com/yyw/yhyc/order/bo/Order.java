@@ -264,7 +264,7 @@ public class Order extends Model{
 	 */
 	private String isDartDelivery;
 	
-	
+	private String partDeliveryRemark; //部分发货说明
 	
 
 	public BigDecimal getPreferentialCancelMoney() {
@@ -992,6 +992,16 @@ public class Order extends Model{
 	public void setPromotionName(String promotionName) {
 		this.promotionName = promotionName;
 	}
+
+	public String getPartDeliveryRemark() {
+		return partDeliveryRemark;
+	}
+
+	public void setPartDeliveryRemark(String partDeliveryRemark) {
+		this.partDeliveryRemark = partDeliveryRemark;
+	}
+	
+	
 
 }
 
