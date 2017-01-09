@@ -66,6 +66,7 @@
 		<result column="preferential_delivery_money" property="preferentialDeliveryMoney"/>
 		<result column="is_part_delivery" property="isDartDelivery"/>
 		<result column="promotion_name" property="promotionName"/>
+		<result column="part_delivery_remark" property="partDeliveryRemark"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -118,6 +119,7 @@
 		<result column="preferential_cancel_money" property="preferentialCancelMoney"/>
 		<result column="preferential_delivery_money" property="preferentialDeliveryMoney"/>
 		<result column="is_part_delivery" property="isDartDelivery"/>
+		<result column="part_delivery_remark" property="partDeliveryRemark"/>
 		<result column="promotion_name" property="promotionName"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
@@ -175,6 +177,7 @@
 		,preferential_delivery_money
 		,is_part_delivery
 		,promotion_name
+		,part_delivery_remark
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -226,6 +229,7 @@
 		        ,preferential_delivery_money
 				,is_part_delivery
 				,promotion_name
+				,part_delivery_remark
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -278,6 +282,7 @@
 		,preferential_delivery_money
 		,is_part_delivery
 		,promotion_name
+		,part_delivery_remark
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -330,6 +335,7 @@
 		,T1.preferential_delivery_money
 		,T1.is_part_delivery
 		,T1.promotion_name
+		,T1.part_delivery_remark
 	</sql>
 
 
@@ -383,6 +389,7 @@
 		,o.preferential_delivery_money
 		,o.is_part_delivery
 		, o.promotion_name
+		,o.part_delivery_remark
 	</sql>
 
 	<sql id="commonCondition">
@@ -501,6 +508,9 @@
 		<if test="promotionName!= null">
 			AND promotion_name=#{promotionName}
 		</if>
+		<if test="partDeliveryRemark!= null">
+			AND part_delivery_remark=#{partDeliveryRemark}
+		</if>
 	</sql>
 
 	<insert id="save" parameterType="Order" useGeneratedKeys="true" keyProperty="orderId">
@@ -557,6 +567,7 @@
 				, #{preferentialDeliveryMoney}
 				, #{isDartDelivery}
 				,#{promotionName}
+				,#{partDeliveryRemark}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -704,6 +715,9 @@
         </if>
 		<if test="promotionName!= null">
 			,promotion_name=#{promotionName}
+		</if>
+		<if test="partDeliveryRemark!= null">
+			,part_delivery_remark=#{partDeliveryRemark}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
