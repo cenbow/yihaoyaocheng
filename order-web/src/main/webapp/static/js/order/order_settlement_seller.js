@@ -215,6 +215,7 @@ function  bindSettlementOperate() {
 	})*/
 
 	$('#myModalOperate input[name="refunSettlementMoney"]').blur(function () {
+		$(".alertm").remove();
 		var money = $(this).val();
 		var orderMoney = $("#myModalOperate .form-group:eq(0) div:first").html().replace("元","").trim();
 		var regStr = /\d+(\.\d+){0,1}/g;
@@ -228,6 +229,7 @@ function  bindSettlementOperate() {
 		}
 	});
 	$("#myModalOperate .btn-danger").click(function () {
+		$(".alertm").remove();
 		var refunSettlementMoney = $("[name='refunSettlementMoney']").val();
 		var remark = $("[name='remark']").val();
 		if(!refunSettlementMoney || refunSettlementMoney ==""){
