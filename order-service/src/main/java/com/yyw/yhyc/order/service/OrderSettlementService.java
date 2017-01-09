@@ -281,7 +281,7 @@ public class OrderSettlementService {
 		//插入日志
 		OrderLogDto orderLogDto=new OrderLogDto();
 		orderLogDto.setOrderId(orderException.getOrderId());
-		orderLogDto.setNodeName("退款结算==flowID"+orderException.getExceptionOrderId());
+		orderLogDto.setNodeName("退款结算==flowID" + orderException.getExceptionOrderId());
 		orderLogDto.setOrderStatus(orderException.getOrderStatus());
 		orderLogDto.setRemark("请求参数orderSettlement==["+orderSettlement.toString()+"]");
 		this.orderTraceService.saveOrderLog(orderLogDto);
@@ -468,9 +468,9 @@ public class OrderSettlementService {
 		Order order = orderMapper.getOrderbyFlowId(settleFlowId);
 		if(!UtilHelper.isEmpty(order)){
 			if(SystemOrderStatusEnum.SellerDelivered.getType().equals(order.getOrderStatus())){
-				conditionInfo.put("businessType",5);
+				conditionInfo.put("businessType", 5);
 			}else{
-				conditionInfo.put("businessType",4);
+				conditionInfo.put("businessType", 4);
 			}
 		}
 		OrderSettlement orderSettlementInfo = orderSettlementMapper.getByProperty(conditionInfo);
@@ -481,23 +481,32 @@ public class OrderSettlementService {
 			orderSettlementInfo.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			orderSettlementMapper.updateSettlementPayFlowId(orderSettlementInfo);
 		} else {
-			OrderException exception=orderExceptionMapper.getByExceptionOrderId(settleFlowId);
-			if (!UtilHelper.isEmpty(exception)) {
-				log.error("取出异常结算数据exception_order_id:"+exception.getExceptionOrderId());
-				Map<String,Object> condition = new HashedMap();
-				condition.put("flowId", exception.getExceptionOrderId());
-				OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
-				if(orderSettlement != null)
-				{
-					log.error("开始更新数据");
-					orderSettlement.setRefunSettlementMoney(orderSettlement.getSettlementMoney());
-					orderSettlement.setSettleFlowId(tradeNo);
-					orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
-					orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
-				}
+			OrderException exceptionInfo = new OrderException();
+			exceptionInfo.setFlowId(settleFlowId);
+			if(SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())){
+				exceptionInfo.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+			}else{
+				exceptionInfo.setReturnType(OrderExceptionTypeEnum.RETURN.getType());
+			}
+			List<OrderException> listInfo = orderExceptionMapper.listByProperty(exceptionInfo);
+			if (listInfo != null && listInfo.size() > 0) {
+				OrderException exception = listInfo.get(0);
+				if (!UtilHelper.isEmpty(exception)) {
+					log.error("取出异常结算数据exception_order_id:" + exception.getExceptionOrderId());
+					Map<String, Object> condition = new HashedMap();
+					condition.put("flowId", exception.getExceptionOrderId());
+					OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+					if (orderSettlement != null) {
+						log.error("开始更新数据");
+						orderSettlement.setRefunSettlementMoney(orderSettlement.getSettlementMoney());
+						orderSettlement.setSettleFlowId(tradeNo);
+						orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
+						orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
+					}
 
-			} else {
-				log.error("无数据");
+				} else {
+					log.error("无数据");
+				}
 			}
 		}
 	}
