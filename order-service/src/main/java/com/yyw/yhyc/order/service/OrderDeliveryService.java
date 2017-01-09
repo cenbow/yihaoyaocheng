@@ -520,7 +520,33 @@ public class OrderDeliveryService {
                                 }
                             }
                         }
+                        
+                        
+                        //判断补货订单在上传的excel文件是否删除掉某个商品
+                        OrderReturn currentOrderRetun = new OrderReturn();
+                        currentOrderRetun.setExceptionOrderId(orderDeliveryDto.getFlowId());
+                        currentOrderRetun.setReturnType("3");
+                        List<OrderReturn> curretntList = orderReturnMapper.listByProperty(currentOrderRetun);
+                        if(!UtilHelper.isEmpty(curretntList) && curretntList.size()>0){
+                            for (OrderReturn orBean : curretntList) {
+
+                                  String currentCode=orBean.getProductCode();
+                                  if(!codeMap.containsKey(currentCode)){
+                                	  //此处说明了，上传的excel商品code不在发货的数据库中
+                                	  map.put("code", "0");
+                                      map.put("msg", "补货订单发货,需要全量发货，不能删除或者修改发货数量");
+                                      return map;
+                                  }
+                            }
+                            
+                            
+                            
+                        }
                     }
+                    
+                   
+                    
+                    
                 }
             }
             //生成excel和订单发货信息

@@ -353,6 +353,27 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
          }else{
              orderDmap.put(orderDetail.getProductCode(),orderDetail.getProductCount()+orderDmap.get(orderDetail.getProductCode()));
          }
+         
+        String currentCode=codeMap.get(orderDetail.getProductCode()); 
+        if(UtilHelper.isEmpty(currentCode)){ //为空说明有部分商品从excel中删除掉了
+         	OrderPartDeliveryDto partDeliveryDto=new OrderPartDeliveryDto();
+           	partDeliveryDto.setFlowId(orderDeliveryDto.getFlowId());
+           	partDeliveryDto.setOrderId(orderId);
+           	partDeliveryDto.setProduceCode(orderDetail.getProductCode());
+           	partDeliveryDto.setOrderDetailId(orderDetail.getOrderDetailId());
+           	partDeliveryDto.setNoDeliveryNum(orderDetail.getProductCount());
+           	partDeliveryDto.setProducePrice(orderDetail.getProductPrice());
+           	partDeliveryDto.setSendDeliveryNum(0);
+
+           	 if(orderDeliveryDto.getPartDeliveryDtoList()==null){
+           		 List<OrderPartDeliveryDto> partDeliveryList=new ArrayList<OrderPartDeliveryDto>();
+           		 partDeliveryList.add(partDeliveryDto);
+           		 orderDeliveryDto.setPartDeliveryDtoList(partDeliveryList);
+           	 }else{
+           		 orderDeliveryDto.getPartDeliveryDtoList().add(partDeliveryDto);
+           	 }
+        	
+        }
      }
      for(String code:orderDmap.keySet()){
          if(UtilHelper.isEmpty(codeMap.get(code))){
@@ -362,6 +383,7 @@ public Map<String, String> updateExcelOrderDeliveryDetail(String excelPath, Map<
              return true;
          }
      }
+     
      return false;
  }
 
@@ -1013,10 +1035,11 @@ private void  saveOrderReturn(OrderDeliveryDto orderDeliveryDto,String now,Order
 			parameterDelivery.setOrderDetailId(partBean.getOrderDetailId());
 			
 			List<OrderDeliveryDetail> deliverDetailList=this.orderDeliveryDetailMapper.listByProperty(parameterDelivery);
-			OrderDeliveryDetail currenDetailDelivery=deliverDetailList.get(0); 
-			
-			orderReturn.setOrderDeliveryDetailId(currenDetailDelivery.getOrderDeliveryDetailId());
-			orderReturn.setBatchNumber(currenDetailDelivery.getBatchNumber());
+			if(deliverDetailList!=null && deliverDetailList.size()>0){
+				OrderDeliveryDetail currenDetailDelivery=deliverDetailList.get(0); 
+				orderReturn.setOrderDeliveryDetailId(currenDetailDelivery.getOrderDeliveryDetailId());
+				orderReturn.setBatchNumber(currenDetailDelivery.getBatchNumber());
+			}
 			orderReturn.setProductCode(partBean.getProduceCode());
 			orderReturnMapper.save(orderReturn);
 			

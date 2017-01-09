@@ -143,7 +143,7 @@ public class OrderDeliveryController extends BaseJsonController {
 
 
 	/**
-	 * 确认发货
+	 * 确认发货-补货订单的发货
 	 * @return
 	 */
 	@RequestMapping(value = "/sendOrderDelivery", method = RequestMethod.POST)

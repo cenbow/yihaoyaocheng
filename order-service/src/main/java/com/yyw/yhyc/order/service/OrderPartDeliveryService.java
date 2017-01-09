@@ -104,7 +104,7 @@ public class OrderPartDeliveryService {
             this.readExcelOrderDeliveryDetail(orderDeliveryDto.getPath() + orderDeliveryDto.getFileName(), map, orderDeliveryDto);
 	            
 	       
-	        if(orderDeliveryDto.isSomeSend()){ //部分发货
+	        if( !UtilHelper.isEmpty(map.get("code").equals("3"))  && map.get("code").equals("3") && orderDeliveryDto.isSomeSend()){ //部分发货
 	        	map.put("isSomeSend","3");
 	        	List<OrderPartDeliveryDto> partDto=orderDeliveryDto.getPartDeliveryDtoList();
 	        	String jsonStr=com.alibaba.fastjson.JSON.toJSONString(partDto);
@@ -273,7 +273,10 @@ public class OrderPartDeliveryService {
             }
 
             // lhj add 判断是否为部分发货
-            orderDeliveryDto.setSomeSend(orderPartDeliveryConfirmService.isPartSend(orderDeliveryDto,codeMap));
+            if(!UtilHelper.isEmpty(excelPath)){
+            	  orderDeliveryDto.setSomeSend(orderPartDeliveryConfirmService.isPartSend(orderDeliveryDto,codeMap));
+            }
+          
             
             //处理excel格式不正确的
             if(errorList!=null && errorList.size()>0){

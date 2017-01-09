@@ -29,6 +29,8 @@ public class OrderPartDeliveryDto {
 	
 	private BigDecimal producePrice;
 	
+	private String batchNum;
+	
 	/**
 	 * 未发货的商品数量
 	 */
@@ -96,6 +98,16 @@ public class OrderPartDeliveryDto {
 
 	public void setNoDeliveryNum(Integer noDeliveryNum) {
 		this.noDeliveryNum = noDeliveryNum;
+	}
+	
+	
+
+	public String getBatchNum() {
+		return batchNum;
+	}
+
+	public void setBatchNum(String batchNum) {
+		this.batchNum = batchNum;
 	}
 
 	@Override
