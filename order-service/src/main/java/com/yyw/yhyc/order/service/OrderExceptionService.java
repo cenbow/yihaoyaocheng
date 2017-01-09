@@ -322,7 +322,7 @@ public class OrderExceptionService {
         orderSettlement.setCreateTime(now);
         orderSettlement.setOrderTime(order.getCreateTime());
         orderSettlement.setSettlementMoney(orderException.getOrderMoney());
-        orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
+     //   orderSettlement.setRefunSettlementMoney(orderException.getOrderMoney());
         log.info("account-yes:systemPayType.getPayType():" + systemPayType.getPayType());
         if (OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId()) || OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(systemPayType.getPayTypeId())) {
             //如银联支付 只有买家看到
