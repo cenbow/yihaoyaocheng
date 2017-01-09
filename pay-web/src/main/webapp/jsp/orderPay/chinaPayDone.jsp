@@ -8,6 +8,7 @@
 <%@ page import="com.yyw.yhyc.helper.SpringBeanHelper" %>
 <%@ page import="com.yyw.yhyc.order.manage.OrderPayManage" %>
 <%@ page import="org.springframework.http.HttpMethod" %>
+<%@ page import="java.math.BigDecimal" %>
 <%!
 	private static final Logger logger = LoggerFactory.getLogger("jsp.orderPay.chinaPayDone.jsp");
 %>
@@ -108,10 +109,11 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 
 		try {
 			logger.info(" [ 银联支付----手动退款 ] 发送 退款 请求成功后，进行相关操作");
-			if ( rs.get("respCode").equals("1003") || rs.get("respCode").equals("0000")) {
-				orderPayManage.updateRedundOrderInfos(OriOrderNo,true,rs);//退款成功记录相关信息
+			BigDecimal refundAmt = new BigDecimal(request.getParameter("RefundAmt").trim());
+			if ("1003".equals(rs.get("respCode")) || "0000".equals(rs.get("respCode")) || "2034".equals(rs.get("respCode"))) {
+				orderPayManage.updateRedundOrderInfos(OriOrderNo,true,rs,refundAmt);//退款成功记录相关信息
 			}else{
-				orderPayManage.updateRedundOrderInfos(OriOrderNo,false,rs);//退款失败记录相关信息
+				orderPayManage.updateRedundOrderInfos(OriOrderNo,false,rs,refundAmt);//退款失败记录相关信息
 			}
 			%>
 			退款操作后，业务处理结果  ：	[ 银联支付----手动退款 ] 处理完成 !!!!</br></br>
@@ -130,12 +132,13 @@ if( !UtilHelper.isEmpty(OriOrderNo)) {
 
 	/* 手动分账请求成功后  进行相关操作 */
 	boolean orderSettlementStatus = false;
-	if("0000".equals(r.get("respCode"))){
+	if("0000".equals(r.get("respCode")) || "3023".equals(r.get("respCode"))){
 		orderSettlementStatus = true;
 	}
 	try {
 		logger.info(" [ 银联支付----手动分账 ] 向银联发送 分账 请求成功后，进行相关操作");
-		orderPayManage.updateTakeConfirmOrderInfos(OriOrderNo, orderSettlementStatus);
+		BigDecimal orderAmt =  new BigDecimal(request.getParameter("OrderAmt").trim());
+		orderPayManage.updateTakeConfirmOrderInfos(OriOrderNo, orderSettlementStatus,orderAmt);
 		%>
 		分账操作后，业务处理结果  ：	[ 银联支付----手动分账 ] 处理完成 !!!!</br></br>
 		<%
