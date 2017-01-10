@@ -456,7 +456,8 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderCreateService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
+			//map = orderCreateService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,iProductDubboManageService, productSearchInterface,iPromotionDubboManageService);
+			map=orderService.validateProducts(userDto, orderDto, iCustgroupmanageDubbo, iProductDubboManageService, productSearchInterface, iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			String message = (String) map.get("message");
 			if(!result){
@@ -497,7 +498,7 @@ public class ShoppingCartController extends BaseController {
 		if(UtilHelper.isEmpty(orderCreateBean.getAddressId()) || orderCreateBean.getAddressId() <= 0){
 			throw new Exception("非法地址参数");
 		}
-		if(orderCreateBean.getPayType() != 1){
+		if(orderCreateBean.getPayType() != 1 && orderCreateBean.getPayType()!=3){
 			throw new Exception("非法支付类型");
 		}
 		if(orderCreateBean.getBillType() != 1 && orderCreateBean.getBillType() != 2 ){

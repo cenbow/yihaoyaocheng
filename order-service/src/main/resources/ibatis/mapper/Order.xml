@@ -561,11 +561,11 @@
 				, #{adviserName}
 				, #{adviserPhoneNumber}
 				, #{adviserRemark}
-				, #{cancelMoney}
-				, #{deliveryMoney}
-				, #{preferentialCancelMoney}
-				, #{preferentialDeliveryMoney}
-				, #{isDartDelivery}
+				, 0
+				, 0
+				, 0
+				, 0
+				, 0
 				,#{promotionName}
 				,#{partDeliveryRemark}
   ) ]]>
