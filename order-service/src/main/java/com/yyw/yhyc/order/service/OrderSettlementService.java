@@ -486,22 +486,12 @@ public class OrderSettlementService {
 		conditionInfo.put("confirmSettlement", OrderSettlement.confirm_settlement_not_do);
 		Order order = orderMapper.getOrderbyFlowId(settleFlowId);
 		String refundFlowId="";
+		OrderRefund orderRefund=new OrderRefund();
 		if(!UtilHelper.isEmpty(order)){
-
-			boolean isCancel=(order.getOrderStatus().equals(SystemOrderStatusEnum.BuyerCanceled.getType())
-					||order.getOrderStatus().equals(SystemOrderStatusEnum.SellerCanceled.getType())
-					||order.getOrderStatus().equals(SystemOrderStatusEnum.SystemAutoCanceled.getType())
-					||order.getOrderStatus().equals(SystemOrderStatusEnum.BackgroundCancellation.getType()));
-			if(isCancel){
-				conditionInfo.put("businessType",4);
-			}else{
-				conditionInfo.put("businessType",5);
-			}
-
 			//写入退款记录为成功
-			OrderRefund orderRefund=new OrderRefund();
 			orderRefund.setOrderId(order.getOrderId());
 			orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());
+			conditionInfo.put("businessType", orderRefund.getRefundType());
 			List<OrderRefund> orderRefundList = orderRefundMapper.listByProperty(orderRefund);
 			if(orderRefundList.size()>0){
 				orderRefund=orderRefundList.get(0);
@@ -526,6 +516,7 @@ public class OrderSettlementService {
 				Map<String, Object> condition = new HashedMap();
 				condition.put("flowId", exception.getExceptionOrderId());
 				condition.put("confirmSettlement", OrderSettlement.confirm_settlement_not_do);
+				condition.put("businessType", orderRefund.getRefundType());
 				OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
 				if (orderSettlement != null) {
 					log.error("开始更新数据");

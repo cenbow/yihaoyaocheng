@@ -35,17 +35,17 @@ public class AlipayFacadeImpl implements AlipayFacade {
 
 
     @Override
-    public String alipayrefundFastpay(int batch_num, String trade_no, String total_fee, String reason,String refundsFlowId)  throws Exception{
+    public String alipayrefundFastpay(int batch_num, String trade_no, String total_fee, String reason,String refundsFlowId,String businessType)  throws Exception{
         logger.error("go  to   alipayrefundFastpay");
         Map<Integer, String> refundMap = new HashMap<>();
         refundMap.put(1, trade_no + "^" + total_fee + "^" + reason);
-        return alipayrefundFastpayByMap(batch_num, refundMap,trade_no,refundsFlowId);
+        return alipayrefundFastpayByMap(batch_num, refundMap,trade_no,refundsFlowId,businessType);
     }
 
     @Override
-    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap,String tradeNo,String refundsFlowId) throws Exception{
+    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap,String tradeNo,String refundsFlowId,String businessType) throws Exception{
         logger.error("go  to   alipayrefundFastpayByMap-----------------------------------");
-        String url_str = alipayService.alipayrefundFastpayByMap(batch_num,refundMap,tradeNo,refundsFlowId);
+        String url_str = alipayService.alipayrefundFastpayByMap(batch_num,refundMap,tradeNo,refundsFlowId,businessType);
         logger.error("url_str==== "+url_str);
         return url_str;
     }

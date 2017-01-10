@@ -24,12 +24,12 @@ public interface AlipayFacade {
      * @param total_fee  退款总金额
      * @param reason     退款理由
      */
-    public String alipayrefundFastpay(int batch_num,String trade_no,String total_fee,String reason,String refundsFlowId)  throws Exception;
+    public String alipayrefundFastpay(int batch_num,String trade_no,String total_fee,String reason,String refundsFlowId,String businessType)  throws Exception;
 
     /**
      * 数据集退款
      * @param batch_num 总笔数
      * @param refundMap 交易退款数据集的单个map格式为： key = n,value="原付款支付宝交易号^退款总金额^退款理由"；
      */
-    public String alipayrefundFastpayByMap(int batch_num,Map<Integer,String> refundMap,String tradeNo,String refundsFlowId)  throws Exception;
+    public String alipayrefundFastpayByMap(int batch_num,Map<Integer,String> refundMap,String tradeNo,String refundsFlowId,String businessType)  throws Exception;
 }

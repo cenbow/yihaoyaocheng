@@ -165,7 +165,7 @@ public class AlipayServiceImpl  implements PayService {
      * @param refundMap
      * @return
      */
-    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap,String batchNo,String refundFlowId) throws Exception{
+    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap,String batchNo,String refundFlowId,String businessType) throws Exception{
         log.debug("支付宝退款接口-------------start");
         if(refundMap.size()<0){
             log.debug("退款参数不能为空");
@@ -202,6 +202,7 @@ public class AlipayServiceImpl  implements PayService {
             order=listOrder.get(0);
             orderRefund.setOrderId(order.getOrderId());
             orderRefund.setFlowId(refundFlowId);
+            orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());
             List<OrderRefund> orderRefundList = orderRefundMapper.listByProperty(orderRefund);
             if(orderRefundList.size()>0){
                 orderRefund = orderRefundList.get(0);
@@ -219,6 +220,7 @@ public class AlipayServiceImpl  implements PayService {
             orderRefund.setCreateUser("运营后台");
             orderRefund.setCustId(order.getCustId());
             orderRefund.setSupplyId(order.getSupplyId());
+            orderRefund.setRefundType(businessType);
             orderRefund.setRefundFreight(new BigDecimal(0));
             orderRefund.setCreateTime(now);
             orderRefund.setRefundDate(now);
