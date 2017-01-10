@@ -18,16 +18,16 @@ import java.util.Map;
 import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderRefund;
 import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderSettlementDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
+import com.yyw.yhyc.order.enmu.SystemRefundPayStatusEnum;
 import com.yyw.yhyc.order.manage.OrderPayManage;
-import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
-import com.yyw.yhyc.order.mapper.OrderMapper;
-import com.yyw.yhyc.order.mapper.SystemDateMapper;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.usermanage.bo.UsermanageEnterprise;
 import com.yyw.yhyc.usermanage.mapper.UsermanageEnterpriseMapper;
 
@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 
 import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.bo.Pagination;
-import com.yyw.yhyc.order.mapper.OrderSettlementMapper;
 
 @Service("orderSettlementService")
 public class OrderSettlementService {
@@ -70,6 +69,9 @@ public class OrderSettlementService {
 	public void setSystemDateMapper(SystemDateMapper systemDateMapper) {
 		this.systemDateMapper = systemDateMapper;
 	}
+
+	@Autowired
+	private OrderRefundMapper orderRefundMapper;
 
 	/**
 	 * 通过主键查询实体对象
@@ -482,13 +484,28 @@ public class OrderSettlementService {
 		Map<String,Object> conditionInfo = new HashedMap();
 		conditionInfo.put("flowId", settleFlowId);
 		Order order = orderMapper.getOrderbyFlowId(settleFlowId);
+		String refundFlowId="";
 		if(!UtilHelper.isEmpty(order)){
 			if(SystemOrderStatusEnum.SellerDelivered.getType().equals(order.getOrderStatus())){
 				conditionInfo.put("businessType", 5);
 			}else{
 				conditionInfo.put("businessType", 4);
 			}
+
+
+			//写入退款记录为成功
+			OrderRefund orderRefund=new OrderRefund();
+			orderRefund.setOrderId(order.getOrderId());
+			orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());
+			List<OrderRefund> orderRefundList = orderRefundMapper.listByProperty(orderRefund);
+			if(orderRefundList.size()>0){
+				orderRefund=orderRefundList.get(0);
+				refundFlowId=orderRefund.getFlowId();
+				orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusOk.getType());
+				orderRefundMapper.update(orderRefund);
+			}
 		}
+
 		OrderSettlement orderSettlementInfo = orderSettlementMapper.getByProperty(conditionInfo);
 		if (!UtilHelper.isEmpty(orderSettlementInfo)&&!UtilHelper.isEmpty(order)) {
 			log.error("更新卖家取消结算信息");
@@ -497,32 +514,27 @@ public class OrderSettlementService {
 			orderSettlementInfo.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
 			orderSettlementMapper.updateSettlementPayFlowId(orderSettlementInfo);
 		} else {
-			OrderException exceptionInfo = new OrderException();
-			exceptionInfo.setFlowId(settleFlowId);
-			if(SystemOrderStatusEnum.BuyerPartReceived.getType().equals(order.getOrderStatus())){
-				exceptionInfo.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
-			}else{
-				exceptionInfo.setReturnType(OrderExceptionTypeEnum.RETURN.getType());
-			}
-			List<OrderException> listInfo = orderExceptionMapper.listByProperty(exceptionInfo);
-			if (listInfo != null && listInfo.size() > 0) {
-				OrderException exception = listInfo.get(0);
-				if (!UtilHelper.isEmpty(exception)) {
-					log.error("取出异常结算数据exception_order_id:" + exception.getExceptionOrderId());
-					Map<String, Object> condition = new HashedMap();
-					condition.put("flowId", exception.getExceptionOrderId());
-					OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
-					if (orderSettlement != null) {
-						log.error("开始更新数据");
-						orderSettlement.setRefunSettlementMoney(orderSettlement.getSettlementMoney());
-						orderSettlement.setSettleFlowId(tradeNo);
-						orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
-						orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
-					}
+			OrderException exception = orderExceptionMapper.getByExceptionOrderId(refundFlowId);
 
+			if (!UtilHelper.isEmpty(exception)) {
+				log.error("取出异常结算数据exception_order_id:" + exception.getExceptionOrderId());
+				Map<String, Object> condition = new HashedMap();
+				condition.put("flowId", exception.getExceptionOrderId());
+				if (exception.getReturnType().equals(OrderExceptionTypeEnum.RETURN.getType())) {
+					condition.put("businessType", 2);//退货结算;
 				} else {
-					log.error("无数据");
+					condition.put("businessType", 3);//退货结算;
 				}
+				OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+				if (orderSettlement != null) {
+					log.error("开始更新数据");
+					orderSettlement.setRefunSettlementMoney(orderSettlement.getSettlementMoney());
+					orderSettlement.setSettleFlowId(tradeNo);
+					orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
+					orderSettlementMapper.updateSettlementPayFlowId(orderSettlement);
+				}
+			} else {
+				log.error("无数据");
 			}
 		}
 	}

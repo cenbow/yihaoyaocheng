@@ -4,7 +4,7 @@ import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.*;
-import com.yyw.yhyc.order.mapper.OrderMapper;
+import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.pay.alipay.config.AlipayConfig;
 import com.yyw.yhyc.pay.alipay.util.AlipayCore;
 import com.yyw.yhyc.pay.alipay.util.AlipaySubmit;
@@ -31,8 +31,24 @@ public class AlipayServiceImpl  implements PayService {
 
     private static final Logger log = LoggerFactory.getLogger(AlipayServiceImpl.class);
 
+
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private OrderPayMapper orderPayMapper;
+
+    @Autowired
+    private SystemDateMapper systemDateMapper;
+
+    @Autowired
+    private OrderRefundMapper orderRefundMapper;
+
+    @Autowired
+    private OrderSettlementMapper orderSettlementMapper;
+
+    @Autowired
+    private  OrderExceptionMapper orderExceptionMapper;
 
     @Override
     public Map<String, Object> handleDataBeforeSendPayRequest(OrderPay orderPay, SystemPayType systemPayType, int type) throws Exception {
@@ -142,14 +158,15 @@ public class AlipayServiceImpl  implements PayService {
     }
 
 
+
     /**
      * 封装退款的url、参数、数据
      * @param batch_num
      * @param refundMap
      * @return
      */
-    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap) {
-    	log.debug("支付宝退款接口-------------start");
+    public String alipayrefundFastpayByMap(int batch_num, Map<Integer, String> refundMap,String batchNo,String refundFlowId) throws Exception{
+        log.debug("支付宝退款接口-------------start");
         if(refundMap.size()<0){
             log.debug("退款参数不能为空");
             throw new RuntimeException("退款参数不能为空");
@@ -170,11 +187,61 @@ public class AlipayServiceImpl  implements PayService {
         sParaTemp.put("batch_no", UtilDate.getOrderNum());
         sParaTemp.put("batch_num", String.valueOf(batch_num));
         sParaTemp.put("detail_data", AlipayCore.createLinkStringByrefund(refundMap));
-        log.debug("封装退款请求数据----"+AlipayCore.createLinkStringByrefund(refundMap));
+        log.debug("封装退款请求数据----" + AlipayCore.createLinkStringByrefund(refundMap));
         String sHtmlText = AlipaySubmit.buildRequestUrl(sParaTemp);
-        log.debug("封装退款请求URL----"+sHtmlText);
+        log.debug("封装退款请求URL----" + sHtmlText);
         log.debug("支付宝退款接口-------------end");
+
+
+        //计入支付宝退款记录
+        OrderPay orderPay = orderPayMapper.getPayFlowIdByPayAccountNo(batchNo);
+        List<Order> listOrder = orderMapper.listOrderByPayFlowId(orderPay.getPayFlowId());
+        Order order=null;
+        if(listOrder.size()>0){
+            OrderRefund  orderRefund = new OrderRefund();
+            order=listOrder.get(0);
+            orderRefund.setOrderId(order.getOrderId());
+            orderRefund.setFlowId(refundFlowId);
+            List<OrderRefund> orderRefundList = orderRefundMapper.listByProperty(orderRefund);
+            if(orderRefundList.size()>0){
+                orderRefund = orderRefundList.get(0);
+            }
+            if(refundFlowId.trim().equals(order.getFlowId())){
+                orderRefund.setRefundSum(orderPay.getPayMoney());
+            }else{
+                OrderException exception = orderExceptionMapper.getByExceptionOrderId(refundFlowId);
+                if(!UtilHelper.isEmpty(exception)){
+                    orderRefund.setRefundSum(exception.getOrderMoney());
+                }
+            }
+            //写入退款记录
+            String now = systemDateMapper.getSystemDate();
+            orderRefund.setCreateUser("运营后台");
+            orderRefund.setCustId(order.getCustId());
+            orderRefund.setSupplyId(order.getSupplyId());
+            orderRefund.setRefundFreight(new BigDecimal(0));
+            orderRefund.setCreateTime(now);
+            orderRefund.setRefundDate(now);
+            orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
+            orderRefund.setRefundDesc("后台协议退款");
+            orderRefundMapper.save(orderRefund);
+
+            //写入结算记录为结算中
+            Map<String,Object> condition=new HashMap<String,Object>();
+            condition.put("flowId", refundFlowId);
+            OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
+            if(!UtilHelper.isEmpty(orderSettlement)){
+                orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_doing);
+                orderSettlementMapper.update(orderSettlement);
+            }
+        }else {
+            log.error("根据支付宝支付账号无法找到对应订单"+batchNo);
+            //订单是否已退款
+            throw new RuntimeException("根据支付宝支付账号无法找到对应订单"+batchNo);
+        }
+
         return sHtmlText;
     }
+
 
 }
