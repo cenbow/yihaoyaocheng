@@ -224,16 +224,14 @@ public class AlipayServiceImpl  implements PayService {
             orderRefund.setRefundDate(now);
             orderRefund.setRefundStatus(SystemRefundPayStatusEnum.refundStatusIng.getType());//退款中
             orderRefund.setRefundDesc("后台协议退款");
-            orderRefundMapper.save(orderRefund);
 
-            //写入结算记录为结算中
-            Map<String,Object> condition=new HashMap<String,Object>();
-            condition.put("flowId", refundFlowId);
-            OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
-            if(!UtilHelper.isEmpty(orderSettlement)){
-                orderSettlement.setConfirmSettlement(OrderSettlement.confirm_settlement_doing);
-                orderSettlementMapper.update(orderSettlement);
+            if(orderRefundList.size()>0){
+                orderRefundMapper.update(orderRefund);
+            }else{
+                orderRefundMapper.save(orderRefund);
             }
+
+
         }else {
             log.error("根据支付宝支付账号无法找到对应订单"+batchNo);
             //订单是否已退款
