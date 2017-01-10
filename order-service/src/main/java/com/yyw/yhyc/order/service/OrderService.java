@@ -2074,7 +2074,23 @@ public class OrderService {
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
-				orderSettlement.setConfirmSettlement("1");
+
+
+				/**
+				 * 各个支付方式，退款时 处理结算信息 不一样：
+				 * 银联支付的，需要发起http退款请求，并处理。
+				 * 支付宝支付的，只需要把结算状态改成未结算，由财务在运营后台系统里手动操作退款
+				 */
+				if( OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+					orderSettlement.setConfirmSettlement("1");
+				}else if( OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+					orderSettlement.setConfirmSettlement("0");
+				}
 				orderSettlementMapper.save(orderSettlement);
 				if(!UtilHelper.isEmpty(payTypeId)){
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
