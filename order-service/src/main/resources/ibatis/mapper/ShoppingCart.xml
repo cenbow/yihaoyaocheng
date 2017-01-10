@@ -295,6 +295,17 @@
 			AND from_where = #{fromWhere}
 		</if>
 	</update>
+	
+	
+	<update id="updateShoppingCartPromotionCollectionId" parameterType="java.util.Map">
+		UPDATE
+		    t_shopping_cart
+		SET
+		    promotion_collection_id = ''
+		WHERE
+		    shopping_cart_id =#{shopppingCartId}
+	</update>
+	
 
 	<update id="updateProductCount" parameterType="com.yyw.yhyc.order.bo.ShoppingCart">
 		<![CDATA[ UPDATE t_shopping_cart SET product_id=#{productId} ]]>

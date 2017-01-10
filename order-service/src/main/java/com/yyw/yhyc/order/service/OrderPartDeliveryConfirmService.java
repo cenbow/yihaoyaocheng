@@ -759,7 +759,7 @@ public void updateAllDeliverYesAndNo(OrderDeliveryDto orderDeliveryDto,String no
                 //
 				orderSettlement.setConfirmSettlement("0");
 				orderSettlement.setSettlementMoney(noSendPreferentialMoney);
-				orderSettlement.setRefunSettlementMoney(noSendPreferentialMoney);
+				//orderSettlement.setRefunSettlementMoney(noSendPreferentialMoney);
 				orderSettlement.setSettlementTime(now);
 				orderSettlement.setOrderTime(currentOrder.getCreateTime());
 				orderSettlement.setCreateTime(now);

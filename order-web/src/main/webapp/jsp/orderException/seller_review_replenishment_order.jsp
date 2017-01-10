@@ -137,7 +137,7 @@
                             <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
                                 <c:set var="spuCount" value="0"></c:set>
                                 <c:set var="spuStr" value=","></c:set>
-                                <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}">
+                                <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
                                     <c:set var="spuCodeThis" value="${orderReturnDto.spuCode}"></c:set>
                                     <c:choose>
                                         <c:when test="${fn:contains(spuStr,spuCodeThis)}">

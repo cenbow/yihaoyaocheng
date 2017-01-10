@@ -119,6 +119,7 @@
                                             <c:when test="${shoppingCart != null && fn:length(shoppingCart.shoppingCartDtoList) gt 0 }">
                                                 <c:forEach var="shoppingCartDto" items="${shoppingCart.shoppingCartDtoList}" varStatus="shoppingCartDtoVarStatus">
                                                     <input type="hidden" name="productId" value="${shoppingCartDto.productId}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].shoppingCartId" value="${shoppingCartDto.shoppingCartId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].id" id="${shoppingCartDto.productId}" value="${shoppingCartDto.productId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].spuCode" value="${shoppingCartDto.spuCode}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCodeCompany" value="${shoppingCartDto.productCodeCompany}"/>
