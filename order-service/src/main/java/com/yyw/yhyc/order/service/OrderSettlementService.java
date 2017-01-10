@@ -413,6 +413,14 @@ public class OrderSettlementService {
 			condition.setSupplyId(supplyId);
 			condition.setRefunSettlementMoney(payToMoney);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
+		}else if(!UtilHelper.isEmpty(flowId)&&!UtilHelper.isEmpty(type)
+				&&!UtilHelper.isEmpty(settleFlowId)&&!UtilHelper.isEmpty(supplyId)
+				&&(type.intValue()==5)){//取消发货退款结算
+			condition.setCustId(supplyId);
+			condition.setSettleFlowId(settleFlowId);
+			condition.setRefunSettlementMoney(payToMoney);
+			condition.setConfirmSettlement(OrderSettlement.confirm_settlement_done);
+			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}else{
 			log.info("更新结算信息更新结算信息表-传入空值参数");
 		}

@@ -343,7 +343,9 @@ public class OrderPayManage {
                     //银联支付 退款流水号
                     String settleFlowId = payFlowId+"TK";
                     //更新取消订单退款为已结算
-                    orderSettlementService.updateSettlementByMap(o.getFlowId(),4,settleFlowId,o.getCustId(),cancelMoney);
+                    orderSettlementService.updateSettlementByMap(o.getFlowId(),4,settleFlowId,o.getCustId(),cancelMoney.subtract(o.getPreferentialCancelMoney()));
+                    //更新取消发货退款为已结算
+                    orderSettlementService.updateSettlementByMap(o.getFlowId(),5,settleFlowId,o.getCustId(),o.getPreferentialCancelMoney());
                     OrderException orderException=new OrderException();
                     orderException.setFlowId(o.getFlowId());
                     orderException.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
