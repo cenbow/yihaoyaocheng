@@ -628,6 +628,9 @@ public class OrderCreateService {
 	private void updateShoppingCartDeletePromotionInfo(Integer shoppingCartId,OrderPromotionDto orderPromotionDto){
 		
 		ShoppingCart bean=this.shoppingCartMapper.getByPK(shoppingCartId);
+		 if(UtilHelper.isEmpty(bean)){
+			 return;
+		 }
 		Integer promotionId=orderPromotionDto.getPromotionId();
 		String promotionCollectionId=bean.getPromotionCollectionId();
 		
@@ -662,6 +665,10 @@ public class OrderCreateService {
 					bean.setPromotionCollectionId(sql.toString());
 					this.shoppingCartMapper.update(bean);
 				}
+			}else{
+				Map<String,Object> paramter=new HashMap<String,Object>();
+				paramter.put("shopppingCartId",bean.getShoppingCartId());
+				this.shoppingCartMapper.updateShoppingCartPromotionCollectionId(paramter);
 			}
 		}
 		
@@ -686,7 +693,7 @@ public class OrderCreateService {
 		    	  cartDto.setProductName(currentBean.getProductName());
 		    	  cartDto.setSpuCode(currentBean.getSpuCode());
 		    	  cartDto.setPromotionCollectionId(currentBean.getPromotionCollectionId());
-		    	  
+		    	  cartDto.setShoppingCartId(currentBean.getShoppingCartId());
 		    	  returnShoppingCartDtoList.add(cartDto);
 		    	  
 		      }

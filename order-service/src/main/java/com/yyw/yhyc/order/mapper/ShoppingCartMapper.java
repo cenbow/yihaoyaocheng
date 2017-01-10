@@ -49,4 +49,6 @@ public interface ShoppingCartMapper extends GenericIBatisMapper<ShoppingCart, In
 	 * @return
      */
 	int countBuyedNumInHistory(ShoppingCart shoppingCart);
+	
+	public void updateShoppingCartPromotionCollectionId(Map<String,Object> paramterMap);
 }
