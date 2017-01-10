@@ -30,6 +30,7 @@ import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
+import com.yyw.yhyc.order.service.ExportRelenishOrRejectService;
 import com.yyw.yhyc.order.service.OrderExceptionService;
 import com.yyw.yhyc.order.service.OrderExportService;
 import com.yyw.yhyc.order.service.OrderService;
@@ -80,6 +81,9 @@ public class OrderExceptionController extends BaseJsonController {
 
     @Autowired
     private OrderExportService orderExportService;
+    @Autowired
+    private ExportRelenishOrRejectService exportRelenishOrRejectService;
+    
     @Autowired
     private OrderTraceService orderTraceService;
 
@@ -879,11 +883,14 @@ public class OrderExceptionController extends BaseJsonController {
             OutputStream os = response.getOutputStream();
             HSSFWorkbook wb = null;
             if ("3".equals(returnType) || "4".equals(returnType)) {
-                wb = orderExportService.exportRelenishOrRejectOrder(orderDto);
+                //wb = orderExportService.exportRelenishOrRejectOrder(orderDto);
+            	wb=this.exportRelenishOrRejectService.exportSaleOrder(orderDto);
             } else if ("1".equals(returnType)) {
-                wb = orderExportService.exportReturnOrder(orderDto);
+                 //wb = orderExportService.exportReturnOrder(orderDto);
+            	wb=this.exportRelenishOrRejectService.exportSaleReturnOrder(orderDto);
             } else if ("2".equals(returnType)) {
-                wb = orderExportService.exportChangeOrder(orderDto);
+                //wb = orderExportService.exportChangeOrder(orderDto);
+            	wb = exportRelenishOrRejectService.exportSaleChangeOrder(orderDto);
             }
 
             wb.write(os);
