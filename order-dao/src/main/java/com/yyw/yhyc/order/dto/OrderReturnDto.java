@@ -20,7 +20,7 @@ public class OrderReturnDto extends OrderReturn {
     private String spuCode;                 //商品spu编码
     private String shortName;               //通用名
     private BigDecimal productAllMoney; //商品总的金额
-    
+    private String promotionName; //促销名称，给拒收或者补货订单导出展现用
     
     
     public BigDecimal getProductAllMoney() {
@@ -122,6 +122,16 @@ public class OrderReturnDto extends OrderReturn {
 
 	public void setSupplyId(java.lang.Integer supplyId) {
 		this.supplyId = supplyId;
+	}
+	
+	
+
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
 	}
 
 	@Override
