@@ -285,6 +285,17 @@ public interface OrderExceptionMapper extends GenericIBatisMapper<OrderException
 	 * @return
      */
 	public List<OrderExceptionDto> listPaginationBuyerExceptionOrder(Pagination<OrderExceptionDto> pagination,OrderExceptionDto orderExceptionDto);
+	
+	
+	
+	
+	/**
+	 * 该查询只查询没有参加满减促销的异常订单列表，后期等app满减上线后，才可以换成listPaginationBuyerExceptionOrder
+	 * @param pagination
+	 * @param orderExceptionDto
+	 * @return
+	 */
+	public List<OrderExceptionDto> listPaginationBuyerExceptionOrderExceptReduce(Pagination<OrderExceptionDto> pagination,OrderExceptionDto orderExceptionDto);
 
 	/**
 	 * 获取买家拒收/补货数量

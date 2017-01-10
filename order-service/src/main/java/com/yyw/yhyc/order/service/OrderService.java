@@ -3320,7 +3320,7 @@ public class OrderService {
 		orderDto.setOrderStatus(orderStatus);
 //		orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
 		//获取订单列表
-		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
+		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForAppExceptReduce(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
 		List<Map<String,Object>> orderList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> temp = null;
