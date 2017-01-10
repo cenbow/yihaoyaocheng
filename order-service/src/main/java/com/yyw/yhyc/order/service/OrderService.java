@@ -2074,7 +2074,23 @@ public class OrderService {
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemAuto",null,od);
-				orderSettlement.setConfirmSettlement("1");
+
+
+				/**
+				 * 各个支付方式，退款时 处理结算信息 不一样：
+				 * 银联支付的，需要发起http退款请求，并处理。
+				 * 支付宝支付的，只需要把结算状态改成未结算，由财务在运营后台系统里手动操作退款
+				 */
+				if( OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)
+						||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+					orderSettlement.setConfirmSettlement("1");
+				}else if( OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
+						||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())) {
+					orderSettlement.setConfirmSettlement("0");
+				}
 				orderSettlementMapper.save(orderSettlement);
 				if(!UtilHelper.isEmpty(payTypeId)){
 					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
@@ -2814,6 +2830,11 @@ public class OrderService {
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
+				if(!UtilHelper.isEmpty(order.getPreferentialCancelMoney())){
+					orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(order.getPreferentialCancelMoney()));
+				}else{
+					orderSettlement.setSettlementMoney(order.getOrgTotal());
+				}
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
 				OrderSettlement orderSettlement = new OrderSettlement();
@@ -3318,9 +3339,9 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderStatus))
 			throw new RuntimeException("订单状态不正确");
 		orderDto.setOrderStatus(orderStatus);
-//		orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
+		orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
 		//获取订单列表
-		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
+		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForAppExceptReduce(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
 		List<Map<String,Object>> orderList = new ArrayList<Map<String,Object>>();
 		Map<String,Object> temp = null;

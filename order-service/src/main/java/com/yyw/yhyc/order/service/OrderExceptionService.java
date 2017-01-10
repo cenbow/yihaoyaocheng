@@ -2553,7 +2553,7 @@ public class OrderExceptionService {
         else
             throw new RuntimeException("订单状态不正确");
         //获取订单列表
-        List<OrderExceptionDto> buyerExceptionOrderList = orderExceptionMapper.listPaginationBuyerExceptionOrder(pagination, orderExceptionDto);
+        List<OrderExceptionDto> buyerExceptionOrderList = orderExceptionMapper.listPaginationBuyerExceptionOrderExceptReduce(pagination, orderExceptionDto);
         pagination.setResultList(buyerExceptionOrderList);
         List<Map<String, Object>> orderList = new ArrayList<Map<String, Object>>();
         Map<String, Object> temp = null;
