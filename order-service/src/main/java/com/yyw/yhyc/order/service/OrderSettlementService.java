@@ -520,11 +520,6 @@ public class OrderSettlementService {
 				log.error("取出异常结算数据exception_order_id:" + exception.getExceptionOrderId());
 				Map<String, Object> condition = new HashedMap();
 				condition.put("flowId", exception.getExceptionOrderId());
-				if (exception.getReturnType().equals(OrderExceptionTypeEnum.RETURN.getType())) {
-					condition.put("businessType", 2);//退货结算;
-				} else {
-					condition.put("businessType", 3);//退货结算;
-				}
 				OrderSettlement orderSettlement = orderSettlementMapper.getByProperty(condition);
 				if (orderSettlement != null) {
 					log.error("开始更新数据");
