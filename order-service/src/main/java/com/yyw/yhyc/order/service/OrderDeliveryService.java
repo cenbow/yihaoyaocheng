@@ -21,6 +21,7 @@ import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderPartDeliveryDto;
 import com.yyw.yhyc.order.dto.OrderLogDto;
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderExceptionStatusEnum;
@@ -529,30 +530,26 @@ public class OrderDeliveryService {
                                 }
                             }
                         }
-                        
-                        
-                        //判断补货订单在上传的excel文件是否删除掉某个商品
-                        OrderReturn currentOrderRetun = new OrderReturn();
-                        currentOrderRetun.setExceptionOrderId(orderDeliveryDto.getFlowId());
-                        currentOrderRetun.setReturnType("3");
-                        List<OrderReturn> curretntList = orderReturnMapper.listByProperty(currentOrderRetun);
-                        if(!UtilHelper.isEmpty(curretntList) && curretntList.size()>0){
-                            for (OrderReturn orBean : curretntList) {
-
-                                  String currentCode=orBean.getProductCode();
-                                  if(!codeMap.containsKey(currentCode)){
-                                	  //此处说明了，上传的excel商品code不在发货的数据库中
-                                	  map.put("code", "0");
-                                      map.put("msg", "补货订单发货,需要全量发货,不能删除或者修改发货数量");
-                                      return map;
-                                  }
-                            }
-                            
-                            
-                            
-                        }
                     }
                     
+                    if(errorList==null || errorList.size()==0){
+                    	       OrderReturn currentOrderRetun = new OrderReturn();
+                               currentOrderRetun.setExceptionOrderId(orderDeliveryDto.getFlowId());
+                               currentOrderRetun.setReturnType("2");
+                               List<OrderReturn> curretntList = orderReturnMapper.listByProperty(currentOrderRetun);
+                               if(!UtilHelper.isEmpty(curretntList) && curretntList.size()>0){
+                                   for (OrderReturn orBean : curretntList) {
+
+                                         String currentCode=orBean.getProductCode();
+                                         if(!codeMap.containsKey(currentCode)){
+                                       	  //此处说明了，上传的excel商品code不在发货的数据库中
+                                       	     map.put("code", "0");
+                                             map.put("msg", "换货订单发货,需要全量发货,不能删除或者修改发货数量");
+                                             return map;
+                                         }
+                                   }
+                               }
+                    }
                    
                     
                     
@@ -1279,7 +1276,6 @@ public class OrderDeliveryService {
         }
 
         //正常下单根据orderId查询订单收发货信息是否存在,更新发货信息
-
         OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(orderDeliveryDto.getFlowId()));
         if (UtilHelper.isEmpty(orderException)) {
             map.put("code", "0");
@@ -1400,63 +1396,23 @@ public class OrderDeliveryService {
                             }
 
                         }
-                        
-                        
-                        //验证商品数量是否相同
-                        for (String code : codeMap.keySet()) {
-                            Map<String, Integer> returnMap = new HashMap<String, Integer>();
-                            OrderReturn orderReturn = new OrderReturn();
-                            orderReturn.setProductCode(code);
-                            orderReturn.setExceptionOrderId(orderDeliveryDto.getFlowId());
-                            orderReturn.setReturnType("2");
-                            List<OrderReturn> returnList = orderReturnMapper.listByProperty(orderReturn);
-                            if (returnList.size() > 0) {
-                                detailMap.put(code, returnList.get(0));
-                                for (OrderReturn or : returnList) {
-
-                                    if (UtilHelper.isEmpty(returnMap.get(or.getProductCode()))) {
-                                        returnMap.put(or.getProductCode(), or.getReturnCount());
-                                    } else {
-                                        returnMap.put(or.getProductCode(), or.getReturnCount() + returnMap.get(or.getProductCode()));
-                                    }
-                                }
-                                if (returnMap.get(code) != Integer.parseInt(codeMap.get(code))) {
-                                    errorMap = rowMap;
-                                    errorMap.put("9", "商品编码为" + code + "的商品导入数量不等于换货数量");
-                                    errorList.add(errorMap);
-                                }
-                            }
-               
-                            
-                        }
-                        
-                        
-
                     }
                 }
                 
-                //判断换货订单在上传的excel文件是否删除掉某个商品
-                OrderReturn currentOrderRetun = new OrderReturn();
-                currentOrderRetun.setExceptionOrderId(orderDeliveryDto.getFlowId());
-                currentOrderRetun.setReturnType("2");
-                List<OrderReturn> curretntList = orderReturnMapper.listByProperty(currentOrderRetun);
-                if(!UtilHelper.isEmpty(curretntList) && curretntList.size()>0){
-                    for (OrderReturn orBean : curretntList) {
-
-                          String currentCode=orBean.getProductCode();
-                          if(!codeMap.containsKey(currentCode)){
-                        	  //此处说明了，上传的excel商品code不在发货的数据库中
-                        	  map.put("code", "0");
-                              map.put("msg", "换货订单发货,需要全量发货,不能删除或者修改发货数量");
-                              return map;
-                          }
-                    }
-                    
-                    
-                    
+                
+                /****验证发货必须是全量发货****/
+                if(errorList==null || errorList.size()==0){
+                	 Map<String,Integer> orderReturnCountMap=this.getOrderReturnProductCount(orderDeliveryDto.getFlowId());
+                     for(String code : orderReturnCountMap.keySet()){
+           			  Integer reallyCount=orderReturnCountMap.get(code);
+           			  Integer deliveryCount=Integer.valueOf(codeMap.get(code));
+           			  if(deliveryCount==null || deliveryCount.intValue()!=reallyCount.intValue()){
+           				    map.put("code", "0");
+           		            map.put("msg", "换货发货,必须全量发货!");
+           		            return map;
+           			  }
+           		  }
                 }
-
-       
             }
             //生成excel和订单发货信息
             filePath = createOrderdeliverDetailReturn(errorList, orderDeliveryDto, list, detailMap, excelPath, now);
@@ -1470,6 +1426,20 @@ public class OrderDeliveryService {
         }
         return map;
     }
+    
+    private Map<String,Integer> getOrderReturnProductCount(String exceptionOrderId){
+		Map<String,Integer> orderMap=new HashMap<String,Integer>();
+	     List<OrderReturnDto> orderReturnList=this.orderReturnMapper.getByExceptionOrderId(exceptionOrderId);
+        for(OrderReturnDto bean : orderReturnList){
+       	 String code=bean.getProductCode();
+       	    if(orderMap.get(code)==null){
+       	    	orderMap.put(code,bean.getReturnCount());
+       	    }else{
+       	    	orderMap.put(code,bean.getReturnCount()+orderMap.get(code));
+       	    }
+        }
+        return orderMap;
+	}
     
     /**
      * 对接erp的时候，给erp提供的接口服务方法
