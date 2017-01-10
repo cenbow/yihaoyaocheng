@@ -472,7 +472,7 @@ public class ChinaPayServiceImpl implements PayService {
                 if("0000".equals(donePay.get("respCode"))){
                     orderSettlementStatus = true;
                 }
-                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus,orderPay.getPayMoney().subtract(cancelMoney.divide(multiple, 2, RoundingMode.HALF_UP)));
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus,orderPay.getPayMoney().subtract(cancelMoney));
 
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
