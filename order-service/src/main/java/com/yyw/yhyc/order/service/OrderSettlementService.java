@@ -332,7 +332,7 @@ public class OrderSettlementService {
 			orderSettlement.setCustId(null);
 			orderSettlement.setSupplyId(supplyId);
 			orderSettlement.setConfirmSettlement("0");
-			orderSettlement.setSettlementMoney(order.getOrderTotal());
+			orderSettlement.setSettlementMoney(order.getOrgTotal());
 			break;
 		case 3:
 			orderSettlement.setCustId(custId);
@@ -384,7 +384,7 @@ public class OrderSettlementService {
 	 * exceptionOrderId type 1 销售货款 2 退货货款 3 拒收货款 4 取消订单退款 settleFlowId 结算流水号
 	 */
 	public void updateSettlementByMap(String flowId, Integer type, String settleFlowId,Integer supplyId) {
-		log.info("银联同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
+		log.info("同步回调->更新结算信息->订单:" + flowId + ";业务类型:" + type+";供应商或采购商ID:" +supplyId+";结算流水号："+settleFlowId);
 		OrderSettlement condition=new OrderSettlement();
 		condition.setFlowId(flowId);
 		condition.setBusinessType(type);
@@ -403,7 +403,7 @@ public class OrderSettlementService {
 			condition.setSupplyId(supplyId);
 			orderSettlementMapper.updateSettlementPayFlowId(condition);
 		}else{
-			log.info("银联同步回调->更新结算信息-传入空值参数");
+			log.info("更新结算信息更新结算信息表-传入空值参数");
 		}
 
 	}

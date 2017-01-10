@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.dto;
 import com.yyw.yhyc.order.bo.OrderDelivery;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -30,9 +31,21 @@ public class OrderCreateDto implements Serializable {
     private UserDto userDto;
 
     private int source;//订单来源
+    
+    private BigDecimal allOrderShareMoney; //所有订单的优惠金额
+    
+    
 
 
-    public Integer getCustId() {
+    public BigDecimal getAllOrderShareMoney() {
+		return allOrderShareMoney;
+	}
+
+	public void setAllOrderShareMoney(BigDecimal allOrderShareMoney) {
+		this.allOrderShareMoney = allOrderShareMoney;
+	}
+
+	public Integer getCustId() {
         return custId;
     }
 
@@ -73,16 +86,13 @@ public class OrderCreateDto implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return "OrderCreateDto{" +
-                "custId=" + custId +
-                ", receiveAddressId=" + receiveAddressId +
-                ", orderDtoList=" + orderDtoList +
-                ", billType=" + billType +
-                ", userDto=" + userDto +
-                ", source=" + source +
-                '}';
-    }
+	public String toString() {
+		return "OrderCreateDto [custId=" + custId + ", receiveAddressId="
+				+ receiveAddressId + ", orderDtoList=" + orderDtoList
+				+ ", billType=" + billType + ", userDto=" + userDto
+				+ ", source=" + source + ", allOrderShareMoney="
+				+ allOrderShareMoney + "]";
+	}
 
     public int getSource() {
         return source;

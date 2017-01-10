@@ -94,6 +94,7 @@
             <input type="hidden" name="custId" id="custId" value="${userDto.custId}"/>
             <input type="hidden" name="receiveAddressId" id="receiveAddressId" />
             <input type="hidden" name="billType" id="billType" value="2"/>
+            <input type="hidden" name="allOrderShareMoney" id="allOrderShareMoney" value="${dataMap.allOrderShareMoney}"/>
 
         <%--遍历每个供应商的信息  开始--%>
             <c:choose>
@@ -104,7 +105,7 @@
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].supplyId" id="${shoppingCart.seller.enterpriseId}" value="${shoppingCart.seller.enterpriseId}"/>
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].paymentTerm" value="${shoppingCart.paymentTermCus}"/>
                                 <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].accountAmount" value="${shoppingCart.accountAmount}"/>
-
+                                <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].orderFullReductionMoney" value="${shoppingCart.orderFullReductionMoney}"/>
                                 <input type="hidden" name="supplyId" value="${shoppingCart.seller.enterpriseId}" supplyName="${shoppingCart.seller.enterpriseName}"/>
                                 <table class="common-table f14">
                                     <tr>
@@ -123,11 +124,14 @@
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCodeCompany" value="${shoppingCartDto.productCodeCompany}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productCount" value="${shoppingCartDto.productCount}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productPrice" value="${shoppingCartDto.productPrice}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].productName" value="${shoppingCartDto.productName}"/>
+                                                    
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].periodProduct" value="${shoppingCartDto.periodProduct}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].paymentTerm" value="${shoppingCartDto.paymentTerm}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].manufactures" value="${shoppingCartDto.manufactures}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].fromWhere" value="${shoppingCartDto.fromWhere}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionId" value="${shoppingCartDto.promotionId}"/>
+                                                    <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionCollectionId" value="${shoppingCartDto.promotionCollectionId}"/>
                                                     <input type="hidden" name="orderDtoList[${shoppingCartVarStatus.index}].productInfoDtoList[${shoppingCartDtoVarStatus.index}].promotionName" value="${shoppingCartDto.promotionName}"/>
                                                     <tr>
                                                         <td class="tl" style="cursor: pointer" onclick="javascript:window.location.href='${mallDomain}/product/productDetail/${shoppingCartDto.spuCode}/${shoppingCartDto.supplyId}'">
@@ -204,8 +208,13 @@
                                           </span>
                                     </label>
                                 </div>
-                                <div class="fr f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
                             </div>
+                              <div class="fr">
+                                <div class="f14">订单金额：<span class="red">¥ <fmt:formatNumber value="${shoppingCart.productPriceCount}" minFractionDigits="2"/></span></div>
+                                <c:if test="${shoppingCart.orderFullReductionMoney != null && shoppingCart.orderFullReductionMoney > 0 }">
+                                   <div class="f14">满立减金额：<span class="red">¥ -<fmt:formatNumber value="${shoppingCart.orderFullReductionMoney}" minFractionDigits="2"/></span></div>                 
+                                </c:if>
+                              </div>
                             <p class="pt30">
 						                            给卖家留言：<input type="text" class="goi-input" name="orderDtoList[${shoppingCartVarStatus.index}].leaveMessage" style="margin-right: 100px;">
 						       

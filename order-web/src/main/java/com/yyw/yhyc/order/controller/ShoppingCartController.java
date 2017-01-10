@@ -212,16 +212,15 @@ public class ShoppingCartController extends BaseJsonController {
 			shoppingCart.setCustId(userDto.getCustId());
 		}
 
-		/* 加入进货单前，校验用户、商品是否在销售区域范围内 */
-		boolean checkUserAndProductResult = checkUserAndProduct(userDto,shoppingCart.getSpuCode(),shoppingCart.getSupplyId());
-		if(!checkUserAndProductResult){
-			logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 用户或者商品不在销售区域范围内" );
-			resultMap.put("state", "F");
-			resultMap.put("message","不好意思，您的所在地无法购买此商品，去官网看看其他商品吧。");
-			return resultMap;
-		}
-
 		try{
+			/* 加入进货单前，校验用户、商品是否在销售区域范围内 */
+			boolean checkUserAndProductResult = checkUserAndProduct(userDto,shoppingCart.getSpuCode(),shoppingCart.getSupplyId());
+			if(!checkUserAndProductResult){
+				logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 用户或者商品不在销售区域范围内" );
+				resultMap.put("state", "F");
+				resultMap.put("message","不好意思，您的所在地无法购买此商品，去官网看看其他商品吧。");
+				return resultMap;
+			}
 			resultMap = shoppingCartService.addShoppingCart(shoppingCart,userDto,iPromotionDubboManageService,iProductDubboManageService,iCustgroupmanageDubbo,productSearchInterface);
 		}catch (ServiceException e){
 			logger.error("_________________加入进货单(唯一http入口)________________________添加进货单失败! 报错信息：" + e.getMessage(),e);
@@ -346,11 +345,15 @@ public class ShoppingCartController extends BaseJsonController {
 	 * @param spuCode
 	 * @param sellerCode
      */
-	private boolean checkUserAndProduct(UserDto userDto,String spuCode, Integer sellerCode) {
+	private boolean checkUserAndProduct(UserDto userDto,String spuCode, Integer sellerCode) throws ServiceException {
 		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(sellerCode)){
 			return false;
 		}
 		List<String> sellerList = new ArrayList<String>();
+		if ( UtilHelper.isEmpty(usermanageAudit) || UtilHelper.isEmpty(iProductDubboManageService)) {
+			logger.error("Dubbo服务异常! usermanageAudit = " + usermanageAudit + ", iProductDubboManageService = " + iProductDubboManageService);
+			throw new ServiceException("服务异常!");
+		}
 		Map<String, Object> enInfo = usermanageAudit.querySellerByBuyerCode(String.valueOf(userDto.getCustId()));
 		if ("success".equals(enInfo.get("status"))) {
 			if (enInfo.get("data") != null) {

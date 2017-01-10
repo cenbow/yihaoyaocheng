@@ -18,6 +18,12 @@
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
             </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="../logs/" maxDepth="1">
+                    <IfFileName glob="order-web.log*" />
+                    <IfLastModified age="2d" />
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingRandomAccessFile>
     </appenders>
 
@@ -34,5 +40,7 @@
         <logger name="com.yyw.yhyc.order.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.product.mapper" level="DEBUG"/>
         <logger name="com.yyw.yhyc.pay" level="INFO"/>
+        <logger name="com.alibaba.dubbo" level="ERROR"/>
+        <logger name="druid.sql" level="ERROR"/>
     </loggers>
 </configuration>

@@ -1,9 +1,11 @@
 package com.yyw.yhyc.product.dto;
 
-import com.yyw.yhyc.product.bo.ProductInfo;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
+
+import com.yyw.yhyc.order.dto.OrderPromotionDetailDto;
+import com.yyw.yhyc.product.bo.ProductInfo;
 
 /**
  * Created by lizhou on 2016/7/29
@@ -30,49 +32,74 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     /* 商品的账期 */
     private int paymentTerm;
 
-    /*商品的本公司编码*/
+    /* 商品的本公司编码*/
     private String productCodeCompany;
 
-    /*  是否渠道商品(0否，1是),  */
+    /* 是否渠道商品(0否，1是),  */
     private Integer isChannel;
 
-    /*  厂家名称  */
+    /* 厂家名称  */
     private String manufactures;
 
-    /*  厂家id  */
+    /* 厂家id  */
     private String manufactureId;
 
     /* 来源表示字段（0：来自进货单，1：来自极速下单) */
     private Integer fromWhere;
 
-
-    //    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
-
-    /* 活动id */
+    /**
+     * 2016-10-31 增加特价活动商品相关信息 ，对应 t_promotion_product_group表
+     */
+    /* 特价 活动id */
     private Integer promotionId;
 
-    /* 活动活动名称 */
+    /* 特价 活动名称 */
     private String promotionName;
 
-    /* 活动价格 */
+    /* 特价 活动价格 */
     private BigDecimal promotionPrice;
 
-    /* 活动最小起批量 */
+    /* 特价 活动最小起批量 */
     private Integer promotionMinimumPacking;
 
-    /* 活动限购数量 */
+    /* 特价 活动限购数量 */
     private Integer promotionLimitNum;
 
-    /* 活动总库存 */
+    /* 特价 活动总库存 */
     private Integer promotionSumInventory;
 
-    /* 活动实时库存 */
+    /* 特价 活动实时库存 */
     private Integer promotionCurrentInventory;
+    
+    /**
+     * 2016-12-08 增加满减、满赠、满 活动商品相关信息 ，对应 t_promotion、t_promotion_rule表
+     */
+    //private List<ProductPromotionInfo> list;
+    
+    /** 
+	 * 其他活动id，如果有多个则用","拼接，不包括特价活动
+	 */
+	private String promotionCollectionId;
+	
+	
+    /**
+     * 保存商品参加的满减信息，什么类型的满减以及每个满减优惠了多少钱
+     */
+    private List<OrderPromotionDetailDto> promotionDetailInfoList;
+    
+    
+	
 
-//    2016-10-31 增加活动商品相关信息 ，对应 t_promotion_product_group表
+    public List<OrderPromotionDetailDto> getPromotionDetailInfoList() {
+		return promotionDetailInfoList;
+	}
 
+	public void setPromotionDetailInfoList(
+			List<OrderPromotionDetailDto> promotionDetailInfoList) {
+		this.promotionDetailInfoList = promotionDetailInfoList;
+	}
 
-    public BigDecimal getProductPrice() {
+	public BigDecimal getProductPrice() {
         return productPrice;
     }
 
@@ -200,43 +227,49 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
         this.promotionCurrentInventory = promotionCurrentInventory;
     }
 
-    public Integer getPromotionId() {
-        return promotionId;
-    }
+	public Integer getPromotionId() {
+		return promotionId;
+	}
 
-    public void setPromotionId(Integer promotionId) {
-        this.promotionId = promotionId;
-    }
+	public void setPromotionId(Integer promotionId) {
+		this.promotionId = promotionId;
+	}
 
-    public String getPromotionName() {
+	public String getPromotionName() {
         return promotionName;
     }
 
     public void setPromotionName(String promotionName) {
         this.promotionName = promotionName;
     }
+    
+    
 
-    @Override
-    public String toString() {
-        return "ProductInfoDto{" +
-                "productPrice=" + productPrice +
-                ", productCount=" + productCount +
-                ", totalPrice=" + totalPrice +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", periodProduct=" + periodProduct +
-                ", paymentTerm=" + paymentTerm +
-                ", productCodeCompany='" + productCodeCompany + '\'' +
-                ", isChannel=" + isChannel +
-                ", manufactures='" + manufactures + '\'' +
-                ", manufactureId='" + manufactureId + '\'' +
-                ", fromWhere=" + fromWhere +
-                ", promotionId=" + promotionId +
-                ", promotionName=" + promotionName +
-                ", promotionPrice=" + promotionPrice +
-                ", promotionMinimumPacking=" + promotionMinimumPacking +
-                ", promotionLimitNum=" + promotionLimitNum +
-                ", promotionSumInventory=" + promotionSumInventory +
-                ", promotionCurrentInventory=" + promotionCurrentInventory +
-                "} " + super.toString();
-    }
+	public String getPromotionCollectionId() {
+		return promotionCollectionId;
+	}
+
+	public void setPromotionCollectionId(String promotionCollectionId) {
+		this.promotionCollectionId = promotionCollectionId;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductInfoDto [productPrice=" + productPrice
+				+ ", productCount=" + productCount + ", totalPrice="
+				+ totalPrice + ", imageUrl=" + imageUrl + ", periodProduct="
+				+ periodProduct + ", paymentTerm=" + paymentTerm
+				+ ", productCodeCompany=" + productCodeCompany + ", isChannel="
+				+ isChannel + ", manufactures=" + manufactures
+				+ ", manufactureId=" + manufactureId + ", fromWhere="
+				+ fromWhere + ", promotionId=" + promotionId
+				+ ", promotionName=" + promotionName + ", promotionPrice="
+				+ promotionPrice + ", promotionMinimumPacking="
+				+ promotionMinimumPacking + ", promotionLimitNum="
+				+ promotionLimitNum + ", promotionSumInventory="
+				+ promotionSumInventory + ", promotionCurrentInventory="
+				+ promotionCurrentInventory + ", promotionCollectionId="
+				+ promotionCollectionId + ", promotionDetailInfoList="
+				+ promotionDetailInfoList + "]";
+	}
 }

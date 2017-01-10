@@ -42,6 +42,10 @@
 		<result column="spu_code" property="spuCode"/>
 		<result column="promotion_id" property="promotionId"/>
 		<result column="promotion_name" property="promotionName"/>
+		<result column="promotion_collection_id" property="promotionCollectionId"/>
+		<result column="promotion_collection_type" property="promotionCollectionType"/>
+		<result column="preferential_collection_money" property="preferentialCollectionMoney"/>
+		
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -70,6 +74,9 @@
 		, spu_code
 		, promotion_id
 		, promotion_name
+		,promotion_collection_id
+		,promotion_collection_type
+		,preferential_collection_money
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -97,6 +104,9 @@
 				, spu_code
 				, promotion_id
 				, promotion_name
+				,promotion_collection_id
+				,promotion_collection_type
+				,preferential_collection_money
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -125,6 +135,9 @@
 		, spu_code
 		, promotion_id
 		, promotion_name
+		,promotion_collection_id
+		,promotion_collection_type
+		,preferential_collection_money
 	</sql>
 	
 	<sql id="commonCondition">
@@ -229,6 +242,9 @@
 				, #{spuCode}
 				, #{promotionId}
 				, #{promotionName}
+				, #{promotionCollectionId}
+				, #{promotionCollectionType}
+				, #{preferentialCollectionMoney}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDetail">

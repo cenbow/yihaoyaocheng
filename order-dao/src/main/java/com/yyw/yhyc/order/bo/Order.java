@@ -202,6 +202,8 @@ public class Order extends Model{
 	 * @return
      */
 	private  Integer delayTimes;
+	
+	private String promotionName; //包含多个促销名称,用,分割
 
 
 	/**
@@ -824,52 +826,33 @@ public class Order extends Model{
 
 	@Override
 	public String toString() {
-		return "Order{" +
-				"orderId=" + orderId +
-				", flowId='" + flowId + '\'' +
-				", custName='" + custName + '\'' +
-				", custId=" + custId +
-				", supplyName='" + supplyName + '\'' +
-				", supplyId=" + supplyId +
-				", cancelResult='" + cancelResult + '\'' +
-				", orgTotal=" + orgTotal +
-				", freight=" + freight +
-				", orderTotal=" + orderTotal +
-				", finalPay=" + finalPay +
-				", totalCount=" + totalCount +
-				", orderStatus='" + orderStatus + '\'' +
-				", remark='" + remark + '\'' +
-				", leaveMessage='" + leaveMessage + '\'' +
-				", orderCombinedId=" + orderCombinedId +
-				", confirmSettlement='" + confirmSettlement + '\'' +
-				", settlementMoney=" + settlementMoney +
-				", preferentialMoney=" + preferentialMoney +
-				", preferentialRemark='" + preferentialRemark + '\'' +
-				", payStatus='" + payStatus + '\'' +
-				", payTypeId=" + payTypeId +
-				", createTime='" + createTime + '\'' +
-				", payTime='" + payTime + '\'' +
-				", cancelTime='" + cancelTime + '\'' +
-				", deliverTime='" + deliverTime + '\'' +
-				", receiveTime='" + receiveTime + '\'' +
-				", settlementTime='" + settlementTime + '\'' +
-				", createUser='" + createUser + '\'' +
-				", updateTime='" + updateTime + '\'' +
-				", updateUser='" + updateUser + '\'' +
-				", billType=" + billType +
-				", delayLog='" + delayLog + '\'' +
-				", receiveType=" + receiveType +
-				", paymentTermStatus=" + paymentTermStatus +
-				", paymentTerm=" + paymentTerm +
-				", delayTimes=" + delayTimes +
-				", payFlag=" + payFlag +
-				", productSortCount=" + productSortCount +
-				", source=" + source +
-				", adviserCode=" + adviserCode +
-				", adviserName=" + adviserName +
-				", adviserPhoneNumber=" + adviserPhoneNumber +
-				", adviserRemark=" + adviserRemark +
-				'}';
+		return "Order [orderId=" + orderId + ", flowId=" + flowId
+				+ ", custName=" + custName + ", custId=" + custId
+				+ ", supplyName=" + supplyName + ", supplyId=" + supplyId
+				+ ", cancelResult=" + cancelResult + ", orgTotal=" + orgTotal
+				+ ", freight=" + freight + ", orderTotal=" + orderTotal
+				+ ", finalPay=" + finalPay + ", totalCount=" + totalCount
+				+ ", orderStatus=" + orderStatus + ", remark=" + remark
+				+ ", leaveMessage=" + leaveMessage + ", orderCombinedId="
+				+ orderCombinedId + ", confirmSettlement=" + confirmSettlement
+				+ ", settlementMoney=" + settlementMoney
+				+ ", preferentialMoney=" + preferentialMoney
+				+ ", preferentialRemark=" + preferentialRemark + ", payStatus="
+				+ payStatus + ", payTypeId=" + payTypeId + ", createTime="
+				+ createTime + ", payTime=" + payTime + ", cancelTime="
+				+ cancelTime + ", deliverTime=" + deliverTime
+				+ ", receiveTime=" + receiveTime + ", settlementTime="
+				+ settlementTime + ", createUser=" + createUser
+				+ ", updateTime=" + updateTime + ", updateUser=" + updateUser
+				+ ", billType=" + billType + ", delayLog=" + delayLog
+				+ ", receiveType=" + receiveType + ", paymentTermStatus="
+				+ paymentTermStatus + ", paymentTerm=" + paymentTerm
+				+ ", delayTimes=" + delayTimes + ", promotionName="
+				+ promotionName + ", payFlag=" + payFlag
+				+ ", productSortCount=" + productSortCount + ", source="
+				+ source + ", adviserCode=" + adviserCode + ", adviserName="
+				+ adviserName + ", adviserPhoneNumber=" + adviserPhoneNumber
+				+ ", adviserRemark=" + adviserRemark + "]";
 	}
 
 	public int getSource() {
@@ -911,5 +894,14 @@ public class Order extends Model{
 	public void setAdviserRemark(String adviserRemark) {
 		this.adviserRemark = adviserRemark;
 	}
+
+	public String getPromotionName() {
+		return promotionName;
+	}
+
+	public void setPromotionName(String promotionName) {
+		this.promotionName = promotionName;
+	}
+
 }
 

@@ -27,6 +27,7 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="cus_relationship" property="cusRelationship"/>
 		<result column="is_scan" property="isScan"/>
+		<result column="erp_order_code" property="erpOrderCode"/>
 	</resultMap>
 	<resultMap id="OrderIssuedItemsResultMapper" type="com.yyw.yhyc.order.dto.OrderIssuedItemDto">
 		<result column="product_id" property="productId"/>
@@ -46,6 +47,8 @@
 		<result column="order_id" property="orderId"/>
 		<result column="cust_id" property="customerId"/>
 		<result column="supply_id" property="supplyId"/>
+		<result column="pay_type" property="payType"/>
+		<result column="erp_order_code" property="erpOrderCode"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
 		<association property="orderItemList" column="order_id"
@@ -65,6 +68,45 @@
 		, is_scan
 	</sql>
 
+	<sql id="payTypeJudge">
+		<if test="payType==null">
+			AND O.ORDER_STATUS = '5' AND SPT.PAY_TYPE=1
+		</if>
+		<if test="payType != null">
+			AND(
+			<choose>
+				<when test="payOnline != null">
+					(SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
+					<if test="PayPeriodTerm != null">
+						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '5')
+					</if>
+					<if test="PayOffline != null">
+						OR (SPT.PAY_TYPE=#{PayOffline} AND (O.ORDER_STATUS = '1' or O.ORDER_STATUS = '5'))
+					</if>
+				</when>
+				<when test="PayPeriodTerm != null">
+					(SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '5')
+					<if test="payOnline != null">
+						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
+					</if>
+					<if test="PayOffline != null">
+						OR (SPT.PAY_TYPE=#{PayOffline} AND (O.ORDER_STATUS = '1' or O.ORDER_STATUS = '5'))
+					</if>
+				</when>
+				<when test="PayOffline != null">
+					(SPT.PAY_TYPE=#{PayOffline} AND (O.ORDER_STATUS = '1' or O.ORDER_STATUS = '5'))
+					<if test="PayPeriodTerm != null">
+						OR (SPT.PAY_TYPE=#{PayPeriodTerm} AND O.ORDER_STATUS = '5')
+					</if>
+					<if test="payOnline != null">
+						OR (SPT.PAY_TYPE=#{payOnline} AND O.ORDER_STATUS = '5')
+					</if>
+				</when>
+
+			</choose>
+			)
+		</if>
+	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
 				, supply_id
@@ -88,6 +130,7 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, cus_relationship
 		, is_scan
+		, erp_order_code
 	</sql>
 	
 	<sql id="commonCondition">
@@ -151,6 +194,7 @@
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, cus_relationship=#{cusRelationship} 
 			, is_scan=#{isScan} 
+			, erp_order_code=#{erpOrderCode} 
 		WHERE order_issued_id = #{orderIssuedId}  ]]>
 	</update>
 	
@@ -238,7 +282,8 @@
 			    date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
 			    O.LEAVE_MESSAGE,
 			    O.ORDER_ID,
-			    PUO.cust_code_erp AS CUST_ID
+			    PUO.cust_code_erp AS CUST_ID,
+				SPT.PAY_TYPE
 			FROM
 			    T_ORDER O,
 			    t_cust_erp_relation PUO,
@@ -249,17 +294,12 @@
 			AND PUO.relation_status='2'
 			AND O.SUPPLY_ID = PUO.seller_code
 			AND SPT.PAY_TYPE_ID = O.pay_type_id
-			AND O.ORDER_STATUS = '5'
-			<if test="payType != null"> 
-				 AND SPT.PAY_TYPE in
-		        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
-		            #{type}
-		        </foreach>
-			</if>
-			<if test="supplyId != null and supplyId != ''"> 
-			    <![CDATA[
-					AND O.SUPPLY_ID = #{supplyId}
-				]]>
+			<include refid="payTypeJudge"/>
+			<if test="supplyIdList != null"> 
+					AND O.SUPPLY_ID in 
+					<foreach item="supplyId" index="index" collection="supplyIdList" open="(" separator="," close=")">
+		                 #{supplyId}
+		            </foreach>
 			</if>
 			<if test="orderIdList!= null"> 
 				 AND O.flow_id in
@@ -293,7 +333,8 @@
 			date_format(O.CREATE_TIME, '%Y-%m-%d %H:%i:%s') CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.cust_code_erp AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID,
+			SPT.PAY_TYPE
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
@@ -305,15 +346,9 @@
 			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
 			O.SUPPLY_ID = #{supplyId}
-		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 > OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-		<if test="payType != null"> 
-			 AND SPT.PAY_TYPE in
-	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
-	            #{type}
-	        </foreach>
-		</if>
+		<include refid="payTypeJudge"/>
 	</select>
 	<select id="getItemsById" parameterType="java.lang.Integer"  resultMap="OrderIssuedItemsResultMapper" useCache="false">
 		SELECT
@@ -338,19 +373,13 @@
 		SELECT PA.PRODUCTCODE_COMPANY FROM T_PRODUCT_AUDIT PA WHERE PA.SELLER_CODE = #{supplyId} AND PA.SPU_CODE = #{spuCode}
 	</select>-->
 
-	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedResultMapper" useCache="false">
-		SELECT OI.FLOW_ID FROM T_ORDER_ISSUED OI
+	<select id="getManufacturerOrder" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
+		SELECT OI.FLOW_ID,O.ORDER_ID,OI.ERP_ORDER_CODE FROM T_ORDER_ISSUED OI
 		LEFT JOIN  T_ORDER O ON O.FLOW_ID =OI.FLOW_ID
-		LEFT JOIN  T_SYSTEM_PAY_TYPE TP ON O.pay_type_id=TP.PAY_TYPE_ID
+		LEFT JOIN  T_SYSTEM_PAY_TYPE SPT ON O.pay_type_id=SPT.PAY_TYPE_ID
 		WHERE
-		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1'  
-		AND O.ORDER_STATUS = '5'
-		<if test="payType != null"> 
-			 AND TP.pay_type in
-	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
-	            #{type}
-	        </foreach>
-		</if> 
+		OI.SUPPLY_ID=#{supplyId} AND OI.issued_status='1'
+		<include refid="payTypeJudge"/>
 	</select>
 	
 	<select id="findOrderIssuedNoRelationshipList" parameterType="Map" resultType="java.util.Map" useCache="false">
@@ -364,13 +393,7 @@
 		   T_ORDER O  LEFT JOIN T_SYSTEM_PAY_TYPE SPT
 		   ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE O.SUPPLY_ID = #{supplyId}
-		AND   O.ORDER_STATUS = '5'
-		<if test="payType != null"> 
-			 AND SPT.PAY_TYPE in
-	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
-	            #{type}
-	        </foreach>
-		</if> 
+		<include refid="payTypeJudge"/>
 			AND (concat(O.cust_id ,',',O.SUPPLY_ID) NOT in (SELECT concat(IFNULL(cust_code_yc,'') ,',',seller_code )from t_cust_erp_relation WHERE relation_status='2')  )
 	</select>
 	<select id="findOrderIssuedHasRelationshipList" parameterType="Map"  resultMap="OrderIssuedDtoResultMapper" useCache="false">
@@ -382,7 +405,8 @@
 			O.CREATE_TIME,
 			O.LEAVE_MESSAGE,
 			O.ORDER_ID,
-			PUO.cust_code_erp AS CUST_ID
+			PUO.cust_code_erp AS CUST_ID,
+			SPT.PAY_TYPE
 		FROM
 			T_ORDER O LEFT JOIN T_ORDER_ISSUED OI
 			ON O.FLOW_ID =OI.FLOW_ID
@@ -394,15 +418,9 @@
 			ON SPT.PAY_TYPE_ID = O.PAY_TYPE_ID
 		WHERE
 			O.SUPPLY_ID = #{supplyId}
-		AND O.ORDER_STATUS = '5'
 		AND (OI.ISSUED_STATUS = 0 OR OI.ISSUED_STATUS IS NULL)
 		AND (3 = OI.ISSUED_COUNT OR OI.ISSUED_COUNT IS NULL)
-		and OI.cus_relationship = 0
-		<if test="payType != null"> 
-			 AND SPT.PAY_TYPE in
-	        <foreach item="type" index="index" collection="payType" open="(" separator="," close=")">
-	            #{type}
-	        </foreach>
-		</if> 
+		AND OI.cus_relationship = 0
+		<include refid="payTypeJudge"/>
 	</select>
 </mapper>

@@ -11,34 +11,20 @@
 package com.yyw.yhyc.order.service;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import com.search.model.yhyc.*;
-import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
-import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
-import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
-import com.yyw.yhyc.exception.ServiceException;
-import com.yyw.yhyc.helper.UtilHelper;
-import com.yyw.yhyc.order.appdto.*;
-import com.yyw.yhyc.order.appdto.ProductPromotion;
-import com.yyw.yhyc.order.dto.ShoppingCartDto;
-import com.yyw.yhyc.order.dto.ShoppingCartListDto;
-import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.ProductStatusEnum;
-import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
-import com.yyw.yhyc.order.manage.OrderManage;
-import com.yyw.yhyc.order.mapper.OrderDetailMapper;
-import com.yyw.yhyc.product.bo.ProductInventory;
-import com.yyw.yhyc.product.dto.ProductPromotionDto;
-import com.yyw.yhyc.product.manage.ProductInventoryManage;
-import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
-import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
-import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
-import com.yyw.yhyc.utils.MyConfigUtil;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +32,38 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.search.model.comparator.ProductPromotionRuleComparator;
+import com.search.model.yhyc.ProductDrug;
+import com.search.model.yhyc.ProductPromotionInfo;
+import com.search.model.yhyc.ProductPromotionRule;
+import com.yaoex.druggmp.dubbo.service.interfaces.IProductDubboManageService;
+import com.yaoex.druggmp.dubbo.service.interfaces.IPromotionDubboManageService;
+import com.yaoex.usermanage.interfaces.custgroup.ICustgroupmanageDubbo;
 import com.yyw.yhyc.bo.Pagination;
+import com.yyw.yhyc.exception.ServiceException;
+import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.appdto.AddressBean;
+import com.yyw.yhyc.order.appdto.CartData;
+import com.yyw.yhyc.order.appdto.CartGroupData;
+import com.yyw.yhyc.order.appdto.CartProductBean;
+import com.yyw.yhyc.order.appdto.ProductPromotion;
+import com.yyw.yhyc.order.bo.ShoppingCart;
+import com.yyw.yhyc.order.dto.ShoppingCartDto;
+import com.yyw.yhyc.order.dto.ShoppingCartListDto;
+import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.ProductStatusEnum;
+import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import com.yyw.yhyc.order.manage.OrderManage;
+import com.yyw.yhyc.order.mapper.OrderDetailMapper;
 import com.yyw.yhyc.order.mapper.ShoppingCartMapper;
+import com.yyw.yhyc.product.bo.ProductInventory;
+import com.yyw.yhyc.product.dto.ProductPromotionDto;
+import com.yyw.yhyc.product.manage.ProductInventoryManage;
+import com.yyw.yhyc.product.mapper.ProductInventoryMapper;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
+import com.yyw.yhyc.utils.MyConfigUtil;
 
 @Service("shoppingCartService")
 public class ShoppingCartService {
@@ -62,6 +77,7 @@ public class ShoppingCartService {
 
 	@Autowired
 	private UsermanageReceiverAddressMapper receiverAddressMapper;
+
 
 	@Autowired
 	public void setProductInventoryManage(ProductInventoryManage productInventoryManage) {
@@ -889,6 +905,7 @@ public class ShoppingCartService {
 		if(shoppingCart.getProductCount() > 0 && shoppingCart.getProductCount() <= promotionProductNumStillCanBuy){
 			/* 允许减少数量 */
 			shoppingCart.setUpdateUser(userDto.getUserName());
+			shoppingCart.setProductSettlementPrice(oldShoppingCart.getProductPrice().multiply(new BigDecimal(shoppingCart.getProductCount())));
 			logger.info("更新购物车中数量接口--减少活动商品数量:准备更新shoppingCart=" + shoppingCart );
 			resultCount = shoppingCartMapper.update(shoppingCart);
 			map.put("activityProduct",shoppingCart.getShoppingCartId());
@@ -1007,32 +1024,32 @@ public class ShoppingCartService {
 
 
 
-	/**
-	 * 极速下单 获取商品列表
-	 * @param userDto
-	 * @param productSearchInterface
-	 * @param fromWhere
-     * @return
-     */
-	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, int fromWhere,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
-		if(UtilHelper.isEmpty(userDto)){
-			logger.info("当前登陆人的信息,userDto=" + userDto);
-			return null;
-		}
-		/* 获取极速下单中的商品信息 */
-		ShoppingCart shoppingCart = new ShoppingCart();
-		shoppingCart.setCustId(userDto.getCustId());
-		shoppingCart.setFromWhere(fromWhere);
-		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
-		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
-
-		if(UtilHelper.isEmpty(allShoppingCart)){
-			return allShoppingCart;
-		}
-
-		/* 处理商品信息： */
-		return handleProductInfo(allShoppingCart,userDto, productSearchInterface,iCustgroupmanageDubbo);
-	}
+//	/**
+//	 * 极速下单 获取商品列表
+//	 * @param userDto
+//	 * @param productSearchInterface
+//	 * @param fromWhere
+//     * @return
+//     */
+//	public List<ShoppingCartListDto> listForFastOrder(UserDto userDto, int fromWhere,ProductSearchInterface productSearchInterface,ICustgroupmanageDubbo iCustgroupmanageDubbo) {
+//		if(UtilHelper.isEmpty(userDto)){
+//			logger.info("当前登陆人的信息,userDto=" + userDto);
+//			return null;
+//		}
+//		/* 获取极速下单中的商品信息 */
+//		ShoppingCart shoppingCart = new ShoppingCart();
+//		shoppingCart.setCustId(userDto.getCustId());
+//		shoppingCart.setFromWhere(fromWhere);
+//		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listForFastOrder(shoppingCart);
+//		logger.info("数据库中查询的信息,allShoppingCart=" + allShoppingCart);
+//
+//		if(UtilHelper.isEmpty(allShoppingCart)){
+//			return allShoppingCart;
+//		}
+//
+//		/* 处理商品信息： */
+//		return handleProductInfo(allShoppingCart,userDto, productSearchInterface,iCustgroupmanageDubbo);
+//	}
 
 	/**
 	 * 进货单列表接口(PC端、App端、H5通用逻辑)
@@ -1049,8 +1066,10 @@ public class ShoppingCartService {
 		/* 获取购物车中的商品信息 */
 		ShoppingCart shoppingCart = new ShoppingCart();
 		shoppingCart.setCustId(userDto.getCustId());
+		shoppingCart.setFromWhere(ShoppingCartFromWhereEnum.SHOPPING_CART.getFromWhere());
 		long startTime = System.currentTimeMillis();
 		List<ShoppingCartListDto> allShoppingCart = shoppingCartMapper.listAllShoppingCart(shoppingCart);
+		
 		long endTime = System.currentTimeMillis();
 		logger.info("购物车列表接口---从DB获取数据,耗时："+ (endTime - startTime) +"毫秒，allShoppingCart=" + allShoppingCart);
 
@@ -1070,9 +1089,9 @@ public class ShoppingCartService {
 			logger.info("购物车列表接口---处理完所有商品的详细数据(含调用Dubbo服务时间),耗时："+ (endTime - startTime) +"毫秒，返回数据 allShoppingCartAfterHandler = " + allShoppingCartAfterHandler);
 		}
 		return allShoppingCartAfterHandler;
-
 	}
 
+	
 	/**
 	 * 处理商品信息
 	 * @param allShoppingCart
@@ -1145,8 +1164,9 @@ public class ShoppingCartService {
 		return allShoppingCart;
 	}
 
+		
 	public String getProductImgUrl(String spuCode, IProductDubboManageService iProductDubboManageService) {
-		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
 		if(UtilHelper.isEmpty(spuCode) || UtilHelper.isEmpty(iProductDubboManageService)){
 			return filePath;
 		}
@@ -1190,7 +1210,7 @@ public class ShoppingCartService {
 	}
 
 	private String getProductImgUrl(String file_path) {
-		String filePath = "http://oms.yaoex.com/static/images/product_default_img.jpg";
+		String filePath = "https://oms.yaoex.com/static/images/product_default_img.jpg";
 		if(UtilHelper.isEmpty(file_path) ){
 			return filePath;
 		}
@@ -1540,9 +1560,52 @@ public class ShoppingCartService {
 			shoppingCartDto.setNormalStatus(true);
 			shoppingCartDto.setStatusEnum(ProductStatusEnum.Normal.getStatus());
 		}
+		
+		
+		if(!UtilHelper.isEmpty(shoppingCartDto.getPromotionCollectionId())){//存在满减活动,获取满减活动与规则
+			Set<ProductPromotionInfo> productPromotionInfos = productDrug.getProductPromotionInfos();
+
+			if(!UtilHelper.isEmpty(productPromotionInfos)){//如果活动过期或者失效
+				List<ProductPromotionInfo> infoList = new ArrayList<ProductPromotionInfo>(productPromotionInfos);
+				if(infoList.size()==1){//只有一个满减活动
+					getRule(shoppingCartDto,infoList.get(0));
+				}else if(infoList.size()==2){//存在2个满减活动（单品和多品）,只需展示单品的满减规则
+					if(infoList.get(0).getPromotion_type().equals("2")){//单品
+						getRule(shoppingCartDto,infoList.get(0));
+					}else{
+						getRule(shoppingCartDto,infoList.get(1));
+					}
+				}
+			}
+		}
 		return shoppingCartDto;
 	}
 
-
-
+	/**
+	 * 根据活动生成满减规则
+	 */
+	private void getRule(ShoppingCartDto shoppingCartDto,ProductPromotionInfo info){
+		Set<ProductPromotionRule> productPromotionRules = info.getProductPromotionRules();
+		Comparator myComparator = new ProductPromotionRuleComparator();
+		Set<ProductPromotionRule> sortProductPromotionRules = new TreeSet<ProductPromotionRule>(myComparator);
+		sortProductPromotionRules.addAll(productPromotionRules);
+		List<ProductPromotionRule> ruleList = new ArrayList<ProductPromotionRule>(sortProductPromotionRules);
+		String rule = "";
+		for (ProductPromotionRule promotionRule : ruleList) {
+			rule+=info.getPromotion_pre().equals("0")?"满"+promotionRule.getPromotion_sum()+"元,":"满"+promotionRule.getPromotion_sum()+"件,";
+			rule+=info.getPromotion_method().equals("0")?"减"+promotionRule.getPromotion_minu()+"元,&#10;":"每件打"+promotionRule.getPromotion_minu()+"折,&#10;";
+		}
+		if(info.getLevel_incre().equals("1")){
+			rule+="按层级递增,&#10;";
+		}
+		if(info.getLimit_num()!=null){
+			rule+="每个用户可参加该活动"+info.getLimit_num()+"次;";
+		}else{
+			rule += "每个用户不限购"; 
+		}
+		shoppingCartDto.setRule(rule);
+		shoppingCartDto.setGroupCode(info.getGroup_codes());
+		shoppingCartDto.setSupplyId(Integer.parseInt(info.getEnterprise_id()));
+		shoppingCartDto.setPromotionCollectionId(info.getPromotion_id().toString());
+	}
 }

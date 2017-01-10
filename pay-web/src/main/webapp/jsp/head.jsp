@@ -5,6 +5,7 @@
   Time: 17:22
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <script type="text/javascript">
     var sysname = "front";

@@ -3,6 +3,7 @@ package com.yyw.yhyc.order.facade;
 import com.yyw.yhyc.order.bo.ManufacturerOrder;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderIssued;
+import com.yyw.yhyc.order.dto.OrderIssuedDto;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ public interface ManufacturerOrderFacade {
      * @param supplyId
      * @return
      */
-    public List<OrderIssued> getManufacturerOrder(Integer supplyId,String payType);
+    public List<OrderIssuedDto> getManufacturerOrder(Integer supplyId,String payType);
 
     /**
      * 发货

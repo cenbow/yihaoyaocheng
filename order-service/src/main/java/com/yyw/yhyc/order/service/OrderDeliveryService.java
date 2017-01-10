@@ -1457,8 +1457,8 @@ public class OrderDeliveryService {
                         	  errorMsg.append("该订单flowId="+manufacturerOrder.getFlowId()+"不存在,");
                         }else{
                         	
-                        	 if (!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())) {
-                        		 errorMsg.append("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态,");
+                        	 if (!(SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()))) {
+                        		 errorMsg.append("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态或者买家已下单状态,");
                              }
                         	
                         }
@@ -1629,7 +1629,16 @@ public class OrderDeliveryService {
             List<ManufacturerOrder> list = new ArrayList<ManufacturerOrder>();
             for (ManufacturerOrder manufacturerOrder : manufacturerOrderList) {
                 if (!UtilHelper.isEmpty(manufacturerOrder.getFlowId()) && !UtilHelper.isEmpty(manufacturerOrder.getSupplyId()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliverTime()) && !UtilHelper.isEmpty(manufacturerOrder.getOrderStatus()) && !UtilHelper.isEmpty(manufacturerOrder.getDeliveryMethod())) {
+                    //根据erp对接用户传递的可能是订单编号也可能是订单ID，如果订单编号查不到，则查订单ID
                     Order order = orderMapper.getOnlinePaymentOrderbyFlowId(manufacturerOrder.getFlowId());
+                    if(UtilHelper.isEmpty(order)){
+                        try{
+                            order = orderMapper.getByPK(Integer.parseInt(manufacturerOrder.getFlowId()));
+                        }catch (Exception e){
+                            log.info("该订单" + manufacturerOrder.getFlowId() + "查询出错");
+                            continue;
+                        }
+                    }
                     if (UtilHelper.isEmpty(order)) {
                         list.add(manufacturerOrder);
                         log.info("该订单" + manufacturerOrder.getFlowId() + "为空");
@@ -1640,9 +1649,9 @@ public class OrderDeliveryService {
                         log.info("该订单" + manufacturerOrder.getFlowId() + "不是该" + manufacturerOrder.getSupplyId() + "供应商");
                         continue;
                     }
-                    if (!SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())) {
+                    if (!(SystemOrderStatusEnum.BuyerAlreadyPaid.getType().equals(order.getOrderStatus())||SystemOrderStatusEnum.BuyerOrdered.getType().equals(order.getOrderStatus()))) {
                         list.add(manufacturerOrder);
-                        log.info("该订单" + manufacturerOrder.getFlowId() + "不是买家已付款状态");
+                        log.info("该订单" + manufacturerOrder.getFlowId() + "状态错误");
                         continue;
                     }
                     List<OrderDetail> orderDetailList = orderDetailMapper.listOrderDetailInfoByOrderId(order.getOrderId());

@@ -70,8 +70,13 @@ import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.service.OrderCreateService;
 import com.yyw.yhyc.order.service.OrderExportService;
+
+import com.yyw.yhyc.order.service.OrderFullReductionService;
+
 import com.yyw.yhyc.order.service.OrderLogService;
+
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
 import com.yyw.yhyc.order.service.SystemDateService;
@@ -121,6 +126,14 @@ public class OrderController extends BaseJsonController {
 
 	@Reference
 	private IPromotionDubboManageService iPromotionDubboManageService;
+	
+	@Autowired
+	private OrderFullReductionService orderFullReductionService;
+	@Autowired
+	private OrderCreateService orderCreateService;
+	
+	@Reference
+	private IPromotionDubboManageService promotionDubboManageService;
 
 	@Autowired
 	private OrderLogService orderLogService;
@@ -235,8 +248,12 @@ public class OrderController extends BaseJsonController {
 			orderDto.setSupplyName(seller.getEnterpriseName());
 
 			/* 商品信息校验 ： 检验商品上架、下架状态、价格、库存、订单起售量等一系列信息 */
-			map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
-					productSearchInterface,iPromotionDubboManageService);
+			
+			/*map = orderService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+					productSearchInterface,iPromotionDubboManageService);*/
+			
+			map = this.orderCreateService.validateProducts(userDto,orderDto,iCustgroupmanageDubbo,productDubboManageService,
+			productSearchInterface,iPromotionDubboManageService);
 			boolean result = (boolean) map.get("result");
 			if(!result){
 				return map;
@@ -403,6 +420,28 @@ public class OrderController extends BaseJsonController {
 			allShoppingCart = orderService.handleDataForPeriodTermOrder(userDto,allShoppingCart,creditDubboService,productSearchInterface,iCustgroupmanageDubbo);
 			dataMap.put("allShoppingCart",allShoppingCart);
 		}
+		
+		/***********以下处理订单的满减促销**************/
+		if(!UtilHelper.isEmpty(dataMap) || !UtilHelper.isEmpty(dataMap.get("allShoppingCart"))){
+			List<ShoppingCartListDto> allShoppingCart  = (List<ShoppingCartListDto>) dataMap.get("allShoppingCart");
+			allShoppingCart=this.orderFullReductionService.processFullReduction(allShoppingCart,promotionDubboManageService);
+			Map<String,Object> returnMap=this.orderFullReductionService.processCalculationOrderShareMoney(allShoppingCart);
+			allShoppingCart=(List<ShoppingCartListDto>) returnMap.get("allShoppingCart");
+			
+			BigDecimal allOrderShareMoney=(BigDecimal) returnMap.get("allOrderShareMoney");
+			//无优惠的金额
+			BigDecimal orderPriceCount=(BigDecimal) dataMap.get("orderPriceCount"); 
+			
+			orderPriceCount=orderPriceCount.subtract(allOrderShareMoney);
+			if(orderPriceCount.compareTo(new BigDecimal(0))==-1){
+				dataMap.put("orderPriceCount",0);
+			}else{
+				dataMap.put("orderPriceCount",orderPriceCount);
+			}
+		
+			dataMap.put("allShoppingCart",allShoppingCart);
+			dataMap.put("allOrderShareMoney",allOrderShareMoney);//所有订单的优惠金额
+		}
 
 		model.addObject("dataMap",dataMap);
 		model.setViewName("order/checkOrderPage");
@@ -440,9 +479,16 @@ public class OrderController extends BaseJsonController {
         pagination.setPaginationFlag(requestModel.isPaginationFlag());
         pagination.setPageNo(requestModel.getPageNo());
         pagination.setPageSize(requestModel.getPageSize());
-		OrderDto orderDto = requestModel.getParam();
+        logger.debug("参数requestModel.getParam()=="+requestModel.getParam());
+        String jsonStr=JSON.toJSONString(requestModel.getParam());
+		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
+		
+	    logger.debug("参数处理结果==orderDto"+orderDto.toString());
+	    
 		UserDto userDto = super.getLoginUser();
 		orderDto.setCustId(userDto.getCustId());
+		
+		logger.debug("参数userDto=="+userDto.toString());
         return orderService.listPgBuyerOrder(pagination, orderDto);
     }
 
@@ -475,7 +521,8 @@ public class OrderController extends BaseJsonController {
 		pagination.setPaginationFlag(requestModel.isPaginationFlag());
 		pagination.setPageNo(requestModel.getPageNo());
 		pagination.setPageSize(requestModel.getPageSize());
-		OrderDto orderDto = requestModel.getParam();
+		String jsonStr=JSON.toJSONString(requestModel.getParam());
+		OrderDto orderDto =JSON.parseObject(jsonStr, OrderDto.class);
 		UserDto userDto = super.getLoginUser();
 		orderDto.setSupplyId(userDto.getCustId());
 		return orderService.listPgSellerOrder(pagination, orderDto);
@@ -531,7 +578,7 @@ public class OrderController extends BaseJsonController {
 	 */
 	@RequestMapping(value = {"/exportOrder"}, method = RequestMethod.POST)
 	@ResponseBody
-	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus){
+	public void exportOrder(String province,String city,String district,String flowId,String custName,Integer payType,String createBeginTime,String createEndTime,String orderStatus,String promotionName,String adviserCode){
 		// TODO: 2016/8/1 需要从usercontex获取登录用户id
 		Pagination<OrderDto> pagination = new Pagination<OrderDto>();
 		pagination.setPaginationFlag(true);
@@ -543,6 +590,8 @@ public class OrderController extends BaseJsonController {
 		orderDto.setDistrict(district);
 		orderDto.setFlowId(flowId);
 		orderDto.setCustName(custName);
+		orderDto.setAdviserCode(adviserCode);
+		orderDto.setPromotionName(promotionName);
 		if(!UtilHelper.isEmpty(payType)) {
 			orderDto.setPayType(payType);
 		}
