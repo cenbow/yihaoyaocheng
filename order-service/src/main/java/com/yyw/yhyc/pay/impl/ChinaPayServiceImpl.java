@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -471,7 +472,7 @@ public class ChinaPayServiceImpl implements PayService {
                 if("0000".equals(donePay.get("respCode"))){
                     orderSettlementStatus = true;
                 }
-                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus,orderPay.getPayMoney().subtract(cancelMoney));
+                orderPayManage.updateTakeConfirmOrderInfos(orderPay.getPayFlowId(), orderSettlementStatus,orderPay.getPayMoney().subtract(cancelMoney.divide(multiple, 2, RoundingMode.HALF_UP)));
 
                 //进行退款
                 if(cancelNum>0&&donePay.get("respCode").equals("0000")){
@@ -483,10 +484,10 @@ public class ChinaPayServiceImpl implements PayService {
                     if(cancelPay.get("respCode").equals("1003")
                             ||cancelPay.get("respCode").equals("0000")){
                         // //退款成功记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay,cancelMoney);
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),true,cancelPay,cancelMoney.divide(multiple, 2, RoundingMode.HALF_UP));
                     }else{
                         //退款失败记录相关信息
-                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay,cancelMoney);
+                        orderPayManage.updateRedundOrderInfos(orderPay.getPayFlowId(),false,cancelPay,cancelMoney.divide(multiple, 2, RoundingMode.HALF_UP));
                     }
                     rMap.put("code", cancelPay.get("respCode"));
                     rMap.put("msg", cancelPay.get("respMsg"));
