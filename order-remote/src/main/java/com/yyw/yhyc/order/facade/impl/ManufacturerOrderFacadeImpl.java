@@ -46,7 +46,7 @@ public class ManufacturerOrderFacadeImpl implements ManufacturerOrderFacade {
 
     @Override
     public List<ManufacturerOrder> sendOrderDelivery(List<ManufacturerOrder> manufacturerOrderList) {
-        return orderDeliveryService.updateOrderDeliver(manufacturerOrderList,MyConfigUtil.FILE_PATH);
+        return orderDeliveryService.updateOrderDeliverByAllOrPart(manufacturerOrderList,MyConfigUtil.FILE_PATH,iPromotionDubboManageService,creditDubboService);
     }
 
 	@Override

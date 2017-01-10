@@ -109,11 +109,11 @@
                             </div>
                             <table class="table table-box">
                                 <colgroup>
-                                    <col style="width: 20%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 20%;"/>
-                                    <col style="width: 15%;"/>
-                                    <col style="width: 15%;"/>
+                                    <col style="width: 16%;"/>
+                                    <col style="width: 21%;"/>
+                                    <col style="width: 16%;"/>
+                                    <col style="width: 17%;"/>
                                     <col style="width: 15%;"/>
                                 </colgroup>
                                 <thead>
@@ -153,14 +153,16 @@
                 <table class="table table-box2">
                     <colgroup>
                         <col style="width: 10%;">
+                        <col style="width: 6%;">
+                        <col style="width: 6%;">
+                        <col style="width:10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
                         <col style="width: 10%;">
+                        <col style="width: 6%;">
                         <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
-                        <col style="width: 10%;">
+                        <col style="width: 6%;">
+                        <col style="width: 6%;">
                         <col style="width: 10%;">
                     </colgroup>
                     <thead>
@@ -168,12 +170,14 @@
                         <th>订单行号</th>
                         <th>商品编码</th>
                         <th>批号</th>
+                        <th>有效期至</th>
                         <th>商品名</th>
                         <th>通用名</th>
                         <th>规格</th>
                         <th>剂型</th>
                         <th>生产企业</th>
                         <th>采购数量</th>
+                        <th>发货数量</th>
                         <th>收货数量</th>
                     </tr>
                     </thead>
@@ -182,6 +186,11 @@
                 </table>
                     <div class="modal-body" id="bodyDiv" style="display: none">
                         <div class="form-horizontal">
+                              <div class="form-group" id="buhuoAddressShow" style="display: none;">
+	                            <label for="scope" class="col-xs-3 control-label">请选择补货收货地址:</label>
+		                            <div class="col-xs-6 control-label" id="buhuowarehouse" style="text-align: left;">
+		                            </div>
+                             </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-3 control-label">请选择对剩余商品的处理并确认，默认做为拒收处理：</label>
                                 <div class="col-xs-8" style="padding-top: 2%;">
@@ -226,13 +235,14 @@
                         <colgroup>
                             <col style="width: 10%;">
                             <col style="width: 10%;">
+                            <col style="width: 5%;">
+                            <col style="width: 8%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
                             <col style="width: 10%;">
-                            <col style="width: 10%;">
-                            <col style="width: 10%;">
+                            <col style="width: 7%;">
                             <col style="width: 10%;">
                         </colgroup>
                         <thead>
@@ -240,6 +250,7 @@
                             <th>订单行号</th>
                             <th>商品编码</th>
                             <th>批号</th>
+                            <th>有效期至</th>
                             <th>商品名</th>
                             <th>通用名</th>
                             <th>规格</th>
@@ -254,8 +265,13 @@
                     </table>
                     <div class="modal-body" id="bodyDiv2" >
                         <div class="form-horizontal">
+                              <div class="form-group" id="receviceAddressShow" style="display: none;">
+	                            <label for="scope" class="col-xs-3 control-label">请选择换货收货地址:</label>
+		                            <div class="col-xs-6 control-label" id="warehouse"  style="text-align: left;">
+		                            </div>
+                             </div>
                             <div class="form-group">
-                                <label for="cancelResult" class="col-xs-3 control-label">退货说明:</label>
+                                <label for="cancelResult" class="col-xs-3 control-label" id="labelMessage">退货说明:</label>
                                 <div class="col-xs-6 control-label text-left">
                                     <textarea type="text" class="form-control" id="returnDesc2" name="list.returnDesc"
                                               placeholder="" maxlength="200"></textarea>
@@ -276,7 +292,7 @@
 <div class="modal fade" id="postponeOrder" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width: 400px;">
         <div class="modal-content">
-            <div class="modal-header">延期收获</div>
+            <div class="modal-header">延期收货</div>
             <div class="modal-body font-size-16 text-center" >
                 每笔订单最多延期收货两次，确认延期收货吗？
             </div>
@@ -288,6 +304,67 @@
         </div>
     </div>
 </div>
+
+
+ <!-- 部分发货的收发货物清单 -->
+<div class="modal fade" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-box4">
+                    <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 10%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>订单行号</th>
+                        <th>商品编码</th>
+                        <th>批号</th>
+                        <th>有效期至</th>
+                        <th>商品名</th>
+                        <th>通用名</th>
+                        <th>规格</th>
+                        <th>剂型</th>
+                        <th>生产企业</th>
+                        <th>采购数量</th>
+                        <th>发货数量</th>
+                        <th>收货数量</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                
+                   <div class="form-group" style="display: none;" id="showProductMoneyDiv">
+	                  <label for="scope" class="col-xs-8 control-label"></label>
+	                  <label for="scope" class="col-xs-4 control-label">未发货商品金额:&yen<span id="showMoney"></span></label>
+                  </div>
+                 
+              
+                <div class="pager" id="J_pager4"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+ </div>
+
 <%@ include file="../common_footer.jsp" %>
 <script type="text/javascript" src="${ctx }/static/js/order/buyer_order_manage.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/order/buyer_order_manage_return.js"></script>

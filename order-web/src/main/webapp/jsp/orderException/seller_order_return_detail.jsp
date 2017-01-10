@@ -44,7 +44,7 @@
             <div class="row choseuser margin-t-20 border-gray">
                 <h2 class="row">订单信息</h2>
                 <div class="modify">
-                    <div class="form-horizontal padding-t-26">
+                   <%--  <div class="form-horizontal padding-t-26">
                         <div class="form-group">
                             <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人信息</label>
                         </div>
@@ -73,11 +73,16 @@
                             <label for="scope" class="col-xs-2 control-label">联系方式：</label>
                             <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
                         </div>
-                    </div>
+                    </div> --%>
                     <div class="form-horizontal padding-t-26">
-                        <div class="form-group">
-                            <label class="col-xs-12 color999 padding-l-40 font-size-16">其他信息</label>
+                          
+                         <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">采购商:</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.custName}</div>
+                            <label for="scope" class="col-xs-2 control-label"></label>
+                            <div class="col-xs-3 control-label text-left"></div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">关联订单支付方式：</label>
                             <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
@@ -130,6 +135,39 @@
                         </div>
 
                     </div>
+                    
+                    
+                      <div class="form-horizontal padding-t-26">
+                        <div class="form-group">
+                            <label class="col-xs-12 color999 padding-l-40 font-size-16">退货收货地址:</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">收货人：</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receivePerson}</div>
+                            <label for="scope" class="col-xs-2 control-label">收货地址：</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receiveAddress}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">联系方式：</label>
+                            <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.receiveContactPhone}</div>
+                        </div>
+                    </div>
+                    <div class="form-horizontal padding-t-26">
+                        <div class="form-group">
+                            <label class="col-xs-12 color999 padding-l-40 font-size-16">退货发货地址:</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">发货人：</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
+                            <label for="scope" class="col-xs-2 control-label">发货地址：</label>
+                            <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryAddress}</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scope" class="col-xs-2 control-label">联系方式：</label>
+                            <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
 
@@ -187,7 +225,8 @@
                 <div class="modify padding-20">
                     <table class="table table-box">
                         <colgroup>
-                            <col style="width: 40%;" />
+                            <col style="width: 3%;"/>
+                            <col style="width: 27%;"/>
                             <col style="width: 15%;" />
                             <col style="width: 15%;" />
                             <col style="width: 15%;" />
@@ -195,6 +234,7 @@
                         </colgroup>
                         <thead>
                         <tr>
+                            <th></th>
                             <th>商品</th>
                             <th>批号</th>
                             <th>单价</th>
@@ -205,15 +245,30 @@
                         <tbody>
                         <c:choose>
                             <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
-                                <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}">
+                                <c:set var="spuCount" value="0"></c:set>
+                                <c:set var="spuStr" value=","></c:set>
+                                <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
+                                    <c:set var="spuCodeThis" value="${orderReturnDto.spuCode}"></c:set>
+                                    <c:choose>
+                                        <c:when test="${fn:contains(spuStr,spuCodeThis)}">
+                                        </c:when> <c:otherwise>
+                                        <c:set var="spuCount" value="${spuCount+1}"></c:set>
+                                    </c:otherwise>
+                                    </c:choose>
+                                    <c:set var="spuStr" value="${spuCount}+','+${orderReturnDto.spuCode}"></c:set>
                                     <tr>
+                                        <td>${ detailsVarStatus.index + 1}</td>
                                         <td>
                                             <div class="clearfix">
                                                 <div class="fl">
-                                                    <img alt="${orderReturnDto.productName}" class="productImageUrl" spuCode="${orderReturnDto.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                    <img alt="${orderReturnDto.shortName}" class="productImageUrl" spuCode="${orderReturnDto.spuCode}"  onerror="this.error = null;this.src='${STATIC_URL}/static/images/img_03.jpg'">
+                                                    </a>
                                                 </div>
                                                 <div class="fl fontbox">
-                                                    <p class="title">${orderReturnDto.productName}</p>
+                                                    <a href='http://mall.yaoex.com/product/productDetail/${orderReturnDto.spuCode}/${orderReturnDto.supplyId}'>
+                                                    <p class="title">${orderReturnDto.shortName}</p>
+                                                    </a>
                                                     <p class="text">${orderReturnDto.manufactures}</p>
                                                     <p class="text">${orderReturnDto.specification}</p>
                                                 </div>
@@ -222,7 +277,7 @@
                                         <td>${orderReturnDto.batchNumber}</td>
                                         <td>¥ <fmt:formatNumber value="${orderReturnDto.productPrice}" minFractionDigits="2"/></td>
                                         <td>x ${orderReturnDto.returnCount}</td>
-                                        <td>¥ <fmt:formatNumber value="${orderReturnDto.returnPay}" minFractionDigits="2"/></td>
+                                        <td>¥ <fmt:formatNumber value="${orderReturnDto.productAllMoney}" minFractionDigits="2"/></td>
                                     </tr>
                                 </c:forEach>
                             </c:when>
@@ -238,8 +293,10 @@
                     </table>
 
                     <div class="text-right">
+                        <p>品种数：${spuCount}</p>
                         <p>商品金额： <fmt:formatNumber value="${orderExceptionDto.productPriceCount}" minFractionDigits="2"/>元<p>
-                        <p class="red">订单金额：<fmt:formatNumber value="${orderExceptionDto.productPriceCount}" minFractionDigits="2"/>元<p>
+                         <p>满减金额： -<fmt:formatNumber value="${orderExceptionDto.orderShareMoney}" minFractionDigits="2"/>元<p>
+                        <p class="red">订单金额：<fmt:formatNumber value="${orderExceptionDto.orderPriceCount}" minFractionDigits="2"/>元<p>
                     </div>
                 </div>
             </div>

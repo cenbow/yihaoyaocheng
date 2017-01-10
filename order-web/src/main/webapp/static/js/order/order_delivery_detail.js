@@ -46,7 +46,7 @@ function listReplenishment(requestParam) {
     var requestUrl = ctx+"/order/orderDeliveryDetail/listReplenishment";
     var flowId=$("#flowId").val().trim();
     var userType=$("#userType").val().trim();
-    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId}};
+    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
     tipLoad();
     $.ajax({
         url : requestUrl,
@@ -107,12 +107,19 @@ function fillTableJson(data) {
         tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
         tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
         tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+        
+        if(orderDeliveryDetail.validUntil){
+        	 tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+        }else{
+        	 tr += "<td></td>";
+        }
+       
         tr += "<td>" + orderDeliveryDetail.productName + "</td>";
         tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
-        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
         tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
         tr += "<td>" + recieveCount + "</td>";
         tr += "</tr>";

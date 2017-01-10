@@ -33,6 +33,7 @@
 		<result column="update_time" property="updateTime"/>
 		<result column="recieve_count" property="recieveCount"/>
 		<result column="can_return_count" property="canReturnCount"/>
+		<result column="valid_until" property="validUntil"/>
 	</resultMap>
 
 	<resultMap type="OrderDeliveryDetailDto" id="OrderDeliveryDetailDtoResultMapper" extends="OrderDeliveryDetailResultMapper">
@@ -46,6 +47,9 @@
 		<result column="short_name" property="shortName"/>
 		<result column="supply_id" property="supplyId"/>
 		<result column="spu_code" property="spuCode"/>
+		<result column="is_part_delivery" property="partDelivery"/>
+		<result column="preferential_cancel_money" property="cancelmMoney"/>
+		
 	</resultMap>
 	
 	<sql id="commonColumns">
@@ -65,6 +69,7 @@
 		, update_time
 		, recieve_count
 		, can_return_count
+		,valid_until
 	</sql>
 
     <sql id="commonColumnsNotPK">
@@ -83,6 +88,7 @@
 				, update_time
 				, recieve_count
 				, can_return_count
+				,valid_until
     </sql>
 	
 	<sql id="commonProcessDateColumns">
@@ -102,6 +108,7 @@
 		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
 		, recieve_count
 		, can_return_count
+		,valid_until
 	</sql>
 	
 	<sql id="commonCondition">
@@ -175,6 +182,7 @@
 				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 				, #{recieveCount}
 				, #{canReturnCount}
+				, #{validUntil}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderDeliveryDetail">
@@ -195,6 +203,7 @@
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, recieve_count=#{recieveCount}
 			, can_return_count=#{canReturnCount}
+			, valid_until=#{validUntil}
 		WHERE order_delivery_detail_id = #{orderDeliveryDetailId}  ]]>
 	</update>
 	<delete id="deleteByPK" parameterType="java.lang.Integer">
@@ -229,10 +238,41 @@
 	</select>
 
 	<select id="listPaginationByProperty" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name,O.supply_id,OD.spu_code from t_order_delivery_detail ODD
-        LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id AND ODD.order_id=OD.order_id
-        LEFT JOIN t_order O ON O.flow_id=ODD.flow_id
-        WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		SELECT
+		    ODD.order_delivery_detail_id,
+		    ODD.order_line_no,
+		    ODD.batch_number,
+		    ODD.delivery_product_count,
+		    ODD.valid_until,
+		    OD.order_detail_id,
+		    OD.product_code,
+		    OD.product_name,
+		    OD.brand_name,
+		    OD.form_of_drug,
+		    OD.specification,
+		    OD.manufactures,
+		    OD.product_count,
+		    ODD.recieve_count,
+		    OD.short_name,
+		    O.supply_id,
+		    O.preferential_cancel_money,
+		    O.is_part_delivery,
+		    OD.spu_code
+		FROM
+		    t_order_delivery_detail ODD
+		LEFT JOIN
+		    t_order_detail OD
+		ON
+		    ODD.order_detail_id=OD.order_detail_id
+		AND ODD.order_id=OD.order_id
+		LEFT JOIN
+		    t_order O
+		ON
+		    O.flow_id=ODD.flow_id
+		WHERE
+		1=1
+		AND ODD.flow_id=#{flowId}
+		AND ODD.delivery_status=1
 		<if test="custId!= null and custId!= ''">
 	    	AND O.cust_id=#{custId}
 		</if>
@@ -242,10 +282,38 @@
 	</select>
 
 	<select id="listPaginationReturnByProperty" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.short_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,ODD.can_return_count from t_order_delivery_detail ODD
-		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id AND ODD.order_id=OD.order_id
-		LEFT JOIN t_order O ON O.flow_id=ODD.flow_id
-		WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		SELECT
+		    ODD.order_delivery_detail_id,
+		    ODD.order_line_no,
+		    ODD.batch_number,
+		    ODD.delivery_product_count,
+		    OD.order_detail_id,
+		    OD.product_code,
+		    OD.product_name,
+		    OD.short_name,
+		    OD.brand_name,
+		    OD.form_of_drug,
+		    OD.specification,
+		    OD.manufactures,
+		    OD.product_count,
+		    ODD.recieve_count,
+		    ODD.can_return_count,
+		    ODD.valid_until
+		FROM
+		    t_order_delivery_detail ODD
+		LEFT JOIN
+		    t_order_detail OD
+		ON
+		    ODD.order_detail_id=OD.order_detail_id
+		AND ODD.order_id=OD.order_id
+		LEFT JOIN
+		    t_order O
+		ON
+		    O.flow_id=ODD.flow_id
+		WHERE
+		  1=1
+		AND ODD.flow_id=#{flowId}
+		AND ODD.delivery_status=1
 		<if test="custId!= null and custId!= ''">
 			AND O.cust_id=#{custId}
 		</if>
@@ -272,21 +340,73 @@
 	</select>
 
 	<select id="listPaginationReplenishment" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper" useCache="false">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name,OD.spu_code from t_order_delivery_detail ODD
-		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
-		LEFT JOIN t_order_exception O ON O.exception_order_id=ODD.flow_id
-		WHERE ODD.flow_id=#{flowId} AND ODD.delivery_status=1
+		SELECT
+		    ODD.order_delivery_detail_id,
+		    ODD.order_line_no,
+		    ODD.batch_number,
+		    ODD.delivery_product_count,
+		    OD.order_detail_id,
+		    OD.product_code,
+		    OD.product_name,
+		    OD.brand_name,
+		    OD.form_of_drug,
+		    OD.specification,
+		    OD.manufactures,
+		    OD.product_count,
+		    ODD.recieve_count,
+		    ODD.valid_until,
+		    OD.short_name,
+		    OD.spu_code
+		FROM
+		    t_order_delivery_detail ODD
+		LEFT JOIN
+		    t_order_detail OD
+		ON
+		    ODD.order_detail_id=OD.order_detail_id
+		LEFT JOIN
+		    t_order_exception O
+		ON
+		    O.exception_order_id=ODD.flow_id
+		WHERE
+		    ODD.flow_id=#{flowId}
+		AND ODD.delivery_status=1
 		<if test="custId!=null and custId!=''">
 			AND O.cust_id=#{custId}
 		</if>
+		<if test="supplyId!=null and supplyId!=''">
+			AND O.supply_id=#{supplyId}
+		</if>
 	</select>
 
-
 	<select id="listPaginationOrderDeliveryDetailDto" parameterType="OrderDeliveryDetailDto" resultMap="OrderDeliveryDetailDtoResultMapper">
-		SELECT ODD.order_delivery_detail_id,ODD.order_line_no,ODD.batch_number,ODD.delivery_product_count,OD.order_detail_id,OD.product_code,OD.product_name,OD.brand_name,OD.form_of_drug,OD.specification,OD.manufactures,OD.product_count,ODD.recieve_count,OD.short_name from t_order_delivery_detail ODD
-		LEFT JOIN t_order_detail OD ON ODD.order_detail_id=OD.order_detail_id
-		LEFT JOIN t_order_exception O ON O.exception_order_id=ODD.flow_id
-		WHERE ODD.delivery_status=1
+		SELECT
+		    ODD.order_delivery_detail_id,
+		    ODD.order_line_no,
+		    ODD.batch_number,
+		    ODD.delivery_product_count,
+		    OD.order_detail_id,
+		    OD.product_code,
+		    OD.product_name,
+		    OD.brand_name,
+		    OD.form_of_drug,
+		    OD.specification,
+		    OD.manufactures,
+		    OD.product_count,
+		    ODD.recieve_count,
+		    ODD.valid_until,
+		    OD.short_name
+		FROM
+		    t_order_delivery_detail ODD
+		LEFT JOIN
+		    t_order_detail OD
+		ON
+		    ODD.order_detail_id=OD.order_detail_id
+		LEFT JOIN
+		    t_order_exception O
+		ON
+		    O.exception_order_id=ODD.flow_id
+		WHERE
+		    ODD.delivery_status=1
 		<if test="flowId!=null and flowId!=''">
 			AND ODD.flow_id=#{flowId}
 		</if>
@@ -297,4 +417,11 @@
 			AND O.supply_id=#{supplyId}
 		</if>
 	</select>
+	<update id="updateRecieve_count" parameterType="OrderDeliveryDetail">
+		<![CDATA[ UPDATE t_order_delivery_detail SET
+			  update_user='admin'
+			, update_time=now()
+			, recieve_count=deliveryProductCount
+		WHERE flow_id = #{flow_id}  ]]>
+	</update>
 </mapper>

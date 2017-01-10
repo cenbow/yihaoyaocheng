@@ -49,10 +49,10 @@
                             <label for="scope" class="col-xs-2 control-label">关联订单号</label>
                             <div class="col-xs-2 control-label text-left">
                                 <c:if test="${orderExceptionDto.userType==1}">
-                                    <a href="${ctx}/order/getBuyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a>
+                                    <a href="${ctx}/order/getBuyOrderDetails?flowId=${orderExceptionDto.flowId}" class="undeline">${orderExceptionDto.flowId}</a>
                                 </c:if>
                                 <c:if test="${orderExceptionDto.userType==2}">
-                                    <a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}">${orderExceptionDto.flowId}</a>
+                                    <a href="${ctx}/order/getSupplyOrderDetails?flowId=${orderExceptionDto.flowId}" class="undeline">${orderExceptionDto.flowId}</a>
                                 </c:if>
                             </div>
                         </div>
@@ -62,39 +62,12 @@
                     <h2 class="row">订单信息</h2>
                     <div class="modify">
                         <div class="form-horizontal padding-t-26">
-                            <div class="form-group">
-                                <label class="col-xs-12 color999 padding-l-40 font-size-16">收货人信息</label>
-                            </div>
-                            <div class="form-group">
-                                <label for="scope" class="col-xs-2 control-label">收货人</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receivePerson}</div>
-                                <label for="scope" class="col-xs-2 control-label">收货地址</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receiveAddress}</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="scope" class="col-xs-2 control-label">联系方式</label>
-                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.receiveContactPhone}</div>
-                            </div>
-                        </div>
-                        <div class="form-horizontal padding-t-26">
-                            <div class="form-group">
-                                <label class="col-xs-12 color999 padding-l-40 font-size-16">发货人信息</label>
-                            </div>
-                            <div class="form-group">
-                                <label for="scope" class="col-xs-2 control-label">供应商</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.supplyName}</div>
-                                <label for="scope" class="col-xs-2 control-label">发货人</label>
-                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="scope" class="col-xs-2 control-label">联系方式</label>
-                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
-                            </div>
-                        </div>
-                        <div class="form-horizontal padding-t-26">
-                            <div class="form-group">
-                                <label class="col-xs-12 color999 padding-l-40 font-size-16">其他信息</label>
-                            </div>
+                             <div class="form-group">
+		                        <label for="scope" class="col-xs-2 control-label">采购商</label>
+		                        <div class="col-xs-3 control-label text-left">${orderExceptionDto.custName}</div>
+		                        <label for="scope" class="col-xs-2 control-label"></label>
+		                        <div class="col-xs-3 control-label text-left"></div>
+                           </div>
                             <div class="form-group">
                                 <label for="scope" class="col-xs-2 control-label">支付方式</label>
                                 <div class="col-xs-3 control-label text-left">${orderExceptionDto.payTypeName}</div>
@@ -116,6 +89,39 @@
                             </div>
 
                         </div>
+                        
+                           <!-- 收货和发货地址 -->
+                          <div class="form-horizontal padding-t-26">
+                            <div class="form-group">
+                                <label class="col-xs-12 color999 padding-l-40 font-size-16">收货地址</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="scope" class="col-xs-2 control-label">收货地址</label>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receiveAddress}</div>
+                                <label for="scope" class="col-xs-2 control-label">收货联系人</label>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.receivePerson}</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="scope" class="col-xs-2 control-label">联系方式</label>
+                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.receiveContactPhone}</div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal padding-t-26">
+                            <div class="form-group">
+                                <label class="col-xs-12 color999 padding-l-40 font-size-16">发货地址</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="scope" class="col-xs-2 control-label">发货地址</label>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryAddress}</div>
+                                <label for="scope" class="col-xs-2 control-label">发货联系人</label>
+                                <div class="col-xs-3 control-label text-left">${orderExceptionDto.orderDelivery.deliveryPerson}</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="scope" class="col-xs-2 control-label">联系方式</label>
+                                <div class="col-xs-10 control-label text-left">${orderExceptionDto.orderDelivery.deliveryContactPhone}</div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
 
@@ -124,7 +130,8 @@
                     <div class="modify padding-20">
                         <table class="table table-box">
                             <colgroup>
-                                <col style="width: 40%;" />
+                                <col style="width: 3%;"/>
+                                <col style="width: 27%;"/>
                                 <col style="width: 15%;" />
                                 <col style="width: 15%;" />
                                 <col style="width: 15%;" />
@@ -132,6 +139,7 @@
                             </colgroup>
                             <thead>
                             <tr>
+                                <th></th>
                                 <th>商品</th>
                                 <th>批号</th>
                                 <th>单价</th>
@@ -142,8 +150,19 @@
                             <tbody>
                                 <c:choose>
                                     <c:when test="${orderExceptionDto != null && fn:length(orderExceptionDto.orderReturnList) gt 0 }">
-                                            <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}">
+                                        <c:set var="spuCount" value="0"></c:set>
+                                        <c:set var="spuStr" value=","></c:set>
+                                            <c:forEach var="orderReturnDto" items="${orderExceptionDto.orderReturnList}" varStatus="detailsVarStatus">
+                                                <c:set var="spuCodeThis" value="${orderReturnDto.spuCode}"></c:set>
+                                                <c:choose>
+                                                    <c:when test="${fn:contains(spuStr,spuCodeThis)}">
+                                                    </c:when> <c:otherwise>
+                                                    <c:set var="spuCount" value="${spuCount+1}"></c:set>
+                                                </c:otherwise>
+                                                </c:choose>
+                                                <c:set var="spuStr" value="${spuCount}+','+${orderReturnDto.spuCode}"></c:set>
                                                 <tr>
+                                                    <td>${ detailsVarStatus.index + 1}</td>
                                                     <td>
                                                         <div class="clearfix">
                                                             <div class="fl">
@@ -178,6 +197,7 @@
                         </table>
 
                         <div class="text-right">
+                            <p>品种数：${spuCount}</p>
                             <p>商品金额： <fmt:formatNumber value="${orderExceptionDto.productPriceCount}" minFractionDigits="2"/>元<p>
                             <p>满减金额： -<fmt:formatNumber value="${orderExceptionDto.orderShareMoney}" minFractionDigits="2"/>元<p>
                             <p class="red">订单金额：<fmt:formatNumber value="${orderExceptionDto.orderPriceCount}" minFractionDigits="2"/>元<p>

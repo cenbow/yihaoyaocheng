@@ -46,6 +46,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -239,19 +240,20 @@ public class OrderDeliveryDetailController extends BaseController {
 			returnType=list.get(0).getReturnType();
 		}
 		UserDto user = super.getLoginUser();
-		Map<String,String> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
-		if(map.get("code").equals("0")){
-			return error(map.get("msg"));
+		Map<String,Object> map = orderDeliveryDetailService.updateConfirmReceipt(list, user);
+		if(map.get("code").toString().equals("0")){
+			return error(map.get("msg").toString());
 		}
 		//当没有异常流程订单结束的时候调用账期结算接口
-		if(null==returnType||"".equals(returnType)){
+		//全部、部分发货20170106  liqiang
+		if("1".equals(map.get("code").toString()) && !UtilHelper.isEmpty(map.get("orderTotal").toString()) && !map.get("orderTotal").toString().equals("")){
 			try {
 				if(UtilHelper.isEmpty(creditDubboService)){
 					logger.error("CreditDubboServiceInterface creditDubboService is null");
 				}else{
-					Order od =  orderService.getOrderbyFlowId(flowId);
-					SystemPayType systemPayType= systemPayTypeService.getByPK(od.getPayTypeId());
-					if(SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
+					Order od = (Order)map.get("order");
+					SystemPayType systemPayType= (SystemPayType)map.get("systemPayType");
+					if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())){
 						CreditParams creditParams = new CreditParams();
 						creditParams.setSourceFlowId(od.getFlowId());//订单编码
 						creditParams.setBuyerCode(od.getCustId() + "");
@@ -271,13 +273,14 @@ public class OrderDeliveryDetailController extends BaseController {
 			} catch (Exception e) {
 				logger.error("orderService.getByPK error, flowId: "+flowId+",errorMsg:"+e.getMessage());
 				e.printStackTrace();
+				throw new RuntimeException("creditDubboService 接口调用失败！");
 			}
 		}
 		return ok(flowId);
 	}
 
 	/**
-	 * 确认收货
+	 * 买家补货确认收货
 	 * @return
 	 * @throws Exception
 	 */
@@ -285,28 +288,31 @@ public class OrderDeliveryDetailController extends BaseController {
 	@ResponseBody
 	public Map<String,Object> updateRepConfirmReceipt(String exceptionOrderId) throws Exception {
 		UserDto user = super.getLoginUser();
-		orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, user);
-		if (UtilHelper.isEmpty(creditDubboService))
-			logger.error("CreditDubboServiceInterface creditDubboService is null");
-		else {
-			OrderException oe = orderExceptionService.getByExceptionOrderId(exceptionOrderId);
-			Order order = orderService.getByPK(oe.getOrderId());
-			SystemPayType systemPayType = systemPayTypeService.getByPK(order.getPayTypeId());
-			if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
-				logger.info("补货确认收货调用资讯接口");
-				CreditParams creditParams = new CreditParams();
-				//creditParams.setSourceFlowId(oe.getFlowId());源订单单号
-				creditParams.setBuyerCode(oe.getCustId() + "");
-				creditParams.setSellerCode(oe.getSupplyId() + "");
-				creditParams.setBuyerName(oe.getCustName());
-				creditParams.setSellerName(oe.getSupplyName());
-				creditParams.setOrderTotal(order.getOrgTotal());//订单金额
-				creditParams.setFlowId(order.getFlowId());//订单编码
-				creditParams.setStatus("2");
-				creditParams.setReceiveTime(DateHelper.parseTime(oe.getReceiveTime()));
-				CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
-				if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
-					throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
+		Map<String, Object> resultMap = orderExceptionService.updateRepConfirmReceipt(exceptionOrderId, user);
+		if("1".equals(resultMap.get("code").toString())){
+			//补货确认收货调用账期接口
+			if (UtilHelper.isEmpty(creditDubboService))
+				logger.error("CreditDubboServiceInterface creditDubboService is null");
+			else {
+				OrderException oe = (OrderException) resultMap.get("orderException");
+				Order order = (Order) resultMap.get("order");
+				SystemPayType systemPayType =  (SystemPayType) resultMap.get("systemPayType");
+				if (SystemPayTypeEnum.PayPeriodTerm.getPayType().equals(systemPayType.getPayType())) {
+					logger.info("补货确认收货调用资讯接口");
+					CreditParams creditParams = new CreditParams();
+					//creditParams.setSourceFlowId(oe.getFlowId());源订单单号
+					creditParams.setBuyerCode(oe.getCustId() + "");
+					creditParams.setSellerCode(oe.getSupplyId() + "");
+					creditParams.setBuyerName(oe.getCustName());
+					creditParams.setSellerName(oe.getSupplyName());
+					creditParams.setOrderTotal(order.getOrgTotal());//订单金额
+					creditParams.setFlowId(order.getFlowId());//订单编码
+					creditParams.setStatus("2");
+					creditParams.setReceiveTime(DateHelper.parseTime(oe.getReceiveTime()));
+					CreditDubboResult creditDubboResult = creditDubboService.updateCreditRecord(creditParams);
+					if (UtilHelper.isEmpty(creditDubboResult) || "0".equals(creditDubboResult.getIsSuccessful())) {
+						throw new RuntimeException(creditDubboResult != null ? creditDubboResult.getMessage() : "接口调用失败！");
+					}
 				}
 			}
 		}

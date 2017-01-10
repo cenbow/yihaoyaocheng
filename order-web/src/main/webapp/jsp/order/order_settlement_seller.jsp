@@ -61,6 +61,7 @@
                                         <option value="2">退货货款</option>
                                         <option value="3">拒收退款</option>
                                         <option value="4">取消订单退款</option>
+                                        <option value="5">取消发货退款</option>
                                 </select>
                             </div>
                             <label for="scope" class="col-xs-2 control-label">结算状态</label>

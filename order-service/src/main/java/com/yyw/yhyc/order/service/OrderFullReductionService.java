@@ -115,7 +115,7 @@ public class OrderFullReductionService {
 				log.info("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),耗时" + (endTime - startTime) + "毫秒，响应参数：responsePromotionList=" + responseJson);
 			}catch (Exception e){
 				log.error("查询所有订单中参加促销的商品信息(调用活动的iPromotionDubboManageService接口),dubbo服务查询异常：errorMesssage = " + e.getMessage(),e);
-				return null;
+				throw new RuntimeException("调规则接口服务异常");
 			}
 			
 			if(UtilHelper.isEmpty(responsePromotionList)){
@@ -231,12 +231,16 @@ public class OrderFullReductionService {
 				  
 				  for(ShoppingCartDto buyerProductBean : buyProductList){
 					  
-					  OrderProductInfoDto productInfoBean=new OrderProductInfoDto();
+					 OrderProductInfoDto productInfoBean=new OrderProductInfoDto();
 					  
 					   String supCode=buyerProductBean.getSpuCode();
 					   
 					   productInfoBean.setSpuCode(supCode);
 					   productInfoBean.setSellerCode(supplyId);
+					   
+					  /* Map<String,Object> productInfoBeanMap=new HashMap<String,Object>();
+					   productInfoBeanMap.put("spuCode", supCode);
+					   productInfoBeanMap.put("sellerCode", supplyId);*/
 					  
 					   Map<String,Object>  currentMap=new HashMap<String,Object>();
 					   
@@ -380,7 +384,6 @@ public class OrderFullReductionService {
 						    	 List<ShoppingCartDto> sigleList=new ArrayList<ShoppingCartDto>();
 						    	 sigleList.add(currentCartDto);
 						    	 siglePromotionMap.put(promotionDto.getPromotionId(), sigleList);
-						    	 
 						     }
 					 }
 					 

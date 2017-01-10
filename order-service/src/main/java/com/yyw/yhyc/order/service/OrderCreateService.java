@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.omg.PortableInterceptor.INACTIVE;
 import org.search.remote.yhyc.ProductSearchInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -399,12 +400,17 @@ public class OrderCreateService {
 		//组装该订单商品是否参加了满减促销活动和其他活动
 		for(ProductInfoDto productInfoDto : orderDto.getProductInfoDtoList()){
 			
-			 OrderProductInfoDto productInfoParamterBean=new OrderProductInfoDto();
+			OrderProductInfoDto productInfoParamterBean=new OrderProductInfoDto();
 			  
 			   String supCode=productInfoDto.getSpuCode();
 			   
 			   productInfoParamterBean.setSpuCode(supCode);
 			   productInfoParamterBean.setSellerCode(orderDto.getSupplyId()+"");
+			   
+			  /* Map<String,Object>  productInfoParamterBeanMap=new HashMap<String,Object>();
+			   productInfoParamterBeanMap.put("spuCode", supCode);
+			   productInfoParamterBeanMap.put("sellerCode", orderDto.getSupplyId()+"");*/
+			   
 			   Map<String,Object>  currentMap=new HashMap<String,Object>();
 			   
 			   List<String> promitionIdList=new ArrayList<String>();
@@ -417,11 +423,13 @@ public class OrderCreateService {
 					  for(String currentPromotionId : promotionIdArray){
 						  promitionIdList.add(currentPromotionId);
 					  }
+					  
+					  currentMap.put("productInfoBean", productInfoParamterBean);
+					  currentMap.put("promotionList", promitionIdList);
+					  returnList.add(currentMap);
 				  }
 				  
-				  currentMap.put("productInfoBean", productInfoParamterBean);
-				  currentMap.put("promotionList", promitionIdList);
-				  returnList.add(currentMap);
+				 
 		}
 		if(UtilHelper.isEmpty(returnList)){
 			return null;
@@ -572,6 +580,7 @@ public class OrderCreateService {
 								    int partNum=this.orderFullReductionService.getUserPartPromotionNum(custId, orderPromotionDto.getPromotionId());
 								    if(partNum>=orderPromotionDto.getLimitNum().intValue()){
 								       log.error("商品名称["+currentCartDto.getProductName()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]");
+								       this.updateShoppingCartDeletePromotionInfo(currentCartDto.getShoppingCartId(), orderPromotionDto);
 								       returnResult=returnFalse("[商品名称["+currentCartDto.getProductName()+"],不能参加"+orderPromotionDto.getPromotionName()+"促销],因为改用户已经参加了num次数=["+partNum+"],该促销限制次数为==["+orderPromotionDto.getLimitNum().intValue()+"]",productFromFastOrderCount);
 								       flag=true;
 								       break;
@@ -581,6 +590,7 @@ public class OrderCreateService {
 							   boolean productPartPromotionState=this.orderFullReductionService.checkProcutInfoPartPromotionState(currentCartDto.getSpuCode(), orderPromotionDto);
 							   if(productPartPromotionState){
 								   log.error("商品编码为supCode=["+currentCartDto.getSpuCode()+"],不能参加促销ID=["+orderPromotionDto.getPromotionId()+"],因为该商品已经从该促销中删除掉了!");
+								   this.updateShoppingCartDeletePromotionInfo(currentCartDto.getShoppingCartId(), orderPromotionDto);
 								   returnResult=returnFalse("[商品"+currentCartDto.getProductName()+"],不能参加"+orderPromotionDto.getPromotionName()+"促销],因为该商品已经从该促销中删除掉了!",productFromFastOrderCount);
 							       flag=true;
 							       break;
@@ -611,6 +621,60 @@ public class OrderCreateService {
 	}
 	
 	/**
+	 * 当发现商品已经不属于该促销的时候，需要从购物车里面删除掉
+	 * @param shoppingCartId
+	 * @param orderPromotionDto
+	 */
+	private void updateShoppingCartDeletePromotionInfo(Integer shoppingCartId,OrderPromotionDto orderPromotionDto){
+		
+		ShoppingCart bean=this.shoppingCartMapper.getByPK(shoppingCartId);
+		 if(UtilHelper.isEmpty(bean)){
+			 return;
+		 }
+		Integer promotionId=orderPromotionDto.getPromotionId();
+		String promotionCollectionId=bean.getPromotionCollectionId();
+		
+		if(!UtilHelper.isEmpty(promotionCollectionId)){
+			String[] promotionIdArray=promotionCollectionId.split(",");
+			
+			if(UtilHelper.isEmpty(promotionIdArray)){
+				return;
+			}
+			List<String> tempList=new ArrayList<String>();
+			for(String currentPromotionId : promotionIdArray){
+				  String temp=promotionId.toString();
+				  if(!temp.equals(currentPromotionId)){
+					  tempList.add(currentPromotionId);
+				  }
+			}
+			
+			if(!UtilHelper.isEmpty(tempList)){
+				StringBuffer sql=new StringBuffer();
+				for(int i=0;i<tempList.size();i++){
+					
+					String value=tempList.get(i);
+					if(i!=tempList.size()-1){
+						sql.append(value+",");
+					}else{
+						sql.append(value);
+					}
+				}
+				
+				if(sql.length()>0){
+					log.info("更新购物车中的促销promotionCollectionId==="+sql.toString());
+					bean.setPromotionCollectionId(sql.toString());
+					this.shoppingCartMapper.update(bean);
+				}
+			}else{
+				Map<String,Object> paramter=new HashMap<String,Object>();
+				paramter.put("shopppingCartId",bean.getShoppingCartId());
+				this.shoppingCartMapper.updateShoppingCartPromotionCollectionId(paramter);
+			}
+		}
+		
+	}
+	
+	/**
 	 * 将productInfoDto转换成对应的shoppingCartDTo，然后获取对应的促销key-vaue商品信息
 	 * @param productInfoList
 	 * @param supplyId
@@ -629,7 +693,7 @@ public class OrderCreateService {
 		    	  cartDto.setProductName(currentBean.getProductName());
 		    	  cartDto.setSpuCode(currentBean.getSpuCode());
 		    	  cartDto.setPromotionCollectionId(currentBean.getPromotionCollectionId());
-		    	  
+		    	  cartDto.setShoppingCartId(currentBean.getShoppingCartId());
 		    	  returnShoppingCartDtoList.add(cartDto);
 		    	  
 		      }

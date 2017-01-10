@@ -50,7 +50,7 @@
                         <div class="form-group">
                             <label for="scope" class="col-xs-2 control-label">实际收款金额</label>
                             <div class="col-xs-2">
-                                <input class="form-control" type="text" id="refunSettlementMoney" oninput="changediffMoney();" name="refunSettlementMoney" />
+                                <input class="form-control" type="text" id="refunSettlementMoney" oninput="changediffMoney();" name="refunSettlementMoney" onkeypress="javascript:return goSubmit();"/>
                             </div>
                             <div class="col-xs-8 control-label text-left">元</div>
                         </div>

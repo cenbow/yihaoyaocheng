@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?> 
-<!-- 
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
  **
  * Created By: XI
  * Created On: 2016-7-28 17:34:56
  *
  * Amendment History:
- * 
+ *
  * Amended By       Amended On      Amendment Description
  * ************     ***********     *********************************************
  *
@@ -13,9 +13,9 @@
  -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yyw.yhyc.order.mapper.OrderSettlementMapper">
-    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
-           flushInterval="86400000" size="1024000">
-    </cache>
+	<cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+		   flushInterval="86400000" size="1024000">
+	</cache>
 	<resultMap id="OrderSettlementResultMapper" type="OrderSettlement">
 		<result column="order_settlement_id" property="orderSettlementId"/>
 		<result column="business_type" property="businessType"/>
@@ -40,11 +40,11 @@
 		<result column="city" property="city"/>
 		<result column="area" property="area"/>
 		<result column="settle_flow_id" property="settleFlowId"/>
-		
+
 	</resultMap>
-	
+
 	<sql id="commonColumns">
-		 order_settlement_id
+		order_settlement_id
 		, business_type
 		, order_id
 		, flow_id
@@ -69,33 +69,33 @@
 		, settle_flow_id
 	</sql>
 
-    <sql id="commonColumnsNotPK">
-				 business_type
-				, order_id
-				, flow_id
-				, cust_id
-				, cust_name
-				, supply_id
-				, supply_name
-				, confirm_settlement
-				, settlement_money
-				, refun_settlement_money
-				, pay_type_id
-				, settlement_time
-				, order_time
-				, remark
-				, create_user
-				, create_time
-				, update_user
-				, update_time
-				, province
-				, city
-				, area
-				, settle_flow_id
-    </sql>
-	
+	<sql id="commonColumnsNotPK">
+		business_type
+		, order_id
+		, flow_id
+		, cust_id
+		, cust_name
+		, supply_id
+		, supply_name
+		, confirm_settlement
+		, settlement_money
+		, refun_settlement_money
+		, pay_type_id
+		, settlement_time
+		, order_time
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+		, province
+		, city
+		, area
+		, settle_flow_id
+	</sql>
+
 	<sql id="commonProcessDateColumns">
-		 order_settlement_id
+		order_settlement_id
 		, business_type
 		, order_id
 		, flow_id
@@ -119,63 +119,63 @@
 		, area
 		, settle_flow_id
 	</sql>
-	
+
 	<sql id="commonCondition">
-		<if test="orderSettlementId!= null and orderSettlementId!= ''"> 
+		<if test="orderSettlementId!= null and orderSettlementId!= ''">
 			AND order_settlement_id=#{orderSettlementId}
 		</if>
-		<if test="businessType!= null and businessType!= ''"> 
+		<if test="businessType!= null and businessType!= ''">
 			AND business_type=#{businessType}
 		</if>
-		<if test="orderId!= null and orderId!= ''"> 
+		<if test="orderId!= null and orderId!= ''">
 			AND order_id=#{orderId}
 		</if>
-		<if test="flowId!= null and flowId!= ''"> 
+		<if test="flowId!= null and flowId!= ''">
 			AND flow_id=#{flowId}
 		</if>
-		<if test="custId!= null and custId!= ''"> 
+		<if test="custId!= null and custId!= ''">
 			AND cust_id=#{custId}
 		</if>
-		<if test="custName!= null and custName!= ''"> 
+		<if test="custName!= null and custName!= ''">
 			AND cust_name=#{custName}
 		</if>
-		<if test="supplyId!= null and supplyId!= ''"> 
+		<if test="supplyId!= null and supplyId!= ''">
 			AND supply_id=#{supplyId}
 		</if>
-		<if test="supplyName!= null and supplyName!= ''"> 
+		<if test="supplyName!= null and supplyName!= ''">
 			AND supply_name=#{supplyName}
 		</if>
-		<if test="confirmSettlement!= null and confirmSettlement!= ''"> 
+		<if test="confirmSettlement!= null and confirmSettlement!= ''">
 			AND confirm_settlement=#{confirmSettlement}
 		</if>
-		<if test="settlementMoney!= null and settlementMoney!= ''"> 
+		<if test="settlementMoney!= null and settlementMoney!= ''">
 			AND settlement_money=#{settlementMoney}
 		</if>
 		<if test="refunSettlementMoney!= null and refunSettlementMoney!= ''">
 			AND refun_settlement_money =#{refunSettlementMoney}
 		</if>
-		<if test="payTypeId!= null and payTypeId!= ''"> 
+		<if test="payTypeId!= null and payTypeId!= ''">
 			AND pay_type_id=#{payTypeId}
 		</if>
-		<if test="settlementTime!= null and settlementTime!= ''"> 
+		<if test="settlementTime!= null and settlementTime!= ''">
 			AND settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="orderTime!= null and orderTime!= ''"> 
+		<if test="orderTime!= null and orderTime!= ''">
 			AND order_time=str_to_date(#{orderTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="remark!= null and remark!= ''"> 
+		<if test="remark!= null and remark!= ''">
 			AND remark=#{remark}
 		</if>
-		<if test="createUser!= null and createUser!= ''"> 
+		<if test="createUser!= null and createUser!= ''">
 			AND create_user=#{createUser}
 		</if>
-		<if test="createTime!= null and createTime!= ''"> 
+		<if test="createTime!= null and createTime!= ''">
 			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
 		</if>
-		<if test="updateUser!= null and updateUser!= ''"> 
+		<if test="updateUser!= null and updateUser!= ''">
 			AND update_user=#{updateUser}
 		</if>
-		<if test="updateTime!= null and updateTime!= ''"> 
+		<if test="updateTime!= null and updateTime!= ''">
 			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 		</if>
 		<if test="province!= null and province!= ''">
@@ -190,14 +190,14 @@
 		<if test="settleFlowId!= null and settleFlowId!= ''">
 			AND settle_flow_id=#{settleFlowId}
 		</if>
-		
+
 	</sql>
-	
+
 	<insert id="save" parameterType="OrderSettlement">
 		<![CDATA[ INSERT INTO t_order_settlement ( ]]>
-			<include refid="commonColumnsNotPK"/>
+		<include refid="commonColumnsNotPK"/>
 		<![CDATA[
-			) VALUES ( 
+			) VALUES (
 				 #{businessType}
 				, #{orderId}
 				, #{flowId}
@@ -223,25 +223,25 @@
   ) ]]>
 	</insert>
 	<update id="update" parameterType="OrderSettlement">
-		<![CDATA[ UPDATE t_order_settlement SET 
-			 order_settlement_id=#{orderSettlementId} 
-			, business_type=#{businessType} 
-			, order_id=#{orderId} 
-			, flow_id=#{flowId} 
-			, cust_id=#{custId} 
-			, cust_name=#{custName} 
-			, supply_id=#{supplyId} 
-			, supply_name=#{supplyName} 
-			, confirm_settlement=#{confirmSettlement} 
+		<![CDATA[ UPDATE t_order_settlement SET
+			 order_settlement_id=#{orderSettlementId}
+			, business_type=#{businessType}
+			, order_id=#{orderId}
+			, flow_id=#{flowId}
+			, cust_id=#{custId}
+			, cust_name=#{custName}
+			, supply_id=#{supplyId}
+			, supply_name=#{supplyName}
+			, confirm_settlement=#{confirmSettlement}
 			, settlement_money=#{settlementMoney}
 			, refun_settlement_money = #{refunSettlementMoney}
 			, pay_type_id=#{payTypeId}
 			, settlement_time=str_to_date(#{settlementTime},'%Y-%m-%d %H:%i:%s')
 			, order_time=str_to_date(#{orderTime},'%Y-%m-%d %H:%i:%s')
-			, remark=#{remark} 
-			, create_user=#{createUser} 
+			, remark=#{remark}
+			, create_user=#{createUser}
 			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
-			, update_user=#{updateUser} 
+			, update_user=#{updateUser}
 			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
 			, province = #{province}
 			, city = #{city}
@@ -255,7 +255,7 @@
 	<delete id="deleteByPKeys" parameterType="map">
 		DELETE FROM t_order_settlement WHERE
 		<foreach collection="primaryKeys" index="index" item="id"
-			open=" order_settlement_id IN(" separator="," close=") ">
+				 open=" order_settlement_id IN(" separator="," close=") ">
 			${id}
 		</foreach>
 	</delete>
@@ -265,32 +265,32 @@
 	</delete>
 	<select id="getByPK" parameterType="java.lang.Integer" resultMap="OrderSettlementResultMapper">
 		<![CDATA[ SELECT ]]>
-			 <include refid="commonProcessDateColumns"/>
-		FROM t_order_settlement WHERE order_settlement_id = #{orderSettlementId}  
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_settlement WHERE order_settlement_id = #{orderSettlementId}
 	</select>
 	<select id="list" resultMap="OrderSettlementResultMapper">
 		<![CDATA[ SELECT ]]>
-			 <include refid="commonProcessDateColumns"/>
- 		FROM t_order_settlement
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_settlement
 	</select>
 	<select id="listByProperty" parameterType="OrderSettlement" resultMap="OrderSettlementResultMapper" useCache="false">
 		<![CDATA[ SELECT ]]>
-			<include refid="commonProcessDateColumns"/>
-		FROM t_order_settlement WHERE 1=1 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_settlement WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<resultMap id="OrderSettlementResultDtoMapper" type="OrderSettlementDto">
 		<result column="order_settlement_id" property="orderSettlementId"/>
 		<result column="cust_name" property="custName"/>
-        <result column="business_type" property="businessType"/>
-        <result column="org_flow_id" property="orgFlowId"/>
-        <result column="flow_id" property="flowId"/>
-        <result column="pay_flow_id" property="payFlowId"/>
-        <result column="supply_name" property="supplyName"/>
-        <result column="confirm_settlement" property="confirmSettlement"/>
-        <result column="settlement_money" property="settlementMoney"/>
-        <result column="refun_settlement_money" property="refunSettlementMoney"/>
-        <result column="order_time" property="orderTime"/>
+		<result column="business_type" property="businessType"/>
+		<result column="org_flow_id" property="orgFlowId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="pay_flow_id" property="payFlowId"/>
+		<result column="supply_name" property="supplyName"/>
+		<result column="confirm_settlement" property="confirmSettlement"/>
+		<result column="settlement_money" property="settlementMoney"/>
+		<result column="refun_settlement_money" property="refunSettlementMoney"/>
+		<result column="order_time" property="orderTime"/>
 		<result column="settlement_time" property="settlementTime"></result>
 		<result column="pay_type_id" property="payTypeId"></result>
 		<result column="pay_type" property="payType"></result>
@@ -300,33 +300,35 @@
 	</resultMap>
 	<select id="listPaginationDtoByProperty" parameterType="OrderSettlementDto" resultMap="OrderSettlementResultDtoMapper" useCache="false">
 		<![CDATA[
-		SELECT 
-			t1.order_settlement_id ,t1.org_flow_id ,t1.flow_id ,t1.settle_flow_id , 
+		SELECT
+			t1.order_settlement_id ,t1.org_flow_id ,t1.flow_id ,t1.settle_flow_id ,
  			t1.pay_type, t1.pay_type_name, t1.pay_name,t1.business_type, t1.cust_name, t1.supply_name,
  			DATE_FORMAT(t1.order_time, '%Y-%m-%d %H:%i:%s') AS order_time,
  			DATE_FORMAT(t1.settlement_time, '%Y-%m-%d %H:%i:%s') AS settlement_time,
  			t1.settlement_money , t1.refun_settlement_money ,t1.confirm_settlement, t1.settle_flow_id
-			FROM 
+			FROM
 			(
-			SELECT s.order_settlement_id AS order_settlement_id, 
-			CASE business_type 
+			SELECT s.order_settlement_id AS order_settlement_id,
+			CASE business_type
 				WHEN 1 THEN s.flow_id
+				WHEN 5 THEN s.flow_id
 				WHEN 4 THEN s.flow_id
 				ELSE e.flow_id
 				END  AS org_flow_id ,
-			CASE business_type 
+			CASE business_type
 				WHEN 1 THEN ""
+				WHEN 5 THEN ""
 				WHEN 4 THEN ""
 				ELSE s.flow_id
 				END  AS flow_id ,
-			t.pay_type_id, t.pay_type, t.pay_type_name, t.pay_name, t.pay_states, 
+			t.pay_type_id, t.pay_type, t.pay_type_name, t.pay_name, t.pay_states,
 			s.business_type, s.cust_id, s.cust_name, s.supply_id, s.supply_name,
-			s.order_time,s.settlement_time, s.settlement_money ,s.refun_settlement_money , 
+			s.order_time,s.settlement_time, s.settlement_money ,s.refun_settlement_money ,
 			s.confirm_settlement, s.province, s.city, s.area, s.settle_flow_id
 			FROM t_order_settlement s
 			LEFT JOIN t_order_exception e ON e.exception_order_id = s.flow_id
 			INNER JOIN t_system_pay_type t ON s.pay_type_id = t.pay_type_id
-			) t1 
+			) t1
 		]]>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="custId !=null and custId !=''">
@@ -385,7 +387,7 @@
 		<include refid="commonCondition"/>
 	</select>
 	<select id="findByCount" parameterType="OrderSettlement" resultType="int">
-		SELECT count(1) AS totalcount FROM t_order_settlement WHERE 1=1 
+		SELECT count(1) AS totalcount FROM t_order_settlement WHERE 1=1
 		<include refid="commonCondition"/>
 	</select>
 	<select id="getByProperty" parameterType="Map" resultMap="OrderSettlementResultMapper" useCache="false">
@@ -395,7 +397,7 @@
 		<include refid="commonCondition"/>
 		<![CDATA[ limit 1 ]]>
 	</select>
-    <select id="getByPropertyByReturnCheckFile" parameterType="Map" resultMap="OrderSettlementResultMapper">
+	<select id="getByPropertyByReturnCheckFile" parameterType="Map" resultMap="OrderSettlementResultMapper">
 		<![CDATA[ SELECT ]]>
 		<include refid="commonProcessDateColumns"/>
 		FROM t_order_settlement WHERE 1=1
@@ -416,6 +418,9 @@
 		<![CDATA[ UPDATE   t_order_settlement SET
 			 confirm_settlement=#{confirmSettlement},
              settle_flow_id = #{settleFlowId}  ]]>
+		<if test="refunSettlementMoney!= null and refunSettlementMoney!= ''">
+			,refun_settlement_money = #{refunSettlementMoney}
+		</if>
 		<![CDATA[ WHERE 1 = 1 ]]>
 		<if test="businessType !=null and businessType !=''">
 			AND business_type = #{businessType}

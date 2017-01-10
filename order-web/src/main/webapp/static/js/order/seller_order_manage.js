@@ -10,12 +10,13 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
-
     //绑定省市区
     bindAreaData('province','city','district');
-    
+    //绑定下载批号模板
+    blindDownLoadBatchTemplate();
     //查询销售顾问
     queryAdviser();
+
 })
 function queryAdviser(){
 	  $.ajax({
@@ -251,7 +252,12 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
+        if(order.isDartDelivery && order.isDartDelivery=='1'){
+           tr += "<td style='text-align:right'><a style='float: left' onclick=openSendProductInfo(\""+order.flowId+"\")><span style='color:red;border-style:solid;border-width:1px;border-color:red;'>部分发货</span></a>&nbsp;&nbsp;<a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
+        }else{
+        	tr += "<td style='text-align:right'><a href='"+ctx+"/order/getSupplyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</td>";
+        }
+        
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.custName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -263,6 +269,112 @@ function fillTableJson(data) {
     $(".table-box tbody").append(trs);
     changeColor();
 }
+
+/**
+ * 填充收发货物清单
+ * @param data
+ */
+function fillSendDataTableJson(data) {
+    console.info(data)
+    var indexNum = 1;
+    if (!data || !data.resultList)
+        return;
+    var list = data.resultList;
+    $(".table-box2 tbody").html("");
+    var trs = "";
+    //保存部分发货未发货的金额
+    var orderSendObj={};
+    for (var i = 0; i < list.length; i++) {
+        var orderDeliveryDetail = list[i];
+        var recieveCount=orderDeliveryDetail.recieveCount;
+        if(recieveCount == null){
+            recieveCount='';
+        }
+        var tr = "<tr>";
+        tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
+        tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+        tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.specification + "</td>";
+        tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
+        tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
+        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
+        tr += "<td>" + recieveCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+        
+        //处理部分发货的未发货的金额
+        if(i==0){
+         var currentObject=list[0];
+         orderSendObj.partDelivery=currentObject['partDelivery'];
+         orderSendObj.cancelmMoney=currentObject['cancelmMoney'];
+        }
+        
+        
+    }
+    $(".table-box2 tbody").append(trs);
+    
+    if(orderSendObj.partDelivery){
+    	  if(orderSendObj.cancelmMoney){
+    		  $('#showProductMoneyDiv').show();
+    		  $('#showMoney').html(orderSendObj.cancelmMoney);
+    	  }
+    	
+    }
+    $("#myModal2").modal();
+}
+
+/**
+ * 查看部分发货清单
+ * @param flowId
+ */
+function openSendProductInfo(flowId){
+	  var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
+	    var flowId=flowId
+	    var userType="2";
+	    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
+	    tipLoad();
+	    $.ajax({
+	        url : requestUrl,
+	        data : JSON.stringify(requestParam),
+	        type : 'POST',
+	        dataType:'json',
+	        contentType : "application/json;charset=UTF-8",
+	        success : function(data) {
+	            tipRemove();
+	            //填充表格数据
+	            fillSendDataTableJson(data);
+	            var totalpage = data.totalPage;
+	            var nowpage = data.pageNo;
+	            var totalCount = data.total;
+	            $("#J_pager2").attr("current",nowpage);
+	            $("#J_pager2").attr("total",totalpage);
+	            $("#J_pager2").attr("url",requestUrl);
+	            $("#J_pager2").pager({
+	                data:requestParam,
+	                requestType:"post",
+	                asyn:1,
+	                contentType:'application/json;charset=UTF-8',
+	                callback:function(data,index){
+	                    tipLoad();
+	                    var nowpage = data.page;
+	                    $("#nowpageedit").val(nowpage);
+	                    fillSendDataTableJson(data);
+	                    tipRemove();
+	                }});
+	        },
+	        error : function(XMLHttpRequest, textStatus, errorThrown) {
+	            tipRemove();
+	            alertModal("数据获取失败",function(){
+	            });
+	        }
+	    });
+	    
+}
+
 function changeColor() {
     $(".table tr:not(:first):odd").css({background: "#f7f7f7"});
     $(".table tr:not(:first):even").css({background: "#fff"});
@@ -291,12 +403,13 @@ function typeToOperate(order) {
         result += '<a href="'+ctx+'/order/getConfirmMoneyView?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">收款确认</a>';
     }
 
-    if (order && order.orderStatus && order.orderStatus == '9') {//拒收中
+    if (order && order.orderStatus && (order.orderStatus == '9' ||order.orderStatus == '15' )) {//拒收中
         result += '<a href="'+ctx+'/orderException/getDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }
 
-    if (order && order.orderStatus && order.orderStatus == '10') {//补货中
-        result += '<a href="'+ctx+'/orderException/getReplenishmentDetails-2/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+    if (order && order.orderStatus && (order.orderStatus == '10' || order.orderStatus == '15')) {//补货中
+    	  //<a href="${ctx}/orderException/sellerReplenishmentOrderManage?flowId=${orderDetailsDto.flowId}" class="undeline">查看补货订单</a>
+        result += '<a href="'+ctx+'/orderException/sellerReplenishmentOrderManage?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     return result;
@@ -312,6 +425,19 @@ function cancleOrder(orderId) {
     $("#myModalOperate").modal().hide();
 
 }
+
+/**
+ * 绑定批号模板导入模板下载
+ */
+function blindDownLoadBatchTemplate(){
+	 $("#batchTemplateExport").on("click", function () {
+		 $("#exportTemplateForm").attr("action", ctx+"/order/exportBatchTemplate");
+		 $("#exportTemplateForm").submit();
+	});
+	 
+}
+
+
 /**
  * 发货
  * * @param orderId
@@ -319,6 +445,8 @@ function cancleOrder(orderId) {
 
 function sendDelivery(flowId) {
     $("#sendFlowId").val(flowId);
+    $("#batchTemplateFlowId").val(flowId);
+    $("#orderTypeTemplate").val("1"); //正常订单发货
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");
@@ -381,8 +509,91 @@ function checkImgType(this_) {
 
 }
 
-function sendDeliverysubmit(){
+/**
+ * 部分发货的界面确定提交函数
+ */
+function partDeliveryConfirm(){
+	var deliveryMethod=$("#hiddenDeliveryMethod").val(); //配送方式
+	var fileName=$('#hiddenFileName').val(); //上传的文件名称
+	var receiverAddressId= $("#hiddenReceiverAddressId").val();//发货仓库
+	var flowId=$('#hiddenSendFlowId').val();//订单号
+	var orderType=$('#hiddenOrderType').val();
+	var selectPartDeliverty=$("input[type=radio][name=selectPartDeliverty]:checked").val();
+	var deliveryContactPerson=$('#hiddenDeliveryContactPerson').val();
+	var deliveryExpressNo=$('#hiddenDeliveryExpressNo').val();
+	var partComent=$('#partComent').val();
+	if(partComent && partComent.length>200){
+		 alertModal("说明字段不能大于200字符");
+		 return;
+	}
+	
+	var dataParamter={
+			fileName:fileName,
+			receiverAddressId:receiverAddressId,
+			deliveryMethod:deliveryMethod,
+			orderType:orderType,
+			flowId:flowId,
+			selectPartDeliverty:selectPartDeliverty,
+			deliveryContactPerson:deliveryContactPerson,
+	        deliveryExpressNo:deliveryExpressNo,
+	        partComent:partComent
+	       
+	};
+	
+	
+	if(deliveryMethod==1){//自由物流
+		var deliveryDate=$("#deliveryDateHidden").val();//发货时间
+		dataParamter.deliveryDate=deliveryDate;
+	}
+	  console.info( JSON.stringify(dataParamter));
+	  
+	 tipLoad();
+	  $.ajax({
+	        url: ctx+"/order/orderDelivery/partDeliveryConfirm",
+	        data: JSON.stringify(dataParamter),
+	        type: 'POST',
+	        dataType: 'json',
+	        contentType: "application/json;charset=UTF-8",
+	        success: function (data) {
+	            tipRemove();
+	            if (data!=null) {
+	            	 console.info(data);
+	                 if(data.code==0){
+	                	 alertModal(data.msg);
+	                 }else{
+	                	 
+	                	 $("#myConfirmOtherSendMessage").modal("hide");
+	                     $("#myModalPrompt").modal().hide();
+	                     $("#msgDiv").html("");
+	                     var div = "";
+	                     if(data.code==1){
+	                         div += " <p class='font-size-20 red'><b>发货成功</b></p>"
+	                         if(fileName){
+	                             div += "<p>可在订单详情中查看批号的导入详情!</p>";
+	                         }
+	                         pasretFormData();
+	                         doRefreshData(params);
+	                     }else if(data.code==2){
+	                         div += "<p class='font-size-20 red'><b>发货失败</b></p><p>批号信息导入有误，可以直接下载导入失败原因，也可以进入订单详情下载导入失败原因！</p>";
+	                         div += "<p><a class='m-l-10 eyesee' href='"+ctx+"/order/orderDetail/downLoad?filePath="+data.fileName+"&fileName=发货批号导入信息'><i class='fa fa-download'></i>&nbsp;点击下载导入失败原因</a></p>";
+	                     }
+	                     $("#msgDiv").append(div);
+	                	 
+	                 }
+	            }
+	        },
+	        error: function (XMLHttpRequest, textStatus, errorThrown) {
+	            tipRemove();
+	            alertModal("加载失败");
+	        }
+	    });
+	
+	
+	
+}
 
+function sendDeliverysubmit(){
+	
     var delivery = $("input[type=radio][name=delivery]:checked");
     var ownw = $("input[type=radio][name=ownw]:checked");
 
@@ -406,6 +617,7 @@ function sendDeliverysubmit(){
         }
         $("#deliveryContactPerson").val($("#deliveryContactPerson1").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo1").val())
+       
     }else{
         if($("#deliveryExpressNo2").val()!=null&&$("#deliveryExpressNo2").val()!=""){
             if (!regNo.test($("#deliveryExpressNo2").val())) {
@@ -416,9 +628,20 @@ function sendDeliverysubmit(){
         $("#deliveryContactPerson").val($("#deliveryContactPerson2").val())
         $("#deliveryExpressNo").val($("#deliveryExpressNo2").val())
     }
+    
+    //设置确认对话框的数据
+    $('#hiddenReceiverAddressId').val(delivery.val());
+    $('#hiddenDeliveryContactPerson').val($("#deliveryContactPerson").val());
+    $('#hiddenDeliveryExpressNo').val($("#deliveryExpressNo").val());
+    $('#hiddenDeliveryMethod').val($("#deliveryMethod").val());
+    $('#deliveryDateHidden').val($('#deliveryDate').val());
+    $('#hiddenSendFlowId').val($('#sendFlowId').val());
+    $('#hiddenOrderType').val("1");
+    
+    
     tipLoad();
     $("#sendform").ajaxSubmit({
-        url :ctx+'/order/orderDelivery/sendOrderDelivery',
+        url :ctx+'/order/orderDelivery/sendOrderManagerPartDelivery',
         dataType: 'text',
         type: 'POST',
         success: function(data) {
@@ -427,6 +650,13 @@ function sendDeliverysubmit(){
             var obj=eval("(" + data + ")");
                 if(obj.code==0){
                     alertModal(obj.msg);
+                }else if(obj.code==3 && obj.isSomeSend && obj.isSomeSend==3){ //检查出是部分发货
+                	var fileName=obj.fileName;
+                	var partDeliveryJSon=obj.partDeliveryList;
+                	 console.info(partDeliveryJSon);
+                	$("#myModalSendDelivery").modal("hide");
+                    $("#myConfirmOtherSendMessage").modal().hide();
+                    $('#hiddenFileName').val(fileName);
                 }else{
                     $("#myModalPrompt").modal().hide();
                     $("#msgDiv").html("");

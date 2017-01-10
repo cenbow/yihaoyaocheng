@@ -6,6 +6,10 @@
   To change this template use File | Settings | Editor | File and Code Templates.
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+	String flowId =  request.getParameter("flowId");
+	flowId = flowId==null?"":flowId;
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,7 +63,7 @@
                         <div class="form-group">
                             <label for="flowId" class="col-xs-2 control-label">原始订单号 </label>
                             <div class="col-xs-3">
-                                <input type="text" class="form-control" id="flowId" name="flowId" placeholder="">
+                                <input type="text" class="form-control" id="flowId" name="flowId" placeholder="" value="<%=flowId%>"/>
                             </div>
                             <label for="supplyName" class="col-xs-2 control-label">供应商 </label>
                             <div class="col-xs-3">
@@ -152,6 +156,10 @@
         </div>
     </div>
 </div>
+<form action="" id="exportTemplateForm" method="post">
+	<input type="hidden" name="batchTemplateFlowId" id="batchTemplateFlowId">
+	<input type="hidden" name="orderType" id="orderTypeTemplate">
+</form>
 <div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -177,7 +185,7 @@
                             <label class="col-xs-2 control-label">批号导入</label>
                             <div class="col-xs-7">
                                 <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
-                                <p class="padding-t-10"><a class="m-l-10 eyesee" href='${ctx}/static/include/excel/excelTemplate.xls'><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
+                               <p class="padding-t-10"><a class="m-l-10 eyesee" id="batchTemplateExport"><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
                             </div>
                         </div>
                         <div class="form-group">

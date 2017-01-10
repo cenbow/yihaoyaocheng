@@ -13,6 +13,7 @@ package com.yyw.yhyc.order.controller;
 
 import com.yyw.yhyc.helper.SpringBeanHelper;
 import com.yyw.yhyc.helper.UtilHelper;
+import com.yyw.yhyc.order.bo.AccountPayInfo;
 import com.yyw.yhyc.order.bo.OrderPay;
 import com.yyw.yhyc.bo.Pagination;
 import com.yyw.yhyc.bo.RequestListModel;
@@ -21,11 +22,13 @@ import com.yyw.yhyc.order.bo.SystemPayType;
 import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
+import com.yyw.yhyc.order.service.AccountPayInfoService;
 import com.yyw.yhyc.order.service.OrderPayService;
 import com.yyw.yhyc.order.service.SystemDateService;
 import com.yyw.yhyc.order.service.SystemPayTypeService;
 import com.yyw.yhyc.order.utils.RandomUtil;
 import com.yyw.yhyc.pay.interfaces.PayService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,8 @@ public class OrderPayController extends BaseController {
 
 	@Autowired
 	private SystemDateService systemDateService;
+	@Autowired
+	private AccountPayInfoService accountPayInfoService;
 
 	/**
 	* 通过主键查询实体对象
@@ -106,6 +111,45 @@ public class OrderPayController extends BaseController {
 	{
 		orderPayService.update(orderPay);
 	}
+	
+	
+    /**
+     * 
+     * @param orderIds
+     * @param payTypeId
+     * @return
+     * @throws Exception
+     */
+	@RequestMapping(value = "/enterprise/bankInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> bankInfo(@RequestParam("enterpriseId")Integer enterpriseId) throws Exception {
+		UserDto userDto = super.getLoginUser();
+		if(UtilHelper.isEmpty(userDto) || UtilHelper.isEmpty(userDto.getCustId())){
+			return error(STATUS_CODE_INVALID_TOKEN,"登陆超时");
+		}
+
+		logger.info("app端获取商家银行信息 enterpriseId=="+enterpriseId);
+		
+		AccountPayInfo payInfo=this.accountPayInfoService.getByCustId(enterpriseId);
+		if(UtilHelper.isEmpty(payInfo)){
+			return error(STATUS_CODE_SYSTEM_EXCEPTION,"enterpriseId的账户信息为空");
+		}
+		if(UtilHelper.isEmpty(payInfo.getSubbankName())){
+			return error(STATUS_CODE_SYSTEM_EXCEPTION,"收款开户支行为空");
+		}
+		if(UtilHelper.isEmpty(payInfo.getReceiveAccountName())){
+			return error(STATUS_CODE_SYSTEM_EXCEPTION,"收款款账号名称为空");
+		}
+		if(UtilHelper.isEmpty(payInfo.getReceiveAccountNo())){
+			return error(STATUS_CODE_SYSTEM_EXCEPTION,"收款账号为空");
+		}
+
+		Map<String,Object> resultMap = new HashMap<>();
+		resultMap.put("bankName", payInfo.getSubbankName());
+		resultMap.put("accountName", payInfo.getReceiveAccountName());
+		resultMap.put("account", payInfo.getReceiveAccountNo());
+		return ok(resultMap);
+	}
 
 	/**
 	 * App端支付接口
@@ -163,7 +207,5 @@ public class OrderPayController extends BaseController {
 		}
 		logger.info("App端支付接口：请求参数orderIds = " + orderIds  + ",payTypeId = " + payTypeId + "\n 响应参数:resultMap=" + resultMap);
 		return ok(resultMap);
-
-
 	}
 }

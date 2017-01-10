@@ -12,6 +12,8 @@ $(function () {
     bindSearchBtn();
     //导出
     bindExportBtn();
+    
+    monitionRadionClick();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -185,7 +187,13 @@ function fillTableJson(data) {
         var order = list[i];
         var operation = typeToOperate(order);
         var tr = "<tr>";
-        tr += "<td><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
+        
+        if(order.isDartDelivery && order.isDartDelivery=='1'){
+            tr += "<td style='text-align:right'><a style='float: left' onclick=openSendProductInfo(\""+order.flowId+"\")><span style='color:red;border-style:solid;border-width:1px;border-color:red;'>部分发货</span></a>&nbsp;&nbsp;<a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</a></td>";
+         }else{
+         	tr += "<td style='text-align:right'><a href='"+ctx+"/order/getBuyOrderDetails?flowId=" + order.flowId + "' class='undeline'>"+order.flowId+"</td>";
+         }
+        
         tr += "<td>" + order.createTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -197,6 +205,113 @@ function fillTableJson(data) {
     $(".table-box tbody").append(trs);
     changeColor();
 }
+
+
+/**
+ * 查看部分发货清单
+ * @param flowId
+ */
+function openSendProductInfo(flowId){
+	  var requestUrl = ctx+"/order/orderDeliveryDetail/listPg";
+	    var flowId=flowId
+	    var userType="1";
+	    var requestParam = {pageNo:1,pageSize:15,param:{flowId:flowId,userType:userType}};
+	    tipLoad();
+	    $.ajax({
+	        url : requestUrl,
+	        data : JSON.stringify(requestParam),
+	        type : 'POST',
+	        dataType:'json',
+	        contentType : "application/json;charset=UTF-8",
+	        success : function(data) {
+	            tipRemove();
+	            //填充表格数据
+	            fillSendDataTableJson(data);
+	            var totalpage = data.totalPage;
+	            var nowpage = data.pageNo;
+	            var totalCount = data.total;
+	            $("#J_pager4").attr("current",nowpage);
+	            $("#J_pager4").attr("total",totalpage);
+	            $("#J_pager4").attr("url",requestUrl);
+	            $("#J_pager4").pager({
+	                data:requestParam,
+	                requestType:"post",
+	                asyn:1,
+	                contentType:'application/json;charset=UTF-8',
+	                callback:function(data,index){
+	                    tipLoad();
+	                    var nowpage = data.page;
+	                    $("#nowpageedit").val(nowpage);
+	                    fillSendDataTableJson(data);
+	                    tipRemove();
+	                }});
+	        },
+	        error : function(XMLHttpRequest, textStatus, errorThrown) {
+	            tipRemove();
+	            alertModal("数据获取失败",function(){
+	            });
+	        }
+	    });
+	    
+}
+
+/**
+ * 填充收发货物清单
+ * @param data
+ */
+function fillSendDataTableJson(data) {
+    console.info(data)
+    var indexNum = 1;
+    if (!data || !data.resultList)
+        return;
+    var list = data.resultList;
+    $(".table-box4 tbody").html("");
+    var trs = "";
+    //保存部分发货未发货的金额
+    var orderSendObj={};
+    for (var i = 0; i < list.length; i++) {
+        var orderDeliveryDetail = list[i];
+        var recieveCount=orderDeliveryDetail.recieveCount;
+        if(recieveCount == null){
+            recieveCount='';
+        }
+        var tr = "<tr>";
+        tr += "<td>" + orderDeliveryDetail.orderLineNo + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
+        tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+        tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
+        tr += "<td>" + orderDeliveryDetail.specification + "</td>";
+        tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
+        tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
+        tr += "<td>" + orderDeliveryDetail.deliveryProductCount + "</td>";
+        tr += "<td>" + recieveCount + "</td>";
+        tr += "</tr>";
+        trs += tr;
+        
+        //处理部分发货的未发货的金额
+        if(i==0){
+         var currentObject=list[0];
+         orderSendObj.partDelivery=currentObject['partDelivery'];
+         orderSendObj.cancelmMoney=currentObject['cancelmMoney'];
+        }
+        
+        
+    }
+    $(".table-box4 tbody").append(trs);
+    
+    if(orderSendObj.partDelivery){
+    	  if(orderSendObj.cancelmMoney){
+    		  $('#showProductMoneyDiv').show();
+    		  $('#showMoney').html(orderSendObj.cancelmMoney);
+    	  }
+    	
+    }
+    $("#myModal4").modal();
+}
+
 function changeColor(){
     $(".table tr:not(:first):odd").css({background:"#f7f7f7"});
     $(".table tr:not(:first):even").css({background:"#fff"});
@@ -225,12 +340,13 @@ function typeToOperate(order) {
         result += '<a href="javascript:listPg(\''+order.flowId+'\')" class="btn btn-info btn-sm margin-r-10">确认收货</a>';
         result += '<a href="javascript:showPostponeModal('+order.orderId+')" class="btn btn-info btn-sm margin-r-10">延期收货</a>';
     }
-    if(order && order.orderStatus && order.orderStatus == '9'){//拒收中
+    if(order && order.orderStatus && (order.orderStatus == '9' || order.orderStatus == '15')){//拒收中
         result += '<a href="'+ctx+'/orderException/getDetails-1/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看拒收订单</a>';
     }
 
-    if(order && order.orderStatus && order.orderStatus == '10'){//补货中
-        result += '<a href="'+ctx+'/orderException/getReplenishmentDetails-1/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+    if(order && order.orderStatus && (order.orderStatus == '10' || order.orderStatus == '15')){//补货中
+        //result += '<a href="'+ctx+'/orderException/getReplenishmentDetails-1/'+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
+        result += '<a href="'+ctx+'/orderException/buyerReplenishmentOrderManage?flowId='+order.flowId+'" class="btn btn-info btn-sm margin-r-10">查看补货订单</a>';
     }
 
     if(order && order.orderStatus && (order.orderStatus == '8'||order.orderStatus == '11'||order.orderStatus == '14')){//补货中
@@ -363,7 +479,7 @@ function listPg(flowId) {
         dataType:'json',
         contentType : "application/json;charset=UTF-8",
         success : function(data) {
-
+        	console.info(data);
             //填充表格数据
             fillTable(data);
             var totalpage = data.totalPage;
@@ -415,11 +531,17 @@ function fillTable(data) {
         "</td>";
         tr += "<td>" + orderDeliveryDetail.productCode + "</td>";
         tr += "<td>" + orderDeliveryDetail.batchNumber + "</td>";
+         if(orderDeliveryDetail.validUntil){
+        	  tr += "<td>" + orderDeliveryDetail.validUntil + "</td>";
+         }else{
+        	  tr += "<td></td>";
+         }
         tr += "<td>" + orderDeliveryDetail.productName + "</td>";
         tr += "<td>" + orderDeliveryDetail.shortName + "</td>";
         tr += "<td>" + orderDeliveryDetail.specification + "</td>";
         tr += "<td>" + orderDeliveryDetail.formOfDrug + "</td>";
         tr += "<td>" + orderDeliveryDetail.manufactures + "</td>";
+        tr += "<td>" + orderDeliveryDetail.productCount + "</td>";
         tr += "<td><input type='hidden' name='list.productCount' value='"+orderDeliveryDetail.deliveryProductCount+"' >" + orderDeliveryDetail.deliveryProductCount + "</td>";
         tr += "<td><input class='form-control' type='text' name='list.recieveCount' value='"+orderDeliveryDetail.deliveryProductCount+"' /></td>";
         tr += "</tr>";
@@ -432,6 +554,45 @@ function fillTable(data) {
     $("#bh").prop("checked",false);
 }
 
+
+function monitionRadionClick(){
+	$("input[type=radio][name=ownw]").change(function(){
+		var selectedvalue = $("input[type=radio][name=ownw]:checked").val();
+		 if(selectedvalue && selectedvalue==3){
+	            	$('#buhuoAddressShow').show();
+	                $.ajax({
+	                    url: ctx+"/order/orderDelivery/getReceiveAddressList",
+	                    type: 'GET',
+	                    success: function (data) {
+	                        tipRemove();
+	                        if (data!=null) {
+	                                $("#buhuowarehouse").html("");
+	                                var divs = "";
+	                                for (var i = 0; i < data.length; i++) {
+	                                    var delivery = data[i];
+	                                    var div = "<label class='radio-inline no-margin' style='margin-left:0px' >";
+	                                    if(delivery.defaultAddress==1){
+	                                        div += " <input type='radio' checked='true' name='buhuodelivery' value='"+delivery.id+"'/> "
+	                                    }else{
+	                                        div += " <input type='radio' name='buhuodelivery' value='"+delivery.id+"' /> "
+	                                    }
+	                                    div +=delivery.provinceName+ delivery.cityName+delivery.districtName+delivery.address+
+	                                    "&nbsp;&nbsp;&nbsp;"+  delivery.receiverName+"&nbsp;&nbsp;&nbsp;"+delivery.contactPhone+"</label>";
+	                                    divs += div;
+	                                }
+	                                $("#buhuowarehouse").append(divs);
+	                        }
+	                    },
+	                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+	                        tipRemove();
+	                        alertModal("加载失败");
+	                    }
+	                });
+		 }else{
+			 $('#buhuoAddressShow').hide();
+		 }
+	});
+}
 
 function confirmReceipt(){
     //确认收货
@@ -487,7 +648,7 @@ function confirmReceipt(){
             }
 
             if(parseInt($(recieveCount[i]).val())>parseInt($(productCount[i]).val())){
-                alertModal("收货数量不能大于采购数量!");
+                alertModal("收货数量不能大于发货数量!");
                 return;
             }
 
@@ -505,6 +666,18 @@ function confirmReceipt(){
                 list.push({"orderDetailId":$(orderDetailId[i]).val(),"orderDeliveryDetailId":$(orderDeliveryDetailId[i]).val(),"flowId":flowId,"returnType":"","returnDesc":"","recieveCount":$(recieveCount[i]).val()})
             }
         }
+    }
+    //处理选择的补货发货地址
+    if(ownw.val()==3){//补货
+    	 var delivery = $("input[type=radio][name=buhuodelivery]:checked").val();
+    	  if(delivery){
+    		 $.each(list,function(index,item){
+    			 item.selectDeliveryAddressId=delivery;
+    		 });
+    	  }else{
+    		  alertModal("请选择补货的收货地址");
+              return;
+    	  }
     }
     tipLoad();
     $.ajax({

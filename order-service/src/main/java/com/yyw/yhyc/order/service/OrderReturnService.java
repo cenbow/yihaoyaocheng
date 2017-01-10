@@ -17,12 +17,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.yyw.yhyc.helper.DateHelper;
+import com.yyw.yhyc.helper.UtilHelper;
 import com.yyw.yhyc.order.bo.*;
 import com.yyw.yhyc.order.dto.OrderLogDto;
 import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.dto.UserDto;
+import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
 import com.yyw.yhyc.order.mapper.*;
 import com.yyw.yhyc.order.utils.RandomUtil;
+import com.yyw.yhyc.usermanage.bo.UsermanageReceiverAddress;
+import com.yyw.yhyc.usermanage.mapper.UsermanageReceiverAddressMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +44,9 @@ public class OrderReturnService {
 	@Autowired
 	private OrderDeliveryDetailMapper orderDeliveryDetailMapper;
 
+	@Autowired
+	private OrderDeliveryService orderDeliveryService;
+
     @Autowired
     private OrderDetailMapper orderDetailMapper;
 
@@ -47,6 +54,10 @@ public class OrderReturnService {
     private OrderExceptionService orderExceptionService;
     @Autowired
     private OrderTraceService orderTraceService;
+    @Autowired
+    private UsermanageReceiverAddressMapper receiverAddressMapper;
+    @Autowired
+    private OrderReceiveService orderReceiveAddressService;
 
 	@Autowired
 	public void setOrderReturnMapper(OrderReturnMapper orderReturnMapper)
@@ -206,6 +217,7 @@ public class OrderReturnService {
 			//退换货订单总金额
 			List<OrderDeliveryDetail> OrderDeliveryDetailList = orderDeliveryDetailMapper.listByIds(orderDeliveryDetailIdList);
             BigDecimal orderExceptionMoney = new BigDecimal(0).setScale(2);
+            BigDecimal orderExceptionPayMoney = new BigDecimal(0).setScale(2); //优惠的金额
             for (OrderDeliveryDetail odd:OrderDeliveryDetailList) {
                 Integer canReturnCount = odd.getCanReturnCount()==null?odd.getRecieveCount():odd.getCanReturnCount();
                 Integer stractCount = orderDeliveryCountMap.get(odd.getOrderDeliveryDetailId());
@@ -214,8 +226,37 @@ public class OrderReturnService {
                     OrderDetail od = orderDetailMap.get(odd.getOrderDetailId());
 					productCodeMap.put(odd.getOrderDeliveryDetailId(),od.getProductCode());
                     if(od.getProductPrice()!=null){
-                    	returnPriceMap.put(odd.getOrderDeliveryDetailId(),od.getProductPrice().multiply(new BigDecimal(stractCount)));
-						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
+                    	
+                    	 //该笔订单详情参加了满减
+                    	 if(!UtilHelper.isEmpty(od.getPreferentialCollectionMoney())){
+                    		 
+                    		String[] moneyList=od.getPreferentialCollectionMoney().split(",");
+     						BigDecimal shareMoney=new BigDecimal(0);
+     						for(String currentMoney : moneyList){
+     							BigDecimal value=new BigDecimal(currentMoney);
+     							shareMoney=shareMoney.add(value);
+     						}
+     						
+     						BigDecimal orderDetailMoney=od.getProductSettlementPrice(); //该笔商品的结算金额
+     						BigDecimal lastOrderDetailShareMoney=orderDetailMoney.subtract(shareMoney); //减去优惠后的钱
+     						BigDecimal bigDecimal = new BigDecimal(stractCount);
+     						BigDecimal allRecord=new BigDecimal(od.getProductCount());
+     						
+     						double currentReturnMoneyTotal=(bigDecimal.doubleValue()/allRecord.doubleValue())*(lastOrderDetailShareMoney.doubleValue());
+     						BigDecimal currentReturnMoneyValue=new BigDecimal(currentReturnMoneyTotal);
+     						currentReturnMoneyValue=currentReturnMoneyValue.setScale(2,BigDecimal.ROUND_HALF_UP);
+     						
+     						returnPriceMap.put(odd.getOrderDeliveryDetailId(),currentReturnMoneyValue);
+     						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
+     						
+     						orderExceptionPayMoney=orderExceptionPayMoney.add(currentReturnMoneyValue);
+                    		 
+                    	 }else{
+                    		returnPriceMap.put(odd.getOrderDeliveryDetailId(),od.getProductPrice().multiply(new BigDecimal(stractCount)));
+     						orderExceptionMoney = orderExceptionMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
+     						orderExceptionPayMoney=orderExceptionPayMoney.add(od.getProductPrice().multiply(new BigDecimal(stractCount)));
+                    	 }
+                    	
                     }
                 }
                 //更新收货详情
@@ -223,7 +264,7 @@ public class OrderReturnService {
             }
 
             //保存退货异常订单
-            OrderException oe = parseOrderException(order,userDto,orderReturn,orderExceptionMoney,roundNum);
+            OrderException oe = parseOrderException(order,userDto,orderReturn,orderExceptionMoney,orderExceptionPayMoney,roundNum);
 			orderExceptionService.save(oe);
 
             //保存退换货详情
@@ -238,7 +279,7 @@ public class OrderReturnService {
 				or.setProductCode(productCodeMap.get(or.getOrderDeliveryDetailId()));
             }
 			orderReturnMapper.saveBatch(returnList);
-			
+
 			//插入日志
 			OrderLogDto orderLogDto=new OrderLogDto();
 			orderLogDto.setOrderId(order.getOrderId());
@@ -246,13 +287,43 @@ public class OrderReturnService {
 			orderLogDto.setOrderStatus(order.getOrderStatus());
 			orderLogDto.setRemark("orderReturn=="+orderReturn.toString());
 			this.orderTraceService.saveOrderLog(orderLogDto);
-			
+
+
+			//如果是换货,那么保存换货地址
+			if(OrderExceptionTypeEnum.CHANGE.getType().equals(orderReturn.getReturnType())){ //换货需要保存换货地址
+				Integer addressId=orderReturn.getDelivery();
+				UsermanageReceiverAddress  addressBean=this.receiverAddressMapper.getByPK(addressId);
+
+				String addressMessage=addressBean.getProvinceName()+addressBean.getCityName()+addressBean.getDistrictName()+addressBean.getAddress();
+
+				String nowDate=this.systemDateMapper.getSystemDate();
+
+				OrderReceive orderRecevieAddress=new OrderReceive();
+				orderRecevieAddress.setExceptionOrderId(oe.getExceptionOrderId());
+				orderRecevieAddress.setFlowId(order.getFlowId());
+				orderRecevieAddress.setBuyerReceiveAddress(addressMessage);
+				orderRecevieAddress.setBuyerReceiveCity(addressBean.getCityCode());
+				orderRecevieAddress.setBuyerReceiveProvince(addressBean.getProvinceCode());
+				orderRecevieAddress.setBuyerReceiveRegion(addressBean.getDistrictCode());
+				orderRecevieAddress.setBuyerReceivePerson(addressBean.getReceiverName());
+				orderRecevieAddress.setBuyerReceiveContactPhone(addressBean.getContactPhone());
+				orderRecevieAddress.setCreateTime(nowDate);
+				orderRecevieAddress.setCreateUser(userDto.getUserName());
+				orderRecevieAddress.setUpdateTime(nowDate);
+				orderRecevieAddress.setUpdateUser(userDto.getUserName());
+
+				this.orderReceiveAddressService.save(orderRecevieAddress);
+
+
+			}
+
+
 			code = "1";
 		}
 		return  "{\"code\":"+code+"}";
 	}
 
-	private OrderException parseOrderException(Order order,UserDto userDto,OrderReturn orderReturn,BigDecimal orderExceptionMoney,Integer roundNum){
+	private OrderException parseOrderException(Order order,UserDto userDto,OrderReturn orderReturn,BigDecimal orderExceptionMoney,BigDecimal orderExceptionPayMoney,Integer roundNum){
 		OrderException oe = new OrderException();
 		oe.setOrderId(order.getOrderId());
 		oe.setCustId(order.getCustId());
@@ -261,7 +332,7 @@ public class OrderReturnService {
 		oe.setFlowId(order.getFlowId());
 		oe.setCustName(order.getCustName());
 		oe.setOrderMoneyTotal(orderExceptionMoney);
-		oe.setOrderMoney(orderExceptionMoney);
+		oe.setOrderMoney(orderExceptionPayMoney);
 		oe.setCreateUser(userDto.getUserName());
 		oe.setReturnType(orderReturn.getReturnType());
 		oe.setReturnDesc(orderReturn.getReturnDesc());

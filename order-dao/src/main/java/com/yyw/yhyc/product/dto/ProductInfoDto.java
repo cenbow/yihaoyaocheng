@@ -81,6 +81,8 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
 	 */
 	private String promotionCollectionId;
 	
+	private Integer shoppingCartId;
+	
 	
     /**
      * 保存商品参加的满减信息，什么类型的满减以及每个满减优惠了多少钱
@@ -244,6 +246,14 @@ public class ProductInfoDto extends ProductInfo implements Serializable {
     }
     
     
+
+	public Integer getShoppingCartId() {
+		return shoppingCartId;
+	}
+
+	public void setShoppingCartId(Integer shoppingCartId) {
+		this.shoppingCartId = shoppingCartId;
+	}
 
 	public String getPromotionCollectionId() {
 		return promotionCollectionId;

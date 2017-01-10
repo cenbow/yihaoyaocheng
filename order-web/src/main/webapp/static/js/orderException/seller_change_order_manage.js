@@ -10,7 +10,22 @@ $(function () {
     doRefreshData(params);
     //绑定 搜索的click事件
     bindSearchBtn();
+    
+    //绑定下载批号模板
+    blindDownLoadBatchTemplate();
 })
+
+/**
+ * 绑定批号模板导入模板下载
+ */
+function blindDownLoadBatchTemplate(){
+	 $("#batchTemplateExport").on("click", function () {
+		 $("#exportTemplateForm").attr("action", ctx+"/order/exportBatchTemplate");
+		 $("#exportTemplateForm").submit();
+	});
+	 
+}
+
 function fnInitPageUtil() {
     $("#J_pager").pager();
 }
@@ -279,6 +294,10 @@ function cancleOrder(id, status) {
 
 function sendDelivery(flowId) {
     $("#sendFlowId").val(flowId);
+    
+    $("#batchTemplateFlowId").val(flowId);
+    $("#orderTypeTemplate").val("3"); //订单换货
+    
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");

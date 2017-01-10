@@ -1,6 +1,7 @@
 package com.yyw.yhyc.order.appdto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -38,6 +39,7 @@ public class OrderBean implements Serializable{
     private String adviserName;                 //销售顾问姓名
     private String adviserPhoneNumber;          //销售顾问手机号码
     private List<Integer> shopCartIdList;     //购物车id
+    private BigDecimal orderFullReductionMoney; //该订单的优惠金额
 
     /* 销售顾问 */
     private AdviserBean adviser;
@@ -313,4 +315,13 @@ public class OrderBean implements Serializable{
     public void setPayName(String payName) {
         this.payName = payName;
     }
+
+	public BigDecimal getOrderFullReductionMoney() {
+		return orderFullReductionMoney;
+	}
+
+	public void setOrderFullReductionMoney(BigDecimal orderFullReductionMoney) {
+		this.orderFullReductionMoney = orderFullReductionMoney;
+	}
+    
 }

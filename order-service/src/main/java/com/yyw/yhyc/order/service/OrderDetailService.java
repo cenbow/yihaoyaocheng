@@ -30,6 +30,14 @@ public class OrderDetailService {
 		this.orderDetailMapper = orderDetailMapper;
 	}
 	
+	
+   public List<OrderDetail> queryOrderDetailByOrderFlowId(String flowId){
+		
+		List<OrderDetail> list=this.orderDetailMapper.listOrderDetailInfoByOrderFlowId(flowId);
+		
+		return list;
+	}
+	
 	/**
 	 * 通过主键查询实体对象
 	 * @param primaryKey

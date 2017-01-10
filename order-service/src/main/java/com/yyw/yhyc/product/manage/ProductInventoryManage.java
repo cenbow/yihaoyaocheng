@@ -130,6 +130,7 @@ public class ProductInventoryManage {
      * @throws Exception
      */
     public void frozenInventory(OrderDto orderDto){
+        log.info("------开始冻结库存（提交）------ 入参 orderDto:" + orderDto);
         try {
             if (!UtilHelper.isEmpty(orderDto)) {
                 String nowTime = systemDateMapper.getSystemDate();
@@ -140,13 +141,63 @@ public class ProductInventoryManage {
                     productInventory.setBlockedInventory(orderDetail.getProductCount());
                     productInventory.setUpdateUser(orderDto.getSupplyName());
                     productInventory.setUpdateTime(nowTime);
+                    log.info("------冻结库存（提交）------ 更新库存表数据：productInventory=" + productInventory);
                     productInventoryMapper.updateFrozenInventory(productInventory);
+                    log.info("------冻结库存（提交）------ 更新库存表成功!!");
                     saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.frozen.getType(), nowTime, orderDto.getSupplyName(), null);
                 }
+            }else{
+                log.info("------冻冻结库存（提交）失败!!------");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("------冻结库存（提交）发生异常!!------ message :" + e.getMessage(),e);
+            throw new RuntimeException(e.getMessage());
         }
+        log.info("------开始冻结库存（提交）------ 完成!!");
+    }
+    
+    
+    /**
+     * 根据订单详情集合释放库存
+     * @param orderDetailList
+     * @param supplyName
+     * @param operator
+     * @param iPromotionDubboManageService
+     */
+    public void releaseInventoryByOrderDetail(List<OrderDetail> orderDetailList,Integer orderId,String supplyName, String operator, IPromotionDubboManageService iPromotionDubboManageService){
+    	  try {
+              if (!UtilHelper.isEmpty(orderDetailList)) {
+                  String nowTime = systemDateMapper.getSystemDate();
+                  for (OrderDetail orderDetail : orderDetailList) {
+                      ProductInventory productInventory = new ProductInventory();
+                      productInventory.setSpuCode(orderDetail.getSpuCode());
+                      productInventory.setSupplyId(orderDetail.getSupplyId());
+                      productInventory.setBlockedInventory(orderDetail.getProductCount());
+                      productInventory.setUpdateUser(operator);
+                      productInventory.setUpdateTime(nowTime);
+                      productInventoryMapper.updateReleaseInventory(productInventory);
+                      saveProductInventoryLog(orderDetail, ProductInventoryLogTypeEnum.release.getType(), nowTime, supplyName, operator);
+                      
+                      if((Integer)orderDetail.getPromotionId()!= null && orderDetail.getPromotionId()>0){
+                      	Map params=new HashMap();
+  	      		      	params.put("spuCode", orderDetail.getSpuCode());
+  	      		      	params.put("promotionId", orderDetail.getPromotionId());
+  	      		      	params.put("productCount", orderDetail.getProductCount());
+  	      		      	
+  	      		      	Order order = orderMapper.getByPK(orderId);
+  	      		      	params.put("buyerCode", order.getCustId());
+  	      		      	params.put("sellerCode", orderDetail.getSupplyId());
+  	      		      	log.info("活动库存释放"+params.toString());
+  	          			Map result = iPromotionDubboManageService.updateProductGroupInventroy(params);
+  	          			log.info("更新结果"+result.get("code")+" "+result.toString());
+                      }
+          			
+                  }
+              }
+          } catch (Exception e) {
+              e.printStackTrace();
+              throw new RuntimeException(e.getMessage());
+          }
     }
 
 
@@ -194,6 +245,7 @@ public class ProductInventoryManage {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -221,6 +273,7 @@ public class ProductInventoryManage {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

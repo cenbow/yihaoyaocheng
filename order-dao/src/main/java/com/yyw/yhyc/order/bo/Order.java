@@ -10,6 +10,8 @@
  **/
 package com.yyw.yhyc.order.bo;
 
+import java.math.BigDecimal;
+
 import com.yyw.yhyc.bo.Model;
 
 public class Order extends Model{
@@ -210,7 +212,7 @@ public class Order extends Model{
 	 * 	订单支付标记 1：打款成功 2：打款失败 3：退款成功 4：退款失败'
 	 * @return
 	 */
-	private int payFlag;
+	private Integer payFlag;
 
 	/* 订单商品种类数量 */
 	private int productSortCount;
@@ -237,6 +239,73 @@ public class Order extends Model{
 	 */
 	private String adviserRemark;
 	
+	/**
+	 * 卖家发货是部分发货,且不补发货物,剩下的货物金额
+	 */
+	private BigDecimal cancelMoney;
+	
+	/**
+	 * 卖家发货是部分发货,所发货物金额
+	 */
+	private BigDecimal deliveryMoney;
+	
+	/**
+	 * 卖家发货是部分发货,且不补发货物,剩下的货物均摊后的金额
+	 */
+	private BigDecimal preferentialCancelMoney;
+	
+	/**
+	 * 卖家发货是部分发货,所发货物均摊后的金额
+	 */
+	private BigDecimal preferentialDeliveryMoney;
+	
+	/**
+	 * 卖家是否部分发货,1-是,0-否
+	 */
+	private String isDartDelivery;
+	
+	private String partDeliveryRemark; //部分发货说明
+	
+
+	public BigDecimal getPreferentialCancelMoney() {
+		return preferentialCancelMoney;
+	}
+
+	public void setPreferentialCancelMoney(BigDecimal preferentialCancelMoney) {
+		this.preferentialCancelMoney = preferentialCancelMoney;
+	}
+
+	public BigDecimal getPreferentialDeliveryMoney() {
+		return preferentialDeliveryMoney;
+	}
+
+	public void setPreferentialDeliveryMoney(BigDecimal preferentialDeliveryMoney) {
+		this.preferentialDeliveryMoney = preferentialDeliveryMoney;
+	}
+
+	public BigDecimal getCancelMoney() {
+		return cancelMoney;
+	}
+
+	public void setCancelMoney(BigDecimal cancelMoney) {
+		this.cancelMoney = cancelMoney;
+	}
+
+	public BigDecimal getDeliveryMoney() {
+		return deliveryMoney;
+	}
+
+	public void setDeliveryMoney(BigDecimal deliveryMoney) {
+		this.deliveryMoney = deliveryMoney;
+	}
+
+	public String getIsDartDelivery() {
+		return isDartDelivery;
+	}
+
+	public void setIsDartDelivery(String isDartDelivery) {
+		this.isDartDelivery = isDartDelivery;
+	}
 
 	public Integer getPayFlag() {
 		return payFlag;
@@ -824,35 +893,56 @@ public class Order extends Model{
 		this.productSortCount = productSortCount;
 	}
 
-	@Override
 	public String toString() {
-		return "Order [orderId=" + orderId + ", flowId=" + flowId
-				+ ", custName=" + custName + ", custId=" + custId
-				+ ", supplyName=" + supplyName + ", supplyId=" + supplyId
-				+ ", cancelResult=" + cancelResult + ", orgTotal=" + orgTotal
-				+ ", freight=" + freight + ", orderTotal=" + orderTotal
-				+ ", finalPay=" + finalPay + ", totalCount=" + totalCount
-				+ ", orderStatus=" + orderStatus + ", remark=" + remark
-				+ ", leaveMessage=" + leaveMessage + ", orderCombinedId="
-				+ orderCombinedId + ", confirmSettlement=" + confirmSettlement
-				+ ", settlementMoney=" + settlementMoney
-				+ ", preferentialMoney=" + preferentialMoney
-				+ ", preferentialRemark=" + preferentialRemark + ", payStatus="
-				+ payStatus + ", payTypeId=" + payTypeId + ", createTime="
-				+ createTime + ", payTime=" + payTime + ", cancelTime="
-				+ cancelTime + ", deliverTime=" + deliverTime
-				+ ", receiveTime=" + receiveTime + ", settlementTime="
-				+ settlementTime + ", createUser=" + createUser
-				+ ", updateTime=" + updateTime + ", updateUser=" + updateUser
-				+ ", billType=" + billType + ", delayLog=" + delayLog
-				+ ", receiveType=" + receiveType + ", paymentTermStatus="
-				+ paymentTermStatus + ", paymentTerm=" + paymentTerm
-				+ ", delayTimes=" + delayTimes + ", promotionName="
-				+ promotionName + ", payFlag=" + payFlag
-				+ ", productSortCount=" + productSortCount + ", source="
-				+ source + ", adviserCode=" + adviserCode + ", adviserName="
-				+ adviserName + ", adviserPhoneNumber=" + adviserPhoneNumber
-				+ ", adviserRemark=" + adviserRemark + "]";
+		return "Order{" +
+				"orderId=" + orderId +
+				", flowId='" + flowId + '\'' +
+				", custName='" + custName + '\'' +
+				", custId=" + custId +
+				", supplyName='" + supplyName + '\'' +
+				", supplyId=" + supplyId +
+				", cancelResult='" + cancelResult + '\'' +
+				", orgTotal=" + orgTotal +
+				", freight=" + freight +
+				", orderTotal=" + orderTotal +
+				", finalPay=" + finalPay +
+				", totalCount=" + totalCount +
+				", orderStatus='" + orderStatus + '\'' +
+				", remark='" + remark + '\'' +
+				", leaveMessage='" + leaveMessage + '\'' +
+				", orderCombinedId=" + orderCombinedId +
+				", confirmSettlement='" + confirmSettlement + '\'' +
+				", settlementMoney=" + settlementMoney +
+				", preferentialMoney=" + preferentialMoney +
+				", preferentialRemark='" + preferentialRemark + '\'' +
+				", payStatus='" + payStatus + '\'' +
+				", payTypeId=" + payTypeId +
+				", createTime='" + createTime + '\'' +
+				", payTime='" + payTime + '\'' +
+				", cancelTime='" + cancelTime + '\'' +
+				", deliverTime='" + deliverTime + '\'' +
+				", receiveTime='" + receiveTime + '\'' +
+				", settlementTime='" + settlementTime + '\'' +
+				", createUser='" + createUser + '\'' +
+				", updateTime='" + updateTime + '\'' +
+				", updateUser='" + updateUser + '\'' +
+				", billType=" + billType +
+				", delayLog='" + delayLog + '\'' +
+				", receiveType=" + receiveType +
+				", paymentTermStatus=" + paymentTermStatus +
+				", paymentTerm=" + paymentTerm +
+				", delayTimes=" + delayTimes +
+				", payFlag=" + payFlag +
+				", productSortCount=" + productSortCount +
+				", source=" + source +
+				", adviserCode=" + adviserCode +
+				", adviserName=" + adviserName +
+				", adviserPhoneNumber=" + adviserPhoneNumber +
+				", adviserRemark=" + adviserRemark +
+				", cancelMoney=" + cancelMoney +
+				", deliveryMoney=" + deliveryMoney +
+				", isDartDelivery=" + isDartDelivery +
+				'}';
 	}
 
 	public int getSource() {
@@ -902,6 +992,16 @@ public class Order extends Model{
 	public void setPromotionName(String promotionName) {
 		this.promotionName = promotionName;
 	}
+
+	public String getPartDeliveryRemark() {
+		return partDeliveryRemark;
+	}
+
+	public void setPartDeliveryRemark(String partDeliveryRemark) {
+		this.partDeliveryRemark = partDeliveryRemark;
+	}
+	
+	
 
 }
 

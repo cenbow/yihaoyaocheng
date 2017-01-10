@@ -18,6 +18,7 @@ import com.yyw.yhyc.bo.RequestListModel;
 import com.yyw.yhyc.bo.RequestModel;
 import com.yyw.yhyc.order.service.OrderDetailService;
 import com.yyw.yhyc.utils.FileUtil;
+import com.yyw.yhyc.utils.MyConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +119,9 @@ public class OrderDetailController extends BaseJsonController {
 			throws Exception {
 		String excelName = new String((fileName+new SimpleDateFormat("yyyyMMddHHmmss").format(System.currentTimeMillis())+".xls").getBytes("gbk"),"iso-8859-1");
 
-
+        if(!filePath.contains(MyConfigUtil.FILE_PATH)){
+			filePath=MyConfigUtil.FILE_PATH+filePath;
+		}
 		File f = new File(filePath);
 		if (!f.exists()) {
 			response.sendError(404, "File not found!");

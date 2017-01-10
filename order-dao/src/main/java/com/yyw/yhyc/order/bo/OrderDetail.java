@@ -123,6 +123,11 @@ public class OrderDetail extends Model{
 	  *	记录更新时间
 	  */
 	private java.lang.String updateTime;
+	
+	/**
+	 * 卖家发货是部分发货,且不补发货物,剩下商品的数量
+	 */
+	private Integer cancelProduceNum;
 
 
 	/* 通用名 (二期)*/
@@ -140,7 +145,6 @@ public class OrderDetail extends Model{
 	* 活动名称
      */
 	private java.lang.String promotionName;
-	
 	/**
 	 * 该字段保存商品参加的所有促销的id,格式a,b,c
 	 */
@@ -155,6 +159,13 @@ public class OrderDetail extends Model{
 	 */
 	private String preferentialCollectionMoney;
 
+	public Integer getCancelProduceNum() {
+		return cancelProduceNum;
+	}
+
+	public void setCancelProduceNum(Integer cancelProduceNum) {
+		this.cancelProduceNum = cancelProduceNum;
+	}
 
 	/**
 	  *	
@@ -524,27 +535,36 @@ public class OrderDetail extends Model{
 		this.promotionName = promotionName;
 	}
 
-	@Override
-	public String toString() {
-		return "OrderDetail [orderDetailId=" + orderDetailId + ", orderId="
-				+ orderId + ", skuId=" + skuId + ", specification="
-				+ specification + ", supplyId=" + supplyId + ", productId="
-				+ productId + ", brandName=" + brandName + ", formOfDrug="
-				+ formOfDrug + ", productName=" + productName
-				+ ", productCode=" + productCode + ", manufacturesId="
-				+ manufacturesId + ", manufactures=" + manufactures
-				+ ", productPrice=" + productPrice
-				+ ", productSettlementPrice=" + productSettlementPrice
-				+ ", productCount=" + productCount + ", recieveCount="
-				+ recieveCount + ", remark=" + remark + ", createUser="
-				+ createUser + ", createTime=" + createTime + ", updateUser="
-				+ updateUser + ", updateTime=" + updateTime + ", shortName="
-				+ shortName + ", spuCode=" + spuCode + ", promotionId="
-				+ promotionId + ", promotionName=" + promotionName
-				+ ", promotionCollectionId=" + promotionCollectionId
-				+ ", promotionCollectionType=" + promotionCollectionType
-				+ ", preferentialCollectionMoney="
-				+ preferentialCollectionMoney + "]";
+	public String toString()
+	{
+		return "OrderDetail [" + 
+					"orderDetailId=" + orderDetailId + 
+					", orderId=" + orderId + 
+					", skuId=" + skuId + 
+					", specification=" + specification + 
+					", supplyId=" + supplyId + 
+					", productId=" + productId + 
+					", brandName=" + brandName + 
+					", formOfDrug=" + formOfDrug + 
+					", productName=" + productName + 
+					", productCode=" + productCode + 
+					", manufacturesId=" + manufacturesId + 
+					", manufactures=" + manufactures + 
+					", productPrice=" + productPrice + 
+					", productSettlementPrice=" + productSettlementPrice + 
+					", productCount=" + productCount + 
+					", recieveCount=" + recieveCount + 
+					", remark=" + remark + 
+					", createUser=" + createUser + 
+					", createTime=" + createTime + 
+					", updateUser=" + updateUser + 
+					", updateTime=" + updateTime +
+					", shortName=" + shortName +
+					", spuCode=" + spuCode +
+			    	", promotionId=" + promotionId +
+				    ", promotionName=" + promotionName +
+				    ", cancelProduceNum=" + cancelProduceNum +
+				"]";
 	}
 
 	public String getPromotionCollectionId() {

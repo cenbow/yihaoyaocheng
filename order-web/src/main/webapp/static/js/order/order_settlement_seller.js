@@ -179,7 +179,7 @@ function fillTableJson(data) {
 //类型 转换成操作
 function typeToOperate(businessType,confirm,settlementId,payType) {
 	var result = '';
-	if(((businessType==2||businessType==3)&& payType!=2) || (businessType==4 && payType == 3)){//只有退款有操作 并且不是账期支付
+	if(((businessType==2||businessType==3)&& payType!=2) || ((businessType==4 || businessType==5) && payType == 3)){//只有退款有操作 并且不是账期支付
 		if(confirm ==0){
 			result = '<button type="button" class="btn btn-info btn-sm editbtn back-opreate" data-stmid = "'+settlementId+'">退款结算</button>';
 		}else  if(confirm ==1){
@@ -193,7 +193,7 @@ function typeToshowMoney(businessType,money) {
 	if(money==null){
 		return "";
 	}
-	if(businessType==2||businessType==3||businessType==4){
+	if(businessType==2||businessType==3||businessType==4 ||businessType==5){
 		return "-"+money;
 	}
 	return money;
@@ -215,6 +215,7 @@ function  bindSettlementOperate() {
 	})*/
 
 	$('#myModalOperate input[name="refunSettlementMoney"]').blur(function () {
+		$(".alertm").remove();
 		var money = $(this).val();
 		var orderMoney = $("#myModalOperate .form-group:eq(0) div:first").html().replace("元","").trim();
 		var regStr = /\d+(\.\d+){0,1}/g;
@@ -228,6 +229,7 @@ function  bindSettlementOperate() {
 		}
 	});
 	$("#myModalOperate .btn-danger").click(function () {
+		$(".alertm").remove();
 		var refunSettlementMoney = $("[name='refunSettlementMoney']").val();
 		var remark = $("[name='remark']").val();
 		if(!refunSettlementMoney || refunSettlementMoney ==""){

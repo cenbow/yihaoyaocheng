@@ -66,4 +66,6 @@ public interface OrderMapper extends GenericIBatisMapper<Order, Integer> {
 	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto);
 
 	public List<OrderDto> findAppOrderStatusCount(OrderDto orderDto);
+	
+	public List<Order> queryOrderForExportExcel(OrderDto orderDto);
 }

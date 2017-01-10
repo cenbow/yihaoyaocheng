@@ -23,4 +23,6 @@ public interface OrderDetailMapper extends GenericIBatisMapper<OrderDetail, Inte
 	public List<OrderDetail> listOrderDetailInfoByOrderId(int orderId);
 
 	public List<OrderDetail> listByIds(List<Integer> orderDetailIds);
+	
+	public List<OrderDetail> listOrderDetailInfoByOrderFlowId(String flowId);
 }

@@ -12,6 +12,9 @@ $(function () {
     bindSearchBtn();
     //绑定省市区
     bindAreaData('province','city','area');
+    
+    //绑定下载批号模板
+    blindDownLoadBatchTemplate();
 })
 function fnInitPageUtil() {
     $("#J_pager").pager();
@@ -24,6 +27,17 @@ function pasretFormData() {
     params.pageSize = 20;
     params.param = p;
 
+}
+
+/**
+ * 绑定批号模板导入模板下载
+ */
+function blindDownLoadBatchTemplate(){
+	 $("#batchTemplateExport").on("click", function () {
+		 $("#exportTemplateForm").attr("action", ctx+"/order/exportBatchTemplate");
+		 $("#exportTemplateForm").submit();
+	});
+	 
 }
 /**
  * 绑定省市区操作
@@ -218,7 +232,7 @@ function fillTableJson(data) {
         var order = list[i];
         var operate = getOperateHtml(order.flowId,order.orderStatus,order.exceptionId,order.exceptionOrderId);
         var tr = "<tr>";
-        tr += "<td><a href='"+ctx+"/orderException/getReplenishmentDetails-2/" + order.flowId + "' class='undeline'>"+order.exceptionOrderId+"</a></td>";
+        tr += "<td><a href='"+ctx+"/orderException/getReplenishmentDetails-2/" + order.exceptionOrderId + "' class='undeline'>"+order.exceptionOrderId+"</a></td>";
         tr += "<td>" + order.orderCreateTime + "</td>";
         tr += "<td>" + order.supplyName + "</td>";
         tr += "<td>" + order.orderStatusName + "</td>";
@@ -235,7 +249,7 @@ function fillTableJson(data) {
 function getOperateHtml(_flowId,_orderStatus,_exceptionId,_exceptionOrderId){
     var result = "";
     if ( _orderStatus == "1") {
-        result = "<a href='"+ctx+"/orderException/getReviewReplenishmentDetails/"+_flowId+"' class='btn btn-info btn-sm margin-r-10'>审核</a>";
+        result = "<a href='"+ctx+"/orderException/getReviewReplenishmentDetails/"+_exceptionOrderId+"' class='btn btn-info btn-sm margin-r-10'>审核</a>";
     } else if( _orderStatus == "2") {
         result = "<a href='javascript:sendDelivery(\""+_exceptionOrderId+"\");' class='btn btn-info btn-sm margin-r-10')'>发货</a>";
     }
@@ -280,6 +294,8 @@ function format(date){
 
 function sendDelivery(exceptionOrderId) {
     $("#sendFlowId").val(exceptionOrderId);
+    $("#batchTemplateFlowId").val(exceptionOrderId);
+    $('#orderTypeTemplate').val("2"); //补货订单发货
     $("#myModalSendDelivery").modal().hide();
     $("#excelFile").val("");
     $("#receiverAddressId").val("");
@@ -408,6 +424,20 @@ function sendDeliverysubmit(){
         }
     });
 
+}
+
+function fmoney(s, n)
+{
+    n = n > 0 && n <= 20 ? n : 2;
+    s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+    var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+    t = "";
+    for(i = 0; i < l.length; i ++ )
+    {
+        t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+    }
+    return t.split("").reverse().join("") + "." + r;
 }
 
 function totab(tab){

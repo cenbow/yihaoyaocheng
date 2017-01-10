@@ -60,7 +60,13 @@
 		<result column="adviser_name" property="adviserName"/>
 		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
 		<result column="adviser_remark" property="adviserRemark"/>
+		<result column="cancel_money" property="cancelMoney"/>
+		<result column="delivery_money" property="deliveryMoney"/>
+		<result column="preferential_cancel_money" property="preferentialCancelMoney"/>
+		<result column="preferential_delivery_money" property="preferentialDeliveryMoney"/>
+		<result column="is_part_delivery" property="isDartDelivery"/>
 		<result column="promotion_name" property="promotionName"/>
+		<result column="part_delivery_remark" property="partDeliveryRemark"/>
 	</resultMap>
 
 	<resultMap id="OrderDetailsResultMapper" type="com.yyw.yhyc.order.dto.OrderDetailsDto" >
@@ -108,6 +114,12 @@
 		<result column="adviser_name" property="adviserName"/>
 		<result column="adviser_phone_number" property="adviserPhoneNumber"/>
 		<result column="adviser_remark" property="adviserRemark"/>
+		<result column="cancel_money" property="cancelMoney"/>
+		<result column="delivery_money" property="deliveryMoney"/>
+		<result column="preferential_cancel_money" property="preferentialCancelMoney"/>
+		<result column="preferential_delivery_money" property="preferentialDeliveryMoney"/>
+		<result column="is_part_delivery" property="isDartDelivery"/>
+		<result column="part_delivery_remark" property="partDeliveryRemark"/>
 		<result column="promotion_name" property="promotionName"/>
 		<association property="orderDelivery" column="flow_id"
 					 select="com.yyw.yhyc.order.mapper.OrderDeliveryMapper.getByFlowId"></association>
@@ -159,7 +171,13 @@
 		,adviser_name
 		,adviser_phone_number
 		,adviser_remark
+		,cancel_money
+		,delivery_money
+		,preferential_cancel_money
+		,preferential_delivery_money
+		,is_part_delivery
 		,promotion_name
+		,part_delivery_remark
 	</sql>
     <sql id="commonColumnsNotPK">
 				 flow_id
@@ -205,7 +223,13 @@
 				,adviser_name
 				,adviser_phone_number
 				,adviser_remark
+				,cancel_money
+				,delivery_money
+				,preferential_cancel_money
+		        ,preferential_delivery_money
+				,is_part_delivery
 				,promotion_name
+				,part_delivery_remark
     </sql>
 
 	<sql id="commonProcessDateColumns">
@@ -252,7 +276,13 @@
 		,adviser_name
 		,adviser_phone_number
 		,adviser_remark
+		,cancel_money
+		,delivery_money
+		,preferential_cancel_money
+		,preferential_delivery_money
+		,is_part_delivery
 		,promotion_name
+		,part_delivery_remark
 	</sql>
 
 	<sql id="T1commonProcessDateColumns">
@@ -299,7 +329,13 @@
 		, T1.adviser_name
 		, T1.adviser_phone_number
 		, T1.adviser_remark
+		,T1.cancel_money
+		,T1.delivery_money
+		,T1.preferential_cancel_money
+		,T1.preferential_delivery_money
+		,T1.is_part_delivery
 		,T1.promotion_name
+		,T1.part_delivery_remark
 	</sql>
 
 
@@ -347,7 +383,13 @@
 		, o.adviser_name
 		, o.adviser_phone_number
 		, o.adviser_remark
+		,o.cancel_money
+		,o.delivery_money
+		,o.preferential_cancel_money
+		,o.preferential_delivery_money
+		,o.is_part_delivery
 		, o.promotion_name
+		,o.part_delivery_remark
 	</sql>
 
 	<sql id="commonCondition">
@@ -466,6 +508,9 @@
 		<if test="promotionName!= null">
 			AND promotion_name=#{promotionName}
 		</if>
+		<if test="partDeliveryRemark!= null">
+			AND part_delivery_remark=#{partDeliveryRemark}
+		</if>
 	</sql>
 
 	<insert id="save" parameterType="Order" useGeneratedKeys="true" keyProperty="orderId">
@@ -516,7 +561,13 @@
 				, #{adviserName}
 				, #{adviserPhoneNumber}
 				, #{adviserRemark}
+				, #{cancelMoney}
+				, #{deliveryMoney}
+				, #{preferentialCancelMoney}
+				, #{preferentialDeliveryMoney}
+				, #{isDartDelivery}
 				,#{promotionName}
+				,#{partDeliveryRemark}
   ) ]]>
 	</insert>
 	<update id="update" parameterType="Order">
@@ -647,8 +698,26 @@
 		<if test="adviserRemark!= null">
 			,adviser_remark=#{adviserRemark}
 		</if>
+		<if test="cancelMoney!= null">
+			,cancel_money=#{cancelMoney}
+		</if>
+		<if test="deliveryMoney!= null">
+			,delivery_money=#{deliveryMoney}
+		</if>
+		<if test="preferentialCancelMoney!= null">
+			,preferential_cancel_money=#{preferentialCancelMoney}
+		</if>
+		<if test="preferentialDeliveryMoney!= null">
+			,preferential_delivery_money=#{preferentialDeliveryMoney}
+		</if>
+		<if test="isDartDelivery!= null">
+			,is_part_delivery=#{isDartDelivery}
+        </if>
 		<if test="promotionName!= null">
 			,promotion_name=#{promotionName}
+		</if>
+		<if test="partDeliveryRemark!= null">
+			,part_delivery_remark=#{partDeliveryRemark}
 		</if>
 		<![CDATA[  WHERE order_id = #{orderId}  ]]>
 	</update>
@@ -820,10 +889,10 @@
 				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
 			</if>
 			<if test='orderStatus == "4"'><!--拒收中-->
-				AND T1.ORDER_STATUS = '9'
+				AND T1.ORDER_STATUS in('9','15')
 			</if>
 			<if test='orderStatus == "5"'><!--补货中-->
-				AND T1.ORDER_STATUS = '10'
+				AND T1.ORDER_STATUS in('10','15')
 			</if>
 			<if test='orderStatus == "6"'><!--已取消-->
 				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
@@ -971,6 +1040,38 @@
 		GROUP BY ORDERSTATUS,T4.PAY_TYPE
 	</select>
 	
+	<select id="queryOrderForExportExcel" parameterType="OrderDto" resultMap="OrderResultMapper" useCache="false">
+		SELECT  
+		<include refid="commonProcessDateOrderColumns"/>,t4.pay_type
+		from t_order o 
+		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON o.PAY_TYPE_ID = T4.PAY_TYPE_ID
+		WHERE 1=1
+		<if test="flowId!= null and flowId!= ''">
+			AND o.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
+		</if>
+		<if test="custId!= null and custId!= ''">
+			AND o.cust_id = #{custId}
+		</if>
+		<if test="custName!= null and custName!= ''">
+			AND o.CUST_NAME LIKE CONCAT('%',#{custName},'%' )
+		</if>
+		<if test="supplyId!= null and supplyId!= ''">
+			AND o.supply_id=#{supplyId}
+		</if>
+		<if test="supplyName!= null and supplyName!= ''">
+			AND o.SUPPLY_NAME LIKE CONCAT('%',#{supplyName},'%' )
+		</if>
+		<if test="payType!= null and payType!= ''">
+			<![CDATA[ AND T4.PAY_TYPE=#{payType} ]]>
+		</if>
+		<if test="createBeginTime!= null and createBeginTime!= ''">
+			<![CDATA[ AND o.CREATE_TIME >= #{createBeginTime} ]]>
+		</if>
+		<if test="createEndTime!= null and createEndTime!= ''">
+			<![CDATA[ AND o.CREATE_TIME <= #{createEndTime} ]]>
+		</if>
+	</select>
+	
 	<select id="getOrderDetailForExport" parameterType="OrderDto" resultType="map" useCache="false">
 		SELECT  
 		<include refid="commonProcessDateOrderColumns"/>,d.receive_person,d.receive_address,d.receive_contact_phone,
@@ -1084,10 +1185,10 @@
 				AND T1.ORDER_STATUS IN ('6','12')<!--卖家已发货+买家延期收货-->
 			</if>
 			<if test='orderStatus == "4"'><!--拒收中-->
-				AND T1.ORDER_STATUS = '9'
+				AND T1.ORDER_STATUS in('9','15')
 			</if>
 			<if test='orderStatus == "5"'><!--补货中-->
-				AND T1.ORDER_STATUS = '10'
+				AND T1.ORDER_STATUS in('10','15')
 			</if>
 			<if test='orderStatus == "6"'><!--已取消-->
 				AND T1.ORDER_STATUS IN ('2','3','4','7')<!--买家已取消+系统自动取消+后台取消-->
@@ -1421,7 +1522,7 @@
 		T_ORDER T1
 		LEFT JOIN T_SYSTEM_PAY_TYPE T4 ON T1.PAY_TYPE_ID = T4.PAY_TYPE_ID
 		WHERE
-		T1.CUST_ID = #{custId}
+		T1.CUST_ID = #{custId} <![CDATA[ AND T4.PAY_TYPE<>2 ]]>
 		<if test="flowId!= null and flowId!= ''">
 			AND T1.FLOW_ID LIKE CONCAT('%',#{flowId},'%' )
 		</if>

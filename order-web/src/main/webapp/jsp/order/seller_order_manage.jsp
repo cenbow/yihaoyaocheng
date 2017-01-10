@@ -130,11 +130,11 @@
                             </div>
                             <table class="table table-box">
                                 <colgroup>
-                                    <col style="width: 20%;"/>
                                     <col style="width: 15%;"/>
-                                    <col style="width: 20%;"/>
-                                    <col style="width: 15%;"/>
-                                    <col style="width: 15%;"/>
+                                    <col style="width: 16%;"/>
+                                    <col style="width: 21%;"/>
+                                    <col style="width: 16%;"/>
+                                    <col style="width: 17%;"/>
                                     <col style="width: 15%;"/>
                                 </colgroup>
                                 <thead>
@@ -186,6 +186,49 @@
     </div>
 </div>
 
+   <!-- 当发货是部分发货的时候该对话框弹出 -->
+<div class="modal fade" id="myConfirmOtherSendMessage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">发货</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <input type="hidden" id="hiddenFileName">
+                        <input type="hidden" id="hiddenReceiverAddressId">
+                        <input type="hidden" id="hiddenDeliveryContactPerson">
+                        <input type="hidden" id="hiddenDeliveryExpressNo">
+                        <input type="hidden" id="hiddenDeliveryMethod">
+                        <input type="hidden" id="hiddenDeliveryDateHidden">
+                        <input type="hidden" id="hiddenSendFlowId">
+                        <input type="hidden" id="hiddenOrderType" value="1">
+                        <label for="cancelResult" class="col-xs-6 control-label">你此次为部分发货,<span style="color: red">剩余商品是否补发货</span>:</label>
+                        <div class="col-xs-6 control-label text-left">
+                               <input name="selectPartDeliverty" value="1" type="radio">是
+                               <input name="selectPartDeliverty" value="0" type="radio">否(不发货商品将进行退款)
+                        </div>
+                    </div>
+                    
+                   <div class="form-group">
+                        <label for="cancelResult" class="col-xs-3 control-label"><span style="color: red">*</span>说明:</label>
+                        <div class="col-xs-6 control-label text-left">
+                         <textarea type="text" class="form-control" id="partComent" name="partComent" placeholder="" maxlength="200"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="partDeliveryConfirm();">确定</button>
+                    <button type="button" id="closeM" class="btn btn-default" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="myModalPrompt" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -203,6 +246,10 @@
         </div>
     </div>
 </div>
+<form action="" id="exportTemplateForm" method="post">
+	<input type="hidden" name="batchTemplateFlowId" id="batchTemplateFlowId">
+	<input type="hidden" name="orderType" id="orderTypeTemplate">
+</form>
 <div class="modal fade" id="myModalSendDelivery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="width:650px;">
@@ -217,6 +264,7 @@
                         <input type="hidden" id="deliveryContactPerson" name="deliveryContactPerson">
                         <input type="hidden" id="deliveryExpressNo" name="deliveryExpressNo">
                         <input type="hidden" id="deliveryMethod" name="deliveryMethod">
+                         <input type="hidden" id="deliveryDateHidden" name="deliveryDateHidden">
                         <input type="hidden" id="sendFlowId" name="flowId">
                         <input type="hidden" id="orderType" name="orderType" value="1">
                         <div class="form-group">
@@ -228,7 +276,7 @@
                             <label class="col-xs-2 control-label">批号导入</label>
                             <div class="col-xs-7">
                                 <input type="file" id="excelFile" name="excelFile"   onchange="closeFileInput(this)"  />
-                                <p class="padding-t-10"><a class="m-l-10 eyesee" href='${ctx}/static/include/excel/excelTemplate.xls'><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
+                                <p class="padding-t-10"><a class="m-l-10 eyesee" id="batchTemplateExport"><i class="fa fa-download"></i>&nbsp;批号导入模版下载</a></p>
                             </div>
                         </div>
                         <div class="form-group">
@@ -290,6 +338,65 @@
         </div>
     </div>
 </div>
+ <!-- 部分发货的收发货物清单 -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel1">收货商品清单</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-box2">
+                    <colgroup>
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 10%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                        <col style="width: 8%;">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>订单行号</th>
+                        <th>商品编码</th>
+                        <th>批号</th>
+                        <th>有效期至</th>
+                        <th>商品名</th>
+                        <th>通用名</th>
+                        <th>规格</th>
+                        <th>剂型</th>
+                        <th>生产企业</th>
+                        <th>采购数量</th>
+                        <th>发货数量</th>
+                        <th>收货数量</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                
+                   <div class="form-group" style="display: none;" id="showProductMoneyDiv">
+	                  <label for="scope" class="col-xs-8 control-label"></label>
+	                  <label for="scope" class="col-xs-4 control-label">未发货商品金额:&yen<span id="showMoney"></span></label>
+                  </div>
+                 
+              
+                <div class="pager" id="J_pager2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+ </div>
+ 
 <%@ include file="../common_footer.jsp" %>
 <script type="text/javascript" src="${ctx }/static/js/order/seller_order_manage.js"></script>
 <script type="text/javascript" src="${ctx }/static/js/area_data.js"></script>

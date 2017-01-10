@@ -1,5 +1,6 @@
 package com.yyw.yhyc.order.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +20,16 @@ import org.apache.poi.ss.usermodel.Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.yyw.yhyc.order.bo.OrderDetail;
+import com.yyw.yhyc.order.bo.OrderException;
+import com.yyw.yhyc.order.bo.OrderReturn;
 import com.yyw.yhyc.order.dto.OrderDto;
 import com.yyw.yhyc.order.dto.OrderExceptionDto;
+import com.yyw.yhyc.order.dto.OrderReturnDto;
 import com.yyw.yhyc.order.enmu.BillTypeEnum;
+import com.yyw.yhyc.order.mapper.OrderExceptionMapper;
+import com.yyw.yhyc.order.mapper.OrderRefundMapper;
+import com.yyw.yhyc.order.mapper.OrderReturnMapper;
 
 @Service("orderExportService")
 public class OrderExportService {
@@ -29,9 +37,15 @@ public class OrderExportService {
 	
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private OrderDetailService orderDetailService;
 	
 	@Autowired
 	private OrderExceptionService orderExceptionService;
+	@Autowired
+	private OrderExceptionMapper orderExceptionMapper;
+	@Autowired
+	private OrderReturnMapper orderReturnMapper;
 	
 	private final static Map<String, String> orderTypeMap = new HashMap<String, String>(); 
 	
@@ -553,6 +567,177 @@ public class OrderExportService {
 		cell21.setCellStyle(cellStyle);
 		this.fillEmptyCell(row2,contentStyle,0,7);
 		return rownum;
+    }
+    
+    
+   /**
+    * 导出销售发货下载的模板
+    * @param orderDto
+    * @return
+    */
+    public HSSFWorkbook exportSaleProduceTemplate(String flowId,String orderType){
+    	List<OrderDetail> list=null;
+    	
+    	 if(orderType.equals("2")){ //补货订单
+    		 Map<String,Object> map=new HashMap<String,Object>();
+	    		 map.put("exceptionOrderId", flowId);
+	    		 map.put("returnType","3");
+    		 List<OrderReturnDto> orderReturnList=this.orderReturnMapper.getOrderReturnByTypeAndExceptionId(map); //补货
+    		 
+    		 if(orderReturnList!=null && orderReturnList.size()>0){
+    			
+    			 list=new ArrayList<OrderDetail>();
+    			 
+    			 for(OrderReturnDto returnBean : orderReturnList){
+    				 OrderDetail detailBean=new OrderDetail();
+    				 detailBean.setProductCode(returnBean.getProductCode());
+    				 detailBean.setShortName(returnBean.getShortName());
+    				 detailBean.setSpecification(returnBean.getSpecification());
+    				 detailBean.setManufactures(returnBean.getManufactures());
+    				 detailBean.setProductCount(returnBean.getReturnCount());
+    				 
+    				 list.add(detailBean);
+    			 }
+    		 }
+    	 }else if(orderType.equals("3")){ //换货
+             //换货的时候flowid是主键
+    		 OrderException orderException = orderExceptionMapper.getByPK(Integer.parseInt(flowId));
+    		 flowId=orderException.getExceptionOrderId();
+    		 Map<String,Object> map=new HashMap<String,Object>();
+    		 map.put("exceptionOrderId",flowId);
+    		 map.put("returnType","2");
+		    List<OrderReturnDto> orderReturnList=this.orderReturnMapper.getOrderReturnByTypeAndExceptionId(map); //换货
+    		 
+    		 if(orderReturnList!=null && orderReturnList.size()>0){
+    			
+    			 list=new ArrayList<OrderDetail>();
+    			 
+    			 for(OrderReturnDto returnBean : orderReturnList){
+    				 OrderDetail detailBean=new OrderDetail();
+    				 detailBean.setProductCode(returnBean.getProductCode());
+    				 detailBean.setShortName(returnBean.getShortName());
+    				 detailBean.setSpecification(returnBean.getSpecification());
+    				 detailBean.setManufactures(returnBean.getManufactures());
+    				 detailBean.setProductCount(returnBean.getReturnCount());
+    				 list.add(detailBean);
+    			 }
+    		 }
+    	 }else{
+    		list=this.orderDetailService.queryOrderDetailByOrderFlowId(flowId);
+    	 }
+    	
+    	HSSFWorkbook  wb = new HSSFWorkbook(); 
+		HSSFSheet sheet = wb.createSheet("发货明细");
+		
+	    //设置列宽
+		sheet.setDefaultColumnWidth(30);  
+		sheet.setDefaultRowHeightInPoints(20);  
+		//标题的样式
+		HSSFCellStyle cellStyle = this.createCellStyle(wb);
+		
+		HSSFCellStyle contentStyle = this.createContentCellStyle(wb);
+		
+		//创建第一行列头
+		HSSFRow row0 = sheet.createRow(0);  
+		
+		HSSFCell cell00 = row0.createCell(0);
+		cell00.setCellValue("序号");
+		cell00.setCellStyle(cellStyle);
+		
+		HSSFCell cell01 = row0.createCell(1);
+		cell01.setCellValue("订单编码");
+		cell01.setCellStyle(cellStyle);
+		
+		HSSFCell cell02 = row0.createCell(2);
+		cell02.setCellValue("商品编码");
+		cell02.setCellStyle(cellStyle);
+		
+		HSSFCell cell03 = row0.createCell(3);
+		cell03.setCellValue("通用名");
+		cell03.setCellStyle(cellStyle);
+		
+		HSSFCell cell04 = row0.createCell(4);
+		cell04.setCellValue("规格");
+		cell04.setCellStyle(cellStyle);
+		
+		HSSFCell cell05 = row0.createCell(5);
+		cell05.setCellValue("厂商");
+		cell05.setCellStyle(cellStyle);
+		
+		HSSFCell cell06 = row0.createCell(6);
+		cell06.setCellValue("批号");
+		cell06.setCellStyle(cellStyle);
+		
+		HSSFCell cell07 = row0.createCell(7);
+		cell07.setCellValue("有效期至");
+		cell07.setCellStyle(cellStyle);
+		
+		HSSFCell cell08 = row0.createCell(8);
+		cell08.setCellValue("数量");
+		cell08.setCellStyle(cellStyle);
+		
+		
+		
+		if(list != null && list.size()>0){
+			
+			for(int i=0;i<list.size();i++){
+				
+				 int rowNum=i+1;
+				 
+				 OrderDetail orderDetailBean = list.get(i);
+				
+				//创建数据列信息
+				HSSFRow currentNum = sheet.createRow(rowNum);
+				
+				//设置序号的值
+				HSSFCell cell0 = currentNum.createCell(0);
+				cell0.setCellValue(rowNum);
+				cell0.setCellStyle(contentStyle);
+				
+				
+				//设置订单编码
+				HSSFCell cell1 = currentNum.createCell(1);
+				cell1.setCellValue(flowId);
+				cell1.setCellStyle(contentStyle);
+				
+				//设置商品编码
+				HSSFCell cell2 = currentNum.createCell(2);
+				cell2.setCellValue(orderDetailBean.getProductCode());
+				cell2.setCellStyle(contentStyle);
+				
+				//设置通用名
+				HSSFCell cell3 = currentNum.createCell(3);
+				cell3.setCellValue(orderDetailBean.getShortName());
+				cell3.setCellStyle(contentStyle);
+				
+				
+				//设置规格
+				HSSFCell cell4 = currentNum.createCell(4);
+				cell4.setCellValue(orderDetailBean.getSpecification());
+				cell4.setCellStyle(contentStyle);
+				
+				//设置厂商
+				HSSFCell cell5= currentNum.createCell(5);
+				cell5.setCellValue(orderDetailBean.getManufactures());
+				cell5.setCellStyle(contentStyle);
+				
+				//设置批号
+				HSSFCell cell6= currentNum.createCell(6);
+				cell6.setCellValue("");
+				cell6.setCellStyle(contentStyle);
+				
+				//设置有效期至
+				HSSFCell cell7= currentNum.createCell(7);
+				cell7.setCellValue("");
+				cell7.setCellStyle(contentStyle);
+				
+				//设置数量
+				HSSFCell cell8= currentNum.createCell(8);
+				cell8.setCellValue(orderDetailBean.getProductCount());
+				cell8.setCellStyle(contentStyle);
+			}
+		}
+		return wb;
     }
     
     /**

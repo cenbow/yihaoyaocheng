@@ -13,8 +13,10 @@ package com.yyw.yhyc.order.service;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.sql.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
 import com.search.model.yhyc.ProductDrug;
@@ -23,6 +25,7 @@ import com.search.model.yhyc.ProductPromotion;
 
 
 import com.yyw.yhyc.order.bo.*;
+import com.yyw.yhyc.order.enmu.*;
 import com.yyw.yhyc.order.mapper.*;
 
 import net.sf.json.JSONArray;
@@ -52,7 +55,6 @@ import com.yyw.yhyc.order.appdto.AddressBean;
 import com.yyw.yhyc.order.appdto.BatchBean;
 import com.yyw.yhyc.order.appdto.OrderBean;
 import com.yyw.yhyc.order.appdto.OrderProductBean;
-
 import com.yyw.yhyc.order.bo.CommonType;
 import com.yyw.yhyc.order.bo.Order;
 import com.yyw.yhyc.order.bo.OrderCombined;
@@ -65,7 +67,6 @@ import com.yyw.yhyc.order.bo.OrderSettlement;
 import com.yyw.yhyc.order.bo.OrderTrace;
 import com.yyw.yhyc.order.bo.ShoppingCart;
 import com.yyw.yhyc.order.bo.SystemPayType;
-
 import com.yyw.yhyc.order.dto.AdviserDto;
 import com.yyw.yhyc.order.dto.OrderCreateDto;
 import com.yyw.yhyc.order.dto.OrderDeliveryDetailDto;
@@ -78,21 +79,7 @@ import com.yyw.yhyc.order.dto.OrderPromotionDto;
 import com.yyw.yhyc.order.dto.ShoppingCartDto;
 import com.yyw.yhyc.order.dto.ShoppingCartListDto;
 import com.yyw.yhyc.order.dto.UserDto;
-import com.yyw.yhyc.order.enmu.BillTypeEnum;
-import com.yyw.yhyc.order.enmu.BuyerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
-import com.yyw.yhyc.order.enmu.OrderExceptionTypeEnum;
-import com.yyw.yhyc.order.enmu.OrderPayStatusEnum;
-import com.yyw.yhyc.order.enmu.SellerOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
-import com.yyw.yhyc.order.enmu.SystemChangeGoodsOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemOrderPayFlag;
-import com.yyw.yhyc.order.enmu.SystemOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
-import com.yyw.yhyc.order.enmu.SystemRefundOrderStatusEnum;
-import com.yyw.yhyc.order.enmu.SystemReplenishmentOrderStatusEnum;
 import com.yyw.yhyc.order.manage.OrderManage;import com.yyw.yhyc.order.manage.OrderPayManage;
-
 import com.yyw.yhyc.order.mapper.OrderCombinedMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryDetailMapper;
 import com.yyw.yhyc.order.mapper.OrderDeliveryMapper;
@@ -1339,6 +1326,7 @@ public class OrderService {
 		for (OrderDetail detail:orderDetailsdto.getDetails())
 		{
 			BigDecimal proudcutCount=new BigDecimal(detail.getProductCount());
+			
 			if (!UtilHelper.isEmpty(detail.getRecieveCount())){
 				BigDecimal count=new BigDecimal(detail.getRecieveCount());
 				total=total.add(detail.getProductPrice().multiply(count));
@@ -1416,6 +1404,10 @@ public class OrderService {
 				//获取买家视角订单状态
 				buyerorderstatusenum = getBuyerOrderStatus(od.getOrderStatus(),od.getPayType());
                 if(buyerorderstatusenum != null){
+                	//统计待付款中，排除支付类型是账期支付的
+                	if(buyerorderstatusenum.getType().equals(BuyerOrderStatusEnum.PendingPayment.getType()) && od.getPayType()==SystemPayTypeEnum.PayPeriodTerm.getPayType()){
+                		continue;
+                	}
 					//统计买家视角订单数
                     if(orderStatusCountMap.containsKey(buyerorderstatusenum.getType())){
                         orderStatusCountMap.put(buyerorderstatusenum.getType(),orderStatusCountMap.get(buyerorderstatusenum.getType())+od.getOrderCount());
@@ -1425,6 +1417,32 @@ public class OrderService {
                 }
             }
         }
+        
+      //将拒收&补货中的状态数量增加到补货中或者拒收中
+      	if(orderStatusCountMap.containsKey(BuyerOrderStatusEnum.Rejecting.getType()) || orderStatusCountMap.containsKey(BuyerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+      			   Integer countRejecting=orderStatusCountMap.get(BuyerOrderStatusEnum.Rejecting.getType()); //拒收的数量
+      			   if(countRejecting==null){
+      				   countRejecting=0;
+      			   }
+      			   Integer countRejectAndReplenish=orderStatusCountMap.get(BuyerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+      			   if(countRejectAndReplenish==null){
+      				   countRejectAndReplenish=0;
+      			   }
+      			   int allCount=countRejecting+countRejectAndReplenish;
+      			   orderStatusCountMap.put(BuyerOrderStatusEnum.Rejecting.getType(),allCount);
+      		  }
+      		if(orderStatusCountMap.containsKey(BuyerOrderStatusEnum.Replenishing.getType()) || orderStatusCountMap.containsKey(BuyerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+      			   Integer countRejecting=orderStatusCountMap.get(BuyerOrderStatusEnum.Replenishing.getType()); //拒收的数量
+      				if(countRejecting==null){
+      					countRejecting=0;
+      				}
+      				Integer countRejectAndReplenish=orderStatusCountMap.get(BuyerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+      				if(countRejectAndReplenish==null){
+      					countRejectAndReplenish=0;
+      				}
+      			   int allCount=countRejecting+countRejectAndReplenish;
+      			   orderStatusCountMap.put(BuyerOrderStatusEnum.Replenishing.getType(),allCount);
+      		  }
 
         BigDecimal orderTotalMoney = orderMapper.findBuyerOrderTotal(orderDto);
         int orderCount = 0;
@@ -1517,6 +1535,9 @@ public class OrderService {
         if (systemOrderStatus.equals(SystemOrderStatusEnum.Rejecting.getType())) {//拒收中
             return BuyerOrderStatusEnum.Rejecting;//拒收中
         }
+        if (systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//拒收&补货中
+            return BuyerOrderStatusEnum.RejectAndReplenish;//拒收&补货中
+        }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.Replenishing.getType())) {//补货中
             return BuyerOrderStatusEnum.Replenishing;//补货中
         }
@@ -1559,6 +1580,9 @@ public class OrderService {
             return SellerOrderStatusEnum.Replenishing;//补货中
         }
 
+        if(systemOrderStatus.equals(SystemOrderStatusEnum.RejectAndReplenish.getType())){
+        	 return SellerOrderStatusEnum.RejectAndReplenish;//拒收&补货中
+        }
         if (systemOrderStatus.equals(SystemOrderStatusEnum.BuyerCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SystemAutoCanceled.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.BackgroundCancellation.getType()) || systemOrderStatus.equals(SystemOrderStatusEnum.SellerCanceled.getType())) {//买家已取消+系统自动取消+后台取消+卖家已取消
             return SellerOrderStatusEnum.Canceled;//已取消
         }
@@ -1670,6 +1694,11 @@ public class OrderService {
 				//卖家视角订单状态
 				sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
 				if(sellerOrderStatusEnum != null){
+					//统计待付款中，排除支付类型是账期支付的
+                	if(sellerOrderStatusEnum.getType().equals(SellerOrderStatusEnum.PendingPayment.getType()) && od.getPayType()==SystemPayTypeEnum.PayPeriodTerm.getPayType()){
+                		continue;
+                	}
+					
 					if(orderStatusCountMap.containsKey(sellerOrderStatusEnum.getType())){
 						orderStatusCountMap.put(sellerOrderStatusEnum.getType(),orderStatusCountMap.get(sellerOrderStatusEnum.getType())+od.getOrderCount());
 					}else{
@@ -1678,6 +1707,31 @@ public class OrderService {
 				}
 			}
 		}
+		//将拒收&补货中的状态数量增加到补货中或者拒收中
+		if(orderStatusCountMap.containsKey(SellerOrderStatusEnum.Rejecting.getType()) || orderStatusCountMap.containsKey(SellerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+			   Integer countRejecting=orderStatusCountMap.get(SellerOrderStatusEnum.Rejecting.getType()); //拒收的数量
+			   if(countRejecting==null){
+				   countRejecting=0;
+			   }
+			   Integer countRejectAndReplenish=orderStatusCountMap.get(SellerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+			   if(countRejectAndReplenish==null){
+				   countRejectAndReplenish=0;
+			   }
+			   int allCount=countRejecting+countRejectAndReplenish;
+			   orderStatusCountMap.put(SellerOrderStatusEnum.Rejecting.getType(),allCount);
+		  }
+		if(orderStatusCountMap.containsKey(SellerOrderStatusEnum.Replenishing.getType()) || orderStatusCountMap.containsKey(SellerOrderStatusEnum.RejectAndReplenish.getType()) ){ //包含拒收中，且也包含拒收&补货中
+			   Integer countRejecting=orderStatusCountMap.get(SellerOrderStatusEnum.Replenishing.getType()); //拒收的数量
+				if(countRejecting==null){
+					countRejecting=0;
+				}
+				Integer countRejectAndReplenish=orderStatusCountMap.get(SellerOrderStatusEnum.RejectAndReplenish.getType()); //拒收&补货中
+				if(countRejectAndReplenish==null){
+					countRejectAndReplenish=0;
+				}
+			   int allCount=countRejecting+countRejectAndReplenish;
+			   orderStatusCountMap.put(SellerOrderStatusEnum.Replenishing.getType(),allCount);
+		  }
 
 		BigDecimal orderTotalMoney = orderMapper.findSellerOrderTotal(orderDto);
 		int orderCount = 0;
@@ -1686,7 +1740,11 @@ public class OrderService {
 			for(OrderDto od : sellerOrderList){
 				if(!UtilHelper.isEmpty(od.getOrderStatus()) && !UtilHelper.isEmpty(od.getPayType())){
 					//卖家视角订单状态
-					sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
+					 if (od.getOrderStatus().equals(SystemOrderStatusEnum.RejectAndReplenish.getType())) {//拒收&补货中
+						 sellerOrderStatusEnum=SellerOrderStatusEnum.RejectAndReplenish;//拒收&补货中
+				     }else{
+				    	 sellerOrderStatusEnum = getSellerOrderStatus(od.getOrderStatus(),od.getPayType());
+				     }
 					if(!UtilHelper.isEmpty(sellerOrderStatusEnum))
 						od.setOrderStatusName(sellerOrderStatusEnum.getValue());
 					else
@@ -1847,6 +1905,7 @@ public class OrderService {
 				if(UtilHelper.isEmpty(temp)) continue;
 				if(custIdAndSupplyId.getSupplyId().equals(temp.getSupplyId())){
 					shoppingCartDto = new ShoppingCartDto();
+					shoppingCartDto.setShoppingCartId(temp.getShoppingCartId());
 					shoppingCartDto.setCustId(temp.getCustId());
 					shoppingCartDto.setSupplyId(temp.getSupplyId());
 					shoppingCartDto.setSpuCode(temp.getSpuCode());
@@ -1925,7 +1984,7 @@ public class OrderService {
 				dataset.add(new Object[]{orderDetail.getSpuCode(),orderDetail.getShortName(),orderDetail.getSpecification(),orderDetail.getManufactures(),orderDetail.getProductPrice(),orderDetail.getProductCount(),totalPrice.doubleValue(),""});
 				productTotal+=totalPrice.doubleValue();
 			}
-			dataset.add(new Object[]{"商品金额（元）styleColor", productTotal, "优惠券（元）styleColor", order.getPreferentialMoney(), "订单金额（元）styleColor", order.getSettlementMoney()});
+			dataset.add(new Object[]{"商品金额（元）styleColor", productTotal, "优惠券（元）styleColor",0, "订单金额（元）styleColor", order.getSettlementMoney()});
 			dataset.add(new Object[]{"买家留言styleColor", order.getLeaveMessage(), "满立减金额（元）styleColor", order.getPreferentialMoney(), "促销备注styleColor", order.getPreferentialRemark(), "", ""});
 			dataset.add(new Object[]{});
 		}
@@ -2022,7 +2081,6 @@ public class OrderService {
 					UserDto userDto=new UserDto();
 					userDto.setCustName("admin");
 					payService.handleRefund(userDto,1,od.getFlowId(),"系统自动取消");
-					productInventoryManage.releaseInventory(od.getOrderId(),od.getSupplyName(),"admin",iPromotionDubboManageService);
 				}
 			}else{
 				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
@@ -2052,6 +2110,40 @@ public class OrderService {
 	}
 
 	/**
+	 * 判断是否是正常订单状态已到最后一步
+	 */
+	public boolean isDoneOrder(Order od){
+		if(SystemOrderStatusEnum.BuyerAllReceived.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.BuyerPartReceived.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.Rejecting.getType().equals(od.getOrderStatus())
+				||SystemOrderStatusEnum.Replenishing.getType().equals(od.getOrderStatus())
+				){
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	 * 判断补货订单是否完成
+	 */
+	public boolean isReplenishment(Order od){
+		OrderException orderException1=new OrderException();
+		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
+		orderException1.setFlowId(od.getFlowId());
+		List<OrderException> le1=orderExceptionMapper.listByProperty(orderException1);
+		for(OrderException oe:le1){
+			if(!SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType().equals(oe.getOrderStatus())
+				&&!SystemReplenishmentOrderStatusEnum.BuyerReceived.getType().equals(oe.getOrderStatus())
+				&& !SystemReplenishmentOrderStatusEnum.SellerClosed.getType().equals(oe.getOrderStatus())
+					){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * 系统自动确认收货
 	 * 订单发货后7个自然日后系统自动确认收货
 	 * @return
@@ -2060,6 +2152,12 @@ public class OrderService {
 		List<Order> lo=orderMapper.listOrderForDelivery();
 		List<Integer> cal=new ArrayList<Integer>();
 		for(Order od:lo){
+			if(!UtilHelper.isEmpty(od.getDelayTimes())){
+				//计算最后收货时间
+				Date dr=DateHelper.dateAddDay(DateHelper.parseDate(od.getDeliverTime()),7+3*od.getDelayTimes());
+				int i=DateHelper.compareDate(dr,new Date());
+				if(i==0) continue;
+			}
 			String now = systemDateMapper.getSystemDate();
 			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			od.setReceiveTime(now);
@@ -2067,27 +2165,31 @@ public class OrderService {
 			orderMapper.update(od);
 			//账期结算信息
 			orderDeliveryDetailService.saveOrderSettlement(od,null);
+			//收货数量更新
+			orderDeliveryDetailService.orderDeliveryDetailCount(od);
 			//根据订单来源进行自动分账 三期 对接
 			log.debug("订单发货后7个自然日后系统自动确认收货=" + od.toString());
-			SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
-			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
+			if(isReplenishment(od)){
+			   SystemPayType systemPayType = systemPayTypeMapper.getByPK(od.getPayTypeId());
+			   if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(od.getPayTypeId())
 			        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(od.getPayTypeId())
 					||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(od.getPayTypeId())){
 
-				OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
-				if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
-					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-					UserDto userDto=new UserDto();
-					userDto.setCustName("admin");
-					payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
-					cal.add(od.getOrderId());
-				}
-			}else{
-				if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
+				    OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
+				    if(!UtilHelper.isEmpty(orderCombined.getPayFlowId())){
+					   PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+					   UserDto userDto=new UserDto();
+					   userDto.setCustName("admin");
+					   payService.handleRefund(userDto,1,od.getFlowId(),"自动确认收货");
+					   cal.add(od.getOrderId());
+				   }
+			   }else{
+				    if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
 					sendCredit(od,creditDubboService,"2");
-				}
+				    }
+			    }
 
 			}
 			
@@ -2153,58 +2255,104 @@ public class OrderService {
 	/*
 	 *补货异常订单自动确认
 	 */
-	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService)throws Exception{
+	private List<Integer> autoConfirmReplenishmentOrder(List<Integer> cal,CreditDubboServiceInterface creditDubboService)throws Exception {
 
-		OrderException orderException1=new OrderException();
+		OrderException orderException1 = new OrderException();
 		orderException1.setReturnType(OrderExceptionTypeEnum.REPLENISHMENT.getType());
 		orderException1.setOrderStatus(SystemReplenishmentOrderStatusEnum.SellerDelivered.getType());
-		List<OrderException> le1=orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
-		for(OrderException o:le1){
-			Order od= orderMapper.getOrderbyFlowId(o.getFlowId());
-			String now = systemDateMapper.getSystemDate();
-			od.setOrderStatus(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType());
-			od.setReceiveTime(now);
-			od.setReceiveType(2);
-			orderMapper.update(od);
-			//生成结算信息
-			orderDeliveryDetailService.saveOrderSettlement(od,null);
-			log.debug("补货异常订单自动确认=" + o.toString() + ";" + od.toString());
-			Integer payTypeId=od.getPayTypeId();
-			SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
-			if(!UtilHelper.isEmpty(od)){
-				if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
-				        ||OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
-						||OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
-						||OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
-						||OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)){
-					OrderCombined orderCombined=orderCombinedMapper.getByPK(od.getOrderCombinedId());
-					PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
-					UserDto userDto=new UserDto();
-					userDto.setCustName("admin");
-					payService.handleRefund(userDto,3,o.getFlowId(),"补货自动确认收货");
-					cal.add(od.getOrderId());
-				}else{
-					if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())){
-						sendCredit(od,creditDubboService,"2");
-					}
+		List<OrderException> le1 = orderExceptionMapper.listNodeliveryForReplenishment(orderException1);
+		for (OrderException o : le1) {
 
-				}
-
-			}
 			//异常订单收货
 			o.setOrderStatus(SystemReplenishmentOrderStatusEnum.SystemAutoConfirmReceipt.getType());
 			o.setSellerReceiveTime(systemDateMapper.getSystemDate());
 			orderExceptionMapper.update(o);
-			
-			//插入日志
+
+			Order od = orderMapper.getOrderbyFlowId(o.getFlowId());
+			//部分发货（收货）  20170106
+			String orderStatus = "";
+			if (od.getOrderStatus().equals(SystemOrderStatusEnum.SellerDelivered.getType())) {   //部分发货 并且剩余部分发货 ---补货订单先收货的情况
+				orderStatus = SystemOrderStatusEnum.SellerDelivered.getType();
+			} else {
+				List<OrderException> orderExceptions = orderExceptionMapper.findReplenishmentNotComplete(o.getFlowId());  //查询是否还有补货没完成的异常订单
+
+				OrderException rejectOrder = new OrderException();
+				rejectOrder.setFlowId(o.getFlowId());
+				rejectOrder.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+				List<OrderException> rejectOrderList = orderExceptionMapper.listByProperty(rejectOrder); //查询拒收订单
+
+				if (!UtilHelper.isEmpty(rejectOrderList)) {                     // 拒收订单存在的情况
+					for (OrderException orderExceptionDto : rejectOrderList) {
+						if (orderExceptionDto.getOrderStatus().equals(SystemOrderExceptionStatusEnum.RejectApplying.getType())) {
+							if (UtilHelper.isEmpty(orderExceptions)) {          //不存在未完成的补货订单
+								orderStatus = SystemOrderStatusEnum.Rejecting.getType();
+							} else {
+								orderStatus = SystemOrderStatusEnum.RejectAndReplenish.getType();
+							}
+							break;
+						} else if (orderExceptionDto.getOrderStatus().equals(SystemOrderExceptionStatusEnum.SellerClosed.getType())) {
+							if (UtilHelper.isEmpty(orderExceptions)) {          //不存在未完成的补货订单
+								orderStatus = SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType();
+							} else {
+								orderStatus = SystemOrderStatusEnum.Replenishing.getType();
+							}
+						} else {
+							if (UtilHelper.isEmpty(orderExceptions)) {          //不存在未完成的补货订单
+								orderStatus = SystemOrderStatusEnum.BuyerPartReceived.getType();
+							} else {
+								orderStatus = SystemOrderStatusEnum.Replenishing.getType();
+							}
+						}
+					}
+				} else {                                          //拒收订单不存在
+					if (UtilHelper.isEmpty(orderExceptions)) {
+						orderStatus = SystemOrderStatusEnum.BuyerAllReceived.getType();
+					} else {
+						orderStatus = SystemOrderStatusEnum.Replenishing.getType();
+					}
+				}
+
+                //修改原订单状态
+				od.setOrderStatus(orderStatus);
+				od.setUpdateTime(systemDateMapper.getSystemDate());
+				od.setUpdateUser("admin");
+				orderMapper.update(od);
+			}
+
+			//订单完成时生成结算信息
+			if (orderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType()) || orderStatus.equals(SystemOrderStatusEnum.SystemAutoConfirmReceipt.getType()) || orderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())) {
+				Map<String,Object> map=getOrderTotal(od);  //计算结算金额
+				Integer payTypeId=od.getPayTypeId();
+				SystemPayType systemPayType = systemPayTypeMapper.getByPK(payTypeId);
+				od.setOrgTotal(new BigDecimal(map.get("orderTotal").toString()));
+				if (OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(payTypeId)
+							|| OnlinePayTypeEnum.UnionPayMobile.getPayTypeId().equals(systemPayType.getPayTypeId())
+							|| OnlinePayTypeEnum.UnionPayB2B.getPayTypeId().equals(systemPayType.getPayTypeId())
+							|| OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId().equals(payTypeId)
+							|| OnlinePayTypeEnum.MerchantBank.getPayTypeId().equals(payTypeId)) {
+						OrderCombined orderCombined = orderCombinedMapper.getByPK(od.getOrderCombinedId());
+						PayService payService = (PayService) SpringBeanHelper.getBean(systemPayType.getPayCode());
+						UserDto userDto = new UserDto();
+						userDto.setCustName("admin");
+						payService.handleRefund(userDto, Integer.parseInt(map.get("orderType").toString()), o.getFlowId(), "补货自动确认收货");
+						cal.add(od.getOrderId());
+				} else {
+						if (systemPayType.getPayType().equals(SystemPayTypeEnum.PayPeriodTerm.getPayType())) {
+							sendCredit(od, creditDubboService, "2");
+						}
+				}
+			    //生成结算信息
+			   orderDeliveryDetailService.saveOrderSettlement(od,null);
+			}
+			 //插入日志
 		     OrderTrace orderTrace=new OrderTrace();
 		     orderTrace.setOrderId(o.getOrderId());
 		     orderTrace.setOrderStatus(o.getOrderStatus());
 		     orderTrace.setNodeName("补货异常订单自动确认");
 		     orderTrace.setRemark("OrderException=="+o.toString());
-		     orderTrace.setCreateTime(now);
+		     orderTrace.setCreateTime(systemDateMapper.getSystemDate());
 		     orderTrace.setCreateUser("admin");
-		     orderTrace.setUpdateTime(now);
+		     orderTrace.setUpdateTime(systemDateMapper.getSystemDate());
 		     orderTrace.setUpdateUser("admin");
 		     this.orderTraceMapper.save(orderTrace);
 		}
@@ -2376,6 +2524,7 @@ public class OrderService {
 				log.debug("updateOrderStatus ld.size 还款接口调用="+ld.size());
                 for(OrderSettlement os:ld){
 					String now = systemDateMapper.getSystemDate();
+					os.setRefunSettlementMoney(os.getSettlementMoney());
 					os.setConfirmSettlement("1");
 					os.setSettlementTime(now);
 					os.setUpdateTime(now);
@@ -2599,11 +2748,11 @@ public class OrderService {
 	 * @param cancelResult
      */
 	public void  updateOrder4Manage(String userName,String orderId,String cancelResult,IPromotionDubboManageService iPromotionDubboManageService){
-		if( UtilHelper.isEmpty(orderId) || UtilHelper.isEmpty(cancelResult)){
-			throw new RuntimeException("参数错误:订单编号为空");
+		if(UtilHelper.isEmpty(orderId)){
+			throw new RuntimeException("订单编号不能为空");
 		}
-		if(  UtilHelper.isEmpty(cancelResult)){
-			throw new RuntimeException("参数错误:取消原因为空");
+		if(UtilHelper.isEmpty(cancelResult)){
+			throw new RuntimeException("取消原因不能为空");
 		}
 		Order order =  orderMapper.getByPK(Integer.parseInt(orderId));
 		log.debug(order);
@@ -2624,6 +2773,21 @@ public class OrderService {
 				log.error("order info :"+order);
 				throw new RuntimeException("订单取消失败");
 			}
+			//部分发货时，有可能产生补货单
+			OrderException orderExceptionDto = new OrderException();
+			orderExceptionDto.setFlowId(order.getFlowId());
+			orderExceptionDto.setReturnType("3");//补货
+			
+			List<OrderException> exceptionList=this.orderExceptionMapper.listByProperty(orderExceptionDto);
+			if(!UtilHelper.isEmpty(exceptionList)){
+				log.error("订单编号=="+orderId+"存在补货订单,不能取消");
+				throw new RuntimeException("订单编号=="+orderId+"存在补货订单,不能取消");
+			}
+			/*orderExceptionDto.setOrderStatus(SystemOrderStatusEnum.BackgroundCancellation.getType());//标记订单为卖家取消状态
+			orderExceptionDto.setRemark(cancelResult);
+			orderExceptionDto.setUpdateUser(userName);
+			orderExceptionDto.setUpdateTime(now);
+			orderExceptionMapper.update(orderExceptionDto);*/
 
 			UserDto userDto = new UserDto();
 			userDto.setUserName(userName);
@@ -2641,7 +2805,6 @@ public class OrderService {
 			orderTraceMapper.save(orderTrace);
 
 			SystemPayType systemPayType = systemPayTypeMapper.getByPK(order.getPayTypeId());
-
 
 			//如果是银联在线支付，生成结算信息，类型为订单取消退款
 			if(OnlinePayTypeEnum.UnionPayB2C.getPayTypeId().equals(systemPayType.getPayTypeId())
@@ -2668,7 +2831,11 @@ public class OrderService {
 				orderSettlement.setSupplyId(order.getSupplyId());
 				orderSettlement.setRemark(cancelResult);
 				orderSettlement.setConfirmSettlement("0");//生成结算信息时都未结算
-				orderSettlement.setSettlementMoney(order.getOrgTotal());
+				if(!UtilHelper.isEmpty(order.getPreferentialCancelMoney())){
+					orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(order.getPreferentialCancelMoney()));
+				}else{
+					orderSettlement.setSettlementMoney(order.getOrgTotal());
+				}
 				orderSettlementMapper.save(orderSettlement);
 			}
 			if(systemPayType.getPayType().equals(SystemPayTypeEnum.PayOnline.getPayType())) {
@@ -2817,6 +2984,11 @@ public class OrderService {
 				if(UtilHelper.isEmpty(productDrug)) continue;
 				isChannel = UtilHelper.isEmpty(productDrug.getIs_channel()) ? 0 : Integer.valueOf(productDrug.getIs_channel());
 				shoppingCartDto.setIsChannel(isChannel);
+				shoppingCartDto.setProductImageUrl(productDrug.getProductPicUrl());
+				shoppingCartDto.setSpec(productDrug.getSpec());
+				if (productDrug.getMinimum_packing() != null && productDrug.getMinimum_packing() != "" ) {
+					shoppingCartDto.setMinimumPacking(Integer.parseInt(productDrug.getMinimum_packing()));
+				}
 			}
 		}
 		return allShoppingCart;
@@ -3146,7 +3318,7 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderStatus))
 			throw new RuntimeException("订单状态不正确");
 		orderDto.setOrderStatus(orderStatus);
-		orderDto.setPayType(1);//只取在线支付订单
+//		orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
 		//获取订单列表
 		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForApp(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
@@ -3195,6 +3367,9 @@ public class OrderService {
 						hideOrderStatus ="905";
 					}
 				}
+				//（20170106，APP接口增加查询线下支付订单，BY:LiuY）
+				//线下支付
+				temp.put("orderPayType",od.getPayType());
 				temp.put("orderStatus",hideOrderStatus);
 				temp.put("orderStatusName",od.getOrderStatusName());
 				temp.put("createTime",od.getCreateTime());
@@ -3208,6 +3383,7 @@ public class OrderService {
 				temp.put("postponeTime",CommonType.CAN_DELAY_TIME);//能延期次数
 				temp.put("qq","");
 				temp.put("productList",getProductList(od.getOrderDetailList(),iProductDubboManageService));
+
 				orderList.add(temp);
 			}
 		}
@@ -3436,8 +3612,13 @@ public class OrderService {
 		}
 		orderBean.setDeliveryMethod(orderDetailsDto.getOrderDelivery().getDeliveryMethod());
 		orderBean.setBillType(orderDetailsDto.getBillType());
-		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString()));
-		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getFinalPay()) ? "0" : orderDetailsDto.getFinalPay().toString()));
+		
+		orderBean.setOrderTotal(Double.parseDouble(orderDetailsDto.getOrderTotal().toString())); //商品金额
+		orderBean.setFinalPay(Double.parseDouble(UtilHelper.isEmpty(orderDetailsDto.getOrgTotal()) ? "0" : orderDetailsDto.getOrgTotal().toString())); //商品优惠的的订单金额
+		BigDecimal orderShareMoney=new BigDecimal(0); //订单优惠金额
+		orderShareMoney=orderDetailsDto.getOrderTotal().subtract(orderDetailsDto.getOrgTotal());
+		orderBean.setOrderFullReductionMoney(orderShareMoney);
+		
 		orderBean.setProductNumber(orderDetailsDto.getTotalCount());
 		orderBean.setSupplyId(orderDetailsDto.getSupplyId());
 		orderBean.setPostponeTime(orderDetailsDto.getDelayTimes());
@@ -3467,6 +3648,19 @@ public class OrderService {
 			ordeProductBean.setProductPrice(Double.parseDouble(orderDetail.getProductPrice().toString()));
 			ordeProductBean.setSpec(orderDetail.getSpecification());
 			ordeProductBean.setFactoryName(orderDetail.getManufactures());
+			//商品详情总金额
+			ordeProductBean.setProductAllMoney(orderDetail.getProductPrice().multiply(new BigDecimal(orderDetail.getProductCount())));
+			
+		    BigDecimal shareMoney = new BigDecimal(0);
+            if (!UtilHelper.isEmpty(orderDetail.getPreferentialCollectionMoney())) {
+                String[] moneyList = orderDetail.getPreferentialCollectionMoney().split(",");
+                for (String currentMoney : moneyList) {
+                    BigDecimal value = new BigDecimal(currentMoney);
+                    shareMoney = shareMoney.add(value);
+                }
+            }
+            ordeProductBean.setProductShareMoney(shareMoney);
+            ordeProductBean.setProductReturnPay(ordeProductBean.getProductAllMoney().subtract(shareMoney));
 			//批次信息
 			OrderDeliveryDetail orderDeliveryDetail=new OrderDeliveryDetail();
 			orderDeliveryDetail.setFlowId(orderId);
@@ -3490,5 +3684,42 @@ public class OrderService {
 
 	public List<Map<String,Object>> getOrderDetailForExport(OrderDto orderDto){
 		return orderMapper.getOrderDetailForExport(orderDto);
+	}
+
+	/**  20170106  部分发货
+	 * 获取订单完成时金额
+	 * @param order
+	 * @return
+	 */
+	private Map<String ,Object> getOrderTotal(Order order) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("orderType",1);  //正常订单
+		//订单完成时金额
+		BigDecimal orderTotal = new BigDecimal(0);
+		//拒收订单金额
+		BigDecimal rejectTotal = new BigDecimal(0);
+		if ("1".equals(order.getIsDartDelivery())) {  //1、部分发货0、全部发货
+			if (order.getPreferentialCancelMoney().compareTo(BigDecimal.valueOf(0)) == 0) {//部分发货 、剩余部分生成补货订单
+				orderTotal = order.getOrgTotal();
+			} else {   //部分发货 、剩余部分不发
+				orderTotal = order.getPreferentialDeliveryMoney();
+			}
+		} else {
+			orderTotal = order.getOrgTotal();
+		}
+		OrderException rejectOrder = new OrderException();
+		rejectOrder.setFlowId(order.getFlowId());
+		rejectOrder.setReturnType(OrderExceptionTypeEnum.REJECT.getType());
+		List<OrderException> rejectOrderList = orderExceptionMapper.listByProperty(rejectOrder); //查询拒收订单(暂只有一条拒收订单)
+		if(!UtilHelper.isEmpty(rejectOrderList)){    //该订单存在拒收订单、再减掉拒收订单金额
+			for (OrderException orderException : rejectOrderList) {
+				if(SystemOrderExceptionStatusEnum.BuyerConfirmed.getType().equals(orderException.getOrderStatus()) || SystemOrderExceptionStatusEnum.Refunded.getType().equals(orderException.getOrderStatus())){  //完成的拒收订单
+					rejectTotal = rejectTotal.add(orderException.getOrderMoney());
+					resultMap.put("orderType",2);  //拒收订单（分账的时候需要）
+				}
+			}
+		}
+		resultMap.put("orderTotal",orderTotal.subtract(rejectTotal));
+		return  resultMap;
 	}
 }

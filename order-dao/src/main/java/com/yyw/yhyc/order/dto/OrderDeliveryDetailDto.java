@@ -1,5 +1,7 @@
 package com.yyw.yhyc.order.dto;
 
+import java.math.BigDecimal;
+
 import com.yyw.yhyc.order.bo.OrderDeliveryDetail;
 
 /**
@@ -21,8 +23,37 @@ public class OrderDeliveryDetailDto extends OrderDeliveryDetail {
     private String userType;     //1、采购商2、供应商
     private String shortName;   //通用名
     private String spuCode; //spuCode
+    private String partDelivery; //是否部分发货
+    private BigDecimal cancelmMoney; //卖家发货是部分发货,且不补发货物,剩下的货物金额
+    private String selectDeliveryAddressId; //选择的补货的发货地址id
+    
+    
 
-    public String getSpuCode() {
+    public String getSelectDeliveryAddressId() {
+		return selectDeliveryAddressId;
+	}
+
+	public void setSelectDeliveryAddressId(String selectDeliveryAddressId) {
+		this.selectDeliveryAddressId = selectDeliveryAddressId;
+	}
+
+	public String getPartDelivery() {
+		return partDelivery;
+	}
+
+	public void setPartDelivery(String partDelivery) {
+		this.partDelivery = partDelivery;
+	}
+
+	public BigDecimal getCancelmMoney() {
+		return cancelmMoney;
+	}
+
+	public void setCancelmMoney(BigDecimal cancelmMoney) {
+		this.cancelmMoney = cancelmMoney;
+	}
+
+	public String getSpuCode() {
         return spuCode;
     }
 

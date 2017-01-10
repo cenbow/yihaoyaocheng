@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+ **
+ * Created By: XI
+ * Created On: 2016-11-22 10:24:37
+ *
+ * Amendment History:
+ * 
+ * Amended By       Amended On      Amendment Description
+ * ************     ***********     *********************************************
+ *
+ **
+ -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyw.yhyc.order.mapper.OrderReceiveMapper">
+    <cache type="com.yyw.yhyc.cache.LoggingRedisCache"
+           flushInterval="86400000" size="1024000">
+    </cache>
+	<resultMap id="OrderReceiveResultMapper" type="OrderReceive">
+		<result column="exception_order_id" property="exceptionOrderId"/>
+		<result column="flow_id" property="flowId"/>
+		<result column="buyer_receive_person" property="buyerReceivePerson"/>
+		<result column="buyer_receive_region" property="buyerReceiveRegion"/>
+		<result column="buyer_receive_city" property="buyerReceiveCity"/>
+		<result column="buyer_receive_province" property="buyerReceiveProvince"/>
+		<result column="buyer_receive_address" property="buyerReceiveAddress"/>
+		<result column="buyer_receive_contact_phone" property="buyerReceiveContactPhone"/>
+		<result column="seller_receive_person" property="sellerReceivePerson"/>
+		<result column="seller_receive_region" property="sellerReceiveRegion"/>
+		<result column="seller_receive_city" property="sellerReceiveCity"/>
+		<result column="seller_receive_province" property="sellerReceiveProvince"/>
+		<result column="seller_receive_address" property="sellerReceiveAddress"/>
+		<result column="seller_receive_contact_phone" property="sellerReceiveContactPhone"/>
+		<result column="remark" property="remark"/>
+		<result column="create_user" property="createUser"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	
+	<sql id="commonColumns">
+		 exception_order_id
+		, flow_id
+		, buyer_receive_person
+		, buyer_receive_region
+		, buyer_receive_city
+		, buyer_receive_province
+		, buyer_receive_address
+		, buyer_receive_contact_phone
+		, seller_receive_person
+		, seller_receive_region
+		, seller_receive_city
+		, seller_receive_province
+		, seller_receive_address
+		, seller_receive_contact_phone
+		, remark
+		, create_user
+		, create_time
+		, update_user
+		, update_time
+	</sql>
+
+    <sql id="commonColumnsNotPK">
+               exception_order_id
+				, flow_id
+				, buyer_receive_person
+				, buyer_receive_region
+				, buyer_receive_city
+				, buyer_receive_province
+				, buyer_receive_address
+				, buyer_receive_contact_phone
+				, seller_receive_person
+				, seller_receive_region
+				, seller_receive_city
+				, seller_receive_province
+				, seller_receive_address
+				, seller_receive_contact_phone
+				, remark
+				, create_user
+				, create_time
+				, update_user
+				, update_time
+    </sql>
+	
+	<sql id="commonProcessDateColumns">
+		 exception_order_id
+		, flow_id
+		, buyer_receive_person
+		, buyer_receive_region
+		, buyer_receive_city
+		, buyer_receive_province
+		, buyer_receive_address
+		, buyer_receive_contact_phone
+		, seller_receive_person
+		, seller_receive_region
+		, seller_receive_city
+		, seller_receive_province
+		, seller_receive_address
+		, seller_receive_contact_phone
+		, remark
+		, create_user
+		, date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time
+		, update_user
+		, date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time
+	</sql>
+	
+	<sql id="commonCondition">
+		<if test="exceptionOrderId!= null and exceptionOrderId!= ''"> 
+			AND exception_order_id=#{exceptionOrderId}
+		</if>
+		<if test="flowId!= null and flowId!= ''"> 
+			AND flow_id=#{flowId}
+		</if>
+		<if test="buyerReceivePerson!= null and buyerReceivePerson!= ''"> 
+			AND buyer_receive_person=#{buyerReceivePerson}
+		</if>
+		<if test="buyerReceiveRegion!= null and buyerReceiveRegion!= ''"> 
+			AND buyer_receive_region=#{buyerReceiveRegion}
+		</if>
+		<if test="buyerReceiveCity!= null and buyerReceiveCity!= ''"> 
+			AND buyer_receive_city=#{buyerReceiveCity}
+		</if>
+		<if test="buyerReceiveProvince!= null and buyerReceiveProvince!= ''"> 
+			AND buyer_receive_province=#{buyerReceiveProvince}
+		</if>
+		<if test="buyerReceiveAddress!= null and buyerReceiveAddress!= ''"> 
+			AND buyer_receive_address=#{buyerReceiveAddress}
+		</if>
+		<if test="buyerReceiveContactPhone!= null and buyerReceiveContactPhone!= ''"> 
+			AND buyer_receive_contact_phone=#{buyerReceiveContactPhone}
+		</if>
+		<if test="sellerReceivePerson!= null and sellerReceivePerson!= ''"> 
+			AND seller_receive_person=#{sellerReceivePerson}
+		</if>
+		<if test="sellerReceiveRegion!= null and sellerReceiveRegion!= ''"> 
+			AND seller_receive_region=#{sellerReceiveRegion}
+		</if>
+		<if test="sellerReceiveCity!= null and sellerReceiveCity!= ''"> 
+			AND seller_receive_city=#{sellerReceiveCity}
+		</if>
+		<if test="sellerReceiveProvince!= null and sellerReceiveProvince!= ''"> 
+			AND seller_receive_province=#{sellerReceiveProvince}
+		</if>
+		<if test="sellerReceiveAddress!= null and sellerReceiveAddress!= ''"> 
+			AND seller_receive_address=#{sellerReceiveAddress}
+		</if>
+		<if test="sellerReceiveContactPhone!= null and sellerReceiveContactPhone!= ''"> 
+			AND seller_receive_contact_phone=#{sellerReceiveContactPhone}
+		</if>
+		<if test="remark!= null and remark!= ''"> 
+			AND remark=#{remark}
+		</if>
+		<if test="createUser!= null and createUser!= ''"> 
+			AND create_user=#{createUser}
+		</if>
+		<if test="createTime!= null and createTime!= ''"> 
+			AND create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="updateUser!= null and updateUser!= ''"> 
+			AND update_user=#{updateUser}
+		</if>
+		<if test="updateTime!= null and updateTime!= ''"> 
+			AND update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</sql>
+	
+	<insert id="save" parameterType="OrderReceive">
+		<![CDATA[ INSERT INTO t_order_receive ( ]]>
+			<include refid="commonColumnsNotPK"/>
+		<![CDATA[
+			) VALUES (
+			      #{exceptionOrderId}
+				, #{flowId}
+				, #{buyerReceivePerson}
+				, #{buyerReceiveRegion}
+				, #{buyerReceiveCity}
+				, #{buyerReceiveProvince}
+				, #{buyerReceiveAddress}
+				, #{buyerReceiveContactPhone}
+				, #{sellerReceivePerson}
+				, #{sellerReceiveRegion}
+				, #{sellerReceiveCity}
+				, #{sellerReceiveProvince}
+				, #{sellerReceiveAddress}
+				, #{sellerReceiveContactPhone}
+				, #{remark}
+				, #{createUser}
+				, str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+				, #{updateUser}
+				, str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+  ) ]]>
+	</insert>
+	<update id="update" parameterType="OrderReceive">
+		<![CDATA[ UPDATE t_order_receive SET 
+			 exception_order_id=#{exceptionOrderId} 
+			, flow_id=#{flowId} 
+			, buyer_receive_person=#{buyerReceivePerson} 
+			, buyer_receive_region=#{buyerReceiveRegion} 
+			, buyer_receive_city=#{buyerReceiveCity} 
+			, buyer_receive_province=#{buyerReceiveProvince} 
+			, buyer_receive_address=#{buyerReceiveAddress} 
+			, buyer_receive_contact_phone=#{buyerReceiveContactPhone} 
+			, seller_receive_person=#{sellerReceivePerson} 
+			, seller_receive_region=#{sellerReceiveRegion} 
+			, seller_receive_city=#{sellerReceiveCity} 
+			, seller_receive_province=#{sellerReceiveProvince} 
+			, seller_receive_address=#{sellerReceiveAddress} 
+			, seller_receive_contact_phone=#{sellerReceiveContactPhone} 
+			, remark=#{remark} 
+			, create_user=#{createUser} 
+			, create_time=str_to_date(#{createTime},'%Y-%m-%d %H:%i:%s')
+			, update_user=#{updateUser} 
+			, update_time=str_to_date(#{updateTime},'%Y-%m-%d %H:%i:%s')
+		WHERE exception_order_id = #{exceptionOrderId}  ]]>
+	</update>
+	<delete id="deleteByPK" parameterType="java.lang.String">
+		<![CDATA[ DELETE FROM t_order_receive WHERE exception_order_id = #{exceptionOrderId}  ]]>
+	</delete>
+	<delete id="deleteByPKeys" parameterType="map">
+		DELETE FROM t_order_receive WHERE
+		<foreach collection="primaryKeys" index="index" item="id"
+			open=" exception_order_id IN(" separator="," close=") ">
+			${id}
+		</foreach>
+	</delete>
+	<delete id="deleteByProperty" parameterType="OrderReceive">
+		DELETE FROM t_order_receive WHERE 1 = 1
+		<include refid="commonCondition"/>
+	</delete>
+	<select id="getByPK" parameterType="java.lang.String" resultMap="OrderReceiveResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+		FROM t_order_receive WHERE exception_order_id = #{exceptionOrderId}  
+	</select>
+	<select id="list" resultMap="OrderReceiveResultMapper">
+		<![CDATA[ SELECT ]]>
+			 <include refid="commonProcessDateColumns"/>
+ 		FROM t_order_receive
+	</select>
+	<select id="listByProperty" parameterType="OrderReceive" resultMap="OrderReceiveResultMapper">
+		<![CDATA[ SELECT ]]>
+			<include refid="commonProcessDateColumns"/>
+		FROM t_order_receive WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="listPaginationByProperty" parameterType="OrderReceive" resultMap="OrderReceiveResultMapper">
+		SELECT 
+		<include refid="commonProcessDateColumns"/>
+		FROM t_order_receive WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+	<select id="findByCount" parameterType="OrderReceive" resultType="int">
+		SELECT count(1) AS totalcount FROM t_order_receive WHERE 1=1 
+		<include refid="commonCondition"/>
+	</select>
+</mapper>
