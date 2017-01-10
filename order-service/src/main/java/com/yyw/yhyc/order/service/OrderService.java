@@ -2830,6 +2830,11 @@ public class OrderService {
 					||OnlinePayTypeEnum.AlipayWeb.getPayTypeId().equals(systemPayType.getPayTypeId())
 					||OnlinePayTypeEnum.AlipayApp.getPayTypeId().equals(systemPayType.getPayTypeId())){
 				OrderSettlement orderSettlement = orderSettlementService.parseOnlineSettlement(5,null,null,"systemManage",null,order);
+				if(!UtilHelper.isEmpty(order.getPreferentialCancelMoney())){
+					orderSettlement.setSettlementMoney(order.getOrgTotal().subtract(order.getPreferentialCancelMoney()));
+				}else{
+					orderSettlement.setSettlementMoney(order.getOrgTotal());
+				}
 				orderSettlementMapper.save(orderSettlement);
 			}else if(SystemPayTypeEnum.PayOffline.getPayType().equals(systemPayType.getPayType())){
 				OrderSettlement orderSettlement = new OrderSettlement();
