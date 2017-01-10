@@ -352,7 +352,7 @@ public class OrderPayManage {
                     List<OrderException> list= orderExceptionMapper.listByProperty(orderException);
                     if(list.size()>0){
                         //更新拒收结算为已结算
-                        orderSettlementService.updateSettlementByMap(list.get(0).getExceptionOrderId(),3,settleFlowId,o.getCustId(),cancelMoney);
+                        orderSettlementService.updateSettlementByMap(list.get(0).getExceptionOrderId(),3,settleFlowId,o.getCustId(),list.get(0).getOrderMoney());
                     }
                     //更新订单支付标记
                     o.setPayFlag(SystemOrderPayFlag.RefundSuccess.getType());
