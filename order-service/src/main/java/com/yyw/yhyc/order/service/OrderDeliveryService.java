@@ -1402,6 +1402,7 @@ public class OrderDeliveryService {
                 
                 /****验证发货必须是全量发货****/
                 if(errorList==null || errorList.size()==0){
+                	 detailMap=this.getOrderReturnByExceptionOrderId(orderDeliveryDto.getFlowId());
                 	 Map<String,Integer> orderReturnCountMap=this.getOrderReturnProductCount(orderDeliveryDto.getFlowId());
                      for(String code : orderReturnCountMap.keySet()){
            			  Integer reallyCount=orderReturnCountMap.get(code);
@@ -1440,6 +1441,18 @@ public class OrderDeliveryService {
         }
         return orderMap;
 	}
+    
+    private Map<String,OrderReturn> getOrderReturnByExceptionOrderId(String exceptionOrderId){
+    	Map<String,OrderReturn> orderMap=new HashMap<String,OrderReturn>();
+    	OrderReturn bean=new OrderReturn();
+    	bean.setExceptionOrderId(exceptionOrderId);
+    	List<OrderReturn> orderReturnList=this.orderReturnMapper.listByProperty(bean);
+    	 for(OrderReturn currentBean : orderReturnList){
+           	 String code=currentBean.getProductCode();
+           	  orderMap.put(code,currentBean);
+            }
+            return orderMap;
+    }
     
     /**
      * 对接erp的时候，给erp提供的接口服务方法
