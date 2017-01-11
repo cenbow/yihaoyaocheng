@@ -48,6 +48,7 @@ public class HttpRequestHandler {
 		HttpClient client = HttpClientUtil.getHttpClient();
 		PostMethod post = new PostMethod(action);
 		post.addRequestHeader("User-Agent", "Mozilla/4.0");
+		post.addRequestHeader("Connection", "close");
 		NameValuePair[] nameValuePair = getRequestParams(params);
 		post.setRequestBody(nameValuePair);
 		String returnStr = "";
@@ -75,6 +76,10 @@ public class HttpRequestHandler {
 			log.error("_________向银联发起请求_________银联响应发生异常，响应结果：" + returnStr +",异常信息msg="+e.getMessage(),e);
 			e.printStackTrace();
 			return getErrorMap();
+		}finally {
+			if (post!=null) {
+				post.releaseConnection();
+			}
 		}
 		
 
