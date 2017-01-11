@@ -3339,7 +3339,7 @@ public class OrderService {
 		if(UtilHelper.isEmpty(orderStatus))
 			throw new RuntimeException("订单状态不正确");
 		orderDto.setOrderStatus(orderStatus);
-		orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
+		//orderDto.setPayType(1);//只取在线支付订单（20170106，APP接口增加查询线下支付订单，BY:LiuY）
 		//获取订单列表
 		List<OrderDto> buyerOrderList = orderMapper.listPaginationBuyerOrderForAppExceptReduce(pagination, orderDto);
 		pagination.setResultList(buyerOrderList);
@@ -3390,11 +3390,12 @@ public class OrderService {
 				}
 				//（20170106，APP接口增加查询线下支付订单，BY:LiuY）
 				//线下支付
-				temp.put("orderPayType",od.getPayType());
+				temp.put("payType",od.getPayType());
 				temp.put("orderStatus",hideOrderStatus);
 				temp.put("orderStatusName",od.getOrderStatusName());
 				temp.put("createTime",od.getCreateTime());
 				temp.put("supplyName",od.getSupplyName());
+				temp.put("supplyId",od.getSupplyId());
 				temp.put("orderTotal",od.getOrgTotal());
 				temp.put("finalPay",od.getOrgTotal());
 				temp.put("varietyNumber",UtilHelper.isEmpty(od.getOrderDetailList()) ? 0 : od.getOrderDetailList().size());//品种

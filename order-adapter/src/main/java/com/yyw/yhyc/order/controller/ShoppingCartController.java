@@ -28,6 +28,7 @@ import com.yyw.yhyc.order.dto.UserDto;
 import com.yyw.yhyc.order.enmu.OnlinePayTypeEnum;
 import com.yyw.yhyc.order.enmu.ProductStatusEnum;
 import com.yyw.yhyc.order.enmu.ShoppingCartFromWhereEnum;
+import com.yyw.yhyc.order.enmu.SystemPayTypeEnum;
 import com.yyw.yhyc.order.service.OrderCreateService;
 import com.yyw.yhyc.order.service.OrderService;
 import com.yyw.yhyc.order.service.ShoppingCartService;
@@ -552,7 +553,14 @@ public class ShoppingCartController extends BaseController {
 			orderDto.setCustId(userDto.getCustId());
 			orderDto.setSupplyId(orderBean.getSupplyId());
 			orderDto.setBillType(orderBean.getBillType());
-			orderDto.setPayTypeId(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()); //App端是用的银联无卡支付方式
+			if(orderCreateBean.getPayType()==1){
+				orderDto.setPayTypeId(OnlinePayTypeEnum.UnionPayNoCard.getPayTypeId()); //App端是用的银联无卡支付方式
+			}else if(orderCreateBean.getPayType()==3){
+				orderDto.setPayTypeId(SystemPayTypeEnum.PayOffline.getPayType()); //App端是用线下支付
+			}else{
+				throw new Exception("非法支付类型");
+			}
+			
 			orderDto.setLeaveMessage(orderBean.getLeaveMsg());
 			orderDto.setProductInfoDtoList(productInfoDtoList);
 			orderDto.setSource(orderCreateBean.getSource());//二期订单来源
