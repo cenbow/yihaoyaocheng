@@ -2068,7 +2068,7 @@ public class OrderExceptionService {
                 orderStatus = SystemOrderStatusEnum.BuyerAllReceived.getType();
             }
 
-            if (orderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType())) {
+            if (orderStatus.equals(SystemOrderStatusEnum.BuyerPartReceived.getType()) || orderStatus.equals(SystemOrderStatusEnum.BuyerAllReceived.getType())) {
                 map = getSettlementMoney(order);
                 if(Integer.parseInt(map.get("orderStatus").toString())==1){
                     order.setOrderStatus(SystemOrderStatusEnum.BuyerPartReceived.getType());
