@@ -206,6 +206,7 @@ public class AlipayServiceImpl  implements PayService {
             List<OrderRefund> orderRefundList = orderRefundMapper.listByProperty(orderRefund);
             if(orderRefundList.size()>0){
                 orderRefund = orderRefundList.get(0);
+                log.debug("二次退款记录："+orderRefund.toString());
             }
             if(refundFlowId.trim().equals(order.getFlowId())){
                 orderRefund.setRefundSum(orderPay.getPayMoney());
